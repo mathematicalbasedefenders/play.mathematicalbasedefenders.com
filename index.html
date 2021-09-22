@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Mathematical Base Defenders</title>
+
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+
+		<link rel="stylesheet" href="/styles/styles.css" />
+	</head>
+
+	<body>
+		<div id="game-container">
+			<canvas id="pixi-canvas"></canvas>
+			<div id="hub-container">
+				<!-- Main menu -->
+				<div id="main-menu-screen-container">
+					<div class="center">
+						<button class="main-menu-screen-button" id="singleplayer-button" onClick="startSingleplayerGame();" onMouseEnter="$('#bottom-toolbar-text').text('Test your math skills and maybe get on the leaderboards.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class="main-menu-screen-button" id="multiplayer-button" onMouseEnter="$('#bottom-toolbar-text').text('Play with others and make friends and enemies.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="alert('Multiplayer will be released in a future update!')"></button> <br /><br />
+						<button class="main-menu-screen-button" id="stats-button" onMouseEnter="$('#bottom-toolbar-text').text('View how far you or others have progressed.')" onClick="alert('A stats viewer will be released in a future update!')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class="main-menu-screen-button" id="settings-button" onClick="setPropertiesAndChangeScreen(screens.SETTINGS_SCREEN); setPropertiesAndChangeSettingsScreen('')" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks, feels, and sounds.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"></button>
+					</div>
+				</div>
+
+				<!-- Information -->
+				<div id="information-screen-container">
+					<div class="large-text">
+						&nbsp;Mathematical Base Defenders <span class="medium-text">0.1.0 </span><span class="large-medium-text">by <img style="transform: translateY(5px)" onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')" onClick="document.location='https://mistertfy64.com'"; onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" src="/assets/images/mistertfy64.svg" height="40px;" /></span>
+					</div>
+					<div class="medium-text">
+						&nbsp;A number-cruncher math game where you form problems for enemies by using tiles.
+						<br>
+						&nbsp;<a href="https://github.com/mathematicalbasedefenders/issuetracker">Issue Tracker</a>
+						<br>
+						&nbsp;<a href="https://discord.gg/tJdwzjSgHh">Discord Server</a>
+					</div>
+					<div id="information-screen-back-button-container">
+						<button onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN)" style="width: 100px; height: 64px; border: 1px solid; font-size: 28px">Back</button>
+					</div>
+				</div>
+
+
+				<!-- Settings -->
+				<div id="settings-screen-container">
+					<div id="settings-screen-navigation-button-container">
+						<!-- bruh-->
+						<button class="settings-screen-navigation-button" id="video-settings-button" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.VIDEO_SETTINGS_SCREEN)" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">Video</button
+						><!----><button class="settings-screen-navigation-button" id="audio-settings-button" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game sounds.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">Audio</button
+						><!----><button class="settings-screen-navigation-button" id="input-settings-button" onMouseEnter="$('#bottom-toolbar-text').text('Change how you control the game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">Input</button
+						><!----><button class="settings-screen-navigation-button" id="online-settings-button" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.ONLINE_SETTINGS_SCREEN)" onMouseEnter="$('#bottom-toolbar-text').text('Change how you present yourself online in the game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">Online</button> <br /><br /><br />
+					</div>
+					<div id="video-settings-screen-container" style="font-size: 24px">
+						<div id="enemy-color-text-setting-container" onMouseEnter="$('#bottom-toolbar-text').text('Select the color that all enemies will use.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+							&nbsp; Enemy Color:
+							<select onChange="settings.video.enemyColor = $('#enemy-color-setting-drop-down-menu').val()"id="enemy-color-setting-drop-down-menu" class="settings-screen-dropdown-menu" name="selected-enemy-color">
+								<option value="randomForEach">Random For Each</option>
+								<option value="random">Random</option>
+								<option value="red">Red</option>
+								<option value="orange">Orange</option>
+								<option value="yellow">Yellow</option>
+								<option value="green">Green</option>
+								<option value="blue">Blue</option>
+								<option value="purple">Purple</option>
+								<option value="white">White</option>
+								<option value="gray">Gray</option>
+								<option value="black">Black</option>
+								<option value="backgroundColor">Background Color</option>
+								<option value="blind">Blind</option>
+							</select>
+						</div>
+						<br />
+						<div" id="multiplication-sign-form-setting-container" onMouseEnter="$('#bottom-toolbar-text').text('Select the multiplication sign form to be used in the game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"> &nbsp; Multiplication Sign Form:
+						<select id="multiplication-sign-form-setting-drop-down-menu" class="settings-screen-dropdown-menu" onChange="settings.video.multiplicationSignForm = $('#multiplication-sign-form-setting-drop-down-menu').val()" name="selected-multiplication-sign-form">
+							<option value="cross">×</option>
+							<option value="dot">·</option>
+						</select>
+					</div>
+					<div id="online-settings-screen-container" style="font-size: 24px">
+						&nbsp; Username: <input id="username-input-box" class="settings-input-box" />
+						<br />
+						<br />
+						&nbsp; Password: <input type="password" id="password-input-box" class="settings-input-box" /> <br /><br />
+						&nbsp;<button onClick="socket.emit('authenticate', $('#username-input-box')[0].value, btoa(btoa(btoa(btoa($('#password-input-box')[0].value)))))" style="width: 256px; height: 64px; font-size: 28px">Login</button>
+					</div>
+					<div id="settings-screen-back-button-container">
+						<button onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="saveSettings();setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN)" style="width: 100px; height: 64px; border: 1px solid; font-size: 28px">Back</button>
+					</div>
+				</div>
+
+				<!-- Game over screen-->
+				<div id="game-over-screen-container">
+					<div id="final-stats-container">
+						<div id="final-score-container" style="vertical-align: text-bottom; clear: both">
+							<p style="text-align: center">
+								<span class="medium-text">Score </span>
+								<br />
+								<span id="final-score" class="large-text">???</span>
+								<br />
+								<span class="medium-text">Time: <span id="final-time">???</span>&nbsp;Enemies: <span id="final-enemies">???</span>&nbsp;APM: <span id="final-actions-per-minute">???</span></span>
+								<br />
+								<span class="medium-text" id="personal-best"></span>
+								<br />
+								<span class="medium-text" id="final-global-rank"></span>
+							</p>
+						</div>
+					</div>
+					<div id="game-over-screen-back-button-container">
+						<button onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN)" style="width: 100px; height: 64px; border: 1px solid; font-size: 28px">Back</button>
+					</div>
+				</div>
+
+				<!-- Bottom toolbar -->
+				<div id="bottom-user-interface-container">
+					<span style="float: right" onMouseEnter="$('#bottom-toolbar-text').text('View information about the game.')"  onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" class="material-icons md-36" onClick="setPropertiesAndChangeScreen(screens.INFORMATION_SCREEN)">info</span> <br /><br />
+					<span style="float: right"><img onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')" onClick="document.location='https://mistertfy64.com'"; onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" src="/assets/images/mistertfy64.svg" width="100px;" /></span>
+					<br />
+				</div>
+
+				<div id="bottom-toolbar-container">
+					<span id="bottom-toolbar-text">&nbsp;</span>
+				</div>
+			</div>
+			<div id="toast-notifications-container"></div>
+		</div>
+
+		<!-- Scripts -->
+		<script src="https://pixijs.download/v6.1.2/pixi.js"></script>
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+		<script src="/scripts/external/socket.io.js"></script>
+		<script src="/scripts/external/fontfaceobserver.js"></script>
+		<script src="/scripts/external/math-expression-evaluator.min.js"></script>
+		<script src="/scripts/external/tween.umd.js"></script>
+		<script src="/scripts/external/lz-string.min.js"></script>
+
+		<script src="/scripts/enemy.js"></script>
+		<script src="/scripts/tile.js"></script>
+
+		<!-- Put game.js last -->
+		<script src="/scripts/game.js"></script>
+	</body>
+</html>

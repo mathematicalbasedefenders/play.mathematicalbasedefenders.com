@@ -1,0 +1,213 @@
+@font-face {
+    font-family: "Computer Modern Unicode Serif";
+    src: url("../assets/fonts/computermodernunicode.ttf");
+}
+
+@font-face {
+    font-family: "Computer Modern Math Italic";
+    src: url("../assets/fonts/computermodernmathitalic.ttf");
+}
+
+* {
+    background-color: #eeeeee;
+    font-family: "Computer Modern Unicode Serif";
+    padding: 0px;
+    margin: 0px;
+    user-select: none;
+}
+
+
+/*
+    GLOBAL
+*/
+
+.very-small-text {
+    font-size: 12px;
+}
+
+.small-text {
+    font-size: 16px;
+}
+
+.small-medium-text {
+    font-size: 24px;
+}
+
+.medium-text {
+    font-size: 32px;
+}
+
+.large-medium-text {
+    font-size: 48px;
+}
+
+.large-text {
+    font-size: 72px;
+}
+
+
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#pixi-canvas {
+    position: absolute;
+}
+
+#bottom-user-interface-container {
+    position: absolute;
+    bottom: 5%;
+    right: 1vw;
+    width: 100%;
+    z-index: -1;
+    background: none;
+}
+
+
+#bottom-toolbar-container {
+    border-top: 1px solid;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    z-index: -1;
+}
+
+#bottom-toolbar-text {
+    font-size: 36px;
+}
+
+
+
+
+
+/*
+    MAIN MENU
+*/
+
+.main-menu-screen-button {
+    transition: all .1s ease-in-out;
+}
+
+.main-menu-screen-button:hover {
+    transform: scale(1.1, 1.1);
+}
+
+#singleplayer-button {
+    border: none;
+    background: url("../assets/images/main-menu-screen/singleplayerbutton.png");
+    width: 384px;
+    height: 384px;
+}
+
+#multiplayer-button {
+    border: none;
+    background: url("../assets/images/main-menu-screen/multiplayerbutton.png");
+    width: 384px;
+    height: 384px;
+}
+
+#stats-button {
+    border: none;
+    background: url("../assets/images/main-menu-screen/statsbutton.png");
+    width: 384px;
+    height: 64px;
+}
+
+#settings-button {
+    border: none;
+    background: url("../assets/images/main-menu-screen/settingsbutton.png");
+    width: 384px;
+    height: 64px;
+}
+
+/*
+    INFORMATION
+*/
+
+#information-screen-back-button-container {
+    position: absolute;
+    bottom: 7.5vh;
+    width: 100%;
+    z-index: 1;
+    background: none;
+}
+
+
+
+/*
+    SETTINGS
+*/
+
+.video-settings-screen-setting-container {
+    display: flex;
+}
+
+.settings-screen-dropdown-menu-container {
+    flex: 1;
+}
+
+
+.settings-change-setting-button {
+    border: 0px;
+}
+
+
+.settings-screen-navigation-button {
+    width: calc(100vw / 4.00);
+    height: 64px;
+    font-size: 28px;
+    border: 1px solid #000000;
+}
+
+
+
+#settings-screen-navigation-button-container {
+    display: block;
+}
+
+.settings-screen-dropdown-menu {
+    width:30vw;
+    font-size:24px; 
+    height: 28px;
+    background-color: #eeeeee;
+    right: 5vw;
+}
+
+.settings-input-box {
+    width:50vw;
+    font-size:24px; 
+    height: 28px;
+    background-color: #eeeeee;
+    right: 5vw;
+}
+
+#settings-screen-back-button-container {
+    position: absolute;
+    bottom: 7.5vh;
+    width: 100%;
+    z-index: 1;
+    background: none;
+}
+/* 
+GAME OVER
+*/
+
+#final-stats-container {
+    top: 5vh;
+    width: 60vw;
+    height: 50vh;
+    left: 20vw;
+    border: none;
+    position: absolute;
+}
+
+#game-over-screen-back-button-container {
+    position: absolute;
+    bottom: 7.5vh;
+    width: 100%;
+    z-index: 1;
+    background: none;
+}
