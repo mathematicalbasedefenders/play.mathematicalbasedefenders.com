@@ -317,12 +317,23 @@ function setPropertiesAndChangeScreen(newScreen) {
 		}
 		case screens.SETTINGS_SCREEN: {
 			// set properties
-			document.getElementById("enemy-color-setting-drop-down-menu").value = settings.video.enemyColor;
-			document.getElementById("multiplication-sign-form-setting-drop-down-menu").value = settings.video.multiplicationSignForm;
+
+			
+
+			document.getElementById("enemy-color-setting-drop-down-menu").value = settings === null ? "randomForEach" : settings.video.enemyColor;
+			document.getElementById("multiplication-sign-form-setting-drop-down-menu").value = settings === null ? "cross" : settings.video.multiplicationSignForm;
 
 			document.body.style.overflow = "visible";
 			document.getElementById("hub-container").style.display = "block";
 			document.getElementById("settings-screen-container").style.display = "block";
+			
+			if (settings === null) { settings = {
+				video: {
+					enemyColor: "randomForEach",
+					multiplicationSignForm: "cross",
+				}
+			}; }
+			
 			break;
 		}
 		case screens.GAME_OVER_SCREEN: {
