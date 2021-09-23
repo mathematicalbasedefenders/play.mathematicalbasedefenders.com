@@ -224,12 +224,11 @@ document.addEventListener(
 );
 */
 
-$(document).keydown(function(event) {
-    if (event.keyCode == 9) {  
-        event.preventDefault(); 
-    }
+$(document).keydown(function (event) {
+	if (event.keyCode == 9) {
+		event.preventDefault();
+	}
 	processKeypress(event);
-
 });
 
 // Initialization Finished
@@ -371,7 +370,7 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 	switch (roomData.mode) {
 		case "singleplayer":
 			{
-				if (roomData.currentGame.gameIsOver && !roomData.currentGame.gameOverScreenShown){
+				if (roomData.currentGame.gameIsOver && !roomData.currentGame.gameOverScreenShown) {
 					console.log("Game over!");
 					console.log(roomData.currentGame);
 					setPropertiesAndChangeScreen(screens.GAME_OVER_SCREEN);
@@ -380,123 +379,123 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 					$("#final-enemies").text(roomData.currentGame.enemiesKilled + "/" + roomData.currentGame.enemiesCreated);
 					$("#final-actions-per-minute").text(((roomData.currentGame.actionsPerformed / (roomData.currentGame.currentInGameTimeInMilliseconds / 1000)) * 60).toFixed(3).toString());
 				} else {
-				// text
-				currentScoreText.text = roomData.currentGame.currentScore;
-				currentProblemText.text = settings.video.multiplicationSignForm == "dot" ? roomData.currentGame.currentProblemAsBeautifulText.replaceAll("×", "·") : roomData.currentGame.currentProblemAsBeautifulText;
-				baseHealthText.text = "Base Health: " + roomData.currentGame.baseHealth + "/10";
-				enemiesText.text = "Enemies: " + roomData.currentGame.enemiesKilled + "/" + roomData.currentGame.enemiesCreated;
-				actionsPerMinuteText.text = ((roomData.currentGame.actionsPerformed / (roomData.currentGame.currentInGameTimeInMilliseconds / 1000)) * 60).toFixed(3).toString();
-				currentComboText.text = roomData.currentGame.currentCombo < 1 ? "" : roomData.currentGame.currentCombo + " Combo";
-				valueOfVariableAText.text = roomData.currentGame.valueOfVariableA === undefined ? "a = ?" : "a = " + roomData.currentGame.valueOfVariableA;
-				valueOfVariableBText.text = roomData.currentGame.valueOfVariableB === undefined ? "b = ?" : "b = " + roomData.currentGame.valueOfVariableB;
-				valueOfVariableCText.text = roomData.currentGame.valueOfVariableC === undefined ? "c = ?" : "c = " + roomData.currentGame.valueOfVariableC;
-				valueOfVariableDText.text = roomData.currentGame.valueOfVariableD === undefined ? "d = ?" : "d = " + roomData.currentGame.valueOfVariableD;
+					// text
+					currentScoreText.text = roomData.currentGame.currentScore;
+					currentProblemText.text = settings.video.multiplicationSignForm == "dot" ? roomData.currentGame.currentProblemAsBeautifulText.replaceAll("×", "·") : roomData.currentGame.currentProblemAsBeautifulText;
+					baseHealthText.text = "Base Health: " + roomData.currentGame.baseHealth + "/10";
+					enemiesText.text = "Enemies: " + roomData.currentGame.enemiesKilled + "/" + roomData.currentGame.enemiesCreated;
+					actionsPerMinuteText.text = ((roomData.currentGame.actionsPerformed / (roomData.currentGame.currentInGameTimeInMilliseconds / 1000)) * 60).toFixed(3).toString();
+					currentComboText.text = roomData.currentGame.currentCombo < 1 ? "" : roomData.currentGame.currentCombo + " Combo";
+					valueOfVariableAText.text = roomData.currentGame.valueOfVariableA === undefined ? "a = ?" : "a = " + roomData.currentGame.valueOfVariableA;
+					valueOfVariableBText.text = roomData.currentGame.valueOfVariableB === undefined ? "b = ?" : "b = " + roomData.currentGame.valueOfVariableB;
+					valueOfVariableCText.text = roomData.currentGame.valueOfVariableC === undefined ? "c = ?" : "c = " + roomData.currentGame.valueOfVariableC;
+					valueOfVariableDText.text = roomData.currentGame.valueOfVariableD === undefined ? "d = ?" : "d = " + roomData.currentGame.valueOfVariableD;
 
-				currentTimeText.text = turnMillisecondsToTime(roomData.currentGame.currentInGameTimeInMilliseconds);
-				// tiles
-				for (let i = 0; i < 49; i++) {
-					// why?
-					if (roomData.currentGame.tilesOnBoard[i]) {
-						let t = new Tile(roomData.currentGame.tilesOnBoard[i].termID, i, roomData.currentGame.tilesOnBoard[i].selected, roomData.currentGame.tilesOnBoard[i].tileID);
+					currentTimeText.text = turnMillisecondsToTime(roomData.currentGame.currentInGameTimeInMilliseconds);
+					// tiles
+					for (let i = 0; i < 49; i++) {
+						// why?
+						if (roomData.currentGame.tilesOnBoard[i]) {
+							let t = new Tile(roomData.currentGame.tilesOnBoard[i].termID, i, roomData.currentGame.tilesOnBoard[i].selected, roomData.currentGame.tilesOnBoard[i].tileID);
 
-						if (!game.tilesOnBoard[i] || game.tilesOnBoard[i].tileID != t.tileID) {
-							game.tilesOnBoard[i] = t;
-							game.tilesOnBoard[i].identifier = Math.random();
-							game.tilesOnBoard[i].sprite.on("click", function () {
-								processTileClick(i);
-							});
-						}
-						game.tilesOnBoard[i].sprite.texture = tileTextures[roomData.currentGame.tilesOnBoard[i].selected ? 1 : 0][roomData.currentGame.tilesOnBoard[i].termID == 12 && settings.video.multiplicationSignForm == "dot" ? 23 : roomData.currentGame.tilesOnBoard[i].termID];
-						singleplayerScreenContainer.addChild(game.tilesOnBoard[i].sprite);
-					}
-				}
-
-				// enemies
-				let renderedEnemiesOnFieldToDelete = [];
-				for (let i = 0; i < roomData.currentGame.enemiesOnField.length; i++) {
-					let enemy = roomData.currentGame.enemiesOnField[i];
-					if ((enemy !== undefined || enemy !== null) && !enemy.toDestroy) {
-						if (game.enemyRenderStatus[enemy.enemyNumber.toString()] === undefined) {
-							// add enemy to array
-							if (!game.renderedEnemiesOnField.includes(enemy.enemyNumber.toString())) {
-								game.renderedEnemiesOnField.push(enemy.enemyNumber.toString());
+							if (!game.tilesOnBoard[i] || game.tilesOnBoard[i].tileID != t.tileID) {
+								game.tilesOnBoard[i] = t;
+								game.tilesOnBoard[i].identifier = Math.random();
+								game.tilesOnBoard[i].sprite.on("click", function () {
+									processTileClick(i);
+								});
 							}
-
-							// create object
-							game.enemyRenderStatus[enemy.enemyNumber.toString()] = {};
-
-							// create sprite
-							let enemySprite = new PIXI.Sprite(PIXI.Texture.WHITE);
-							enemySprite.width = enemy.width;
-							enemySprite.height = enemy.height;
-
-							let enemyColor = createEnemyColor();
-							let red = (enemyColor & 0xff0000) >> 16;
-							let green = (enemyColor & 0x00ff00) >> 8;
-							let blue = enemyColor & 0x0000ff;
-							let minimum = Math.min(Math.min(red, green), blue) / 255;
-							let maximum = Math.max(Math.max(red, green), blue) / 255;
-							enemySprite.tint = enemyColor;
-							// create text sprite
-							let textStyleToUse = new PIXI.TextStyle({
-								fontFamily: '"Computer Modern Math Italic", Computer Modern Unicode Serif',
-								fill: settings.video.enemyColor == "blind" ? "#eeeeee" : (maximum + minimum) / 2 >= 0.5 ? "#000000" : "#ffffff",
-								fontSize: 32,
-							});
-							let textSprite = new PIXI.Text(enemy.requestedValue.toString().replace("-", "\u2013"), textStyleToUse);
-							let textMetrics = PIXI.TextMetrics.measureText(enemy.requestedValue.toString(), textStyleToUse);
-							textSprite.x = enemy.xPosition + (enemy.width - textMetrics.width) / 2;
-							textSprite.y = enemy.yPosition + (enemy.height - textMetrics.height) / 2;
-							textSprite.color = enemyColor == "blind" ? "#eeeeee" : (maximum + minimum) / 2 >= 0.5 ? "#000000" : "#ffffff";
-							// add to render
-
-							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"] = enemySprite;
-							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].enemyNumber = enemy.enemyNumber.toString();
-							game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"] = textSprite;
-							game.enemyRenderStatus[enemy.enemyNumber.toString()]["textMetrics"] = textMetrics;
-							game.enemyRenderStatus[enemy.enemyNumber.toString()]["rendered"] = true;
-							game.spritesOfRenderedEnemiesOnField.push(enemySprite);
-							singleplayerScreenContainer.addChild(game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"]);
-							singleplayerScreenContainer.addChild(game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"]);
+							game.tilesOnBoard[i].sprite.texture = tileTextures[roomData.currentGame.tilesOnBoard[i].selected ? 1 : 0][roomData.currentGame.tilesOnBoard[i].termID == 12 && settings.video.multiplicationSignForm == "dot" ? 23 : roomData.currentGame.tilesOnBoard[i].termID];
+							singleplayerScreenContainer.addChild(game.tilesOnBoard[i].sprite);
 						}
-						game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].x = (enemy.sPosition / 10) * 800 + 550;
-						game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].y = enemy.yPosition;
-						game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].x = (enemy.sPosition / 10) * 800 + 550 + (enemy.width - game.enemyRenderStatus[enemy.enemyNumber.toString()]["textMetrics"].width) / 2;
-						game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].y = enemy.yPosition + (enemy.height - game.enemyRenderStatus[enemy.enemyNumber.toString()]["textMetrics"].height) / 2;
-						if (enemy.reachedBase || enemy.destroyed) {
-							game.enemyRenderStatus[enemy.enemyNumber.toString()].toDestroy = true;
-							// game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].toDestroy = true;
-							// renderedEnemiesOnFieldToDelete.push(enemy.enemyNumber.toString());
+					}
+
+					// enemies
+					let renderedEnemiesOnFieldToDelete = [];
+					for (let i = 0; i < roomData.currentGame.enemiesOnField.length; i++) {
+						let enemy = roomData.currentGame.enemiesOnField[i];
+						if ((enemy !== undefined || enemy !== null) && !enemy.toDestroy) {
+							if (game.enemyRenderStatus[enemy.enemyNumber.toString()] === undefined) {
+								// add enemy to array
+								if (!game.renderedEnemiesOnField.includes(enemy.enemyNumber.toString())) {
+									game.renderedEnemiesOnField.push(enemy.enemyNumber.toString());
+								}
+
+								// create object
+								game.enemyRenderStatus[enemy.enemyNumber.toString()] = {};
+
+								// create sprite
+								let enemySprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+								enemySprite.width = enemy.width;
+								enemySprite.height = enemy.height;
+
+								let enemyColor = createEnemyColor();
+								let red = (enemyColor & 0xff0000) >> 16;
+								let green = (enemyColor & 0x00ff00) >> 8;
+								let blue = enemyColor & 0x0000ff;
+								let minimum = Math.min(Math.min(red, green), blue) / 255;
+								let maximum = Math.max(Math.max(red, green), blue) / 255;
+								enemySprite.tint = enemyColor;
+								// create text sprite
+								let textStyleToUse = new PIXI.TextStyle({
+									fontFamily: '"Computer Modern Math Italic", Computer Modern Unicode Serif',
+									fill: settings.video.enemyColor == "blind" ? "#eeeeee" : (maximum + minimum) / 2 >= 0.5 ? "#000000" : "#ffffff",
+									fontSize: 32,
+								});
+								let textSprite = new PIXI.Text(enemy.requestedValue.toString().replace("-", "\u2013"), textStyleToUse);
+								let textMetrics = PIXI.TextMetrics.measureText(enemy.requestedValue.toString(), textStyleToUse);
+								textSprite.x = enemy.xPosition + (enemy.width - textMetrics.width) / 2;
+								textSprite.y = enemy.yPosition + (enemy.height - textMetrics.height) / 2;
+								textSprite.color = enemyColor == "blind" ? "#eeeeee" : (maximum + minimum) / 2 >= 0.5 ? "#000000" : "#ffffff";
+								// add to render
+
+								game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"] = enemySprite;
+								game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].enemyNumber = enemy.enemyNumber.toString();
+								game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"] = textSprite;
+								game.enemyRenderStatus[enemy.enemyNumber.toString()]["textMetrics"] = textMetrics;
+								game.enemyRenderStatus[enemy.enemyNumber.toString()]["rendered"] = true;
+								game.spritesOfRenderedEnemiesOnField.push(enemySprite);
+								singleplayerScreenContainer.addChild(game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"]);
+								singleplayerScreenContainer.addChild(game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"]);
+							}
+							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].x = (enemy.sPosition / 10) * 800 + 550;
+							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].y = enemy.yPosition;
+							game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].x = (enemy.sPosition / 10) * 800 + 550 + (enemy.width - game.enemyRenderStatus[enemy.enemyNumber.toString()]["textMetrics"].width) / 2;
+							game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].y = enemy.yPosition + (enemy.height - game.enemyRenderStatus[enemy.enemyNumber.toString()]["textMetrics"].height) / 2;
+							if (enemy.reachedBase || enemy.destroyed) {
+								game.enemyRenderStatus[enemy.enemyNumber.toString()].toDestroy = true;
+								// game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].toDestroy = true;
+								// renderedEnemiesOnFieldToDelete.push(enemy.enemyNumber.toString());
+							}
+						} else {
+							renderedEnemiesOnFieldToDelete.push(enemy.enemyNumber.toString());
 						}
-					} else {
-						renderedEnemiesOnFieldToDelete.push(enemy.enemyNumber.toString());
 					}
-				}
 
-				for (let enemy in game.enemyRenderStatus) {
-					// console.log(game.enemyRenderStatus[enemy]);
-					if (game.enemyRenderStatus[enemy].toDestroy) {
-						// console.log("Removing Enemy #" + enemy);
-						singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy].enemySprite);
-						singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy].textSprite);
+					for (let enemy in game.enemyRenderStatus) {
+						// console.log(game.enemyRenderStatus[enemy]);
+						if (game.enemyRenderStatus[enemy].toDestroy) {
+							// console.log("Removing Enemy #" + enemy);
+							singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy].enemySprite);
+							singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy].textSprite);
+						}
 					}
-				}
 
-				for (let enemySprite of game.spritesOfRenderedEnemiesOnField) {
-					if (!game.enemyRenderStatus.hasOwnProperty(enemySprite.enemyNumber.toString())) {
-						renderedEnemiesOnFieldToDelete.push(enemySprite.enemyNumber.toString());
+					for (let enemySprite of game.spritesOfRenderedEnemiesOnField) {
+						if (!game.enemyRenderStatus.hasOwnProperty(enemySprite.enemyNumber.toString())) {
+							renderedEnemiesOnFieldToDelete.push(enemySprite.enemyNumber.toString());
+						}
 					}
-				}
 
-				for (let numberToRemoveAsString of renderedEnemiesOnFieldToDelete) {
-					game.enemyRenderStatus[numberToRemoveAsString.toString()] === undefined || singleplayerScreenContainer.removeChild(game.enemyRenderStatus[numberToRemoveAsString.toString()]["enemySprite"]);
-					game.enemyRenderStatus[numberToRemoveAsString.toString()] === undefined || singleplayerScreenContainer.removeChild(game.enemyRenderStatus[numberToRemoveAsString.toString()]["textSprite"]);
-					delete game.enemyRenderStatus[numberToRemoveAsString.toString()];
-					game.renderedEnemiesOnField.splice(game.renderedEnemiesOnField.indexOf(numberToRemoveAsString), 1);
-					game.spritesOfRenderedEnemiesOnField.splice(game.spritesOfRenderedEnemiesOnField.indexOf(numberToRemoveAsString), 1);
+					for (let numberToRemoveAsString of renderedEnemiesOnFieldToDelete) {
+						game.enemyRenderStatus[numberToRemoveAsString.toString()] === undefined || singleplayerScreenContainer.removeChild(game.enemyRenderStatus[numberToRemoveAsString.toString()]["enemySprite"]);
+						game.enemyRenderStatus[numberToRemoveAsString.toString()] === undefined || singleplayerScreenContainer.removeChild(game.enemyRenderStatus[numberToRemoveAsString.toString()]["textSprite"]);
+						delete game.enemyRenderStatus[numberToRemoveAsString.toString()];
+						game.renderedEnemiesOnField.splice(game.renderedEnemiesOnField.indexOf(numberToRemoveAsString), 1);
+						game.spritesOfRenderedEnemiesOnField.splice(game.spritesOfRenderedEnemiesOnField.indexOf(numberToRemoveAsString), 1);
+					}
 				}
 			}
-		}
 			break;
 	}
 
@@ -582,8 +581,6 @@ function endSingleplayerGame() {
 	socket.emit("scoreSubmission", finalGameData);
 
 	setPropertiesAndChangeScreen(screens.GAME_OVER_SCREEN);
-
-	
 }
 
 function processKeypress(event) {
@@ -670,25 +667,21 @@ function generateRandomColor() {
 }
 
 // Rendering Helpers
-function removeAllRenderedEnemies(){
+function removeAllRenderedEnemies() {
 	for (let enemy in game.enemyRenderStatus) {
-		if (game.enemyRenderStatus.hasOwnProperty(enemy)){
+		if (game.enemyRenderStatus.hasOwnProperty(enemy)) {
 			game.enemyRenderStatus[enemy] === undefined || singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["enemySprite"]);
-		game.enemyRenderStatus[enemy] === undefined || singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["textSprite"]);
-		delete game.enemyRenderStatus[enemy];
-		game.renderedEnemiesOnField = [];
-		game.spritesOfRenderedEnemiesOnField = [];
+			game.enemyRenderStatus[enemy] === undefined || singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["textSprite"]);
+			delete game.enemyRenderStatus[enemy];
+			game.renderedEnemiesOnField = [];
+			game.spritesOfRenderedEnemiesOnField = [];
 		}
-		
 	}
 }
 
 // "Predetermined" Generators
 
 // Converters
-
-
-
 
 function convertTermIDToBeautifulString(id) {
 	return id == 12 && settings.video.multiplicationSignForm == "dot" ? "·" : TERMS_AS_BEAUTIFUL_STRINGS[id];
@@ -776,18 +769,21 @@ function createEnemyColor() {
 
 function restoreSettings() {
 	settings = localStorage.getItem("settings");
-	settings = JSON.parse(settings);
 
-	// video
+	if (settings !== null) {
+		// video
 
-	if (settings.video === undefined) {
-		settings.video = {
-			whatEvenIsThis: "What even is this?",
-		};
+		if (settings.video === undefined) {
+			settings.video = {
+				whatEvenIsThis: "What even is this?",
+			};
+
+			if (settings.video.enemyColor === undefined) settings.video.enemyColor = "random";
+			if (settings.video.multiplicationSignForm === undefined) settings.video.multiplicationSignForm = "cross";
+		}
 	}
 
-	if (settings.video.enemyColor === undefined) settings.video.enemyColor = "random";
-	if (settings.video.multiplicationSignForm === undefined) settings.video.multiplicationSignForm = "cross";
+	settings = JSON.parse(settings);
 }
 
 function saveSettings() {
