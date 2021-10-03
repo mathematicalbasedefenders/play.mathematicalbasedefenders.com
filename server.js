@@ -56,13 +56,12 @@ var currentTime = Date.now();
 var deltaTime = Date.now();
 var lastUpdateTime = Date.now();
 
-mongoose.connect(credentials.getMongooseURI(), { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(credentials.getMongooseURI(), { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
 
 mongoose.connection.on("connected", () => {
 	console.log("Successfully connected to mongoose.");
 });
 
-var ObjectId = require("mongoose").Types.ObjectId;
 
 app.get("/", (request, response) => {
 	response.sendFile(__dirname + "/index.html");
@@ -138,16 +137,14 @@ io.on("connection", (socket) => {
 	});
 
 	// input
-	socket.on("keypress", async (keyCode, location) => {
+	socket.on("keypress", async (code, playerTileKeybinds) => {
+
 		if (ownerOfSocketIsPlaying) {
-			if (keyCode != 27) {
+			if (code != "Escape") {
 				// Escape
 				if (socketIsHostOfRoomItIsIn) {
-					if (location == 3) {
-						game.forceSelectTileWithTermID(game.convertPressedKeyToTermID(keyCode, true, rooms[currentRoomSocketIsIn]), rooms[currentRoomSocketIsIn]);
-					} else {
-						game.forceSelectTileWithTermID(game.convertPressedKeyToTermID(keyCode, false, rooms[currentRoomSocketIsIn]), rooms[currentRoomSocketIsIn]);
-					}
+						game.forceSelectTileWithTermID(game.convertPressedKeyToTermID(code, playerTileKeybinds, rooms[currentRoomSocketIsIn]), rooms[currentRoomSocketIsIn]);
+					
 				}
 			} else {
 				socket.leave(currentRoomSocketIsIn);
@@ -175,7 +172,7 @@ io.on("connection", (socket) => {
 				if (passwordResult) {
 					console.log("Correct password for " + username + "!");
 					usernameOfSocketOwner = playerData.username;
-					userIDOfSocketOwner = playerData["_id"].toString();
+					userIDOfSocketOwner = playerData["_id"];
 				} else {
 					console.log("Incorrect password for " + username + "!");
 				}

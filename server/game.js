@@ -12,9 +12,6 @@ const FRAMES_PER_SECOND = 60;
 
 const schemas = require("./core/schemas.js");
 
-
-var ObjectId = require("mongoose").Types.ObjectId;
-
 // MAJOR
 function computeUpdate(room, deltaTimeInMilliseconds) {
 	if (room.playing) {
@@ -48,7 +45,7 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 		// create
 		if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > 50) {
 			if (Math.random() > 0.95) {
-				room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy(1350, 120, 100, 100, generateRandomEnemyTerm(), (Math.random() * 2) + 1, 1, 1, room.data.currentGame.enemiesCreated + 1);
+				room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy(1350, 120, 100, 100, generateRandomEnemyTerm(), Math.random() * 2 + 1, 1, 1, room.data.currentGame.enemiesCreated + 1);
 				room.data.currentGame.enemiesCreated++;
 			}
 			room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= 50;
@@ -128,16 +125,15 @@ async function submitSingleplayerGame(finalGameData, userIDOfSocketOwner) {
 
 	let finalScore = finalGameData.currentScore;
 	let userIDAsString = userIDOfSocketOwner.toString();
-	let usernameOfSocketOwner =  JSON.parse(JSON.stringify(await schemas.getUserModel().findOne({ _id: userIDAsString }))).username;
-	// let userID = ObjectId(userIDAsString);
+	let usernameOfSocketOwner = JSON.parse(JSON.stringify(await schemas.getUserModel().findById(userIDAsString))).username;
 	let personalBestBroken = false;
 
-	let playerDataOfSocketOwner = await schemas.getUserModel().findOne({ _id: userIDAsString });
+	let playerDataOfSocketOwner = await schemas.getUserModel().findById(userIDAsString);
 
-	if (playerDataOfSocketOwner["statistics"]["personalBest"] === undefined) {
+	if (playerDataOfSocketOwner["statistics"]["personalBestScore"] === undefined) {
 		// personal best field doesn't exist
 		// so create one, and assign the score to the field
-		await schemas.getUserModel().findOneAndUpdate({ _id: userIDAsString }, { $set: { personalBest: finalScore } }, (error3, result3) => {
+		await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true}, (error3, result3) => {
 			if (error3) {
 				// console.log("ERROR from Socket " + socket.id + " (" + usernameOfSocketOwner + "): ");
 				console.log(error3);
@@ -149,12 +145,11 @@ async function submitSingleplayerGame(finalGameData, userIDOfSocketOwner) {
 	} else {
 		// personal best field exists
 
-		if (finalScore > playerDataOfSocketOwner["statistics"]["personalBest"]) {
+		if (finalScore > playerDataOfSocketOwner["statistics"]["personalBestScore"]) {
 			// score is higher than personal best
 
-			await schemas.getUserModel().findOneAndUpdate({ _id: userIDAsString }, { $set: { personalBest: finalScore } }, (error4, result4) => {
+			await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true}, (error4, result4) => {
 				if (error4) {
-					// console.log("ERROR from Socket " + socket.id + " (" + usernameOfSocketOwner + "): ");
 					console.log(error4);
 				}
 				return result4;
@@ -263,7 +258,6 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 
 	return placePlayerRanked;
 }
-
 
 // MINOR
 function evaluateProblem(room, socketIsHostOfRoomItIsIn) {
@@ -442,23 +436,24 @@ function convertTermIDToBeautifulString(id) {
 	return TERMS_AS_BEAUTIFUL_STRINGS[id];
 }
 
-function convertPressedKeyToTermID(keyPressed, fromNumpad, room) {
-	if (keyPressed == 32) {
+function convertPressedKeyToTermID(keyPressed, playerKeybinds, room) {
+	if (keyPressed == "Space") {
 		// space
 		evaluateProblem(room, true);
 		return;
-	} else if ((fromNumpad && keyPressed == 110) || keyPressed == 70 || keyPressed == 8) {
+	} else if (keyPressed == "Period" || keyPressed == "Backspace") {
 		//numpad decimal
 		deleteLastSelectedTerm(room);
 		return;
-	} else if (fromNumpad && keyPressed == 13) {
+	} else if (keyPressed == "NumpadEnter") {
 		//numpad enter
 		return 14;
 	} else {
-		if (fromNumpad) {
-			return [96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 107, 109,106,111,13].indexOf(keyPressed);
+		if (keyPressed.includes("Num") && keyPressed != "NumLock") {
+			// unsafe?
+			return ["Numpad0", "Numpad1", "Numpad2", "Numpad3", "Numpad4", "Numpad5", "Numpad6", "Numpad7", "Numpad8", "Numpad9", "NumpadAdd", "NumpadSubtract", "NumpadMultiply", "NumpadDivide", "NumpadEnter"].indexOf(keyPressed);
 		} else {
-			return [77, 74, 75, 76, 85, 73, 79, 55, 56, 57, 191, 186, 80, 48, 87, 69, 83, 68].indexOf(keyPressed);
+			return playerKeybinds.indexOf(keyPressed);
 		}
 	}
 }

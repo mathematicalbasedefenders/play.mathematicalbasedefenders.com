@@ -17,74 +17,182 @@
 			<div id="hub-container">
 				<!-- Main menu -->
 				<div id="main-menu-screen-container">
-					<div class="center">
-						<button class="main-menu-screen-button" id="singleplayer-button" onClick="startSingleplayerGame();" onMouseEnter="$('#bottom-toolbar-text').text('Test your math skills and maybe get on the leaderboards.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class="main-menu-screen-button" id="multiplayer-button" onMouseEnter="$('#bottom-toolbar-text').text('Play with others and make friends and enemies.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="alert('Multiplayer will be released in a future update!')"></button> <br /><br />
-						<button class="main-menu-screen-button" id="stats-button" onMouseEnter="$('#bottom-toolbar-text').text('View how far you or others have progressed.')" onClick="alert('A stats viewer will be released in a future update!')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"></button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class="main-menu-screen-button" id="settings-button" onClick="setPropertiesAndChangeScreen(screens.SETTINGS_SCREEN); setPropertiesAndChangeSettingsScreen('')" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks, feels, and sounds.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"></button>
+					<div id="mathematical-base-defenders-logo-container">
+						<img src="/assets/images/mathematicalbasedefenders.png" />
+					</div>
+
+					<div id="main-menu-screen-button-container">
+						<button class="main-menu-screen-button" onClick="startSingleplayerGame();" onMouseEnter="$('#bottom-toolbar-text').text('Test your math skills and maybe get on the leaderboards.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Singleplayer</button>
+						<br /><br />
+						<button class="main-menu-screen-button" onMouseEnter="$('#bottom-toolbar-text').text('Play with others and make friends and enemies.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="alert('Multiplayer will be released in a future update!')">&nbsp;Multiplayer</button>
+						<br /><br />
+						<button class="main-menu-screen-button" onMouseEnter="$('#bottom-toolbar-text').text('View how far you or others have progressed.')" onClick="alert('A stats viewer will be released in a future update!')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Stats</button>
+						<br /><br />
+						<button class="main-menu-screen-button" onClick="updateSettingsSelections();setPropertiesAndChangeScreen(screens.SETTINGS_SCREEN); setPropertiesAndChangeSettingsScreen('')" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks, feels, and sounds.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Settings</button>
 					</div>
 				</div>
 
 				<!-- Information -->
 				<div id="information-screen-container">
-					<div class="large-text">
-						&nbsp;Mathematical Base Defenders <span class="medium-text">0.1.0 </span><span class="large-medium-text">by <img style="transform: translateY(5px)" onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')" onClick="document.location='https://mistertfy64.com'"; onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" src="/assets/images/mistertfy64.svg" height="40px;" /></span>
-					</div>
-					<div class="medium-text">
-						&nbsp;A number-cruncher math game where you form problems for enemies by using tiles.
-						<br>
-						&nbsp;<a href="https://github.com/mathematicalbasedefenders/issuetracker">Issue Tracker</a>
-						<br>
-						&nbsp;<a href="https://discord.gg/tJdwzjSgHh">Discord Server</a>
-					</div>
-					<div id="information-screen-back-button-container">
-						<button onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN)" style="width: 100px; height: 64px; border: 1px solid; font-size: 28px">Back</button>
+					<div id="information-screen-content-container">
+						<div class="large-text">
+							&nbsp;Mathematical Base Defenders <span class="medium-text">0.1.0 </span><span class="large-medium-text">by <img style="transform: translateY(5px)" onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')" onClick="document.location='https://mistertfy64.com'" ; onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" src="/assets/images/mistertfy64.svg" height="40px;" /></span>
+						</div>
+						<div class="medium-text">
+							&nbsp;A number-cruncher math game where you form problems for enemies by using tiles.
+							<br />
+							&nbsp;<a href="https://github.com/mathematicalbasedefenders/issuetracker">Issue Tracker</a>
+							<br />
+							&nbsp;<a href="https://discord.gg/tJdwzjSgHh">Discord Server</a>
+						</div>
+						<div id="information-screen-navigation-button-container">
+							<button class="information-screen-navigation-button" onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);" onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Back</button>
+						</div>
 					</div>
 				</div>
-
 
 				<!-- Settings -->
 				<div id="settings-screen-container">
 					<div id="settings-screen-navigation-button-container">
-						<!-- bruh-->
-						<button class="settings-screen-navigation-button" id="video-settings-button" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.VIDEO_SETTINGS_SCREEN)" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">Video</button
-						><!----><button class="settings-screen-navigation-button" id="audio-settings-button" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game sounds.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">Audio</button
-						><!----><button class="settings-screen-navigation-button" id="input-settings-button" onMouseEnter="$('#bottom-toolbar-text').text('Change how you control the game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">Input</button
-						><!----><button class="settings-screen-navigation-button" id="online-settings-button" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.ONLINE_SETTINGS_SCREEN)" onMouseEnter="$('#bottom-toolbar-text').text('Change how you present yourself online in the game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">Online</button> <br /><br /><br />
+						<button class="settings-screen-navigation-button" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.VIDEO_SETTINGS_SCREEN)" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Video</button>
+						<br /><br />
+						<button class="settings-screen-navigation-button" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game sounds.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.AUDIO_SETTINGS_SCREEN)">&nbsp;Audio</button>
+						<br /><br />
+						<button class="settings-screen-navigation-button" onMouseEnter="$('#bottom-toolbar-text').text('Change how you control the game.')" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.INPUT_SETTINGS_SCREEN)" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Input</button>
+						<br /><br />
+						<button class="settings-screen-navigation-button" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.ONLINE_SETTINGS_SCREEN)" onMouseEnter="$('#bottom-toolbar-text').text('Change how you appear to other players in the game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Online</button>
+						<br /><br />
+						<button class="settings-screen-navigation-button" onClick="changeSettings();saveSettings();setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);" onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Back</button>
 					</div>
-					<div id="video-settings-screen-container" style="font-size: 24px">
-						<div id="enemy-color-text-setting-container" onMouseEnter="$('#bottom-toolbar-text').text('Select the color that all enemies will use.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-							&nbsp; Enemy Color:
-							<select onChange="settings.video.enemyColor = $('#enemy-color-setting-drop-down-menu').val()"id="enemy-color-setting-drop-down-menu" class="settings-screen-dropdown-menu" name="selected-enemy-color">
-								<option value="randomForEach">Random For Each</option>
-								<option value="random">Random</option>
-								<option value="red">Red</option>
-								<option value="orange">Orange</option>
-								<option value="yellow">Yellow</option>
-								<option value="green">Green</option>
-								<option value="blue">Blue</option>
-								<option value="purple">Purple</option>
-								<option value="white">White</option>
-								<option value="gray">Gray</option>
-								<option value="black">Black</option>
-								<option value="backgroundColor">Background Color</option>
-								<option value="blind">Blind</option>
-							</select>
+					<div id="settings-screen-content-container">
+						<div id="video-settings-screen-container" style="font-size: 24px">
+							<br />
+							<div id="enemy-color-text-setting-container" onMouseEnter="$('#bottom-toolbar-text').text('Select the color that all enemies will use.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+								Enemy Color:
+								<select id="enemy-color-setting-drop-down-menu" class="settings-screen-dropdown-menu" name="selected-enemy-color">
+									<option value="randomForEach">Random For Each</option>
+									<option value="random">Random</option>
+									<option value="red">Red</option>
+									<option value="orange">Orange</option>
+									<option value="yellow">Yellow</option>
+									<option value="green">Green</option>
+									<option value="blue">Blue</option>
+									<option value="purple">Purple</option>
+									<option value="white">White</option>
+									<option value="gray">Gray</option>
+									<option value="black">Black</option>
+									<option value="backgroundColor">Background Color</option>
+									<option value="blind">Blind</option>
+								</select>
+							</div>
+							<br />
+							<div id="multiplication-sign-form-setting-container" onMouseEnter="$('#bottom-toolbar-text').text('Select the multiplication sign form to be used in the game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+								Multiplication Sign Form:
+								<select id="multiplication-sign-form-setting-drop-down-menu" class="settings-screen-dropdown-menu" name="selected-multiplication-sign-form">
+									<option value="cross">×</option>
+									<option value="dot">·</option>
+								</select>
+							</div>
 						</div>
-						<br />
-						<div" id="multiplication-sign-form-setting-container" onMouseEnter="$('#bottom-toolbar-text').text('Select the multiplication sign form to be used in the game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"> &nbsp; Multiplication Sign Form:
-						<select id="multiplication-sign-form-setting-drop-down-menu" class="settings-screen-dropdown-menu" onChange="settings.video.multiplicationSignForm = $('#multiplication-sign-form-setting-drop-down-menu').val()" name="selected-multiplication-sign-form">
-							<option value="cross">×</option>
-							<option value="dot">·</option>
-						</select>
-					</div>
-					<div id="online-settings-screen-container" style="font-size: 24px">
-						&nbsp; Username: <input id="username-input-box" class="settings-input-box" />
-						<br />
-						<br />
-						&nbsp; Password: <input type="password" id="password-input-box" class="settings-input-box" /> <br /><br />
-						&nbsp;<button onClick="socket.emit('authenticate', $('#username-input-box')[0].value, btoa(btoa(btoa(btoa($('#password-input-box')[0].value)))))" style="width: 256px; height: 64px; font-size: 28px">Login</button>
-					</div>
-					<div id="settings-screen-back-button-container">
-						<button onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="saveSettings();setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN)" style="width: 100px; height: 64px; border: 1px solid; font-size: 28px">Back</button>
+						<div id="input-settings-screen-container" style="font-size: 24px">
+							<br />
+							<div id="tile-keybinds-setting-container" onMouseEnter="$('#bottom-toolbar-text').text('Select the color that all enemies will use.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+								Click on a key to rebind it. Only one key (not counting Numpad keys) is allowed per tile. <button onClick="resetKeybinds();">Reset</button>
+								<br />
+								<span onClick="startKeyRebindProcess(0)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">0</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-0">KeyM</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(1)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">1</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-1">KeyJ</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(2)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">2</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-2">KeyK</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(3)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">3</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-3">KeyL</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(4)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">4</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-4">KeyU</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(5)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">5</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-5">KeyI</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(6)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">6</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-6">KeyO</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(7)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">7</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-7">Key7</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(8)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">8</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-8">Key8</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(9)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">9</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-9">Key9</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(10)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">+</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-10">Slash</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(11)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">–</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-11">Semicolon</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(12)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">×</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-12">KeyP</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(13)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">÷</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-13">Key0</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(14)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">=</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-14">Quote</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(15)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">a</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-15">KeyW</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(16)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">b</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-16">KeyE</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(17)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">c</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-17">KeyS</span></kbd></span
+								>
+								<br />
+								<span onClick="startKeyRebindProcess(18)"
+									><span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">d</span> Tile <kbd><span class="monospace-text" id="key-to-force-select-tile-18">KeyD</span></kbd></span
+								>
+								<br />
+								<kbd>Space</kbd> to send the problem.
+								<br />
+								<kbd>Backspace</kbd> to delete last selected tile.
+								<br />
+								Numpad keys can also be used.
+								<br />
+								The mouse can also be used.
+							</div>
+							<br />
+						</div>
+						<div id="online-settings-screen-container" style="font-size:24px;">
+							<br>
+							Username: <input id="username-input-box" class="settings-input-box" />
+							<br />
+							<br />
+							Password: <input type="password" id="password-input-box" class="settings-input-box" /> <br /><br />
+							<button onClick="socket.emit('authenticate', $('#username-input-box')[0].value, btoa(btoa(btoa(btoa($('#password-input-box')[0].value)))))" style="width: 256px; height: 64px; font-size: 28px">Login</button>
+						</div>
 					</div>
 				</div>
 
@@ -112,8 +220,8 @@
 
 				<!-- Bottom toolbar -->
 				<div id="bottom-user-interface-container">
-					<span style="float: right" onMouseEnter="$('#bottom-toolbar-text').text('View information about the game.')"  onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" class="material-icons md-36" onClick="setPropertiesAndChangeScreen(screens.INFORMATION_SCREEN)">info</span> <br /><br />
-					<span style="float: right"><img onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')" onClick="document.location='https://mistertfy64.com'"; onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" src="/assets/images/mistertfy64.svg" width="100px;" /></span>
+					<span style="float: right" onMouseEnter="$('#bottom-toolbar-text').text('View information about the game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" class="material-icons md-36" onClick="setPropertiesAndChangeScreen(screens.INFORMATION_SCREEN)">info</span> <br /><br />
+					<span style="float: right"><img onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')" onClick="document.location='https://mistertfy64.com'" ; onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" src="/assets/images/mistertfy64.svg" width="100px;" /></span>
 					<br />
 				</div>
 
@@ -125,6 +233,18 @@
 		</div>
 
 		<!-- Scripts -->
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-XVRB5TXW3K"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() {
+			dataLayer.push(arguments);
+		}
+		gtag("js", new Date());
+
+		gtag("config", "G-XVRB5TXW3K");
+	</script>
+
 		<script src="https://pixijs.download/v6.1.2/pixi.js"></script>
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 

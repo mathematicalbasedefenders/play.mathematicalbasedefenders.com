@@ -10,7 +10,7 @@ const UserModelSchema = new Schema({
 	hashedPassword: String,
 	userNumber: Number,
 	statistics: {
-		personalBest: Number,
+		personalBestScore: Number,
 		gamesPlayed: Number,
 	},
 });

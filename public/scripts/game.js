@@ -212,24 +212,31 @@ for (i = 0; i < 2; i++) {
 
 // =============== END OF SINGLEPLAYER SCREEN ITEMS ====================
 
+// =============== START OF OTHER STUFF ===============================
 // Input
-
-/*
-document.addEventListener(
-	"keyup",
-	(event) => {
-		processKeypress(event);
-	},
-	false
-);
-*/
-
+var keyRebindProcessUnderway = false;
 $(document).keydown(function (event) {
-	if (event.keyCode == 9) {
-		event.preventDefault();
+	if (keyRebindProcessUnderway || keyRebindProcessUnderway === "0") {
+		// 3 equal signs or it wont work!!!!
+		let keyAlreadyHasATile = false;
+		for (let i = 0; i < 19; i++) {
+			if (event.code == $("#key-to-force-select-tile-" + i).text()) {
+				keyAlreadyHasATile = true;
+				break;
+			}
+		}
+		if (keyAlreadyHasATile) {
+			alert("Key already has a tile assigned to it!");
+			keyRebindProcessUnderway = false;
+		} else {
+			$("#key-to-force-select-tile-" + keyRebindProcessUnderway).text(event.code);
+			keyRebindProcessUnderway = false;
+		}
+	} else {
+		processKeypress(event);
 	}
-	processKeypress(event);
 });
+// =============== END OF OTHER STUFF ===============================
 
 // Initialization Finished
 initializationFinished = true;
@@ -276,6 +283,16 @@ app.ticker.add((delta) => {
  * @param {*} newScreen
  */
 function setPropertiesAndChangeScreen(newScreen) {
+	// animate currentScreen first
+	switch (currentScreen) {
+		case screens.MAIN_MENU_SCREEN: {
+			$(".main-menu-screen-button").animate({ opacity: 0 });
+		}
+		case screens.SETTINGS_SCREEN: {
+			$(".settings-screen-navigation-button").animate({ opacity: 0 });
+		}
+	}
+
 	document.getElementById("hub-container").style.display = "none";
 
 	document.getElementById("main-menu-screen-container").style.display = "none";
@@ -296,10 +313,11 @@ function setPropertiesAndChangeScreen(newScreen) {
 			removeAllRenderedEnemies();
 			// mainMenuScreenContainer.visible = true;
 			document.body.style.overflow = "visible";
+
 			document.getElementById("hub-container").style.display = "block";
 			document.getElementById("main-menu-screen-container").style.display = "block";
 			document.getElementById("bottom-user-interface-container").style.display = "block";
-
+			$(".main-menu-screen-button").animate({ opacity: 1 });
 			break;
 		}
 		case screens.INFORMATION_SCREEN: {
@@ -310,7 +328,7 @@ function setPropertiesAndChangeScreen(newScreen) {
 		}
 		case screens.SINGLEPLAYER_GAME_SCREEN: {
 			// set properties
-			document.body.style.overflow = "hidden";
+			document.body.style.overflow = "none";
 			document.getElementById("pixi-canvas").style.display = "block";
 			singleplayerScreenContainer.visible = true; // for now
 			break;
@@ -318,22 +336,23 @@ function setPropertiesAndChangeScreen(newScreen) {
 		case screens.SETTINGS_SCREEN: {
 			// set properties
 
-			
-
+			/*
 			document.getElementById("enemy-color-setting-drop-down-menu").value = settings === null ? "randomForEach" : settings.video.enemyColor;
 			document.getElementById("multiplication-sign-form-setting-drop-down-menu").value = settings === null ? "cross" : settings.video.multiplicationSignForm;
-
-			document.body.style.overflow = "visible";
+*/
+			document.body.style.overflow = "hidden";
 			document.getElementById("hub-container").style.display = "block";
 			document.getElementById("settings-screen-container").style.display = "block";
-			
-			if (settings === null) { settings = {
-				video: {
-					enemyColor: "randomForEach",
-					multiplicationSignForm: "cross",
-				}
-			}; }
-			
+			$(".settings-screen-navigation-button").animate({ opacity: 1 });
+			if (settings === null) {
+				settings = {
+					video: {
+						enemyColor: "randomForEach",
+						multiplicationSignForm: "cross",
+					},
+				};
+			}
+
 			break;
 		}
 		case screens.GAME_OVER_SCREEN: {
@@ -349,7 +368,7 @@ function setPropertiesAndChangeScreen(newScreen) {
 function setPropertiesAndChangeSettingsScreen(newSettingsScreen) {
 	document.getElementById("video-settings-screen-container").style.display = "none";
 	// document.getElementById("audio-settings-screen-container").style.display = "none";
-	// document.getElementById("input-settings-screen-container").style.display = "none";
+	document.getElementById("input-settings-screen-container").style.display = "none";
 	document.getElementById("online-settings-screen-container").style.display = "none";
 	switch (newSettingsScreen) {
 		case settingsScreens.VIDEO_SETTINGS_SCREEN: {
@@ -509,66 +528,6 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 			}
 			break;
 	}
-
-	switch (currentScreen) {
-		case screens.SINGLEPLAYER_GAME_SCREEN: {
-			/*
-			// Counters
-			framesRenderedSinceLaunch += delta;
-			enemyGenerationElapsedFramesCounter += delta;
-			currentGame.framesElapsedSinceLastEnemyKill += delta;
-
-			// Logic
-
-			// If Base Health <= 0, Game over (obviously)
-			if (currentGame.baseHealth <= 0) {
-				endSingleplayerGame();
-			}
-
-			// If 300 frames (5 seconds) has passed since last enemy kill, reset combo
-			if (currentGame.framesElapsedSinceLastEnemyKill >= 300 && currentGame.currentCombo != -1) {
-				currentGame.currentCombo = -1;
-			}
-
-			// Move all enemies - defaultSpeed / 2.25 pixels per frame
-			for (i = 0; i < currentGame.enemiesOnField.length; i++) {
-				if (currentGame.enemiesOnField[i] !== undefined) {
-					currentGame.enemiesOnField[i].move((delta * currentGame.enemiesOnField[i].defaultSpeed) / 2.25);
-				}
-			}
-
-			// Create new enemy if Math.random() > x every y frames
-			if (enemyGenerationElapsedFramesCounter > 3 && Math.random() > 0.99) {
-				currentGame.enemiesOnField[currentGame.enemiesCreated] = new Enemy(1350, 120, 100, 100, generateRandomEnemyTerm(), Math.floor(Math.random() * 5) + 1, 1, 1, createEnemyColor());
-				singleplayerScreenContainer.addChild(currentGame.enemiesOnField[currentGame.enemiesCreated].sprite);
-				singleplayerScreenContainer.addChild(currentGame.enemiesOnField[currentGame.enemiesCreated].textSprite);
-				currentGame.enemiesCreated++;
-				enemyGenerationElapsedFramesCounter -= 3;
-			}
-
-			// Update variables
-			currentGame.currentInGameTimeInMilliseconds += ((delta * 1) / 60) * 1000;
-
-			// Update Text
-			currentScoreText.text = currentGame.currentScore;
-			currentProblemText.text = currentGame.currentProblemAsBeautifulText;
-			baseHealthText.text = "Base Health: " + currentGame.baseHealth + "/10";
-			enemiesText.text = "Enemies: " + currentGame.enemiesKilled + "/" + currentGame.enemiesCreated;
-			actionsPerMinuteText.text = ((currentGame.actionsPerformed / (currentGame.currentInGameTimeInMilliseconds / 1000)) * 60).toFixed(3).toString();
-			currentComboText.text = currentGame.currentCombo < 1 ? "" : currentGame.currentCombo + " Combo";
-
-			// Update Text Positions
-			currentProblemText.x = (initialWindowWidth - PIXI.TextMetrics.measureText(currentProblemText.text === undefined ? "" : currentProblemText.text.toString(), textStyles.FONT_SIZE_72_WITH_MATH_FONT).width) / 2;
-			actionsPerMinuteText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(actionsPerMinuteText.text, textStyles.FONT_SIZE_40).width;
-			currentComboText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(currentComboText.text, textStyles.FONT_SIZE_40).width;
-
-			valueOfVariableAText.text = currentGame.valueOfVariableA === undefined ? "a = ?" : "a = " + currentGame.valueOfVariableA;
-			valueOfVariableBText.text = currentGame.valueOfVariableB === undefined ? "b = ?" : "b = " + currentGame.valueOfVariableB;
-			valueOfVariableCText.text = currentGame.valueOfVariableC === undefined ? "c = ?" : "c = " + currentGame.valueOfVariableC;
-			valueOfVariableDText.text = currentGame.valueOfVariableD === undefined ? "d = ?" : "d = " + currentGame.valueOfVariableD;
-*/
-		}
-	}
 });
 socket.on("finalRanks", (personalBestBroken, finalGlobalRank, finalGlobalRankSaved) => {
 	finalGameData.personalBestBroken = personalBestBroken;
@@ -579,6 +538,10 @@ socket.on("finalRanks", (personalBestBroken, finalGlobalRank, finalGlobalRankSav
 });
 
 // Logical Functions
+
+function startKeyRebindProcess(tileID) {
+	keyRebindProcessUnderway = tileID;
+}
 
 function endSingleplayerGame() {
 	finalGameData = {
@@ -596,7 +559,7 @@ function endSingleplayerGame() {
 
 function processKeypress(event) {
 	// console.log(event);
-	socket.emit("keypress", event.keyCode, event.location);
+	socket.emit("keypress", event.code, settings.input.keybinds.tiles);
 	switch (currentScreen) {
 		case screens.MAIN_MENU_SCREEN: {
 			break;
@@ -781,20 +744,52 @@ function createEnemyColor() {
 function restoreSettings() {
 	settings = localStorage.getItem("settings");
 
-	if (settings !== null) {
-		// video
-
-		if (settings.video === undefined) {
-			settings.video = {
-				whatEvenIsThis: "What even is this?",
-			};
-
-			if (settings.video.enemyColor === undefined) settings.video.enemyColor = "random";
-			if (settings.video.multiplicationSignForm === undefined) settings.video.multiplicationSignForm = "cross";
-		}
+	if (settings === undefined || settings == null) {
+		settings = {
+			video: {
+				enemyColor: "randomForEach",
+				multiplicationSignForm: "cross",
+			},
+			input: {
+				keybinds: {
+					tiles: ["KeyM", "KeyJ", "KeyK", "KeyL", "KeyU", "KeyI", "KeyO", "Digit7", "Digit8", "Digit9", "Slash", "Semicolon", "KeyP", "Digit0", "Quote", "KeyW", "KeyE", "KeyS", "KeyD"],
+				},
+			},
+		};
+		localStorage.setItem("settings", JSON.stringify(settings));
+	} else {
+		settings = JSON.parse(settings);
 	}
+}
 
-	settings = JSON.parse(settings);
+function updateSettingsSelections() {
+	// video
+	$("#enemy-color-setting-drop-down-menu").val(settings.video.enemyColor);
+	$("#multiplication-sign-form-setting-drop-down-menu").val(settings.video.multiplicationSignForm);
+	// input
+	for (let i = 0; i < 19; i++) {
+		$("#key-to-force-select-tile-" + i).text(settings.input.keybinds.tiles[i]);
+	}
+}
+
+function resetKeybinds() {
+	settings.input.keybinds.tiles = ["KeyM", "KeyJ", "KeyK", "KeyL", "KeyU", "KeyI", "KeyO", "Key7", "Key8", "Key9", "Slash", "Semicolon", "KeyP", "Key0", "Quote", "KeyW", "KeyE", "KeyS", "KeyD"];
+	updateSettingsSelections();
+	saveSettings();
+}
+
+function changeSettings() {
+	settings = {
+		video: {
+			enemyColor: $("#enemy-color-setting-drop-down-menu").val(),
+			multiplicationSignForm: $("#multiplication-sign-form-setting-drop-down-menu").val(),
+		},
+		input: {
+			keybinds: {
+				tiles: [$("#key-to-force-select-tile-0").text(), $("#key-to-force-select-tile-1").text(), $("#key-to-force-select-tile-2").text(), $("#key-to-force-select-tile-3").text(), $("#key-to-force-select-tile-4").text(), $("#key-to-force-select-tile-5").text(), $("#key-to-force-select-tile-6").text(), $("#key-to-force-select-tile-7").text(), $("#key-to-force-select-tile-8").text(), $("#key-to-force-select-tile-9").text(), $("#key-to-force-select-tile-10").text(), $("#key-to-force-select-tile-11").text(), $("#key-to-force-select-tile-12").text(), $("#key-to-force-select-tile-13").text(), $("#key-to-force-select-tile-14").text(), $("#key-to-force-select-tile-15").text(), $("#key-to-force-select-tile-16").text(), $("#key-to-force-select-tile-17").text(), $("#key-to-force-select-tile-18").text(), $("#key-to-force-select-tile-19").text()],
+			},
+		},
+	};
 }
 
 function saveSettings() {
