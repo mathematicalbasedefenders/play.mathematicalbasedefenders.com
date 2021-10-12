@@ -22,13 +22,41 @@
 					</div>
 
 					<div id="main-menu-screen-button-container">
-						<button class="main-menu-screen-button" onClick="startSingleplayerGame();" onMouseEnter="$('#bottom-toolbar-text').text('Test your math skills and maybe get on the leaderboards.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Singleplayer</button>
+						<button
+							class="main-menu-screen-button"
+							onClick="startSingleplayerGame();"
+							onMouseEnter="$('#bottom-toolbar-text').text('Test your math skills and maybe get on the leaderboards.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Singleplayer
+						</button>
 						<br /><br />
-						<button class="main-menu-screen-button" onMouseEnter="$('#bottom-toolbar-text').text('Play with others and make friends and enemies.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="alert('Multiplayer will be released in a future update!')">&nbsp;Multiplayer</button>
+						<button
+							class="main-menu-screen-button"
+							onMouseEnter="$('#bottom-toolbar-text').text('Play with others and make friends and enemies.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+							onClick="alert('Multiplayer will be released in a future update!')"
+						>
+							&nbsp;Multiplayer
+						</button>
 						<br /><br />
-						<button class="main-menu-screen-button" onMouseEnter="$('#bottom-toolbar-text').text('View how far you or others have progressed.')" onClick="alert('A stats viewer will be released in a future update!')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Stats</button>
+						<button
+							class="main-menu-screen-button"
+							onMouseEnter="$('#bottom-toolbar-text').text('View how far you or others have progressed.')"
+							onClick="alert('A stats viewer will be released in a future update!')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Stats
+						</button>
 						<br /><br />
-						<button class="main-menu-screen-button" onClick="updateSettingsSelections();setPropertiesAndChangeScreen(screens.SETTINGS_SCREEN); setPropertiesAndChangeSettingsScreen('')" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks, feels, and sounds.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Settings</button>
+						<button
+							class="main-menu-screen-button"
+							onClick="updateSettingsSelections();setPropertiesAndChangeScreen(screens.SETTINGS_SCREEN); setPropertiesAndChangeSettingsScreen('')"
+							onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks, feels, and sounds.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Settings
+						</button>
 					</div>
 				</div>
 
@@ -36,17 +64,39 @@
 				<div id="information-screen-container">
 					<div id="information-screen-content-container">
 						<div class="large-text">
-							&nbsp;Mathematical Base Defenders <span class="medium-text">0.1.0 </span><span class="large-medium-text">by <img style="transform: translateY(5px)" onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')" onClick="document.location='https://mistertfy64.com'" ; onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" src="/assets/images/mistertfy64.svg" height="40px;" /></span>
+							<p style="text-align: center">
+								&nbsp;Mathematical Base Defenders <span class="medium-text">0.1.0 </span
+								><span class="large-medium-text"
+									>by
+									<img
+										style="transform: translateY(5px)"
+										onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')"
+										onClick="document.location='https://mistertfy64.com'"
+										;
+										onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+										src="/assets/images/mistertfy64.svg"
+										height="40px;"
+								/></span>
+							</p>
 						</div>
 						<div class="medium-text">
-							&nbsp;A number-cruncher math game where you form problems for enemies by using tiles.
-							<br />
-							&nbsp;<a href="https://github.com/mathematicalbasedefenders/issuetracker">Issue Tracker</a>
-							<br />
-							&nbsp;<a href="https://discord.gg/tJdwzjSgHh">Discord Server</a>
+							<p style="text-align: center">
+								A number-cruncher math game where you form problems for enemies by using tiles.
+								<br />
+								<a href="https://github.com/mathematicalbasedefenders/issuetracker">Issue Tracker</a>
+								<br />
+								<a href="https://discord.gg/tJdwzjSgHh">Discord Server</a>
+							</p>
 						</div>
 						<div id="information-screen-navigation-button-container">
-							<button class="information-screen-navigation-button" onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);" onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Back</button>
+							<button
+								class="information-screen-navigation-button"
+								onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+								onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+								onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+							>
+								&nbsp;Back
+							</button>
 						</div>
 					</div>
 				</div>
@@ -54,15 +104,50 @@
 				<!-- Settings -->
 				<div id="settings-screen-container">
 					<div id="settings-screen-navigation-button-container">
-						<button class="settings-screen-navigation-button" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.VIDEO_SETTINGS_SCREEN)" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Video</button>
+						<button
+							class="settings-screen-navigation-button"
+							onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.VIDEO_SETTINGS_SCREEN)"
+							onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Video
+						</button>
 						<br /><br />
-						<button class="settings-screen-navigation-button" onMouseEnter="$('#bottom-toolbar-text').text('Change how the game sounds.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.AUDIO_SETTINGS_SCREEN)">&nbsp;Audio</button>
+						<button
+							class="settings-screen-navigation-button"
+							onMouseEnter="$('#bottom-toolbar-text').text('Change how the game sounds.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+							onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.AUDIO_SETTINGS_SCREEN)"
+						>
+							&nbsp;Audio
+						</button>
 						<br /><br />
-						<button class="settings-screen-navigation-button" onMouseEnter="$('#bottom-toolbar-text').text('Change how you control the game.')" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.INPUT_SETTINGS_SCREEN)" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Input</button>
+						<button
+							class="settings-screen-navigation-button"
+							onMouseEnter="$('#bottom-toolbar-text').text('Change how you control the game.')"
+							onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.INPUT_SETTINGS_SCREEN)"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Input
+						</button>
 						<br /><br />
-						<button class="settings-screen-navigation-button" onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.ONLINE_SETTINGS_SCREEN)" onMouseEnter="$('#bottom-toolbar-text').text('Change how you appear to other players in the game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Online</button>
+						<button
+							class="settings-screen-navigation-button"
+							onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.ONLINE_SETTINGS_SCREEN)"
+							onMouseEnter="$('#bottom-toolbar-text').text('Change how you appear to other players in the game.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Online
+						</button>
 						<br /><br />
-						<button class="settings-screen-navigation-button" onClick="changeSettings();saveSettings();setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);" onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">&nbsp;Back</button>
+						<button
+							class="settings-screen-navigation-button"
+							onClick="changeSettings();saveSettings();setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Back
+						</button>
 					</div>
 					<div id="settings-screen-content-container">
 						<div id="video-settings-screen-container" style="font-size: 24px">
@@ -185,8 +270,8 @@
 							</div>
 							<br />
 						</div>
-						<div id="online-settings-screen-container" style="font-size:24px;">
-							<br>
+						<div id="online-settings-screen-container" style="font-size: 24px">
+							<br />
 							Username: <input id="username-input-box" class="settings-input-box" />
 							<br />
 							<br />
@@ -213,15 +298,48 @@
 							</p>
 						</div>
 					</div>
-					<div id="game-over-screen-back-button-container">
-						<button onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN)" style="width: 100px; height: 64px; border: 1px solid; font-size: 28px">Back</button>
+					<div id="game-over-screen-navigation-button-container">
+						<button
+							class="game-over-screen-navigation-button"
+							onClick="startSingleplayerGame();"
+							onMouseEnter="$('#bottom-toolbar-text').text('Play another singleplayer game.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Retry
+						</button>
+
+						<br /><br />
+						<button
+							class="game-over-screen-navigation-button"
+							onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Back
+						</button>
 					</div>
 				</div>
 
 				<!-- Bottom toolbar -->
 				<div id="bottom-user-interface-container">
-					<span style="float: right" onMouseEnter="$('#bottom-toolbar-text').text('View information about the game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" class="material-icons md-36" onClick="setPropertiesAndChangeScreen(screens.INFORMATION_SCREEN)">info</span> <br /><br />
-					<span style="float: right"><img onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')" onClick="document.location='https://mistertfy64.com'" ; onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" src="/assets/images/mistertfy64.svg" width="100px;" /></span>
+					<span
+						style="float: right"
+						onMouseEnter="$('#bottom-toolbar-text').text('View information about the game.')"
+						onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						class="material-icons md-36"
+						onClick="setPropertiesAndChangeScreen(screens.INFORMATION_SCREEN)"
+						>info</span
+					>
+					<br /><br />
+					<span style="float: right"
+						><img
+							onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')"
+							onClick="document.location='https://mistertfy64.com'"
+							;
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+							src="/assets/images/mistertfy64.svg"
+							width="100px;"
+					/></span>
 					<br />
 				</div>
 
@@ -234,16 +352,16 @@
 
 		<!-- Scripts -->
 		<!-- Global site tag (gtag.js) - Google Analytics -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-XVRB5TXW3K"></script>
-	<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag() {
-			dataLayer.push(arguments);
-		}
-		gtag("js", new Date());
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-XVRB5TXW3K"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+			gtag("js", new Date());
 
-		gtag("config", "G-XVRB5TXW3K");
-	</script>
+			gtag("config", "G-XVRB5TXW3K");
+		</script>
 
 		<script src="https://pixijs.download/v6.1.2/pixi.js"></script>
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

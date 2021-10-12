@@ -45,7 +45,7 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 		// create
 		if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > 50) {
 			if (Math.random() > 0.95) {
-				room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy(1350, 120, 100, 100, generateRandomEnemyTerm(), Math.random() * 2 + 1, 1, 1, room.data.currentGame.enemiesCreated + 1);
+				room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy(1360, 120, 100, 100, generateRandomEnemyTerm(), Math.random() * 2 + 1, 1, 1, room.data.currentGame.enemiesCreated + 1);
 				room.data.currentGame.enemiesCreated++;
 			}
 			room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= 50;

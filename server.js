@@ -35,7 +35,7 @@ const PORT = 8000;
 const DESIRED_UPDATES_PER_SECOND = 60;
 const LOOP_INTERVAL = 1000 / DESIRED_UPDATES_PER_SECOND;
 
-const LOG_DATA_SENT = false;
+const LOG_DATA_SENT = true;
 
 // variables
 var sockets = [];
@@ -85,10 +85,11 @@ function update(deltaTime) {
 		if (roomID.length == 8) {
 			if (rooms[roomID].playing) {
 				dataSentWithoutCompression += new TextEncoder().encode(JSON.stringify(rooms[roomID].data)).length;
-				dataSentWithCompression += new TextEncoder().encode(LZString.compress(JSON.stringify(rooms[roomID].data))).length;
+				dataSentWithCompression += new TextEncoder().encode(LZString.compressToUTF16(JSON.stringify(rooms[roomID].data))).length;
 				game.computeUpdate(rooms[roomID], deltaTime);
-				// console.log((new TextEncoder().encode(JSON.stringify(rooms[roomID].data))).length + " bytes -> " + (new TextEncoder().encode(LZString.compress(JSON.stringify(rooms[roomID].data)))).length + " bytes");
-				io.to(roomID).emit("roomData", LZString.compress(JSON.stringify(rooms[roomID].data)));
+				// console.log((new TextEncoder().encode(JSON.stringify(rooms[roomID].data))).length + " bytes -> " + (new TextEncoder().encode(LZString.compressToUTF16(JSON.stringify(rooms[roomID].data)))).length + " bytes");
+				// console.log(LZString.compressToUTF16(JSON.stringify(rooms[roomID].data)));
+				io.to(roomID).emit("roomData", LZString.compressToUTF16(JSON.stringify(rooms[roomID].data)));
 				// why?
 				for (let enemy in rooms[roomID].data.currentGame.enemiesOnField) {
 					if (rooms[roomID].data.currentGame.enemiesOnField[enemy].toDestroy) {
@@ -96,7 +97,7 @@ function update(deltaTime) {
 					}
 				}
 			} else if (rooms[roomID].data.currentGame.gameIsOver && !rooms[roomID].data.currentGame.gameOverScreenShown) {
-				io.to(roomID).emit("roomData", LZString.compress(JSON.stringify(rooms[roomID].data)));
+				io.to(roomID).emit("roomData", LZString.compressToUTF16(JSON.stringify(rooms[roomID].data)));
 				rooms[roomID].data.currentGame.gameOverScreenShown = true;
 			}
 		}
@@ -168,13 +169,16 @@ io.on("connection", (socket) => {
 		bcrypt.compare(decodedPassword, playerData.hashedPassword, (passwordError, passwordResult) => {
 			if (passwordError) {
 				console.log(passwordError);
+				socket.emit("loginResult", username, false)
 			} else {
 				if (passwordResult) {
 					console.log("Correct password for " + username + "!");
 					usernameOfSocketOwner = playerData.username;
 					userIDOfSocketOwner = playerData["_id"];
+					socket.emit("loginResult", username, true)
 				} else {
 					console.log("Incorrect password for " + username + "!");
+					socket.emit("loginResult", username, false)
 				}
 			}
 		});

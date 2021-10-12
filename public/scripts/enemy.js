@@ -42,7 +42,7 @@ class Enemy {
 		this.sprite.x -= (speed === undefined ? 2 : speed);
 		this.textSprite.x -= (speed === undefined ? 2 : speed);
 
-		if (this.sprite.x < 550) {
+		if (this.sprite.x < 560) {
 			singleplayerScreenContainer.removeChild(this.sprite);
 			singleplayerScreenContainer.removeChild(this.textSprite);
 			game.enemiesOnField.splice(game.enemiesOnField.indexOf(this), 1);

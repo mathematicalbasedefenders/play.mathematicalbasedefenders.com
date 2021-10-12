@@ -328,6 +328,8 @@ function setPropertiesAndChangeScreen(newScreen) {
 		}
 		case screens.SINGLEPLAYER_GAME_SCREEN: {
 			// set properties
+			removeAllRenderedEnemies();
+
 			document.body.style.overflow = "none";
 			document.getElementById("pixi-canvas").style.display = "block";
 			singleplayerScreenContainer.visible = true; // for now
@@ -394,9 +396,8 @@ function setPropertiesAndChangeSettingsScreen(newSettingsScreen) {
 }
 
 socket.on("roomData", (compressedStringifiedJSONRoomData) => {
-	var roomData = JSON.parse(LZString.decompress(compressedStringifiedJSONRoomData));
+	var roomData = JSON.parse(LZString.decompressFromUTF16(compressedStringifiedJSONRoomData));
 	// delta = frames "skipped" (1 frame = 1/60 seconds)
-	// console.log(stringifiedJSONRoomData);
 	switch (roomData.mode) {
 		case "singleplayer":
 			{
@@ -488,9 +489,10 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 								singleplayerScreenContainer.addChild(game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"]);
 								singleplayerScreenContainer.addChild(game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"]);
 							}
-							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].x = (enemy.sPosition / 10) * 800 + 550;
+							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].x = initialWindowWidth / 2 + 80 * (enemy.sPosition - 5) // (enemy.sPosition / 10) * 800 + 560;
+
 							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].y = enemy.yPosition;
-							game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].x = (enemy.sPosition / 10) * 800 + 550 + (enemy.width - game.enemyRenderStatus[enemy.enemyNumber.toString()]["textMetrics"].width) / 2;
+							game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].x = initialWindowWidth / 2 + 80 * (enemy.sPosition - 5) + (enemy.width - game.enemyRenderStatus[enemy.enemyNumber.toString()]["textMetrics"].width) / 2;
 							game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].y = enemy.yPosition + (enemy.height - game.enemyRenderStatus[enemy.enemyNumber.toString()]["textMetrics"].height) / 2;
 							if (enemy.reachedBase || enemy.destroyed) {
 								game.enemyRenderStatus[enemy.enemyNumber.toString()].toDestroy = true;
@@ -536,6 +538,10 @@ socket.on("finalRanks", (personalBestBroken, finalGlobalRank, finalGlobalRankSav
 	$("#personal-best").text(personalBestBroken ? "New Personal Best!" : "");
 	$("#final-global-rank").text(calculateMessageForGlobalRank(finalGameData.finalGlobalRank, finalGameData.finalGlobalRankSaved));
 });
+
+socket.on("loginResult", (username, success) => {
+	alert(success ? "Successfully logged in as" : " Failed to log in as" + " " + username + "!");
+})
 
 // Logical Functions
 
@@ -644,11 +650,13 @@ function generateRandomColor() {
 function removeAllRenderedEnemies() {
 	for (let enemy in game.enemyRenderStatus) {
 		if (game.enemyRenderStatus.hasOwnProperty(enemy)) {
-			game.enemyRenderStatus[enemy] === undefined || singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["enemySprite"]);
-			game.enemyRenderStatus[enemy] === undefined || singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["textSprite"]);
+			console.log("removing enemy");
+			singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["enemySprite"]);
+			singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["textSprite"]);
 			delete game.enemyRenderStatus[enemy];
 			game.renderedEnemiesOnField = [];
 			game.spritesOfRenderedEnemiesOnField = [];
+			console.log(game.enemyRenderStatus);
 		}
 	}
 }
