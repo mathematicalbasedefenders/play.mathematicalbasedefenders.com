@@ -35,7 +35,7 @@ const PORT = 8000;
 const DESIRED_UPDATES_PER_SECOND = 60;
 const LOOP_INTERVAL = 1000 / DESIRED_UPDATES_PER_SECOND;
 
-const LOG_DATA_SENT = true;
+const LOG_DATA_SENT = false;
 
 // variables
 var sockets = [];
@@ -87,8 +87,6 @@ function update(deltaTime) {
 				dataSentWithoutCompression += new TextEncoder().encode(JSON.stringify(rooms[roomID].data)).length;
 				dataSentWithCompression += new TextEncoder().encode(LZString.compressToUTF16(JSON.stringify(rooms[roomID].data))).length;
 				game.computeUpdate(rooms[roomID], deltaTime);
-				// console.log((new TextEncoder().encode(JSON.stringify(rooms[roomID].data))).length + " bytes -> " + (new TextEncoder().encode(LZString.compressToUTF16(JSON.stringify(rooms[roomID].data)))).length + " bytes");
-				// console.log(LZString.compressToUTF16(JSON.stringify(rooms[roomID].data)));
 				io.to(roomID).emit("roomData", LZString.compressToUTF16(JSON.stringify(rooms[roomID].data)));
 				// why?
 				for (let enemy in rooms[roomID].data.currentGame.enemiesOnField) {
@@ -192,7 +190,8 @@ io.on("connection", (socket) => {
 		while (roomID === undefined || roomID in rooms) {
 			roomID = utilities.generateRoomID();
 		}
-		console.log(roomID);
+
+		console.log("New Room: " + roomID + " created by " + usernameOfSocketOwner === undefined ? "a guest user" : usernameOfSocketOwner);
 
 		currentRoomSocketIsIn = roomID;
 		socketIsHostOfRoomItIsIn = true;
