@@ -191,8 +191,6 @@ io.on("connection", (socket) => {
 			roomID = utilities.generateRoomID();
 		}
 
-		console.log("New Room: " + roomID + " created by " + usernameOfSocketOwner === undefined ? "a guest user" : usernameOfSocketOwner);
-
 		currentRoomSocketIsIn = roomID;
 		socketIsHostOfRoomItIsIn = true;
 

@@ -33,7 +33,7 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 			room.playing = false;
 			room.data.currentGame.gameIsOver = true;
 			let finalGameData = JSON.parse(JSON.stringify(room.data.currentGame));
-			submitSingleplayerGame(finalGameData, room.userIDOfHost);
+			submitSingleplayerGame(room.host, finalGameData, room.userIDOfHost);
 		}
 
 		// combo
@@ -117,9 +117,10 @@ function createNewGameData(mode, roomID) {
 
 function startSingleplayerGame(roomID) {}
 
-async function submitSingleplayerGame(finalGameData, userIDOfSocketOwner) {
+async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner) {
 	if (userIDOfSocketOwner === undefined) {
 		console.log("A guest user submitted a score of " + finalGameData.currentScore);
+		socket.emit("finalRanks", false, false, false);
 		return;
 	}
 
@@ -162,6 +163,7 @@ async function submitSingleplayerGame(finalGameData, userIDOfSocketOwner) {
 	// global leaderboards
 
 	let globalRank = await checkAndModifyLeaderboards(finalScore, usernameOfSocketOwner, userIDOfSocketOwner, userIDAsString);
+	socket.emit("finalRanks", personalBestBroken, globalRank, true);
 	console.log(globalRank == -1 ? "User " + usernameOfSocketOwner + " submitted a score of " + finalScore : "User " + usernameOfSocketOwner + " submitted a score of " + finalScore + " and reached #" + globalRank);
 }
 

@@ -127,9 +127,6 @@ var textStyles = {
 // =============== START OF SINGLEPLAYER SCREEN ITEMS ====================
 
 // Sprites
-var mbdLogoTexture = PIXI.Texture.from("assets/images/singleplayer-screen/mathematicalbasedefenderslogo.png");
-var mbdLogoSprite = new PIXI.Sprite(mbdLogoTexture);
-
 var sendButtonTexture = PIXI.Texture.from("assets/images/singleplayer-screen/sendbutton.png");
 var sendButtonSprite = new PIXI.Sprite(sendButtonTexture);
 sendButtonSprite.x = initialWindowWidth / 2 + 64 * -4 + 16;
@@ -199,6 +196,12 @@ actionsPerMinuteText.y = initialWindowHeight / 2 + 10;
 var currentComboText = new PIXI.Text("", textStyles.SIZE_40_FONT);
 currentComboText.x = initialWindowWidth / 2 - 450;
 currentComboText.y = initialWindowHeight / 2 - 80;
+
+// Images
+var baseTexture = new PIXI.Texture.from("assets/images/singleplayer-screen/base.png");
+var baseSprite = new PIXI.Sprite(baseTexture);
+baseSprite.x = initialWindowWidth / 2 - 450;
+baseSprite.y = initialWindowHeight / 2 - 465;
 
 var tileTextures = [[], []];
 
@@ -395,6 +398,7 @@ function setPropertiesAndChangeSettingsScreen(newSettingsScreen) {
 	}
 }
 
+// socket.io functions
 socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 	var roomData = JSON.parse(LZString.decompressFromUTF16(compressedStringifiedJSONRoomData));
 	// delta = frames "skipped" (1 frame = 1/60 seconds)
@@ -402,8 +406,6 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 		case "singleplayer":
 			{
 				if (roomData.currentGame.gameIsOver && !roomData.currentGame.gameOverScreenShown) {
-					console.log("Game over!");
-					console.log(roomData.currentGame);
 					setPropertiesAndChangeScreen(screens.GAME_OVER_SCREEN);
 					$("#final-score").text(roomData.currentGame.currentScore);
 					$("#final-time").text(turnMillisecondsToTime(roomData.currentGame.currentInGameTimeInMilliseconds));
@@ -436,7 +438,10 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 									processTileClick(i);
 								});
 							}
-							game.tilesOnBoard[i].sprite.texture = tileTextures[roomData.currentGame.tilesOnBoard[i].selected ? 1 : 0][roomData.currentGame.tilesOnBoard[i].termID == 12 && settings.video.multiplicationSignForm == "dot" ? 23 : roomData.currentGame.tilesOnBoard[i].termID];
+							game.tilesOnBoard[i].sprite.texture =
+								tileTextures[roomData.currentGame.tilesOnBoard[i].selected ? 1 : 0][
+									roomData.currentGame.tilesOnBoard[i].termID == 12 && settings.video.multiplicationSignForm == "dot" ? 23 : roomData.currentGame.tilesOnBoard[i].termID
+								];
 							singleplayerScreenContainer.addChild(game.tilesOnBoard[i].sprite);
 						}
 					}
@@ -489,7 +494,7 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 								singleplayerScreenContainer.addChild(game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"]);
 								singleplayerScreenContainer.addChild(game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"]);
 							}
-							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].x = initialWindowWidth / 2 + 80 * (enemy.sPosition - 5) // (enemy.sPosition / 10) * 800 + 560;
+							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].x = initialWindowWidth / 2 + 80 * (enemy.sPosition - 5); // (enemy.sPosition / 10) * 800 + 560;
 
 							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].y = enemy.yPosition;
 							game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].x = initialWindowWidth / 2 + 80 * (enemy.sPosition - 5) + (enemy.width - game.enemyRenderStatus[enemy.enemyNumber.toString()]["textMetrics"].width) / 2;
@@ -531,17 +536,19 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 			break;
 	}
 });
-socket.on("finalRanks", (personalBestBroken, finalGlobalRank, finalGlobalRankSaved) => {
-	finalGameData.personalBestBroken = personalBestBroken;
-	finalGameData.finalGlobalRank = finalGlobalRank;
-	finalGameData.finalGlobalRankSaved = finalGlobalRankSaved;
-	$("#personal-best").text(personalBestBroken ? "New Personal Best!" : "");
-	$("#final-global-rank").text(calculateMessageForGlobalRank(finalGameData.finalGlobalRank, finalGameData.finalGlobalRankSaved));
+socket.on("finalRanks", (personalBestBroken, finalGlobalRank, scoreSaved) => {
+	console.log(scoreSaved ? "Score saved!" : "Score not saved!");
+	if (scoreSaved) {
+		$("#personal-best-broken").text(personalBestBroken ? "New Personal Best!" : "");
+		$("#final-global-rank").text(calculateMessageForGlobalRank(finalGlobalRank));
+	} else {
+		$("#personal-best-broken").text("Score not saved! Register for an account to save your scores!");
+	}
 });
 
 socket.on("loginResult", (username, success) => {
-	alert(success ? "Successfully logged in as" : " Failed to log in as" + " " + username + "!");
-})
+	alert(success ? "Successfully logged in as" + username + "!" : " Failed to log in as" + " " + username + "!");
+});
 
 // Logical Functions
 
@@ -640,6 +647,8 @@ function addThingsToScreen() {
 	singleplayerScreenContainer.addChild(valueOfVariableDText);
 
 	singleplayerScreenContainer.addChild(sendButtonSprite);
+
+	singleplayerScreenContainer.addChild(baseSprite);
 }
 
 function generateRandomColor() {
@@ -650,13 +659,11 @@ function generateRandomColor() {
 function removeAllRenderedEnemies() {
 	for (let enemy in game.enemyRenderStatus) {
 		if (game.enemyRenderStatus.hasOwnProperty(enemy)) {
-			console.log("removing enemy");
 			singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["enemySprite"]);
 			singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["textSprite"]);
 			delete game.enemyRenderStatus[enemy];
 			game.renderedEnemiesOnField = [];
 			game.spritesOfRenderedEnemiesOnField = [];
-			console.log(game.enemyRenderStatus);
 		}
 	}
 }
@@ -688,16 +695,14 @@ function turnMillisecondsToTime(milliseconds) {
 	}
 }
 
-function calculateMessageForGlobalRank(rank, saved) {
-	let message = "";
+function calculateMessageForGlobalRank(rank) {
 	if (rank == 1) {
-		message = "New World Record!";
-	} else if (rank <= 50) {
-		message = "Global Rank #" + rank;
+		return "New World Record!";
+	} else if (rank >= 2 && rank <= 50) {
+		return "Global Rank #" + rank;
 	} else {
 		return "";
 	}
-	return message + (saved ? "" : " (Not Saved) ");
 }
 
 function createEnemyColor() {
@@ -794,7 +799,28 @@ function changeSettings() {
 		},
 		input: {
 			keybinds: {
-				tiles: [$("#key-to-force-select-tile-0").text(), $("#key-to-force-select-tile-1").text(), $("#key-to-force-select-tile-2").text(), $("#key-to-force-select-tile-3").text(), $("#key-to-force-select-tile-4").text(), $("#key-to-force-select-tile-5").text(), $("#key-to-force-select-tile-6").text(), $("#key-to-force-select-tile-7").text(), $("#key-to-force-select-tile-8").text(), $("#key-to-force-select-tile-9").text(), $("#key-to-force-select-tile-10").text(), $("#key-to-force-select-tile-11").text(), $("#key-to-force-select-tile-12").text(), $("#key-to-force-select-tile-13").text(), $("#key-to-force-select-tile-14").text(), $("#key-to-force-select-tile-15").text(), $("#key-to-force-select-tile-16").text(), $("#key-to-force-select-tile-17").text(), $("#key-to-force-select-tile-18").text(), $("#key-to-force-select-tile-19").text()],
+				tiles: [
+					$("#key-to-force-select-tile-0").text(),
+					$("#key-to-force-select-tile-1").text(),
+					$("#key-to-force-select-tile-2").text(),
+					$("#key-to-force-select-tile-3").text(),
+					$("#key-to-force-select-tile-4").text(),
+					$("#key-to-force-select-tile-5").text(),
+					$("#key-to-force-select-tile-6").text(),
+					$("#key-to-force-select-tile-7").text(),
+					$("#key-to-force-select-tile-8").text(),
+					$("#key-to-force-select-tile-9").text(),
+					$("#key-to-force-select-tile-10").text(),
+					$("#key-to-force-select-tile-11").text(),
+					$("#key-to-force-select-tile-12").text(),
+					$("#key-to-force-select-tile-13").text(),
+					$("#key-to-force-select-tile-14").text(),
+					$("#key-to-force-select-tile-15").text(),
+					$("#key-to-force-select-tile-16").text(),
+					$("#key-to-force-select-tile-17").text(),
+					$("#key-to-force-select-tile-18").text(),
+					$("#key-to-force-select-tile-19").text(),
+				],
 			},
 		},
 	};
