@@ -8,6 +8,33 @@
 	src: url("../assets/fonts/computermodernmathitalic.ttf");
 }
 
+@keyframes rainbow-cycle {
+	12.5% {
+		color: #ff0000;
+	}
+	25% {
+		color: #ffa500;
+	}
+	37.5% {
+		color: #ffff00;
+	}
+	50% {
+		color: #7fff00;
+	}
+	62.5% {
+		color: #00ffff;
+	}
+	75% {
+		color: #0000ff;
+	}
+	87.5% {
+		color: #9932cc;
+	}
+	100% {
+		color: #ff1493;
+	}
+}
+
 * {
 	background-color: #eeeeee;
 	font-family: "Computer Modern Unicode Serif";
@@ -87,6 +114,16 @@ kbd {
 .monospace-text {
 	font-family: monospace;
 }
+
+.rainbow-cycle-text {
+	animation-name: rainbow-cycle;
+	animation-iteration-count: infinite;
+	animation-duration: 0.25s;
+}
+
+.disabled-button {
+	cursor: not-allowed;
+}
 /*
     MAIN MENU
 */
@@ -141,7 +178,7 @@ kbd {
 }
 
 #information-screen-content-container {
-    float: right;
+	float: right;
 	right: 1vw;
 	width: 98vw;
 	overflow-y: auto;
@@ -157,10 +194,10 @@ kbd {
 	border-left: 2px solid #000000;
 	text-align: left;
 	font-size: 24px;
-    transition: all 0.1s ease-out;
+	transition: all 0.1s ease-out;
 }
 .information-screen-navigation-button:hover {
-	box-shadow: inset 15.625vw  0 0 #b6b6b6;
+	box-shadow: inset 15.625vw 0 0 #b6b6b6;
 }
 #information-screen-navigation-button-container {
 	position: absolute;
@@ -183,7 +220,7 @@ kbd {
 }
 
 .settings-screen-navigation-button:hover {
-	box-shadow: inset 15.625vw  0 0 #b6b6b6;
+	box-shadow: inset 15.625vw 0 0 #b6b6b6;
 }
 
 .settings-screen-navigation-button {
@@ -195,7 +232,7 @@ kbd {
 	border-left: 2px solid #000000;
 	text-align: left;
 	font-size: 24px;
-    transition: all 0.1s ease-out;
+	transition: all 0.1s ease-out;
 }
 #settings-screen-navigation-button-container {
 	position: absolute;
@@ -266,7 +303,6 @@ GAME OVER
 	margin-left: 2vw;
 }
 
-
 .game-over-screen-navigation-button {
 	width: 15.625vw;
 	height: 50px;
@@ -276,10 +312,9 @@ GAME OVER
 	border-left: 2px solid #000000;
 	text-align: left;
 	font-size: 24px;
-    transition: all 0.1s ease-out;
+	transition: all 0.1s ease-out;
 }
 
-
 .game-over-screen-navigation-button:hover {
-	box-shadow: inset 15.625vw  0 0 #b6b6b6;
+	box-shadow: inset 15.625vw 0 0 #b6b6b6;
 }

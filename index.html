@@ -276,7 +276,7 @@
 							<br />
 							<br />
 							Password: <input type="password" id="password-input-box" class="settings-input-box" /> <br /><br />
-							<button onClick="socket.emit('authenticate', $('#username-input-box')[0].value, btoa(btoa(btoa(btoa($('#password-input-box')[0].value)))))" style="width: 256px; height: 64px; font-size: 28px">Login</button>
+							<button id="login-button" onClick="socket.emit('authenticate', $('#username-input-box')[0].value, btoa(btoa(btoa(btoa($('#password-input-box')[0].value)))));$(this).addClass('disabled-button').text('Please Wait...');" style="width: 256px; height: 64px; font-size: 28px">Login</button>
 						</div>
 					</div>
 				</div>
@@ -369,7 +369,6 @@
 		<script src="/scripts/lib/socket.io.js"></script>
 		<script src="/scripts/lib/fontfaceobserver.js"></script>
 		<script src="/scripts/lib/math-expression-evaluator.min.js"></script>
-		<script src="/scripts/lib/tween.umd.js"></script>
 		<script src="/scripts/lib/lz-string.min.js"></script>
 		
 		<script src="/scripts/enemy.js"></script>

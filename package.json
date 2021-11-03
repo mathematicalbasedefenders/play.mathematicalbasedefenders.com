@@ -1,13 +1,13 @@
 {
   "name": "mathematicalbasedefenders",
-  "version": "0.1.0",
+  "version": "0.2.2",
   "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "author": "",
+  "author": "mistertfy64",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",

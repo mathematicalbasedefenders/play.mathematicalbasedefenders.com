@@ -56,12 +56,11 @@ var currentTime = Date.now();
 var deltaTime = Date.now();
 var lastUpdateTime = Date.now();
 
-mongoose.connect(credentials.getMongooseURI(), { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
+mongoose.connect(credentials.getMongooseURI(), { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
 
 mongoose.connection.on("connected", () => {
 	console.log("Successfully connected to mongoose.");
 });
-
 
 app.get("/", (request, response) => {
 	response.sendFile(__dirname + "/index.html");
@@ -70,6 +69,8 @@ app.get("/", (request, response) => {
 var timeSinceLastTimeStatsPrintedInMilliseconds = 0;
 var dataSentWithoutCompression = 0;
 var dataSentWithCompression = 0;
+
+var usersCurrentlyAttemptingToLogIn = [];
 
 function update(deltaTime) {
 	timeSinceLastTimeStatsPrintedInMilliseconds += deltaTime;
@@ -137,15 +138,13 @@ io.on("connection", (socket) => {
 
 	// input
 	socket.on("keypress", async (code, playerTileKeybinds) => {
-
 		if (ownerOfSocketIsPlaying) {
 			if (code != "Escape") {
-				// Escape
 				if (socketIsHostOfRoomItIsIn) {
-						game.forceSelectTileWithTermID(game.convertPressedKeyToTermID(code, playerTileKeybinds, rooms[currentRoomSocketIsIn]), rooms[currentRoomSocketIsIn]);
-					
+					game.forceSelectTileWithTermID(game.convertPressedKeyToTermID(code, playerTileKeybinds, rooms[currentRoomSocketIsIn]), rooms[currentRoomSocketIsIn]);
 				}
 			} else {
+				// Escape
 				socket.leave(currentRoomSocketIsIn);
 				currentRoomSocketIsIn = "";
 				ownerOfSocketIsPlaying = false;
@@ -161,25 +160,46 @@ io.on("connection", (socket) => {
 	socket.on("authenticate", async (username, encodedPassword) => {
 		console.log("Log in attempt from " + username);
 
-		decodedPassword = new Buffer(new Buffer(new Buffer(new Buffer(encodedPassword, "base64").toString(), "base64").toString(), "base64").toString(), "base64").toString();
-		playerData = await schemas.getUserModel().findOne({ username: username });
+		if (!usersCurrentlyAttemptingToLogIn.includes(username)) {
+			if (/^[a-zA-Z0-9]*$/g.test(username)) {
+				decodedPassword = new Buffer.from(new Buffer.from(new Buffer.from(new Buffer.from(encodedPassword, "base64").toString(), "base64").toString(), "base64").toString(), "base64").toString();
 
-		bcrypt.compare(decodedPassword, playerData.hashedPassword, (passwordError, passwordResult) => {
-			if (passwordError) {
-				console.log(passwordError);
-				socket.emit("loginResult", username, false)
-			} else {
-				if (passwordResult) {
-					console.log("Correct password for " + username + "!");
-					usernameOfSocketOwner = playerData.username;
-					userIDOfSocketOwner = playerData["_id"];
-					socket.emit("loginResult", username, true)
+				playerData = await schemas.getUserModel().findOne({ username: username });
+
+				if (playerData) {
+					bcrypt.compare(decodedPassword, playerData.hashedPassword, (passwordError, passwordResult) => {
+						if (passwordError) {
+							console.log(passwordError);
+							socket.emit("loginResult", username, false);
+							usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
+						} else {
+							if (passwordResult) {
+								console.log("Correct password for " + username + "!");
+								usernameOfSocketOwner = playerData.username;
+								userIDOfSocketOwner = playerData["_id"];
+								socket.emit("loginResult", username, true);
+								usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
+							} else {
+								console.log("Incorrect password for " + username + "!");
+								socket.emit("loginResult", username, false);
+								usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
+							}
+						}
+					});
 				} else {
-					console.log("Incorrect password for " + username + "!");
-					socket.emit("loginResult", username, false)
+					console.log("User " + username + " not found!");
+					socket.emit("loginResult", username, false);
+					usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
 				}
+			} else {
+				console.log("User " + username + " not found!");
+				socket.emit("loginResult", username, false);
+				usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
 			}
-		});
+		} else {
+			console.log("User " + username + " is already trying to log in!");
+			socket.emit("loginResult", username, false);
+		}
 	});
 
 	/**

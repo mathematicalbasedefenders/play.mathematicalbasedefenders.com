@@ -46,8 +46,8 @@ restoreSettings();
 // "Logical" Variables
 
 var framesRenderedSinceLaunch = 0.0;
-var initialWindowWidth = window.innerWidth;
-var initialWindowHeight = window.innerHeight;
+var initialWindowWidth = window.screen.width;
+var initialWindowHeight = window.screen.availHeight - (window.outerHeight - window.innerHeight);
 var initialRatio = initialWindowWidth / initialWindowHeight;
 
 var enemyGenerationElapsedFramesCounter = 0;
@@ -57,14 +57,8 @@ var game = {
 	renderedEnemiesOnField: [],
 	spritesOfRenderedEnemiesOnField: [],
 	enemiesRenderedLastUpdate: [],
-	enemyRenderStatus: {
-		"-1": {
-			sprite: "???",
-			textSprite: "???",
-			rendered: true,
-			destroyed: "killed", // or "reachedBase" or false
-		}, // there is NO #-1 enemy
-	},
+	enemyRenderStatus: {},
+	scoreGainIndicatorRenderStatus: {},
 	tilesOnBoard: [],
 };
 
@@ -77,8 +71,8 @@ const TERMS_AS_BEAUTIFUL_STRINGS = ["0", "1", "2", "3", "4", "5", "6", "7", "8",
 
 // PIXI Variables
 var app = new PIXI.Application({
-	width: screen.width,
-	height: screen.height,
+	width: window.screen.width,
+	height: window.screen.height,
 	backgroundColor: 0xeeeeee,
 	autoResize: true,
 	resizeTo: window,
@@ -89,6 +83,7 @@ var app = new PIXI.Application({
 renderer = PIXI.autoDetectRenderer(initialWindowWidth, initialWindowHeight);
 
 document.body.appendChild(app.renderer.view);
+app.renderer.plugins.accessibility.destroy();
 
 var mainMenuScreenContainer = new PIXI.Container();
 var singleplayerScreenContainer = new PIXI.Container();
@@ -219,24 +214,27 @@ for (i = 0; i < 2; i++) {
 // Input
 var keyRebindProcessUnderway = false;
 $(document).keydown(function (event) {
-	if (keyRebindProcessUnderway || keyRebindProcessUnderway === "0") {
-		// 3 equal signs or it wont work!!!!
-		let keyAlreadyHasATile = false;
-		for (let i = 0; i < 19; i++) {
-			if (event.code == $("#key-to-force-select-tile-" + i).text()) {
-				keyAlreadyHasATile = true;
-				break;
+	if (event.code != "Tab") {
+		if (keyRebindProcessUnderway || keyRebindProcessUnderway === "0") {
+			// 3 equal signs or it wont work!!!!
+			let keyAlreadyHasATile = false;
+			for (let i = 0; i < 19; i++) {
+				if (event.code == $("#key-to-force-select-tile-" + i).text()) {
+					keyAlreadyHasATile = true;
+					break;
+				}
 			}
-		}
-		if (keyAlreadyHasATile) {
-			alert("Key already has a tile assigned to it!");
-			keyRebindProcessUnderway = false;
+			if (keyAlreadyHasATile) {
+				alert("Key already has a tile assigned to it!");
+				keyRebindProcessUnderway = false;
+			} else {
+				$("#key-to-force-select-tile-" + keyRebindProcessUnderway).text(event.code);
+				keyRebindProcessUnderway = false;
+			}
 		} else {
-			$("#key-to-force-select-tile-" + keyRebindProcessUnderway).text(event.code);
-			keyRebindProcessUnderway = false;
+			processKeypress(event);
 		}
 	} else {
-		processKeypress(event);
 	}
 });
 // =============== END OF OTHER STUFF ===============================
@@ -246,17 +244,13 @@ initializationFinished = true;
 
 // ======================================================================================== END OF INITIALIZATION =====================================================================
 console.log("Initialization finished!");
+resizeContainer();
 var game = JSON.parse(JSON.stringify(game));
 setPropertiesAndChangeScreen(currentScreen);
 addThingsToScreen();
 
 let resize = function resize() {
-	var ratio = Math.min(window.innerWidth / initialWindowWidth, window.innerHeight / initialWindowHeight);
-
-	mainMenuScreenContainer.scale.x = mainMenuScreenContainer.scale.y = ratio;
-	singleplayerScreenContainer.scale.x = singleplayerScreenContainer.scale.y = ratio;
-
-	renderer.resize(Math.ceil(initialWindowWidth * ratio), Math.ceil(initialWindowHeight * ratio));
+	resizeContainer();
 };
 
 window.addEventListener("resize", resize);
@@ -413,6 +407,8 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 					$("#final-actions-per-minute").text(((roomData.currentGame.actionsPerformed / (roomData.currentGame.currentInGameTimeInMilliseconds / 1000)) * 60).toFixed(3).toString());
 				} else {
 					// text
+
+					// interface
 					currentScoreText.text = roomData.currentGame.currentScore;
 					currentProblemText.text = settings.video.multiplicationSignForm == "dot" ? roomData.currentGame.currentProblemAsBeautifulText.replaceAll("×", "·") : roomData.currentGame.currentProblemAsBeautifulText;
 					baseHealthText.text = "Base Health: " + roomData.currentGame.baseHealth + "/10";
@@ -423,8 +419,8 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 					valueOfVariableBText.text = roomData.currentGame.valueOfVariableB === undefined ? "b = ?" : "b = " + roomData.currentGame.valueOfVariableB;
 					valueOfVariableCText.text = roomData.currentGame.valueOfVariableC === undefined ? "c = ?" : "c = " + roomData.currentGame.valueOfVariableC;
 					valueOfVariableDText.text = roomData.currentGame.valueOfVariableD === undefined ? "d = ?" : "d = " + roomData.currentGame.valueOfVariableD;
-
 					currentTimeText.text = turnMillisecondsToTime(roomData.currentGame.currentInGameTimeInMilliseconds);
+
 					// tiles
 					for (let i = 0; i < 49; i++) {
 						// why?
@@ -433,7 +429,6 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 
 							if (!game.tilesOnBoard[i] || game.tilesOnBoard[i].tileID != t.tileID) {
 								game.tilesOnBoard[i] = t;
-								game.tilesOnBoard[i].identifier = Math.random();
 								game.tilesOnBoard[i].sprite.on("click", function () {
 									processTileClick(i);
 								});
@@ -450,7 +445,7 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 					let renderedEnemiesOnFieldToDelete = [];
 					for (let i = 0; i < roomData.currentGame.enemiesOnField.length; i++) {
 						let enemy = roomData.currentGame.enemiesOnField[i];
-						if ((enemy !== undefined || enemy !== null) && !enemy.toDestroy) {
+						if (enemy !== undefined && enemy !== null && !enemy.toDestroy) {
 							if (game.enemyRenderStatus[enemy.enemyNumber.toString()] === undefined) {
 								// add enemy to array
 								if (!game.renderedEnemiesOnField.includes(enemy.enemyNumber.toString())) {
@@ -494,6 +489,7 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 								singleplayerScreenContainer.addChild(game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"]);
 								singleplayerScreenContainer.addChild(game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"]);
 							}
+							// render
 							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].x = initialWindowWidth / 2 + 80 * (enemy.sPosition - 5); // (enemy.sPosition / 10) * 800 + 560;
 
 							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].y = enemy.yPosition;
@@ -501,8 +497,6 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 							game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].y = enemy.yPosition + (enemy.height - game.enemyRenderStatus[enemy.enemyNumber.toString()]["textMetrics"].height) / 2;
 							if (enemy.reachedBase || enemy.destroyed) {
 								game.enemyRenderStatus[enemy.enemyNumber.toString()].toDestroy = true;
-								// game.enemyRenderStatus[enemy.enemyNumber.toString()]["textSprite"].toDestroy = true;
-								// renderedEnemiesOnFieldToDelete.push(enemy.enemyNumber.toString());
 							}
 						} else {
 							renderedEnemiesOnFieldToDelete.push(enemy.enemyNumber.toString());
@@ -510,9 +504,7 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 					}
 
 					for (let enemy in game.enemyRenderStatus) {
-						// console.log(game.enemyRenderStatus[enemy]);
 						if (game.enemyRenderStatus[enemy].toDestroy) {
-							// console.log("Removing Enemy #" + enemy);
 							singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy].enemySprite);
 							singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy].textSprite);
 						}
@@ -524,12 +516,43 @@ socket.on("roomData", (compressedStringifiedJSONRoomData) => {
 						}
 					}
 
+					// score indicators
+					let scoreGainIndicatorsToDelete = [];
+					for (let i = 0; i < roomData.currentGame.scoreGainIndicators.length; i++) {
+						let indicator = roomData.currentGame.scoreGainIndicators[i];
+						if (indicator !== undefined && indicator !== null && indicator.ageInMilliseconds < 500) {
+							if (game.scoreGainIndicatorRenderStatus[indicator.number.toString()] === undefined) {
+								// ???
+								// create object
+								game.scoreGainIndicatorRenderStatus[indicator.number.toString()] = {};
+								// create the indicator
+								let scoreGainIndicator = new PIXI.Text(roomData.currentGame.scoreGainIndicators[i].content, textStyles.SIZE_24_FONT);
+								scoreGainIndicator.x = initialWindowWidth / 2 + 80 * (roomData.currentGame.scoreGainIndicators[i].sPosition - 5);
+								scoreGainIndicator.y = 60 * (roomData.currentGame.scoreGainIndicators[i].age / 600 - 5) * -1 + 300;
+								// add to render
+
+								game.scoreGainIndicatorRenderStatus[indicator.number.toString()]["textSprite"] = scoreGainIndicator;
+								game.scoreGainIndicatorRenderStatus[indicator.number.toString()]["rendered"] = true;
+								// game.spritesOfRenderedEnemiesOnField.push(enemySprite);
+								singleplayerScreenContainer.addChild(game.scoreGainIndicatorRenderStatus[indicator.number.toString()]["textSprite"]);
+							}
+							game.scoreGainIndicatorRenderStatus[indicator.number.toString()]["textSprite"].y = -24 * (roomData.currentGame.scoreGainIndicators[i].ageInMilliseconds / 100 - 5) + 50;
+						} else {
+							scoreGainIndicatorsToDelete.push(indicator.number.toString());
+						}
+					}
+
+					// delete
 					for (let numberToRemoveAsString of renderedEnemiesOnFieldToDelete) {
 						game.enemyRenderStatus[numberToRemoveAsString.toString()] === undefined || singleplayerScreenContainer.removeChild(game.enemyRenderStatus[numberToRemoveAsString.toString()]["enemySprite"]);
 						game.enemyRenderStatus[numberToRemoveAsString.toString()] === undefined || singleplayerScreenContainer.removeChild(game.enemyRenderStatus[numberToRemoveAsString.toString()]["textSprite"]);
 						delete game.enemyRenderStatus[numberToRemoveAsString.toString()];
 						game.renderedEnemiesOnField.splice(game.renderedEnemiesOnField.indexOf(numberToRemoveAsString), 1);
 						game.spritesOfRenderedEnemiesOnField.splice(game.spritesOfRenderedEnemiesOnField.indexOf(numberToRemoveAsString), 1);
+					}
+					for (let numberToRemoveAsString of scoreGainIndicatorsToDelete) {
+						game.scoreGainIndicatorRenderStatus[numberToRemoveAsString.toString()] === undefined || singleplayerScreenContainer.removeChild(game.scoreGainIndicatorRenderStatus[numberToRemoveAsString.toString()]["textSprite"]);
+						delete game.scoreGainIndicatorRenderStatus[numberToRemoveAsString.toString()];
 					}
 				}
 			}
@@ -547,7 +570,11 @@ socket.on("finalRanks", (personalBestBroken, finalGlobalRank, scoreSaved) => {
 });
 
 socket.on("loginResult", (username, success) => {
-	alert(success ? "Successfully logged in as" + username + "!" : " Failed to log in as" + " " + username + "!");
+	alert(success ? "Successfully logged in as " + username + "!" : " Failed to log in as" + " " + username + "!");
+	$("#login-button").removeClass("disabled-button").text("Login");
+	if (success) {
+		$("#login-button").hide();
+	}
 });
 
 // Logical Functions
@@ -656,6 +683,16 @@ function generateRandomColor() {
 }
 
 // Rendering Helpers
+
+function resizeContainer() {
+	var ratio = Math.min(window.innerWidth / initialWindowWidth, window.screen.availHeight - (window.outerHeight - window.innerHeight) / initialWindowHeight);
+
+	mainMenuScreenContainer.scale.x = mainMenuScreenContainer.scale.y = ratio;
+	singleplayerScreenContainer.scale.x = singleplayerScreenContainer.scale.y = ratio;
+
+	renderer.resize(Math.ceil(initialWindowWidth * ratio), Math.ceil(initialWindowHeight * ratio));
+}
+
 function removeAllRenderedEnemies() {
 	for (let enemy in game.enemyRenderStatus) {
 		if (game.enemyRenderStatus.hasOwnProperty(enemy)) {
