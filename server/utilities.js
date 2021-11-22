@@ -1,5 +1,5 @@
 function generateRoomID(){
-    characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     roomID = undefined;
     while (roomID === undefined){
         generatedRoomID = "";
@@ -11,5 +11,14 @@ function generateRoomID(){
     return roomID;
 
 
-}    
-module.exports = { generateRoomID }
+}
+
+function generateGuestName(){
+    characters = "0123456789";
+    generatedName = "";
+    for (i = 0; i < 8; i++){
+        generatedName += characters.charAt(Math.floor(Math.random() * characters.length)).toString();
+    }
+    return "Guest " + generatedName.toString();
+}
+module.exports = { generateRoomID, generateGuestName }

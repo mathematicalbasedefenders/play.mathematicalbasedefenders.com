@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+// lzstring
+const LZString = require("lz-string");
+
+const _ = require("lodash");
+
+
 const enemy = require("./game/enemy.js");
 const tile = require("./game/tile.js");
 const mexp = require("math-expression-evaluator");
@@ -12,128 +18,331 @@ const FRAMES_PER_SECOND = 60;
 
 const schemas = require("./core/schemas.js");
 
+var roomTypes = {
+	SINGLEPLAYER: "singleplayer",
+	DEFAULT_MULTIPLAYER: "defaultMultiplayer",
+	MULTIPLAYER: "multiplayer",
+};
+
+var modes = {
+	SINGLEPLAYER: "singleplayer",
+	DEFAULT_MULTIPLAYER: "defaultMultiplayer",
+	MULTIPLAYER: "multiplayer",
+};
+
 // MAJOR
 function computeUpdate(room, deltaTimeInMilliseconds) {
-	if (room.playing) {
-		// variables
-		var framesRendered = (deltaTimeInMilliseconds * FRAMES_PER_SECOND) / 1000;
+	// other stats
 
-		// counters
-		// general stats
-		room.data.currentGame.currentInGameTimeInMilliseconds += deltaTimeInMilliseconds;
-		// game stats (not shown)
-		room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds += deltaTimeInMilliseconds;
-		room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
+	// rooms
+	if (room.type == modes.SINGLEPLAYER) {
+		if (room.playing) {
+			// variables
+			var framesRendered = (deltaTimeInMilliseconds * FRAMES_PER_SECOND) / 1000;
 
-		// technical stats
-		room.data.currentGame.framesRenderedSinceGameStart += framesRendered;
+			// counters
+			// general stats
+			room.data.currentGame.currentInGameTimeInMilliseconds += deltaTimeInMilliseconds;
+			// game stats (not shown)
+			room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds += deltaTimeInMilliseconds;
+			room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
 
-		// base health
-		if (room.data.currentGame.baseHealth <= 0) {
-			room.playing = false;
-			room.data.currentGame.gameIsOver = true;
-			let finalGameData = JSON.parse(JSON.stringify(room.data.currentGame));
-			submitSingleplayerGame(room.host, finalGameData, room.userIDOfHost);
-		}
+			// technical stats
+			room.data.currentGame.framesRenderedSinceGameStart += framesRendered;
 
-		// combo
-		if (room.data.currentGame.currentCombo > -1 && room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > 5000) {
-			room.data.currentGame.currentCombo = -1;
-		}
+			// base health
+			if (room.data.currentGame.baseHealth <= 0) {
+				room.playing = false;
+				room.data.currentGame.gameIsOver = true;
 
-		// enemy management
-		// create
-		if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > 50) {
-			if (Math.random() > 0.95) {
-				room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy(1360, 120, 100, 100, generateRandomEnemyTerm(), Math.random() * 2 + 1, 1, 1, room.data.currentGame.enemiesCreated + 1);
-				room.data.currentGame.enemiesCreated++;
+				let socketOfGamePlayed = room.host;
+
+				let finalGameData = JSON.parse(JSON.stringify(room.data));
+
+				socketOfGamePlayed.emit("currentGameData", LZString.compressToUTF16(JSON.stringify(finalGameData)));
+				socketOfGamePlayed.to(room.id).emit("currentGameData", LZString.compressToUTF16(JSON.stringify(finalGameData)));
+
+				room.data.currentGame.gameOverScreenShown = true;
+
+				room.host.leave(room.id);
+				socketOfGamePlayed.currentRoomSocketIsIn = "";
+				submitSingleplayerGame(room.host, finalGameData.currentGame, room.userIDOfHost);
 			}
-			room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= 50;
-		}
-		// move
-		for (i = 0; i < room.data.currentGame.enemiesOnField.length; i++) {
-			if (room.data.currentGame.enemiesOnField[i] !== undefined) {
-				room.data.currentGame.enemiesOnField[i].move(framesRendered * 0.01 * room.data.currentGame.enemiesOnField[i].defaultSpeed);
-				if (room.data.currentGame.enemiesOnField[i].sPosition < 0 && !room.data.currentGame.enemiesOnField[i].reachedBase && !room.data.currentGame.enemiesOnField[i].destroyed) {
-					room.data.currentGame.enemiesOnField[i].reachedBase = true;
-					room.data.currentGame.baseHealth -= 1;
+
+			// combo
+			if (room.data.currentGame.currentCombo > -1 && room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > 5000) {
+				room.data.currentGame.currentCombo = -1;
+			}
+
+			// enemy management
+			// create
+			if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > 50) {
+				if (Math.random() > 0.95) {
+					room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy(1360, 120, 100, 100, generateRandomEnemyTerm(), Math.random() * 2 + 1, 1, 1, room.data.currentGame.enemiesCreated + 1);
+					room.data.currentGame.enemiesCreated++;
 				}
-				if (room.data.currentGame.enemiesOnField[i].sPosition < -0.5) {
-					room.data.currentGame.enemiesOnField.splice(i, 1);
+				room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= 50;
+			}
+			// move
+			for (i = 0; i < room.data.currentGame.enemiesOnField.length; i++) {
+				if (room.data.currentGame.enemiesOnField[i] !== undefined) {
+					room.data.currentGame.enemiesOnField[i].move(framesRendered * 0.01 * room.data.currentGame.enemiesOnField[i].defaultSpeed);
+					if (room.data.currentGame.enemiesOnField[i].sPosition < 0 && !room.data.currentGame.enemiesOnField[i].reachedBase && !room.data.currentGame.enemiesOnField[i].destroyed) {
+						room.data.currentGame.enemiesOnField[i].reachedBase = true;
+						room.data.currentGame.baseHealth -= 1;
+					}
+					if (room.data.currentGame.enemiesOnField[i].sPosition < -0.5) {
+						room.data.currentGame.enemiesOnField.splice(i, 1);
+					}
 				}
 			}
-		}
 
-		// move score indicators
-		for (i = 0; i < room.data.currentGame.scoreGainIndicators.length; i++){
-			room.data.currentGame.scoreGainIndicators[i].ageInMilliseconds += deltaTimeInMilliseconds;
-			if (room.data.currentGame.scoreGainIndicators[i].ageInMilliseconds >= 500){
-				room.data.currentGame.scoreGainIndicatorsToDestroy.push(room.data.currentGame.scoreGainIndicators[room.data.currentGame.scoreGainIndicators.indexOf(room.data.currentGame.scoreGainIndicators[i])]);
+			// move score indicators
+			for (i = 0; i < room.data.currentGame.scoreGainIndicators.length; i++) {
+				room.data.currentGame.scoreGainIndicators[i].ageInMilliseconds += deltaTimeInMilliseconds;
+				if (room.data.currentGame.scoreGainIndicators[i].ageInMilliseconds >= 500) {
+					room.data.currentGame.scoreGainIndicatorsToDestroy.push(room.data.currentGame.scoreGainIndicators[room.data.currentGame.scoreGainIndicators.indexOf(room.data.currentGame.scoreGainIndicators[i])]);
+				}
+			}
+
+			// ???
+			room.data.currentGame.enemiesOnField = room.data.currentGame.enemiesOnField.filter(function (element) {
+				return element != null || element !== undefined;
+			});
+
+			// remove things to remove
+
+			for (let i = 0; i < room.data.currentGame.scoreGainIndicatorsToDestroy.length; i++) {
+				delete room.data.currentGame.scoreGainIndicators[room.data.currentGame.scoreGainIndicatorsToDestroy[i].toString()];
+			}
+			room.data.currentGame.scoreGainIndicatorsToDestroy = [];
+		}
+	} else if (room.type == modes.DEFAULT_MULTIPLAYER) {
+		if (room.playing) {
+			// variables
+			var framesRendered = (deltaTimeInMilliseconds * FRAMES_PER_SECOND) / 1000;
+
+			// counters
+			// general stats
+			room.data.currentGame.currentInGameTimeInMilliseconds += deltaTimeInMilliseconds;
+
+			// game stats (not shown)
+			room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds += deltaTimeInMilliseconds;
+			room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
+
+			// technical stats
+			room.data.currentGame.framesRenderedSinceGameStart += framesRendered;
+
+			// things to apply to all players
+			room.data.currentGame.globalEnemyToAdd = null;
+
+			if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > 50) {
+				if (Math.random() > 0.95) {
+					room.data.currentGame.globalEnemyToAdd = new enemy.Enemy(1360, 120, 100, 100, generateRandomEnemyTerm(), Math.random() * 2 + 1, 1, 1, room.data.currentGame.globalEnemiesCreated + 1);
+					room.data.currentGame.globalEnemiesCreated++;
+				}
+				room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= 50;
+			}
+
+			// loop through all the players
+			let playersAliveThisUpdate = room.data.currentGame.playersAlive;
+			for (let i = 0; i < playersAliveThisUpdate.length; i++) {
+				// base health
+				if (room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.baseHealth <= 0) {
+					let finalGameData = JSON.parse(JSON.stringify(room.data));
+
+					socketOfGamePlayed.emit("currentGameData", LZString.compressToUTF16(JSON.stringify(finalGameData)));
+					socketOfGamePlayed.to(room.id).emit("currentGameData", LZString.compressToUTF16(JSON.stringify(finalGameData)));
+
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.gameOverScreenShown = true;
+				}
+
+				// combo
+				if (room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.currentCombo > -1 && room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > 5000) {
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.currentCombo = -1;
+				}
+
+				// enemy management
+
+				// create
+				if (room.data.currentGame.globalEnemyToAdd != null) {
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated] = _.cloneDeep(room.data.currentGame.globalEnemyToAdd);
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated++;
+				}
+
+				// move
+				for (j = 0; j < room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField.length; j++) {
+					if (room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[j] !== undefined) {
+						room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[j].move(framesRendered * 0.01 * room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[j].defaultSpeed);
+						if (
+							room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[j].sPosition < 0 &&
+							!room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[j].reachedBase &&
+							!room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[j].destroyed
+						) {
+							room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[j].reachedBase = true;
+							room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.baseHealth -= 1;
+						}
+						if (room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[j].sPosition < -0.5) {
+							room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField.splice(j, 1);
+						}
+					}
+				}
+
+				room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField = room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField.filter(function (element) {
+					return element != null || element !== undefined;
+				});
 			}
 		}
-
-		// ???
-		room.data.currentGame.enemiesOnField = room.data.currentGame.enemiesOnField.filter(function (element) {
-			return element != null || element !== undefined;
-		});
-
-
-		// remove things to remove
-		
-		for (let i = 0; i < room.data.currentGame.scoreGainIndicatorsToDestroy.length; i++){
-			delete room.data.currentGame.scoreGainIndicators[room.data.currentGame.scoreGainIndicatorsToDestroy[i].toString()];
-		}
-		room.data.currentGame.scoreGainIndicatorsToDestroy = [];
-
 	}
 }
 
-function createNewGameData(mode, roomID) {
+function createNewSingleplayerGameData(mode, roomID) {
+	switch (mode) {
+		case modes.SINGLEPLAYER: {
+			var data = {
+				id: roomID,
+
+				mode: mode,
+
+				currentGame: {
+					currentScore: 0,
+					currentInGameTimeInMilliseconds: 0,
+					actionsPerformed: 0,
+
+					currentCombo: -1,
+
+					enemiesCreated: 0,
+					enemiesKilled: 0,
+					enemiesOnField: [],
+					enemiesToKill: [],
+
+					tilesCreated: 0,
+					tilesOnBoard: [],
+					bagQuantities: [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+					availableTermsIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+
+					framesRenderedSinceGameStart: 0,
+					enemyGenerationElapsedTimeCounterInMilliseconds: 0,
+					timeElapsedSinceLastEnemyKillInMilliseconds: 0,
+
+					baseHealth: 10,
+
+					scoreGainIndicators: [],
+					scoreGainIndicatorsToDestroy: [],
+
+					currentProblemAsText: "",
+					currentProblemAsBeautifulText: "",
+					tilesInCurrentProblem: [],
+
+					valueOfVariableA: undefined,
+					valueOfVariableB: undefined,
+					valueOfVariableC: undefined,
+					valueOfVariableD: undefined,
+
+					gameIsOver: false,
+					gameOverScreenShown: false,
+				},
+			};
+			return data;
+		}
+	}
+}
+function createNewDefaultMultiplayerGameData(roomID, socket) {
 	var data = {
 		id: roomID,
-
-		mode: mode,
-
+		mode: modes.DEFAULT_MULTIPLAYER,
 		currentGame: {
-			currentScore: 0,
-			currentInGameTimeInMilliseconds: 0,
-			actionsPerformed: 0,
+			players: {
+				[socket.id]: {
+					name: socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner,
 
-			currentCombo: -1,
+					currentInGameTimeInMilliseconds: 0,
+					actionsPerformed: 0,
 
-			enemiesCreated: 0,
-			enemiesKilled: 0,
-			enemiesOnField: [],
-			enemiesToKill: [],
+					currentCombo: -1,
 
-			tilesCreated: 0,
-			tilesOnBoard: [],
-			bagQuantities: [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-			availableTermsIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+					enemiesCreated: 0,
+					enemiesKilled: 0,
+					enemiesOnField: [],
+					enemiesToKill: [],
 
-			framesRenderedSinceGameStart: 0,
-			enemyGenerationElapsedTimeCounterInMilliseconds: 0,
-			timeElapsedSinceLastEnemyKillInMilliseconds: 0,
+					tilesCreated: 0,
+					tilesOnBoard: [],
+					tileQueue: [],
+					bagQuantities: [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+					availableTermsIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
 
-			baseHealth: 10,
+					framesRenderedSinceGameStart: 0,
+					enemyGenerationElapsedTimeCounterInMilliseconds: 0,
+					timeElapsedSinceLastEnemyKillInMilliseconds: 0,
 
-			scoreGainIndicators: [],
-			scoreGainIndicatorsToDestroy: [],
+					baseHealth: 10,
 
-			currentProblemAsText: "",
-			currentProblemAsBeautifulText: "",
-			tilesInCurrentProblem: [],
+					scoreGainIndicators: [],
+					scoreGainIndicatorsToDestroy: [],
 
-			valueOfVariableA: undefined,
-			valueOfVariableB: undefined,
-			valueOfVariableC: undefined,
-			valueOfVariableD: undefined,
+					currentProblemAsText: "",
+					currentProblemAsBeautifulText: "",
+					tilesInCurrentProblem: [],
 
+					valueOfVariableA: undefined,
+					valueOfVariableB: undefined,
+					valueOfVariableC: undefined,
+					valueOfVariableD: undefined,
 
-
-			gameIsOver: false,
-			gameOverScreenShown: false,
+					gameIsOver: false,
+					gameOverScreenShown: false,
+				},
+			},
 		},
+	};
+	return data;
+}
+
+function createNewDefaultMultiplayerRoomPlayerObject(socket) {
+	console.log(socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner);
+	let data = {
+		name: socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner,
+
+		currentInGameTimeInMilliseconds: 0,
+
+		actionsPerformed: 0,
+
+		currentCombo: -1,
+
+		enemiesCreated: 0,
+		enemiesKilled: 0,
+		enemiesOnField: [],
+		enemiesToKill: [],
+
+		currentTileQueue: 1,
+
+		tilesCreated: 0,
+		tilesOnBoard: [],
+		tileQueue: [],
+		bagQuantities: [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+		availableTermsIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+
+		framesRenderedSinceGameStart: 0,
+		enemyGenerationElapsedTimeCounterInMilliseconds: 0,
+		timeElapsedSinceLastEnemyKillInMilliseconds: 0,
+
+		baseHealth: 10,
+
+		scoreGainIndicators: [],
+		scoreGainIndicatorsToDestroy: [],
+
+		currentProblemAsText: "",
+		currentProblemAsBeautifulText: "",
+		tilesInCurrentProblem: [],
+
+		valueOfVariableA: undefined,
+		valueOfVariableB: undefined,
+		valueOfVariableC: undefined,
+		valueOfVariableD: undefined,
+
+		gameIsOver: false,
+		gameOverScreenShown: false,
 	};
 	return data;
 }
@@ -285,178 +494,409 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 }
 
 // MINOR
-function evaluateProblem(room, socketIsHostOfRoomItIsIn) {
-	if (socketIsHostOfRoomItIsIn) {
-		switch ((room.data.currentGame.currentProblemAsText.match("=") || []).length) {
-			case 0: {
-				let originalProblem = room.data.currentGame.currentProblemAsText;
-				let problemToEvaluate = room.data.currentGame.currentProblemAsText.replace(/([0-9a-d])([a-d])/g, "$1*$2");
-				while (problemToEvaluate.match(/([0-9a-d])([a-d])/) != null) {
-					problemToEvaluate = problemToEvaluate.replace(/([0-9a-d])([a-d])/g, "$1*$2");
+function evaluateProblem(room, socket) {
+	switch (room.type) {
+		case "singleplayer": {
+			if (socket.socketIsHostOfRoomItIsIn) {
+				switch ((room.data.currentGame.currentProblemAsText.match("=") || []).length) {
+					case 0: {
+						let originalProblem = room.data.currentGame.currentProblemAsText;
+						let problemToEvaluate = room.data.currentGame.currentProblemAsText.replace(/([0-9a-d])([a-d])/g, "$1*$2");
+						while (problemToEvaluate.match(/([0-9a-d])([a-d])/) != null) {
+							problemToEvaluate = problemToEvaluate.replace(/([0-9a-d])([a-d])/g, "$1*$2");
+						}
+
+						let result = calculateProblem(problemToEvaluate, room);
+						let answers = 0;
+						let enemiesToKill = [];
+
+						let requestedValues = [];
+
+						if (result) {
+							for (i = 0; i < room.data.currentGame.enemiesOnField.length; i++) {
+								requestedValues.push(room.data.currentGame.enemiesOnField[i] === undefined && room.data.currentGame.enemiesOnField[i].sPosition < 0 ? undefined : room.data.currentGame.enemiesOnField[i].requestedValue);
+							}
+
+							for (i = 0; i < requestedValues.length; i++) {
+								if (result == calculateProblem(requestedValues[i], room) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
+									answers++;
+									enemiesToKill.push(room.data.currentGame.enemiesOnField[i]);
+								}
+							}
+
+							if (answers > 0 && result !== undefined) {
+								for (i = 0; i < enemiesToKill.length; i++) {
+									// Reset counter
+									room.data.currentGame.framesElapsedSinceLastEnemyKill = 0;
+									room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
+
+									room.data.currentGame.currentCombo++;
+
+									room.data.currentGame.currentScore += Math.round(
+										100 *
+											calculateProblemLengthMultiplier(room.data.currentGame.currentProblemAsText.length) *
+											calculateComboMultiplier(room.data.currentGame.currentCombo) *
+											calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+									);
+
+									room.data.currentGame.scoreGainIndicators.push({
+										number: room.data.currentGame.enemiesKilled + 1,
+										sPosition: enemiesToKill[i].sPosition,
+										content:
+											"+" +
+											Math.round(
+												100 *
+													calculateProblemLengthMultiplier(room.data.currentGame.currentProblemAsText.length) *
+													calculateComboMultiplier(room.data.currentGame.currentCombo) *
+													calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+											).toString(),
+										ageInMilliseconds: 0,
+									});
+
+
+									room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
+
+									room.data.currentGame.enemiesKilled++;
+								}
+
+								for (i = 0; i < room.data.currentGame.tilesInCurrentProblem.length; i++) {
+									let t = new tile.Tile(generateRandomTileTermID(room), i, false, room.data.currentGame.tilesCreated + 1);
+									room.data.currentGame.tilesCreated++;
+									room.data.currentGame.tilesOnBoard[room.data.currentGame.tilesInCurrentProblem[i]] = t;
+								}
+
+								room.data.currentGame.currentProblemAsText = "";
+								room.data.currentGame.currentProblemAsBeautifulText = "";
+								room.data.currentGame.tilesInCurrentProblem = [];
+
+								enemiesToKill = [];
+							}
+
+							break;
+						} else {
+							for (i = 0; i < room.data.currentGame.enemiesOnField.length; i++) {
+								requestedValues.push(room.data.currentGame.enemiesOnField[i] === undefined && room.data.currentGame.enemiesOnField[i].sPosition < 0 ? undefined : room.data.currentGame.enemiesOnField[i].requestedValue);
+							}
+
+							for (i = 0; i < requestedValues.length; i++) {
+								if (result == calculateProblem(requestedValues[i], room) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
+									answers++;
+									enemiesToKill.push(room.data.currentGame.enemiesOnField[i]);
+								}
+							}
+
+							if (answers > 0 && result !== undefined) {
+								for (i = 0; i < enemiesToKill.length; i++) {
+									// Reset counter
+									room.data.currentGame.framesElapsedSinceLastEnemyKill = 0;
+									room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
+
+									room.data.currentGame.currentCombo++;
+
+									room.data.currentGame.currentScore += Math.round(
+										100 *
+											calculateProblemLengthMultiplier(room.data.currentGame.currentProblemAsText.length) *
+											calculateComboMultiplier(room.data.currentGame.currentCombo) *
+											calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+									);
+
+									room.data.currentGame.scoreGainIndicators.push({
+										number: room.data.currentGame.enemiesKilled + 1,
+										sPosition: enemiesToKill[i].sPosition,
+										content:
+											"+" +
+											Math.round(
+												100 *
+													calculateProblemLengthMultiplier(room.data.currentGame.currentProblemAsText.length) *
+													calculateComboMultiplier(room.data.currentGame.currentCombo) *
+													calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+											).toString(),
+										ageInMilliseconds: 0,
+									});
+
+									room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
+
+									room.data.currentGame.enemiesKilled++;
+								}
+
+								for (i = 0; i < room.data.currentGame.tilesInCurrentProblem.length; i++) {
+									let t = new tile.Tile(generateRandomTileTermID(room), i, false, room.data.currentGame.tilesCreated + 1);
+									room.data.currentGame.tilesCreated++;
+									room.data.currentGame.tilesOnBoard[room.data.currentGame.tilesInCurrentProblem[i]] = t;
+								}
+
+								room.data.currentGame.currentProblemAsText = "";
+								room.data.currentGame.currentProblemAsBeautifulText = "";
+								room.data.currentGame.tilesInCurrentProblem = [];
+
+								enemiesToKill = [];
+							}
+
+							break;
+						}
+					}
+					case 1: {
+						let problemToEvaluate = room.data.currentGame.currentProblemAsText.replace(/([0-9a-d])([a-d])/g, "$1*$2");
+						while (problemToEvaluate.match(/([0-9a-d])([a-d])/) != null) {
+							problemToEvaluate = problemToEvaluate.replace(/([0-9a-d])([a-d])/g, "$1*$2");
+						}
+
+						let problemOnLeftSide = problemToEvaluate.substring(0, problemToEvaluate.indexOf("="));
+						let problemOnRightSide = problemToEvaluate.substring(problemToEvaluate.indexOf("=") + 1);
+
+						if (problemOnLeftSide.match(/[a-d]/) != null) {
+							// left side contains variable
+						} else {
+							// right side contains variable
+							let temp = problemOnRightSide;
+							problemOnRightSide = problemOnLeftSide;
+							problemOnLeftSide = temp;
+						}
+
+						if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room) != null) {
+							switch (problemOnLeftSide) {
+								case "a": {
+									room.data.currentGame.valueOfVariableA = calculateProblem(problemOnRightSide, room);
+									break;
+								}
+								case "b": {
+									room.data.currentGame.valueOfVariableB = calculateProblem(problemOnRightSide, room);
+									break;
+								}
+								case "c": {
+									room.data.currentGame.valueOfVariableC = calculateProblem(problemOnRightSide, room);
+									break;
+								}
+								case "d": {
+									room.data.currentGame.valueOfVariableD = calculateProblem(problemOnRightSide, room);
+									break;
+								}
+							}
+
+							for (i = 0; i < room.data.currentGame.tilesInCurrentProblem.length; i++) {
+								let t = new tile.Tile(generateRandomTileTermID(room), room.data.currentGame.tilesInCurrentProblem[i].slot, false);
+
+								room.data.currentGame.tilesOnBoard[room.data.currentGame.tilesInCurrentProblem[i]] = t;
+							}
+
+							room.data.currentGame.currentProblemAsText = "";
+							room.data.currentGame.currentProblemAsBeautifulText = "";
+							room.data.currentGame.tilesInCurrentProblem = [];
+						}
+
+						break;
+					}
+					default: {
+						break;
+					}
 				}
-
-				let result = calculateProblem(problemToEvaluate, room);
-				let answers = 0;
-				let enemiesToKill = [];
-
-				let requestedValues = [];
-
-				if (result) {
-					for (i = 0; i < room.data.currentGame.enemiesOnField.length; i++) {
-						requestedValues.push(room.data.currentGame.enemiesOnField[i] === undefined && room.data.currentGame.enemiesOnField[i].sPosition < 0 ? undefined : room.data.currentGame.enemiesOnField[i].requestedValue);
+			}
+			break;
+		}
+		case "defaultMultiplayer": {
+			console.log("checking problem for " + socket.id);
+			switch ((room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.match("=") || []).length) {
+				case 0: {
+					let originalProblem = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText;
+					let problemToEvaluate = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.replace(/([0-9a-d])([a-d])/g, "$1*$2");
+					while (problemToEvaluate.match(/([0-9a-d])([a-d])/) != null) {
+						problemToEvaluate = problemToEvaluate.replace(/([0-9a-d])([a-d])/g, "$1*$2");
 					}
 
-					for (i = 0; i < requestedValues.length; i++) {
-						if (result == calculateProblem(requestedValues[i], room) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
-							answers++;
-							enemiesToKill.push(room.data.currentGame.enemiesOnField[i]);
-						}
-					}
+					let result = calculateProblem(problemToEvaluate, room);
+					let answers = 0;
+					let enemiesToKill = [];
 
-					if (answers > 0 && result !== undefined) {
-						for (i = 0; i < enemiesToKill.length; i++) {
-							// Reset counter
-							room.data.currentGame.framesElapsedSinceLastEnemyKill = 0;
-							room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
+					let requestedValues = [];
 
-							room.data.currentGame.currentCombo++;
-
-							room.data.currentGame.currentScore += Math.round(
-								100 * calculateProblemLengthMultiplier(room.data.currentGame.currentProblemAsText.length) * calculateComboMultiplier(room.data.currentGame.currentCombo) * calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+					if (result) {
+						for (i = 0; i < room.data.currentGame.players[socket.id].currentGame.enemiesOnField.length; i++) {
+							requestedValues.push(
+								room.data.currentGame.players[socket.id].currentGame.enemiesOnField[i] === undefined && room.data.currentGame.players[socket.id].currentGame.enemiesOnField[i].sPosition < 0
+									? undefined
+									: room.data.currentGame.players[socket.id].currentGame.enemiesOnField[i].requestedValue
 							);
-
-							room.data.currentGame.scoreGainIndicators.push({
-								number: room.data.currentGame.enemiesKilled + 1,
-								sPosition: enemiesToKill[i].sPosition,
-								content: "+" + Math.round((100 * calculateProblemLengthMultiplier(room.data.currentGame.currentProblemAsText.length) * calculateComboMultiplier(room.data.currentGame.currentCombo) * calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition))).toString(),
-								ageInMilliseconds: 0,
-							});
-
-							room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
-
-							room.data.currentGame.enemiesKilled++;
 						}
 
-						for (i = 0; i < room.data.currentGame.tilesInCurrentProblem.length; i++) {
-							let t = new tile.Tile(generateRandomTileTermID(room), i, false, room.data.currentGame.tilesCreated + 1);
-							room.data.currentGame.tilesCreated++;
-							room.data.currentGame.tilesOnBoard[room.data.currentGame.tilesInCurrentProblem[i]] = t;
+						for (i = 0; i < requestedValues.length; i++) {
+							if (result == calculateProblem(requestedValues[i], room) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
+								answers++;
+								enemiesToKill.push(room.data.currentGame.players[socket.id].currentGame.enemiesOnField[i]);
+							}
 						}
 
-						room.data.currentGame.currentProblemAsText = "";
-						room.data.currentGame.currentProblemAsBeautifulText = "";
-						room.data.currentGame.tilesInCurrentProblem = [];
+						if (answers > 0 && result !== undefined) {
+							for (i = 0; i < enemiesToKill.length; i++) {
+								// Reset counter
+								room.data.currentGame.players[socket.id].currentGame.framesElapsedSinceLastEnemyKill = 0;
+								room.data.currentGame.players[socket.id].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
 
-						enemiesToKill = [];
+								room.data.currentGame.players[socket.id].currentGame.currentCombo++;
+
+								room.data.currentGame.players[socket.id].currentGame.currentScore += Math.round(
+									100 *
+										calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
+										calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
+										calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+								);
+
+								room.data.currentGame.players[socket.id].currentGame.scoreGainIndicators.push({
+									number: room.data.currentGame.players[socket.id].currentGame.enemiesKilled + 1,
+									sPosition: enemiesToKill[i].sPosition,
+									content:
+										"+" +
+										Math.round(
+											100 *
+												calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
+												calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
+												calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+										).toString(),
+									ageInMilliseconds: 0,
+								});
+
+								console.log("Killing enemy");
+								room.data.currentGame.players[socket.id].currentGame.enemiesOnField[room.data.currentGame.players[socket.id].currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
+
+								room.data.currentGame.players[socket.id].currentGame.enemiesKilled++;
+							}
+
+							for (i = 0; i < room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length; i++) {
+								let t = new tile.Tile(getMultiplayerTileQueueOfPlayer(room, socket), i, false, room.data.currentGame.players[socket.id].currentGame.tilesCreated + 1);
+								room.data.currentGame.players[socket.id].currentGame.tilesCreated++;
+								room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[i]] = t;
+							}
+
+							room.data.currentGame.players[socket.id].currentGame.currentProblemAsText = "";
+							room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText = "";
+							room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem = [];
+
+							enemiesToKill = [];
+						}
+
+						break;
+					} else {
+						for (i = 0; i < room.data.currentGame.players[socket.id].currentGame.enemiesOnField.length; i++) {
+							requestedValues.push(
+								room.data.currentGame.players[socket.id].currentGame.enemiesOnField[i] === undefined && room.data.currentGame.players[socket.id].currentGame.enemiesOnField[i].sPosition < 0
+									? undefined
+									: room.data.currentGame.players[socket.id].currentGame.enemiesOnField[i].requestedValue
+							);
+						}
+
+						for (i = 0; i < requestedValues.length; i++) {
+							if (result == calculateProblem(requestedValues[i], room) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
+								answers++;
+								enemiesToKill.push(room.data.currentGame.players[socket.id].currentGame.enemiesOnField[i]);
+							}
+						}
+
+						if (answers > 0 && result !== undefined) {
+							for (i = 0; i < enemiesToKill.length; i++) {
+								// Reset counter
+								room.data.currentGame.players[socket.id].currentGame.framesElapsedSinceLastEnemyKill = 0;
+								room.data.currentGame.players[socket.id].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
+
+								room.data.currentGame.players[socket.id].currentGame.currentCombo++;
+
+								room.data.currentGame.players[socket.id].currentGame.currentScore += Math.round(
+									100 *
+										calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
+										calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
+										calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+								);
+
+								room.data.currentGame.players[socket.id].currentGame.scoreGainIndicators.push({
+									number: room.data.currentGame.players[socket.id].currentGame.enemiesKilled + 1,
+									sPosition: enemiesToKill[i].sPosition,
+									content:
+										"+" +
+										Math.round(
+											100 *
+												calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
+												calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
+												calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+										).toString(),
+									ageInMilliseconds: 0,
+								});
+
+								console.log("Killed enemy");
+								room.data.currentGame.players[socket.id].currentGame.enemiesOnField[room.data.currentGame.players[socket.id].currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
+
+								room.data.currentGame.players[socket.id].currentGame.enemiesKilled++;
+							}
+
+							for (i = 0; i < room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length; i++) {
+								let t = new tile.Tile(getMultiplayerTileQueueOfPlayer(room, socket), i, false, room.data.currentGame.players[socket.id].currentGame.tilesCreated + 1);
+								room.data.currentGame.players[socket.id].currentGame.tilesCreated++;
+								room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[i]] = t;
+							}
+
+							room.data.currentGame.players[socket.id].currentGame.currentProblemAsText = "";
+							room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText = "";
+							room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem = [];
+
+							enemiesToKill = [];
+						}
+
+						break;
+					}
+				}
+				case 1: {
+					let problemToEvaluate = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.replace(/([0-9a-d])([a-d])/g, "$1*$2");
+					while (problemToEvaluate.match(/([0-9a-d])([a-d])/) != null) {
+						problemToEvaluate = problemToEvaluate.replace(/([0-9a-d])([a-d])/g, "$1*$2");
+					}
+
+					let problemOnLeftSide = problemToEvaluate.substring(0, problemToEvaluate.indexOf("="));
+					let problemOnRightSide = problemToEvaluate.substring(problemToEvaluate.indexOf("=") + 1);
+
+					if (problemOnLeftSide.match(/[a-d]/) != null) {
+						// left side contains variable
+					} else {
+						// right side contains variable
+						let temp = problemOnRightSide;
+						problemOnRightSide = problemOnLeftSide;
+						problemOnLeftSide = temp;
+					}
+
+					if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room) != null) {
+						switch (problemOnLeftSide) {
+							case "a": {
+								room.data.currentGame.players[socket.id].currentGame.valueOfVariableA = calculateProblem(problemOnRightSide, room);
+								break;
+							}
+							case "b": {
+								room.data.currentGame.players[socket.id].currentGame.valueOfVariableB = calculateProblem(problemOnRightSide, room);
+								break;
+							}
+							case "c": {
+								room.data.currentGame.players[socket.id].currentGame.valueOfVariableC = calculateProblem(problemOnRightSide, room);
+								break;
+							}
+							case "d": {
+								room.data.currentGame.players[socket.id].currentGame.valueOfVariableD = calculateProblem(problemOnRightSide, room);
+								break;
+							}
+						}
+
+						for (i = 0; i < room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length; i++) {
+							let t = new tile.Tile(generateRandomTileTermID(room), room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[i].slot, false);
+
+							room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[i]] = t;
+						}
+
+						room.data.currentGame.players[socket.id].currentGame.currentProblemAsText = "";
+						room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText = "";
+						room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem = [];
 					}
 
 					break;
-				} else {
-					for (i = 0; i < room.data.currentGame.enemiesOnField.length; i++) {
-						requestedValues.push(room.data.currentGame.enemiesOnField[i] === undefined && room.data.currentGame.enemiesOnField[i].sPosition < 0 ? undefined : room.data.currentGame.enemiesOnField[i].requestedValue);
-					}
-
-					for (i = 0; i < requestedValues.length; i++) {
-						if (result == calculateProblem(requestedValues[i], room) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
-							answers++;
-							enemiesToKill.push(room.data.currentGame.enemiesOnField[i]);
-						}
-					}
-
-					if (answers > 0 && result !== undefined) {
-						for (i = 0; i < enemiesToKill.length; i++) {
-							// Reset counter
-							room.data.currentGame.framesElapsedSinceLastEnemyKill = 0;
-							room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
-
-							room.data.currentGame.currentCombo++;
-
-							room.data.currentGame.currentScore += Math.round(
-								100 * calculateProblemLengthMultiplier(room.data.currentGame.currentProblemAsText.length) * calculateComboMultiplier(room.data.currentGame.currentCombo) * calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
-							);
-
-							room.data.currentGame.scoreGainIndicators.push({
-								number: room.data.currentGame.enemiesKilled + 1,
-								sPosition: enemiesToKill[i].sPosition,
-								content: "+" + Math.round((100 * calculateProblemLengthMultiplier(room.data.currentGame.currentProblemAsText.length) * calculateComboMultiplier(room.data.currentGame.currentCombo) * calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition))).toString(),
-								ageInMilliseconds: 0,
-							});
-
-							room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
-
-							room.data.currentGame.enemiesKilled++;
-						}
-
-						for (i = 0; i < room.data.currentGame.tilesInCurrentProblem.length; i++) {
-							let t = new tile.Tile(generateRandomTileTermID(room), i, false, room.data.currentGame.tilesCreated + 1);
-							room.data.currentGame.tilesCreated++;
-							room.data.currentGame.tilesOnBoard[room.data.currentGame.tilesInCurrentProblem[i]] = t;
-						}
-
-						room.data.currentGame.currentProblemAsText = "";
-						room.data.currentGame.currentProblemAsBeautifulText = "";
-						room.data.currentGame.tilesInCurrentProblem = [];
-
-						enemiesToKill = [];
-					}
-
+				}
+				default: {
 					break;
 				}
 			}
-			case 1: {
-				let problemToEvaluate = room.data.currentGame.currentProblemAsText.replace(/([0-9a-d])([a-d])/g, "$1*$2");
-				while (problemToEvaluate.match(/([0-9a-d])([a-d])/) != null) {
-					problemToEvaluate = problemToEvaluate.replace(/([0-9a-d])([a-d])/g, "$1*$2");
-				}
-
-				let problemOnLeftSide = problemToEvaluate.substring(0, problemToEvaluate.indexOf("="));
-				let problemOnRightSide = problemToEvaluate.substring(problemToEvaluate.indexOf("=") + 1);
-
-				if (problemOnLeftSide.match(/[a-d]/) != null) {
-					// left side contains variable
-				} else {
-					// right side contains variable
-					let temp = problemOnRightSide;
-					problemOnRightSide = problemOnLeftSide;
-					problemOnLeftSide = temp;
-				}
-
-				if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room) != null) {
-					switch (problemOnLeftSide) {
-						case "a": {
-							room.data.currentGame.valueOfVariableA = calculateProblem(problemOnRightSide, room);
-							break;
-						}
-						case "b": {
-							room.data.currentGame.valueOfVariableB = calculateProblem(problemOnRightSide, room);
-							break;
-						}
-						case "c": {
-							room.data.currentGame.valueOfVariableC = calculateProblem(problemOnRightSide, room);
-							break;
-						}
-						case "d": {
-							room.data.currentGame.valueOfVariableD = calculateProblem(problemOnRightSide, room);
-							break;
-						}
-					}
-
-					for (i = 0; i < room.data.currentGame.tilesInCurrentProblem.length; i++) {
-						let t = new tile.Tile(generateRandomTileTermID(room), room.data.currentGame.tilesInCurrentProblem[i].slot, false);
-
-						room.data.currentGame.tilesOnBoard[room.data.currentGame.tilesInCurrentProblem[i]] = t;
-					}
-
-					room.data.currentGame.currentProblemAsText = "";
-					room.data.currentGame.currentProblemAsBeautifulText = "";
-					room.data.currentGame.tilesInCurrentProblem = [];
-				}
-
-				break;
-			}
-			default: {
-				break;
-			}
+			break;
 		}
 	}
 }
@@ -520,14 +960,42 @@ function convertTermIDToBeautifulString(id) {
 	return TERMS_AS_BEAUTIFUL_STRINGS[id];
 }
 
-function convertPressedKeyToTermID(keyPressed, playerKeybinds, room) {
+function generateMultiplayerTileQueue() {
+	let bagQuantities = [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+	let availableTermsIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+	let queue = [];
+
+	for (let i = 0; i < 49; i++) {
+		let roll = availableTermsIndexes[Math.floor(Math.random() * availableTermsIndexes.length)];
+
+		queue.push(roll);
+		bagQuantities[roll]--;
+		if (bagQuantities[roll] <= 0) {
+			availableTermsIndexes.splice(availableTermsIndexes.indexOf(roll), 1);
+			if (availableTermsIndexes.length <= 0) {
+				bagQuantities = [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+				availableTermsIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+			}
+		}
+	}
+
+	return queue;
+}
+
+function getMultiplayerTileQueueOfPlayer(room, socket){
+	let tile = room.data.currentGame.players[socket.id].currentGame.tileQueue[room.data.currentGame.players[socket.id].currentGame.currentTileQueue][0];
+	room.data.currentGame.players[socket.id].currentGame.tileQueue[room.data.currentGame.players[socket.id].currentGame.currentTileQueue].shift();
+	return tile;
+}
+
+function convertPressedKeyToTermID(keyPressed, playerKeybinds, room, socket) {
 	if (keyPressed == "Space") {
 		// space
-		evaluateProblem(room, true);
+		evaluateProblem(room, socket);
 		return;
 	} else if (keyPressed == "Period" || keyPressed == "Backspace") {
 		//numpad decimal
-		deleteLastSelectedTerm(room);
+		deleteLastSelectedTerm(room, socket);
 		return;
 	} else if (keyPressed == "NumpadEnter") {
 		//numpad enter
@@ -542,38 +1010,80 @@ function convertPressedKeyToTermID(keyPressed, playerKeybinds, room) {
 	}
 }
 
-function deleteLastSelectedTerm(room) {
-	if (room.data.currentGame.tilesInCurrentProblem.length > 0) {
-		processTileClick(room.data.currentGame.tilesInCurrentProblem[room.data.currentGame.tilesInCurrentProblem.length - 1], room);
-	}
-}
-
-function forceSelectTileWithTermID(termIDToSelect, room) {
-	for (i = 0; i < 49; i++) {
-		if (room.data.currentGame.tilesOnBoard[i].termID == termIDToSelect && room.data.currentGame.tilesOnBoard[i].selected == false) {
-			processTileClick(i, room);
-			return; // break
+function deleteLastSelectedTerm(room, socket) {
+	switch (room.type) {
+		case modes.SINGLEPLAYER: {
+			if (room.data.currentGame.tilesInCurrentProblem.length > 0) {
+				processTileClick(room.data.currentGame.tilesInCurrentProblem[room.data.currentGame.tilesInCurrentProblem.length - 1], room, socket);
+			}
+			break;
+		}
+		case modes.DEFAULT_MULTIPLAYER: {
+			if (room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length > 0) {
+				processTileClick(room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length - 1], room, socket);
+			}
 		}
 	}
-	// None found
 }
 
-function processTileClick(slot, room) {
-	room.data.currentGame.actionsPerformed++;
-	room.data.currentGame.tilesOnBoard[slot].selected = !room.data.currentGame.tilesOnBoard[slot].selected;
-	if (room.data.currentGame.tilesOnBoard[slot].selected) {
-		room.data.currentGame.tilesInCurrentProblem.push(slot);
-		room.data.currentGame.currentProblemAsText += convertTermIDToTerm(room.data.currentGame.tilesOnBoard[slot].termID);
-		room.data.currentGame.currentProblemAsBeautifulText += convertTermIDToBeautifulString(room.data.currentGame.tilesOnBoard[slot].termID);
-	} else {
-		let index = room.data.currentGame.tilesInCurrentProblem.indexOf(slot);
-		room.data.currentGame.tilesInCurrentProblem.splice(index, 1);
-		let temp = room.data.currentGame.currentProblemAsText.split("");
-		temp.splice(index, 1);
-		room.data.currentGame.currentProblemAsText = temp.join("");
-		let temp2 = room.data.currentGame.currentProblemAsBeautifulText.split("");
-		temp2.splice(index, 1);
-		room.data.currentGame.currentProblemAsBeautifulText = temp2.join("");
+function forceSelectTileWithTermID(termIDToSelect, room, socket) {
+	if (room.type == modes.SINGLEPLAYER) {
+		for (i = 0; i < 49; i++) {
+			if (room.data.currentGame.tilesOnBoard[i].termID == termIDToSelect && room.data.currentGame.tilesOnBoard[i].selected == false) {
+				processTileClick(i, room, null);
+				return; // break
+			}
+		}
+
+		// None found
+	} else if (room.type == modes.DEFAULT_MULTIPLAYER) {
+		for (i = 0; i < 49; i++) {
+			if (room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[i].termID == termIDToSelect && room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[i].selected == false) {
+				processTileClick(i, room, socket);
+				return; // break
+			}
+		}
+	}
+}
+
+function processTileClick(slot, room, socket) {
+	if (socket.currentRoomSocketIsIn != "") {
+		if (room.type == modes.SINGLEPLAYER && socket.socketIsHostOfRoomItIsIn) {
+			// socket is ignored here
+			room.data.currentGame.actionsPerformed++;
+			room.data.currentGame.tilesOnBoard[slot].selected = !room.data.currentGame.tilesOnBoard[slot].selected;
+			if (room.data.currentGame.tilesOnBoard[slot].selected) {
+				room.data.currentGame.tilesInCurrentProblem.push(slot);
+				room.data.currentGame.currentProblemAsText += convertTermIDToTerm(room.data.currentGame.tilesOnBoard[slot].termID);
+				room.data.currentGame.currentProblemAsBeautifulText += convertTermIDToBeautifulString(room.data.currentGame.tilesOnBoard[slot].termID);
+			} else {
+				let index = room.data.currentGame.tilesInCurrentProblem.indexOf(slot);
+				room.data.currentGame.tilesInCurrentProblem.splice(index, 1);
+				let temp = room.data.currentGame.currentProblemAsText.split("");
+				temp.splice(index, 1);
+				room.data.currentGame.currentProblemAsText = temp.join("");
+				let temp2 = room.data.currentGame.currentProblemAsBeautifulText.split("");
+				temp2.splice(index, 1);
+				room.data.currentGame.currentProblemAsBeautifulText = temp2.join("");
+			}
+		} else if (room.type == modes.DEFAULT_MULTIPLAYER) {
+			room.data.currentGame.players[socket.id].currentGame.actionsPerformed++;
+			room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].selected = !room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].selected;
+			if (room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].selected) {
+				room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.push(slot);
+				room.data.currentGame.players[socket.id].currentGame.currentProblemAsText += convertTermIDToTerm(room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].termID);
+				room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText += convertTermIDToBeautifulString(room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].termID);
+			} else {
+				let index = room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.indexOf(slot);
+				room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.splice(index, 1);
+				let temp = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.split("");
+				temp.splice(index, 1);
+				room.data.currentGame.players[socket.id].currentGame.currentProblemAsText = temp.join("");
+				let temp2 = room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText.split("");
+				temp2.splice(index, 1);
+				room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText = temp2.join("");
+			}
+		}
 	}
 }
 
@@ -595,7 +1105,8 @@ function generateRandomEnemyTerm() {
 module.exports = {
 	// major
 	computeUpdate,
-	createNewGameData,
+	createNewSingleplayerGameData,
+	createNewDefaultMultiplayerGameData,
 	startSingleplayerGame,
 	submitSingleplayerGame,
 
@@ -613,4 +1124,6 @@ module.exports = {
 	forceSelectTileWithTermID,
 	processTileClick,
 	generateRandomEnemyTerm,
+	createNewDefaultMultiplayerRoomPlayerObject,
+	generateMultiplayerTileQueue,
 };

@@ -35,7 +35,7 @@
 							class="main-menu-screen-button"
 							onMouseEnter="$('#bottom-toolbar-text').text('Play with others and make friends and enemies.')"
 							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
-							onClick="alert('Multiplayer will be released in a future update!')"
+							onClick="setPropertiesAndChangeScreen(screens.MULTIPLAYER_LOBBY_SCREEN)"
 						>
 							&nbsp;Multiplayer
 						</button>
@@ -88,7 +88,7 @@
 								<a href="https://discord.gg/tJdwzjSgHh">Discord Server</a>
 							</p>
 						</div>
-						<div id="information-screen-navigation-button-container">
+						<div id="information-screen-button-container">
 							<button
 								class="information-screen-navigation-button"
 								onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
@@ -98,6 +98,49 @@
 								&nbsp;Back
 							</button>
 						</div>
+					</div>
+				</div>
+
+				<!-- Multiplayer Lobby -->
+				<div id="multiplayer-lobby-screen-container">
+					<div id="multiplayer-lobby-screen-button-container">
+						<button
+							class="multiplayer-lobby-screen-button"
+							onClick="setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);socket.emit('joinOrCreateDefaultMultiplayerRoom')"
+							onMouseEnter="$('#bottom-toolbar-text').text('Join the default room.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Default Room
+						</button>
+						<br /><br />
+						<button
+							class="multiplayer-lobby-screen-button"
+							onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Back
+						</button>
+					</div>
+				</div>
+
+				<!-- Default Multiplayer Room Lobby-->
+				<div id="default-multiplayer-room-lobby-screen-container">
+					<p id="default-multiplayer-room-player-list">
+						Players: None
+					</p>
+					<p id="default-multiplayer-room-status-text">
+						Waiting for more players...
+					</p>
+					<div id="default-multiplayer-room-lobby-screen-button-container">
+						<button
+							class="default-multiplayer-room-lobby-screen-button"
+							onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Back
+						</button>
 					</div>
 				</div>
 
@@ -276,7 +319,13 @@
 							<br />
 							<br />
 							Password: <input type="password" id="password-input-box" class="settings-input-box" /> <br /><br />
-							<button id="login-button" onClick="socket.emit('authenticate', $('#username-input-box')[0].value, btoa(btoa(btoa(btoa($('#password-input-box')[0].value)))));$(this).addClass('disabled-button').text('Please Wait...');" style="width: 256px; height: 64px; font-size: 28px">Login</button>
+							<button
+								id="login-button"
+								onClick="socket.emit('authenticate', $('#username-input-box')[0].value, btoa(btoa(btoa(btoa($('#password-input-box')[0].value)))));$(this).addClass('disabled-button').text('Please Wait...');"
+								style="width: 256px; height: 64px; font-size: 28px"
+							>
+								Login
+							</button>
 						</div>
 					</div>
 				</div>
@@ -291,20 +340,15 @@
 								<span id="final-score" class="large-text">???</span>
 								<br />
 								<span class="medium-text">Time: <span id="final-time">???</span>&nbsp;Enemies: <span id="final-enemies">???</span>&nbsp;APM: <span id="final-actions-per-minute">???</span></span>
-								<br>
+								<br />
 								<span class="medium-text" id="personal-best-broken"></span>
-								<br>
+								<br />
 								<span class="medium-text" id="final-global-rank"></span>
 							</p>
 						</div>
 					</div>
 					<div id="game-over-screen-navigation-button-container">
-						<button
-							class="game-over-screen-navigation-button"
-							onClick="startSingleplayerGame();"
-							onMouseEnter="$('#bottom-toolbar-text').text('Play another singleplayer game.')"
-							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
-						>
+						<button class="game-over-screen-navigation-button" onClick="startSingleplayerGame();" onMouseEnter="$('#bottom-toolbar-text').text('Play another singleplayer game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
 							&nbsp;Retry
 						</button>
 
@@ -370,11 +414,11 @@
 		<script src="/scripts/lib/fontfaceobserver.js"></script>
 		<script src="/scripts/lib/math-expression-evaluator.min.js"></script>
 		<script src="/scripts/lib/lz-string.min.js"></script>
-		
+
+		<!-- ORDER MATTERS -->
 		<script src="/scripts/enemy.js"></script>
 		<script src="/scripts/tile.js"></script>
-
-		<!-- Put game.js last -->
-		<script src="/scripts/game.js"></script>
+		<script src="/scripts/game.js"></script>		
+		<script src="/scripts/socket.js"></script>
 	</body>
 </html>
