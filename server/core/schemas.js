@@ -13,6 +13,15 @@ const UserModelSchema = new Schema({
 		personalBestScore: Number,
 		gamesPlayed: Number,
 	},
+	membership: {
+		isDeveloper: Boolean,
+		isAdministrator: Boolean,
+		isModerator: Boolean,
+		isContributor: Boolean,
+		isTester: Boolean,
+		isDonator: Boolean,
+		specialRank: String,
+	},
 });
 
 const UserModel = mongoose.model("UserModel", UserModelSchema, "users");

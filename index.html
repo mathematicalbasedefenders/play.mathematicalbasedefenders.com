@@ -116,7 +116,7 @@
 						<button
 							class="multiplayer-lobby-screen-button"
 							onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
 							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
 						>
 							&nbsp;Back
@@ -126,23 +126,35 @@
 
 				<!-- Default Multiplayer Room Lobby-->
 				<div id="default-multiplayer-room-lobby-screen-container">
-					<p id="default-multiplayer-room-player-list">
-						Players: None
-					</p>
-					<p id="default-multiplayer-room-status-text">
-						Waiting for more players...
-					</p>
-					<div id="default-multiplayer-room-lobby-screen-button-container">
-						<button
-							class="default-multiplayer-room-lobby-screen-button"
-							onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
-							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+					<div class="multiplayer-room-player-list-container">
+					<div class="multiplayer-room-player-list">
+						<p id="default-multiplayer-room-player-list">Players: None</p>
+					</div>
+				</div>
+				<div class="multiplayer-room-chat-box-container">
+					<div class="multiplayer-room-chat-box"></div>
+					<div class="multiplayer-room-message-box-container">
+						<input type="text" autocomplete="off" id="multiplayer-room-message-box" placeholder="Enter message..." /><button
+							id="chat-box-send-button"
+							onClick="socket.emit('defaultMultiplayerRoomChatMessage', $('#multiplayer-room-message-box').val())"
 						>
-							&nbsp;Back
+							Send
 						</button>
 					</div>
 				</div>
+				<br />
+				<p id="default-multiplayer-room-status-text">Waiting for more players...</p>
+				<p id="last-game-rank">You ranked #?</p>
+				<div id="default-multiplayer-room-lobby-screen-button-container">
+					<button
+						class="default-multiplayer-room-lobby-screen-button"
+						onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);socket.emit('leaveRoom');"
+						onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+						onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+					>
+						&nbsp;Back
+					</button>
+				</div></div>
 
 				<!-- Settings -->
 				<div id="settings-screen-container">
@@ -418,7 +430,7 @@
 		<!-- ORDER MATTERS -->
 		<script src="/scripts/enemy.js"></script>
 		<script src="/scripts/tile.js"></script>
-		<script src="/scripts/game.js"></script>		
+		<script src="/scripts/game.js"></script>
 		<script src="/scripts/socket.js"></script>
 	</body>
 </html>

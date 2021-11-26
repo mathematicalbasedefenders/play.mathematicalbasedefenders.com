@@ -6,7 +6,6 @@ const LZString = require("lz-string");
 
 const _ = require("lodash");
 
-
 const enemy = require("./game/enemy.js");
 const tile = require("./game/tile.js");
 const mexp = require("math-expression-evaluator");
@@ -118,7 +117,7 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 			room.data.currentGame.scoreGainIndicatorsToDestroy = [];
 		}
 	} else if (room.type == modes.DEFAULT_MULTIPLAYER) {
-		if (room.playing) {
+		if (room.playing && room.data.currentGame.playersAlive.length > 1) {
 			// variables
 			var framesRendered = (deltaTimeInMilliseconds * FRAMES_PER_SECOND) / 1000;
 
@@ -149,12 +148,7 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 			for (let i = 0; i < playersAliveThisUpdate.length; i++) {
 				// base health
 				if (room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.baseHealth <= 0) {
-					let finalGameData = JSON.parse(JSON.stringify(room.data));
-
-					socketOfGamePlayed.emit("currentGameData", LZString.compressToUTF16(JSON.stringify(finalGameData)));
-					socketOfGamePlayed.to(room.id).emit("currentGameData", LZString.compressToUTF16(JSON.stringify(finalGameData)));
-
-					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.gameOverScreenShown = true;
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.dead = true;
 				}
 
 				// combo
@@ -164,13 +158,31 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 
 				// enemy management
 
-				// create
+				// create sent
+				if (room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.sentEnemiesToSpawn > 0) {
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated] = new enemy.Enemy(
+						1360,
+						120,
+						100,
+						100,
+						generateRandomEnemyTerm(),
+						Math.random() * 2 + 1,
+						1,
+						1,
+						room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated + 1
+					);
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated++;
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.sentEnemiesToSpawn--;
+				}
+
+				// create global if there is one
 				if (room.data.currentGame.globalEnemyToAdd != null) {
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated] = _.cloneDeep(room.data.currentGame.globalEnemyToAdd);
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated++;
 				}
 
 				// move
+
 				for (j = 0; j < room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField.length; j++) {
 					if (room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[j] !== undefined) {
 						room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[j].move(framesRendered * 0.01 * room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[j].defaultSpeed);
@@ -187,6 +199,24 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 						}
 					}
 				}
+
+				// move score indicators
+				for (j = 0; j < room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSentIndicators.length; j++) {
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSentIndicators[j].ageInMilliseconds += deltaTimeInMilliseconds;
+					if (room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSentIndicators[j].ageInMilliseconds >= 500) {
+						room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSentIndicatorsToDestroy.push(
+							room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSentIndicators[
+								room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSentIndicators.indexOf(room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSentIndicators[j])
+							]
+						);
+					}
+				}
+
+				// remove things to remove
+				for (let i = 0; i < room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSentIndicatorsToDestroy.length; i++) {
+					delete room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSentIndicators[room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSentIndicatorsToDestroy[i].toString()];
+				}
+				room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSentIndicatorsToDestroy = [];
 
 				room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField = room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField.filter(function (element) {
 					return element != null || element !== undefined;
@@ -205,6 +235,9 @@ function createNewSingleplayerGameData(mode, roomID) {
 				mode: mode,
 
 				currentGame: {
+
+					mode: mode,
+
 					currentScore: 0,
 					currentInGameTimeInMilliseconds: 0,
 					actionsPerformed: 0,
@@ -254,7 +287,7 @@ function createNewDefaultMultiplayerGameData(roomID, socket) {
 		currentGame: {
 			players: {
 				[socket.id]: {
-					name: socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner,
+					playerName: socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner,
 
 					currentInGameTimeInMilliseconds: 0,
 					actionsPerformed: 0,
@@ -300,9 +333,13 @@ function createNewDefaultMultiplayerGameData(roomID, socket) {
 }
 
 function createNewDefaultMultiplayerRoomPlayerObject(socket) {
-	console.log(socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner);
 	let data = {
-		name: socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner,
+		playerName: socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner,
+		connectionID: socket.id,
+
+		dead: false,
+
+		enemiesSent: 0,
 
 		currentInGameTimeInMilliseconds: 0,
 
@@ -314,6 +351,9 @@ function createNewDefaultMultiplayerRoomPlayerObject(socket) {
 		enemiesKilled: 0,
 		enemiesOnField: [],
 		enemiesToKill: [],
+
+		enemiesPending: 0,
+		sentEnemiesToSpawn: 0,
 
 		currentTileQueue: 1,
 
@@ -329,8 +369,8 @@ function createNewDefaultMultiplayerRoomPlayerObject(socket) {
 
 		baseHealth: 10,
 
-		scoreGainIndicators: [],
-		scoreGainIndicatorsToDestroy: [],
+		enemiesSentIndicators: [],
+		enemiesSentIndicatorsToDestroy: [],
 
 		currentProblemAsText: "",
 		currentProblemAsBeautifulText: "",
@@ -408,8 +448,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 	for (var i = 1; i <= 50; i++) {
 		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
-				console.log("ERROR");
-				console.log(error2);
+				console.error(error2.stack);
 			}
 			return result2;
 		});
@@ -428,8 +467,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 	for (var i = 1; i < placePlayerRanked; i++) {
 		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
-				console.log("ERROR");
-				console.log(error2);
+				console.error(error2.stack);
 			}
 			return result2;
 		});
@@ -442,8 +480,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 	for (var i = placePlayerRanked; i <= 50; i++) {
 		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
-				console.log("ERROR");
-				console.log(error2);
+				console.error(error2.stack);
 			}
 			return result2;
 		});
@@ -458,8 +495,8 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 			var data1 = await schemas.getLeaderboardsModel().findOne({ rankNumber: i + 1 });
 			await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
 				if (error4) {
-					console.log("ERROR");
-					console.log(error4);
+
+					console.error(error4.stack);
 				}
 				return result4;
 			});
@@ -472,8 +509,8 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 			var data1 = await schemas.getLeaderboardsModel().findOne({ rankNumber: i - 1 });
 			await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
 				if (error4) {
-					console.log("ERROR");
-					console.log(error4);
+
+					console.error(error4.stack);
 				}
 				return result4;
 			});
@@ -482,8 +519,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 
 	await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: placePlayerRanked }, { userIDOfHolder: userIDAsString, score: score }, function (error5, result5) {
 		if (error5) {
-			console.log("ERROR");
-			console.log(error5);
+			console.error(error5.stack);
 		}
 		return result5;
 	});
@@ -494,6 +530,24 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 }
 
 // MINOR
+function checkProblem(room, socket) {
+	switch (room.type) {
+		case "singleplayer": {
+			evaluateProblem(room, socket);
+			break;
+		}
+		case "defaultMultiplayer": {
+			if (evaluateProblem(room, socket)) {
+			} else {
+				console.log("Converted Enemies");
+				room.data.currentGame.players[socket.id].currentGame.sentEnemiesToSpawn += room.data.currentGame.players[socket.id].currentGame.enemiesPending;
+				room.data.currentGame.players[socket.id].currentGame.enemiesPending = 0;
+			}
+			break;
+		}
+	}
+}
+
 function evaluateProblem(room, socket) {
 	switch (room.type) {
 		case "singleplayer": {
@@ -553,7 +607,6 @@ function evaluateProblem(room, socket) {
 										ageInMilliseconds: 0,
 									});
 
-
 									room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
 
 									room.data.currentGame.enemiesKilled++;
@@ -572,7 +625,7 @@ function evaluateProblem(room, socket) {
 								enemiesToKill = [];
 							}
 
-							break;
+							return answers > 0 && result !== undefined;
 						} else {
 							for (i = 0; i < room.data.currentGame.enemiesOnField.length; i++) {
 								requestedValues.push(room.data.currentGame.enemiesOnField[i] === undefined && room.data.currentGame.enemiesOnField[i].sPosition < 0 ? undefined : room.data.currentGame.enemiesOnField[i].requestedValue);
@@ -632,10 +685,11 @@ function evaluateProblem(room, socket) {
 								enemiesToKill = [];
 							}
 
-							break;
+							return answers > 0 && result !== undefined;
 						}
 					}
 					case 1: {
+						let valid = false;
 						let problemToEvaluate = room.data.currentGame.currentProblemAsText.replace(/([0-9a-d])([a-d])/g, "$1*$2");
 						while (problemToEvaluate.match(/([0-9a-d])([a-d])/) != null) {
 							problemToEvaluate = problemToEvaluate.replace(/([0-9a-d])([a-d])/g, "$1*$2");
@@ -682,19 +736,19 @@ function evaluateProblem(room, socket) {
 							room.data.currentGame.currentProblemAsText = "";
 							room.data.currentGame.currentProblemAsBeautifulText = "";
 							room.data.currentGame.tilesInCurrentProblem = [];
+							valid = true;
 						}
 
-						break;
+						return valid;
 					}
 					default: {
-						break;
+						return false;
 					}
 				}
 			}
 			break;
 		}
 		case "defaultMultiplayer": {
-			console.log("checking problem for " + socket.id);
 			switch ((room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.match("=") || []).length) {
 				case 0: {
 					let originalProblem = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText;
@@ -727,34 +781,46 @@ function evaluateProblem(room, socket) {
 
 						if (answers > 0 && result !== undefined) {
 							for (i = 0; i < enemiesToKill.length; i++) {
+								let enemiesSent = Math.floor(
+									((room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length - 3) / 1.05 +
+										(room.data.currentGame.players[socket.id].currentGame.currentCombo - 2) +
+										(enemiesToKill[i].sPosition - 5) / 1.25 +
+										2) /
+										1.25
+								);
 								// Reset counter
 								room.data.currentGame.players[socket.id].currentGame.framesElapsedSinceLastEnemyKill = 0;
 								room.data.currentGame.players[socket.id].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
 
 								room.data.currentGame.players[socket.id].currentGame.currentCombo++;
 
-								room.data.currentGame.players[socket.id].currentGame.currentScore += Math.round(
-									100 *
-										calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
-										calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
-										calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
-								);
 
-								room.data.currentGame.players[socket.id].currentGame.scoreGainIndicators.push({
+								room.data.currentGame.players[socket.id].currentGame.enemiesSentIndicators.push({
 									number: room.data.currentGame.players[socket.id].currentGame.enemiesKilled + 1,
 									sPosition: enemiesToKill[i].sPosition,
-									content:
-										"+" +
-										Math.round(
-											100 *
-												calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
-												calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
-												calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
-										).toString(),
+									content: Math.max(0, enemiesSent).toString(),
+
 									ageInMilliseconds: 0,
 								});
 
-								console.log("Killing enemy");
+								room.data.currentGame.players[socket.id].currentGame.enemiesSent += Math.max(0, enemiesSent);
+
+								let playerToSendEnemiesTo = _.sample(room.data.currentGame.players);
+								while (playerToSendEnemiesTo.currentGame.connectionID == socket.id) {
+									playerToSendEnemiesTo = _.sample(room.data.currentGame.players);
+								}
+
+								while (enemiesSent > 0) {
+									if (room.data.currentGame.players[socket.id].currentGame.enemiesPending <= 0) {
+										room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemiesPending += 1;
+									} else {
+										room.data.currentGame.players[socket.id].currentGame.enemiesPending -= 1;
+									}
+									enemiesSent--;
+								}
+
+								// console.log(room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.playerName + " now has " + room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemiesPending + " pending enemies.");
+
 								room.data.currentGame.players[socket.id].currentGame.enemiesOnField[room.data.currentGame.players[socket.id].currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
 
 								room.data.currentGame.players[socket.id].currentGame.enemiesKilled++;
@@ -773,7 +839,7 @@ function evaluateProblem(room, socket) {
 							enemiesToKill = [];
 						}
 
-						break;
+						return answers > 0 && result !== undefined;
 					} else {
 						for (i = 0; i < room.data.currentGame.players[socket.id].currentGame.enemiesOnField.length; i++) {
 							requestedValues.push(
@@ -793,33 +859,50 @@ function evaluateProblem(room, socket) {
 						if (answers > 0 && result !== undefined) {
 							for (i = 0; i < enemiesToKill.length; i++) {
 								// Reset counter
+								let enemiesSent = Math.floor(
+									((room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length - 3) / 1.05 +
+										(room.data.currentGame.players[socket.id].currentGame.currentCombo - 2) +
+										(enemiesToKill[i].sPosition - 5) / 1.25 +
+										2) /
+										1.25
+								);
+								// Reset counter
 								room.data.currentGame.players[socket.id].currentGame.framesElapsedSinceLastEnemyKill = 0;
 								room.data.currentGame.players[socket.id].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
 
 								room.data.currentGame.players[socket.id].currentGame.currentCombo++;
 
-								room.data.currentGame.players[socket.id].currentGame.currentScore += Math.round(
-									100 *
-										calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
-										calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
-										calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
-								);
+								// room.data.currentGame.players[socket.id].currentGame.currentScore += Math.round(
+								// 	100 *
+								// 		calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
+								// 		calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
+								// 		calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+								// );
 
-								room.data.currentGame.players[socket.id].currentGame.scoreGainIndicators.push({
+								room.data.currentGame.players[socket.id].currentGame.enemiesSentIndicators.push({
 									number: room.data.currentGame.players[socket.id].currentGame.enemiesKilled + 1,
 									sPosition: enemiesToKill[i].sPosition,
-									content:
-										"+" +
-										Math.round(
-											100 *
-												calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
-												calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
-												calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
-										).toString(),
+									content: Math.max(0, enemiesSent).toString(),
+
 									ageInMilliseconds: 0,
 								});
 
-								console.log("Killed enemy");
+								room.data.currentGame.players[socket.id].currentGame.enemiesSent += Math.max(0, enemiesSent);
+
+								let playerToSendEnemiesTo = _.sample(room.data.currentGame.players);
+								while (playerToSendEnemiesTo.currentGame.connectionID == socket.id) {
+									playerToSendEnemiesTo = _.sample(room.data.currentGame.players);
+								}
+
+								while (enemiesSent > 0) {
+									if (room.data.currentGame.players[socket.id].currentGame.enemiesPending <= 0) {
+										room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemiesPending += 1;
+									} else {
+										room.data.currentGame.players[socket.id].currentGame.enemiesPending -= 1;
+									}
+									enemiesSent--;
+								}
+
 								room.data.currentGame.players[socket.id].currentGame.enemiesOnField[room.data.currentGame.players[socket.id].currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
 
 								room.data.currentGame.players[socket.id].currentGame.enemiesKilled++;
@@ -838,10 +921,11 @@ function evaluateProblem(room, socket) {
 							enemiesToKill = [];
 						}
 
-						break;
+						return answers > 0 && result !== undefined;
 					}
 				}
 				case 1: {
+					let valid = false;
 					let problemToEvaluate = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.replace(/([0-9a-d])([a-d])/g, "$1*$2");
 					while (problemToEvaluate.match(/([0-9a-d])([a-d])/) != null) {
 						problemToEvaluate = problemToEvaluate.replace(/([0-9a-d])([a-d])/g, "$1*$2");
@@ -880,20 +964,21 @@ function evaluateProblem(room, socket) {
 						}
 
 						for (i = 0; i < room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length; i++) {
-							let t = new tile.Tile(generateRandomTileTermID(room), room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[i].slot, false);
-
+							let t = new tile.Tile(getMultiplayerTileQueueOfPlayer(room, socket), i, false, room.data.currentGame.players[socket.id].currentGame.tilesCreated + 1);
+							room.data.currentGame.players[socket.id].currentGame.tilesCreated++;
 							room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[i]] = t;
 						}
 
 						room.data.currentGame.players[socket.id].currentGame.currentProblemAsText = "";
 						room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText = "";
 						room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem = [];
+						valid = true;
 					}
 
-					break;
+					return valid;
 				}
 				default: {
-					break;
+					return false;
 				}
 			}
 			break;
@@ -928,8 +1013,6 @@ function calculateProblem(problem, room) {
 			{ a: room.data.currentGame.valueOfVariableA, b: room.data.currentGame.valueOfVariableB, c: room.data.currentGame.valueOfVariableC, d: room.data.currentGame.valueOfVariableD }
 		);
 	} catch (error) {
-		console.log(error);
-		console.log("Invalid Problem");
 		return null;
 	}
 }
@@ -982,8 +1065,16 @@ function generateMultiplayerTileQueue() {
 	return queue;
 }
 
-function getMultiplayerTileQueueOfPlayer(room, socket){
+function getMultiplayerTileQueueOfPlayer(room, socket) {
+	if (room.data.currentGame.players[socket.id].currentGame.tileQueue[room.data.currentGame.players[socket.id].currentGame.currentTileQueue].length == 0){
+		room.data.currentGame.players[socket.id].currentGame.currentTileQueue++;
+		if (room.data.currentGame.globalTileQueues.length < room.data.currentGame.players[socket.id].currentGame.currentTileQueue){
+			room.data.currentGame.globalTileQueue.push(generateMultiplayerTileQueue());
+			room.data.currentGame.players[socket.id].currentGame.tileQueue.push(room.data.currentGame.players[socket.id].currentGame.currentTileQueue);
+		}
+	}
 	let tile = room.data.currentGame.players[socket.id].currentGame.tileQueue[room.data.currentGame.players[socket.id].currentGame.currentTileQueue][0];
+
 	room.data.currentGame.players[socket.id].currentGame.tileQueue[room.data.currentGame.players[socket.id].currentGame.currentTileQueue].shift();
 	return tile;
 }
@@ -1030,7 +1121,7 @@ function forceSelectTileWithTermID(termIDToSelect, room, socket) {
 	if (room.type == modes.SINGLEPLAYER) {
 		for (i = 0; i < 49; i++) {
 			if (room.data.currentGame.tilesOnBoard[i].termID == termIDToSelect && room.data.currentGame.tilesOnBoard[i].selected == false) {
-				processTileClick(i, room, null);
+				processTileClick(i, room, socket);
 				return; // break
 			}
 		}
@@ -1111,6 +1202,7 @@ module.exports = {
 	submitSingleplayerGame,
 
 	// minor
+	checkProblem,
 	evaluateProblem,
 	generateRandomTileTermID,
 	calculateProblem,

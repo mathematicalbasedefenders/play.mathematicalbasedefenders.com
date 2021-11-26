@@ -62,6 +62,7 @@ var game = {
 	enemiesRenderedLastUpdate: [],
 	enemyRenderStatus: {},
 	scoreGainIndicatorRenderStatus: {},
+	enemiesSentIndicatorRenderStatus: {},
 	tilesOnBoard: [],
 };
 
@@ -162,7 +163,6 @@ singleplayerScreenContainerItems.sendButtonSprite.on("click", function () {
 	sendProblem();
 });
 
-
 singleplayerScreenContainerItems.baseSprite.x = initialWindowWidth / 2 - 450;
 singleplayerScreenContainerItems.baseSprite.y = initialWindowHeight / 2 - 465;
 
@@ -213,18 +213,16 @@ singleplayerScreenContainerItems.currentComboText.y = initialWindowHeight / 2 - 
 
 // Images
 
-
 var multiplayerScreenContainerItems = {
 	sendButtonSprite: new PIXI.Sprite(sendButtonTexture),
 
 	baseSprite: new PIXI.Sprite(baseTexture),
 
 	currentProblemText: new PIXI.Text("", textStyles.SIZE_72_MATH_FONT),
-	scoreLabelerText: new PIXI.Text("Score", textStyles.SIZE_24_FONT),
-
-	currentScoreText: new PIXI.Text("0", textStyles.SIZE_64_FONT),
+	enemiesSentLabelerText: new PIXI.Text("Enemies Sent", textStyles.SIZE_24_FONT),
+	currentEnemiesSentText: new PIXI.Text("0", textStyles.SIZE_64_FONT),
+	numberOfPendingEnemiesText: new PIXI.Text("0", textStyles.SIZE_40_FONT),
 	timeLabelerText: new PIXI.Text("Time", textStyles.SIZE_24_FONT),
-
 	currentTimeText: new PIXI.Text("0:00.000", textStyles.SIZE_40_FONT),
 	baseHealthText: new PIXI.Text("Base Health: 10/10", textStyles.SIZE_24_FONT),
 	enemiesText: new PIXI.Text("Enemies: 0/0", textStyles.SIZE_24_FONT),
@@ -247,15 +245,18 @@ multiplayerScreenContainerItems.sendButtonSprite.on("click", function () {
 multiplayerScreenContainerItems.baseSprite.x = initialWindowWidth / 2 - 450;
 multiplayerScreenContainerItems.baseSprite.y = initialWindowHeight / 2 - 465;
 
+multiplayerScreenContainerItems.numberOfPendingEnemiesText.x = initialWindowWidth / 2 + 500;
+multiplayerScreenContainerItems.numberOfPendingEnemiesText.y = initialWindowHeight / 2 - 400;
+
 multiplayerScreenContainerItems.currentProblemText.style.align = "center";
 multiplayerScreenContainerItems.currentProblemText.tint = 0x000000;
 multiplayerScreenContainerItems.currentProblemText.y = initialWindowHeight / 2 - 200;
 
-multiplayerScreenContainerItems.scoreLabelerText.x = initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.scoreLabelerText.y = initialWindowHeight / 2 - 100;
+multiplayerScreenContainerItems.enemiesSentLabelerText.x = initialWindowWidth / 2 + 64 * 2 + 96;
+multiplayerScreenContainerItems.enemiesSentLabelerText.y = initialWindowHeight / 2 - 100;
 
-multiplayerScreenContainerItems.currentScoreText.x = initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.currentScoreText.y = initialWindowHeight / 2 - 80;
+multiplayerScreenContainerItems.currentEnemiesSentText.x = initialWindowWidth / 2 + 64 * 2 + 96;
+multiplayerScreenContainerItems.currentEnemiesSentText.y = initialWindowHeight / 2 - 80;
 
 multiplayerScreenContainerItems.timeLabelerText.x = initialWindowWidth / 2 + 64 * 2 + 96;
 multiplayerScreenContainerItems.timeLabelerText.y = initialWindowHeight / 2 - 10;
@@ -291,8 +292,6 @@ multiplayerScreenContainerItems.actionsPerMinuteText.y = initialWindowHeight / 2
 
 multiplayerScreenContainerItems.currentComboText.x = initialWindowWidth / 2 - 450;
 multiplayerScreenContainerItems.currentComboText.y = initialWindowHeight / 2 - 80;
-
-
 
 var tileTextures = [[], []];
 
@@ -345,6 +344,8 @@ var game = JSON.parse(JSON.stringify(game));
 setPropertiesAndChangeScreen(currentScreen);
 addThingsToSingleplayerScreenContainer();
 addThingsToMultiplayerScreenContainer();
+resizeContainer();
+
 let resize = function resize() {
 	resizeContainer();
 };
@@ -371,8 +372,7 @@ app.ticker.add((delta) => {
 		case screens.MULTIPLAYER_GAME_SCREEN: {
 			// Update Text Positions
 			multiplayerScreenContainerItems.currentProblemText.x =
-				(initialWindowWidth -
-					PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.currentProblemText.text === undefined ? "" : multiplayerScreenContainerItems.currentProblemText.text.toString(), textStyles.SIZE_72_MATH_FONT).width) /
+				(initialWindowWidth - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.currentProblemText.text === undefined ? "" : multiplayerScreenContainerItems.currentProblemText.text.toString(), textStyles.SIZE_72_MATH_FONT).width) /
 				2;
 			multiplayerScreenContainerItems.actionsPerMinuteText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.actionsPerMinuteText.text, textStyles.SIZE_40_FONT).width;
 			multiplayerScreenContainerItems.currentComboText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.currentComboText.text, textStyles.SIZE_40_FONT).width;
@@ -451,6 +451,9 @@ function setPropertiesAndChangeScreen(newScreen) {
 			break;
 		}
 		case screens.MULTIPLAYER_GAME_SCREEN: {
+			// set properties
+			removeAllRenderedEnemies();
+
 			document.body.style.overflow = "none";
 			document.getElementById("pixi-canvas").style.display = "block";
 			multiplayerScreenContainer.visible = true; // for now
@@ -571,7 +574,6 @@ function processKeypress(event) {
 
 function startSingleplayerGame() {
 	socket.emit("createAndJoinSingleplayerRoom");
-	socket.emit("startSingleplayerGame");
 	setPropertiesAndChangeScreen(screens.SINGLEPLAYER_GAME_SCREEN);
 }
 
@@ -608,12 +610,11 @@ function addThingsToSingleplayerScreenContainer() {
 	}
 }
 
-function addThingsToMultiplayerScreenContainer(){
-	for (let item in multiplayerScreenContainerItems){
+function addThingsToMultiplayerScreenContainer() {
+	for (let item in multiplayerScreenContainerItems) {
 		multiplayerScreenContainer.addChild(multiplayerScreenContainerItems[item]);
 	}
 }
-
 
 function generateRandomColor() {
 	return parseInt("0x" + Math.floor(Math.random() * 16777215).toString(16));
@@ -626,10 +627,20 @@ function resizeContainer() {
 
 	mainMenuScreenContainer.scale.x = ratio;
 	mainMenuScreenContainer.scale.y = ratio;
+	mainMenuScreenContainer.position.y = (window.innerHeight-mainMenuScreenContainer.height)/2;
+
 	singleplayerScreenContainer.scale.x = ratio;
 	singleplayerScreenContainer.scale.y = ratio;
+	singleplayerScreenContainer.position.y = (window.innerHeight-singleplayerScreenContainer.height)/2;
+
+
 	multiplayerScreenContainer.scale.x = ratio;
 	multiplayerScreenContainer.scale.y = ratio;
+	multiplayerScreenContainer.position.y = (window.innerHeight-multiplayerScreenContainer.height)/2;
+
+
+
+
 	renderer.resize(Math.ceil(initialWindowWidth * ratio), Math.ceil(initialWindowHeight * ratio));
 }
 
@@ -638,12 +649,15 @@ function removeAllRenderedEnemies() {
 		if (game.enemyRenderStatus.hasOwnProperty(enemy)) {
 			singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["enemySprite"]);
 			singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["textSprite"]);
+			multiplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["enemySprite"]);
+			multiplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["textSprite"]);
 			delete game.enemyRenderStatus[enemy];
-			game.renderedEnemiesOnField = [];
-			game.spritesOfRenderedEnemiesOnField = [];
 		}
 	}
+	game.renderedEnemiesOnField = [];
+	game.spritesOfRenderedEnemiesOnField = [];
 }
+
 
 // "Predetermined" Generators
 

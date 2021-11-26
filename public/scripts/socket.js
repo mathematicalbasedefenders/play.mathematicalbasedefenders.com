@@ -165,17 +165,15 @@ socket.on("currentGameData", (compressedStringifiedJSONGameData) => {
 		case "defaultMultiplayer":{
 			console.log(currentGameData);
 			{
-				// if (currentGameData.currentGame.gameIsOver) {
-					// setPropertiesAndChangeScreen(screens.GAME_OVER_SCREEN);
-					// $("#final-score").text(currentGameData.currentGame.currentScore);
-					// $("#final-time").text(turnMillisecondsToTime(currentGameData.currentGame.currentInGameTimeInMilliseconds));
-					// $("#final-enemies").text(currentGameData.currentGame.enemiesKilled + "/" + currentGameData.currentGame.enemiesCreated);
-					// $("#final-actions-per-minute").text(((currentGameData.currentGame.actionsPerformed / (currentGameData.currentGame.currentInGameTimeInMilliseconds / 1000)) * 60).toFixed(3).toString());
-				// } else {
+				if (currentGameData.currentGame.dead) {
+					setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);
+				$("#last-game-rank").text("Last game you ranked #" + currentGameData.currentGame.rank + " surviving for " + currentGameData.currentGame.currentInGameTimeInMilliseconds + "ms.");
+				} else {
 					// text
 
 					// interface
-					// multiplayerScreenContainerItems.currentScoreText.text = currentGameData.currentGame.currentScore;
+					multiplayerScreenContainerItems.numberOfPendingEnemiesText.text = currentGameData.currentGame.enemiesPending;
+					multiplayerScreenContainerItems.currentEnemiesSentText.text = currentGameData.currentGame.enemiesSent;
 					multiplayerScreenContainerItems.currentProblemText.text = settings.video.multiplicationSignForm == "dot" ? currentGameData.currentGame.currentProblemAsBeautifulText.replaceAll("×", "·") : currentGameData.currentGame.currentProblemAsBeautifulText;
 					multiplayerScreenContainerItems.baseHealthText.text = "Base Health: " + currentGameData.currentGame.baseHealth + "/10";
 					multiplayerScreenContainerItems.enemiesText.text = "Enemies: " + currentGameData.currentGame.enemiesKilled + "/" + currentGameData.currentGame.enemiesCreated;
@@ -284,31 +282,31 @@ socket.on("currentGameData", (compressedStringifiedJSONGameData) => {
 						}
 					}
 
-				// 	// score indicators
-				// 	let scoreGainIndicatorsToDelete = [];
-				// 	for (let i = 0; i < currentGameData.currentGame.scoreGainIndicators.length; i++) {
-				// 		let indicator = currentGameData.currentGame.scoreGainIndicators[i];
-				// 		if (indicator !== undefined && indicator !== null && indicator.ageInMilliseconds < 500) {
-				// 			if (game.scoreGainIndicatorRenderStatus[indicator.number.toString()] === undefined) {
-				// 				// ???
-				// 				// create object
-				// 				game.scoreGainIndicatorRenderStatus[indicator.number.toString()] = {};
-				// 				// create the indicator
-				// 				let scoreGainIndicator = new PIXI.Text(currentGameData.currentGame.scoreGainIndicators[i].content, textStyles.SIZE_24_FONT);
-				// 				scoreGainIndicator.x = initialWindowWidth / 2 + 80 * (currentGameData.currentGame.scoreGainIndicators[i].sPosition - 5);
-				// 				scoreGainIndicator.y = 60 * (currentGameData.currentGame.scoreGainIndicators[i].age / 600 - 5) * -1 + 300;
-				// 				// add to render
+					// enemy sent indicators
+					let enemiesSentIndicatorsToDelete = [];
+					for (let i = 0; i < currentGameData.currentGame.enemiesSentIndicators.length; i++) {
+						let indicator = currentGameData.currentGame.enemiesSentIndicators[i];
+						if (indicator !== undefined && indicator !== null && indicator.ageInMilliseconds < 500) {
+							if (game.enemiesSentIndicatorRenderStatus[indicator.number.toString()] === undefined) {
+								// ???
+								// create object
+								game.enemiesSentIndicatorRenderStatus[indicator.number.toString()] = {};
+								// create the indicator
+								let enemiesSentIndicator = new PIXI.Text(currentGameData.currentGame.enemiesSentIndicators[i].content == "0" ? "" : currentGameData.currentGame.enemiesSentIndicators[i].content, textStyles.SIZE_64_FONT);
+								enemiesSentIndicator.x = initialWindowWidth / 2 + 80 * (currentGameData.currentGame.enemiesSentIndicators[i].sPosition - 5);
+								enemiesSentIndicator.y = 60 * (currentGameData.currentGame.enemiesSentIndicators[i].age / 600 - 5) * -1 + 300;
+								// add to render
 
-				// 				game.scoreGainIndicatorRenderStatus[indicator.number.toString()]["textSprite"] = scoreGainIndicator;
-				// 				game.scoreGainIndicatorRenderStatus[indicator.number.toString()]["rendered"] = true;
-				// 				// game.spritesOfRenderedEnemiesOnField.push(enemySprite);
-				// 				multiplayerScreenContainer.addChild(game.scoreGainIndicatorRenderStatus[indicator.number.toString()]["textSprite"]);
-				// 			}
-				// 			game.scoreGainIndicatorRenderStatus[indicator.number.toString()]["textSprite"].y = -24 * (currentGameData.currentGame.scoreGainIndicators[i].ageInMilliseconds / 100 - 5) + 50;
-				// 		} else {
-				// 			scoreGainIndicatorsToDelete.push(indicator.number.toString());
-				// 		}
-				// 	}
+								game.enemiesSentIndicatorRenderStatus[indicator.number.toString()]["textSprite"] = enemiesSentIndicator;
+								game.enemiesSentIndicatorRenderStatus[indicator.number.toString()]["rendered"] = true;
+								// game.spritesOfRenderedEnemiesOnField.push(enemySprite);
+								multiplayerScreenContainer.addChild(game.enemiesSentIndicatorRenderStatus[indicator.number.toString()]["textSprite"]);
+							}
+							game.enemiesSentIndicatorRenderStatus[indicator.number.toString()]["textSprite"].y = -24 * (currentGameData.currentGame.enemiesSentIndicators[i].ageInMilliseconds / 100 - 5) + 50;
+						} else {
+							enemiesSentIndicatorsToDelete.push(indicator.number.toString());
+						}
+					}
 
 				// 	// delete
 					for (let numberToRemoveAsString of renderedEnemiesOnFieldToDelete) {
@@ -318,11 +316,11 @@ socket.on("currentGameData", (compressedStringifiedJSONGameData) => {
 						game.renderedEnemiesOnField.splice(game.renderedEnemiesOnField.indexOf(numberToRemoveAsString), 1);
 						game.spritesOfRenderedEnemiesOnField.splice(game.spritesOfRenderedEnemiesOnField.indexOf(numberToRemoveAsString), 1);
 					}
-				// 	for (let numberToRemoveAsString of scoreGainIndicatorsToDelete) {
-				// 		game.scoreGainIndicatorRenderStatus[numberToRemoveAsString.toString()] === undefined || multiplayerScreenContainer.removeChild(game.scoreGainIndicatorRenderStatus[numberToRemoveAsString.toString()]["textSprite"]);
-				// 		delete game.scoreGainIndicatorRenderStatus[numberToRemoveAsString.toString()];
-				// 	}
-				// //}
+					for (let numberToRemoveAsString of enemiesSentIndicatorsToDelete) {
+						game.enemiesSentIndicatorRenderStatus[numberToRemoveAsString.toString()] === undefined || multiplayerScreenContainer.removeChild(game.enemiesSentIndicatorRenderStatus[numberToRemoveAsString.toString()]["textSprite"]);
+						delete game.enemiesSentIndicatorRenderStatus[numberToRemoveAsString.toString()];
+					}
+				}
 				break;
 			}
 		}
@@ -351,7 +349,14 @@ socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
     switch (action){
         // used when someone joins or leaves
         case "updatePlayerList": {
-            $("#default-multiplayer-room-player-list").text(parameters[0]);
+			let formattedPlayers = "";
+			for (let i = 0; i < parameters[0].length; i++){
+				formattedPlayers += parameters[0][i];
+				if (i != parameters[0].length-1){
+				formattedPlayers += "<br>"
+				}
+			}
+            $("#default-multiplayer-room-player-list").html(formattedPlayers);
             break;
         }
 		case "updateStatusText": {
@@ -363,9 +368,36 @@ socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
 			$("#pixi-canvas").show(0);
 			$("#default-multiplayer-room-lobby-screen-container").hide(0);
 			currentScreen = "multiplayerGameScreen";
-
+			setPropertiesAndChangeScreen(screens.MULTIPLAYER_GAME_SCREEN);
 			multiplayerScreenContainer.visible = true;
 			break;
 		}
-    }
+		case "updateChatBox":{
+			console.log(parameters[0]);
+			let name = document.createElement("span");
+			name.appendChild(document.createTextNode(parameters[0].toString()));
+			if (parameters[2] == "special"){
+				name.classList.add("rainbow-letters");
+			
+			} else {
+				name.style.color = parameters[2];
+
+			}
+			
+			name.append(": ")
+			let name2 = document.createElement("span");
+			name2.append(parameters[1].toString());
+			name2.style.color = "#000000";
+			name.append(name2);
+			$(".multiplayer-room-chat-box").prepend(name);
+		
+			break;
+		}
+	}
+});
+
+// important
+socket.on("disconnect", (reason) => {
+	alert("Disconnected from server. Click OK to refresh page. Technical Stuff: " + reason);
+	location.reload();
 });
