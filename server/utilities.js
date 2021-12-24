@@ -1,3 +1,6 @@
+const sizeof = require('object-sizeof')
+const LOG_AMOUNT_OF_DATA_SENT = false;
+
 function generateRoomID(){
     characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     roomID = undefined;
@@ -21,4 +24,14 @@ function generateGuestName(){
     }
     return "Guest " + generatedName.toString();
 }
-module.exports = { generateRoomID, generateGuestName }
+
+
+function getSizeInBytes(string) {
+	if (LOG_AMOUNT_OF_DATA_SENT){
+	return sizeof(string);
+}
+return 0;
+}
+
+
+module.exports = { generateRoomID, generateGuestName, getSizeInBytes }

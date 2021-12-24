@@ -3,8 +3,9 @@
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
         "gtag",
         "Keybinds",
-        "lzstring",
+        "lzutf8",
         "PIXI",
+        "shar",
         "toastr",
         "upsert",
         "XVRB"

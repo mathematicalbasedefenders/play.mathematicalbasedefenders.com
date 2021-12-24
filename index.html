@@ -13,7 +13,12 @@
 
 	<body>
 		<div id="game-container">
-			<canvas id="pixi-canvas"></canvas>
+			<div id="game-content-container">
+				<canvas id="pixi-canvas"></canvas>
+			</div>
+			<div id="status-bar-container">
+				<div id="status-bar-content-container">Running at <span id="frames-per-second"></span> frames per second. | <span id="online-players">?</span> online players</div>
+			</div>
 			<div id="hub-container">
 				<!-- Main menu -->
 				<div id="main-menu-screen-container">
@@ -36,14 +41,14 @@
 							onMouseEnter="$('#bottom-toolbar-text').text('Play with others and make friends and enemies.')"
 							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
 							onClick="setPropertiesAndChangeScreen(screens.MULTIPLAYER_LOBBY_SCREEN)"
-						>
+							>
 							&nbsp;Multiplayer
 						</button>
 						<br /><br />
 						<button
 							class="main-menu-screen-button"
 							onMouseEnter="$('#bottom-toolbar-text').text('View how far you or others have progressed.')"
-							onClick="alert('A stats viewer will be released in a future update!')"
+							onClick="createToastNotification('A stats viewer will be released in a future update!', toastNotificationPositions.BOTTOM_RIGHT, 'red')"
 							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
 						>
 							&nbsp;Stats
@@ -65,7 +70,7 @@
 					<div id="information-screen-content-container">
 						<div class="large-text">
 							<p style="text-align: center">
-								&nbsp;Mathematical Base Defenders <span class="medium-text">0.2.1 </span
+								&nbsp;Mathematical Base Defenders <span class="medium-text">0.3.0-alpha.1 </span
 								><span class="large-medium-text"
 									>by
 									<img
@@ -127,34 +132,38 @@
 				<!-- Default Multiplayer Room Lobby-->
 				<div id="default-multiplayer-room-lobby-screen-container">
 					<div class="multiplayer-room-player-list-container">
-					<div class="multiplayer-room-player-list">
-						<p id="default-multiplayer-room-player-list">Players: None</p>
+						<div class="multiplayer-room-player-list">
+							<p id="default-multiplayer-room-player-list">Players: None</p>
+						</div>
 					</div>
-				</div>
-				<div class="multiplayer-room-chat-box-container">
-					<div class="multiplayer-room-chat-box"></div>
-					<div class="multiplayer-room-message-box-container">
-						<input type="text" autocomplete="off" id="multiplayer-room-message-box" placeholder="Enter message..." /><button
-							id="chat-box-send-button"
-							onClick="socket.emit('defaultMultiplayerRoomChatMessage', $('#multiplayer-room-message-box').val())"
+					<div class="multiplayer-room-chat-box-container">
+						<div class="multiplayer-room-chat-box"></div>
+						<div class="multiplayer-room-message-box-container">
+							<input type="text" autocomplete="off" id="multiplayer-room-message-box" placeholder="Enter message..." /><button
+								id="chat-box-send-button"
+								onClick="socket.emit('defaultMultiplayerRoomChatMessage', $('#multiplayer-room-message-box').val());$('#multiplayer-room-message-box').val('')"
+							>
+								Send
+							</button>
+						</div>
+					</div>
+
+					<p id="default-multiplayer-room-status-text">Waiting for more players...</p>
+					<br /><br />
+					<div class="last-game-ranks-content-container">
+						<p id="last-game-ranks-content"></p>
+					</div>
+					<div id="default-multiplayer-room-lobby-screen-button-container">
+						<button
+							class="default-multiplayer-room-lobby-screen-button"
+							onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);socket.emit('leaveRoom');"
+							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
 						>
-							Send
+							&nbsp;Back
 						</button>
 					</div>
 				</div>
-				<br />
-				<p id="default-multiplayer-room-status-text">Waiting for more players...</p>
-				<p id="last-game-rank">You ranked #?</p>
-				<div id="default-multiplayer-room-lobby-screen-button-container">
-					<button
-						class="default-multiplayer-room-lobby-screen-button"
-						onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);socket.emit('leaveRoom');"
-						onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
-						onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
-					>
-						&nbsp;Back
-					</button>
-				</div></div>
 
 				<!-- Settings -->
 				<div id="settings-screen-container">
@@ -232,6 +241,17 @@
 									<option value="cross">×</option>
 									<option value="dot">·</option>
 								</select>
+							</div>
+							<br />
+							<div
+								id="enemy-custom-picture-setting-container"
+								onMouseEnter="$('#bottom-toolbar-text').text('Select the picture to appear on every enemy (overrides Enemy Colors setting if not left blank.)')"
+								onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+							>
+								Enemy Picture:
+								<input class="settings-screen-text-field" style="width: 400px" id="enemy-custom-selected-picture" name="enemy-custom-selected-picture" placeholder="Enter URL..." type="text" />
+								<button onClick="testCustomPicture($(`#enemy-custom-selected-picture`).val())">Test</button>
+								<div id="picture-tester"></div>
 							</div>
 						</div>
 						<div id="input-settings-screen-container" style="font-size: 24px">
@@ -404,6 +424,9 @@
 				</div>
 			</div>
 			<div id="toast-notifications-container"></div>
+			<div id="metadata-container" style="display: none">
+				<span id="custom-enemy-picture"></span>
+			</div>
 		</div>
 
 		<!-- Scripts -->
@@ -424,10 +447,9 @@
 
 		<script src="/scripts/lib/socket.io.js"></script>
 		<script src="/scripts/lib/fontfaceobserver.js"></script>
-		<script src="/scripts/lib/math-expression-evaluator.min.js"></script>
-		<script src="/scripts/lib/lz-string.min.js"></script>
-
+		
 		<!-- ORDER MATTERS -->
+		<script src="/scripts/toastnotification.js"></script>
 		<script src="/scripts/enemy.js"></script>
 		<script src="/scripts/tile.js"></script>
 		<script src="/scripts/game.js"></script>

@@ -1,4 +1,3 @@
-
 const http = require("http");
 const util = require("util");
 // express.js
@@ -18,9 +17,6 @@ const Schema = mongoose.Schema;
 // bcrypt
 const bcrypt = require("bcrypt");
 
-// lzstring
-const LZString = require("lz-string");
-
 // anti xss
 const xss = require("xss");
 
@@ -36,9 +32,10 @@ const tile = require("./server/game/tile.js");
 // other stuff
 const PORT = 8000;
 const DESIRED_UPDATES_PER_SECOND = 60;
+
 const LOOP_INTERVAL = 1000 / DESIRED_UPDATES_PER_SECOND;
 
-const LOG_DATA_SENT = false;
+const LOG_AMOUNT_OF_DATA_SENT = false;
 
 // variables
 var sockets = [];
@@ -93,13 +90,21 @@ var guests = [];
 function update(deltaTime) {
 	timeSinceLastTimeStatsPrintedInMilliseconds += deltaTime;
 	var activeRoomIDs = Object.keys(rooms);
-	// console.log("Rooms: " + activeRoomIDs.length);
-	if (LOG_DATA_SENT && timeSinceLastTimeStatsPrintedInMilliseconds >= 1000) {
-		console.log(dataSentWithCompression + " bytes sent (" + dataSentWithoutCompression + " bytes sent without compression)");
-		timeSinceLastTimeStatsPrintedInMilliseconds -= 1000;
+	// hub
+
+	// game
+	if (timeSinceLastTimeStatsPrintedInMilliseconds >= 1000) {
+		io.emit("updateText", "#online-players", sockets.length);
+
+		if (LOG_AMOUNT_OF_DATA_SENT) {
+			console.log(`${dataSentWithCompression.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} bytes sent in ${timeSinceLastTimeStatsPrintedInMilliseconds}ms.`);
+		}
+
 		dataSentWithCompression = 0;
-		dataSentWithoutCompression = 0;
+
+		timeSinceLastTimeStatsPrintedInMilliseconds -= 1000;
 	}
+
 	for (var roomID of activeRoomIDs) {
 		if (roomID.length == 8) {
 			// room is default multiplayer room
@@ -119,20 +124,21 @@ function update(deltaTime) {
 						startDefaultMultiplayerGame();
 					} else {
 						io.to(roomIDOfDefaultMultiplayerRoom).emit("defaultMultiplayerRoomAction", "updateStatusText", ["Game starting in " + Math.floor(timeLeft / 1000).toString() + " seconds."]);
+						dataSentWithCompression += utilities.getSizeInBytes(["Game starting in " + Math.floor(timeLeft / 1000).toString() + " seconds."]);
 					}
 				} else {
 					io.to(roomIDOfDefaultMultiplayerRoom).emit("defaultMultiplayerRoomAction", "updateStatusText", [rooms[roomID].playing ? "Game in progress." : "Waiting for 2 or more players."]);
+					dataSentWithCompression += utilities.getSizeInBytes( [rooms[roomID].playing ? "Game in progress." : "Waiting for 2 or more players."]);
 				}
 			}
 
 			// room is playing
 			if (rooms[roomID].playing) {
-				// dataSentWithoutCompression += new TextEncoder().encode(JSON.stringify(rooms[roomID].data)).length;
-				// dataSentWithCompression += new TextEncoder().encode(LZString.compressToUTF16(JSON.stringify(rooms[roomID].data))).length;
-
+				
 				if (rooms[roomID].type == "singleplayer") {
 					game.computeUpdate(rooms[roomID], deltaTime);
-					io.to(roomID).emit("currentGameData", LZString.compressToUTF16(JSON.stringify(rooms[roomID].data)));
+					io.to(roomID).emit("currentGameData", JSON.stringify(rooms[roomID].data))
+					dataSentWithCompression += utilities.getSizeInBytes(JSON.stringify(rooms[roomID].data))
 					// why?
 					for (let enemy in rooms[roomID].data.currentGame.enemiesOnField) {
 						if (rooms[roomID].data.currentGame.enemiesOnField[enemy].toDestroy) {
@@ -149,13 +155,28 @@ function update(deltaTime) {
 							if (rooms[roomID].data.currentGame.players[connection.id]) {
 								if (connection.ownerOfSocketIsPlaying) {
 									if (!rooms[roomID].data.currentGame.players[connection.id].currentGame.dead) {
-										connection.emit("currentGameData", LZString.compressToUTF16(JSON.stringify(constructDefaultMultiplayerGameDataObjectToSend(connection))));
+										connection.emit("currentGameData", JSON.stringify(constructDefaultMultiplayerGameDataObjectToSend(connection)))
+										dataSentWithCompression += utilities.getSizeInBytes(JSON.stringify(constructDefaultMultiplayerGameDataObjectToSend(connection)))
 									} else {
+										// someone got eliminated
 										let data = constructDefaultMultiplayerGameDataObjectToSend(connection);
 										data.currentGame.rank = rooms[roomID].data.currentGame.playersAlive.length;
-										connection.emit("currentGameData", LZString.compressToUTF16(JSON.stringify(data)));
+										connection.emit("currentGameData", JSON.stringify(data))
+										dataSentWithCompression += utilities.getSizeInBytes(JSON.stringify(data))
 										connection.ownerOfSocketIsPlaying = false;
+										rooms[roomID].data.currentGame.ranks.push([
+											[
+												rooms[roomID].data.currentGame.playersAlive.length,
+												rooms[roomID].data.currentGame.players[connection.id].currentGame.playerName.toString(),
+												rooms[roomID].data.currentGame.players[connection.id].currentGame.currentInGameTimeInMilliseconds,
+											],
+										]);
+
 										rooms[roomID].data.currentGame.playersAlive.splice(rooms[roomID].data.currentGame.playersAlive.indexOf(connection.id), 1);
+
+										// send placements
+
+										io.to(roomID).emit("defaultMultiplayerRoomAction", "updateRanks", [rooms[roomID].data.currentGame.ranks]);
 									}
 								}
 
@@ -169,10 +190,19 @@ function update(deltaTime) {
 									if (rooms[roomID].data.currentGame.playersAlive.length == 1) {
 										let winnerSocket = io.sockets.sockets.get(rooms[roomID].data.currentGame.playersAlive[0]);
 										let data = constructDefaultMultiplayerGameDataObjectToSend(winnerSocket);
+										if (!data.currentGame){data.currentGame = ""}
 										data.currentGame.rank = rooms[roomID].data.currentGame.playersAlive.length;
 										data.currentGame.dead = true;
-										winnerSocket.emit("currentGameData", LZString.compressToUTF16(JSON.stringify(data)));
+										rooms[roomID].data.currentGame.ranks.push([
+											[
+												rooms[roomID].data.currentGame.playersAlive.length,
+												rooms[roomID].data.currentGame.players[winnerSocket.id].currentGame.playerName.toString(),
+												rooms[roomID].data.currentGame.players[winnerSocket.id].currentGame.currentInGameTimeInMilliseconds,
+											],
+										]);
+										winnerSocket.emit("currentGameData", JSON.stringify(data))
 										winnerSocket.ownerOfSocketIsPlaying = false;
+										io.to(roomID).emit("defaultMultiplayerRoomAction", "updateRanks", [rooms[roomID].data.currentGame.ranks]);
 										rooms[roomID].data.currentGame.playersAlive = [];
 									}
 									rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
@@ -211,7 +241,7 @@ var loop = setInterval(() => {
 io.on("connection", (socket) => {
 	sockets.push(socket);
 
-	console.log("New connection! There are now " + sockets.length + " connections.");
+	io.emit("updateText", "#online-players", sockets.length);
 
 	socket.playerDataOfSocketOwner; // use this
 
@@ -234,7 +264,6 @@ io.on("connection", (socket) => {
 	// disconnect
 	socket.on("disconnect", () => {
 		let roomToLeave = socket.currentRoomSocketIsIn;
-
 
 		socket.leave(socket.currentRoomSocketIsIn);
 		socket.currentRoomSocketIsIn = "";
@@ -263,6 +292,10 @@ io.on("connection", (socket) => {
 
 	// input
 	socket.on("keypress", async (code, playerTileKeybinds) => {
+		code = xss(code)
+		//TODO: wtf?
+		playerTileKeybinds = xss(playerTileKeybinds)
+		playerTileKeybinds = playerTileKeybinds.split(",");
 		if (socket.currentRoomSocketIsIn != "") {
 			if (socket.ownerOfSocketIsPlaying) {
 				if (code != "Escape") {
@@ -300,7 +333,7 @@ io.on("connection", (socket) => {
 		console.log("Log in attempt from " + username);
 
 		if (!usersCurrentlyAttemptingToLogIn.includes(username)) {
-			if (/^[a-zA-Z0-9]*$/g.test(username)) {
+			if (/^[a-zA-Z0-9_]*$/g.test(username)) {
 				decodedPassword = new Buffer.from(new Buffer.from(new Buffer.from(new Buffer.from(encodedPassword, "base64").toString(), "base64").toString(), "base64").toString(), "base64").toString();
 				decodedPassword = xss(decodedPassword);
 				socket.playerData = await schemas.getUserModel().findOne({ username: username });
@@ -405,12 +438,6 @@ io.on("connection", (socket) => {
 
 				rooms[roomID].playersInRoom[socket.id] = socket;
 
-				if (socket.usernameOfSocketOwner) {
-					console.log(socket.usernameOfSocketOwner + " has joined the default multiplayer room! There are now " + Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length + " players in the default room.");
-				} else {
-					console.log(socket.guestNameOfSocketOwner + " has joined the default multiplayer room! There are now " + Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length + " players in the default room.");
-				}
-
 				io.to(roomIDOfDefaultMultiplayerRoom).emit("defaultMultiplayerRoomAction", "updatePlayerList", [
 					Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).map((player) => {
 						if (rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[player].loggedIn) {
@@ -425,12 +452,6 @@ io.on("connection", (socket) => {
 
 				socket.join(roomIDOfDefaultMultiplayerRoom);
 				rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[socket.id] = socket;
-
-				if (socket.usernameOfSocketOwner) {
-					console.log(socket.usernameOfSocketOwner + " has joined the default multiplayer room! There are now " + Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length + " players in the default room.");
-				} else {
-					console.log(socket.guestNameOfSocketOwner + " has joined the default multiplayer room! There are now " + Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length + " players in the default room.");
-				}
 
 				io.to(roomIDOfDefaultMultiplayerRoom).emit("defaultMultiplayerRoomAction", "updatePlayerList", [
 					Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).map((player) => {
@@ -453,8 +474,6 @@ io.on("connection", (socket) => {
 		socket.leave(socket.currentRoomSocketIsIn);
 		socket.currentRoomSocketIsIn = "";
 
-
-
 		if (roomToLeave != undefined && roomToLeave == roomIDOfDefaultMultiplayerRoom && rooms[roomToLeave] !== undefined) {
 			delete rooms[roomToLeave].playersInRoom[socket.id];
 			io.to(roomToLeave).emit("defaultMultiplayerRoomAction", "updatePlayerList", [
@@ -469,7 +488,6 @@ io.on("connection", (socket) => {
 			if (rooms[roomToLeave].playing) {
 				rooms[roomToLeave].data.currentGame.players[socket.id].currentGame.dead = true;
 			}
-		
 		}
 	});
 
@@ -499,6 +517,7 @@ io.on("connection", (socket) => {
 	 *
 	 */
 	socket.on("tileClick", (slot) => {
+		slot = xss(slot);
 		if (slot % 1 == 0 && slot >= 0 && slot <= 48) {
 			game.processTileClick(slot, rooms[socket.currentRoomSocketIsIn], socket);
 		}
@@ -570,6 +589,7 @@ async function startDefaultMultiplayerGame(roomID) {
 			globalTileQueues: [],
 			globalBagQuantities: [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
 			globalAvailableTermsIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+			ranks: [],
 		},
 	};
 	rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.globalTileQueues.push(game.generateMultiplayerTileQueue());
@@ -608,10 +628,16 @@ async function startDefaultMultiplayerGame(roomID) {
 }
 
 function constructDefaultMultiplayerGameDataObjectToSend(connection) {
-	let data = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection.id];
-	data.currentGame.currentInGameTimeInMilliseconds = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.currentInGameTimeInMilliseconds;
-	return data;
+	if (connection) {
+
+		let data = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection.id];
+		data.currentGame.currentInGameTimeInMilliseconds = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.currentInGameTimeInMilliseconds;
+		data.currentGame.playersRemaining = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.playersAlive.length;
+		return data;
+	}
+	return {};
 }
+
 
 server.listen(PORT, () => {
 	console.log(`Listening at localhost:${PORT}`);

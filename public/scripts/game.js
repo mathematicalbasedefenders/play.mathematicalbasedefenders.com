@@ -20,6 +20,19 @@ socket.on("connect", () => {
 	console.log("Connected to server!");
 });
 
+var isMobile = false; //initiate as false
+// device detection
+if (
+	/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(
+		navigator.userAgent
+	) ||
+	/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(
+		navigator.userAgent.substr(0, 4)
+	)
+) {
+	isMobile = true;
+}
+
 const screens = {
 	MAIN_MENU_SCREEN: "mainMenuScreen",
 	INFORMATION_SCREEN: "informationScreen",
@@ -40,6 +53,8 @@ const settingsScreens = {
 
 var pixiCanvas = document.getElementById("pixi-canvas");
 document.getElementById("pixi-canvas").style.display = "none";
+pixiCanvas.width = window.innerWidth;
+pixiCanvas.height = window.innerHeight;
 // IMPORTANT VARIABLES
 var currentScreen = screens.MAIN_MENU_SCREEN;
 var settings = {};
@@ -75,8 +90,8 @@ const TERMS_AS_BEAUTIFUL_STRINGS = ["0", "1", "2", "3", "4", "5", "6", "7", "8",
 
 // PIXI Variables
 var app = new PIXI.Application({
-	width: window.screen.width,
-	height: window.screen.height,
+	width: window.innerWidth,
+	height: window.innerHeight,
 	backgroundColor: 0xeeeeee,
 	autoResize: true,
 	resizeTo: window,
@@ -111,9 +126,8 @@ switch (currentScreen) {
 	}
 }
 
-// Constants so this is easier
-
 const textStyles = {
+	SIZE_16_FONT: new PIXI.TextStyle({ fontFamily: "Computer Modern Unicode Serif", fontSize: 16 }),
 	SIZE_24_FONT: new PIXI.TextStyle({ fontFamily: "Computer Modern Unicode Serif", fontSize: 24 }),
 	SIZE_32_FONT: new PIXI.TextStyle({ fontFamily: "Computer Modern Unicode Serif", fontSize: 32 }),
 	SIZE_40_FONT: new PIXI.TextStyle({ fontFamily: "Computer Modern Unicode Serif", fontSize: 40 }),
@@ -144,6 +158,8 @@ var singleplayerScreenContainerItems = {
 	currentScoreText: new PIXI.Text("0", textStyles.SIZE_64_FONT),
 	timeLabelerText: new PIXI.Text("Time", textStyles.SIZE_24_FONT),
 
+	currentComboTimeLeftText: new PIXI.Text("combo time left", textStyles.SIZE_24_FONT),
+
 	currentTimeText: new PIXI.Text("0:00.000", textStyles.SIZE_40_FONT),
 	baseHealthText: new PIXI.Text("Base Health: 10/10", textStyles.SIZE_24_FONT),
 	enemiesText: new PIXI.Text("Enemies: 0/0", textStyles.SIZE_24_FONT),
@@ -159,7 +175,7 @@ var singleplayerScreenContainerItems = {
 singleplayerScreenContainerItems.sendButtonSprite.x = initialWindowWidth / 2 + 64 * -4 + 16;
 singleplayerScreenContainerItems.sendButtonSprite.y = initialWindowHeight / 2 + 64 * 3 + 176;
 singleplayerScreenContainerItems.sendButtonSprite.interactive = true;
-singleplayerScreenContainerItems.sendButtonSprite.on("click", function () {
+singleplayerScreenContainerItems.sendButtonSprite.on("pointerdown", function () {
 	sendProblem();
 });
 
@@ -211,6 +227,9 @@ singleplayerScreenContainerItems.actionsPerMinuteText.y = initialWindowHeight / 
 singleplayerScreenContainerItems.currentComboText.x = initialWindowWidth / 2 - 450;
 singleplayerScreenContainerItems.currentComboText.y = initialWindowHeight / 2 - 80;
 
+singleplayerScreenContainerItems.currentComboTimeLeftText.x = initialWindowWidth / 2 - 260;
+singleplayerScreenContainerItems.currentComboTimeLeftText.y = initialWindowHeight / 2 - 35;
+
 // Images
 
 var multiplayerScreenContainerItems = {
@@ -233,12 +252,14 @@ var multiplayerScreenContainerItems = {
 	actionsPerMinuteLabelerText: new PIXI.Text("Actions Per Minute", textStyles.SIZE_24_FONT),
 	actionsPerMinuteText: new PIXI.Text("0.000", textStyles.SIZE_40_FONT),
 	currentComboText: new PIXI.Text("", textStyles.SIZE_40_FONT),
+	currentComboTimeLeftText: new PIXI.Text("combo time left", textStyles.SIZE_24_FONT),
+	currentPlayersRemainingText: new PIXI.Text("players remaining", textStyles.SIZE_24_FONT),
 };
 
 multiplayerScreenContainerItems.sendButtonSprite.x = initialWindowWidth / 2 + 64 * -4 + 16;
 multiplayerScreenContainerItems.sendButtonSprite.y = initialWindowHeight / 2 + 64 * 3 + 176;
 multiplayerScreenContainerItems.sendButtonSprite.interactive = true;
-multiplayerScreenContainerItems.sendButtonSprite.on("click", function () {
+multiplayerScreenContainerItems.sendButtonSprite.on("pointerdown", function () {
 	sendProblem();
 });
 
@@ -282,6 +303,9 @@ multiplayerScreenContainerItems.valueOfVariableCText.y = initialWindowHeight / 2
 multiplayerScreenContainerItems.valueOfVariableDText.x = initialWindowWidth / 2 + 64 * 2 + 96;
 multiplayerScreenContainerItems.valueOfVariableDText.y = initialWindowHeight / 2 + 210;
 
+multiplayerScreenContainerItems.currentPlayersRemainingText.x = initialWindowWidth / 2 + 64 * 2 + 96;
+multiplayerScreenContainerItems.currentPlayersRemainingText.y = initialWindowHeight / 2 + 240;
+
 // Left of grid
 
 multiplayerScreenContainerItems.actionsPerMinuteLabelerText.x = initialWindowWidth / 2 - 465;
@@ -292,6 +316,9 @@ multiplayerScreenContainerItems.actionsPerMinuteText.y = initialWindowHeight / 2
 
 multiplayerScreenContainerItems.currentComboText.x = initialWindowWidth / 2 - 450;
 multiplayerScreenContainerItems.currentComboText.y = initialWindowHeight / 2 - 80;
+
+multiplayerScreenContainerItems.currentComboTimeLeftText.y = initialWindowHeight / 2 - 35;
+multiplayerScreenContainerItems.currentComboTimeLeftText.x = initialWindowWidth / 2 - 260;
 
 var tileTextures = [[], []];
 
@@ -330,6 +357,8 @@ $(document).keydown(function (event) {
 			processKeypress(event);
 		}
 	} else {
+		event.preventDefault();
+		toggleStatusBarVisibility();
 	}
 });
 // =============== END OF OTHER STUFF ===============================
@@ -339,12 +368,15 @@ initializationFinished = true;
 
 // ======================================================================================== END OF INITIALIZATION =====================================================================
 console.log("Initialization finished!");
-resizeContainer();
 var game = JSON.parse(JSON.stringify(game));
 setPropertiesAndChangeScreen(currentScreen);
 addThingsToSingleplayerScreenContainer();
 addThingsToMultiplayerScreenContainer();
 resizeContainer();
+$("#status-bar-container").hide(0);
+if (isMobile) {
+	alert("Hi there! It looks like you are playing on a phone or tablet. Please note that the game might not be fully playable on a phone or tablet.");
+}
 
 let resize = function resize() {
 	resizeContainer();
@@ -353,10 +385,30 @@ let resize = function resize() {
 window.addEventListener("resize", resize);
 
 // Rendering Loop
+let framesPerSecondCounterTimeInMilliseconds = 0;
+let framesPerSecondThisSecond = 0;
 
 app.ticker.add((delta) => {
 	// delta = frames "skipped" (1 frame = 1/60 seconds)
 
+	// variables
+	framesPerSecondCounterTimeInMilliseconds += delta;
+	framesPerSecondThisSecond++;
+
+	$("#frames-per-second").text(Math.round(app.ticker.FPS));
+
+	// global
+	for (let toastNotification in toastNotificationExpiryTimes) {
+		if (toastNotificationExpiryTimes[toastNotification] < Date.now()) {
+			$("#toast-notification-" + toastNotification).remove();
+
+			delete toastNotificationExpiryTimes[toastNotification];
+		}
+	}
+
+	// status bar
+
+	// screens
 	switch (currentScreen) {
 		case screens.SINGLEPLAYER_GAME_SCREEN: {
 			// Update Text Positions
@@ -366,6 +418,7 @@ app.ticker.add((delta) => {
 				2;
 			singleplayerScreenContainerItems.actionsPerMinuteText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(singleplayerScreenContainerItems.actionsPerMinuteText.text, textStyles.SIZE_40_FONT).width;
 			singleplayerScreenContainerItems.currentComboText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(singleplayerScreenContainerItems.currentComboText.text, textStyles.SIZE_40_FONT).width;
+			singleplayerScreenContainerItems.currentComboTimeLeftText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(singleplayerScreenContainerItems.currentComboTimeLeftText.text, textStyles.SIZE_24_FONT).width;
 			break;
 		}
 
@@ -376,6 +429,7 @@ app.ticker.add((delta) => {
 				2;
 			multiplayerScreenContainerItems.actionsPerMinuteText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.actionsPerMinuteText.text, textStyles.SIZE_40_FONT).width;
 			multiplayerScreenContainerItems.currentComboText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.currentComboText.text, textStyles.SIZE_40_FONT).width;
+			multiplayerScreenContainerItems.currentComboTimeLeftText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.currentComboTimeLeftText.text, textStyles.SIZE_24_FONT).width;
 			break;
 		}
 	}
@@ -390,6 +444,8 @@ app.ticker.add((delta) => {
  * @param {*} newScreen
  */
 function setPropertiesAndChangeScreen(newScreen) {
+	resizeContainer();
+
 	// animate currentScreen first
 	switch (currentScreen) {
 		case screens.MAIN_MENU_SCREEN: {
@@ -400,8 +456,9 @@ function setPropertiesAndChangeScreen(newScreen) {
 		}
 	}
 
-	$("#hub-container").hide(0);
+	setCustomEnemyPictureMetadata(settings.video.customEnemyPictureURL);
 
+	$("#hub-container").hide(0);
 	$("#main-menu-screen-container").hide(0);
 	$("#information-screen-container").hide(0);
 	$("#multiplayer-lobby-screen-container").hide(0);
@@ -562,6 +619,26 @@ function processKeypress(event) {
 				socket.emit("leaveRoom");
 			}
 		}
+		case screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN: {
+			// check if input is from numpad
+			if (event.key != "Escape") {
+				if (event.key == "/") {
+					$("#multiplayer-room-message-box").focus();
+					event.preventDefault();
+					$("#multiplayer-room-message-box").val("");
+				}
+
+				if (event.key == "Enter") {
+					if (document.activeElement == document.getElementById("multiplayer-room-message-box")) {
+						socket.emit("defaultMultiplayerRoomChatMessage", $("#multiplayer-room-message-box").val());
+						$("#multiplayer-room-message-box").val("");
+					}
+				}
+			} else {
+				setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);
+				socket.emit("leaveRoom");
+			}
+		}
 		case screens.SETTINGS_SCREEN: {
 			switch (event.key) {
 				case "Escape": {
@@ -623,23 +700,19 @@ function generateRandomColor() {
 // Rendering Helpers
 
 function resizeContainer() {
-	var ratio = Math.min(window.innerWidth / initialWindowWidth, window.screen.availHeight - (window.outerHeight - window.innerHeight) / initialWindowHeight);
+	let ratio = Math.min(window.innerWidth / initialWindowWidth, (window.screen.availHeight - (window.outerHeight - window.innerHeight)) / initialWindowHeight);
 
 	mainMenuScreenContainer.scale.x = ratio;
 	mainMenuScreenContainer.scale.y = ratio;
-	mainMenuScreenContainer.position.y = (window.innerHeight-mainMenuScreenContainer.height)/2;
+	mainMenuScreenContainer.position.y = (window.innerHeight - mainMenuScreenContainer.height) / 2;
 
 	singleplayerScreenContainer.scale.x = ratio;
 	singleplayerScreenContainer.scale.y = ratio;
-	singleplayerScreenContainer.position.y = (window.innerHeight-singleplayerScreenContainer.height)/2;
-
+	singleplayerScreenContainer.position.y = (window.innerHeight - singleplayerScreenContainer.height) / 2;
 
 	multiplayerScreenContainer.scale.x = ratio;
 	multiplayerScreenContainer.scale.y = ratio;
-	multiplayerScreenContainer.position.y = (window.innerHeight-multiplayerScreenContainer.height)/2;
-
-
-
+	multiplayerScreenContainer.position.y = (window.innerHeight - multiplayerScreenContainer.height) / 2;
 
 	renderer.resize(Math.ceil(initialWindowWidth * ratio), Math.ceil(initialWindowHeight * ratio));
 }
@@ -648,16 +721,16 @@ function removeAllRenderedEnemies() {
 	for (let enemy in game.enemyRenderStatus) {
 		if (game.enemyRenderStatus.hasOwnProperty(enemy)) {
 			singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["enemySprite"]);
-			singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["textSprite"]);
+			singleplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["requestedValueTextSprite"]);
 			multiplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["enemySprite"]);
-			multiplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["textSprite"]);
+			multiplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["requestedValueTextSprite"]);
+			multiplayerScreenContainer.removeChild(game.enemyRenderStatus[enemy]["senderNameTextSprite"]);
 			delete game.enemyRenderStatus[enemy];
 		}
 	}
 	game.renderedEnemiesOnField = [];
 	game.spritesOfRenderedEnemiesOnField = [];
 }
-
 
 // "Predetermined" Generators
 
@@ -753,6 +826,7 @@ function restoreSettings() {
 			video: {
 				enemyColor: "randomForEach",
 				multiplicationSignForm: "cross",
+				customEnemyPictureURL: "",
 			},
 			input: {
 				keybinds: {
@@ -770,6 +844,7 @@ function updateSettingsSelections() {
 	// video
 	$("#enemy-color-setting-drop-down-menu").val(settings.video.enemyColor);
 	$("#multiplication-sign-form-setting-drop-down-menu").val(settings.video.multiplicationSignForm);
+	$("#enemy-custom-selected-picture").val(settings.video.enemyPicture);
 	// input
 	for (let i = 0; i < 19; i++) {
 		$("#key-to-force-select-tile-" + i).text(settings.input.keybinds.tiles[i]);
@@ -787,6 +862,7 @@ function changeSettings() {
 		video: {
 			enemyColor: $("#enemy-color-setting-drop-down-menu").val(),
 			multiplicationSignForm: $("#multiplication-sign-form-setting-drop-down-menu").val(),
+			customEnemyPictureURL: $("#enemy-custom-selected-picture").val(),
 		},
 		input: {
 			keybinds: {
@@ -818,7 +894,32 @@ function changeSettings() {
 }
 
 function saveSettings() {
+	changeSettings();
 	localStorage.setItem("settings", JSON.stringify(settings));
+}
+
+// other useless stuff
+
+function testCustomPicture(url) {
+	$("#picture-tester").html(`<img src=${url} width="150" height="150">`);
+	if (document.querySelector("#picture-tester")) {
+		if (!document.querySelector("#picture-tester").querySelector("img").complete) {
+			$("#picture-tester").html("Failed to get image.");
+		}
+	}
+}
+
+function setCustomEnemyPictureMetadata(url) {
+	$("#custom-enemy-picture").html(`<img src=${url} width="150" height="150">`);
+	if (document.querySelector("#custom-enemy-picture")) {
+		if (!document.querySelector("#custom-enemy-picture").querySelector("img").complete) {
+			$("#custom-enemy-picture").html("Failed to get image.");
+		}
+	}
+}
+
+function toggleStatusBarVisibility() {
+	$("#status-bar-container").toggle(0);
 }
 
 // DEBUG

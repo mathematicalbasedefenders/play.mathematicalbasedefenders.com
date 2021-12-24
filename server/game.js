@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// lzstring
-const LZString = require("lz-string");
+// lzutf8
+const lzutf8 = require("lz-string");
 
 const _ = require("lodash");
 
@@ -30,7 +30,7 @@ var modes = {
 };
 
 // MAJOR
-function computeUpdate(room, deltaTimeInMilliseconds) {
+async function computeUpdate(room, deltaTimeInMilliseconds) {
 	// other stats
 
 	// rooms
@@ -58,8 +58,8 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 
 				let finalGameData = JSON.parse(JSON.stringify(room.data));
 
-				socketOfGamePlayed.emit("currentGameData", LZString.compressToUTF16(JSON.stringify(finalGameData)));
-				socketOfGamePlayed.to(room.id).emit("currentGameData", LZString.compressToUTF16(JSON.stringify(finalGameData)));
+				socketOfGamePlayed.emit("currentGameData", JSON.stringify(finalGameData))
+				socketOfGamePlayed.to(room.id).emit("currentGameData", JSON.stringify(finalGameData))
 
 				room.data.currentGame.gameOverScreenShown = true;
 
@@ -127,8 +127,7 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 
 			// game stats (not shown)
 			room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds += deltaTimeInMilliseconds;
-			room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
-
+			
 			// technical stats
 			room.data.currentGame.framesRenderedSinceGameStart += framesRendered;
 
@@ -152,6 +151,8 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 				}
 
 				// combo
+				room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
+
 				if (room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.currentCombo > -1 && room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > 5000) {
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.currentCombo = -1;
 				}
@@ -160,6 +161,8 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 
 				// create sent
 				if (room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.sentEnemiesToSpawn > 0) {
+					let nameToPutOnEnemy = room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemySenders[0];
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemySenders.splice(0, 1);
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated] = new enemy.Enemy(
 						1360,
 						120,
@@ -169,11 +172,13 @@ function computeUpdate(room, deltaTimeInMilliseconds) {
 						Math.random() * 2 + 1,
 						1,
 						1,
-						room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated + 1
+						room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated + 1,
+						nameToPutOnEnemy
 					);
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated++;
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.sentEnemiesToSpawn--;
 				}
+
 
 				// create global if there is one
 				if (room.data.currentGame.globalEnemyToAdd != null) {
@@ -235,7 +240,6 @@ function createNewSingleplayerGameData(mode, roomID) {
 				mode: mode,
 
 				currentGame: {
-
 					mode: mode,
 
 					currentScore: 0,
@@ -354,6 +358,7 @@ function createNewDefaultMultiplayerRoomPlayerObject(socket) {
 
 		enemiesPending: 0,
 		sentEnemiesToSpawn: 0,
+		enemySenders: [],
 
 		currentTileQueue: 1,
 
@@ -495,7 +500,6 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 			var data1 = await schemas.getLeaderboardsModel().findOne({ rankNumber: i + 1 });
 			await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
 				if (error4) {
-
 					console.error(error4.stack);
 				}
 				return result4;
@@ -509,7 +513,6 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 			var data1 = await schemas.getLeaderboardsModel().findOne({ rankNumber: i - 1 });
 			await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
 				if (error4) {
-
 					console.error(error4.stack);
 				}
 				return result4;
@@ -539,7 +542,6 @@ function checkProblem(room, socket) {
 		case "defaultMultiplayer": {
 			if (evaluateProblem(room, socket)) {
 			} else {
-				console.log("Converted Enemies");
 				room.data.currentGame.players[socket.id].currentGame.sentEnemiesToSpawn += room.data.currentGame.players[socket.id].currentGame.enemiesPending;
 				room.data.currentGame.players[socket.id].currentGame.enemiesPending = 0;
 			}
@@ -794,7 +796,6 @@ function evaluateProblem(room, socket) {
 
 								room.data.currentGame.players[socket.id].currentGame.currentCombo++;
 
-
 								room.data.currentGame.players[socket.id].currentGame.enemiesSentIndicators.push({
 									number: room.data.currentGame.players[socket.id].currentGame.enemiesKilled + 1,
 									sPosition: enemiesToKill[i].sPosition,
@@ -813,6 +814,8 @@ function evaluateProblem(room, socket) {
 								while (enemiesSent > 0) {
 									if (room.data.currentGame.players[socket.id].currentGame.enemiesPending <= 0) {
 										room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemiesPending += 1;
+										room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemySenders.push(room.data.currentGame.players[socket.id].currentGame.playerName);
+								
 									} else {
 										room.data.currentGame.players[socket.id].currentGame.enemiesPending -= 1;
 									}
@@ -872,12 +875,7 @@ function evaluateProblem(room, socket) {
 
 								room.data.currentGame.players[socket.id].currentGame.currentCombo++;
 
-								// room.data.currentGame.players[socket.id].currentGame.currentScore += Math.round(
-								// 	100 *
-								// 		calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
-								// 		calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
-								// 		calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
-								// );
+
 
 								room.data.currentGame.players[socket.id].currentGame.enemiesSentIndicators.push({
 									number: room.data.currentGame.players[socket.id].currentGame.enemiesKilled + 1,
@@ -897,6 +895,7 @@ function evaluateProblem(room, socket) {
 								while (enemiesSent > 0) {
 									if (room.data.currentGame.players[socket.id].currentGame.enemiesPending <= 0) {
 										room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemiesPending += 1;
+										room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemySenders.push(room.data.currentGame.players[socket.id].currentGame.playerName);
 									} else {
 										room.data.currentGame.players[socket.id].currentGame.enemiesPending -= 1;
 									}
@@ -1066,9 +1065,9 @@ function generateMultiplayerTileQueue() {
 }
 
 function getMultiplayerTileQueueOfPlayer(room, socket) {
-	if (room.data.currentGame.players[socket.id].currentGame.tileQueue[room.data.currentGame.players[socket.id].currentGame.currentTileQueue].length == 0){
+	if (room.data.currentGame.players[socket.id].currentGame.tileQueue[room.data.currentGame.players[socket.id].currentGame.currentTileQueue].length == 0) {
 		room.data.currentGame.players[socket.id].currentGame.currentTileQueue++;
-		if (room.data.currentGame.globalTileQueues.length < room.data.currentGame.players[socket.id].currentGame.currentTileQueue){
+		if (room.data.currentGame.globalTileQueues.length < room.data.currentGame.players[socket.id].currentGame.currentTileQueue) {
 			room.data.currentGame.globalTileQueue.push(generateMultiplayerTileQueue());
 			room.data.currentGame.players[socket.id].currentGame.tileQueue.push(room.data.currentGame.players[socket.id].currentGame.currentTileQueue);
 		}

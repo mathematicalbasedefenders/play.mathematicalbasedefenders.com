@@ -1,6 +1,6 @@
 // ORIGINAL IN CLIENT SIDE
 class Enemy {
-	constructor(xPosition, yPosition, width, height, requestedValue, defaultSpeed, defaultAttack, defaultHealth, enemyNumber) {
+	constructor(xPosition, yPosition, width, height, requestedValue, defaultSpeed, defaultAttack, defaultHealth, enemyNumber, senderName) {
 
 		this.xPosition = xPosition;
 		this.yPosition = yPosition;
@@ -14,6 +14,7 @@ class Enemy {
 		this.sPosition = 10;
 		this.reachedBase = false;
 		this.toDestroy = false;
+		this.senderName = senderName ? senderName.toString() : "";
 
 	}
 

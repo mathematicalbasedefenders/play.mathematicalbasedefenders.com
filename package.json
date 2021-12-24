@@ -1,6 +1,6 @@
 {
   "name": "mathematicalbasedefenders",
-  "version": "0.2.2",
+  "version": "0.3.0-alpha.1",
   "description": "",
   "main": "server.js",
   "scripts": {
@@ -16,9 +16,11 @@
     "fontfaceobserver": "^2.1.0",
     "lodash": "^4.17.21",
     "lz-string": "^1.4.4",
+    "lzutf8": "^0.6.0",
     "math-expression-evaluator": "^1.3.8",
     "mongoose": "^5.13.13",
     "mpath": "^0.8.4",
+    "object-sizeof": "^1.6.1",
     "pixi.js": "^6.1.2",
     "socket.io": "^4.1.3",
     "xss": "^1.0.10"
