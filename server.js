@@ -110,7 +110,7 @@ function update(deltaTime) {
 			if (roomID == roomIDOfDefaultMultiplayerRoom) {
 				if (!rooms[roomID].playing && !rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length >= 2) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
-					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 1000); //TODO: Change this back to 30k
+					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 30000);
 				} else if (!rooms[roomID].playing && rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length <= 1) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = false;
 					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = "";
@@ -298,7 +298,7 @@ io.on("connection", (socket) => {
 	// input
 	socket.on("keypress", async (code, playerTileKeybinds) => {
 		code = xss(code);
-		//TODO: wtf?
+s
 		playerTileKeybinds = xss(playerTileKeybinds);
 		playerTileKeybinds = playerTileKeybinds.split(",");
 
