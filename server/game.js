@@ -1,8 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// lzutf8
-const lzutf8 = require("lz-string");
 
 const _ = require("lodash");
 

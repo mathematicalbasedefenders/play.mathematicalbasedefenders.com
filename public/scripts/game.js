@@ -40,6 +40,7 @@ const screens = {
 	MULTIPLAYER_LOBBY_SCREEN: "multiplayerLobbyScreen",
 	DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN: "defaultMultiplayerRoomLobbyScreen",
 	MULTIPLAYER_GAME_SCREEN: "multiplayerGameScreen",
+	STATISTICS_SCREEN: "statisticsScreen",
 	SETTINGS_SCREEN: "settingsScreen",
 	GAME_OVER_SCREEN: "gameOverScreen",
 };
@@ -444,6 +445,8 @@ app.ticker.add((delta) => {
  * @param {*} newScreen
  */
 function setPropertiesAndChangeScreen(newScreen) {
+
+	
 	resizeContainer();
 
 	// animate currentScreen first
@@ -463,6 +466,7 @@ function setPropertiesAndChangeScreen(newScreen) {
 	$("#information-screen-container").hide(0);
 	$("#multiplayer-lobby-screen-container").hide(0);
 	$("#default-multiplayer-room-lobby-screen-container").hide(0);
+	$("#statistics-screen-container").hide(0);
 	$("#settings-screen-container").hide(0);
 	$("#game-over-screen-container").hide(0);
 
@@ -520,6 +524,11 @@ function setPropertiesAndChangeScreen(newScreen) {
 			document.body.style.overflow = "none";
 			$("#hub-container").show(0);
 			$("#default-multiplayer-room-lobby-screen-container").show(0);
+			break;
+		}
+		case screens.STATISTICS_SCREEN: {
+			$("#hub-container").show(0);
+			$("#statistics-screen-container").show(0);
 			break;
 		}
 		case screens.SETTINGS_SCREEN: {
@@ -591,16 +600,6 @@ function startKeyRebindProcess(tileID) {
 }
 
 function endSingleplayerGame() {
-	finalGameData = {
-		score: game.currentScore,
-		inGameTimeInMilliseconds: game.currentInGameTimeInMilliseconds,
-		enemiesKilled: game.enemiesKilled,
-		enemiesCreated: game.enemiesCreated,
-		actionsPerformed: game.actionsPerformed,
-	};
-
-	socket.emit("scoreSubmission", finalGameData);
-
 	setPropertiesAndChangeScreen(screens.GAME_OVER_SCREEN);
 }
 
@@ -618,6 +617,7 @@ function processKeypress(event) {
 				setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);
 				socket.emit("leaveRoom");
 			}
+			break;
 		}
 		case screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN: {
 			// check if input is from numpad
@@ -635,16 +635,28 @@ function processKeypress(event) {
 					}
 				}
 			} else {
-				setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);
 				socket.emit("leaveRoom");
+				setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);
 			}
+			break;
+		}
+		case screens.MULTIPLAYER_GAME_SCREEN: {
+			// check if input is from numpad
+			if (event.key != "Escape") {
+			} else {
+				socket.emit("leaveRoom");
+				setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);
+			}
+			break;
 		}
 		case screens.SETTINGS_SCREEN: {
 			switch (event.key) {
 				case "Escape": {
 					setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);
+					break;
 				}
 			}
+			break;
 		}
 	}
 }

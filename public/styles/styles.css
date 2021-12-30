@@ -369,7 +369,8 @@ kbd {
 }
 
 #last-game-ranks-content {
-	width: 500px;
+	max-width: 500px;
+	background-color: transparent;
 }
 
 .rainbow-letters {
@@ -379,6 +380,42 @@ kbd {
 	background-clip: text;
 }
 
+/*
+	STATISTICS
+*/
+
+#statistics-screen-button-container {
+	position: absolute;
+	left: 0.5vw;
+	bottom: 10vh;
+	margin-bottom: 1vh;
+	margin-left: 2vw;
+}
+
+.statistics-screen-button {
+	width: 15.625vw;
+	height: 50px;
+	border-top: none;
+	border-bottom: none;
+	border-right: none;
+	border-left: 2px solid #000000;
+	text-align: left;
+	font-size: 24px;
+	transition: all 0.1s ease-out;
+
+}
+
+.statistics-screen-button:hover {
+	box-shadow: inset 15.625vw 0 0 #b6b6b6;
+}
+
+#statistics-screen-content-container {
+	float: right;
+	right: 1vw;
+	width: 75vw;
+	overflow-y: auto;
+	z-index: -1;
+}
 /*
     SETTINGS
 */

@@ -41,17 +41,17 @@
 							onMouseEnter="$('#bottom-toolbar-text').text('Play with others and make friends and enemies.')"
 							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
 							onClick="setPropertiesAndChangeScreen(screens.MULTIPLAYER_LOBBY_SCREEN)"
-							>
+						>
 							&nbsp;Multiplayer
 						</button>
 						<br /><br />
 						<button
 							class="main-menu-screen-button"
 							onMouseEnter="$('#bottom-toolbar-text').text('View how far you or others have progressed.')"
-							onClick="createToastNotification('A stats viewer will be released in a future update!', toastNotificationPositions.BOTTOM_RIGHT, 'red')"
+							onClick="setPropertiesAndChangeScreen(screens.STATISTICS_SCREEN)"
 							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
 						>
-							&nbsp;Stats
+							&nbsp;Statistics
 						</button>
 						<br /><br />
 						<button
@@ -162,6 +162,33 @@
 						>
 							&nbsp;Back
 						</button>
+					</div>
+				</div>
+
+				<!-- Statistics -->
+				<div id="statistics-screen-container">
+					<div id="statistics-screen-content-container">
+						<div style="font-size:24px;">
+							
+						</div>		
+					<div id="statistics-screen-button-container">
+						<button
+							class="statistics-screen-button"
+							onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Player
+						</button>
+						<button
+							class="statistics-screen-button"
+							onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Back
+						</button>
+					</div>
 					</div>
 				</div>
 
@@ -447,7 +474,7 @@
 
 		<script src="/scripts/lib/socket.io.js"></script>
 		<script src="/scripts/lib/fontfaceobserver.js"></script>
-		
+
 		<!-- ORDER MATTERS -->
 		<script src="/scripts/toastnotification.js"></script>
 		<script src="/scripts/enemy.js"></script>

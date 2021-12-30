@@ -82,7 +82,6 @@ app.get("/", (request, response) => {
 
 var timeSinceLastTimeStatsPrintedInMilliseconds = 0;
 var dataSentWithoutCompression = 0;
-var dataSentWithCompression = 0;
 
 var usersCurrentlyAttemptingToLogIn = [];
 var guests = [];
@@ -97,10 +96,10 @@ function update(deltaTime) {
 		io.emit("updateText", "#online-players", sockets.length);
 
 		if (LOG_AMOUNT_OF_DATA_SENT) {
-			console.log(`${dataSentWithCompression.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} bytes sent in ${timeSinceLastTimeStatsPrintedInMilliseconds}ms.`);
+			console.log(`${dataSentWithoutCompression.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} bytes sent in ${timeSinceLastTimeStatsPrintedInMilliseconds}ms.`);
 		}
 
-		dataSentWithCompression = 0;
+		dataSentWithoutCompression = 0;
 
 		timeSinceLastTimeStatsPrintedInMilliseconds -= 1000;
 	}
@@ -111,7 +110,7 @@ function update(deltaTime) {
 			if (roomID == roomIDOfDefaultMultiplayerRoom) {
 				if (!rooms[roomID].playing && !rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length >= 2) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
-					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 30000);
+					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 1000); //TODO: Change this back to 30k
 				} else if (!rooms[roomID].playing && rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length <= 1) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = false;
 					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = "";
@@ -124,21 +123,20 @@ function update(deltaTime) {
 						startDefaultMultiplayerGame();
 					} else {
 						io.to(roomIDOfDefaultMultiplayerRoom).emit("defaultMultiplayerRoomAction", "updateStatusText", ["Game starting in " + Math.floor(timeLeft / 1000).toString() + " seconds."]);
-						dataSentWithCompression += utilities.getSizeInBytes(["Game starting in " + Math.floor(timeLeft / 1000).toString() + " seconds."]);
+						dataSentWithoutCompression += utilities.getSizeInBytes(["Game starting in " + Math.floor(timeLeft / 1000).toString() + " seconds."]);
 					}
 				} else {
 					io.to(roomIDOfDefaultMultiplayerRoom).emit("defaultMultiplayerRoomAction", "updateStatusText", [rooms[roomID].playing ? "Game in progress." : "Waiting for 2 or more players."]);
-					dataSentWithCompression += utilities.getSizeInBytes( [rooms[roomID].playing ? "Game in progress." : "Waiting for 2 or more players."]);
+					dataSentWithoutCompression += utilities.getSizeInBytes([rooms[roomID].playing ? "Game in progress." : "Waiting for 2 or more players."]);
 				}
 			}
 
 			// room is playing
 			if (rooms[roomID].playing) {
-				
 				if (rooms[roomID].type == "singleplayer") {
 					game.computeUpdate(rooms[roomID], deltaTime);
-					io.to(roomID).emit("currentGameData", JSON.stringify(rooms[roomID].data))
-					dataSentWithCompression += utilities.getSizeInBytes(JSON.stringify(rooms[roomID].data))
+					io.to(roomID).emit("currentGameData", JSON.stringify(rooms[roomID].data));
+					dataSentWithoutCompression += utilities.getSizeInBytes(JSON.stringify(rooms[roomID].data));
 					// why?
 					for (let enemy in rooms[roomID].data.currentGame.enemiesOnField) {
 						if (rooms[roomID].data.currentGame.enemiesOnField[enemy].toDestroy) {
@@ -147,72 +145,79 @@ function update(deltaTime) {
 					}
 				} else if (rooms[roomID].type == "defaultMultiplayer") {
 					game.computeUpdate(rooms[roomID], deltaTime);
-					let connections = io.sockets.adapter.rooms.get(roomID);
+					let connections = rooms[roomID].data.currentGame.playersAlive;
 					if (connections) {
 						for (let client of connections) {
 							// why?
 							let connection = io.sockets.sockets.get(client);
-							if (rooms[roomID].data.currentGame.players[connection.id]) {
-								if (connection.ownerOfSocketIsPlaying) {
-									if (!rooms[roomID].data.currentGame.players[connection.id].currentGame.dead) {
-										connection.emit("currentGameData", JSON.stringify(constructDefaultMultiplayerGameDataObjectToSend(connection)))
-										dataSentWithCompression += utilities.getSizeInBytes(JSON.stringify(constructDefaultMultiplayerGameDataObjectToSend(connection)))
-									} else {
-										// someone got eliminated
-										let data = constructDefaultMultiplayerGameDataObjectToSend(connection);
-										data.currentGame.rank = rooms[roomID].data.currentGame.playersAlive.length;
-										connection.emit("currentGameData", JSON.stringify(data))
-										dataSentWithCompression += utilities.getSizeInBytes(JSON.stringify(data))
-										connection.ownerOfSocketIsPlaying = false;
-										rooms[roomID].data.currentGame.ranks.push([
-											[
-												rooms[roomID].data.currentGame.playersAlive.length,
-												rooms[roomID].data.currentGame.players[connection.id].currentGame.playerName.toString(),
-												rooms[roomID].data.currentGame.players[connection.id].currentGame.currentInGameTimeInMilliseconds,
-											],
-										]);
+							if (client) {
+								if (rooms[roomID].data.currentGame.players[client]) {
+									if (rooms[roomID].data.currentGame.players.hasOwnProperty(client)) {
+										if (!rooms[roomID].data.currentGame.players[client].currentGame.dead) {
+											connection.emit("currentGameData", JSON.stringify(constructDefaultMultiplayerGameDataObjectToSend(connection)));
+											dataSentWithoutCompression += utilities.getSizeInBytes(JSON.stringify(constructDefaultMultiplayerGameDataObjectToSend(connection)));
+										} else {
+											// someone got eliminated
 
-										rooms[roomID].data.currentGame.playersAlive.splice(rooms[roomID].data.currentGame.playersAlive.indexOf(connection.id), 1);
+											if (connection) {
+												let data = constructDefaultMultiplayerGameDataObjectToSend(connection);
+												data.currentGame.rank = rooms[roomID].data.currentGame.playersAlive.length;
+												if (!rooms[roomID].data.currentGame.players[client].currentGame.forfeited) {
+													connection.emit("currentGameData", JSON.stringify(data));
+												}
+												dataSentWithoutCompression += utilities.getSizeInBytes(JSON.stringify(data));
+												connection.ownerOfSocketIsPlaying = false;
+											}
+											rooms[roomID].data.currentGame.ranks.push([
+												[
+													rooms[roomID].data.currentGame.playersAlive.length,
+													rooms[roomID].data.currentGame.players[client].currentGame.playerName.toString(),
+													rooms[roomID].data.currentGame.players[client].currentGame.currentInGameTimeInMilliseconds,
+												],
+											]);
+											rooms[roomID].data.currentGame.playersAlive.splice(rooms[roomID].data.currentGame.playersAlive.indexOf(client), 1);
+											// send placements
 
-										// send placements
-
-										io.to(roomID).emit("defaultMultiplayerRoomAction", "updateRanks", [rooms[roomID].data.currentGame.ranks]);
+											io.to(roomID).emit("defaultMultiplayerRoomAction", "updateRanks", [rooms[roomID].data.currentGame.ranks]);
+										}
 									}
-								}
 
-								for (let enemy in rooms[roomID].data.currentGame.players[connection.id].currentGame.enemiesOnField) {
-									if (rooms[roomID].data.currentGame.players[connection.id].currentGame.enemiesOnField[enemy].toDestroy) {
-										delete rooms[roomID].data.currentGame.players[connection.id].currentGame.enemiesOnField[enemy];
+									for (let enemy in rooms[roomID].data.currentGame.players[client].currentGame.enemiesOnField) {
+										if (rooms[roomID].data.currentGame.players[client].currentGame.enemiesOnField[enemy].toDestroy) {
+											delete rooms[roomID].data.currentGame.players[client].currentGame.enemiesOnField[enemy];
+										}
 									}
-								}
 
-								if (rooms[roomID].data.currentGame.playersAlive.length <= 1) {
-									if (rooms[roomID].data.currentGame.playersAlive.length == 1) {
-										let winnerSocket = io.sockets.sockets.get(rooms[roomID].data.currentGame.playersAlive[0]);
-										let data = constructDefaultMultiplayerGameDataObjectToSend(winnerSocket);
-										if (!data.currentGame){data.currentGame = ""}
-										data.currentGame.rank = rooms[roomID].data.currentGame.playersAlive.length;
-										data.currentGame.dead = true;
-										rooms[roomID].data.currentGame.ranks.push([
-											[
-												rooms[roomID].data.currentGame.playersAlive.length,
-												rooms[roomID].data.currentGame.players[winnerSocket.id].currentGame.playerName.toString(),
-												rooms[roomID].data.currentGame.players[winnerSocket.id].currentGame.currentInGameTimeInMilliseconds,
-											],
-										]);
-										winnerSocket.emit("currentGameData", JSON.stringify(data))
-										winnerSocket.ownerOfSocketIsPlaying = false;
-										io.to(roomID).emit("defaultMultiplayerRoomAction", "updateRanks", [rooms[roomID].data.currentGame.ranks]);
-										rooms[roomID].data.currentGame.playersAlive = [];
-									}
-									rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
-									rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 30000);
-									rooms[roomIDOfDefaultMultiplayerRoom].playing = false;
+									if (rooms[roomID].data.currentGame.playersAlive.length <= 1) {
+										if (rooms[roomID].data.currentGame.playersAlive.length == 1) {
+											let winnerSocket = io.sockets.sockets.get(rooms[roomID].data.currentGame.playersAlive[0]);
+											let data = constructDefaultMultiplayerGameDataObjectToSend(winnerSocket);
+											if (!data.currentGame) {
+												data.currentGame = "";
+											}
+											data.currentGame.rank = rooms[roomID].data.currentGame.playersAlive.length;
+											data.currentGame.dead = true;
+											rooms[roomID].data.currentGame.ranks.push([
+												[
+													rooms[roomID].data.currentGame.playersAlive.length,
+													rooms[roomID].data.currentGame.players[winnerSocket.id].currentGame.playerName.toString(),
+													rooms[roomID].data.currentGame.players[winnerSocket.id].currentGame.currentInGameTimeInMilliseconds,
+												],
+											]);
+											winnerSocket.emit("currentGameData", JSON.stringify(data));
+											winnerSocket.ownerOfSocketIsPlaying = false;
+											io.to(roomID).emit("defaultMultiplayerRoomAction", "updateRanks", [rooms[roomID].data.currentGame.ranks]);
+											rooms[roomID].data.currentGame.playersAlive = [];
+										}
+										rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
+										rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 30000);
+										rooms[roomIDOfDefaultMultiplayerRoom].playing = false;
 
-									let connections = io.sockets.adapter.rooms.get(roomID);
-									for (client in connections) {
-										let connection = io.sockets.sockets.get(client);
-										connection.ownerOfSocketIsPlaying = false;
+										let connections = io.sockets.adapter.rooms.get(roomID);
+										for (client in connections) {
+											let connection = io.sockets.sockets.get(client);
+											connection.ownerOfSocketIsPlaying = false;
+										}
 									}
 								}
 							}
@@ -265,9 +270,6 @@ io.on("connection", (socket) => {
 	socket.on("disconnect", () => {
 		let roomToLeave = socket.currentRoomSocketIsIn;
 
-		socket.leave(socket.currentRoomSocketIsIn);
-		socket.currentRoomSocketIsIn = "";
-
 		if (roomToLeave != undefined && roomToLeave == roomIDOfDefaultMultiplayerRoom && rooms[roomToLeave] !== undefined) {
 			delete rooms[roomToLeave].playersInRoom[socket.id];
 
@@ -283,19 +285,33 @@ io.on("connection", (socket) => {
 
 			if (rooms[roomToLeave].playing) {
 				rooms[roomToLeave].data.currentGame.players[socket.id].currentGame.dead = true;
+				rooms[roomToLeave].data.currentGame.players[socket.id].currentGame.forfeited = true;
 			}
 		}
 
+		socket.leave(socket.currentRoomSocketIsIn);
+		socket.currentRoomSocketIsIn = "";
 		sockets.splice(sockets.indexOf(socket), 1);
 		guests.splice(guests.indexOf(socket.guestNameOfSocketOwner), 1);
 	});
 
 	// input
 	socket.on("keypress", async (code, playerTileKeybinds) => {
-		code = xss(code)
+		code = xss(code);
 		//TODO: wtf?
-		playerTileKeybinds = xss(playerTileKeybinds)
+		playerTileKeybinds = xss(playerTileKeybinds);
 		playerTileKeybinds = playerTileKeybinds.split(",");
+
+		// validation 1
+		if (utilities.checkIfVariablesAreUndefined(code, playerTileKeybinds)) {
+			return;
+		}
+
+		// validation 2
+		if (!Array.isArray(playerTileKeybinds)) {
+			return;
+		}
+
 		if (socket.currentRoomSocketIsIn != "") {
 			if (socket.ownerOfSocketIsPlaying) {
 				if (code != "Escape") {
@@ -315,9 +331,8 @@ io.on("connection", (socket) => {
 					}
 				} else {
 					// Escape
-					socket.leave(socket.currentRoomSocketIsIn);
-					socket.currentRoomSocketIsIn = "";
 					socket.ownerOfSocketIsPlaying = false;
+					socket.leave(socket.currentRoomSocketIsIn);
 				}
 			}
 		}
@@ -448,10 +463,11 @@ io.on("connection", (socket) => {
 					}),
 				]);
 			} else {
-				socket.currentRoomSocketIsIn = roomIDOfDefaultMultiplayerRoom;
 
 				socket.join(roomIDOfDefaultMultiplayerRoom);
+				socket.currentRoomSocketIsIn = roomIDOfDefaultMultiplayerRoom;
 				rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[socket.id] = socket;
+
 
 				io.to(roomIDOfDefaultMultiplayerRoom).emit("defaultMultiplayerRoomAction", "updatePlayerList", [
 					Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).map((player) => {
@@ -471,11 +487,9 @@ io.on("connection", (socket) => {
 	socket.on("leaveRoom", async () => {
 		let roomToLeave = socket.currentRoomSocketIsIn;
 
-		socket.leave(socket.currentRoomSocketIsIn);
-		socket.currentRoomSocketIsIn = "";
-
 		if (roomToLeave != undefined && roomToLeave == roomIDOfDefaultMultiplayerRoom && rooms[roomToLeave] !== undefined) {
 			delete rooms[roomToLeave].playersInRoom[socket.id];
+
 			io.to(roomToLeave).emit("defaultMultiplayerRoomAction", "updatePlayerList", [
 				Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).map((player) => {
 					if (rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[player].loggedIn) {
@@ -487,13 +501,17 @@ io.on("connection", (socket) => {
 			]);
 			if (rooms[roomToLeave].playing) {
 				rooms[roomToLeave].data.currentGame.players[socket.id].currentGame.dead = true;
+				rooms[roomToLeave].data.currentGame.players[socket.id].currentGame.forfeited = true;
 			}
 		}
+
+		socket.leave(socket.currentRoomSocketIsIn);
+		socket.currentRoomSocketIsIn = "";
 	});
 
 	socket.on("defaultMultiplayerRoomChatMessage", async (message) => {
 		message = xss(message);
-		if (socket.currentRoomSocketIsIn == roomIDOfDefaultMultiplayerRoom && message.replace(/\s/g, "").length) {
+		if (socket.currentRoomSocketIsIn == roomIDOfDefaultMultiplayerRoom && message.replace(/\s/g, "").length && message.length < 255) {
 			io.to(roomIDOfDefaultMultiplayerRoom).emit("defaultMultiplayerRoomAction", "updateChatBox", [
 				socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner,
 				message,
@@ -518,6 +536,9 @@ io.on("connection", (socket) => {
 	 */
 	socket.on("tileClick", (slot) => {
 		slot = xss(slot);
+		if (utilities.checkIfVariablesAreUndefined(slot)) {
+			return;
+		}
 		if (slot % 1 == 0 && slot >= 0 && slot <= 48) {
 			game.processTileClick(slot, rooms[socket.currentRoomSocketIsIn], socket);
 		}
@@ -629,7 +650,6 @@ async function startDefaultMultiplayerGame(roomID) {
 
 function constructDefaultMultiplayerGameDataObjectToSend(connection) {
 	if (connection) {
-
 		let data = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection.id];
 		data.currentGame.currentInGameTimeInMilliseconds = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.currentInGameTimeInMilliseconds;
 		data.currentGame.playersRemaining = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.playersAlive.length;
@@ -637,7 +657,6 @@ function constructDefaultMultiplayerGameDataObjectToSend(connection) {
 	}
 	return {};
 }
-
 
 server.listen(PORT, () => {
 	console.log(`Listening at localhost:${PORT}`);

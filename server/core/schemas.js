@@ -12,6 +12,7 @@ const UserModelSchema = new Schema({
 	statistics: {
 		personalBestScore: Number,
 		gamesPlayed: Number,
+		totalExperiencePoints: Number,
 	},
 	membership: {
 		isDeveloper: Boolean,

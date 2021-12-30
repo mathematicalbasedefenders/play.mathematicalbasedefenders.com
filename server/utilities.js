@@ -33,5 +33,13 @@ function getSizeInBytes(string) {
 return 0;
 }
 
+function checkIfVariablesAreUndefined(...inputs){
+	for (let i = 0; i < inputs.length; i++){
+        if (inputs[i] === undefined || inputs[i] === null){
+            return true;
+        }
+    }
+    return false;
+}
 
-module.exports = { generateRoomID, generateGuestName, getSizeInBytes }
+module.exports = { generateRoomID, generateGuestName, getSizeInBytes, checkIfVariablesAreUndefined }
