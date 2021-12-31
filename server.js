@@ -298,7 +298,7 @@ io.on("connection", (socket) => {
 	// input
 	socket.on("keypress", async (code, playerTileKeybinds) => {
 		code = xss(code);
-s
+
 		playerTileKeybinds = xss(playerTileKeybinds);
 		playerTileKeybinds = playerTileKeybinds.split(",");
 
@@ -535,9 +535,15 @@ s
 	 *
 	 */
 	socket.on("tileClick", (slot) => {
+		slot = slot.toString();
 		slot = xss(slot);
 		if (utilities.checkIfVariablesAreUndefined(slot)) {
 			return;
+		}
+		if (isNaN(slot)){
+			return;
+		} else {
+			slot = parseInt(slot);
 		}
 		if (slot % 1 == 0 && slot >= 0 && slot <= 48) {
 			game.processTileClick(slot, rooms[socket.currentRoomSocketIsIn], socket);
