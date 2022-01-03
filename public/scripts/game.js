@@ -65,8 +65,10 @@ restoreSettings();
 // "Logical" Variables
 
 var framesRenderedSinceLaunch = 0.0;
-var initialWindowWidth = window.screen.width;
-var initialWindowHeight = window.screen.availHeight - (window.outerHeight - window.innerHeight);
+// var initialWindowWidth = window.screen.width;
+// var initialWindowHeight = window.screen.availHeight - (window.outerHeight - window.innerHeight);
+var initialWindowWidth = 1920;
+var initialWindowHeight = 1080;
 var initialRatio = initialWindowWidth / initialWindowHeight;
 
 var enemyGenerationElapsedFramesCounter = 0;
@@ -149,6 +151,7 @@ var baseTexture = new PIXI.Texture.from("assets/images/singleplayer-screen/base.
 // Text
 
 var singleplayerScreenContainerItems = {
+
 	sendButtonSprite: new PIXI.Sprite(sendButtonTexture),
 
 	baseSprite: new PIXI.Sprite(baseTexture),
@@ -370,7 +373,7 @@ initializationFinished = true;
 // ======================================================================================== END OF INITIALIZATION =====================================================================
 console.log("Initialization finished!");
 var game = JSON.parse(JSON.stringify(game));
-setPropertiesAndChangeScreen(currentScreen);
+setPropertiesAndChangeScreen(currentScreen, false);
 addThingsToSingleplayerScreenContainer();
 addThingsToMultiplayerScreenContainer();
 resizeContainer();
@@ -378,7 +381,7 @@ $("#status-bar-container").hide(0);
 if (isMobile) {
 	alert("Hi there! It looks like you are playing on a phone or tablet. Please note that the game might not be fully playable on a phone or tablet.");
 }
-
+var firstUpdateReceived = false;
 let resize = function resize() {
 	resizeContainer();
 };
@@ -444,10 +447,10 @@ app.ticker.add((delta) => {
  * Changes the screen. (i.e. changes the container shown)
  * @param {*} newScreen
  */
-function setPropertiesAndChangeScreen(newScreen) {
-
-	
-	resizeContainer();
+function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
+	if (forceResizeContainer) {
+		resizeContainer();
+	}
 
 	// animate currentScreen first
 	switch (currentScreen) {
@@ -499,7 +502,7 @@ function setPropertiesAndChangeScreen(newScreen) {
 		case screens.SINGLEPLAYER_GAME_SCREEN: {
 			// set properties
 			removeAllRenderedEnemies();
-
+			resizeContainer();
 			document.body.style.overflow = "none";
 			document.getElementById("pixi-canvas").style.display = "block";
 			singleplayerScreenContainer.visible = true; // for now
@@ -514,7 +517,7 @@ function setPropertiesAndChangeScreen(newScreen) {
 		case screens.MULTIPLAYER_GAME_SCREEN: {
 			// set properties
 			removeAllRenderedEnemies();
-
+			resizeContainer();
 			document.body.style.overflow = "none";
 			document.getElementById("pixi-canvas").style.display = "block";
 			multiplayerScreenContainer.visible = true; // for now
@@ -600,7 +603,7 @@ function startKeyRebindProcess(tileID) {
 }
 
 function endSingleplayerGame() {
-	setPropertiesAndChangeScreen(screens.GAME_OVER_SCREEN);
+	setPropertiesAndChangeScreen(screens.GAME_OVER_SCREEN, true);
 }
 
 function processKeypress(event) {
@@ -614,7 +617,7 @@ function processKeypress(event) {
 			// check if input is from numpad
 			if (event.key != "Escape") {
 			} else {
-				setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);
+				setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN, true);
 				socket.emit("leaveRoom");
 			}
 			break;
@@ -636,7 +639,7 @@ function processKeypress(event) {
 				}
 			} else {
 				socket.emit("leaveRoom");
-				setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);
+				setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN, true);
 			}
 			break;
 		}
@@ -645,14 +648,14 @@ function processKeypress(event) {
 			if (event.key != "Escape") {
 			} else {
 				socket.emit("leaveRoom");
-				setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);
+				setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN, true);
 			}
 			break;
 		}
 		case screens.SETTINGS_SCREEN: {
 			switch (event.key) {
 				case "Escape": {
-					setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);
+					setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN, true);
 					break;
 				}
 			}
@@ -663,7 +666,7 @@ function processKeypress(event) {
 
 function startSingleplayerGame() {
 	socket.emit("createAndJoinSingleplayerRoom");
-	setPropertiesAndChangeScreen(screens.SINGLEPLAYER_GAME_SCREEN);
+	setPropertiesAndChangeScreen(screens.SINGLEPLAYER_GAME_SCREEN, true);
 }
 
 function processAction() {
@@ -714,19 +717,51 @@ function generateRandomColor() {
 function resizeContainer() {
 	let ratio = Math.min(window.innerWidth / initialWindowWidth, (window.screen.availHeight - (window.outerHeight - window.innerHeight)) / initialWindowHeight);
 
+
+
 	mainMenuScreenContainer.scale.x = ratio;
 	mainMenuScreenContainer.scale.y = ratio;
 	mainMenuScreenContainer.position.y = (window.innerHeight - mainMenuScreenContainer.height) / 2;
 
 	singleplayerScreenContainer.scale.x = ratio;
 	singleplayerScreenContainer.scale.y = ratio;
+
+	if (window.innerWidth > 1920 * ratio) {
+		singleplayerScreenContainer.position.x = (window.innerWidth - singleplayerScreenContainer.width) / 2 - 450;
+	} else {
+		singleplayerScreenContainer.position.x = 0;
+	}
+
+
+
+	
 	singleplayerScreenContainer.position.y = (window.innerHeight - singleplayerScreenContainer.height) / 2;
 
 	multiplayerScreenContainer.scale.x = ratio;
 	multiplayerScreenContainer.scale.y = ratio;
+
 	multiplayerScreenContainer.position.y = (window.innerHeight - multiplayerScreenContainer.height) / 2;
 
-	renderer.resize(Math.ceil(initialWindowWidth * ratio), Math.ceil(initialWindowHeight * ratio));
+	if (window.innerWidth > 1920 * ratio) {
+		multiplayerScreenContainer.position.x = (window.innerWidth - multiplayerScreenContainer.width) / 2 - 450;
+	} else {
+		multiplayerScreenContainer.position.x = 0;
+	}
+
+
+	renderer.resize(initialWindowWidth * ratio, initialWindowHeight * ratio);
+}
+
+function forceWeakResizeContainer() {
+	let ratio = Math.min(window.innerWidth / initialWindowWidth, (window.screen.availHeight - (window.outerHeight - window.innerHeight)) / initialWindowHeight);
+
+	if (window.innerWidth > 1920 * ratio) {
+		singleplayerScreenContainer.position.x = (window.innerWidth - singleplayerScreenContainer.width) / 2 - 450;
+		multiplayerScreenContainer.position.x = (window.innerWidth - multiplayerScreenContainer.width) / 2 - 450;
+	} else {
+		singleplayerScreenContainer.position.x = 0;
+		multiplayerScreenContainer.position.x = 0;
+	}
 }
 
 function removeAllRenderedEnemies() {

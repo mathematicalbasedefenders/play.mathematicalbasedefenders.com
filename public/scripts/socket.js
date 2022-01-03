@@ -1,6 +1,8 @@
 socket.on("currentGameData", (gameData) => {
 	let currentGameData = JSON.parse(gameData);
 	// delta = frames "skipped" (1 frame = 1/60 seconds)
+	if (!firstUpdateReceived){			forceWeakResizeContainer();firstUpdateReceived=true;
+	}
 	switch (currentGameData.currentGame.mode) {
 		case "singleplayer": {
 			if (currentGameData.currentGame.gameIsOver) {
