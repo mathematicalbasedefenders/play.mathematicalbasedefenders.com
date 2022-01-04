@@ -26,11 +26,12 @@ const game = require("./server/game.js");
 const utilities = require("./server/utilities.js");
 
 const schemas = require("./server/core/schemas.js");
+const log = require("./server/core/log.js");
 
 const tile = require("./server/game/tile.js");
 
 // other stuff
-const PORT = 8000;
+const PORT = 8080;
 const DESIRED_UPDATES_PER_SECOND = 60;
 
 const LOOP_INTERVAL = 1000 / DESIRED_UPDATES_PER_SECOND;
@@ -73,7 +74,7 @@ var lastUpdateTime = Date.now();
 mongoose.connect(credentials.getMongooseURI(), { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
 
 mongoose.connection.on("connected", () => {
-	console.log("Successfully connected to mongoose.");
+	console.log(log.addMetadata("Successfully connected to mongoose.", "info"));
 });
 
 app.get("/", (request, response) => {
@@ -96,7 +97,7 @@ function update(deltaTime) {
 		io.emit("updateText", "#online-players", sockets.length);
 
 		if (LOG_AMOUNT_OF_DATA_SENT) {
-			console.log(`${dataSentWithoutCompression.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} bytes sent in ${timeSinceLastTimeStatsPrintedInMilliseconds}ms.`);
+			console.log(log.addMetadata(`${dataSentWithoutCompression.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} bytes sent in ${timeSinceLastTimeStatsPrintedInMilliseconds}ms.`, "info"));
 		}
 
 		dataSentWithoutCompression = 0;
@@ -345,7 +346,7 @@ io.on("connection", (socket) => {
 	 */
 	socket.on("authenticate", async (username, encodedPassword) => {
 		username = xss(username);
-		console.log("Log in attempt from " + username);
+		console.log(log.addMetadata("Log in attempt from " + username, "info"));
 
 		if (!usersCurrentlyAttemptingToLogIn.includes(username)) {
 			if (/^[a-zA-Z0-9_]*$/g.test(username)) {
@@ -356,13 +357,13 @@ io.on("connection", (socket) => {
 				if (socket.playerData) {
 					bcrypt.compare(decodedPassword, socket.playerData.hashedPassword, (passwordError, passwordResult) => {
 						if (passwordError) {
-							console.error(passwordError.stack);
+							console.error(log.addMetadata(passwordError.stack, "error"));
 							socket.emit("loginResult", username, false);
 							usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
 						} else {
 							if (passwordResult) {
 								// Correct Password
-								console.log("Correct password for " + username + "!");
+								console.log(log.addMetadata("Correct password for " + username + "!", "info"));
 								socket.usernameOfSocketOwner = socket.playerData.username;
 								socket.userIDOfSocketOwner = socket.playerData["_id"];
 								socket.emit("loginResult", username, true);
@@ -370,24 +371,24 @@ io.on("connection", (socket) => {
 								socket.loggedIn = true;
 								socket.playerRank = getPlayerRank(socket.playerData);
 							} else {
-								console.log("Incorrect password for " + username + "!");
+								console.log(log.addMetadata("Incorrect password for " + username + "!", "info"));
 								socket.emit("loginResult", username, false);
 								usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
 							}
 						}
 					});
 				} else {
-					console.log("User " + username + " not found!");
+					console.log(log.addMetadata("User " + username + " not found!", "info"));
 					socket.emit("loginResult", username, false);
 					usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
 				}
 			} else {
-				console.log("User " + username + " not found!");
+				console.log(log.addMetadata("User " + username + " not found!", "info"));
 				socket.emit("loginResult", username, false);
 				usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
 			}
 		} else {
-			console.log("User " + username + " is already trying to log in!");
+			console.log(log.addMetadata("User " + username + " is already trying to log in!", "info"));
 			socket.emit("loginResult", username, false);
 		}
 	});
@@ -419,7 +420,7 @@ io.on("connection", (socket) => {
 			socket.ownerOfSocketIsPlaying = true;
 			rooms[socket.currentRoomSocketIsIn].playing = true;
 		} else {
-			console.log("Socket is already in a room!");
+			console.log(log.addMetadata("Socket is already in a room!", "info"));
 		}
 	});
 
@@ -480,7 +481,7 @@ io.on("connection", (socket) => {
 				]);
 			}
 		} else {
-			console.log("Socket is already in a room!");
+			console.log(log.addMetadata("Socket is already in a room!", "info"));
 		}
 	});
 
@@ -665,5 +666,5 @@ function constructDefaultMultiplayerGameDataObjectToSend(connection) {
 }
 
 server.listen(PORT, () => {
-	console.log(`Listening at localhost:${PORT}`);
+	console.log(log.addMetadata(`Listening at localhost:${PORT}`, "info"));
 });

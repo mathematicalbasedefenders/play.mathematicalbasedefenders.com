@@ -144,9 +144,9 @@ const textStyles = {
 // =============== START OF SINGLEPLAYER SCREEN ITEMS ====================
 
 // Sprites
-var sendButtonTexture = PIXI.Texture.from("assets/images/singleplayer-screen/sendbutton.png");
+var sendButtonTexture = PIXI.Texture.from("assets/images/game-screen/sendbutton.png");
 
-var baseTexture = new PIXI.Texture.from("assets/images/singleplayer-screen/base.png");
+var baseTexture = new PIXI.Texture.from("assets/images/game-screen/base.png");
 
 // Text
 
@@ -329,7 +329,7 @@ var tileTextures = [[], []];
 for (i = 0; i < 2; i++) {
 	for (j = 0; j < 24; j++) {
 		var s1 = i == 1 ? "selected" : "";
-		var tile = PIXI.Texture.from("assets/images/singleplayer-screen/tile" + j.toString() + s1 + ".png");
+		var tile = PIXI.Texture.from("assets/images/game-screen/tile" + j.toString() + s1 + ".png");
 		tileTextures[i][j] = tile;
 	}
 }

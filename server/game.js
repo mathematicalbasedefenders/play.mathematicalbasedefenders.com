@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const log = require("./core/log.js");
 
 const _ = require("lodash");
 
@@ -394,7 +395,7 @@ function startSingleplayerGame(roomID) {}
 
 async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner) {
 	if (userIDOfSocketOwner === undefined) {
-		console.log("A guest user submitted a score of " + finalGameData.currentScore);
+		console.log(log.addMetadata("A guest user submitted a score of " + finalGameData.currentScore, "info"));
 		socket.emit("finalRanks", false, false, false);
 		return;
 	}
@@ -411,8 +412,8 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 		// so create one, and assign the score to the field
 		await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true }, (error3, result3) => {
 			if (error3) {
-				// console.log("ERROR from Socket " + socket.id + " (" + usernameOfSocketOwner + "): ");
-				console.log(error3);
+				// console.log(log.addMetadata("ERROR from Socket " + socket.id + " (" + usernameOfSocketOwner + "): ", "info"));
+				console.log(log.addMetadata(error3, "info"));
 			}
 			return result3;
 		});
@@ -426,7 +427,7 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 
 			await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true }, (error4, result4) => {
 				if (error4) {
-					console.log(error4);
+					console.log(log.addMetadata(error4, "info"));
 				}
 				return result4;
 			});
@@ -439,7 +440,7 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 
 	let globalRank = await checkAndModifyLeaderboards(finalScore, usernameOfSocketOwner, userIDOfSocketOwner, userIDAsString);
 	socket.emit("finalRanks", personalBestBroken, globalRank, true);
-	console.log(globalRank == -1 ? "User " + usernameOfSocketOwner + " submitted a score of " + finalScore : "User " + usernameOfSocketOwner + " submitted a score of " + finalScore + " and reached #" + globalRank);
+	console.log(log.addMetadata(globalRank == -1 ? "User " + usernameOfSocketOwner + " submitted a score of " + finalScore : "User " + usernameOfSocketOwner + " submitted a score of " + finalScore + " and reached #" + globalRank, "info"));
 }
 
 async function checkAndModifyLeaderboards(score, username, userID, userIDAsString) {
@@ -451,7 +452,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 	for (var i = 1; i <= 50; i++) {
 		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
-				console.error(error2.stack);
+				console.log(log.addMetadata(error2.stack, "error"));
 			}
 			return result2;
 		});
@@ -470,7 +471,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 	for (var i = 1; i < placePlayerRanked; i++) {
 		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
-				console.error(error2.stack);
+				console.log(log.addMetadata(error2.stack, "error"));
 			}
 			return result2;
 		});
@@ -483,7 +484,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 	for (var i = placePlayerRanked; i <= 50; i++) {
 		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
-				console.error(error2.stack);
+				console.log(log.addMetadata(error2.stack, "error"));
 			}
 			return result2;
 		});
@@ -498,7 +499,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 			var data1 = await schemas.getLeaderboardsModel().findOne({ rankNumber: i + 1 });
 			await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
 				if (error4) {
-					console.error(error4.stack);
+					console.log(log.addMetadata(error4.stack, "error"));
 				}
 				return result4;
 			});
@@ -511,7 +512,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 			var data1 = await schemas.getLeaderboardsModel().findOne({ rankNumber: i - 1 });
 			await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
 				if (error4) {
-					console.error(error4.stack);
+					console.log(log.addMetadata(error4.stack, "error"));
 				}
 				return result4;
 			});
@@ -520,7 +521,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 
 	await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: placePlayerRanked }, { userIDOfHolder: userIDAsString, score: score }, function (error5, result5) {
 		if (error5) {
-			console.error(error5.stack);
+			console.log(log.addMetadata(error5.stack, "error"));
 		}
 		return result5;
 	});
@@ -820,7 +821,7 @@ function evaluateProblem(room, socket) {
 									enemiesSent--;
 								}
 
-								// console.log(room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.playerName + " now has " + room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemiesPending + " pending enemies.");
+								// console.log(log.addMetadata(room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.playerName + " now has " + room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemiesPending + " pending enemies.", "info"));
 
 								room.data.currentGame.players[socket.id].currentGame.enemiesOnField[room.data.currentGame.players[socket.id].currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
 
