@@ -1,7 +1,9 @@
 socket.on("currentGameData", (gameData) => {
 	let currentGameData = JSON.parse(gameData);
 	// delta = frames "skipped" (1 frame = 1/60 seconds)
-	if (!firstUpdateReceived){			forceWeakResizeContainer();firstUpdateReceived=true;
+	if (!firstUpdateReceived) {
+		forceWeakResizeContainer();
+		firstUpdateReceived = true;
 	}
 	switch (currentGameData.currentGame.mode) {
 		case "singleplayer": {
@@ -151,6 +153,68 @@ socket.on("currentGameData", (gameData) => {
 					setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);
 					$("#last-game-rank").text("Last game you ranked #" + currentGameData.currentGame.rank + " surviving for " + currentGameData.currentGame.currentInGameTimeInMilliseconds + "ms.");
 				} else {
+					if (game.opponentGameInstances.length == 0) {
+						// opponents
+						for (let opponentGameData of currentGameData.currentGame.opponentGameData) {
+							game.opponentGameInstances.push(new OpponentGameInstance(opponentGameData));
+							game.opponentGameInstances[game.opponentGameInstances.length - 1].render(multiplayerScreenContainer);
+							game.cachedLengthOfOpponentGameInstances++;
+						}
+					} else {
+						
+						
+				
+						
+						for (let opponentGameData of currentGameData.currentGame.opponentGameData) {
+							let opponentGameInstance = game.opponentGameInstances.filter((opponentGameInstance) => {
+								return opponentGameInstance && opponentGameInstance.playerIndex == opponentGameData.playerIndex;
+							})[0];
+
+							if (opponentGameInstance) {
+								opponentGameInstance.update(opponentGameData);
+
+								if (opponentGameInstance.baseHealth <= 0) {
+									opponentGameInstance.destroy();
+									game.opponentGameInstances.splice(game.opponentGameInstances.indexOf(opponentGameInstance), 1);
+								}
+							}
+						}
+
+					
+
+						if (currentGameData.currentGame.opponentGameData.length != game.cachedLengthOfOpponentGameInstances || game.opponentGameInstances.length != game.cachedLengthOfOpponentGameInstances) {
+							
+					
+
+							let livingOpponentConnections = [];
+							for (let opponentGameData of currentGameData.currentGame.opponentGameData) {
+								let instance = game.opponentGameInstances.filter((opponentGameInstance) => {
+									return opponentGameInstance && opponentGameInstance.playerIndex == opponentGameData.playerIndex;
+								})[0];
+
+								livingOpponentConnections.push(instance);
+							}
+
+							let deadOpponentConnections = game.opponentGameInstances.filter((opponentGameInstance) => {return livingOpponentConnections.indexOf(opponentGameInstance) == -1});
+
+
+							for (let deadOpponentConnection of deadOpponentConnections){
+								deadOpponentConnection && deadOpponentConnection.destroy();
+							}
+
+							game.opponentGameInstances = livingOpponentConnections;
+							game.cachedLengthOfOpponentGameInstances = game.opponentGameInstances.length;
+						
+						
+							// living
+							for (let i = 0; i < game.opponentGameInstances.length; i++){
+								game.opponentGameInstances[i] && game.opponentGameInstances[i].rerender(i, multiplayerScreenContainer);
+							}
+						
+						
+						}
+					}
+
 					// text
 
 					// interface
@@ -172,6 +236,7 @@ socket.on("currentGameData", (gameData) => {
 							? ""
 							: turnMillisecondsToTime(5000 - currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds);
 					multiplayerScreenContainerItems.currentPlayersRemainingText.text = "Players Remaining: " + currentGameData.currentGame.playersRemaining;
+
 					// tiles
 					for (let i = 0; i < 49; i++) {
 						// why?
@@ -277,6 +342,7 @@ socket.on("currentGameData", (gameData) => {
 					}
 
 					// delete
+
 					for (let numberToRemoveAsString of renderedEnemiesOnFieldToDelete) {
 						game.enemyRenderStatus[numberToRemoveAsString.toString()] === undefined || multiplayerScreenContainer.removeChild(game.enemyRenderStatus[numberToRemoveAsString.toString()]["enemySprite"]);
 						game.enemyRenderStatus[numberToRemoveAsString.toString()] === undefined || multiplayerScreenContainer.removeChild(game.enemyRenderStatus[numberToRemoveAsString.toString()]["requestedValueTextSprite"]);

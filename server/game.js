@@ -297,6 +297,10 @@ function createNewDefaultMultiplayerGameData(roomID, socket) {
 
 					currentCombo: -1,
 
+					enemiesPending: 0,
+		sentEnemiesToSpawn: 0,
+		enemySenders: [],
+		
 					enemiesCreated: 0,
 					enemiesKilled: 0,
 					enemiesOnField: [],

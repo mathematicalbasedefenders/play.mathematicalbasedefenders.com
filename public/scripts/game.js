@@ -67,9 +67,9 @@ restoreSettings();
 var framesRenderedSinceLaunch = 0.0;
 // var initialWindowWidth = window.screen.width;
 // var initialWindowHeight = window.screen.availHeight - (window.outerHeight - window.innerHeight);
-var initialWindowWidth = 1920;
-var initialWindowHeight = 1080;
-var initialRatio = initialWindowWidth / initialWindowHeight;
+const initialWindowWidth = 1920;
+const initialWindowHeight = 1080;
+const initialRatio = initialWindowWidth / initialWindowHeight;
 
 var enemyGenerationElapsedFramesCounter = 0;
 
@@ -82,6 +82,12 @@ var game = {
 	scoreGainIndicatorRenderStatus: {},
 	enemiesSentIndicatorRenderStatus: {},
 	tilesOnBoard: [],
+	opponentGameInstances: [],
+	opponentGameInstancePositionIncrements: {
+		x: 130,
+		y: 210,
+	},
+	cachedLengthOfOpponentGameInstances: 0,
 };
 
 var finalGameData;
@@ -162,7 +168,7 @@ var singleplayerScreenContainerItems = {
 	currentScoreText: new PIXI.Text("0", textStyles.SIZE_64_FONT),
 	timeLabelerText: new PIXI.Text("Time", textStyles.SIZE_24_FONT),
 
-	currentComboTimeLeftText: new PIXI.Text("combo time left", textStyles.SIZE_24_FONT),
+	currentComboTimeLeftText: new PIXI.Text("", textStyles.SIZE_24_FONT),
 
 	currentTimeText: new PIXI.Text("0:00.000", textStyles.SIZE_40_FONT),
 	baseHealthText: new PIXI.Text("Base Health: 10/10", textStyles.SIZE_24_FONT),
@@ -516,6 +522,12 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
 		}
 		case screens.MULTIPLAYER_GAME_SCREEN: {
 			// set properties
+			for (let i = 0; i < game.opponentGameInstances.length; i++){
+				console.log(game.opponentGameInstances[i]);
+				game.opponentGameInstances[i] && game.opponentGameInstances[i].destroy();
+			}
+			game.opponentGameInstances = [];
+			game.cachedLengthOfOpponentGameInstances = 0;
 			removeAllRenderedEnemies();
 			resizeContainer();
 			document.body.style.overflow = "none";
@@ -524,6 +536,12 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
 			break;
 		}
 		case screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN: {
+			for (let i = 0; i < game.opponentGameInstances.length; i++){
+				console.log(game.opponentGameInstances[i]);
+				game.opponentGameInstances[i] && game.opponentGameInstances[i].destroy();
+			}
+			game.opponentGameInstances = [];
+			game.cachedLengthOfOpponentGameInstances = 0;
 			document.body.style.overflow = "none";
 			$("#hub-container").show(0);
 			$("#default-multiplayer-room-lobby-screen-container").show(0);

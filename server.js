@@ -111,7 +111,7 @@ function update(deltaTime) {
 			if (roomID == roomIDOfDefaultMultiplayerRoom) {
 				if (!rooms[roomID].playing && !rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length >= 2) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
-					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 30000);
+					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 15000);
 				} else if (!rooms[roomID].playing && rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length <= 1) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = false;
 					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = "";
@@ -211,7 +211,8 @@ function update(deltaTime) {
 											rooms[roomID].data.currentGame.playersAlive = [];
 										}
 										rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
-										rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 30000);
+										//TODO: Change this back to 30k
+										rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 15000);
 										rooms[roomIDOfDefaultMultiplayerRoom].playing = false;
 
 										let connections = io.sockets.adapter.rooms.get(roomID);
@@ -464,11 +465,9 @@ io.on("connection", (socket) => {
 					}),
 				]);
 			} else {
-
 				socket.join(roomIDOfDefaultMultiplayerRoom);
 				socket.currentRoomSocketIsIn = roomIDOfDefaultMultiplayerRoom;
 				rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[socket.id] = socket;
-
 
 				io.to(roomIDOfDefaultMultiplayerRoom).emit("defaultMultiplayerRoomAction", "updatePlayerList", [
 					Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).map((player) => {
@@ -501,7 +500,7 @@ io.on("connection", (socket) => {
 				}),
 			]);
 			if (rooms[roomToLeave].playing) {
-				rooms[roomToLeave].data.currentGame.players[socket.id].currentGame.dead = true;
+				rooms[roomToLeave].data.currentGame.players[socket.id].currentGame.baseHealth = 0;
 				rooms[roomToLeave].data.currentGame.players[socket.id].currentGame.forfeited = true;
 			}
 		}
@@ -541,7 +540,7 @@ io.on("connection", (socket) => {
 		if (utilities.checkIfVariablesAreUndefined(slot)) {
 			return;
 		}
-		if (isNaN(slot)){
+		if (isNaN(slot)) {
 			return;
 		} else {
 			slot = parseInt(slot);
@@ -657,12 +656,38 @@ async function startDefaultMultiplayerGame(roomID) {
 
 function constructDefaultMultiplayerGameDataObjectToSend(connection) {
 	if (connection) {
+		playerIndex = -1;
 		let data = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection.id];
 		data.currentGame.currentInGameTimeInMilliseconds = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.currentInGameTimeInMilliseconds;
 		data.currentGame.playersRemaining = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.playersAlive.length;
+		data.currentGame.opponentGameData = [];
+		// opponents
+		let allConnections = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.playersAlive;
+		for (let opponentConnection of allConnections) {
+			if (opponentConnection != connection.id) {
+				playerIndex++;
+				data.currentGame.opponentGameData[playerIndex] = constructMinifiedGameDataObjectToSend(opponentConnection, playerIndex);
+			}
+		}
 		return data;
 	}
 	return {};
+}
+
+// only for use when called by method above
+function constructMinifiedGameDataObjectToSend(connectionID, playerIndex) {
+	let opponentGameData = {
+		playerIndex: playerIndex,
+		enemies: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.enemiesOnField,
+		tiles: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.tilesOnBoard,
+		actionsPerMinute: (rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.actionsPerformed / (rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.currentInGameTimeInMilliseconds / 1000) * 60).toFixed(3).toString(),
+		baseHealth: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.baseHealth,
+		enemiesPending: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.enemiesPending,
+		name: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.playerName,
+		problem: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.currentProblemAsBeautifulText,
+	};
+
+	return opponentGameData;
 }
 
 server.listen(PORT, () => {
