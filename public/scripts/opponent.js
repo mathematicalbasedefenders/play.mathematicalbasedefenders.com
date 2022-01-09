@@ -10,7 +10,7 @@ class OpponentGameInstance {
 
 		this.baseHealth = minifiedGameData.baseHealth;
 
-		this.xPosition = 450;
+		this.xPosition = 490;
 		this.yPosition = 490;
 
 		this.container;
