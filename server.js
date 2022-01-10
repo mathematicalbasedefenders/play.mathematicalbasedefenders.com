@@ -20,6 +20,9 @@ const bcrypt = require("bcrypt");
 // anti xss
 const xss = require("xss");
 
+// anti injection
+const mongoDBSanitize = require("mongo-sanitize")
+
 // other files
 const credentials = require("./credentials/credentials.js");
 const game = require("./server/game.js");
@@ -111,7 +114,7 @@ function update(deltaTime) {
 			if (roomID == roomIDOfDefaultMultiplayerRoom) {
 				if (!rooms[roomID].playing && !rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length >= 2) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
-					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 15000);
+					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 30000);
 				} else if (!rooms[roomID].playing && rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length <= 1) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = false;
 					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = "";
@@ -212,7 +215,7 @@ function update(deltaTime) {
 										}
 										rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
 										//TODO: Change this back to 30k
-										rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 15000);
+										rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 30000);
 										rooms[roomIDOfDefaultMultiplayerRoom].playing = false;
 
 										let connections = io.sockets.adapter.rooms.get(roomID);
@@ -346,13 +349,13 @@ io.on("connection", (socket) => {
 	 * Authenticates the user.
 	 */
 	socket.on("authenticate", async (username, encodedPassword) => {
-		username = xss(username);
+		username = xss(mongoDBSanitize(username));
 		console.log(log.addMetadata("Log in attempt from " + username, "info"));
 
 		if (!usersCurrentlyAttemptingToLogIn.includes(username)) {
 			if (/^[a-zA-Z0-9_]*$/g.test(username)) {
 				decodedPassword = new Buffer.from(new Buffer.from(new Buffer.from(new Buffer.from(encodedPassword, "base64").toString(), "base64").toString(), "base64").toString(), "base64").toString();
-				decodedPassword = xss(decodedPassword);
+				decodedPassword = xss(mongoDBSanitize(decodedPassword));
 				socket.playerData = await schemas.getUserModel().findOne({ username: username });
 
 				if (socket.playerData) {
