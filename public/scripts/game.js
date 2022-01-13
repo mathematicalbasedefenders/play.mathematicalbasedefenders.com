@@ -644,6 +644,7 @@ function processKeypress(event) {
 			// check if input is from numpad
 			if (event.key != "Escape") {
 				if (event.key == "/") {
+					if ($("#multiplayer-room-message-box").is(":focus")){return;}
 					$("#multiplayer-room-message-box").focus();
 					event.preventDefault();
 					$("#multiplayer-room-message-box").val("");

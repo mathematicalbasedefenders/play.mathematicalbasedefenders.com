@@ -762,7 +762,7 @@ function evaluateProblem(room, socket) {
 						problemToEvaluate = problemToEvaluate.replace(/([0-9a-d])([a-d])/g, "$1*$2");
 					}
 
-					let result = calculateProblem(problemToEvaluate, room);
+					let result = calculateProblem(problemToEvaluate, room, socket);
 					let answers = 0;
 					let enemiesToKill = [];
 
@@ -778,7 +778,7 @@ function evaluateProblem(room, socket) {
 						}
 
 						for (i = 0; i < requestedValues.length; i++) {
-							if (result == calculateProblem(requestedValues[i], room) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
+							if (result == calculateProblem(requestedValues[i], room, socket) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
 								answers++;
 								enemiesToKill.push(room.data.currentGame.players[socket.id].currentGame.enemiesOnField[i]);
 							}
@@ -856,7 +856,7 @@ function evaluateProblem(room, socket) {
 						}
 
 						for (i = 0; i < requestedValues.length; i++) {
-							if (result == calculateProblem(requestedValues[i], room) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
+							if (result == calculateProblem(requestedValues[i], room, socket) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
 								answers++;
 								enemiesToKill.push(room.data.currentGame.players[socket.id].currentGame.enemiesOnField[i]);
 							}
@@ -945,22 +945,22 @@ function evaluateProblem(room, socket) {
 						problemOnLeftSide = temp;
 					}
 
-					if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room) != null) {
+					if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room, socket) != null) {
 						switch (problemOnLeftSide) {
 							case "a": {
-								room.data.currentGame.players[socket.id].currentGame.valueOfVariableA = calculateProblem(problemOnRightSide, room);
+								room.data.currentGame.players[socket.id].currentGame.valueOfVariableA = calculateProblem(problemOnRightSide, room, socket);
 								break;
 							}
 							case "b": {
-								room.data.currentGame.players[socket.id].currentGame.valueOfVariableB = calculateProblem(problemOnRightSide, room);
+								room.data.currentGame.players[socket.id].currentGame.valueOfVariableB = calculateProblem(problemOnRightSide, room, socket);
 								break;
 							}
 							case "c": {
-								room.data.currentGame.players[socket.id].currentGame.valueOfVariableC = calculateProblem(problemOnRightSide, room);
+								room.data.currentGame.players[socket.id].currentGame.valueOfVariableC = calculateProblem(problemOnRightSide, room, socket);
 								break;
 							}
 							case "d": {
-								room.data.currentGame.players[socket.id].currentGame.valueOfVariableD = calculateProblem(problemOnRightSide, room);
+								room.data.currentGame.players[socket.id].currentGame.valueOfVariableD = calculateProblem(problemOnRightSide, room, socket);
 								break;
 							}
 						}
@@ -1002,7 +1002,8 @@ function generateRandomTileTermID(room) {
 	return toReturn;
 }
 
-function calculateProblem(problem, room) {
+function calculateProblem(problem, room, socket) {
+	if (room.type == "singleplayer"){
 	try {
 		return mexp.eval(
 			problem,
@@ -1017,6 +1018,22 @@ function calculateProblem(problem, room) {
 	} catch (error) {
 		return null;
 	}
+} else {
+	try {
+		return mexp.eval(
+			problem,
+			[
+				{ type: 3, token: "a", show: "a", value: "a" },
+				{ type: 3, token: "b", show: "b", value: "b" },
+				{ type: 3, token: "c", show: "c", value: "c" },
+				{ type: 3, token: "d", show: "d", value: "d" },
+			],
+			{ a: room.data.currentGame.players[socket.id].currentGame.valueOfVariableA, b: room.data.currentGame.players[socket.id].currentGame.valueOfVariableB, c: room.data.currentGame.players[socket.id].currentGame.valueOfVariableC, d: room.data.currentGame.players[socket.id].currentGame.valueOfVariableD }
+		);
+	} catch (error) {
+		return null;
+	}
+}
 }
 
 function calculateProblemLengthMultiplier(problemLength) {

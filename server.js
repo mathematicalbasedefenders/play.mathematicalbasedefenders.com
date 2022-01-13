@@ -114,7 +114,7 @@ function update(deltaTime) {
 			if (roomID == roomIDOfDefaultMultiplayerRoom) {
 				if (!rooms[roomID].playing && !rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length >= 2) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
-					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 30000);
+					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 3000);
 				} else if (!rooms[roomID].playing && rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length <= 1) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = false;
 					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = "";
@@ -215,7 +215,7 @@ function update(deltaTime) {
 										}
 										rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
 										//TODO: Change this back to 30k
-										rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 30000);
+										rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 3000);
 										rooms[roomIDOfDefaultMultiplayerRoom].playing = false;
 
 										let connections = io.sockets.adapter.rooms.get(roomID);
