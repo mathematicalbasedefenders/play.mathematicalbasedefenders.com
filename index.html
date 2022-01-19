@@ -12,13 +12,36 @@
 	</head>
 
 	<body>
+		<!-- Loading screen -->
+		<div id="loading-screen-container" style="background-color: #000000">
+			<div id="loading-screen" style="background-color: #000000">
+				<span style="background-color: #000000; color: #ffffff; text-decoration: none" id="loading-screen-text">Loading...</span>
+			</div>
+		</div>
+
 		<div id="game-container">
 			<div id="game-content-container">
 				<canvas id="pixi-canvas"></canvas>
 			</div>
+
 			<div id="status-bar-container">
 				<div id="status-bar-content-container">Running at <span id="frames-per-second"></span> frames per second. | <span id="online-players">?</span> online players</div>
 			</div>
+
+			<div id="text-modal-container">
+				<div id="text-modal-content-container">
+					<div style="position: relative">
+						<p style="text-align: center" style="background-color: #555555">
+							<span style="font-size: 48px; color: #ffffff; background-color: inherit" id="text-modal-title">text1</span>
+							<br />
+							<span style="font-size: 24px; color: #ffffff; background-color: inherit" id="text-modal-text">text2</span>
+							<br />
+							<button id="text-modal-button" onClick="	$('#text-modal-container').fadeOut(200);$('#text-modal-container').hide(0);">Close</button>
+						</p>
+					</div>
+				</div>
+			</div>
+
 			<div id="hub-container">
 				<!-- Main menu -->
 				<div id="main-menu-screen-container">
@@ -168,27 +191,25 @@
 				<!-- Statistics -->
 				<div id="statistics-screen-container">
 					<div id="statistics-screen-content-container">
-						<div style="font-size:24px;">
-							
-						</div>		
-					<div id="statistics-screen-button-container">
-						<button
-							class="statistics-screen-button"
-							onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
-							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
-						>
-							&nbsp;Player
-						</button>
-						<button
-							class="statistics-screen-button"
-							onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
-							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
-						>
-							&nbsp;Back
-						</button>
-					</div>
+						<div style="font-size: 24px"></div>
+						<div id="statistics-screen-button-container">
+							<button
+								class="statistics-screen-button"
+								onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+								onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+								onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+							>
+								&nbsp;Player
+							</button>
+							<button
+								class="statistics-screen-button"
+								onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+								onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+								onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+							>
+								&nbsp;Back
+							</button>
+						</div>
 					</div>
 				</div>
 
@@ -481,9 +502,8 @@
 
 		<script src="/scripts/enemy.js"></script>
 		<script src="/scripts/tile.js"></script>
-		
+
 		<script src="/scripts/game.js"></script>
 		<script src="/scripts/socket.js"></script>
-	
 	</body>
 </html>

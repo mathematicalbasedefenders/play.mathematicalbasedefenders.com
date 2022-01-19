@@ -52,8 +52,15 @@ const settingsScreens = {
 	ONLINE_SETTINGS_SCREEN: "onlineSettingsScreen",
 };
 
+
+
+// ui
 var pixiCanvas = document.getElementById("pixi-canvas");
 document.getElementById("pixi-canvas").style.display = "none";
+$("#text-modal-container").hide(0);
+
+
+
 pixiCanvas.width = window.innerWidth;
 pixiCanvas.height = window.innerHeight;
 // IMPORTANT VARIABLES
@@ -190,7 +197,7 @@ singleplayerScreenContainerItems.sendButtonSprite.on("pointerdown", function () 
 });
 
 singleplayerScreenContainerItems.baseSprite.x = initialWindowWidth / 2 - 450;
-singleplayerScreenContainerItems.baseSprite.y = initialWindowHeight / 2 - 465;
+singleplayerScreenContainerItems.baseSprite.y = initialWindowHeight / 2 - 505;
 
 singleplayerScreenContainerItems.currentProblemText.style.align = "center";
 singleplayerScreenContainerItems.currentProblemText.tint = 0x000000;
@@ -247,6 +254,8 @@ var multiplayerScreenContainerItems = {
 
 	baseSprite: new PIXI.Sprite(baseTexture),
 
+	playerNameText: new PIXI.Text("", textStyles.SIZE_24_FONT),
+
 	currentProblemText: new PIXI.Text("", textStyles.SIZE_72_MATH_FONT),
 	enemiesSentLabelerText: new PIXI.Text("Enemies Sent", textStyles.SIZE_24_FONT),
 	currentEnemiesSentText: new PIXI.Text("0", textStyles.SIZE_64_FONT),
@@ -278,6 +287,11 @@ multiplayerScreenContainerItems.baseSprite.y = initialWindowHeight / 2 - 465;
 
 multiplayerScreenContainerItems.numberOfPendingEnemiesText.x = initialWindowWidth / 2 + 500;
 multiplayerScreenContainerItems.numberOfPendingEnemiesText.y = initialWindowHeight / 2 - 400;
+
+multiplayerScreenContainerItems.playerNameText.style.align = "center";
+multiplayerScreenContainerItems.playerNameText.tint = 0x000000;
+multiplayerScreenContainerItems.playerNameText.y = initialWindowHeight / 2 + 440;
+
 
 multiplayerScreenContainerItems.currentProblemText.style.align = "center";
 multiplayerScreenContainerItems.currentProblemText.tint = 0x000000;
@@ -392,6 +406,15 @@ let resize = function resize() {
 	resizeContainer();
 };
 
+window.onload = (() => {
+	$("#loading-screen-text").html("Mathematical Base Defenders is in its early development stage.<br>Features may not work unexpectedly, and current product is not indicative of final product.<br><br>Mathematical Base Defenders is <span style='color:#ff0000;background-color:#000000;'>not</span> a substitute for a legitimate math tutor.");
+	$("#loading-screen-container").delay(5000).fadeOut(1000).hide(0);
+});
+
+
+
+
+
 window.addEventListener("resize", resize);
 
 // Rendering Loop
@@ -440,6 +463,11 @@ app.ticker.add((delta) => {
 			multiplayerScreenContainerItems.actionsPerMinuteText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.actionsPerMinuteText.text, textStyles.SIZE_40_FONT).width;
 			multiplayerScreenContainerItems.currentComboText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.currentComboText.text, textStyles.SIZE_40_FONT).width;
 			multiplayerScreenContainerItems.currentComboTimeLeftText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.currentComboTimeLeftText.text, textStyles.SIZE_24_FONT).width;
+			
+			
+			multiplayerScreenContainerItems.playerNameText.x =
+				(initialWindowWidth - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.playerNameText.text === undefined ? "" : multiplayerScreenContainerItems.playerNameText.text.toString(), textStyles.SIZE_24_FONT).width) /
+				2;
 			break;
 		}
 	}
@@ -987,6 +1015,16 @@ function setCustomEnemyPictureMetadata(url) {
 function toggleStatusBarVisibility() {
 	$("#status-bar-container").toggle(0);
 }
+
+function showTextModal(text, title, color){
+	$("#text-modal-title").text(title);
+	$("#text-modal-text").text(text);
+	$("#text-modal-container").fadeIn(200);
+	$("#text-modal-container").show(0);
+
+}
+
+
 
 // DEBUG
 socket.on("debugData", (what) => {

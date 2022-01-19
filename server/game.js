@@ -7,6 +7,9 @@ const _ = require("lodash");
 
 const enemy = require("./game/enemy.js");
 const tile = require("./game/tile.js");
+const leveling = require("./game/leveling.js");
+
+
 const mexp = require("math-expression-evaluator");
 
 const TERMS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "-", "*", "/", "=", "a", "b", "c", "d", "n", "x", "y", "z"];
@@ -15,6 +18,9 @@ const TERMS_AS_BEAUTIFUL_STRINGS = ["0", "1", "2", "3", "4", "5", "6", "7", "8",
 const FRAMES_PER_SECOND = 60;
 
 const schemas = require("./core/schemas.js");
+
+
+
 
 var roomTypes = {
 	SINGLEPLAYER: "singleplayer",
@@ -185,6 +191,13 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated++;
 				}
 
+
+				// calculate xp
+				room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.totalExperiencePointsEarned = room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSent + Math.floor(room.data.currentGame.currentInGameTimeInMilliseconds/2500);
+
+
+
+
 				// move
 
 				for (j = 0; j < room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField.length; j++) {
@@ -332,6 +345,9 @@ function createNewDefaultMultiplayerGameData(roomID, socket) {
 
 					gameIsOver: false,
 					gameOverScreenShown: false,
+
+					// leveling
+					experiencePointsEarned = 0,
 				},
 			},
 		},
@@ -342,6 +358,7 @@ function createNewDefaultMultiplayerGameData(roomID, socket) {
 function createNewDefaultMultiplayerRoomPlayerObject(socket) {
 	let data = {
 		playerName: socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner,
+		playerRank: socket.playerRank,
 		connectionID: socket.id,
 
 		dead: false,
@@ -417,7 +434,7 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 		await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true }, (error3, result3) => {
 			if (error3) {
 				// console.log(log.addMetadata("ERROR from Socket " + socket.id + " (" + usernameOfSocketOwner + "): ", "info"));
-				console.log(log.addMetadata(error3, "info"));
+				console.error(log.addMetadata(error3, "error"));
 			}
 			return result3;
 		});
@@ -431,7 +448,7 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 
 			await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true }, (error4, result4) => {
 				if (error4) {
-					console.log(log.addMetadata(error4, "info"));
+					console.error(log.addMetadata(error4, "error"));
 				}
 				return result4;
 			});
@@ -441,10 +458,15 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 	}
 
 	// global leaderboards
-
 	let globalRank = await checkAndModifyLeaderboards(finalScore, usernameOfSocketOwner, userIDOfSocketOwner, userIDAsString);
 	socket.emit("finalRanks", personalBestBroken, globalRank, true);
 	console.log(log.addMetadata(globalRank == -1 ? "User " + usernameOfSocketOwner + " submitted a score of " + finalScore : "User " + usernameOfSocketOwner + " submitted a score of " + finalScore + " and reached #" + globalRank, "info"));
+
+	// levels
+	let levelStatus = await leveling.giveExperiencePointsToPlayerID(userIDAsString, Math.floor(finalScore / 100));
+	socket.emit("levelStatus", levelStatus);
+	if (levelStatus.leveledUp) { console.log(log.addMetadata(`User ${usernameOfSocketOwner} leveled up from Level ${levelStatus.currentLevel-1} to Level ${levelStatus.currentLevel}`,"info")); }
+
 }
 
 async function checkAndModifyLeaderboards(score, username, userID, userIDAsString) {
@@ -456,7 +478,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 	for (var i = 1; i <= 50; i++) {
 		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
-				console.log(log.addMetadata(error2.stack, "error"));
+				console.error(log.addMetadata(error2.stack, "error"));
 			}
 			return result2;
 		});
@@ -475,7 +497,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 	for (var i = 1; i < placePlayerRanked; i++) {
 		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
-				console.log(log.addMetadata(error2.stack, "error"));
+				console.error(log.addMetadata(error2.stack, "error"));
 			}
 			return result2;
 		});
@@ -488,7 +510,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 	for (var i = placePlayerRanked; i <= 50; i++) {
 		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
-				console.log(log.addMetadata(error2.stack, "error"));
+				console.error(log.addMetadata(error2.stack, "error"));
 			}
 			return result2;
 		});
@@ -503,7 +525,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 			var data1 = await schemas.getLeaderboardsModel().findOne({ rankNumber: i + 1 });
 			await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
 				if (error4) {
-					console.log(log.addMetadata(error4.stack, "error"));
+					console.error(log.addMetadata(error4.stack, "error"));
 				}
 				return result4;
 			});
@@ -516,7 +538,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 			var data1 = await schemas.getLeaderboardsModel().findOne({ rankNumber: i - 1 });
 			await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
 				if (error4) {
-					console.log(log.addMetadata(error4.stack, "error"));
+					console.error(log.addMetadata(error4.stack, "error"));
 				}
 				return result4;
 			});
@@ -525,7 +547,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 
 	await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: placePlayerRanked }, { userIDOfHolder: userIDAsString, score: score }, function (error5, result5) {
 		if (error5) {
-			console.log(log.addMetadata(error5.stack, "error"));
+			console.error(log.addMetadata(error5.stack, "error"));
 		}
 		return result5;
 	});
@@ -1101,7 +1123,7 @@ function getMultiplayerTileQueueOfPlayer(room, socket) {
 function convertPressedKeyToTermID(keyPressed, playerKeybinds, room, socket) {
 	if (keyPressed == "Space") {
 		// space
-		evaluateProblem(room, socket);
+		checkProblem(room, socket);
 		return;
 	} else if (keyPressed == "Period" || keyPressed == "Backspace") {
 		//numpad decimal

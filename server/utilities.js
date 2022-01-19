@@ -1,5 +1,6 @@
 const sizeof = require('object-sizeof')
-const LOG_AMOUNT_OF_DATA_SENT = false;
+
+const configuration = require("./configuration.js");
 
 function generateRoomID(){
     characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -27,7 +28,7 @@ function generateGuestName(){
 
 
 function getSizeInBytes(string) {
-	if (LOG_AMOUNT_OF_DATA_SENT){
+	if (configuration.developerConfiguration.settings.logAmountOfDataSent){
 	return sizeof(string);
 }
 return 0;

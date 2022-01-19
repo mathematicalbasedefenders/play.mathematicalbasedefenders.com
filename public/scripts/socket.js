@@ -161,10 +161,6 @@ socket.on("currentGameData", (gameData) => {
 							game.cachedLengthOfOpponentGameInstances++;
 						}
 					} else {
-						
-						
-				
-						
 						for (let opponentGameData of currentGameData.currentGame.opponentGameData) {
 							let opponentGameInstance = game.opponentGameInstances.filter((opponentGameInstance) => {
 								return opponentGameInstance && opponentGameInstance.playerIndex == opponentGameData.playerIndex;
@@ -180,12 +176,7 @@ socket.on("currentGameData", (gameData) => {
 							}
 						}
 
-					
-
 						if (currentGameData.currentGame.opponentGameData.length != game.cachedLengthOfOpponentGameInstances || game.opponentGameInstances.length != game.cachedLengthOfOpponentGameInstances) {
-							
-					
-
 							let livingOpponentConnections = [];
 							for (let opponentGameData of currentGameData.currentGame.opponentGameData) {
 								let instance = game.opponentGameInstances.filter((opponentGameInstance) => {
@@ -195,23 +186,21 @@ socket.on("currentGameData", (gameData) => {
 								livingOpponentConnections.push(instance);
 							}
 
-							let deadOpponentConnections = game.opponentGameInstances.filter((opponentGameInstance) => {return livingOpponentConnections.indexOf(opponentGameInstance) == -1});
+							let deadOpponentConnections = game.opponentGameInstances.filter((opponentGameInstance) => {
+								return livingOpponentConnections.indexOf(opponentGameInstance) == -1;
+							});
 
-
-							for (let deadOpponentConnection of deadOpponentConnections){
+							for (let deadOpponentConnection of deadOpponentConnections) {
 								deadOpponentConnection && deadOpponentConnection.destroy();
 							}
 
 							game.opponentGameInstances = livingOpponentConnections;
 							game.cachedLengthOfOpponentGameInstances = game.opponentGameInstances.length;
-						
-						
+
 							// living
-							for (let i = 0; i < game.opponentGameInstances.length; i++){
+							for (let i = 0; i < game.opponentGameInstances.length; i++) {
 								game.opponentGameInstances[i] && game.opponentGameInstances[i].rerender(i, multiplayerScreenContainer);
 							}
-						
-						
 						}
 					}
 
@@ -236,7 +225,7 @@ socket.on("currentGameData", (gameData) => {
 							? ""
 							: turnMillisecondsToTime(5000 - currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds);
 					multiplayerScreenContainerItems.currentPlayersRemainingText.text = "Players Remaining: " + currentGameData.currentGame.playersRemaining;
-
+					multiplayerScreenContainerItems.playerNameText.text = currentGameData.currentGame.playerName;
 					// tiles
 					for (let i = 0; i < 49; i++) {
 						// why?
@@ -371,8 +360,18 @@ socket.on("finalRanks", (personalBestBroken, finalGlobalRank, scoreSaved) => {
 	}
 });
 
+socket.on("levelStatus", (levelStatus) => {
+	if (levelStatus.leveledUp) {
+		showTextModal(`You have leveled up from Level ${levelStatus.currentLevel - 1} to Level ${levelStatus.currentLevel}`, "Leveled Up!");
+	}
+});
+
+socket.on("showTextModal", (text, title) => {
+	showTextModal(text, title);
+});
+
 socket.on("loginResult", (username, success) => {
-	alert(success ? "Successfully logged in as " + username + "!" : " Failed to log in as" + " " + username + "!");
+	showTextModal(success ? "Successfully logged in as " + username + "!" : " Failed to log in as" + " " + username + "!", success ? "Successfully Logged In!" : " Failed to Log In!");
 	$("#login-button").removeClass("disabled-button").text("Login");
 	if (success) {
 		$("#login-button").hide();
@@ -439,6 +438,6 @@ socket.on("updateText", (selector, text) => {
 
 // important
 socket.on("disconnect", (reason) => {
-	alert("Disconnected from server. Click OK to refresh page. Technical Stuff: " + reason);
+	alert("Disconnected from server. Click OK to refresh page. Error Code: " + reason);
 	location.reload();
 });

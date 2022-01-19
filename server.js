@@ -23,8 +23,13 @@ const xss = require("xss");
 // anti injection
 const mongoDBSanitize = require("mongo-sanitize")
 
+// favicon
+const favicon = require("serve-favicon");
+
 // other files
 const credentials = require("./credentials/credentials.js");
+const configuration = require("./server/configuration.js");
+
 const game = require("./server/game.js");
 const utilities = require("./server/utilities.js");
 
@@ -38,8 +43,6 @@ const PORT = 8080;
 const DESIRED_UPDATES_PER_SECOND = 60;
 
 const LOOP_INTERVAL = 1000 / DESIRED_UPDATES_PER_SECOND;
-
-const LOG_AMOUNT_OF_DATA_SENT = false;
 
 // variables
 var sockets = [];
@@ -69,6 +72,9 @@ const playerRanks = {
 	DONATOR: "donator",
 };
 
+app.use(favicon(__dirname + "/public/assets/images/favicon.ico"));
+
+
 // Loop variables
 var currentTime = Date.now();
 var deltaTime = Date.now();
@@ -82,6 +88,10 @@ mongoose.connection.on("connected", () => {
 
 app.get("/", (request, response) => {
 	response.sendFile(__dirname + "/index.html");
+});
+
+app.get("*", (request, response) => {
+	response.redirect("/");
 });
 
 var timeSinceLastTimeStatsPrintedInMilliseconds = 0;
@@ -99,7 +109,7 @@ function update(deltaTime) {
 	if (timeSinceLastTimeStatsPrintedInMilliseconds >= 1000) {
 		io.emit("updateText", "#online-players", sockets.length);
 
-		if (LOG_AMOUNT_OF_DATA_SENT) {
+		if (configuration.developerConfiguration.settings.logAmountOfDataSent) {
 			console.log(log.addMetadata(`${dataSentWithoutCompression.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} bytes sent in ${timeSinceLastTimeStatsPrintedInMilliseconds}ms.`, "info"));
 		}
 
@@ -114,7 +124,7 @@ function update(deltaTime) {
 			if (roomID == roomIDOfDefaultMultiplayerRoom) {
 				if (!rooms[roomID].playing && !rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length >= 2) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
-					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 3000);
+					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + (configuration.developerConfiguration.settings.impatientMode ? 250 : 30000));
 				} else if (!rooms[roomID].playing && rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length <= 1) {
 					rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = false;
 					rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = "";
@@ -214,8 +224,7 @@ function update(deltaTime) {
 											rooms[roomID].data.currentGame.playersAlive = [];
 										}
 										rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
-										//TODO: Change this back to 30k
-										rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + 3000);
+										rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(Date.now() + (configuration.developerConfiguration.settings.impatientMode ? 250 : 30000));
 										rooms[roomIDOfDefaultMultiplayerRoom].playing = false;
 
 										let connections = io.sockets.adapter.rooms.get(roomID);
@@ -688,6 +697,7 @@ function constructMinifiedGameDataObjectToSend(connectionID, playerIndex) {
 		enemiesPending: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.enemiesPending,
 		name: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.playerName,
 		problem: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.currentProblemAsBeautifulText,
+		nameColor: formatPlayerName(rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.playerRank),
 	};
 
 	return opponentGameData;

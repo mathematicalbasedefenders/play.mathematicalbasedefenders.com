@@ -63,15 +63,16 @@
 	}
 }
 
-
 * {
-	background-color: #eeeeee;
 	font-family: "Computer Modern Unicode Serif";
 	padding: 0px;
 	margin: 0px;
 	user-select: none;
 }
 
+body {
+	background-color: #eeeeee;
+}
 /*
     GLOBAL
 */
@@ -164,6 +165,50 @@ kbd {
 	z-index: 1000;
 	position: absolute;
 	margin: 0;
+}
+
+#text-modal-container {
+	z-index: 3000;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.4);
+}
+
+#text-modal-content-container {
+	width: 60%;
+	min-height: 40%;
+	margin: 15% auto;
+	padding: 15px;
+	background-color: #555555;
+	border: #000000;
+	border-style: solid;
+	border-radius: 10px;
+}
+
+#text-modal-button {
+	width: 60%;
+	height: 50px;
+	font-size: 32px;
+	background-color: #cdcdcd;
+	color: #000000;
+	bottom: 5%;
+}
+
+/*
+	LOADING SCREEN
+*/
+
+#loading-screen-container {
+	background-color: #000000;
+	width: 100%;
+	height: 100%;
+	z-index: 2000;
+	position: absolute;
+	margin: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 /*
@@ -336,7 +381,7 @@ kbd {
 	width: 96%;
 	display: flex;
 	flex-direction: column-reverse;
-	word-wrap:break-word;
+	word-wrap: break-word;
 }
 
 .multiplayer-room-chat-box-container {
@@ -402,7 +447,6 @@ kbd {
 	text-align: left;
 	font-size: 24px;
 	transition: all 0.1s ease-out;
-
 }
 
 .statistics-screen-button:hover {
@@ -577,4 +621,3 @@ TOAST NOTIFICATIONS
 .toast-notification.red-toast-notification {
 	border: 2px #ee0000 solid;
 }
-

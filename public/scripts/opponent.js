@@ -13,6 +13,8 @@ class OpponentGameInstance {
 		this.xPosition = 490;
 		this.yPosition = 490;
 
+
+
 		this.container;
 
 		this.setPositions = () => {
@@ -48,6 +50,7 @@ class OpponentGameInstance {
 
 			this.nameText.position.x = initialWindowWidth / 2 + (this.playerIndex % 3) * game.opponentGameInstancePositionIncrements.x + this.xPosition;
 			this.nameText.position.y = Math.floor(this.playerIndex / 3) * game.opponentGameInstancePositionIncrements.y + this.yPosition + 165;
+		
 		};
 
 		this.setPositions();
