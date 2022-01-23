@@ -347,7 +347,7 @@ function createNewDefaultMultiplayerGameData(roomID, socket) {
 					gameOverScreenShown: false,
 
 					// leveling
-					experiencePointsEarned = 0,
+					experiencePointsEarned: 0,
 				},
 			},
 		},

@@ -3,7 +3,31 @@ const util = require("util");
 // express.js
 const express = require("express");
 const app = express();
+const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000,
+	max: 100,
+	standardHeaders: true,
+	legacyHeaders: false,
+});
+
 app.use(express.static("public"));
+app.use(limiter);
+app.use(
+	helmet({
+		contentSecurityPolicy: {
+			directives: {
+				...helmet.contentSecurityPolicy.getDefaultDirectives(),
+				"connect-src": ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
+				"script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "pixijs.download", "code.jquery.com", "www.googletagmanager.com"],
+				"script-src-attr" :["'self'","'unsafe-inline'"],
+			},
+		},
+		crossOriginEmbedderPolicy: false,
+	})
+);
 
 // socket.io
 const server = http.createServer(app);
@@ -21,7 +45,7 @@ const bcrypt = require("bcrypt");
 const xss = require("xss");
 
 // anti injection
-const mongoDBSanitize = require("mongo-sanitize")
+const mongoDBSanitize = require("mongo-sanitize");
 
 // favicon
 const favicon = require("serve-favicon");
@@ -73,7 +97,6 @@ const playerRanks = {
 };
 
 app.use(favicon(__dirname + "/public/assets/images/favicon.ico"));
-
 
 // Loop variables
 var currentTime = Date.now();
@@ -692,7 +715,9 @@ function constructMinifiedGameDataObjectToSend(connectionID, playerIndex) {
 		playerIndex: playerIndex,
 		enemies: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.enemiesOnField,
 		tiles: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.tilesOnBoard,
-		actionsPerMinute: (rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.actionsPerformed / (rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.currentInGameTimeInMilliseconds / 1000) * 60).toFixed(3).toString(),
+		actionsPerMinute: ((rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.actionsPerformed / (rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.currentInGameTimeInMilliseconds / 1000)) * 60)
+			.toFixed(3)
+			.toString(),
 		baseHealth: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.baseHealth,
 		enemiesPending: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.enemiesPending,
 		name: rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.playerName,
