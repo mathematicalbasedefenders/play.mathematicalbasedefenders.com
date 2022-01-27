@@ -21,9 +21,7 @@ class Tile {
 }
 
 function processTileClick(slot) {
-	// socket.emit("action");
 	socket.emit("tileClick", slot);
-	// move this to server soon
 	game.tilesOnBoard[slot].selected = !game.tilesOnBoard[slot].selected;
 	
 }

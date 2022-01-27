@@ -20,8 +20,8 @@ app.use(
 		contentSecurityPolicy: {
 			directives: {
 				...helmet.contentSecurityPolicy.getDefaultDirectives(),
-				"connect-src": ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
-				"script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "pixijs.download", "code.jquery.com", "www.googletagmanager.com"],
+				"connect-src": ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com", "cdnjs.cloudflare.com"],
+				"script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "pixijs.download", "code.jquery.com", "www.googletagmanager.com", "cdnjs.cloudflare.com"],
 				"script-src-attr" :["'self'","'unsafe-inline'"],
 			},
 		},
@@ -42,7 +42,10 @@ const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
 
 // anti xss
-const xss = require("xss");
+const createDOMPurify = require("dompurify");
+const { JSDOM } = require('jsdom');
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
 
 // anti injection
 const mongoDBSanitize = require("mongo-sanitize");
@@ -334,9 +337,9 @@ io.on("connection", (socket) => {
 
 	// input
 	socket.on("keypress", async (code, playerTileKeybinds) => {
-		code = xss(code);
+		code = DOMPurify.sanitize(code);
 
-		playerTileKeybinds = xss(playerTileKeybinds);
+		playerTileKeybinds = DOMPurify.sanitize(playerTileKeybinds);
 		playerTileKeybinds = playerTileKeybinds.split(",");
 
 		// validation 1
@@ -381,13 +384,13 @@ io.on("connection", (socket) => {
 	 * Authenticates the user.
 	 */
 	socket.on("authenticate", async (username, encodedPassword) => {
-		username = xss(mongoDBSanitize(username));
+		username = DOMPurify.sanitize(mongoDBSanitize(username));
 		console.log(log.addMetadata("Log in attempt from " + username, "info"));
 
 		if (!usersCurrentlyAttemptingToLogIn.includes(username)) {
 			if (/^[a-zA-Z0-9_]*$/g.test(username)) {
 				decodedPassword = new Buffer.from(new Buffer.from(new Buffer.from(new Buffer.from(encodedPassword, "base64").toString(), "base64").toString(), "base64").toString(), "base64").toString();
-				decodedPassword = xss(mongoDBSanitize(decodedPassword));
+				decodedPassword = DOMPurify.sanitize(mongoDBSanitize(decodedPassword));
 				socket.playerData = await schemas.getUserModel().findOne({ username: username });
 
 				if (socket.playerData) {
@@ -545,7 +548,7 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("defaultMultiplayerRoomChatMessage", async (message) => {
-		message = xss(message);
+		message = DOMPurify.sanitize(message);
 		if (socket.currentRoomSocketIsIn == roomIDOfDefaultMultiplayerRoom && message.replace(/\s/g, "").length && message.length < 255) {
 			io.to(roomIDOfDefaultMultiplayerRoom).emit("defaultMultiplayerRoomAction", "updateChatBox", [
 				socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner,
@@ -571,7 +574,7 @@ io.on("connection", (socket) => {
 	 */
 	socket.on("tileClick", (slot) => {
 		slot = slot.toString();
-		slot = xss(slot);
+		slot = DOMPurify.sanitize(slot);
 		if (utilities.checkIfVariablesAreUndefined(slot)) {
 			return;
 		}

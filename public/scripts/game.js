@@ -95,7 +95,10 @@ var game = {
 		y: 210,
 	},
 	cachedLengthOfOpponentGameInstances: 0,
+	toastNotifications: {},
+	toastNotificationsCreated: 0,
 };
+
 
 var finalGameData;
 
@@ -431,11 +434,11 @@ app.ticker.add((delta) => {
 	$("#frames-per-second").text(Math.round(app.ticker.FPS));
 
 	// global
-	for (let toastNotification in toastNotificationExpiryTimes) {
-		if (toastNotificationExpiryTimes[toastNotification] < Date.now()) {
+	for (let toastNotification in game.toastNotifications) {
+		if (game.toastNotifications[toastNotification].expiryTime < Date.now()) {
 			$("#toast-notification-" + toastNotification).remove();
 
-			delete toastNotificationExpiryTimes[toastNotification];
+			delete game.toastNotifications[toastNotification];
 		}
 	}
 

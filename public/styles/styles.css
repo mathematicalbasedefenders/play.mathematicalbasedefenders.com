@@ -614,10 +614,3 @@ TOAST NOTIFICATIONS
 	bottom: 0.25vh;
 }
 
-.toast-notification.green-toast-notification {
-	border: 2px #00ee00 solid;
-}
-
-.toast-notification.red-toast-notification {
-	border: 2px #ee0000 solid;
-}

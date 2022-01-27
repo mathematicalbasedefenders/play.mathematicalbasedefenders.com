@@ -151,7 +151,6 @@ socket.on("currentGameData", (gameData) => {
 			{
 				if (currentGameData.currentGame.dead) {
 					setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);
-					$("#last-game-rank").text("Last game you ranked #" + currentGameData.currentGame.rank + " surviving for " + currentGameData.currentGame.currentInGameTimeInMilliseconds + "ms.");
 				} else {
 					if (game.opponentGameInstances.length == 0) {
 						// opponents
@@ -435,6 +434,11 @@ socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
 socket.on("updateText", (selector, text) => {
 	$(selector).text(text);
 });
+
+socket.on("createToastNotification", (options) => {
+	createToastNotification(options)
+});
+
 
 // important
 socket.on("disconnect", (reason) => {

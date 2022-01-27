@@ -462,6 +462,15 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 	socket.emit("finalRanks", personalBestBroken, globalRank, true);
 	console.log(log.addMetadata(globalRank == -1 ? "User " + usernameOfSocketOwner + " submitted a score of " + finalScore : "User " + usernameOfSocketOwner + " submitted a score of " + finalScore + " and reached #" + globalRank, "info"));
 
+	if (globalRank != -1){
+		socket.broadcast.emit("createToastNotification", {
+			color: "#8f8118",
+			message: `${usernameOfSocketOwner} just reached rank #${globalRank} on a Singleplayer game with a score of ${finalScore} points.`,
+			position: "topRight",
+		});
+	}
+
+
 	// levels
 	let levelStatus = await leveling.giveExperiencePointsToPlayerID(userIDAsString, Math.floor(finalScore / 100));
 	socket.emit("levelStatus", levelStatus);
