@@ -32,7 +32,7 @@ class OpponentGameInstance {
 
 				if (enemy.enemyNumber >= -0.1) {
 					this.enemySprites[enemy.enemyNumber] = {};
-					this.enemySprites[enemy.enemyNumber]["sprite"] = new Enemy(enemy.xPosition, enemy.yPosition, enemy.sPosition, enemy.width, enemy.height, enemy.requestedValue, enemy.enemyNumber, enemy.senderName).enemySprite;
+					this.enemySprites[enemy.enemyNumber]["sprite"] = new Enemy(enemy).enemySprite;
 					this.enemySprites[enemy.enemyNumber]["sprite"].position.x = initialWindowWidth / 2 + (this.playerIndex % 3) * game.opponentGameInstancePositionIncrements.x + this.xPosition + enemy.sPosition * 11.2;
 					this.enemySprites[enemy.enemyNumber]["sprite"].position.y = Math.floor(this.playerIndex / 3) * game.opponentGameInstancePositionIncrements.y + this.yPosition;
 					this.enemySprites[enemy.enemyNumber]["sprite"].scale.x = 0.585;
@@ -66,7 +66,7 @@ class OpponentGameInstance {
 
 			if (!this.enemySprites[enemy.enemyNumber]) {
 				this.enemySprites[enemy.enemyNumber] = {};
-				this.enemySprites[enemy.enemyNumber]["sprite"] = new Enemy(enemy.xPosition, enemy.yPosition, enemy.sPosition, enemy.width, enemy.height, enemy.requestedValue, enemy.enemyNumber, enemy.senderName).enemySprite;
+				this.enemySprites[enemy.enemyNumber]["sprite"] = new Enemy(enemy).enemySprite;
 				this.enemySprites[enemy.enemyNumber]["sprite"].position.x = initialWindowWidth / 2 + (this.playerIndex % 3) * game.opponentGameInstancePositionIncrements.x + this.xPosition + enemy.sPosition * 11.2;
 				this.enemySprites[enemy.enemyNumber]["sprite"].position.y = Math.floor(this.playerIndex / 3) * game.opponentGameInstancePositionIncrements.y + this.yPosition;
 				this.enemySprites[enemy.enemyNumber]["sprite"].scale.x = 0.585;

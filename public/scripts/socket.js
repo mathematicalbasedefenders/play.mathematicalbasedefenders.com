@@ -67,7 +67,7 @@ socket.on("currentGameData", (gameData) => {
 
 							game.enemyRenderStatus[enemy.enemyNumber.toString()] = {};
 
-							let enemyObject = new Enemy(enemy.xPosition, enemy.yPosition, enemy.sPosition, enemy.width, enemy.height, enemy.requestedValue, enemy.enemyNumber, "");
+							let enemyObject = new Enemy(enemy);
 
 							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"] = enemyObject.enemySprite;
 							game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].enemyNumber = enemyObject.enemyNumber.toString();
@@ -260,7 +260,7 @@ socket.on("currentGameData", (gameData) => {
 								// create object
 								game.enemyRenderStatus[enemy.enemyNumber.toString()] = {};
 
-								enemyObject = new Enemy(enemy.xPosition, enemy.yPosition, enemy.sPosition, enemy.width, enemy.height, enemy.requestedValue, enemy.enemyNumber, enemy.senderName);
+								enemyObject = new Enemy(enemy);
 
 								game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"] = enemyObject.enemySprite;
 								game.enemyRenderStatus[enemy.enemyNumber.toString()]["enemySprite"].enemyNumber = enemyObject.enemyNumber.toString();

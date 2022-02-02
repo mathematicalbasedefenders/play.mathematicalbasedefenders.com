@@ -1,20 +1,20 @@
 // ORIGINAL IN CLIENT SIDE
 class Enemy {
-	constructor(xPosition, yPosition, width, height, requestedValue, defaultSpeed, defaultAttack, defaultHealth, enemyNumber, senderName) {
+	constructor(enemyInformation){
 
-		this.xPosition = xPosition;
-		this.yPosition = yPosition;
-		this.width = width;
-		this.height = height;
-		this.requestedValue = requestedValue.toString();
-		this.defaultSpeed = defaultSpeed;
-		this.defaultAttack = defaultAttack;
-		this.defaultHealth = defaultHealth;
-		this.enemyNumber = enemyNumber;
-		this.sPosition = 10;
+		this.xPosition = enemyInformation.xPosition;
+		this.yPosition = enemyInformation.yPosition;
+		this.width = enemyInformation.width;
+		this.height = enemyInformation.height;
+		this.requestedValue = enemyInformation.requestedValue.toString();
+		this.defaultSpeed = enemyInformation.defaultSpeed;
+		this.defaultAttack = enemyInformation.defaultAttack;
+		this.defaultHealth = enemyInformation.defaultHealth;
+		this.enemyNumber = enemyInformation.enemyNumber;
+		this.sPosition = enemyInformation.sPosition || 10;
 		this.reachedBase = false;
 		this.toDestroy = false;
-		this.senderName = senderName ? senderName.toString() : "";
+		this.senderName = enemyInformation.senderName || "";
 
 	}
 

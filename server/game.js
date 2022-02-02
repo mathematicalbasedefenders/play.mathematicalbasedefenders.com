@@ -82,7 +82,18 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 			// create
 			if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > 50) {
 				if (Math.random() > 0.95) {
-					room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy(1360, 120, 100, 100, generateRandomEnemyTerm(), Math.random() * 2 + 1, 1, 1, room.data.currentGame.enemiesCreated + 1);
+					// room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy(1360, 120, 100, 100, generateRandomEnemyTerm(), Math.random() * 2 + 1, 1, 1, room.data.currentGame.enemiesCreated + 1);
+					room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy({
+						xPosition: 1360,
+						yPosition: 120,
+						width: 100,
+						height: 100,
+						requestedValue: generateRandomEnemyTerm(),
+						defaultSpeed: Math.random() * 2 + 1, 
+						defaultAttack: 1, 
+						defaultHealth: 1, 
+						enemyNumber: room.data.currentGame.enemiesCreated + 1,
+					});
 					room.data.currentGame.enemiesCreated++;
 				}
 				room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= 50;
@@ -141,7 +152,18 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 
 			if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > 50) {
 				if (Math.random() > 0.95) {
-					room.data.currentGame.globalEnemyToAdd = new enemy.Enemy(1360, 120, 100, 100, generateRandomEnemyTerm(), Math.random() * 2 + 1, 1, 1, room.data.currentGame.globalEnemiesCreated + 1);
+					// room.data.currentGame.globalEnemyToAdd = new enemy.Enemy(1360, 120, 100, 100, generateRandomEnemyTerm(), Math.random() * 2 + 1, 1, 1, room.data.currentGame.globalEnemiesCreated + 1);
+					room.data.currentGame.globalEnemyToAdd = new enemy.Enemy({
+						xPosition: 1360,
+						yPosition: 120,
+						width: 100,
+						height: 100,
+						requestedValue: generateRandomEnemyTerm(),
+						defaultSpeed: Math.random() * 2 + 1, 
+						defaultAttack: 1, 
+						defaultHealth: 1, 
+						enemyNumber: room.data.currentGame.globalEnemiesCreated + 1,
+					});
 					room.data.currentGame.globalEnemiesCreated++;
 				}
 				room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= 50;
@@ -168,18 +190,18 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 				if (room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.sentEnemiesToSpawn > 0) {
 					let nameToPutOnEnemy = room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemySenders[0];
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemySenders.splice(0, 1);
-					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated] = new enemy.Enemy(
-						1360,
-						120,
-						100,
-						100,
-						generateRandomEnemyTerm(),
-						Math.random() * 2 + 1,
-						1,
-						1,
-						room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated + 1,
-						nameToPutOnEnemy
-					);
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated] = new enemy.Enemy({
+						xPosition: 1360,
+						yPosition: 120,
+						width: 100,
+						height: 100,
+						requestedValue: generateRandomEnemyTerm(),
+						defaultSpeed: Math.random() * 2 + 1, 
+						defaultAttack: 1, 
+						defaultHealth: 1, 
+						enemyNumber: room.data.currentGame.enemiesCreated + 1,
+						senderName: nameToPutOnEnemy,
+					});
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated++;
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.sentEnemiesToSpawn--;
 				}
@@ -743,6 +765,7 @@ function evaluateProblem(room, socket) {
 							problemOnLeftSide = temp;
 						}
 
+
 						if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room) != null) {
 							switch (problemOnLeftSide) {
 								case "a": {
@@ -975,6 +998,7 @@ function evaluateProblem(room, socket) {
 						problemOnRightSide = problemOnLeftSide;
 						problemOnLeftSide = temp;
 					}
+
 
 					if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room, socket) != null) {
 						switch (problemOnLeftSide) {

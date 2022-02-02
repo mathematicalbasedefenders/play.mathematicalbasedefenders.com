@@ -2,16 +2,16 @@ let enemyNumber = 0;
 
 class Enemy {
 	// create object
-	constructor(xPosition, yPosition, sPosition, width, height, requestedValue, enemyNumber, senderName) {
+	constructor(enemyInformation) {
 		// other stuff
-		this.xPosition = xPosition;
-		this.yPosition = yPosition;
-		this.sPosition = sPosition;
-		this.width = width;
-		this.height = height;
-		this.requestedValue = requestedValue;
-		this.enemyNumber = enemyNumber;
-		this.senderName = senderName;
+		this.xPosition = enemyInformation.xPosition;
+		this.yPosition = enemyInformation.yPosition;
+		this.sPosition = enemyInformation.sPosition;
+		this.width = enemyInformation.width;
+		this.height = enemyInformation.height;
+		this.requestedValue = enemyInformation.requestedValue;
+		this.enemyNumber = enemyInformation.enemyNumber;
+		this.senderName = enemyInformation.senderName;
 
 		// create sprite
 
@@ -31,8 +31,8 @@ class Enemy {
 			this.enemySprite.tint = enemyColor;
 		}
 
-		this.enemySprite.width = width;
-		this.enemySprite.height = height;
+		this.enemySprite.width = enemyInformation.width;
+		this.enemySprite.height = enemyInformation.height;
 
 		let red = (enemyColor & 0xff0000) >> 16;
 		let green = (enemyColor & 0x00ff00) >> 8;
@@ -46,18 +46,18 @@ class Enemy {
 			fill: settings.video.enemyColor == "blind" ? "#eeeeee" : (maximum + minimum) / 2 >= 0.5 ? "#000000" : "#ffffff",
 			fontSize: 32,
 		});
-		this.requestedValueTextSprite = new PIXI.Text(requestedValue.toString().replace("-", "\u2013"), requestedValueTextStyleToUse);
-		this.requestedValueTextMetrics = PIXI.TextMetrics.measureText(requestedValue.toString(), requestedValueTextStyleToUse);
-		this.requestedValueTextSprite.x = xPosition + (width - this.requestedValueTextMetrics.width) / 2;
-		this.requestedValueTextSprite.y = yPosition + (height - this.requestedValueTextMetrics.height) / 2;
+		this.requestedValueTextSprite = new PIXI.Text(enemyInformation.requestedValue.toString().replace("-", "\u2013"), requestedValueTextStyleToUse);
+		this.requestedValueTextMetrics = PIXI.TextMetrics.measureText(enemyInformation.requestedValue.toString(), requestedValueTextStyleToUse);
+		this.requestedValueTextSprite.x = enemyInformation.xPosition + (enemyInformation.width - this.requestedValueTextMetrics.width) / 2;
+		this.requestedValueTextSprite.y = enemyInformation.yPosition + (enemyInformation.height - this.requestedValueTextMetrics.height) / 2;
 		this.requestedValueTextSprite.color = enemyColor == "blind" ? "#eeeeee" : (maximum + minimum) / 2 >= 0.5 ? "#000000" : "#ffffff";
 
 		// create text sprite for sender name
 		let senderNameTextStyleToUse = textStyles.SIZE_16_FONT;
-		this.senderNameTextSprite = new PIXI.Text(senderName.toString(), senderNameTextStyleToUse);
-		this.senderNameTextMetrics = PIXI.TextMetrics.measureText(senderName.toString(), senderNameTextStyleToUse);
-		this.senderNameTextSprite.x = xPosition + (width - this.senderNameTextMetrics.width) / 2;
-		this.senderNameTextSprite.y = yPosition + (height - this.senderNameTextMetrics.height) / 2 + 35;
+		this.senderNameTextSprite = new PIXI.Text(enemyInformation.senderName.toString(), senderNameTextStyleToUse);
+		this.senderNameTextMetrics = PIXI.TextMetrics.measureText(enemyInformation.senderName.toString(), senderNameTextStyleToUse);
+		this.senderNameTextSprite.x = enemyInformation.xPosition + (enemyInformation.width - this.senderNameTextMetrics.width) / 2;
+		this.senderNameTextSprite.y = enemyInformation.yPosition + (enemyInformation.height - this.senderNameTextMetrics.height) / 2 + 35;
 		this.senderNameTextSprite.color = enemyColor == "blind" ? "#eeeeee" : enemyColor;
 	}
 }

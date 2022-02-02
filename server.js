@@ -75,6 +75,8 @@ const LOOP_INTERVAL = 1000 / DESIRED_UPDATES_PER_SECOND;
 var sockets = [];
 var rooms = {};
 
+
+
 var roomIDOfDefaultMultiplayerRoom = "";
 
 const roomTypes = {
