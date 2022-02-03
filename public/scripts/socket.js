@@ -334,6 +334,7 @@ socket.on("currentGameData", (gameData) => {
 					for (let numberToRemoveAsString of renderedEnemiesOnFieldToDelete) {
 						game.enemyRenderStatus[numberToRemoveAsString.toString()] === undefined || multiplayerScreenContainer.removeChild(game.enemyRenderStatus[numberToRemoveAsString.toString()]["enemySprite"]);
 						game.enemyRenderStatus[numberToRemoveAsString.toString()] === undefined || multiplayerScreenContainer.removeChild(game.enemyRenderStatus[numberToRemoveAsString.toString()]["requestedValueTextSprite"]);
+						game.enemyRenderStatus[numberToRemoveAsString.toString()] === undefined || multiplayerScreenContainer.removeChild(game.enemyRenderStatus[numberToRemoveAsString.toString()]["senderNameTextSprite"]);
 						delete game.enemyRenderStatus[numberToRemoveAsString.toString()];
 						game.renderedEnemiesOnField.splice(game.renderedEnemiesOnField.indexOf(numberToRemoveAsString), 1);
 						game.spritesOfRenderedEnemiesOnField.splice(game.spritesOfRenderedEnemiesOnField.indexOf(numberToRemoveAsString), 1);

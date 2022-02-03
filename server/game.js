@@ -199,7 +199,7 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 						defaultSpeed: Math.random() * 2 + 1, 
 						defaultAttack: 1, 
 						defaultHealth: 1, 
-						enemyNumber: "s" + room.data.currentGame.enemiesCreated + 1,
+						enemyNumber: "s" + room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated + 1,
 						senderName: nameToPutOnEnemy,
 					});
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated++;
