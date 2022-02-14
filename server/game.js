@@ -1106,7 +1106,7 @@ function calculateEnemyPositionMultiplier(sPosition) {
 }
 
 function calculateComboMultiplier(combo) {
-	return Math.pow(1.1, Math.max(combo, 0));
+	return Math.pow(1.1, Math.min(Math.max(combo, 0), 5000));
 }
 
 function convertTermIDToTerm(id) {

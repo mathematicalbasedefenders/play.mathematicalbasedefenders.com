@@ -7,9 +7,9 @@ class Enemy {
 		this.width = enemyInformation.width;
 		this.height = enemyInformation.height;
 		this.requestedValue = enemyInformation.requestedValue.toString();
-		this.defaultSpeed = enemyInformation.defaultSpeed;
-		this.defaultAttack = enemyInformation.defaultAttack;
-		this.defaultHealth = enemyInformation.defaultHealth;
+		this.defaultSpeed = enemyInformation.defaultSpeed || 1;
+		this.defaultAttack = enemyInformation.defaultAttack || 1;
+		this.defaultHealth = enemyInformation.defaultHealth || 1;
 		this.enemyNumber = enemyInformation.enemyNumber;
 		this.sPosition = enemyInformation.sPosition || 10;
 		this.reachedBase = false;
