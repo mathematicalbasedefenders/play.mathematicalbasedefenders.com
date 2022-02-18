@@ -513,3 +513,7 @@ credentials/
 
 # MacOS System files
 .DS_Store
+
+
+# other stuff
+.VSCodeCounter

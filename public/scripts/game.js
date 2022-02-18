@@ -36,6 +36,7 @@ if (
 const screens = {
 	MAIN_MENU_SCREEN: "mainMenuScreen",
 	INFORMATION_SCREEN: "informationScreen",
+	SINGLEPLAYER_LOBBY_SCREEN: "singleplayerLobbyScreen",
 	SINGLEPLAYER_GAME_SCREEN: "singleplayerGameScreen",
 	MULTIPLAYER_LOBBY_SCREEN: "multiplayerLobbyScreen",
 	DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN: "defaultMultiplayerRoomLobbyScreen",
@@ -504,6 +505,7 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
 	$("#hub-container").hide(0);
 	$("#main-menu-screen-container").hide(0);
 	$("#information-screen-container").hide(0);
+	$("#singleplayer-lobby-screen-container").hide(0);
 	$("#multiplayer-lobby-screen-container").hide(0);
 	$("#default-multiplayer-room-lobby-screen-container").hide(0);
 	$("#statistics-screen-container").hide(0);
@@ -534,6 +536,12 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
 			// set properties
 			$("#hub-container").show(0);
 			$("#information-screen-container").show(0);
+			break;
+		}
+		case screens.SINGLEPLAYER_LOBBY_SCREEN: {
+			document.body.style.overflow = "none";
+			$("#hub-container").show(0);
+			$("#singleplayer-lobby-screen-container").show(0);
 			break;
 		}
 		case screens.SINGLEPLAYER_GAME_SCREEN: {
@@ -714,8 +722,8 @@ function processKeypress(event) {
 	}
 }
 
-function startSingleplayerGame() {
-	socket.emit("createAndJoinSingleplayerRoom");
+function startSingleplayerGame(mode) {
+	socket.emit("createAndJoinSingleplayerRoom", mode);
 	setPropertiesAndChangeScreen(screens.SINGLEPLAYER_GAME_SCREEN, true);
 }
 

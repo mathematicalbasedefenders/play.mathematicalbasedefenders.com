@@ -50,9 +50,16 @@
 					</div>
 
 					<div id="main-menu-screen-button-container">
-						<button
+						<!-- <button
 							class="main-menu-screen-button"
 							onClick="startSingleplayerGame();"
+							onMouseEnter="$('#bottom-toolbar-text').text('Test your math skills and maybe get on the leaderboards.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Singleplayer -->
+						<button
+							class="main-menu-screen-button"
+							onClick="setPropertiesAndChangeScreen(screens.SINGLEPLAYER_LOBBY_SCREEN);"
 							onMouseEnter="$('#bottom-toolbar-text').text('Test your math skills and maybe get on the leaderboards.')"
 							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
 						>
@@ -128,6 +135,40 @@
 						</div>
 					</div>
 				</div>
+
+
+				<!-- Singleplayer Lobby -->
+				<div id="singleplayer-lobby-screen-container">
+					<div id="singleplayer-lobby-screen-button-container">
+						<button
+						class="singleplayer-lobby-screen-button"
+						onClick="startSingleplayerGame('easy');"
+						onMouseEnter="$('#bottom-toolbar-text').text('Play on the easy mode.')"
+						onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Easy
+						</button>
+						<br /><br />
+						<button
+							class="singleplayer-lobby-screen-button"
+							onClick="startSingleplayerGame('standard');"
+							onMouseEnter="$('#bottom-toolbar-text').text('Play on the (hard) standard mode.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Standard
+						</button>
+						<br /><br />
+						<button
+							class="singleplayer-lobby-screen-button"
+							onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+							onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Back
+						</button>
+					</div>
+				</div>
+
 
 				<!-- Multiplayer Lobby -->
 				<div id="multiplayer-lobby-screen-container">

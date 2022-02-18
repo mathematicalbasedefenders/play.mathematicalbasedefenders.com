@@ -22,7 +22,7 @@ app.use(
 				...helmet.contentSecurityPolicy.getDefaultDirectives(),
 				"connect-src": ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com", "cdnjs.cloudflare.com"],
 				"script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "pixijs.download", "code.jquery.com", "www.googletagmanager.com", "cdnjs.cloudflare.com"],
-				"script-src-attr" :["'self'","'unsafe-inline'"],
+				"script-src-attr": ["'self'", "'unsafe-inline'"],
 			},
 		},
 		crossOriginEmbedderPolicy: false,
@@ -43,8 +43,8 @@ const bcrypt = require("bcrypt");
 
 // anti xss
 const createDOMPurify = require("dompurify");
-const { JSDOM } = require('jsdom');
-const window = new JSDOM('').window;
+const { JSDOM } = require("jsdom");
+const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
 
 // anti injection
@@ -74,8 +74,6 @@ const LOOP_INTERVAL = 1000 / DESIRED_UPDATES_PER_SECOND;
 // variables
 var sockets = [];
 var rooms = {};
-
-
 
 var roomIDOfDefaultMultiplayerRoom = "";
 
@@ -179,7 +177,7 @@ function update(deltaTime) {
 					game.computeUpdate(rooms[roomID], deltaTime);
 					io.to(roomID).emit("currentGameData", JSON.stringify(rooms[roomID].data));
 					dataSentWithoutCompression += utilities.getSizeInBytes(JSON.stringify(rooms[roomID].data));
-					// why?
+					//FIXME: why here?
 					for (let enemy in rooms[roomID].data.currentGame.enemiesOnField) {
 						if (rooms[roomID].data.currentGame.enemiesOnField[enemy].toDestroy) {
 							delete rooms[roomID].data.currentGame.enemiesOnField[enemy];
@@ -437,29 +435,33 @@ io.on("connection", (socket) => {
 	/**
 	 * Creates a singleplayer room.
 	 */
-	socket.on("createAndJoinSingleplayerRoom", async () => {
+	socket.on("createAndJoinSingleplayerRoom", async (gameMode) => {
 		if (socket.currentRoomSocketIsIn == "") {
-			let roomID = undefined;
-			while (roomID === undefined || roomID in rooms) {
-				roomID = utilities.generateRoomID();
+			if (gameMode == "easy" || gameMode == "standard") {
+				let roomID = undefined;
+				while (roomID === undefined || roomID in rooms) {
+					roomID = utilities.generateRoomID();
+				}
+
+				socket.currentRoomSocketIsIn = roomID;
+				socket.socketIsHostOfRoomItIsIn = true;
+
+				rooms[roomID] = {
+					id: roomID,
+					type: roomTypes.SINGLEPLAYER,
+					host: socket,
+					userIDOfHost: socket.userIDOfSocketOwner,
+					playing: false,
+					data: game.createNewSingleplayerGameData(modes.SINGLEPLAYER, roomID, gameMode),
+				};
+
+				socket.join(roomID);
+				initializeSingleplayerGame(rooms[socket.currentRoomSocketIsIn], gameMode);
+				socket.ownerOfSocketIsPlaying = true;
+				rooms[socket.currentRoomSocketIsIn].playing = true;
+			} else {
+				console.error(error.addMetadata(gameMode + " is not a valid Singleplayer game mode!", "error"));
 			}
-
-			socket.currentRoomSocketIsIn = roomID;
-			socket.socketIsHostOfRoomItIsIn = true;
-
-			rooms[roomID] = {
-				id: roomID,
-				type: roomTypes.SINGLEPLAYER,
-				host: socket,
-				userIDOfHost: socket.userIDOfSocketOwner,
-				playing: false,
-				data: game.createNewSingleplayerGameData(modes.SINGLEPLAYER, roomID),
-			};
-
-			socket.join(roomID);
-			initializeSingleplayerGame(rooms[socket.currentRoomSocketIsIn]);
-			socket.ownerOfSocketIsPlaying = true;
-			rooms[socket.currentRoomSocketIsIn].playing = true;
 		} else {
 			console.log(log.addMetadata("Socket is already in a room!", "info"));
 		}
@@ -635,7 +637,7 @@ function formatPlayerName(rank, username) {
 	return "#000000";
 }
 
-function initializeSingleplayerGame(room) {
+function initializeSingleplayerGame(room, mode) {
 	for (let i = 0; i < 49; i++) {
 		room.data.currentGame.tilesOnBoard[i] = new tile.Tile(game.generateRandomTileTermID(room), i, false, room.data.currentGame.tilesCreated + 1);
 		room.data.currentGame.tilesCreated++;

@@ -9,7 +9,6 @@ const enemy = require("./game/enemy.js");
 const tile = require("./game/tile.js");
 const leveling = require("./game/leveling.js");
 
-
 const mexp = require("math-expression-evaluator");
 
 const TERMS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "-", "*", "/", "=", "a", "b", "c", "d", "n", "x", "y", "z"];
@@ -18,9 +17,6 @@ const TERMS_AS_BEAUTIFUL_STRINGS = ["0", "1", "2", "3", "4", "5", "6", "7", "8",
 const FRAMES_PER_SECOND = 60;
 
 const schemas = require("./core/schemas.js");
-
-
-
 
 var roomTypes = {
 	SINGLEPLAYER: "singleplayer",
@@ -34,9 +30,29 @@ var modes = {
 	MULTIPLAYER: "multiplayer",
 };
 
+const SINGLEPLAYER_GAME_SETTINGS = {
+	easy: {
+		allowedComboTime: 10000,
+		enemyGenerationThreshold: 0.975,
+		enemyGenerationInterval: 50,
+		enemySpeedMultiplier: 0.5,
+		enemyLimit: 5,
+	},
+	standard: {
+		allowedComboTime: 5000,
+		enemyGenerationThreshold: 0.95,
+		enemyGenerationInterval: 50,
+		enemySpeedMultiplier: 1,
+		enemyLimit: 1000,
+	},
+};
+
 // MAJOR
 async function computeUpdate(room, deltaTimeInMilliseconds) {
 	// other stats
+
+	let gameMode = room.data.gameMode;
+
 
 	// rooms
 	if (room.type == modes.SINGLEPLAYER) {
@@ -63,25 +79,25 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 
 				let finalGameData = JSON.parse(JSON.stringify(room.data));
 
-				socketOfGamePlayed.emit("currentGameData", JSON.stringify(finalGameData))
-				socketOfGamePlayed.to(room.id).emit("currentGameData", JSON.stringify(finalGameData))
+				socketOfGamePlayed.emit("currentGameData", JSON.stringify(finalGameData));
+				socketOfGamePlayed.to(room.id).emit("currentGameData", JSON.stringify(finalGameData));
 
 				room.data.currentGame.gameOverScreenShown = true;
 
 				room.host.leave(room.id);
 				socketOfGamePlayed.currentRoomSocketIsIn = "";
-				submitSingleplayerGame(room.host, finalGameData.currentGame, room.userIDOfHost);
+				submitSingleplayerGame(room.host, finalGameData.currentGame, room.userIDOfHost, room.data.gameMode);
 			}
 
 			// combo
-			if (room.data.currentGame.currentCombo > -1 && room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > 5000) {
+			if (room.data.currentGame.currentCombo > -1 && room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > SINGLEPLAYER_GAME_SETTINGS[gameMode].allowedComboTime) {
 				room.data.currentGame.currentCombo = -1;
 			}
 
 			// enemy management
 			// create
-			if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > 50) {
-				if (Math.random() > 0.95) {
+			if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > SINGLEPLAYER_GAME_SETTINGS[gameMode].enemyGenerationInterval) {
+				if (Math.random() > SINGLEPLAYER_GAME_SETTINGS[gameMode].enemyGenerationThreshold && room.data.currentGame.enemiesOnField.length < SINGLEPLAYER_GAME_SETTINGS[gameMode].enemyLimit) {
 					// room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy(1360, 120, 100, 100, generateRandomEnemyTerm(), Math.random() * 2 + 1, 1, 1, room.data.currentGame.enemiesCreated + 1);
 					room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy({
 						xPosition: 1360,
@@ -89,14 +105,14 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 						width: 100,
 						height: 100,
 						requestedValue: generateRandomEnemyTerm(),
-						defaultSpeed: Math.random() * 2 + 1, 
-						defaultAttack: 1, 
-						defaultHealth: 1, 
+						defaultSpeed: SINGLEPLAYER_GAME_SETTINGS[gameMode].enemySpeedMultiplier * (Math.random() * 2 + 1),
+						defaultAttack: 1,
+						defaultHealth: 1,
 						enemyNumber: room.data.currentGame.enemiesCreated + 1,
 					});
 					room.data.currentGame.enemiesCreated++;
 				}
-				room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= 50;
+				room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= SINGLEPLAYER_GAME_SETTINGS[gameMode].enemyGenerationInterval;
 			}
 			// move
 			for (i = 0; i < room.data.currentGame.enemiesOnField.length; i++) {
@@ -106,7 +122,7 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 						room.data.currentGame.enemiesOnField[i].reachedBase = true;
 						room.data.currentGame.baseHealth -= 1;
 					}
-					if (room.data.currentGame.enemiesOnField[i].sPosition < -0.5) {
+					if (room.data.currentGame.enemiesOnField[i].sPosition < -0.1) {
 						room.data.currentGame.enemiesOnField.splice(i, 1);
 					}
 				}
@@ -143,7 +159,7 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 
 			// game stats (not shown)
 			room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds += deltaTimeInMilliseconds;
-			
+
 			// technical stats
 			room.data.currentGame.framesRenderedSinceGameStart += framesRendered;
 
@@ -159,9 +175,9 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 						width: 100,
 						height: 100,
 						requestedValue: generateRandomEnemyTerm(),
-						defaultSpeed: Math.random() * 2 + 1, 
-						defaultAttack: 1, 
-						defaultHealth: 1, 
+						defaultSpeed: Math.random() * 2 + 1,
+						defaultAttack: 1,
+						defaultHealth: 1,
 						enemyNumber: room.data.currentGame.globalEnemiesCreated + 1,
 					});
 					room.data.currentGame.globalEnemiesCreated++;
@@ -196,9 +212,9 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 						width: 100,
 						height: 100,
 						requestedValue: generateRandomEnemyTerm(),
-						defaultSpeed: Math.random() * 2 + 1, 
-						defaultAttack: 1, 
-						defaultHealth: 1, 
+						defaultSpeed: Math.random() * 2 + 1,
+						defaultAttack: 1,
+						defaultHealth: 1,
 						enemyNumber: "s" + room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated + 1,
 						senderName: nameToPutOnEnemy,
 					});
@@ -206,19 +222,15 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.sentEnemiesToSpawn--;
 				}
 
-
 				// create global if there is one
 				if (room.data.currentGame.globalEnemyToAdd != null) {
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesOnField[room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated] = _.cloneDeep(room.data.currentGame.globalEnemyToAdd);
 					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesCreated++;
 				}
 
-
 				// calculate xp
-				room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.totalExperiencePointsEarned = room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSent + Math.floor(room.data.currentGame.currentInGameTimeInMilliseconds/2500);
-
-
-
+				room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.totalExperiencePointsEarned =
+					room.data.currentGame.players[playersAliveThisUpdate[i]].currentGame.enemiesSent + Math.floor(room.data.currentGame.currentInGameTimeInMilliseconds / 2500);
 
 				// move
 
@@ -265,17 +277,19 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 	}
 }
 
-function createNewSingleplayerGameData(mode, roomID) {
+function createNewSingleplayerGameData(mode, roomID, gameMode) {
 	switch (mode) {
 		case modes.SINGLEPLAYER: {
 			var data = {
 				id: roomID,
 
 				mode: mode,
+				gameMode: gameMode,
 
 				currentGame: {
 					mode: mode,
 
+					gameMode: gameMode,
 					currentScore: 0,
 					currentInGameTimeInMilliseconds: 0,
 					actionsPerformed: 0,
@@ -333,9 +347,9 @@ function createNewDefaultMultiplayerGameData(roomID, socket) {
 					currentCombo: -1,
 
 					enemiesPending: 0,
-		sentEnemiesToSpawn: 0,
-		enemySenders: [],
-		
+					sentEnemiesToSpawn: 0,
+					enemySenders: [],
+
 					enemiesCreated: 0,
 					enemiesKilled: 0,
 					enemiesOnField: [],
@@ -436,68 +450,80 @@ function createNewDefaultMultiplayerRoomPlayerObject(socket) {
 
 function startSingleplayerGame(roomID) {}
 
-async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner) {
-	if (userIDOfSocketOwner === undefined) {
-		console.log(log.addMetadata("A guest user submitted a score of " + finalGameData.currentScore, "info"));
-		socket.emit("finalRanks", false, false, false);
-		return;
-	}
+async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner, gameMode) {
+	if (gameMode == "standard") {
+		if (userIDOfSocketOwner === undefined) {
+			console.log(log.addMetadata("A guest user submitted a score of " + finalGameData.currentScore, "info"));
+			socket.emit("finalRanks", false, false, false);
+			return;
+		}
 
-	let finalScore = finalGameData.currentScore;
-	let userIDAsString = userIDOfSocketOwner.toString();
-	let usernameOfSocketOwner = JSON.parse(JSON.stringify(await schemas.getUserModel().findById(userIDAsString))).username;
-	let personalBestBroken = false;
+		let finalScore = finalGameData.currentScore;
+		let userIDAsString = userIDOfSocketOwner.toString();
+		let usernameOfSocketOwner = JSON.parse(JSON.stringify(await schemas.getUserModel().findById(userIDAsString))).username;
+		let personalBestBroken = false;
 
-	let playerDataOfSocketOwner = await schemas.getUserModel().findById(userIDAsString);
+		let playerDataOfSocketOwner = await schemas.getUserModel().findById(userIDAsString);
 
-	if (playerDataOfSocketOwner["statistics"]["personalBestScore"] === undefined) {
-		// personal best field doesn't exist
-		// so create one, and assign the score to the field
-		await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true }, (error3, result3) => {
-			if (error3) {
-				// console.log(log.addMetadata("ERROR from Socket " + socket.id + " (" + usernameOfSocketOwner + "): ", "info"));
-				console.error(log.addMetadata(error3, "error"));
-			}
-			return result3;
-		});
-
-		personalBestBroken = true;
-	} else {
-		// personal best field exists
-
-		if (finalScore > playerDataOfSocketOwner["statistics"]["personalBestScore"]) {
-			// score is higher than personal best
-
-			await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true }, (error4, result4) => {
-				if (error4) {
-					console.error(log.addMetadata(error4, "error"));
+		if (playerDataOfSocketOwner["statistics"]["personalBestScore"] === undefined) {
+			// personal best field doesn't exist
+			// so create one, and assign the score to the field
+			await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true }, (error3, result3) => {
+				if (error3) {
+					// console.log(log.addMetadata("ERROR from Socket " + socket.id + " (" + usernameOfSocketOwner + "): ", "info"));
+					console.error(log.addMetadata(error3, "error"));
 				}
-				return result4;
+				return result3;
 			});
 
 			personalBestBroken = true;
+		} else {
+			// personal best field exists
+
+			if (finalScore > playerDataOfSocketOwner["statistics"]["personalBestScore"]) {
+				// score is higher than personal best
+
+				await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true }, (error4, result4) => {
+					if (error4) {
+						console.error(log.addMetadata(error4, "error"));
+					}
+					return result4;
+				});
+
+				personalBestBroken = true;
+			}
 		}
+
+		// global leaderboards
+		let globalRank = await checkAndModifyLeaderboards(finalScore, usernameOfSocketOwner, userIDOfSocketOwner, userIDAsString);
+		socket.emit("finalRanks", personalBestBroken, globalRank, true);
+		console.log(
+			log.addMetadata(
+				globalRank == -1
+					? "User " + usernameOfSocketOwner + " submitted a score of " + finalScore + " on a Standard Singleplayer game."
+					: "User " + usernameOfSocketOwner + " submitted a score of " + finalScore + " and reached #" + globalRank + " on a Standard Singleplayer game.",
+				"info"
+			)
+		);
+
+		if (globalRank != -1) {
+			socket.broadcast.emit("createToastNotification", {
+				color: "#8f8118",
+				message: `${usernameOfSocketOwner} just reached rank #${globalRank} on a Standard Singleplayer game with a score of ${finalScore} points.`,
+				position: "topRight",
+			});
+		}
+
+		// levels
+		let levelStatus = await leveling.giveExperiencePointsToPlayerID(userIDAsString, Math.floor(finalScore / 100));
+		socket.emit("levelStatus", levelStatus);
+		if (levelStatus.leveledUp) {
+			console.log(log.addMetadata(`User ${usernameOfSocketOwner} leveled up from Level ${levelStatus.currentLevel - 1} to Level ${levelStatus.currentLevel}`, "info"));
+		}
+	} else if (gameMode == "easy"){
+		//TODO: Add functionality.
+		console.log("Easy mode played Score: " + finalGameData.currentScore);
 	}
-
-	// global leaderboards
-	let globalRank = await checkAndModifyLeaderboards(finalScore, usernameOfSocketOwner, userIDOfSocketOwner, userIDAsString);
-	socket.emit("finalRanks", personalBestBroken, globalRank, true);
-	console.log(log.addMetadata(globalRank == -1 ? "User " + usernameOfSocketOwner + " submitted a score of " + finalScore : "User " + usernameOfSocketOwner + " submitted a score of " + finalScore + " and reached #" + globalRank, "info"));
-
-	if (globalRank != -1){
-		socket.broadcast.emit("createToastNotification", {
-			color: "#8f8118",
-			message: `${usernameOfSocketOwner} just reached rank #${globalRank} on a Singleplayer game with a score of ${finalScore} points.`,
-			position: "topRight",
-		});
-	}
-
-
-	// levels
-	let levelStatus = await leveling.giveExperiencePointsToPlayerID(userIDAsString, Math.floor(finalScore / 100));
-	socket.emit("levelStatus", levelStatus);
-	if (levelStatus.leveledUp) { console.log(log.addMetadata(`User ${usernameOfSocketOwner} leveled up from Level ${levelStatus.currentLevel-1} to Level ${levelStatus.currentLevel}`,"info")); }
-
 }
 
 async function checkAndModifyLeaderboards(score, username, userID, userIDAsString) {
@@ -765,7 +791,6 @@ function evaluateProblem(room, socket) {
 							problemOnLeftSide = temp;
 						}
 
-
 						if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room) != null) {
 							switch (problemOnLeftSide) {
 								case "a": {
@@ -872,7 +897,6 @@ function evaluateProblem(room, socket) {
 									if (room.data.currentGame.players[socket.id].currentGame.enemiesPending <= 0) {
 										room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemiesPending += 1;
 										room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemySenders.push(room.data.currentGame.players[socket.id].currentGame.playerName);
-								
 									} else {
 										room.data.currentGame.players[socket.id].currentGame.enemiesPending -= 1;
 									}
@@ -931,8 +955,6 @@ function evaluateProblem(room, socket) {
 								room.data.currentGame.players[socket.id].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
 
 								room.data.currentGame.players[socket.id].currentGame.currentCombo++;
-
-
 
 								room.data.currentGame.players[socket.id].currentGame.enemiesSentIndicators.push({
 									number: room.data.currentGame.players[socket.id].currentGame.enemiesKilled + 1,
@@ -999,7 +1021,6 @@ function evaluateProblem(room, socket) {
 						problemOnLeftSide = temp;
 					}
 
-
 					if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room, socket) != null) {
 						switch (problemOnLeftSide) {
 							case "a": {
@@ -1058,37 +1079,42 @@ function generateRandomTileTermID(room) {
 }
 
 function calculateProblem(problem, room, socket) {
-	if (room.type == "singleplayer"){
-	try {
-		return mexp.eval(
-			problem,
-			[
-				{ type: 3, token: "a", show: "a", value: "a" },
-				{ type: 3, token: "b", show: "b", value: "b" },
-				{ type: 3, token: "c", show: "c", value: "c" },
-				{ type: 3, token: "d", show: "d", value: "d" },
-			],
-			{ a: room.data.currentGame.valueOfVariableA, b: room.data.currentGame.valueOfVariableB, c: room.data.currentGame.valueOfVariableC, d: room.data.currentGame.valueOfVariableD }
-		);
-	} catch (error) {
-		return null;
+	if (room.type == "singleplayer") {
+		try {
+			return mexp.eval(
+				problem,
+				[
+					{ type: 3, token: "a", show: "a", value: "a" },
+					{ type: 3, token: "b", show: "b", value: "b" },
+					{ type: 3, token: "c", show: "c", value: "c" },
+					{ type: 3, token: "d", show: "d", value: "d" },
+				],
+				{ a: room.data.currentGame.valueOfVariableA, b: room.data.currentGame.valueOfVariableB, c: room.data.currentGame.valueOfVariableC, d: room.data.currentGame.valueOfVariableD }
+			);
+		} catch (error) {
+			return null;
+		}
+	} else {
+		try {
+			return mexp.eval(
+				problem,
+				[
+					{ type: 3, token: "a", show: "a", value: "a" },
+					{ type: 3, token: "b", show: "b", value: "b" },
+					{ type: 3, token: "c", show: "c", value: "c" },
+					{ type: 3, token: "d", show: "d", value: "d" },
+				],
+				{
+					a: room.data.currentGame.players[socket.id].currentGame.valueOfVariableA,
+					b: room.data.currentGame.players[socket.id].currentGame.valueOfVariableB,
+					c: room.data.currentGame.players[socket.id].currentGame.valueOfVariableC,
+					d: room.data.currentGame.players[socket.id].currentGame.valueOfVariableD,
+				}
+			);
+		} catch (error) {
+			return null;
+		}
 	}
-} else {
-	try {
-		return mexp.eval(
-			problem,
-			[
-				{ type: 3, token: "a", show: "a", value: "a" },
-				{ type: 3, token: "b", show: "b", value: "b" },
-				{ type: 3, token: "c", show: "c", value: "c" },
-				{ type: 3, token: "d", show: "d", value: "d" },
-			],
-			{ a: room.data.currentGame.players[socket.id].currentGame.valueOfVariableA, b: room.data.currentGame.players[socket.id].currentGame.valueOfVariableB, c: room.data.currentGame.players[socket.id].currentGame.valueOfVariableC, d: room.data.currentGame.players[socket.id].currentGame.valueOfVariableD }
-		);
-	} catch (error) {
-		return null;
-	}
-}
 }
 
 function calculateProblemLengthMultiplier(problemLength) {

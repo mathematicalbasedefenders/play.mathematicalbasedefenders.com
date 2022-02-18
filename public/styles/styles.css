@@ -297,6 +297,37 @@ kbd {
 }
 
 /*
+	SINGLEPLAYER LOBBY
+*/
+
+#singleplayer-lobby-screen-button-container {
+	position: absolute;
+	left: 0.5vw;
+	bottom: 10vh;
+	margin-bottom: 1vh;
+	margin-left: 2vw;
+}
+
+.singleplayer-lobby-screen-button {
+	width: 15.625vw;
+	height: 50px;
+	border-top: none;
+	border-bottom: none;
+	border-right: none;
+	border-left: 2px solid #000000;
+	text-align: left;
+	font-size: 24px;
+}
+
+.singleplayer-lobby-screen-button {
+	transition: all 0.1s ease-out;
+}
+
+.singleplayer-lobby-screen-button:hover {
+	box-shadow: inset 15.625vw 0 0 #b6b6b6;
+}
+
+/*
 	MULTIPLAYER LOBBY
 */
 

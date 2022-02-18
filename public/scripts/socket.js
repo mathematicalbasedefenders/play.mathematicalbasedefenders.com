@@ -30,9 +30,9 @@ socket.on("currentGameData", (gameData) => {
 				singleplayerScreenContainerItems.valueOfVariableDText.text = currentGameData.currentGame.valueOfVariableD === undefined ? "d = ?" : "d = " + currentGameData.currentGame.valueOfVariableD;
 				singleplayerScreenContainerItems.currentTimeText.text = turnMillisecondsToTime(currentGameData.currentGame.currentInGameTimeInMilliseconds);
 				singleplayerScreenContainerItems.currentComboTimeLeftText.text =
-					currentGameData.currentGame.currentCombo < 1 || currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > 5000
+					currentGameData.currentGame.currentCombo < 1 || currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > (currentGameData.currentGame.gameMode == "easy" ? 10000 : 5000)
 						? ""
-						: turnMillisecondsToTime(5000 - currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds);
+						: turnMillisecondsToTime((currentGameData.currentGame.gameMode == "easy" ? 10000 : 5000) - currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds);
 
 				// tiles
 				for (let i = 0; i < 49; i++) {
