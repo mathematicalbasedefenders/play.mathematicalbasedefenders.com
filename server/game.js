@@ -31,15 +31,15 @@ var modes = {
 };
 
 const SINGLEPLAYER_GAME_SETTINGS = {
-	easy: {
-		allowedComboTime: 10000,
+	easyMode: {
+		allowedComboTimeInMilliseconds: 10000,
 		enemyGenerationThreshold: 0.975,
 		enemyGenerationInterval: 50,
 		enemySpeedMultiplier: 0.5,
 		enemyLimit: 5,
 	},
-	standard: {
-		allowedComboTime: 5000,
+	standardMode: {
+		allowedComboTimeInMilliseconds: 5000,
 		enemyGenerationThreshold: 0.95,
 		enemyGenerationInterval: 50,
 		enemySpeedMultiplier: 1,
@@ -90,7 +90,7 @@ async function computeUpdate(room, deltaTimeInMilliseconds) {
 			}
 
 			// combo
-			if (room.data.currentGame.currentCombo > -1 && room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > SINGLEPLAYER_GAME_SETTINGS[gameMode].allowedComboTime) {
+			if (room.data.currentGame.currentCombo > -1 && room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > SINGLEPLAYER_GAME_SETTINGS[gameMode].allowedComboTimeInMilliseconds) {
 				room.data.currentGame.currentCombo = -1;
 			}
 
@@ -451,9 +451,9 @@ function createNewDefaultMultiplayerRoomPlayerObject(socket) {
 function startSingleplayerGame(roomID) {}
 
 async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner, gameMode) {
-	if (gameMode == "standard") {
+	if (gameMode == "standardMode") {
 		if (userIDOfSocketOwner === undefined) {
-			console.log(log.addMetadata("A guest user submitted a score of " + finalGameData.currentScore, "info"));
+			console.log(log.addMetadata("A guest user submitted a score of " + finalGameData.currentScore + "on Standard Mode", "info"));
 			socket.emit("finalRanks", false, false, false);
 			return;
 		}
@@ -465,10 +465,10 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 
 		let playerDataOfSocketOwner = await schemas.getUserModel().findById(userIDAsString);
 
-		if (playerDataOfSocketOwner["statistics"]["personalBestScore"] === undefined) {
+		if (playerDataOfSocketOwner["statistics"]["standardModePersonalBestScore"] === undefined) {
 			// personal best field doesn't exist
 			// so create one, and assign the score to the field
-			await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true }, (error3, result3) => {
+			await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.standardModePersonalBestScore": finalScore } }, { upsert: true }, (error3, result3) => {
 				if (error3) {
 					// console.log(log.addMetadata("ERROR from Socket " + socket.id + " (" + usernameOfSocketOwner + "): ", "info"));
 					console.error(log.addMetadata(error3, "error"));
@@ -480,10 +480,10 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 		} else {
 			// personal best field exists
 
-			if (finalScore > playerDataOfSocketOwner["statistics"]["personalBestScore"]) {
+			if (finalScore > playerDataOfSocketOwner["statistics"]["standardModePersonalBestScore"]) {
 				// score is higher than personal best
 
-				await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.personalBestScore": finalScore } }, { upsert: true }, (error4, result4) => {
+				await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.standardModePersonalBestScore": finalScore } }, { upsert: true }, (error4, result4) => {
 					if (error4) {
 						console.error(log.addMetadata(error4, "error"));
 					}
@@ -495,7 +495,7 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 		}
 
 		// global leaderboards
-		let globalRank = await checkAndModifyLeaderboards(finalScore, usernameOfSocketOwner, userIDOfSocketOwner, userIDAsString);
+		let globalRank = await checkAndModifyLeaderboards(finalScore, usernameOfSocketOwner, userIDOfSocketOwner, userIDAsString, "standardMode");
 		socket.emit("finalRanks", personalBestBroken, globalRank, true);
 		console.log(
 			log.addMetadata(
@@ -520,20 +520,96 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 		if (levelStatus.leveledUp) {
 			console.log(log.addMetadata(`User ${usernameOfSocketOwner} leveled up from Level ${levelStatus.currentLevel - 1} to Level ${levelStatus.currentLevel}`, "info"));
 		}
-	} else if (gameMode == "easy"){
-		//TODO: Add functionality.
-		console.log("Easy mode played Score: " + finalGameData.currentScore);
+	} else if (gameMode == "easyMode"){
+		
+		if (userIDOfSocketOwner === undefined) {
+			console.log(log.addMetadata("A guest user submitted a score of " + finalGameData.currentScore + "on Easy Mode", "info"));
+			socket.emit("finalRanks", false, false, false);
+			return;
+		}
+
+		let finalScore = finalGameData.currentScore;
+		let userIDAsString = userIDOfSocketOwner.toString();
+		let usernameOfSocketOwner = JSON.parse(JSON.stringify(await schemas.getUserModel().findById(userIDAsString))).username;
+		let personalBestBroken = false;
+
+		let playerDataOfSocketOwner = await schemas.getUserModel().findById(userIDAsString);
+
+		if (playerDataOfSocketOwner["statistics"]["easyModePersonalBestScore"] === undefined) {
+			// personal best field doesn't exist
+			// so create one, and assign the score to the field
+			await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.easyModePersonalBestScore": finalScore } }, { upsert: true }, (error3, result3) => {
+				if (error3) {
+					// console.log(log.addMetadata("ERROR from Socket " + socket.id + " (" + usernameOfSocketOwner + "): ", "info"));
+					console.error(log.addMetadata(error3, "error"));
+				}
+				return result3;
+			});
+
+			personalBestBroken = true;
+		} else {
+			// personal best field exists
+
+			if (finalScore > playerDataOfSocketOwner["statistics"]["easyModePersonalBestScore"]) {
+				// score is higher than personal best
+
+				await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { "statistics.easyModePersonalBestScore": finalScore } }, { upsert: true }, (error4, result4) => {
+					if (error4) {
+						console.error(log.addMetadata(error4, "error"));
+					}
+					return result4;
+				});
+
+				personalBestBroken = true;
+			}
+		}
+
+		// global leaderboards
+		let globalRank = await checkAndModifyLeaderboards(finalScore, usernameOfSocketOwner, userIDOfSocketOwner, userIDAsString, "easyMode");
+		socket.emit("finalRanks", personalBestBroken, globalRank, true);
+		console.log(
+			log.addMetadata(
+				globalRank == -1
+					? "User " + usernameOfSocketOwner + " submitted a score of " + finalScore + " on an Easy Singleplayer game."
+					: "User " + usernameOfSocketOwner + " submitted a score of " + finalScore + " and reached #" + globalRank + " on an Easy Singleplayer game.",
+				"info"
+			)
+		);
+
+		if (globalRank != -1) {
+			socket.broadcast.emit("createToastNotification", {
+				color: "#8f8118",
+				message: `${usernameOfSocketOwner} just reached rank #${globalRank} on an Easy Singleplayer game with a score of ${finalScore} points.`,
+				position: "topRight",
+			});
+		}
+
+		// levels
+		let levelStatus = await leveling.giveExperiencePointsToPlayerID(userIDAsString, Math.floor(finalScore / 200));
+		socket.emit("levelStatus", levelStatus);
+		if (levelStatus.leveledUp) {
+			console.log(log.addMetadata(`User ${usernameOfSocketOwner} leveled up from Level ${levelStatus.currentLevel - 1} to Level ${levelStatus.currentLevel}`, "info"));
+		}
 	}
 }
 
-async function checkAndModifyLeaderboards(score, username, userID, userIDAsString) {
+async function checkAndModifyLeaderboards(score, username, userID, userIDAsString, gameMode) {
 	var placePlayerRanked = -1;
 	var placePlayerRankedBefore = -1;
+	let leaderboardsModel;
+	if (gameMode == "easyMode"){
+		leaderboardsModel = schemas.getEasyModeLeaderboardsModel();
+	} else if (gameMode == "standardMode"){
+		leaderboardsModel = schemas.getStandardModeLeaderboardsModel();
+	} else {
+		console.error(log.addMetadata(`${gameMode} is not a valid Singleplayer game mode!`,"error"));
+		return;
+	}
 
 	// main check #1
 
 	for (var i = 1; i <= 50; i++) {
-		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
+		var data = await leaderboardsModel.find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
 				console.error(log.addMetadata(error2.stack, "error"));
 			}
@@ -552,7 +628,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 	// main check #2
 
 	for (var i = 1; i < placePlayerRanked; i++) {
-		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
+		var data = await leaderboardsModel.find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
 				console.error(log.addMetadata(error2.stack, "error"));
 			}
@@ -565,7 +641,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 	// middle check #1
 	// check if player is already on leaderboard but at a lower rank
 	for (var i = placePlayerRanked; i <= 50; i++) {
-		var data = await schemas.getLeaderboardsModel().find({ rankNumber: i }, function (error2, result2) {
+		var data = await leaderboardsModel.find({ rankNumber: i }, function (error2, result2) {
 			if (error2) {
 				console.error(log.addMetadata(error2.stack, "error"));
 			}
@@ -579,8 +655,8 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 
 	if (placePlayerRankedBefore != -1) {
 		for (var i = placePlayerRankedBefore; i < 50; i++) {
-			var data1 = await schemas.getLeaderboardsModel().findOne({ rankNumber: i + 1 });
-			await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
+			var data1 = await leaderboardsModel.findOne({ rankNumber: i + 1 });
+			await leaderboardsModel.findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
 				if (error4) {
 					console.error(log.addMetadata(error4.stack, "error"));
 				}
@@ -592,8 +668,8 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 
 	for (var i = 50; i >= placePlayerRanked; i--) {
 		if (i != 1) {
-			var data1 = await schemas.getLeaderboardsModel().findOne({ rankNumber: i - 1 });
-			await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
+			var data1 = await leaderboardsModel.findOne({ rankNumber: i - 1 });
+			await leaderboardsModel.findOneAndUpdate({ rankNumber: i }, { userIDOfHolder: data1.userIDOfHolder, score: data1.score }, function (error4, result4) {
 				if (error4) {
 					console.error(log.addMetadata(error4.stack, "error"));
 				}
@@ -602,7 +678,7 @@ async function checkAndModifyLeaderboards(score, username, userID, userIDAsStrin
 		}
 	}
 
-	await schemas.getLeaderboardsModel().findOneAndUpdate({ rankNumber: placePlayerRanked }, { userIDOfHolder: userIDAsString, score: score }, function (error5, result5) {
+	await leaderboardsModel.findOneAndUpdate({ rankNumber: placePlayerRanked }, { userIDOfHolder: userIDAsString, score: score }, function (error5, result5) {
 		if (error5) {
 			console.error(log.addMetadata(error5.stack, "error"));
 		}

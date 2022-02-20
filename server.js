@@ -437,7 +437,7 @@ io.on("connection", (socket) => {
 	 */
 	socket.on("createAndJoinSingleplayerRoom", async (gameMode) => {
 		if (socket.currentRoomSocketIsIn == "") {
-			if (gameMode == "easy" || gameMode == "standard") {
+			if (gameMode == "easyMode" || gameMode == "standardMode") {
 				let roomID = undefined;
 				while (roomID === undefined || roomID in rooms) {
 					roomID = utilities.generateRoomID();

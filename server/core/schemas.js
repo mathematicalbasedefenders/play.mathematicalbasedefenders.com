@@ -10,7 +10,8 @@ const UserModelSchema = new Schema({
 	hashedPassword: String,
 	userNumber: Number,
 	statistics: {
-		personalBestScore: Number,
+		easyModePersonalBestScore: Number,
+		standardModePersonalBestScore: Number,
 		gamesPlayed: Number,
 		totalExperiencePoints: Number,
 	},
@@ -27,23 +28,39 @@ const UserModelSchema = new Schema({
 
 const UserModel = mongoose.model("UserModel", UserModelSchema, "users");
 
-const LeaderboardsSchema = new Schema({
+const EasyModeLeaderboardsSchema = new Schema({
 	rankNumber: Number,
 	userIDOfHolder: String,
 	score: Number,
 });
 
-const LeaderboardsModel = mongoose.model("LeaderboardsModel", LeaderboardsSchema, "leaderboards");
+const EasyModeLeaderboardsModel = mongoose.model("EasyModeLeaderboardsModel", EasyModeLeaderboardsSchema, "easyModeLeaderboardsRecords");
+
+
+
+
+const StandardModeLeaderboardsSchema = new Schema({
+	rankNumber: Number,
+	userIDOfHolder: String,
+	score: Number,
+});
+
+const StandardModeLeaderboardsModel = mongoose.model("StandardModeLeaderboardsModel", StandardModeLeaderboardsSchema, "standardModeLeaderboardsRecords");
 
 function getUserModel(){
     return UserModel;
 }
 
-function getLeaderboardsModel(){
-    return LeaderboardsModel;
+function getEasyModeLeaderboardsModel(){
+	return EasyModeLeaderboardsModel;
+}
+
+function getStandardModeLeaderboardsModel(){
+    return StandardModeLeaderboardsModel;
 }
 
 module.exports = {
     getUserModel,
-    getLeaderboardsModel,
+	getEasyModeLeaderboardsModel,
+    getStandardModeLeaderboardsModel,
 }
