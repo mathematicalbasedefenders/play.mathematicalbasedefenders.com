@@ -630,7 +630,7 @@ function formatPlayerName(rank, username) {
 	} else if (rank == playerRanks.CONTRIBUTOR) {
 		return "#4070ff";
 	} else if (rank == playerRanks.TESTER) {
-		return "0194ff";
+		return "#0194ff";
 	} else if (rank == playerRanks.DONATOR) {
 		return "#1dc444";
 	}
