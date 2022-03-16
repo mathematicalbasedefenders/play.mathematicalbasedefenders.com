@@ -52,4 +52,4 @@ function getLevel(experiencePoints){
 
 }
 
-module.exports = { giveExperiencePointsToPlayerID }
+module.exports = { giveExperiencePointsToPlayerID, getLevel }

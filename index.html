@@ -25,7 +25,7 @@
 			</div>
 
 			<div id="status-bar-container">
-				<div id="status-bar-content-container">Running at <span id="frames-per-second"></span> frames per second. | <span id="online-players">?</span> online players</div>
+				<div id="status-bar-content-container"><span id="frames-per-second"></span> FPS | <span id="online-players"></span> online players</div>
 			</div>
 
 			<div id="text-modal-container">
@@ -45,6 +45,11 @@
 			<div id="hub-container">
 				<!-- Main menu -->
 				<div id="main-menu-screen-container">
+
+					<div id="top-bar-container" style="float:right;">
+						<span id="player-rank"></span> <span id="player-name"></span> | <span id="secondary-top-bar-container"><button style="border-style: none;background-color: #eeeeee;" onClick="setPropertiesAndChangeScreen(screens.SETTINGS_SCREEN);setPropertiesAndChangeSettingsScreen(settingsScreens.ONLINE_SETTINGS_SCREEN);">Click here to log in!</button></span>
+					</div>
+
 					<div id="mathematical-base-defenders-logo-container">
 						<img src="/assets/images/mathematicalbasedefenders.png" />
 					</div>
@@ -195,6 +200,7 @@
 
 				<!-- Default Multiplayer Room Lobby-->
 				<div id="default-multiplayer-room-lobby-screen-container">
+
 					<div class="multiplayer-room-player-list-container">
 						<div class="multiplayer-room-player-list">
 							<p id="default-multiplayer-room-player-list"></p>
@@ -212,6 +218,8 @@
 						</div>
 					</div>
 
+					Multiplayer is in its testing stage. Report issues or suggest features <a href="https://github.com/mathematicalbasedefenders/issuetracker">here</a>.
+					<br>
 					<p id="default-multiplayer-room-status-text">Waiting for more players...</p>
 					<br /><br />
 					<div class="last-game-ranks-content-container">
@@ -469,7 +477,7 @@
 						</div>
 					</div>
 					<div id="game-over-screen-navigation-button-container">
-						<button class="game-over-screen-navigation-button" onClick="startSingleplayerGame();" onMouseEnter="$('#bottom-toolbar-text').text('Play another singleplayer game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+						<button class="game-over-screen-navigation-button" onClick="startSingleplayerGame(game.lastSingleplayerGameModePlayed);" onMouseEnter="$('#bottom-toolbar-text').text('Play another singleplayer game.')" onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
 							&nbsp;Retry
 						</button>
 

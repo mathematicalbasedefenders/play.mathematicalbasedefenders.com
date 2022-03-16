@@ -98,6 +98,7 @@ var game = {
 	cachedLengthOfOpponentGameInstances: 0,
 	toastNotifications: {},
 	toastNotificationsCreated: 0,
+	lastSingleplayerGameModePlayed: null,
 };
 
 
@@ -412,7 +413,7 @@ let resize = function resize() {
 
 window.onload = (() => {
 	$("#loading-screen-text").html("Mathematical Base Defenders is in its early development stage.<br>Features may not work unexpectedly, and current product is not indicative of final product.<br><br>Mathematical Base Defenders is <span style='color:#ff0000;background-color:#000000;'>not</span> a substitute for a legitimate math tutor.");
-	$("#loading-screen-container").delay(5000).fadeOut(1000).hide(0);
+	$("#loading-screen-container").delay(2000).fadeOut(1000).hide(0);
 });
 
 
@@ -724,6 +725,7 @@ function processKeypress(event) {
 
 function startSingleplayerGame(mode) {
 	socket.emit("createAndJoinSingleplayerRoom", mode);
+	game.lastSingleplayerGameModePlayed = mode;
 	setPropertiesAndChangeScreen(screens.SINGLEPLAYER_GAME_SCREEN, true);
 }
 

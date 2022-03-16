@@ -363,6 +363,7 @@ socket.on("finalRanks", (personalBestBroken, finalGlobalRank, scoreSaved) => {
 socket.on("levelStatus", (levelStatus) => {
 	if (levelStatus.leveledUp) {
 		showTextModal(`You have leveled up from Level ${levelStatus.currentLevel - 1} to Level ${levelStatus.currentLevel}`, "Leveled Up!");
+		$("#secondary-top-bar-container").text(`Level ${levelStatus.currentLevel}`);
 	}
 });
 
@@ -435,6 +436,11 @@ socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
 socket.on("updateText", (selector, text) => {
 	$(selector).text(text);
 });
+
+socket.on("updateCSS", (selector, property, value) => {
+	$(selector).css({[property]: value});
+});
+
 
 socket.on("createToastNotification", (options) => {
 	createToastNotification(options)

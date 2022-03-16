@@ -60,9 +60,11 @@ const configuration = require("./server/configuration.js");
 const game = require("./server/game.js");
 const utilities = require("./server/utilities.js");
 
+
 const schemas = require("./server/core/schemas.js");
 const log = require("./server/core/log.js");
 
+const leveling = require("./server/game/leveling.js");
 const tile = require("./server/game/tile.js");
 
 // other stuff
@@ -302,9 +304,17 @@ io.on("connection", (socket) => {
 	while (toBeGuestName in guests) {
 		toBeGuestName = utilities.generateGuestName();
 	}
-	socket.guestNameOfSocketOwner = toBeGuestName;
 
-	socket.playerData; // dont use this
+	socket.guestNameOfSocketOwner = toBeGuestName;
+	io.emit("updateText", "#player-name", socket.guestNameOfSocketOwner);
+
+	socket.on("requestData", (data) => {
+		switch (data) {
+			case "name": {
+				return socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner;
+			}
+		}
+	});
 
 	// disconnect
 	socket.on("disconnect", () => {
@@ -391,10 +401,10 @@ io.on("connection", (socket) => {
 			if (/^[a-zA-Z0-9_]*$/g.test(username)) {
 				decodedPassword = new Buffer.from(new Buffer.from(new Buffer.from(new Buffer.from(encodedPassword, "base64").toString(), "base64").toString(), "base64").toString(), "base64").toString();
 				decodedPassword = DOMPurify.sanitize(mongoDBSanitize(decodedPassword));
-				socket.playerData = await schemas.getUserModel().findOne({ username: username });
+				socket.playerDataOfSocketOwner = await schemas.getUserModel().findOne({ username: username });
 
-				if (socket.playerData) {
-					bcrypt.compare(decodedPassword, socket.playerData.hashedPassword, (passwordError, passwordResult) => {
+				if (socket.playerDataOfSocketOwner) {
+					bcrypt.compare(decodedPassword, socket.playerDataOfSocketOwner.hashedPassword, (passwordError, passwordResult) => {
 						if (passwordError) {
 							console.error(log.addMetadata(passwordError.stack, "error"));
 							socket.emit("loginResult", username, false);
@@ -403,12 +413,19 @@ io.on("connection", (socket) => {
 							if (passwordResult) {
 								// Correct Password
 								console.log(log.addMetadata("Correct password for " + username + "!", "info"));
-								socket.usernameOfSocketOwner = socket.playerData.username;
-								socket.userIDOfSocketOwner = socket.playerData["_id"];
+								socket.usernameOfSocketOwner = socket.playerDataOfSocketOwner.username;
+								socket.userIDOfSocketOwner = socket.playerDataOfSocketOwner["_id"];
 								socket.emit("loginResult", username, true);
 								usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
 								socket.loggedIn = true;
-								socket.playerRank = getPlayerRank(socket.playerData);
+								socket.playerRank = getPlayerRank(socket.playerDataOfSocketOwner);
+								let playerLevel = leveling.getLevel(socket.playerDataOfSocketOwner.statistics.totalExperiencePoints);
+
+								io.emit("updateText", "#player-rank", beautifyRankName(socket.playerRank, username));
+								io.emit("updateCSS", "#player-rank", "color", formatPlayerName(socket.playerRank, username)); 
+								io.emit("updateText", "#player-name", username);
+								io.emit("updateText", "#secondary-top-bar-container", `Level ${playerLevel}`);
+
 							} else {
 								console.log(log.addMetadata("Incorrect password for " + username + "!", "info"));
 								socket.emit("loginResult", username, false);
@@ -460,7 +477,7 @@ io.on("connection", (socket) => {
 				socket.ownerOfSocketIsPlaying = true;
 				rooms[socket.currentRoomSocketIsIn].playing = true;
 			} else {
-				console.error(error.addMetadata(gameMode + " is not a valid Singleplayer game mode!", "error"));
+				console.error(log.addMetadata(gameMode + " is not a valid Singleplayer game mode!", "error"));
 			}
 		} else {
 			console.log(log.addMetadata("Socket is already in a room!", "info"));
@@ -597,30 +614,31 @@ io.on("connection", (socket) => {
 	});
 });
 
-function getPlayerRank(playerData) {
-	if (playerData.username == "mistertfy64") {
+function getPlayerRank(playerDataOfSocketOwner) {
+	if (playerDataOfSocketOwner.username == "mistertfy64") {
 		return playerRanks.GAME_MASTER;
-	} else if (playerData.membership.isDeveloper) {
+	} else if (playerDataOfSocketOwner.membership.isDeveloper) {
 		return playerRanks.DEVELOPER;
-	} else if (playerData.membership.isAdministrator) {
+	} else if (playerDataOfSocketOwner.membership.isAdministrator) {
 		return playerRanks.ADMINISTRATOR;
-	} else if (playerData.membership.isModerator) {
+	} else if (playerDataOfSocketOwner.membership.isModerator) {
 		return playerRanks.MODERATOR;
-	} else if (playerData.membership.isContributor) {
+	} else if (playerDataOfSocketOwner.membership.isContributor) {
 		return playerRanks.CONTRIBUTOR;
-	} else if (playerData.membership.isTester) {
+	} else if (playerDataOfSocketOwner.membership.isTester) {
 		return playerRanks.TESTER;
-	} else if (playerData.membership.isDonator) {
+	} else if (playerDataOfSocketOwner.membership.isDonator) {
 		return playerRanks.DONATOR;
 	}
 }
+
 
 function formatPlayerName(rank, username) {
 	if (username === undefined || username == null) {
 		return "#000000";
 	}
 	if (username == "mistertfy64") {
-		return "special";
+		return "#ff0000";
 	} else if (rank == playerRanks.DEVELOPER) {
 		return "#ff0000";
 	} else if (rank == playerRanks.ADMINISTRATOR) {
@@ -636,6 +654,29 @@ function formatPlayerName(rank, username) {
 	}
 	return "#000000";
 }
+
+function beautifyRankName(rank, username) {
+	if (username === undefined || username == null) {
+		return "";
+	}
+	if (username == "mistertfy64") {
+		return "Game Master";
+	} else if (rank == playerRanks.DEVELOPER) {
+		return "Developer";
+	} else if (rank == playerRanks.ADMINISTRATOR) {
+		return "Administrator";
+	} else if (rank == playerRanks.MODERATOR) {
+		return "Moderator";
+	} else if (rank == playerRanks.CONTRIBUTOR) {
+		return "Contributor";
+	} else if (rank == playerRanks.TESTER) {
+		return "Tester";
+	} else if (rank == playerRanks.DONATOR) {
+		return "Donator";
+	}
+	return "";
+}
+
 
 function initializeSingleplayerGame(room, mode) {
 	for (let i = 0; i < 49; i++) {

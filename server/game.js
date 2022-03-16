@@ -570,16 +570,16 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 	let globalRank = -1;
 	let levelStatus = {};
 
-	personalBestBroken = await checkSingleplayerPersonalBestForPlayer(userIDAsString, finalGameData, gameMode, usernameOfSocketOwner);
-	globalRank = await checkAndModifyLeaderboards(userIDAsString, finalGameData, gameMode, usernameOfSocketOwner);
+	personalBestBroken = await checkSingleplayerPersonalBestForPlayer(userIDAsString, finalGameData, gameMode, usernameOfSocketOwner, playerDataOfSocketOwner);
+	globalRank = await checkAndModifyLeaderboards(userIDAsString, finalGameData, gameMode, usernameOfSocketOwner, playerDataOfSocketOwner);
 
 	socket.emit("finalRanks", personalBestBroken, globalRank, true);
 
 	console.log(
 		log.addMetadata(
 			globalRank == -1
-				? `User ${usernameOfSocketOwner} submitted a score of ${finalGameData.finalScore} on a ${_.startCase(gameModeAsShortenedString)} Singleplayer game.`
-				: `User ${usernameOfSocketOwner} submitted a score of ${finalGameData.finalScore} and reached #${globalRank} on a ${_.startCase(gameModeAsShortenedString)} Singleplayer game.`,
+				? `User ${usernameOfSocketOwner} submitted a score of ${finalGameData.currentScore} on a ${_.startCase(gameModeAsShortenedString)} Singleplayer game.`
+				: `User ${usernameOfSocketOwner} submitted a score of ${finalGameData.currentScore} and reached #${globalRank} on a ${_.startCase(gameModeAsShortenedString)} Singleplayer game.`,
 			"info"
 		)
 	);
@@ -599,9 +599,8 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
  * @param {*} usernameOfSocketOwner
  * @returns Whether the player's personal best is broken.
  */
-async function checkSingleplayerPersonalBestForPlayer(userIDAsString, finalGameData, gameMode, usernameOfSocketOwner) {
+async function checkSingleplayerPersonalBestForPlayer(userIDAsString, finalGameData, gameMode, usernameOfSocketOwner, playerDataOfSocketOwner) {
 	let personalBestBroken = false;
-	let finalScore = finalGameData.currentScore;
 	let fieldToUpdate;
 	let fullPathOfFieldToUpdate;
 
@@ -617,21 +616,21 @@ async function checkSingleplayerPersonalBestForPlayer(userIDAsString, finalGameD
 	if (playerDataOfSocketOwner["statistics"][fieldToUpdate] === undefined) {
 		// personal best field doesn't exist
 		// so create one, and assign the score to the field
-		await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { [`statistics.${fieldToUpdate}`]: finalScore } }, { upsert: true }, (error3, result3) => {
+		await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { [`statistics.${fieldToUpdate}`]: finalGameData.currentScore } }, { upsert: true }, (error3, result3) => {
 			if (error3) {
 				// console.log(log.addMetadata("ERROR from Socket " + socket.id + " (" + usernameOfSocketOwner + "): ", "info"));
-				console.error(log.addMetadata(error3, "error"));
+				console.error(log.addMetadata(error3.stack, "error"));
 			}
 			return result3;
 		});
 		personalBestBroken = true;
 	} else {
 		// personal best field exists
-		if (finalScore > playerDataOfSocketOwner["statistics"][fieldToUpdate]) {
+		if (finalGameData.currentScore > playerDataOfSocketOwner["statistics"][fieldToUpdate]) {
 			// score is higher than personal best
-			await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { [`statistics.${fieldToUpdate}`]: finalScore } }, { upsert: true }, (error4, result4) => {
+			await schemas.getUserModel().findByIdAndUpdate(userIDAsString, { $set: { [`statistics.${fieldToUpdate}`]: finalGameData.currentScore } }, { upsert: true }, (error4, result4) => {
 				if (error4) {
-					console.error(log.addMetadata(error4, "error"));
+					console.error(log.addMetadata(error4.stack, "error"));
 				}
 				return result4;
 			});
@@ -649,11 +648,11 @@ async function checkSingleplayerPersonalBestForPlayer(userIDAsString, finalGameD
  * @param {*} usernameOfSocketOwner
  * @returns -1 if player did not get Top 50, their rank number otherwise.
  */
-async function checkAndModifyLeaderboards(userIDAsString, finalGameData, gameMode, usernameOfSocketOwner) {
+async function checkAndModifyLeaderboards(userIDAsString, finalGameData, gameMode, usernameOfSocketOwner, playerDataOfSocketOwner) {
 	var placePlayerRanked = -1;
 	var placePlayerRankedBefore = -1;
 	let leaderboardsModel;
-	let score = finalGameData.score;
+	let score = finalGameData.currentScore;
 
 	if (gameMode == "easyMode") {
 		leaderboardsModel = schemas.getEasyModeLeaderboardsModel();
@@ -749,9 +748,8 @@ async function checkAndModifyLeaderboards(userIDAsString, finalGameData, gameMod
  * @returns An object.
  */
 async function checkPlayerLevelStatusForPlayer(userIDAsString, finalGameData, gameMode, usernameOfSocketOwner) {
-	let finalScore = finalGameData.score;
 	let divisor = gameMode == "easyMode" ? 200 : 100;
-	return leveling.giveExperiencePointsToPlayerID(userIDAsString, Math.floor(finalScore / divisor));
+	return leveling.giveExperiencePointsToPlayerID(userIDAsString, Math.floor(finalGameData.currentScore / divisor));
 }
 
 /**
@@ -1235,7 +1233,7 @@ function calculateEnemyPositionMultiplier(sPosition) {
 }
 
 function calculateComboMultiplier(combo) {
-	return Math.pow(1.1, Math.min(Math.max(combo, 0), 5000));
+	return 1 + (0.1 * Math.max(combo, 0));
 }
 
 function convertTermIDToTerm(id) {
@@ -1403,6 +1401,7 @@ module.exports = {
 	createNewDefaultMultiplayerGameData,
 	startSingleplayerGame,
 	submitSingleplayerGame,
+
 
 	// minor
 	checkProblem,
