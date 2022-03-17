@@ -4,6 +4,7 @@ socket.on("currentGameData", (gameData) => {
 	if (!firstUpdateReceived) {
 		forceWeakResizeContainer();
 		firstUpdateReceived = true;
+		console.log(gameData);
 	}
 	switch (currentGameData.currentGame.mode) {
 		case "singleplayer": {
@@ -15,7 +16,6 @@ socket.on("currentGameData", (gameData) => {
 				$("#final-actions-per-minute").text(((currentGameData.currentGame.actionsPerformed / (currentGameData.currentGame.currentInGameTimeInMilliseconds / 1000)) * 60).toFixed(3).toString());
 			} else {
 				// text
-
 				// interface
 				singleplayerScreenContainerItems.currentScoreText.text = currentGameData.currentGame.currentScore;
 				singleplayerScreenContainerItems.currentProblemText.text =
@@ -30,9 +30,9 @@ socket.on("currentGameData", (gameData) => {
 				singleplayerScreenContainerItems.valueOfVariableDText.text = currentGameData.currentGame.valueOfVariableD === undefined ? "d = ?" : "d = " + currentGameData.currentGame.valueOfVariableD;
 				singleplayerScreenContainerItems.currentTimeText.text = turnMillisecondsToTime(currentGameData.currentGame.currentInGameTimeInMilliseconds);
 				singleplayerScreenContainerItems.currentComboTimeLeftText.text =
-					currentGameData.currentGame.currentCombo < 1 || currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > (currentGameData.currentGame.gameMode == "easyMode" ? 10000 : 5000)
+					currentGameData.currentGame.currentCombo < 1 || currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > (currentGameData.currentGame.gameMode == "easySingleplayerMode" ? 10000 : 5000)
 						? ""
-						: turnMillisecondsToTime((currentGameData.currentGame.gameMode == "easyMode" ? 10000 : 5000) - currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds);
+						: turnMillisecondsToTime((currentGameData.currentGame.gameMode == "easySingleplayerMode" ? 10000 : 5000) - currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds);
 
 				// tiles
 				for (let i = 0; i < 49; i++) {
@@ -147,7 +147,7 @@ socket.on("currentGameData", (gameData) => {
 			}
 			break;
 		}
-		case "defaultMultiplayer": {
+		case "defaultMultiplayerMode": {
 			{
 				if (currentGameData.currentGame.dead) {
 					setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);

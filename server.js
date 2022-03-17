@@ -81,13 +81,13 @@ var roomIDOfDefaultMultiplayerRoom = "";
 
 const roomTypes = {
 	SINGLEPLAYER: "singleplayer",
-	DEFAULT_MULTIPLAYER: "defaultMultiplayer",
+	DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
 	MULTIPLAYER: "multiplayer",
 };
 
 const modes = {
 	SINGLEPLAYER: "singleplayer",
-	DEFAULT_MULTIPLAYER: "defaultMultiplayer",
+	DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
 	MULTIPLAYER: "multiplayer",
 };
 
@@ -176,16 +176,17 @@ function update(deltaTime) {
 			// room is playing
 			if (rooms[roomID].playing) {
 				if (rooms[roomID].type == "singleplayer") {
+					let connections = rooms[roomID].data.currentGame.playersAlive;
 					game.computeUpdate(rooms[roomID], deltaTime);
-					io.to(roomID).emit("currentGameData", JSON.stringify(rooms[roomID].data));
-					dataSentWithoutCompression += utilities.getSizeInBytes(JSON.stringify(rooms[roomID].data));
+					io.to(roomID).emit("currentGameData", JSON.stringify(rooms[roomID].data.currentGame.players[connections[0]]));
+					dataSentWithoutCompression += utilities.getSizeInBytes(JSON.stringify(rooms[roomID].data.currentGame.players[connections[0]]));
 					//FIXME: why here?
-					for (let enemy in rooms[roomID].data.currentGame.enemiesOnField) {
-						if (rooms[roomID].data.currentGame.enemiesOnField[enemy].toDestroy) {
-							delete rooms[roomID].data.currentGame.enemiesOnField[enemy];
+					for (let enemy in rooms[roomID].data.currentGame.players[connections[0]].currentGame.enemiesOnField) {
+						if (rooms[roomID].data.currentGame.players[connections[0]].currentGame.toDestroy) {
+							delete rooms[roomID].data.currentGame.players[connections[0]].currentGame.enemiesOnField[enemy];
 						}
 					}
-				} else if (rooms[roomID].type == "defaultMultiplayer") {
+				} else if (rooms[roomID].type == "defaultMultiplayerMode") {
 					game.computeUpdate(rooms[roomID], deltaTime);
 					let connections = rooms[roomID].data.currentGame.playersAlive;
 					if (connections) {
@@ -306,7 +307,7 @@ io.on("connection", (socket) => {
 	}
 
 	socket.guestNameOfSocketOwner = toBeGuestName;
-	io.emit("updateText", "#player-name", socket.guestNameOfSocketOwner);
+	socket.emit("updateText", "#player-name", socket.guestNameOfSocketOwner);
 
 	socket.on("requestData", (data) => {
 		switch (data) {
@@ -421,10 +422,10 @@ io.on("connection", (socket) => {
 								socket.playerRank = getPlayerRank(socket.playerDataOfSocketOwner);
 								let playerLevel = leveling.getLevel(socket.playerDataOfSocketOwner.statistics.totalExperiencePoints);
 
-								io.emit("updateText", "#player-rank", beautifyRankName(socket.playerRank, username));
-								io.emit("updateCSS", "#player-rank", "color", formatPlayerName(socket.playerRank, username)); 
-								io.emit("updateText", "#player-name", username);
-								io.emit("updateText", "#secondary-top-bar-container", `Level ${playerLevel}`);
+								socket.emit("updateText", "#player-rank", beautifyRankName(socket.playerRank, username));
+								socket.emit("updateCSS", "#player-rank", "color", formatPlayerName(socket.playerRank, username)); 
+								socket.emit("updateText", "#player-name", username);
+								socket.emit("updateText", "#secondary-top-bar-container", `Level ${playerLevel}`);
 
 							} else {
 								console.log(log.addMetadata("Incorrect password for " + username + "!", "info"));
@@ -454,7 +455,7 @@ io.on("connection", (socket) => {
 	 */
 	socket.on("createAndJoinSingleplayerRoom", async (gameMode) => {
 		if (socket.currentRoomSocketIsIn == "") {
-			if (gameMode == "easyMode" || gameMode == "standardMode") {
+			if (gameMode == "easySingleplayerMode" || gameMode == "standardSingleplayerMode") {
 				let roomID = undefined;
 				while (roomID === undefined || roomID in rooms) {
 					roomID = utilities.generateRoomID();
@@ -469,12 +470,14 @@ io.on("connection", (socket) => {
 					host: socket,
 					userIDOfHost: socket.userIDOfSocketOwner,
 					playing: false,
-					data: game.createNewSingleplayerGameData(modes.SINGLEPLAYER, roomID, gameMode),
+					gameMode: gameMode,
+					data: game.createNewSingleplayerGameData(modes.SINGLEPLAYER, roomID, gameMode, socket),
 				};
 
 				socket.join(roomID);
-				initializeSingleplayerGame(rooms[socket.currentRoomSocketIsIn], gameMode);
+				initializeSingleplayerGame(rooms[socket.currentRoomSocketIsIn], gameMode, socket.id);
 				socket.ownerOfSocketIsPlaying = true;
+				rooms[socket.currentRoomSocketIsIn].data.currentGame.playersAlive = [socket.id];
 				rooms[socket.currentRoomSocketIsIn].playing = true;
 			} else {
 				console.error(log.addMetadata(gameMode + " is not a valid Singleplayer game mode!", "error"));
@@ -506,7 +509,7 @@ io.on("connection", (socket) => {
 					data: {},
 					readyToStart: false,
 					timeToStart: "",
-
+					gameMode: "defaultMultiplayerMode",
 					playersInRoom: {},
 				};
 
@@ -678,10 +681,10 @@ function beautifyRankName(rank, username) {
 }
 
 
-function initializeSingleplayerGame(room, mode) {
+function initializeSingleplayerGame(room, mode, player) {
 	for (let i = 0; i < 49; i++) {
-		room.data.currentGame.tilesOnBoard[i] = new tile.Tile(game.generateRandomTileTermID(room), i, false, room.data.currentGame.tilesCreated + 1);
-		room.data.currentGame.tilesCreated++;
+		room.data.currentGame.players[player].currentGame.tilesOnBoard[i] = new tile.Tile(game.generateRandomTileTermID(room, player), i, false, room.data.currentGame.players[player].currentGame.tilesCreated + 1);
+		room.data.currentGame.players[player].currentGame.tilesCreated++;
 	}
 }
 
@@ -715,7 +718,7 @@ async function startDefaultMultiplayerGame(roomID) {
 		rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection] = {};
 		rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection].currentGame = game.createNewDefaultMultiplayerRoomPlayerObject(socket);
 
-		rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection].currentGame.mode = "defaultMultiplayer";
+		rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection].currentGame.mode = "defaultMultiplayerMode";
 		rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection].currentGame.tilesCreated = 0;
 		for (let i = 0; i < 49; i++) {
 			rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection].currentGame.tilesOnBoard[i] = new tile.Tile(
@@ -778,4 +781,7 @@ function constructMinifiedGameDataObjectToSend(connectionID, playerIndex) {
 
 server.listen(PORT, () => {
 	console.log(log.addMetadata(`Listening at localhost:${PORT}`, "info"));
+	if (credentials.getWhetherTestingCredentialsAreUsed()){
+		console.log(log.addMetadata("WARNING: Using testing credentials.", "info"));
+	}
 });

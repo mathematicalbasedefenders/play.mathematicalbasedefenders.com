@@ -20,30 +20,66 @@ const schemas = require("./core/schemas.js");
 
 var roomTypes = {
 	SINGLEPLAYER: "singleplayer",
-	DEFAULT_MULTIPLAYER: "defaultMultiplayer",
+	EASY_SINGLEPLAYER: "easySingleplayerMode",
+	STANDARD_SINGLEPLAYER: "standardSingleplayerMode",
+	DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
 	MULTIPLAYER: "multiplayer",
 };
 
 var modes = {
 	SINGLEPLAYER: "singleplayer",
-	DEFAULT_MULTIPLAYER: "defaultMultiplayer",
+	EASY_SINGLEPLAYER: "easySingleplayerMode",
+	STANDARD_SINGLEPLAYER: "standardSingleplayerMode",
+	DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
 	MULTIPLAYER: "multiplayer",
 };
 
+var gameModes = {
+	SINGLEPLAYER: "singleplayerMode",
+	EASY_SINGLEPLAYER: "easySingleplayerMode",
+	STANDARD_SINGLEPLAYER: "standardSingleplayerMode",
+	DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
+	MULTIPLAYER: "multiplayerMode",
+};
+
 const SINGLEPLAYER_GAME_SETTINGS = {
-	easyMode: {
+	easySingleplayerMode: {
 		allowedComboTimeInMilliseconds: 10000,
 		enemyGenerationThreshold: 0.975,
-		enemyGenerationInterval: 50,
+		enemyGenerationIntervalInMilliseconds: 50,
 		enemySpeedMultiplier: 0.5,
 		enemyLimit: 5,
 	},
-	standardMode: {
+	standardSingleplayerMode: {
 		allowedComboTimeInMilliseconds: 5000,
 		enemyGenerationThreshold: 0.95,
-		enemyGenerationInterval: 50,
+		enemyGenerationIntervalInMilliseconds: 50,
 		enemySpeedMultiplier: 1,
 		enemyLimit: 1000,
+	},
+};
+
+const GAME_SETTINGS = {
+	easySingleplayerMode: {
+		allowedComboTimeInMilliseconds: 10000,
+		enemyGenerationThreshold: 0.975,
+		enemyGenerationIntervalInMilliseconds: 50,
+		enemySpeedMultiplier: 0.5,
+		enemyLimit: 5,
+	},
+	standardSingleplayerMode: {
+		allowedComboTimeInMilliseconds: 5000,
+		enemyGenerationThreshold: 0.95,
+		enemyGenerationIntervalInMilliseconds: 50,
+		enemySpeedMultiplier: 1,
+		enemyLimit: 250,
+	},
+	defaultMultiplayerMode: {
+		allowedComboTimeInMilliseconds: 5000,
+		enemyGenerationThreshold: 0.95,
+		enemyGenerationIntervalInMilliseconds: 50,
+		enemySpeedMultiplier: 1,
+		enemyLimit: 250,
 	},
 };
 
@@ -53,223 +89,98 @@ const SINGLEPLAYER_GAME_SETTINGS = {
  * @param {number} deltaTimeInMilliseconds
  */
 async function computeUpdate(room, deltaTimeInMilliseconds) {
-	if (room.type == modes.SINGLEPLAYER) {
-		if (room.playing) {
-			computeSingleplayerRoomUpdate(room, deltaTimeInMilliseconds);
-		}
-	} else if (room.type == modes.DEFAULT_MULTIPLAYER) {
-		if (room.playing && room.data.currentGame.playersAlive.length > 1) {
-			computeMultiplayerRoomUpdate(room, deltaTimeInMilliseconds);
+	// if (room.type == modes.SINGLEPLAYER) {
+	// 	if (room.playing) {
+	// 		computeSingleplayerRoomUpdate(room, deltaTimeInMilliseconds);
+	// 	}
+	// } else if (room.type == modes.DEFAULT_MULTIPLAYER) {
+	// 	if (room.playing && room.data.currentGame.playersAlive.length > 1) {
+	// 		computeMultiplayerRoomUpdate(room, deltaTimeInMilliseconds);
+	// 	}
+	// }
+	computeGlobalUpdateForRoom(room, deltaTimeInMilliseconds);
+	computeUpdateForRoom(room, deltaTimeInMilliseconds);
+}
+
+async function computeGlobalUpdateForRoom(room, deltaTimeInMilliseconds) {
+	// multiplayer room
+	room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds += deltaTimeInMilliseconds;
+	if (room.gameMode == gameModes.DEFAULT_MULTIPLAYER) {
+		if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > GAME_SETTINGS[room.gameMode].enemyGenerationIntervalInMilliseconds) {
+			if (Math.random() > 0.95) {
+				room.data.currentGame.globalEnemyToAdd = new enemy.Enemy({
+					xPosition: 1360,
+					yPosition: 120,
+					width: 100,
+					height: 100,
+					requestedValue: generateRandomEnemyTerm(),
+					defaultSpeed: Math.random() * 2 + 1,
+					defaultAttack: 1,
+					defaultHealth: 1,
+					enemyNumber: room.data.currentGame.globalEnemiesCreated + 1,
+				});
+				room.data.currentGame.globalEnemiesCreated++;
+			}
+			room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= GAME_SETTINGS[room.gameMode].enemyGenerationIntervalInMilliseconds;
+		} else {
+			room.data.currentGame.globalEnemyToAdd = null;
 		}
 	}
 }
 
-/**
- * Computes an update for the specified Singleplayer room and runs other singleplayer room update functions.
- * @param {Object} room
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeSingleplayerRoomUpdate(room, deltaTimeInMilliseconds) {
+async function computeUpdateForRoom(room, deltaTimeInMilliseconds) {
 	let framesRendered = (deltaTimeInMilliseconds * FRAMES_PER_SECOND) / 1000;
 	// counters
 	// general stats
 	room.data.currentGame.currentInGameTimeInMilliseconds += deltaTimeInMilliseconds;
-	// game stats (not shown)
-	room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds += deltaTimeInMilliseconds;
-	room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
-	// technical stats
 	room.data.currentGame.framesRenderedSinceGameStart += framesRendered;
-
-	// other functions
-	computeUpdateForSingleplayerRoomBaseHealth(room, deltaTimeInMilliseconds);
-	computeUpdateForSingleplayerRoomCombo(room, deltaTimeInMilliseconds);
-	computeUpdateForSingleplayerRoomEnemies(room, deltaTimeInMilliseconds);
-	computeUpdateForSingleplayerRoomScoreIndicators(room, deltaTimeInMilliseconds);
-	computeUpdateForSingleplayerRoomThingsToRemove(room, deltaTimeInMilliseconds);
-}
-
-/**
- * Computes an update for the specified Singleplayer room's base health.
- * @param {Object} room
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeUpdateForSingleplayerRoomBaseHealth(room, deltaTimeInMilliseconds) {
-	if (room.data.currentGame.baseHealth <= 0) {
-		room.playing = false;
-		room.data.currentGame.gameIsOver = true;
-
-		let socketOfGamePlayed = room.host;
-
-		let finalGameData = JSON.parse(JSON.stringify(room.data));
-
-		socketOfGamePlayed.emit("currentGameData", JSON.stringify(finalGameData));
-		socketOfGamePlayed.to(room.id).emit("currentGameData", JSON.stringify(finalGameData));
-
-		room.data.currentGame.gameOverScreenShown = true;
-
-		room.host.leave(room.id);
-		socketOfGamePlayed.currentRoomSocketIsIn = "";
-		submitSingleplayerGame(room.host, finalGameData.currentGame, room.userIDOfHost, room.data.gameMode);
-	}
-}
-
-/**
- * Computes an update for the specified Singleplayer room's combo.
- * @param {Object} room
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeUpdateForSingleplayerRoomCombo(room, deltaTimeInMilliseconds) {
-	let gameMode = room.data.gameMode;
-	if (room.data.currentGame.currentCombo > -1 && room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > SINGLEPLAYER_GAME_SETTINGS[gameMode].allowedComboTimeInMilliseconds) {
-		room.data.currentGame.currentCombo = -1;
-	}
-}
-
-/**
- * Computes an update for the specified Singleplayer room's enemies.
- * @param {Object} room
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeUpdateForSingleplayerRoomEnemies(room, deltaTimeInMilliseconds) {
-	let framesRendered = (deltaTimeInMilliseconds * FRAMES_PER_SECOND) / 1000;
-	let gameMode = room.data.gameMode;
-	// enemy management
-	// create
-	if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > SINGLEPLAYER_GAME_SETTINGS[gameMode].enemyGenerationInterval) {
-		if (Math.random() > SINGLEPLAYER_GAME_SETTINGS[gameMode].enemyGenerationThreshold && room.data.currentGame.enemiesOnField.length < SINGLEPLAYER_GAME_SETTINGS[gameMode].enemyLimit) {
-			room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesCreated] = new enemy.Enemy({
-				xPosition: 1360,
-				yPosition: 120,
-				width: 100,
-				height: 100,
-				requestedValue: generateRandomEnemyTerm(),
-				defaultSpeed: SINGLEPLAYER_GAME_SETTINGS[gameMode].enemySpeedMultiplier * (Math.random() * 2 + 1),
-				defaultAttack: 1,
-				defaultHealth: 1,
-				enemyNumber: room.data.currentGame.enemiesCreated + 1,
-			});
-			room.data.currentGame.enemiesCreated++;
-		}
-		room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= SINGLEPLAYER_GAME_SETTINGS[gameMode].enemyGenerationInterval;
-	}
-	// move
-	for (i = 0; i < room.data.currentGame.enemiesOnField.length; i++) {
-		if (room.data.currentGame.enemiesOnField[i] !== undefined) {
-			room.data.currentGame.enemiesOnField[i].move(framesRendered * 0.01 * room.data.currentGame.enemiesOnField[i].defaultSpeed);
-			if (room.data.currentGame.enemiesOnField[i].sPosition < 0 && !room.data.currentGame.enemiesOnField[i].reachedBase && !room.data.currentGame.enemiesOnField[i].destroyed) {
-				room.data.currentGame.enemiesOnField[i].reachedBase = true;
-				room.data.currentGame.baseHealth -= 1;
-			}
-			if (room.data.currentGame.enemiesOnField[i].sPosition < -0.1) {
-				room.data.currentGame.enemiesOnField.splice(i, 1);
-			}
-		}
-	}
-}
-
-/**
- * Computes an update for the specified Singleplayer Room's score indicators.
- * @param {Object} room
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeUpdateForSingleplayerRoomScoreIndicators(room, deltaTimeInMilliseconds) {
-	for (i = 0; i < room.data.currentGame.scoreGainIndicators.length; i++) {
-		room.data.currentGame.scoreGainIndicators[i].ageInMilliseconds += deltaTimeInMilliseconds;
-		if (room.data.currentGame.scoreGainIndicators[i].ageInMilliseconds >= 500) {
-			room.data.currentGame.scoreGainIndicatorsToDestroy.push(room.data.currentGame.scoreGainIndicators[room.data.currentGame.scoreGainIndicators.indexOf(room.data.currentGame.scoreGainIndicators[i])]);
-		}
-	}
-}
-
-/**
- * Computes an update for the specified Singleplayer Room's things to remove.
- * @param {Object} room
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeUpdateForSingleplayerRoomThingsToRemove(room, deltaTimeInMilliseconds) {
-	room.data.currentGame.enemiesOnField = room.data.currentGame.enemiesOnField.filter(function (element) {
-		return element != null || element !== undefined;
-	});
-	for (let i = 0; i < room.data.currentGame.scoreGainIndicatorsToDestroy.length; i++) {
-		delete room.data.currentGame.scoreGainIndicators[room.data.currentGame.scoreGainIndicatorsToDestroy[i].toString()];
-	}
-	room.data.currentGame.scoreGainIndicatorsToDestroy = [];
-}
-
-/**
- * Computes an update for a multiplayer room.
- * @param {Object} room
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeMultiplayerRoomUpdate(room, deltaTimeInMilliseconds) {
-	let framesRendered = (deltaTimeInMilliseconds * FRAMES_PER_SECOND) / 1000;
-	// counters
-	// general stats
-	room.data.currentGame.currentInGameTimeInMilliseconds += deltaTimeInMilliseconds;
-	// game stats (not shown)
-	room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds += deltaTimeInMilliseconds;
-	// technical stats
-	room.data.currentGame.framesRenderedSinceGameStart += framesRendered;
-	// things to apply to all players
-	room.data.currentGame.globalEnemyToAdd = null;
-	// global enemy
-	if (room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > 50) {
-		if (Math.random() > 0.95) {
-			room.data.currentGame.globalEnemyToAdd = new enemy.Enemy({
-				xPosition: 1360,
-				yPosition: 120,
-				width: 100,
-				height: 100,
-				requestedValue: generateRandomEnemyTerm(),
-				defaultSpeed: Math.random() * 2 + 1,
-				defaultAttack: 1,
-				defaultHealth: 1,
-				enemyNumber: room.data.currentGame.globalEnemiesCreated + 1,
-			});
-			room.data.currentGame.globalEnemiesCreated++;
-		}
-		room.data.currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= 50;
-	}
-	loopThroughAndComputeUpdateForEachMultiplayerRoomPlayer(room, deltaTimeInMilliseconds);
-}
-
-/**
- * Loops through every player in the multiplayer room and computes an update for each player.
- * @param {*} room
- * @param {*} deltaTimeInMilliseconds
- */
-async function loopThroughAndComputeUpdateForEachMultiplayerRoomPlayer(room, deltaTimeInMilliseconds) {
 	let playersAliveThisUpdate = room.data.currentGame.playersAlive;
 	for (let i = 0; i < playersAliveThisUpdate.length; i++) {
 		let player = playersAliveThisUpdate[i];
-		computeUpdateForMultiplayerRoomPlayerBaseHealth(room, player, deltaTimeInMilliseconds);
-		computeUpdateForMultiplayerRoomPlayerCombo(room, player, deltaTimeInMilliseconds);
-		computeUpdateForMultiplayerRoomPlayerEnemies(room, player, deltaTimeInMilliseconds);
-		computeUpdateForMultiplayerRoomPlayerThingsToRemove(room, player, deltaTimeInMilliseconds);
-		computeUpdateForMultiplayerRoomPlayerScoreIndicators(room, player, deltaTimeInMilliseconds);
+
+		// player specific stats
+		room.data.currentGame.players[player].currentGame.currentInGameTimeInMilliseconds += deltaTimeInMilliseconds;
+		room.data.currentGame.players[player].currentGame.enemyGenerationElapsedTimeCounterInMilliseconds += deltaTimeInMilliseconds;
+		room.data.currentGame.players[player].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
+		room.data.currentGame.players[player].currentGame.framesRenderedSinceGameStart += framesRendered;
+
+		computeUpdateForRoomPlayerBaseHealth(room, player, deltaTimeInMilliseconds);
+		computeUpdateForRoomPlayerCombo(room, player, deltaTimeInMilliseconds);
+		computeUpdateForRoomPlayerEnemies(room, player, deltaTimeInMilliseconds);
+		computeUpdateForRoomPlayerIndicators(room, player, deltaTimeInMilliseconds);
+		computeUpdateForRoomPlayerThingsToRemove(room, player, deltaTimeInMilliseconds);
 	}
 }
 
-/**
- * Compute an update for a multiplayer room's player's base health.
- * @param {Object} room
- * @param {*} player
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeUpdateForMultiplayerRoomPlayerBaseHealth(room, player, deltaTimeInMilliseconds) {
-	if (room.data.currentGame.players[player].currentGame.baseHealth <= 0) {
-		room.data.currentGame.players[player].currentGame.dead = true;
+async function computeUpdateForRoomPlayerBaseHealth(room, player, deltaTimeInMilliseconds) {
+	switch (room.gameMode) {
+		case "easySingleplayerMode":
+		case "standardSingleplayerMode":
+			if (room.data.currentGame.players[player].currentGame.baseHealth <= 0) {
+				room.data.currentGame.players[player].currentGame.dead = true;
+				room.playing = false;
+				room.data.currentGame.gameIsOver = true;
+				room.data.currentGame.players[player].currentGame.gameIsOver = true;
+				let socketOfGamePlayed = room.host;
+				let finalGameData = JSON.parse(JSON.stringify(room.data));
+				socketOfGamePlayed.emit("currentGameData", JSON.stringify(finalGameData.currentGame.players[player]));
+				socketOfGamePlayed.to(room.id).emit("currentGameData", JSON.stringify(finalGameData.currentGame.players[player]));
+				room.host.leave(room.id);
+				socketOfGamePlayed.currentRoomSocketIsIn = "";
+				submitSingleplayerGame(room.host, finalGameData.currentGame.players[player].currentGame, room.userIDOfHost, room.data.gameMode);
+				room.data.currentGame.players[player].currentGame.gameOverScreenShown = true;
+			}
+			break;
+		case "defaultMultiplayerMode": {
+			if (room.data.currentGame.players[player].currentGame.baseHealth <= 0) {
+				room.data.currentGame.players[player].currentGame.dead = true;
+			}
+			break;
+		}
 	}
 }
 
-/**
- * Computes an update for a multiplayer room's player's combo.
- * @param {Object} room
- * @param {*} player
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeUpdateForMultiplayerRoomPlayerCombo(room, player, deltaTimeInMilliseconds) {
-	// combo
+async function computeUpdateForRoomPlayerCombo(room, player, deltaTimeInMilliseconds) {
 	room.data.currentGame.players[player].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
 
 	if (room.data.currentGame.players[player].currentGame.currentCombo > -1 && room.data.currentGame.players[player].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > 5000) {
@@ -277,40 +188,62 @@ async function computeUpdateForMultiplayerRoomPlayerCombo(room, player, deltaTim
 	}
 }
 
-/**
- * Computes an update for a multiplayer room's player's enemies.
- * @param {Object} room
- * @param {*} player
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeUpdateForMultiplayerRoomPlayerEnemies(room, player, deltaTimeInMilliseconds) {
-	// enemy management
+async function computeUpdateForRoomPlayerEnemies(room, player, deltaTimeInMilliseconds) {
 	let framesRendered = (deltaTimeInMilliseconds * FRAMES_PER_SECOND) / 1000;
-	// create sent
-	if (room.data.currentGame.players[player].currentGame.sentEnemiesToSpawn > 0) {
-		let nameToPutOnEnemy = room.data.currentGame.players[player].currentGame.enemySenders[0];
-		room.data.currentGame.players[player].currentGame.enemySenders.splice(0, 1);
-		room.data.currentGame.players[player].currentGame.enemiesOnField[room.data.currentGame.players[player].currentGame.enemiesCreated] = new enemy.Enemy({
-			xPosition: 1360,
-			yPosition: 120,
-			width: 100,
-			height: 100,
-			requestedValue: generateRandomEnemyTerm(),
-			defaultSpeed: Math.random() * 2 + 1,
-			defaultAttack: 1,
-			defaultHealth: 1,
-			enemyNumber: "s" + room.data.currentGame.players[player].currentGame.enemiesCreated + 1,
-			senderName: nameToPutOnEnemy,
-		});
-		room.data.currentGame.players[player].currentGame.enemiesCreated++;
-		room.data.currentGame.players[player].currentGame.sentEnemiesToSpawn--;
+
+	switch (room.gameMode) {
+		case "easySingleplayerMode":
+		case "standardSingleplayerMode": {
+			if (room.data.currentGame.players[player].currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > GAME_SETTINGS[room.gameMode].enemyGenerationIntervalInMilliseconds) {
+				if (Math.random() > GAME_SETTINGS[room.gameMode].enemyGenerationThreshold && room.data.currentGame.players[player].currentGame.enemiesOnField.length < GAME_SETTINGS[room.gameMode].enemyLimit) {
+					room.data.currentGame.players[player].currentGame.enemiesOnField[room.data.currentGame.players[player].currentGame.enemiesCreated] = new enemy.Enemy({
+						xPosition: 1360,
+						yPosition: 120,
+						width: 100,
+						height: 100,
+						requestedValue: generateRandomEnemyTerm(),
+						defaultSpeed: GAME_SETTINGS[room.gameMode].enemySpeedMultiplier * (Math.random() * 2 + 1),
+						defaultAttack: 1,
+						defaultHealth: 1,
+						enemyNumber: room.data.currentGame.players[player].currentGame.enemiesCreated + 1,
+					});
+					room.data.currentGame.players[player].currentGame.enemiesCreated++;
+				}
+				room.data.currentGame.players[player].currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= GAME_SETTINGS[room.gameMode].enemyGenerationIntervalInMilliseconds;
+			}
+			break;
+		}
+		case "defaultMultiplayerMode": {
+			if (room.data.currentGame.globalEnemyToAdd) {
+				room.data.currentGame.players[player].currentGame.enemiesOnField[room.data.currentGame.players[player].currentGame.enemiesCreated] = _.cloneDeep(room.data.currentGame.globalEnemyToAdd);
+				room.data.currentGame.players[player].currentGame.enemiesCreated++;
+			}
+			if (room.data.currentGame.players[player].currentGame.sentEnemiesToSpawn > 0 && room.data.currentGame.players[player].currentGame.enemiesOnField.length < GAME_SETTINGS[room.gameMode].enemyLimit) {
+				let nameToPutOnEnemy = room.data.currentGame.players[player].currentGame.enemySenders[0];
+				room.data.currentGame.players[player].currentGame.enemySenders.splice(0, 1);
+				room.data.currentGame.players[player].currentGame.enemiesOnField[room.data.currentGame.players[player].currentGame.enemiesCreated] = new enemy.Enemy({
+					xPosition: 1360,
+					yPosition: 120,
+					width: 100,
+					height: 100,
+					requestedValue: generateRandomEnemyTerm(),
+					defaultSpeed: Math.random() * 2 + 1,
+					defaultAttack: 1,
+					defaultHealth: 1,
+					enemyNumber: "s" + room.data.currentGame.players[player].currentGame.enemiesCreated + 1,
+					senderName: nameToPutOnEnemy,
+				});
+				room.data.currentGame.players[player].currentGame.sentEnemiesToSpawn--;
+				room.data.currentGame.players[player].currentGame.enemiesCreated++;
+			}
+			break;
+		}
+		default: {
+			console.error(log.addMetadata(`${room.gameMode} is not a valid game mode!`, "error"));
+			break;
+		}
 	}
 
-	// create global if there is one
-	if (room.data.currentGame.globalEnemyToAdd != null) {
-		room.data.currentGame.players[player].currentGame.enemiesOnField[room.data.currentGame.players[player].currentGame.enemiesCreated] = _.cloneDeep(room.data.currentGame.globalEnemyToAdd);
-		room.data.currentGame.players[player].currentGame.enemiesCreated++;
-	}
 	for (j = 0; j < room.data.currentGame.players[player].currentGame.enemiesOnField.length; j++) {
 		if (room.data.currentGame.players[player].currentGame.enemiesOnField[j] !== undefined) {
 			room.data.currentGame.players[player].currentGame.enemiesOnField[j].move(framesRendered * 0.01 * room.data.currentGame.players[player].currentGame.enemiesOnField[j].defaultSpeed);
@@ -329,96 +262,120 @@ async function computeUpdateForMultiplayerRoomPlayerEnemies(room, player, deltaT
 	}
 }
 
-/**
- * Computes an update for a multiplayer room's player's score indicators.
- * @param {Object} room
- * @param {*} player
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeUpdateForMultiplayerRoomPlayerScoreIndicators(room, player, deltaTimeInMilliseconds) {
-	for (j = 0; j < room.data.currentGame.players[player].currentGame.enemiesSentIndicators.length; j++) {
-		room.data.currentGame.players[player].currentGame.enemiesSentIndicators[j].ageInMilliseconds += deltaTimeInMilliseconds;
-		if (room.data.currentGame.players[player].currentGame.enemiesSentIndicators[j].ageInMilliseconds >= 500) {
-			room.data.currentGame.players[player].currentGame.enemiesSentIndicatorsToDestroy.push(
-				room.data.currentGame.players[player].currentGame.enemiesSentIndicators[room.data.currentGame.players[player].currentGame.enemiesSentIndicators.indexOf(room.data.currentGame.players[player].currentGame.enemiesSentIndicators[j])]
+async function computeUpdateForRoomPlayerIndicators(room, player, deltaTimeInMilliseconds) {
+	let indicatorName;
+	switch (room.gameMode) {
+		case "easySingleplayerMode":
+		case "standardSingleplayerMode": {
+			indicatorName = "scoreGainIndicators";
+			break;
+		}
+		case "defaultMultiplayerMode": {
+			indicatorName = "enemiesSentIndicators";
+			break;
+		}
+		default: {
+			console.error(log.addMetadata(`${room.gameMode} is not a valid game mode!`, "error"));
+		}
+	}
+
+	for (j = 0; j < room.data.currentGame.players[player].currentGame[indicatorName].length; j++) {
+		room.data.currentGame.players[player].currentGame[indicatorName][j].ageInMilliseconds += deltaTimeInMilliseconds;
+		if (room.data.currentGame.players[player].currentGame[indicatorName][j].ageInMilliseconds >= 500) {
+			room.data.currentGame.players[player].currentGame[`${indicatorName}ToDestroy`].push(
+				room.data.currentGame.players[player].currentGame[indicatorName][room.data.currentGame.players[player].currentGame[indicatorName].indexOf(room.data.currentGame.players[player].currentGame[indicatorName][j])]
 			);
 		}
 	}
 }
 
-/**
- * Computes an update for a multiplayer room's player's things to remove.
- * @param {Object} room
- * @param {*} player
- * @param {number} deltaTimeInMilliseconds
- */
-async function computeUpdateForMultiplayerRoomPlayerThingsToRemove(room, player, deltaTimeInMilliseconds) {
-	for (let i = 0; i < room.data.currentGame.players[player].currentGame.enemiesSentIndicatorsToDestroy.length; i++) {
-		delete room.data.currentGame.players[player].currentGame.enemiesSentIndicators[room.data.currentGame.players[player].currentGame.enemiesSentIndicatorsToDestroy[i].toString()];
+async function computeUpdateForRoomPlayerThingsToRemove(room, player, deltaTimeInMilliseconds) {
+	let indicatorName;
+
+	switch (room.gameMode) {
+		case "easySingleplayerMode":
+		case "standardSingleplayerMode": {
+			indicatorName = "scoreGainIndicators";
+			break;
+		}
+		case "defaultMultiplayerMode": {
+			indicatorName = "enemiesSentIndicators";
+			break;
+		}
+		default: {
+			console.error(log.addMetadata(`${room.gameMode} is not a valid game mode!`, "error"));
+		}
 	}
-	room.data.currentGame.players[player].currentGame.enemiesSentIndicatorsToDestroy = [];
+
+	for (let i = 0; i < room.data.currentGame.players[player].currentGame[`${indicatorName}ToDestroy`].length; i++) {
+		delete room.data.currentGame.players[player].currentGame[indicatorName][room.data.currentGame.players[player].currentGame[`${indicatorName}ToDestroy`][i].toString()];
+	}
+	room.data.currentGame.players[player].currentGame[`${indicatorName}ToDestroy`] = [];
 
 	room.data.currentGame.players[player].currentGame.enemiesOnField = room.data.currentGame.players[player].currentGame.enemiesOnField.filter(function (element) {
 		return element != null || element !== undefined;
 	});
 }
 
-function createNewSingleplayerGameData(mode, roomID, gameMode) {
-	switch (mode) {
-		case modes.SINGLEPLAYER: {
-			let data = {
-				id: roomID,
+function createNewSingleplayerGameData(mode, roomID, gameMode, socket) {
+	let data = {
+		id: roomID,
+		mode: modes.SINGLEPLAYER,
+		gameMode: gameMode,
+		currentGame: {
+			players: {
+				[socket.id]: {
+					currentGame: {
+						mode: mode,
 
-				mode: mode,
-				gameMode: gameMode,
+						gameMode: gameMode,
+						currentScore: 0,
+						currentInGameTimeInMilliseconds: 0,
+						actionsPerformed: 0,
 
-				currentGame: {
-					mode: mode,
+						currentCombo: -1,
 
-					gameMode: gameMode,
-					currentScore: 0,
-					currentInGameTimeInMilliseconds: 0,
-					actionsPerformed: 0,
+						enemiesCreated: 0,
+						enemiesKilled: 0,
+						enemiesOnField: [],
+						enemiesToKill: [],
 
-					currentCombo: -1,
+						tilesCreated: 0,
+						tilesOnBoard: [],
+						bagQuantities: [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+						availableTermsIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
 
-					enemiesCreated: 0,
-					enemiesKilled: 0,
-					enemiesOnField: [],
-					enemiesToKill: [],
+						framesRenderedSinceGameStart: 0,
+						enemyGenerationElapsedTimeCounterInMilliseconds: 0,
+						timeElapsedSinceLastEnemyKillInMilliseconds: 0,
 
-					tilesCreated: 0,
-					tilesOnBoard: [],
-					bagQuantities: [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-					availableTermsIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+						baseHealth: 10,
 
-					framesRenderedSinceGameStart: 0,
-					enemyGenerationElapsedTimeCounterInMilliseconds: 0,
-					timeElapsedSinceLastEnemyKillInMilliseconds: 0,
+						scoreGainIndicators: [],
+						scoreGainIndicatorsToDestroy: [],
 
-					baseHealth: 10,
+						currentProblemAsText: "",
+						currentProblemAsBeautifulText: "",
+						tilesInCurrentProblem: [],
 
-					scoreGainIndicators: [],
-					scoreGainIndicatorsToDestroy: [],
+						valueOfVariableA: undefined,
+						valueOfVariableB: undefined,
+						valueOfVariableC: undefined,
+						valueOfVariableD: undefined,
 
-					currentProblemAsText: "",
-					currentProblemAsBeautifulText: "",
-					tilesInCurrentProblem: [],
+						dead: false,
 
-					valueOfVariableA: undefined,
-					valueOfVariableB: undefined,
-					valueOfVariableC: undefined,
-					valueOfVariableD: undefined,
-
-					gameIsOver: false,
-					gameOverScreenShown: false,
+						gameIsOver: false,
+						gameOverScreenShown: false,
+					},
 				},
-			};
-			return data;
-		}
-	}
+			},
+		},
+	};
+	return data;
 }
 
+// TODO: Unused?
 function createNewDefaultMultiplayerGameData(roomID, socket) {
 	let data = {
 		id: roomID,
@@ -548,9 +505,9 @@ function startSingleplayerGame(roomID) {}
 async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner, gameMode) {
 	// determine mode
 	let gameModeAsShortenedString = "";
-	if (gameMode == "easyMode") {
+	if (gameMode == "easySingleplayerMode") {
 		gameModeAsShortenedString = "easy";
-	} else if (gameMode == "standardMode") {
+	} else if (gameMode == "standardSingleplayerMode") {
 		gameModeAsShortenedString = "standard";
 	} else {
 		console.error(log.addMetadata(`${gameMode} is not a valid Singleplayer game mode!`, "error"));
@@ -604,9 +561,9 @@ async function checkSingleplayerPersonalBestForPlayer(userIDAsString, finalGameD
 	let fieldToUpdate;
 	let fullPathOfFieldToUpdate;
 
-	if (gameMode == "easyMode") {
+	if (gameMode == "easySingleplayerMode") {
 		fieldToUpdate = "easyModePersonalBestScore";
-	} else if (gameMode == "standardMode") {
+	} else if (gameMode == "standardSingleplayerMode") {
 		fieldToUpdate = "standardModePersonalBestScore";
 	} else {
 		console.error(log.addMetadata(`${gameMode} is not a valid Singleplayer game mode!`, "error"));
@@ -654,9 +611,9 @@ async function checkAndModifyLeaderboards(userIDAsString, finalGameData, gameMod
 	let leaderboardsModel;
 	let score = finalGameData.currentScore;
 
-	if (gameMode == "easyMode") {
+	if (gameMode == "easySingleplayerMode") {
 		leaderboardsModel = schemas.getEasyModeLeaderboardsModel();
-	} else if (gameMode == "standardMode") {
+	} else if (gameMode == "standardSingleplayerMode") {
 		leaderboardsModel = schemas.getStandardModeLeaderboardsModel();
 	} else {
 		console.error(log.addMetadata(`${gameMode} is not a valid Singleplayer game mode!`, "error"));
@@ -748,14 +705,14 @@ async function checkAndModifyLeaderboards(userIDAsString, finalGameData, gameMod
  * @returns An object.
  */
 async function checkPlayerLevelStatusForPlayer(userIDAsString, finalGameData, gameMode, usernameOfSocketOwner) {
-	let divisor = gameMode == "easyMode" ? 200 : 100;
+	let divisor = gameMode == "easySingleplayerMode" ? 200 : 100;
 	return leveling.giveExperiencePointsToPlayerID(userIDAsString, Math.floor(finalGameData.currentScore / divisor));
 }
 
 /**
  * Checks a sent problem.
- * @param {*} room 
- * @param {*} socket 
+ * @param {*} room
+ * @param {*} socket
  */
 function checkProblem(room, socket) {
 	switch (room.type) {
@@ -763,7 +720,7 @@ function checkProblem(room, socket) {
 			evaluateProblem(room, socket);
 			break;
 		}
-		case "defaultMultiplayer": {
+		case "defaultMultiplayerMode": {
 			if (evaluateProblem(room, socket)) {
 			} else {
 				room.data.currentGame.players[socket.id].currentGame.sentEnemiesToSpawn += room.data.currentGame.players[socket.id].currentGame.enemiesPending;
@@ -776,67 +733,37 @@ function checkProblem(room, socket) {
 
 /**
  * Evaluates the problem results.
- * @param {*} room 
- * @param {*} socket 
- * @returns 
+ * @param {*} room
+ * @param {*} socket
+ * @returns
  */
 function evaluateProblem(room, socket) {
-	switch (room.type) {
-		case "singleplayer": {
-			if (socket.socketIsHostOfRoomItIsIn) {
-				// get number of equal signs
-				switch ((room.data.currentGame.currentProblemAsText.match("=") || []).length) {
-					case 0: {
-						let originalProblem = room.data.currentGame.currentProblemAsText;
-						let problemToEvaluate = fixProblem(originalProblem);
-						let result = calculateProblem(problemToEvaluate, room, socket);
-						let hasResults = evaluateSingleplayerRoomProblemResult(result, room);
-						return hasResults;
-					}
-					case 1: {
-						let originalProblem = room.data.currentGame.currentProblemAsText;
-						let problemToEvaluate = fixProblem(originalProblem);
-						let problemOnLeftSide = problemToEvaluate.substring(0, problemToEvaluate.indexOf("="));
-						let problemOnRightSide = problemToEvaluate.substring(problemToEvaluate.indexOf("=") + 1);
-						let valid = assignValueToSingleplayerRoomVariable(problemOnLeftSide, problemOnRightSide, room);
-						return valid;
-					}
-					default: {
-						return false;
-					}
-				}
-			}
+	switch ((room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.match("=") || []).length) {
+		case 0: {
+			let originalProblem = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText;
+			let problemToEvaluate = fixProblem(originalProblem);
+			let result = calculateProblem(problemToEvaluate, room, socket);
+			let hasResults = evaluateProblemResult(result, room, socket);
+			return hasResults;
 		}
-		case "defaultMultiplayer": {
-			switch ((room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.match("=") || []).length) {
-				case 0: {
-					let originalProblem = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText;
-					let problemToEvaluate = fixProblem(originalProblem);
-					let result = calculateProblem(problemToEvaluate, room, socket);
-					let hasResults = evaluateMultiplayerRoomProblemResult(result, room, socket);
-					return hasResults;
-				}
-				case 1: {
-					let valid = false;
-					let originalProblem = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText;
-					let problemToEvaluate = fixProblem(originalProblem);
-					let problemOnLeftSide = problemToEvaluate.substring(0, problemToEvaluate.indexOf("="));
-					let problemOnRightSide = problemToEvaluate.substring(problemToEvaluate.indexOf("=") + 1);
-					valid = assignValueToMultiplayerRoomVariable(problemOnLeftSide, problemOnRightSide, room, socket);
-					return valid;
-				}
-				default: {
-					return false;
-				}
-			}
+		case 1: {
+			let originalProblem = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText;
+			let problemToEvaluate = fixProblem(originalProblem);
+			let problemOnLeftSide = problemToEvaluate.substring(0, problemToEvaluate.indexOf("="));
+			let problemOnRightSide = problemToEvaluate.substring(problemToEvaluate.indexOf("=") + 1);
+			let valid = assignValueToRoomPlayerVariable(problemOnLeftSide, problemOnRightSide, room, socket);
+			return valid;
+		}
+		default: {
+			return false;
 		}
 	}
 }
 
 /**
  * "Formats" the problem.
- * @param {*} problemToFix 
- * @returns 
+ * @param {*} problemToFix
+ * @returns
  */
 function fixProblem(problemToFix) {
 	problemToFix = problemToFix.toString();
@@ -846,144 +773,6 @@ function fixProblem(problemToFix) {
 	return problemToFix;
 }
 
-/**
- * <========= SINGLEPLAYER ROOM FUNCTIONS =========>
- */
-
-/**
- * Evaluates a sent problem in a Singleplayer room.
- * @param {*} result 
- * @param {*} room 
- * @returns 
- */
-function evaluateSingleplayerRoomProblemResult(result, room) {
-	let hasAnswers = false;
-	let requestedValues = [];
-	let answers = 0;
-	let enemiesToKill = [];
-	let originalProblem = room.data.currentGame.currentProblemAsText;
-	if (result) {
-		// evaluate calculated string
-		for (i = 0; i < room.data.currentGame.enemiesOnField.length; i++) {
-			requestedValues.push(room.data.currentGame.enemiesOnField[i] === undefined && room.data.currentGame.enemiesOnField[i].sPosition < 0 ? undefined : room.data.currentGame.enemiesOnField[i].requestedValue);
-		}
-		for (i = 0; i < requestedValues.length; i++) {
-			if (result == calculateProblem(requestedValues[i], room) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
-				answers++;
-				enemiesToKill.push(room.data.currentGame.enemiesOnField[i]);
-			}
-		}
-		if (answers > 0 && result !== undefined) {
-			killSingleplayerRoomEnemies(enemiesToKill, room);
-			replaceSingleplayerRoomTiles(room);
-			enemiesToKill = [];
-			hasAnswers = true;
-		}
-		return hasAnswers;
-	} else {
-		// evaluate RAW result (i.e. the problem string itself)
-		for (i = 0; i < room.data.currentGame.enemiesOnField.length; i++) {
-			requestedValues.push(room.data.currentGame.enemiesOnField[i] === undefined && room.data.currentGame.enemiesOnField[i].sPosition < 0 ? undefined : room.data.currentGame.enemiesOnField[i].requestedValue);
-		}
-
-		for (i = 0; i < requestedValues.length; i++) {
-			if (result == calculateProblem(requestedValues[i], room) || (requestedValues[i] !== undefined ? originalProblem.toString() == requestedValues[i].toString() : false)) {
-				answers++;
-				enemiesToKill.push(room.data.currentGame.enemiesOnField[i]);
-			}
-		}
-		if (answers > 0 && result !== undefined) {
-			killSingleplayerRoomEnemies(enemiesToKill, room);
-			replaceSingleplayerRoomTiles(room);
-			enemiesToKill = [];
-			hasAnswers = true;
-		}
-		return hasAnswers;
-	}
-}
-
-/**
- * Kills all kill-able Singleplayer Room enemies.
- * @param {*} enemiesToKill 
- * @param {*} room 
- */
-function killSingleplayerRoomEnemies(enemiesToKill, room) {
-	for (i = 0; i < enemiesToKill.length; i++) {
-		// Reset counter
-		room.data.currentGame.framesElapsedSinceLastEnemyKill = 0;
-		room.data.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
-
-		room.data.currentGame.currentCombo++;
-
-		room.data.currentGame.currentScore += Math.round(
-			100 * calculateProblemLengthMultiplier(room.data.currentGame.currentProblemAsText.length) * calculateComboMultiplier(room.data.currentGame.currentCombo) * calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
-		);
-
-		room.data.currentGame.scoreGainIndicators.push({
-			number: room.data.currentGame.enemiesKilled + 1,
-			sPosition: enemiesToKill[i].sPosition,
-			content:
-				"+" +
-				Math.round(
-					100 * calculateProblemLengthMultiplier(room.data.currentGame.currentProblemAsText.length) * calculateComboMultiplier(room.data.currentGame.currentCombo) * calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
-				).toString(),
-			ageInMilliseconds: 0,
-		});
-
-		room.data.currentGame.enemiesOnField[room.data.currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
-
-		room.data.currentGame.enemiesKilled++;
-	}
-}
-
-/**
- * Assigns a value to a Singleplayer room variable.
- * @param {*} problemOnLeftSide 
- * @param {*} problemOnRightSide 
- * @param {*} room 
- * @returns 
- */
-function assignValueToSingleplayerRoomVariable(problemOnLeftSide, problemOnRightSide, room) {
-	if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room) != null) {
-		switch (problemOnLeftSide) {
-			case "a": {
-				room.data.currentGame.valueOfVariableA = calculateProblem(problemOnRightSide, room);
-				break;
-			}
-			case "b": {
-				room.data.currentGame.valueOfVariableB = calculateProblem(problemOnRightSide, room);
-				break;
-			}
-			case "c": {
-				room.data.currentGame.valueOfVariableC = calculateProblem(problemOnRightSide, room);
-				break;
-			}
-			case "d": {
-				room.data.currentGame.valueOfVariableD = calculateProblem(problemOnRightSide, room);
-				break;
-			}
-		}
-		replaceSingleplayerRoomTiles(room);
-		return true;
-	}
-	return false;
-}
-
-/**
- * Replaces tiles in a Singleplayer room.
- * @param {*} room 
- */
-function replaceSingleplayerRoomTiles(room) {
-	for (i = 0; i < room.data.currentGame.tilesInCurrentProblem.length; i++) {
-		let t = new tile.Tile(generateRandomTileTermID(room), i, false, room.data.currentGame.tilesCreated + 1);
-		room.data.currentGame.tilesCreated++;
-		room.data.currentGame.tilesOnBoard[room.data.currentGame.tilesInCurrentProblem[i]] = t;
-	}
-
-	room.data.currentGame.currentProblemAsText = "";
-	room.data.currentGame.currentProblemAsBeautifulText = "";
-	room.data.currentGame.tilesInCurrentProblem = [];
-}
 
 // end
 
@@ -993,12 +782,12 @@ function replaceSingleplayerRoomTiles(room) {
 
 /**
  * Evaluates a problem for a player in a Multiplayer room.
- * @param {*} result 
- * @param {*} room 
- * @param {*} socket 
- * @returns 
+ * @param {*} result
+ * @param {*} room
+ * @param {*} socket
+ * @returns
  */
-function evaluateMultiplayerRoomProblemResult(result, room, socket) {
+function evaluateProblemResult(result, room, socket) {
 	let hasAnswers = false;
 	let requestedValues = [];
 	let answers = 0;
@@ -1020,8 +809,8 @@ function evaluateMultiplayerRoomProblemResult(result, room, socket) {
 			}
 		}
 		if (answers > 0 && result !== undefined) {
-			killMultiplayerRoomEnemies(enemiesToKill, room, socket);
-			replaceMultiplayerRoomTiles(room, socket);
+			killPlayerRoomEnemies(enemiesToKill, room, socket);
+			replacePlayerRoomTiles(room, socket);
 			enemiesToKill = [];
 			hasAnswers = true;
 		}
@@ -1043,8 +832,8 @@ function evaluateMultiplayerRoomProblemResult(result, room, socket) {
 			}
 		}
 		if (answers > 0 && result !== undefined) {
-			killMultiplayerRoomEnemies(enemiesToKill, room, socket);
-			replaceMultiplayerRoomTiles(room, socket);
+			killPlayerRoomEnemies(enemiesToKill, room, socket);
+			replacePlayerRoomTiles(room, socket);
 			enemiesToKill = [];
 			hasAnswers = true;
 		}
@@ -1054,167 +843,220 @@ function evaluateMultiplayerRoomProblemResult(result, room, socket) {
 
 /**
  * Kills enemies for a player in a Multiplayer room.
- * @param {*} enemiesToKill 
- * @param {*} room 
- * @param {*} socket 
+ * @param {*} enemiesToKill
+ * @param {*} room
+ * @param {*} socket
  */
-function killMultiplayerRoomEnemies(enemiesToKill, room, socket) {
-	for (i = 0; i < enemiesToKill.length; i++) {
-		// Reset counter
-		room.data.currentGame.players[socket.id].currentGame.framesElapsedSinceLastEnemyKill = 0;
-		room.data.currentGame.players[socket.id].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
+function killPlayerRoomEnemies(enemiesToKill, room, socket) {
+	let indicatorName;
+	let statToAddTo;
 
-		room.data.currentGame.players[socket.id].currentGame.currentCombo++;
+	switch (room.gameMode) {
+		case "easySingleplayerMode":
+		case "standardSingleplayerMode": {
+			indicatorName = "scoreGainIndicators";
+			statToAddTo = "currentScore";
+			for (i = 0; i < enemiesToKill.length; i++) {
+				// Reset counter
+				room.data.currentGame.players[socket.id].currentGame.framesElapsedSinceLastEnemyKill = 0;
+				room.data.currentGame.players[socket.id].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
 
-		let enemiesSent = Math.floor(
-			((room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length - 3) / 1.05 + (room.data.currentGame.players[socket.id].currentGame.currentCombo - 2) + (enemiesToKill[i].sPosition - 5) / 1.25 + 2) / 1.25
-		);
+				room.data.currentGame.players[socket.id].currentGame.currentCombo++;
 
-		room.data.currentGame.players[socket.id].currentGame.enemiesSent += Math.max(0, enemiesSent);
+				room.data.currentGame.players[socket.id].currentGame.currentScore += Math.round(
+					100 *
+						calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
+						calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
+						calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+				);
 
-		let playerToSendEnemiesTo = _.sample(room.data.currentGame.players);
-		while (playerToSendEnemiesTo.currentGame.connectionID == socket.id) {
-			playerToSendEnemiesTo = _.sample(room.data.currentGame.players);
-		}
+				room.data.currentGame.players[socket.id].currentGame.scoreGainIndicators.push({
+					number: room.data.currentGame.players[socket.id].currentGame.enemiesKilled + 1,
+					sPosition: enemiesToKill[i].sPosition,
+					content:
+						"+" +
+						Math.round(
+							100 *
+								calculateProblemLengthMultiplier(room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length) *
+								calculateComboMultiplier(room.data.currentGame.players[socket.id].currentGame.currentCombo) *
+								calculateEnemyPositionMultiplier(enemiesToKill[i].sPosition)
+						).toString(),
+					ageInMilliseconds: 0,
+				});
 
-		room.data.currentGame.players[socket.id].currentGame.enemiesSentIndicators.push({
-			number: room.data.currentGame.players[socket.id].currentGame.enemiesKilled + 1,
-			sPosition: enemiesToKill[i].sPosition,
-			content: Math.max(0, enemiesSent).toString(),
-			ageInMilliseconds: 0,
-		});
+				room.data.currentGame.players[socket.id].currentGame.enemiesOnField[room.data.currentGame.players[socket.id].currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
 
-		while (enemiesSent > 0) {
-			if (room.data.currentGame.players[socket.id].currentGame.enemiesPending <= 0) {
-				room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemiesPending += 1;
-				room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemySenders.push(room.data.currentGame.players[socket.id].currentGame.playerName);
-			} else {
-				room.data.currentGame.players[socket.id].currentGame.enemiesPending -= 1;
+				room.data.currentGame.players[socket.id].currentGame.enemiesKilled++;
 			}
-			enemiesSent--;
+			break;
 		}
+		case "defaultMultiplayerMode": {
+			indicatorName = "enemiesSentIndicators";
+			statToAddTo = "enemiesSent";
+			for (i = 0; i < enemiesToKill.length; i++) {
+				// Reset counter
+				room.data.currentGame.players[socket.id].currentGame.framesElapsedSinceLastEnemyKill = 0;
+				room.data.currentGame.players[socket.id].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds = 0;
 
-		room.data.currentGame.players[socket.id].currentGame.enemiesOnField[room.data.currentGame.players[socket.id].currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
+				room.data.currentGame.players[socket.id].currentGame.currentCombo++;
 
-		room.data.currentGame.players[socket.id].currentGame.enemiesKilled++;
+				let enemiesSent = Math.floor(
+					((room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.length - 3) / 1.05 + (room.data.currentGame.players[socket.id].currentGame.currentCombo - 2) + (enemiesToKill[i].sPosition - 5) / 1.25 + 2) / 1.25
+				);
+
+				room.data.currentGame.players[socket.id].currentGame.enemiesSent += Math.max(0, enemiesSent);
+
+				let playerToSendEnemiesTo = _.sample(room.data.currentGame.players);
+				while (playerToSendEnemiesTo.currentGame.connectionID == socket.id) {
+					playerToSendEnemiesTo = _.sample(room.data.currentGame.players);
+				}
+
+				room.data.currentGame.players[socket.id].currentGame.enemiesSentIndicators.push({
+					number: room.data.currentGame.players[socket.id].currentGame.enemiesKilled + 1,
+					sPosition: enemiesToKill[i].sPosition,
+					content: Math.max(0, enemiesSent).toString(),
+					ageInMilliseconds: 0,
+				});
+
+				while (enemiesSent > 0) {
+					if (room.data.currentGame.players[socket.id].currentGame.enemiesPending <= 0) {
+						room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemiesPending += 1;
+						room.data.currentGame.players[playerToSendEnemiesTo.currentGame.connectionID].currentGame.enemySenders.push(room.data.currentGame.players[socket.id].currentGame.playerName);
+					} else {
+						room.data.currentGame.players[socket.id].currentGame.enemiesPending -= 1;
+					}
+					enemiesSent--;
+				}
+
+				room.data.currentGame.players[socket.id].currentGame.enemiesOnField[room.data.currentGame.players[socket.id].currentGame.enemiesOnField.indexOf(enemiesToKill[i])].toDestroy = true;
+
+				room.data.currentGame.players[socket.id].currentGame.enemiesKilled++;
+			}
+			break;
+		}
+		default: {
+			console.error(log.addMetadata(`${room.gameMode} is not a valid game mode!`, "error"));
+		}
 	}
 }
 
 /**
  * Assigns a value to a player in a Multiplayer Room.
- * @param {*} problemOnLeftSide 
- * @param {*} problemOnRightSide 
- * @param {*} room 
- * @param {*} socket 
- * @returns 
+ * @param {*} problemOnLeftSide
+ * @param {*} problemOnRightSide
+ * @param {*} room
+ * @param {*} socket
+ * @returns
  */
-function assignValueToMultiplayerRoomVariable(problemOnLeftSide, problemOnRightSide, room, socket) {
-	if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room) != null) {
+function assignValueToRoomPlayerVariable(problemOnLeftSide, problemOnRightSide, room, socket) {
+	if (problemOnLeftSide.match(/[a-d]/) != null && calculateProblem(problemOnRightSide, room, socket) != null) {
 		switch (problemOnLeftSide) {
 			case "a": {
-				room.data.currentGame.players[socket.id].currentGame.valueOfVariableA = calculateProblem(problemOnRightSide, room);
+				room.data.currentGame.players[socket.id].currentGame.valueOfVariableA = calculateProblem(problemOnRightSide, room, socket);
 				break;
 			}
 			case "b": {
-				room.data.currentGame.players[socket.id].currentGame.valueOfVariableB = calculateProblem(problemOnRightSide, room);
+				room.data.currentGame.players[socket.id].currentGame.valueOfVariableB = calculateProblem(problemOnRightSide, room, socket);
 				break;
 			}
 			case "c": {
-				room.data.currentGame.players[socket.id].currentGame.valueOfVariableC = calculateProblem(problemOnRightSide, room);
+				room.data.currentGame.players[socket.id].currentGame.valueOfVariableC = calculateProblem(problemOnRightSide, room, socket);
 				break;
 			}
 			case "d": {
-				room.data.currentGame.players[socket.id].currentGame.valueOfVariableD = calculateProblem(problemOnRightSide, room);
+				room.data.currentGame.players[socket.id].currentGame.valueOfVariableD = calculateProblem(problemOnRightSide, room, socket);
 				break;
 			}
 		}
-		replaceMultiplayerRoomTiles(room);
+		replacePlayerRoomTiles(room, socket);
 		return true;
 	}
 	return false;
 }
 
-
 /**
  * Replaces tiles for a player in a Multiplayer Room.
- * @param {*} room 
- * @param {*} socket 
+ * @param {*} room
+ * @param {*} socket
  */
-function replaceMultiplayerRoomTiles(room, socket) {
-	for (i = 0; i < room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length; i++) {
-		let t = new tile.Tile(getMultiplayerTileQueueOfPlayer(room, socket), i, false, room.data.currentGame.players[socket.id].currentGame.tilesCreated + 1);
-		room.data.currentGame.players[socket.id].currentGame.tilesCreated++;
-		room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[i]] = t;
-	}
+function replacePlayerRoomTiles(room, socket) {
+	switch (room.gameMode) {
+		case "easySingleplayerMode":
+		case "standardSingleplayerMode": {
+			for (i = 0; i < room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length; i++) {
+				let t = new tile.Tile(generateRandomTileTermID(room, socket.id), i, false, room.data.currentGame.players[socket.id].currentGame.tilesCreated + 1);
+				room.data.currentGame.players[socket.id].currentGame.tilesCreated++;
+				room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[i]] = t;
+			}
 
-	room.data.currentGame.players[socket.id].currentGame.currentProblemAsText = "";
-	room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText = "";
-	room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem = [];
+			room.data.currentGame.players[socket.id].currentGame.currentProblemAsText = "";
+			room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText = "";
+			room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem = [];
+			break;
+		}
+		case "defaultMultiplayerMode": {
+			for (i = 0; i < room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length; i++) {
+				let t = new tile.Tile(getMultiplayerTileQueueOfPlayer(room, socket), i, false, room.data.currentGame.players[socket.id].currentGame.tilesCreated + 1);
+				room.data.currentGame.players[socket.id].currentGame.tilesCreated++;
+				room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[i]] = t;
+			}
+
+			room.data.currentGame.players[socket.id].currentGame.currentProblemAsText = "";
+			room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText = "";
+			room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem = [];
+			break;
+		}
+		default: {
+			console.error(log.addMetadata(`${room.gameMode} is not a valid game mode!`, "error"));
+		}
+	}
 }
 
 /**
  * Generates a tile ID for a Singleplayer room.
- * @param {*} room 
- * @returns 
+ * @param {*} room
+ * @returns
  */
-function generateRandomTileTermID(room) {
-	let roll = room.data.currentGame.availableTermsIndexes[Math.floor(Math.random() * room.data.currentGame.availableTermsIndexes.length)];
+function generateRandomTileTermID(room, player) {
+	let roll = room.data.currentGame.players[player].currentGame.availableTermsIndexes[Math.floor(Math.random() * room.data.currentGame.players[player].currentGame.availableTermsIndexes.length)];
 	let toReturn = roll;
-	room.data.currentGame.bagQuantities[roll]--;
-	if (room.data.currentGame.bagQuantities[roll] <= 0) {
-		room.data.currentGame.availableTermsIndexes.splice(room.data.currentGame.availableTermsIndexes.indexOf(roll), 1);
-		if (room.data.currentGame.availableTermsIndexes.length <= 0) {
-			room.data.currentGame.bagQuantities = [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2];
-			room.data.currentGame.availableTermsIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+	room.data.currentGame.players[player].currentGame.bagQuantities[roll]--;
+	if (room.data.currentGame.players[player].currentGame.bagQuantities[roll] <= 0) {
+		room.data.currentGame.players[player].currentGame.availableTermsIndexes.splice(room.data.currentGame.players[player].currentGame.availableTermsIndexes.indexOf(roll), 1);
+		if (room.data.currentGame.players[player].currentGame.availableTermsIndexes.length <= 0) {
+			room.data.currentGame.players[player].currentGame.bagQuantities = [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+			room.data.currentGame.players[player].currentGame.availableTermsIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
 		}
 	}
 	return toReturn;
 }
 
-
 /**
  * Calculates the problem given.
- * @param {*} problem 
- * @param {*} room 
- * @param {*} socket 
+ * @param {*} problem
+ * @param {*} room
+ * @param {*} socket
  * @returns The result of the problem, or null if a result could not be given.
  */
 function calculateProblem(problem, room, socket) {
-	if (room.type == "singleplayer") {
-		try {
-			return mexp.eval(
-				problem,
-				[
-					{ type: 3, token: "a", show: "a", value: "a" },
-					{ type: 3, token: "b", show: "b", value: "b" },
-					{ type: 3, token: "c", show: "c", value: "c" },
-					{ type: 3, token: "d", show: "d", value: "d" },
-				],
-				{ a: room.data.currentGame.valueOfVariableA, b: room.data.currentGame.valueOfVariableB, c: room.data.currentGame.valueOfVariableC, d: room.data.currentGame.valueOfVariableD }
-			);
-		} catch (error) {
-			return null;
-		}
-	} else {
-		try {
-			return mexp.eval(
-				problem,
-				[
-					{ type: 3, token: "a", show: "a", value: "a" },
-					{ type: 3, token: "b", show: "b", value: "b" },
-					{ type: 3, token: "c", show: "c", value: "c" },
-					{ type: 3, token: "d", show: "d", value: "d" },
-				],
-				{
-					a: room.data.currentGame.players[socket.id].currentGame.valueOfVariableA,
-					b: room.data.currentGame.players[socket.id].currentGame.valueOfVariableB,
-					c: room.data.currentGame.players[socket.id].currentGame.valueOfVariableC,
-					d: room.data.currentGame.players[socket.id].currentGame.valueOfVariableD,
-				}
-			);
-		} catch (error) {
-			return null;
-		}
+	try {
+		return mexp.eval(
+			problem,
+			[
+				{ type: 3, token: "a", show: "a", value: "a" },
+				{ type: 3, token: "b", show: "b", value: "b" },
+				{ type: 3, token: "c", show: "c", value: "c" },
+				{ type: 3, token: "d", show: "d", value: "d" },
+			],
+			{
+				a: room.data.currentGame.players[socket.id].currentGame.valueOfVariableA,
+				b: room.data.currentGame.players[socket.id].currentGame.valueOfVariableB,
+				c: room.data.currentGame.players[socket.id].currentGame.valueOfVariableC,
+				d: room.data.currentGame.players[socket.id].currentGame.valueOfVariableD,
+			}
+		);
+	} catch (error) {
+		return null;
 	}
 }
 
@@ -1233,7 +1075,7 @@ function calculateEnemyPositionMultiplier(sPosition) {
 }
 
 function calculateComboMultiplier(combo) {
-	return 1 + (0.1 * Math.max(combo, 0));
+	return 1 + 0.1 * Math.max(combo, 0);
 }
 
 function convertTermIDToTerm(id) {
@@ -1303,78 +1145,37 @@ function convertPressedKeyToTermID(keyPressed, playerKeybinds, room, socket) {
 }
 
 function deleteLastSelectedTerm(room, socket) {
-	switch (room.type) {
-		case modes.SINGLEPLAYER: {
-			if (room.data.currentGame.tilesInCurrentProblem.length > 0) {
-				processTileClick(room.data.currentGame.tilesInCurrentProblem[room.data.currentGame.tilesInCurrentProblem.length - 1], room, socket);
-			}
-			break;
-		}
-		case modes.DEFAULT_MULTIPLAYER: {
-			if (room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length > 0) {
-				processTileClick(room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length - 1], room, socket);
-			}
-		}
+	if (room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length > 0) {
+		processTileClick(room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem[room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length - 1], room, socket);
 	}
 }
 
 function forceSelectTileWithTermID(termIDToSelect, room, socket) {
-	if (room.type == modes.SINGLEPLAYER) {
-		for (i = 0; i < 49; i++) {
-			if (room.data.currentGame.tilesOnBoard[i].termID == termIDToSelect && room.data.currentGame.tilesOnBoard[i].selected == false) {
-				processTileClick(i, room, socket);
-				return; // break
-			}
-		}
-
-		// None found
-	} else if (room.type == modes.DEFAULT_MULTIPLAYER) {
-		for (i = 0; i < 49; i++) {
-			if (room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[i].termID == termIDToSelect && room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[i].selected == false) {
-				processTileClick(i, room, socket);
-				return; // break
-			}
+	for (i = 0; i < 49; i++) {
+		if (room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[i].termID == termIDToSelect && room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[i].selected == false) {
+			processTileClick(i, room, socket);
+			return; // break
 		}
 	}
 }
 
 function processTileClick(slot, room, socket) {
 	if (socket.currentRoomSocketIsIn != "") {
-		if (room.type == modes.SINGLEPLAYER && socket.socketIsHostOfRoomItIsIn) {
-			// socket is ignored here
-			room.data.currentGame.actionsPerformed++;
-			room.data.currentGame.tilesOnBoard[slot].selected = !room.data.currentGame.tilesOnBoard[slot].selected;
-			if (room.data.currentGame.tilesOnBoard[slot].selected) {
-				room.data.currentGame.tilesInCurrentProblem.push(slot);
-				room.data.currentGame.currentProblemAsText += convertTermIDToTerm(room.data.currentGame.tilesOnBoard[slot].termID);
-				room.data.currentGame.currentProblemAsBeautifulText += convertTermIDToBeautifulString(room.data.currentGame.tilesOnBoard[slot].termID);
-			} else {
-				let index = room.data.currentGame.tilesInCurrentProblem.indexOf(slot);
-				room.data.currentGame.tilesInCurrentProblem.splice(index, 1);
-				let temp = room.data.currentGame.currentProblemAsText.split("");
-				temp.splice(index, 1);
-				room.data.currentGame.currentProblemAsText = temp.join("");
-				let temp2 = room.data.currentGame.currentProblemAsBeautifulText.split("");
-				temp2.splice(index, 1);
-				room.data.currentGame.currentProblemAsBeautifulText = temp2.join("");
-			}
-		} else if (room.type == modes.DEFAULT_MULTIPLAYER) {
-			room.data.currentGame.players[socket.id].currentGame.actionsPerformed++;
-			room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].selected = !room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].selected;
-			if (room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].selected) {
-				room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.push(slot);
-				room.data.currentGame.players[socket.id].currentGame.currentProblemAsText += convertTermIDToTerm(room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].termID);
-				room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText += convertTermIDToBeautifulString(room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].termID);
-			} else {
-				let index = room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.indexOf(slot);
-				room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.splice(index, 1);
-				let temp = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.split("");
-				temp.splice(index, 1);
-				room.data.currentGame.players[socket.id].currentGame.currentProblemAsText = temp.join("");
-				let temp2 = room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText.split("");
-				temp2.splice(index, 1);
-				room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText = temp2.join("");
-			}
+		room.data.currentGame.players[socket.id].currentGame.actionsPerformed++;
+		room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].selected = !room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].selected;
+		if (room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].selected) {
+			room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.push(slot);
+			room.data.currentGame.players[socket.id].currentGame.currentProblemAsText += convertTermIDToTerm(room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].termID);
+			room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText += convertTermIDToBeautifulString(room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[slot].termID);
+		} else {
+			let index = room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.indexOf(slot);
+			room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.splice(index, 1);
+			let temp = room.data.currentGame.players[socket.id].currentGame.currentProblemAsText.split("");
+			temp.splice(index, 1);
+			room.data.currentGame.players[socket.id].currentGame.currentProblemAsText = temp.join("");
+			let temp2 = room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText.split("");
+			temp2.splice(index, 1);
+			room.data.currentGame.players[socket.id].currentGame.currentProblemAsBeautifulText = temp2.join("");
 		}
 	}
 }
@@ -1401,7 +1202,6 @@ module.exports = {
 	createNewDefaultMultiplayerGameData,
 	startSingleplayerGame,
 	submitSingleplayerGame,
-
 
 	// minor
 	checkProblem,
