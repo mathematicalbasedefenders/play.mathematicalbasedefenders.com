@@ -180,9 +180,9 @@ function update(deltaTime) {
 					game.computeUpdate(rooms[roomID], deltaTime);
 					io.to(roomID).emit("currentGameData", JSON.stringify(rooms[roomID].data.currentGame.players[connections[0]]));
 					dataSentWithoutCompression += utilities.getSizeInBytes(JSON.stringify(rooms[roomID].data.currentGame.players[connections[0]]));
-					//FIXME: why here?
 					for (let enemy in rooms[roomID].data.currentGame.players[connections[0]].currentGame.enemiesOnField) {
-						if (rooms[roomID].data.currentGame.players[connections[0]].currentGame.toDestroy) {
+						if (rooms[roomID].data.currentGame.players[connections[0]].currentGame.enemiesOnField[enemy].toDestroy) {
+							// FIXME: this?
 							delete rooms[roomID].data.currentGame.players[connections[0]].currentGame.enemiesOnField[enemy];
 						}
 					}

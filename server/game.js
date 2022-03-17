@@ -89,15 +89,6 @@ const GAME_SETTINGS = {
  * @param {number} deltaTimeInMilliseconds
  */
 async function computeUpdate(room, deltaTimeInMilliseconds) {
-	// if (room.type == modes.SINGLEPLAYER) {
-	// 	if (room.playing) {
-	// 		computeSingleplayerRoomUpdate(room, deltaTimeInMilliseconds);
-	// 	}
-	// } else if (room.type == modes.DEFAULT_MULTIPLAYER) {
-	// 	if (room.playing && room.data.currentGame.playersAlive.length > 1) {
-	// 		computeMultiplayerRoomUpdate(room, deltaTimeInMilliseconds);
-	// 	}
-	// }
 	computeGlobalUpdateForRoom(room, deltaTimeInMilliseconds);
 	computeUpdateForRoom(room, deltaTimeInMilliseconds);
 }
