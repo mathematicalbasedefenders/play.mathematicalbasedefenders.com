@@ -4,7 +4,6 @@ socket.on("currentGameData", (gameData) => {
 	if (!firstUpdateReceived) {
 		forceWeakResizeContainer();
 		firstUpdateReceived = true;
-		console.log(gameData);
 	}
 	switch (currentGameData.currentGame.mode) {
 		case "singleplayer": {
