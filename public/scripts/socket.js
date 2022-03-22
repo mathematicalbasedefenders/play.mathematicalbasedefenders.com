@@ -384,11 +384,12 @@ socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
 		case "updatePlayerList": {
 			let formattedPlayers = "";
 			for (let i = 0; i < parameters[0].length; i++) {
-				formattedPlayers += parameters[0][i];
+				formattedPlayers += `<button class="multiplayer-player-list-player-name-container" onClick="showUserInformationModal('${parameters[0][i]}')">${parameters[0][i]}</button>`;
 				if (i != parameters[0].length - 1) {
 					formattedPlayers += "<br>";
 				}
 			}
+			console.log(formattedPlayers);
 			$("#default-multiplayer-room-player-list").html(formattedPlayers);
 			break;
 		}
@@ -433,11 +434,11 @@ socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
 });
 
 socket.on("updateText", (selector, text) => {
-	$(selector).text(text);
+	updateText(selector, text);
 });
 
 socket.on("updateCSS", (selector, property, value) => {
-	$(selector).css({[property]: value});
+	updateCSS(selector, property, value);
 });
 
 
@@ -451,3 +452,4 @@ socket.on("disconnect", (reason) => {
 	alert("Disconnected from server. Click OK to refresh page. Error Code: " + reason);
 	location.reload();
 });
+

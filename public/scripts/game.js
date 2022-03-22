@@ -53,14 +53,11 @@ const settingsScreens = {
 	ONLINE_SETTINGS_SCREEN: "onlineSettingsScreen",
 };
 
-
-
 // ui
 var pixiCanvas = document.getElementById("pixi-canvas");
 document.getElementById("pixi-canvas").style.display = "none";
 $("#text-modal-container").hide(0);
-
-
+$("#user-information-modal-container").hide(0);
 
 pixiCanvas.width = window.innerWidth;
 pixiCanvas.height = window.innerHeight;
@@ -101,7 +98,6 @@ var game = {
 	lastSingleplayerGameModePlayed: null,
 };
 
-
 var finalGameData;
 
 // Constants
@@ -113,7 +109,8 @@ const TERMS_AS_BEAUTIFUL_STRINGS = ["0", "1", "2", "3", "4", "5", "6", "7", "8",
 var app = new PIXI.Application({
 	width: window.innerWidth,
 	height: window.innerHeight,
-	backgroundColor: 0xeeeeee,
+	backgroundColor: 0x000000,
+	backgroundAlpha: 0,
 	autoResize: true,
 	resizeTo: window,
 	resolution: devicePixelRatio,
@@ -169,7 +166,6 @@ var baseTexture = new PIXI.Texture.from("assets/images/game-screen/base.png");
 // Text
 
 var singleplayerScreenContainerItems = {
-
 	sendButtonSprite: new PIXI.Sprite(sendButtonTexture),
 
 	baseSprite: new PIXI.Sprite(baseTexture),
@@ -297,7 +293,6 @@ multiplayerScreenContainerItems.playerNameText.style.align = "center";
 multiplayerScreenContainerItems.playerNameText.tint = 0x000000;
 multiplayerScreenContainerItems.playerNameText.y = initialWindowHeight / 2 + 440;
 
-
 multiplayerScreenContainerItems.currentProblemText.style.align = "center";
 multiplayerScreenContainerItems.currentProblemText.tint = 0x000000;
 multiplayerScreenContainerItems.currentProblemText.y = initialWindowHeight / 2 - 200;
@@ -411,14 +406,12 @@ let resize = function resize() {
 	resizeContainer();
 };
 
-window.onload = (() => {
-	$("#loading-screen-text").html("Mathematical Base Defenders is in its early development stage.<br>Features may not work unexpectedly, and current product is not indicative of final product.<br><br>Mathematical Base Defenders is <span style='color:#ff0000;background-color:#000000;'>not</span> a substitute for a legitimate math tutor.");
+window.onload = () => {
+	$("#loading-screen-text").html(
+		"Mathematical Base Defenders is in its early development stage.<br>Features may not work unexpectedly, and current product is not indicative of final product.<br><br>Mathematical Base Defenders is <span style='color:#ff0000;background-color:#000000;'>not</span> a substitute for a legitimate math tutor."
+	);
 	$("#loading-screen-container").delay(2000).fadeOut(1000).hide(0);
-});
-
-
-
-
+};
 
 window.addEventListener("resize", resize);
 
@@ -468,11 +461,9 @@ app.ticker.add((delta) => {
 			multiplayerScreenContainerItems.actionsPerMinuteText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.actionsPerMinuteText.text, textStyles.SIZE_40_FONT).width;
 			multiplayerScreenContainerItems.currentComboText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.currentComboText.text, textStyles.SIZE_40_FONT).width;
 			multiplayerScreenContainerItems.currentComboTimeLeftText.x = initialWindowWidth / 2 - 260 - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.currentComboTimeLeftText.text, textStyles.SIZE_24_FONT).width;
-			
-			
+
 			multiplayerScreenContainerItems.playerNameText.x =
-				(initialWindowWidth - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.playerNameText.text === undefined ? "" : multiplayerScreenContainerItems.playerNameText.text.toString(), textStyles.SIZE_24_FONT).width) /
-				2;
+				(initialWindowWidth - PIXI.TextMetrics.measureText(multiplayerScreenContainerItems.playerNameText.text === undefined ? "" : multiplayerScreenContainerItems.playerNameText.text.toString(), textStyles.SIZE_24_FONT).width) / 2;
 			break;
 		}
 	}
@@ -562,7 +553,7 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
 		}
 		case screens.MULTIPLAYER_GAME_SCREEN: {
 			// set properties
-			for (let i = 0; i < game.opponentGameInstances.length; i++){
+			for (let i = 0; i < game.opponentGameInstances.length; i++) {
 				console.log(game.opponentGameInstances[i]);
 				game.opponentGameInstances[i] && game.opponentGameInstances[i].destroy();
 			}
@@ -576,7 +567,7 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
 			break;
 		}
 		case screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN: {
-			for (let i = 0; i < game.opponentGameInstances.length; i++){
+			for (let i = 0; i < game.opponentGameInstances.length; i++) {
 				console.log(game.opponentGameInstances[i]);
 				game.opponentGameInstances[i] && game.opponentGameInstances[i].destroy();
 			}
@@ -684,7 +675,9 @@ function processKeypress(event) {
 			// check if input is from numpad
 			if (event.key != "Escape") {
 				if (event.key == "/") {
-					if ($("#multiplayer-room-message-box").is(":focus")){return;}
+					if ($("#multiplayer-room-message-box").is(":focus")) {
+						return;
+					}
 					$("#multiplayer-room-message-box").focus();
 					event.preventDefault();
 					$("#multiplayer-room-message-box").val("");
@@ -777,8 +770,6 @@ function generateRandomColor() {
 function resizeContainer() {
 	let ratio = Math.min(window.innerWidth / initialWindowWidth, (window.screen.availHeight - (window.outerHeight - window.innerHeight)) / initialWindowHeight);
 
-
-
 	mainMenuScreenContainer.scale.x = ratio;
 	mainMenuScreenContainer.scale.y = ratio;
 	mainMenuScreenContainer.position.y = (window.innerHeight - mainMenuScreenContainer.height) / 2;
@@ -792,9 +783,6 @@ function resizeContainer() {
 		singleplayerScreenContainer.position.x = 0;
 	}
 
-
-
-	
 	singleplayerScreenContainer.position.y = (window.innerHeight - singleplayerScreenContainer.height) / 2;
 
 	multiplayerScreenContainer.scale.x = ratio;
@@ -807,7 +795,6 @@ function resizeContainer() {
 	} else {
 		multiplayerScreenContainer.position.x = 0;
 	}
-
 
 	renderer.resize(initialWindowWidth * ratio, initialWindowHeight * ratio);
 }
@@ -842,86 +829,6 @@ function removeAllRenderedEnemies() {
 // "Predetermined" Generators
 
 // Converters
-
-function convertTermIDToBeautifulString(id) {
-	return id == 12 && settings.video.multiplicationSignForm == "dot" ? "·" : TERMS_AS_BEAUTIFUL_STRINGS[id];
-}
-
-function turnMillisecondsToTime(milliseconds) {
-	let h = Math.floor(milliseconds / (60 * 60 * 1000));
-	let dm = milliseconds % (60 * 60 * 1000);
-	let m = Math.floor(dm / (60 * 1000));
-	let ds = dm % (60 * 1000);
-	let s = Math.floor(ds / 1000);
-
-	let hh = h < 10 ? "0" + h : h;
-	let mm = m < 10 ? "0" + m : m;
-	let ss = s < 10 ? "0" + s : s;
-	let ms = String(Math.floor(ds % 1000)).padStart(3, "0");
-
-	if (h >= 1) {
-		return hh + ":" + mm + ":" + ss + "." + ms;
-	} else {
-		return mm + ":" + ss + "." + ms;
-	}
-}
-
-function calculateMessageForGlobalRank(rank) {
-	if (rank == 1) {
-		return "New World Record!";
-	} else if (rank >= 2 && rank <= 50) {
-		return "Global Rank #" + rank;
-	} else {
-		return "";
-	}
-}
-
-function createEnemyColor() {
-	switch (settings.video.enemyColor) {
-		case "randomForEach": {
-			return generateRandomColor();
-		}
-		case "random": {
-			if (typeof fixedEnemyColor === "undefined") {
-				fixedEnemyColor = generateRandomColor();
-			}
-			return fixedEnemyColor;
-		}
-		case "red": {
-			return 0xff0000;
-		}
-		case "orange": {
-			return 0xff8800;
-		}
-		case "yellow": {
-			return 0xffd900;
-		}
-		case "green": {
-			return 0x00ff00;
-		}
-		case "blue": {
-			return 0x0000ff;
-		}
-		case "purple": {
-			return 0xa600ff;
-		}
-		case "white": {
-			return 0xffffff;
-		}
-		case "gray": {
-			return 0x3c3c3c;
-		}
-		case "black": {
-			return 0x000000;
-		}
-		case "backgroundColor": {
-			return 0xeeeeee;
-		}
-		case "blind": {
-			return 0xeeeeee;
-		}
-	}
-}
 
 // io
 
@@ -1007,12 +914,20 @@ function saveSettings() {
 
 // other useless stuff
 
-function testCustomPicture(url) {
+function testCustomEnemyPicture(url) {
 	$("#picture-tester").html(`<img src=${url} width="150" height="150">`);
 	if (document.querySelector("#picture-tester")) {
 		if (!document.querySelector("#picture-tester").querySelector("img").complete) {
 			$("#picture-tester").html("Failed to get image.");
 		}
+	}
+}
+
+function testCustomBackgroundPicture(url) {
+	if (url) {
+		$("body").css("background", `url(${url})`);
+	} else {
+		$("body").css("background", `#eeeeee`);
 	}
 }
 
@@ -1025,19 +940,31 @@ function setCustomEnemyPictureMetadata(url) {
 	}
 }
 
+// TODO: Unused?
+function changeCustomBackgroundPicture(url) {
+	let imageAsSprite = new PIXI.Sprite(PIXI.Texture().from(`${url}`));
+	imageAsSprite.zIndex = -1000;
+	singleplayerScreenContainer.addChild(imageAsSprite);
+	multiplayerScreenContainer.addChild(imageAsSprite);
+}
+
 function toggleStatusBarVisibility() {
 	$("#status-bar-container").toggle(0);
 }
 
-function showTextModal(text, title, color){
+function showTextModal(text, title, color) {
 	$("#text-modal-title").text(title);
 	$("#text-modal-text").text(text);
 	$("#text-modal-container").fadeIn(200);
 	$("#text-modal-container").show(0);
-
 }
 
+function showUserInformationModal(name) {
+	socket.emit("getDataForUserInformationModalAndUpdateText", name);
 
+	$("#user-information-modal-container").fadeIn(200);
+	$("#user-information-modal-container").show(0);
+}
 
 // DEBUG
 socket.on("debugData", (what) => {

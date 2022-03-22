@@ -6,9 +6,10 @@ const Schema = mongoose.Schema;
 const UserModelSchema = new Schema({
 	username: String,
 	usernameInAllLowercase: String,
-	email: String,
+	emailAddress: String,
 	hashedPassword: String,
 	userNumber: Number,
+	creationDateAndTime: Date,
 	statistics: {
 		easyModePersonalBestScore: Number,
 		standardModePersonalBestScore: Number,

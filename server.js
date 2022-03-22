@@ -21,6 +21,7 @@ app.use(
 			directives: {
 				...helmet.contentSecurityPolicy.getDefaultDirectives(),
 				"connect-src": ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com", "cdnjs.cloudflare.com"],
+				"img-src": ["'self'", "*"],
 				"script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "pixijs.download", "code.jquery.com", "www.googletagmanager.com", "cdnjs.cloudflare.com"],
 				"script-src-attr": ["'self'", "'unsafe-inline'"],
 			},
@@ -59,7 +60,6 @@ const configuration = require("./server/configuration.js");
 
 const game = require("./server/game.js");
 const utilities = require("./server/utilities.js");
-
 
 const schemas = require("./server/core/schemas.js");
 const log = require("./server/core/log.js");
@@ -309,12 +309,43 @@ io.on("connection", (socket) => {
 	socket.guestNameOfSocketOwner = toBeGuestName;
 	socket.emit("updateText", "#player-name", socket.guestNameOfSocketOwner);
 
-	socket.on("requestData", (data) => {
-		switch (data) {
-			case "name": {
-				return socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner;
-			}
+	// socket.on("getPlayerDataAndUpdateText", (selector, ...dataToGet) => {
+	// 	socket.emit("updateText", selector, getPlayerData(socket, ...dataToGet));
+	// });
+
+	socket.on("getDataForUserInformationModalAndUpdateText", async (nameToUse) => {
+		let name = await getPlayerData(nameToUse, "name");
+		let data = await getPlayerData(nameToUse, "userObject");
+
+
+		socket.emit("updateText", "#user-information-modal-title", `Play data for ${name}`);
+
+		if (!/Guest\s[0-9]{8}/gm.test(name) && !/\s+/.test(name)){
+		if (data){
+		socket.emit(
+			"updateText",
+			"#user-information-modal-text",
+			`
+			Total Experience Points: ${data.statistics.totalExperiencePoints} (Level ${leveling.getLevel(data.statistics.totalExperiencePoints)}) | 
+			Easy Mode Personal Best: ${data.statistics.easyModePersonalBestScore} | 
+			Standard Mode Personal Best: ${data.statistics.standardModePersonalBestScore} 
+		`
+		);
+		}else{
+			socket.emit("updateText",
+			"#user-information-modal-text",
+				"Player not found."
+			);
 		}
+	} else {
+		socket.emit(
+			"updateText",
+			"#user-information-modal-text",
+			`
+			This user is playing as a guest. Their scores will not be submitted unless they sign up for an account.
+		`
+		);
+	}
 	});
 
 	// disconnect
@@ -423,10 +454,9 @@ io.on("connection", (socket) => {
 								let playerLevel = leveling.getLevel(socket.playerDataOfSocketOwner.statistics.totalExperiencePoints);
 
 								socket.emit("updateText", "#player-rank", beautifyRankName(socket.playerRank, username));
-								socket.emit("updateCSS", "#player-rank", "color", formatPlayerName(socket.playerRank, username)); 
+								socket.emit("updateCSS", "#player-rank", "color", formatPlayerName(socket.playerRank, username));
 								socket.emit("updateText", "#player-name", username);
 								socket.emit("updateText", "#secondary-top-bar-container", `Level ${playerLevel}`);
-
 							} else {
 								console.log(log.addMetadata("Incorrect password for " + username + "!", "info"));
 								socket.emit("loginResult", username, false);
@@ -617,6 +647,60 @@ io.on("connection", (socket) => {
 	});
 });
 
+async function getCurrentPlayerData(socket, ...dataRequested) {
+	if (socket.loggedIn) {
+		let data = await schemas.getUserModel().findOne({ username: socket.usernameOfSocketOwner });
+
+		// strip sensitive information
+		data.emailAddress = null;
+		data.hashedPassword = null;
+
+		switch (dataRequested[0]) {
+			case "name": {
+				return socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner;
+			}
+			case "level": {
+				return leveling.getLevel(data.statistics.totalExperiencePoints);
+			}
+			case "userObject": {
+				return data;
+			}
+		}
+	} else {
+		if (dataRequested[0] == "name") {
+			return socket.guestNameOfSocketOwner;
+		}
+		return null;
+	}
+}
+
+async function getPlayerData(name, ...dataRequested) {
+	if (!/Guest\s[0-9]{8}/gm.test(name)) {
+		let data = await schemas.getUserModel().findOne({ username: name });
+
+		// strip sensitive information
+		data.emailAddress = null;
+		data.hashedPassword = null;
+
+		switch (dataRequested[0]) {
+			case "name": {
+				return name;
+			}
+			case "level": {
+				return leveling.getLevel(data.statistics.totalExperiencePoints);
+			}
+			case "userObject": {
+				return data;
+			}
+		}
+	} else {
+		if (dataRequested[0] == "name") {
+			return name;
+		}
+		return null;
+	}
+}
+
 function getPlayerRank(playerDataOfSocketOwner) {
 	if (playerDataOfSocketOwner.username == "mistertfy64") {
 		return playerRanks.GAME_MASTER;
@@ -634,7 +718,6 @@ function getPlayerRank(playerDataOfSocketOwner) {
 		return playerRanks.DONATOR;
 	}
 }
-
 
 function formatPlayerName(rank, username) {
 	if (username === undefined || username == null) {
@@ -679,7 +762,6 @@ function beautifyRankName(rank, username) {
 	}
 	return "";
 }
-
 
 function initializeSingleplayerGame(room, mode, player) {
 	for (let i = 0; i < 49; i++) {
@@ -781,7 +863,7 @@ function constructMinifiedGameDataObjectToSend(connectionID, playerIndex) {
 
 server.listen(PORT, () => {
 	console.log(log.addMetadata(`Listening at localhost:${PORT}`, "info"));
-	if (credentials.getWhetherTestingCredentialsAreUsed()){
+	if (credentials.getWhetherTestingCredentialsAreUsed()) {
 		console.log(log.addMetadata("WARNING: Using testing credentials.", "info"));
 	}
 });

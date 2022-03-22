@@ -197,6 +197,38 @@ kbd {
 	bottom: 5%;
 }
 
+
+#user-information-modal-container {
+	position: fixed;
+	z-index: 3000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba(0, 0, 0, 0.6);
+}
+
+#user-information-modal-content-container {
+	width: 60%;
+	margin: 15% auto;
+	padding: 15px;
+	background-color: #555555;
+	border: #000000;
+	border-style: solid;
+	border-radius: 10px;
+}
+
+#user-information-modal-button {
+	width: 60%;
+	height: 50px;
+	font-size: 32px;
+	background-color: #cdcdcd;
+	color: #000000;
+	bottom: 5%;
+}
+
+
 /*
 	LOADING SCREEN
 */
@@ -244,6 +276,7 @@ kbd {
 	border-left: 2px solid #000000;
 	text-align: left;
 	font-size: 24px;
+	background-color: #eeeeee
 }
 
 .main-menu-screen-button {
@@ -456,6 +489,13 @@ kbd {
 	background-image: linear-gradient(90deg, #ff0000 0%, #ffa500 14.2%, #c9bc06 28.5%, #6fdd00 42.8%, #00ffff 57.1%, #0000ff 71.4%, #9932cc 85.7%, #ff1493 100%);
 	-webkit-background-clip: text;
 	background-clip: text;
+}
+
+.multiplayer-player-list-player-name-container {
+	border: none;
+	background-color: transparent;
+	font-size:16px;
+
 }
 
 /*
