@@ -18,7 +18,9 @@ const FRAMES_PER_SECOND = 60;
 
 const schemas = require("./core/schemas.js");
 
-var roomTypes = {
+const webhook = require("./webhook.js");
+
+const roomTypes = {
 	SINGLEPLAYER: "singleplayer",
 	EASY_SINGLEPLAYER: "easySingleplayerMode",
 	STANDARD_SINGLEPLAYER: "standardSingleplayerMode",
@@ -26,7 +28,7 @@ var roomTypes = {
 	MULTIPLAYER: "multiplayer",
 };
 
-var modes = {
+const modes = {
 	SINGLEPLAYER: "singleplayer",
 	EASY_SINGLEPLAYER: "easySingleplayerMode",
 	STANDARD_SINGLEPLAYER: "standardSingleplayerMode",
@@ -34,29 +36,12 @@ var modes = {
 	MULTIPLAYER: "multiplayer",
 };
 
-var gameModes = {
+const gameModes = {
 	SINGLEPLAYER: "singleplayerMode",
 	EASY_SINGLEPLAYER: "easySingleplayerMode",
 	STANDARD_SINGLEPLAYER: "standardSingleplayerMode",
 	DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
 	MULTIPLAYER: "multiplayerMode",
-};
-
-const SINGLEPLAYER_GAME_SETTINGS = {
-	easySingleplayerMode: {
-		allowedComboTimeInMilliseconds: 10000,
-		enemyGenerationThreshold: 0.975,
-		enemyGenerationIntervalInMilliseconds: 50,
-		enemySpeedMultiplier: 0.5,
-		enemyLimit: 5,
-	},
-	standardSingleplayerMode: {
-		allowedComboTimeInMilliseconds: 5000,
-		enemyGenerationThreshold: 0.95,
-		enemyGenerationIntervalInMilliseconds: 50,
-		enemySpeedMultiplier: 1,
-		enemyLimit: 1000,
-	},
 };
 
 const GAME_SETTINGS = {
@@ -174,7 +159,7 @@ async function computeUpdateForRoomPlayerBaseHealth(room, player, deltaTimeInMil
 async function computeUpdateForRoomPlayerCombo(room, player, deltaTimeInMilliseconds) {
 	room.data.currentGame.players[player].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
 
-	if (room.data.currentGame.players[player].currentGame.currentCombo > -1 && room.data.currentGame.players[player].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > 5000) {
+	if (room.data.currentGame.players[player].currentGame.currentCombo > -1 && room.data.currentGame.players[player].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > GAME_SETTINGS[room.gameMode].allowedComboTimeInMilliseconds) {
 		room.data.currentGame.players[player].currentGame.currentCombo = -1;
 	}
 }
@@ -532,6 +517,10 @@ async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner
 		)
 	);
 
+	if (globalRank != -1) {
+		webhook.createAndSendWebhook(usernameOfSocketOwner, globalRank, finalGameData.currentScore, gameModeAsShortenedString);
+	}
+
 	levelStatus = await checkPlayerLevelStatusForPlayer(userIDAsString, finalGameData, gameMode, usernameOfSocketOwner);
 	socket.emit("levelStatus", levelStatus);
 	if (levelStatus.leveledUp) {
@@ -763,7 +752,6 @@ function fixProblem(problemToFix) {
 	}
 	return problemToFix;
 }
-
 
 // end
 

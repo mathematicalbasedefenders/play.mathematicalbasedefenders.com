@@ -953,6 +953,11 @@ function toggleStatusBarVisibility() {
 }
 
 function showTextModal(text, title, color) {
+
+	// clear old text
+	$("#text-modal-title").text("");
+	$("#text-modal-text").text("");
+
 	$("#text-modal-title").text(title);
 	$("#text-modal-text").text(text);
 	$("#text-modal-container").fadeIn(200);
@@ -960,6 +965,11 @@ function showTextModal(text, title, color) {
 }
 
 function showUserInformationModal(name) {
+
+	// clear old text
+	$("#user-information-modal-title").text("");
+	$("#user-information-modal-text").text("");
+
 	socket.emit("getDataForUserInformationModalAndUpdateText", name);
 
 	$("#user-information-modal-container").fadeIn(200);

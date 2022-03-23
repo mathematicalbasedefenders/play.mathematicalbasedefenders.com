@@ -389,7 +389,6 @@ socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
 					formattedPlayers += "<br>";
 				}
 			}
-			console.log(formattedPlayers);
 			$("#default-multiplayer-room-player-list").html(formattedPlayers);
 			break;
 		}

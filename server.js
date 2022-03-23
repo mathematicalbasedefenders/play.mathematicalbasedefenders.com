@@ -79,12 +79,6 @@ var rooms = {};
 
 var roomIDOfDefaultMultiplayerRoom = "";
 
-const roomTypes = {
-	SINGLEPLAYER: "singleplayer",
-	DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
-	MULTIPLAYER: "multiplayer",
-};
-
 const modes = {
 	SINGLEPLAYER: "singleplayer",
 	DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
@@ -317,35 +311,31 @@ io.on("connection", (socket) => {
 		let name = await getPlayerData(nameToUse, "name");
 		let data = await getPlayerData(nameToUse, "userObject");
 
-
 		socket.emit("updateText", "#user-information-modal-title", `Play data for ${name}`);
 
-		if (!/Guest\s[0-9]{8}/gm.test(name) && !/\s+/.test(name)){
-		if (data){
-		socket.emit(
-			"updateText",
-			"#user-information-modal-text",
-			`
+		if (!/Guest\s[0-9]{8}/gm.test(name) && !/\s+/.test(name)) {
+			if (data) {
+				socket.emit(
+					"updateText",
+					"#user-information-modal-text",
+					`
 			Total Experience Points: ${data.statistics.totalExperiencePoints} (Level ${leveling.getLevel(data.statistics.totalExperiencePoints)}) | 
 			Easy Mode Personal Best: ${data.statistics.easyModePersonalBestScore} | 
 			Standard Mode Personal Best: ${data.statistics.standardModePersonalBestScore} 
 		`
-		);
-		}else{
-			socket.emit("updateText",
-			"#user-information-modal-text",
-				"Player not found."
-			);
-		}
-	} else {
-		socket.emit(
-			"updateText",
-			"#user-information-modal-text",
-			`
+				);
+			} else {
+				socket.emit("updateText", "#user-information-modal-text", "Player not found.");
+			}
+		} else {
+			socket.emit(
+				"updateText",
+				"#user-information-modal-text",
+				`
 			This user is playing as a guest. Their scores will not be submitted unless they sign up for an account.
 		`
-		);
-	}
+			);
+		}
 	});
 
 	// disconnect
@@ -677,21 +667,28 @@ async function getCurrentPlayerData(socket, ...dataRequested) {
 async function getPlayerData(name, ...dataRequested) {
 	if (!/Guest\s[0-9]{8}/gm.test(name)) {
 		let data = await schemas.getUserModel().findOne({ username: name });
+		
+		if (data) {
+			// strip sensitive information
+			data.emailAddress = null;
+			data.hashedPassword = null;
 
-		// strip sensitive information
-		data.emailAddress = null;
-		data.hashedPassword = null;
-
-		switch (dataRequested[0]) {
-			case "name": {
+			switch (dataRequested[0]) {
+				case "name": {
+					return name;
+				}
+				case "level": {
+					return leveling.getLevel(data.statistics.totalExperiencePoints);
+				}
+				case "userObject": {
+					return data;
+				}
+			}
+		} else {
+			if (dataRequested[0] == "name") {
 				return name;
 			}
-			case "level": {
-				return leveling.getLevel(data.statistics.totalExperiencePoints);
-			}
-			case "userObject": {
-				return data;
-			}
+			return null;
 		}
 	} else {
 		if (dataRequested[0] == "name") {
