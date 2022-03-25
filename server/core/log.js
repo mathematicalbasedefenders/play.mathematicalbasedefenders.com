@@ -2,14 +2,14 @@ const logLevels = {
     ERROR: "error",
     INFO: "info",
     DEBUG: "debug"
-}
+};
 
 function addMetadata(message, level) {
-	let date = new Date();
-	date = date.toISOString();
+    let date = new Date();
+    date = date.toISOString();
     let logLevel = "";
 
-    switch (level){
+    switch (level) {
         case logLevels.ERROR: {
             logLevel = "ERROR";
             break;
@@ -28,10 +28,9 @@ function addMetadata(message, level) {
         }
     }
 
-
-    return "[" + date + " " + logLevel + "] "+ message;
+    return "[" + date + " " + logLevel + "] " + message;
 }
 
 module.exports = {
     addMetadata
-}
+};

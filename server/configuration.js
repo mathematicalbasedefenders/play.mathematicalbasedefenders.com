@@ -3,10 +3,9 @@
 const developerConfiguration = {
     // TODO: WHEN PUSHING TO PRODUCTION, TURN ALL OF THESE TO false!
     settings: {
-        
         // Developer Mode
         developerMode: false,
-        
+
         // Speed Mode
         // Enemies move 10x faster.
         speedMode: false,
@@ -25,15 +24,14 @@ const developerConfiguration = {
 
         // Log Data Sent
         // Logs the egress sent every second.
-        logAmountOfDataSent: false,
-    
+        logAmountOfDataSent: false
     }
-}
+};
 
 const defaultMultiplayerRoomConfiguration = {
     settings: {
         // ???
     }
-}
+};
 
 module.exports = { developerConfiguration: developerConfiguration };
