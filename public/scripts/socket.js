@@ -432,6 +432,12 @@ socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
 	}
 });
 
+
+socket.on("changeScreen", (newScreen) => {
+	setPropertiesAndChangeScreen(newScreen);
+});
+
+
 socket.on("updateText", (selector, text) => {
 	updateText(selector, text);
 });

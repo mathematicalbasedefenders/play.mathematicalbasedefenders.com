@@ -39,9 +39,6 @@ const io = new Server(server);
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// bcrypt
-const bcrypt = require("bcrypt");
-
 // anti xss
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -57,6 +54,7 @@ const favicon = require("serve-favicon");
 // other files
 const credentials = require("./credentials/credentials.js");
 const configuration = require("./server/configuration.js");
+const authentication = require("./server/authentication.js");
 
 const game = require("./server/game.js");
 const utilities = require("./server/utilities.js");
@@ -66,6 +64,9 @@ const log = require("./server/core/log.js");
 
 const leveling = require("./server/game/leveling.js");
 const tile = require("./server/game/tile.js");
+
+const defaults = require("./server/core/defaults.js");
+
 
 // other stuff
 const PORT = 8080;
@@ -78,6 +79,12 @@ var sockets = [];
 var rooms = {};
 
 var roomIDOfDefaultMultiplayerRoom = "";
+
+const roomTypes = {
+	SINGLEPLAYER: "singleplayer",
+	DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
+	MULTIPLAYER: "multiplayer",
+};
 
 const modes = {
 	SINGLEPLAYER: "singleplayer",
@@ -421,39 +428,30 @@ io.on("connection", (socket) => {
 
 		if (!usersCurrentlyAttemptingToLogIn.includes(username)) {
 			if (/^[a-zA-Z0-9_]*$/g.test(username)) {
-				decodedPassword = new Buffer.from(new Buffer.from(new Buffer.from(new Buffer.from(encodedPassword, "base64").toString(), "base64").toString(), "base64").toString(), "base64").toString();
-				decodedPassword = DOMPurify.sanitize(mongoDBSanitize(decodedPassword));
+				usersCurrentlyAttemptingToLogIn.push(username);
 				socket.playerDataOfSocketOwner = await schemas.getUserModel().findOne({ username: username });
 
 				if (socket.playerDataOfSocketOwner) {
-					bcrypt.compare(decodedPassword, socket.playerDataOfSocketOwner.hashedPassword, (passwordError, passwordResult) => {
-						if (passwordError) {
-							console.error(log.addMetadata(passwordError.stack, "error"));
-							socket.emit("loginResult", username, false);
-							usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
-						} else {
-							if (passwordResult) {
-								// Correct Password
-								console.log(log.addMetadata("Correct password for " + username + "!", "info"));
-								socket.usernameOfSocketOwner = socket.playerDataOfSocketOwner.username;
-								socket.userIDOfSocketOwner = socket.playerDataOfSocketOwner["_id"];
-								socket.emit("loginResult", username, true);
-								usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
-								socket.loggedIn = true;
-								socket.playerRank = getPlayerRank(socket.playerDataOfSocketOwner);
-								let playerLevel = leveling.getLevel(socket.playerDataOfSocketOwner.statistics.totalExperiencePoints);
+					let result = await authentication.checkPassword(username, encodedPassword, socket);
+					if (result) {
+						socket.usernameOfSocketOwner = socket.playerDataOfSocketOwner.username;
+						socket.userIDOfSocketOwner = socket.playerDataOfSocketOwner["_id"];
+						socket.emit("loginResult", username, true);
+						usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
+						socket.loggedIn = true;
+						socket.playerRank = getPlayerRank(socket.playerDataOfSocketOwner);
+						let playerLevel = leveling.getLevel(socket.playerDataOfSocketOwner.statistics.totalExperiencePoints);
+						socket.emit("updateText", "#player-rank", beautifyRankName(socket.playerRank, username));
+						socket.emit("updateCSS", "#player-rank", "color", formatPlayerName(socket.playerRank, username));
+						socket.emit("updateText", "#player-name", username);
+						socket.emit("updateText", "#secondary-top-bar-container", `Level ${playerLevel}`);
 
-								socket.emit("updateText", "#player-rank", beautifyRankName(socket.playerRank, username));
-								socket.emit("updateCSS", "#player-rank", "color", formatPlayerName(socket.playerRank, username));
-								socket.emit("updateText", "#player-name", username);
-								socket.emit("updateText", "#secondary-top-bar-container", `Level ${playerLevel}`);
-							} else {
-								console.log(log.addMetadata("Incorrect password for " + username + "!", "info"));
-								socket.emit("loginResult", username, false);
-								usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
-							}
-						}
-					});
+						console.log(log.addMetadata(`Correct password for ${username}!`), "info");
+					} else {
+						socket.emit("loginResult", username, false);
+						usersCurrentlyAttemptingToLogIn.splice(usersCurrentlyAttemptingToLogIn.indexOf(username), 1);
+						console.log(log.addMetadata(`Incorrect password for ${username}!`), "info");
+					}
 				} else {
 					console.log(log.addMetadata("User " + username + " not found!", "info"));
 					socket.emit("loginResult", username, false);
@@ -473,7 +471,7 @@ io.on("connection", (socket) => {
 	/**
 	 * Creates a singleplayer room.
 	 */
-	socket.on("createAndJoinSingleplayerRoom", async (gameMode) => {
+	socket.on("createAndJoinDefaultSingleplayerRoom", async (gameMode) => {
 		if (socket.currentRoomSocketIsIn == "") {
 			if (gameMode == "easySingleplayerMode" || gameMode == "standardSingleplayerMode") {
 				let roomID = undefined;
@@ -491,7 +489,7 @@ io.on("connection", (socket) => {
 					userIDOfHost: socket.userIDOfSocketOwner,
 					playing: false,
 					gameMode: gameMode,
-					data: game.createNewSingleplayerGameData(modes.SINGLEPLAYER, roomID, gameMode, socket),
+					data: defaults.createNewDefaultSingleplayerGameData(modes.SINGLEPLAYER, roomID, gameMode, socket),
 				};
 
 				socket.join(roomID);
@@ -506,6 +504,63 @@ io.on("connection", (socket) => {
 			console.log(log.addMetadata("Socket is already in a room!", "info"));
 		}
 	});
+
+/**
+	 * Creates a singleplayer room.
+	 */
+ socket.on("createAndJoinCustomSingleplayerRoom", async (settings) => {
+
+	// sanitize data
+settings = JSON.parse(settings);
+
+
+	if (socket.currentRoomSocketIsIn == "") {
+		let dataValidationResult = game.performDataValidationForCustomSingleplayerMode(settings);
+		if (dataValidationResult.good) {
+			let roomID = undefined;
+			while (roomID === undefined || roomID in rooms) {
+				roomID = utilities.generateRoomID();
+			}
+
+			socket.currentRoomSocketIsIn = roomID;
+			socket.socketIsHostOfRoomItIsIn = true;
+
+			rooms[roomID] = {
+				id: roomID,
+				type: roomTypes.SINGLEPLAYER,
+				host: socket,
+				userIDOfHost: socket.userIDOfSocketOwner,
+				playing: false,
+				gameMode: "customSingleplayerMode",
+				data: defaults.createNewCustomSingleplayerGameData(modes.SINGLEPLAYER, roomID, "customSingleplayerMode", socket, settings),
+			};
+
+			socket.emit("changeScreen", "singleplayerGameScreen");
+			socket.join(roomID);
+			initializeSingleplayerGame(rooms[socket.currentRoomSocketIsIn], "customSingleplayerMode", socket.id);
+			socket.ownerOfSocketIsPlaying = true;
+			rooms[socket.currentRoomSocketIsIn].data.currentGame.playersAlive = [socket.id];
+			rooms[socket.currentRoomSocketIsIn].playing = true;
+		} else {
+			
+			let issueMessage = "Unable to start game. ("
+			
+			for (let problem in dataValidationResult.problems){
+				issueMessage += `${problem}: ${dataValidationResult.problems[problem].message}`;
+			}
+
+			issueMessage += ")";
+
+			socket.emit("updateText", "#singleplayer-screen-custom-mode-issues",issueMessage);
+		}
+	} else {
+		console.log(log.addMetadata("Socket is already in a room!", "info"));
+	}
+});
+
+
+
+
 
 	/**
 	 * Creates or joins the default multiplayer room.
@@ -667,7 +722,7 @@ async function getCurrentPlayerData(socket, ...dataRequested) {
 async function getPlayerData(name, ...dataRequested) {
 	if (!/Guest\s[0-9]{8}/gm.test(name)) {
 		let data = await schemas.getUserModel().findOne({ username: name });
-		
+
 		if (data) {
 			// strip sensitive information
 			data.emailAddress = null;
@@ -795,7 +850,7 @@ async function startDefaultMultiplayerGame(roomID) {
 		let socket = io.sockets.sockets.get(connection);
 
 		rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection] = {};
-		rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection].currentGame = game.createNewDefaultMultiplayerRoomPlayerObject(socket);
+		rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection].currentGame = defaults.createNewDefaultMultiplayerRoomPlayerObject(socket);
 
 		rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection].currentGame.mode = "defaultMultiplayerMode";
 		rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection].currentGame.tilesCreated = 0;

@@ -30,7 +30,7 @@
 
 			<div id="text-modal-container">
 				<div id="text-modal-content-container">
-					<div style="position: relative;">
+					<div style="position: relative">
 						<p style="text-align: center" style="background-color: #555555">
 							<span style="font-size: 36px; color: #ffffff; background-color: inherit" id="text-modal-title">text1</span>
 							<br />
@@ -44,7 +44,7 @@
 
 			<div id="user-information-modal-container">
 				<div id="user-information-modal-content-container">
-					<div style="position: relative;">
+					<div style="position: relative">
 						<p style="text-align: center" style="background-color: #555555">
 							<span style="font-size: 36px; color: #ffffff; background-color: inherit" id="user-information-modal-title">text1</span>
 							<br />
@@ -157,7 +157,7 @@
 					<div id="singleplayer-lobby-screen-button-container">
 						<button
 							class="singleplayer-lobby-screen-button"
-							onClick="startSingleplayerGame('easySingleplayerMode');"
+							onClick="startDefaultSingleplayerGame('easySingleplayerMode');"
 							onMouseEnter="$('#bottom-toolbar-text').text('Play on the easy mode.')"
 							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
 						>
@@ -166,11 +166,20 @@
 						<br /><br />
 						<button
 							class="singleplayer-lobby-screen-button"
-							onClick="startSingleplayerGame('standardSingleplayerMode');"
+							onClick="startDefaultSingleplayerGame('standardSingleplayerMode');"
 							onMouseEnter="$('#bottom-toolbar-text').text('Play on the (hard) standard mode.')"
 							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
 						>
 							&nbsp;Standard
+						</button>
+						<br /><br />
+						<button
+							class="singleplayer-lobby-screen-button"
+							onClick="showCustomSingleplayerGameModeSettingsScreen()"
+							onMouseEnter="$('#bottom-toolbar-text').text('Customize your parameters and play with them. Scores will not be submitted.')"
+							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+						>
+							&nbsp;Custom
 						</button>
 						<br /><br />
 						<button
@@ -181,6 +190,41 @@
 						>
 							&nbsp;Back
 						</button>
+					</div>
+					<div id="singleplayer-screen-custom-mode-settings-screen-content-container" style="font-size: 24px; display: none">
+						<!-- wth? -->
+						<div>
+							<span style="font-size: 36px">General</span>
+							<br />
+							<!-- TODO: add div but that probably wont be necessary lol -->
+
+							Starting Base Health: <input style="width: 400px" id="starting-base-health" name="starting-base-health" placeholder="Enter number..." type="text" /> <br /><br />
+
+							Allowed Combo Time (milliseconds): <input style="width: 400px" id="allowed-combo-time" name="allowed-combo-time" placeholder="Enter number..." type="text" />
+							<br />
+							<hr />
+							<span style="font-size: 36px">Enemies</span>
+							<br />
+							Enemy Spawn Chance (percent): <input style="width: 400px" id="enemy-spawn-chance-in-percent" name="enemy-spawn-chance-in-percent" placeholder="Enter number..." type="text" /> <br /><br />
+							Enemy Generation Interval (milliseconds): <input style="width: 400px" id="enemy-generation-interval-in-milliseconds" name="enemy-generation-interval-in-milliseconds" placeholder="Enter number..." type="text" /> <br /><br />
+							Enemy Limit: <input style="width: 400px" id="enemy-limit" name="enemy-limit" placeholder="Enter number..." type="text" /> <br /><br />
+							Enemy Speed Multiplier: <input style="width: 400px" id="enemy-speed-multiplier" name="enemy-speed-multiplier" placeholder="Enter number..." type="text" />
+							<br />
+							<hr />
+							<span style="font-size: 36px">Variables</span>
+							<br />
+							Starting Value of Variable <span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">a</span>: <input style="width: 400px" id="starting-value-of-variable-a" name="starting-value-of-variable-a" placeholder="Enter number..." type="text" />
+							<br /><br />
+							Starting Value of Variable <span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">b</span>: <input style="width: 400px" id="starting-value-of-variable-b" name="starting-value-of-variable-b" placeholder="Enter number..." type="text" />
+							<br /><br />
+							Starting Value of Variable <span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">c</span>: <input style="width: 400px" id="starting-value-of-variable-c" name="starting-value-of-variable-c" placeholder="Enter number..." type="text" />
+							<br /><br />
+							Starting Value of Variable <span style="font-family: 'Computer Modern Math Italic', 'Computer Modern Unicode Serif'">d</span>: <input style="width: 400px" id="starting-value-of-variable-d" name="starting-value-of-variable-d" placeholder="Enter number..." type="text" /> <br />
+							<hr />
+							<br />
+							<span id="singleplayer-screen-custom-mode-issues">&nbsp;</span>
+							<button id="start-button" onClick="startCustomSingleplayerGame(getCustomSingleplayerModeInputs());" style="width: 256px; height: 64px; font-size: 28px">Start Game</button>
+						</div>
 					</div>
 				</div>
 
@@ -493,7 +537,7 @@
 					<div id="game-over-screen-navigation-button-container">
 						<button
 							class="game-over-screen-navigation-button"
-							onClick="startSingleplayerGame(game.lastSingleplayerGameModePlayed);"
+							onClick="startDefaultSingleplayerGame(game.lastSingleplayerGameModePlayed);"
 							onMouseEnter="$('#bottom-toolbar-text').text('Play another singleplayer game.')"
 							onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
 						>

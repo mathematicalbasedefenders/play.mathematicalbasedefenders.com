@@ -228,6 +228,13 @@ kbd {
 	bottom: 5%;
 }
 
+input {
+	font-size: 24px;
+	height: 28px;
+	background-color: #eeeeee;
+	right: 5vw;
+}
+
 
 /*
 	LOADING SCREEN
@@ -359,6 +366,27 @@ kbd {
 .singleplayer-lobby-screen-button:hover {
 	box-shadow: inset 15.625vw 0 0 #b6b6b6;
 }
+
+#singleplayer-screen-custom-mode-settings-screen-content-container {
+	float: right;
+	right: 1vw;
+	width: 75vw;
+	overflow-y: auto;
+	height: 100vh;
+	z-index: -1;
+	font-size: 24px;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 	MULTIPLAYER LOBBY

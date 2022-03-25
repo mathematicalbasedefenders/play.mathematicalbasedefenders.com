@@ -504,6 +504,8 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
 	$("#settings-screen-container").hide(0);
 	$("#game-over-screen-container").hide(0);
 
+	$("#singleplayer-screen-custom-mode-settings-screen-content-container").hide(0);
+
 	$("#bottom-user-interface-container").hide(0);
 
 	$("#pixi-canvas").hide(0);
@@ -716,8 +718,8 @@ function processKeypress(event) {
 	}
 }
 
-function startSingleplayerGame(mode) {
-	socket.emit("createAndJoinSingleplayerRoom", mode);
+function startDefaultSingleplayerGame(mode) {
+	socket.emit("createAndJoinDefaultSingleplayerRoom", mode);
 	game.lastSingleplayerGameModePlayed = mode;
 	setPropertiesAndChangeScreen(screens.SINGLEPLAYER_GAME_SCREEN, true);
 }
@@ -953,7 +955,6 @@ function toggleStatusBarVisibility() {
 }
 
 function showTextModal(text, title, color) {
-
 	// clear old text
 	$("#text-modal-title").text("");
 	$("#text-modal-text").text("");
@@ -965,7 +966,6 @@ function showTextModal(text, title, color) {
 }
 
 function showUserInformationModal(name) {
-
 	// clear old text
 	$("#user-information-modal-title").text("");
 	$("#user-information-modal-text").text("");
@@ -974,6 +974,59 @@ function showUserInformationModal(name) {
 
 	$("#user-information-modal-container").fadeIn(200);
 	$("#user-information-modal-container").show(0);
+}
+
+function showCustomSingleplayerGameModeSettingsScreen() {
+	$("#singleplayer-screen-custom-mode-settings-screen-content-container").show(0);
+}
+
+function getCustomSingleplayerModeInputs() {
+	let inputs = [
+		"starting-base-health",
+		"allowed-combo-time",
+		"enemy-spawn-chance-in-percent",
+		"enemy-generation-interval-in-milliseconds",
+		"enemy-limit",
+		"enemy-speed-multiplier",
+		"starting-value-of-variable-a",
+		"starting-value-of-variable-b",
+		"starting-value-of-variable-c",
+		"starting-value-of-variable-d",
+	];
+
+
+	let keys = [
+		"baseHealth",
+		"allowedComboTimeInMilliseconds",
+		"enemyGenerationThreshold",
+		"enemyGenerationIntervalInMilliseconds",
+		"enemyLimit",
+		"enemySpeedMultiplier",
+		"valueOfVariableA",
+		"valueOfVariableB",
+		"valueOfVariableC",
+		"valueOfVariableD",
+	];
+
+
+	let data = {};
+
+	for (let i = 0; i < inputs.length; i++){
+		data[keys[i]] = $(`#${inputs[i]}`).val();
+	}
+
+
+	return data;
+
+
+
+
+
+}
+
+function startCustomSingleplayerGame(data){
+	socket.emit("createAndJoinCustomSingleplayerRoom", JSON.stringify(data));
+
 }
 
 // DEBUG

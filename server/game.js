@@ -16,6 +16,8 @@ const TERMS_AS_BEAUTIFUL_STRINGS = ["0", "1", "2", "3", "4", "5", "6", "7", "8",
 
 const FRAMES_PER_SECOND = 60;
 
+const defaults = require("./core/defaults.js");
+
 const schemas = require("./core/schemas.js");
 
 const webhook = require("./webhook.js");
@@ -32,6 +34,7 @@ const modes = {
 	SINGLEPLAYER: "singleplayer",
 	EASY_SINGLEPLAYER: "easySingleplayerMode",
 	STANDARD_SINGLEPLAYER: "standardSingleplayerMode",
+	CUSTOM_SINGLEPLAYER: "customSingleplayerMode",
 	DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
 	MULTIPLAYER: "multiplayer",
 };
@@ -40,6 +43,7 @@ const gameModes = {
 	SINGLEPLAYER: "singleplayerMode",
 	EASY_SINGLEPLAYER: "easySingleplayerMode",
 	STANDARD_SINGLEPLAYER: "standardSingleplayerMode",
+	CUSTOM_SINGLEPLAYER: "customSingleplayerMode",
 	DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
 	MULTIPLAYER: "multiplayerMode",
 };
@@ -58,6 +62,10 @@ const GAME_SETTINGS = {
 		enemyGenerationIntervalInMilliseconds: 50,
 		enemySpeedMultiplier: 1,
 		enemyLimit: 250,
+	},
+	// TODO: will it break?
+	customSingleplayerMode: {
+
 	},
 	defaultMultiplayerMode: {
 		allowedComboTimeInMilliseconds: 5000,
@@ -143,7 +151,7 @@ async function computeUpdateForRoomPlayerBaseHealth(room, player, deltaTimeInMil
 				socketOfGamePlayed.to(room.id).emit("currentGameData", JSON.stringify(finalGameData.currentGame.players[player]));
 				room.host.leave(room.id);
 				socketOfGamePlayed.currentRoomSocketIsIn = "";
-				submitSingleplayerGame(room.host, finalGameData.currentGame.players[player].currentGame, room.userIDOfHost, room.data.gameMode);
+				submitDefaultSingleplayerGame(room.host, finalGameData.currentGame.players[player].currentGame, room.userIDOfHost, room.data.gameMode);
 				room.data.currentGame.players[player].currentGame.gameOverScreenShown = true;
 			}
 			break;
@@ -159,7 +167,7 @@ async function computeUpdateForRoomPlayerBaseHealth(room, player, deltaTimeInMil
 async function computeUpdateForRoomPlayerCombo(room, player, deltaTimeInMilliseconds) {
 	room.data.currentGame.players[player].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
 
-	if (room.data.currentGame.players[player].currentGame.currentCombo > -1 && room.data.currentGame.players[player].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > GAME_SETTINGS[room.gameMode].allowedComboTimeInMilliseconds) {
+	if (room.data.currentGame.players[player].currentGame.currentCombo > -1 && room.data.currentGame.players[player].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > (room.gameMode == "customSingleplayerMode" ? getCustomSingleplayerRoomInstance(room, player) : GAME_SETTINGS[room.gameMode]).allowedComboTimeInMilliseconds) {
 		room.data.currentGame.players[player].currentGame.currentCombo = -1;
 	}
 }
@@ -169,23 +177,24 @@ async function computeUpdateForRoomPlayerEnemies(room, player, deltaTimeInMillis
 
 	switch (room.gameMode) {
 		case "easySingleplayerMode":
-		case "standardSingleplayerMode": {
-			if (room.data.currentGame.players[player].currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > GAME_SETTINGS[room.gameMode].enemyGenerationIntervalInMilliseconds) {
-				if (Math.random() > GAME_SETTINGS[room.gameMode].enemyGenerationThreshold && room.data.currentGame.players[player].currentGame.enemiesOnField.length < GAME_SETTINGS[room.gameMode].enemyLimit) {
+		case "standardSingleplayerMode":
+case "customSingleplayerMode": {
+			if (room.data.currentGame.players[player].currentGame.enemyGenerationElapsedTimeCounterInMilliseconds > (room.gameMode == "customSingleplayerMode" ? getCustomSingleplayerRoomInstance(room, player) : GAME_SETTINGS[room.gameMode]).enemyGenerationIntervalInMilliseconds) {
+				if (Math.random() > (room.gameMode == "customSingleplayerMode" ? getCustomSingleplayerRoomInstance(room, player) : GAME_SETTINGS[room.gameMode]).enemyGenerationThreshold && room.data.currentGame.players[player].currentGame.enemiesOnField.length < (room.gameMode == "customSingleplayerMode" ? getCustomSingleplayerRoomInstance(room, player) : GAME_SETTINGS[room.gameMode]).enemyLimit) {
 					room.data.currentGame.players[player].currentGame.enemiesOnField[room.data.currentGame.players[player].currentGame.enemiesCreated] = new enemy.Enemy({
 						xPosition: 1360,
 						yPosition: 120,
 						width: 100,
 						height: 100,
 						requestedValue: generateRandomEnemyTerm(),
-						defaultSpeed: GAME_SETTINGS[room.gameMode].enemySpeedMultiplier * (Math.random() * 2 + 1),
+						defaultSpeed: (room.gameMode == "customSingleplayerMode" ? getCustomSingleplayerRoomInstance(room, player) : GAME_SETTINGS[room.gameMode]).enemySpeedMultiplier * (Math.random() * 2 + 1),
 						defaultAttack: 1,
 						defaultHealth: 1,
 						enemyNumber: room.data.currentGame.players[player].currentGame.enemiesCreated + 1,
 					});
 					room.data.currentGame.players[player].currentGame.enemiesCreated++;
 				}
-				room.data.currentGame.players[player].currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= GAME_SETTINGS[room.gameMode].enemyGenerationIntervalInMilliseconds;
+				room.data.currentGame.players[player].currentGame.enemyGenerationElapsedTimeCounterInMilliseconds -= (room.gameMode == "customSingleplayerMode" ? getCustomSingleplayerRoomInstance(room, player) : GAME_SETTINGS[room.gameMode]).enemyGenerationIntervalInMilliseconds;
 			}
 			break;
 		}
@@ -194,7 +203,7 @@ async function computeUpdateForRoomPlayerEnemies(room, player, deltaTimeInMillis
 				room.data.currentGame.players[player].currentGame.enemiesOnField[room.data.currentGame.players[player].currentGame.enemiesCreated] = _.cloneDeep(room.data.currentGame.globalEnemyToAdd);
 				room.data.currentGame.players[player].currentGame.enemiesCreated++;
 			}
-			if (room.data.currentGame.players[player].currentGame.sentEnemiesToSpawn > 0 && room.data.currentGame.players[player].currentGame.enemiesOnField.length < GAME_SETTINGS[room.gameMode].enemyLimit) {
+			if (room.data.currentGame.players[player].currentGame.sentEnemiesToSpawn > 0 && room.data.currentGame.players[player].currentGame.enemiesOnField.length < (room.gameMode == "customSingleplayerMode" ? getCustomSingleplayerRoomInstance(room, player) : GAME_SETTINGS[room.gameMode]).enemyLimit) {
 				let nameToPutOnEnemy = room.data.currentGame.players[player].currentGame.enemySenders[0];
 				room.data.currentGame.players[player].currentGame.enemySenders.splice(0, 1);
 				room.data.currentGame.players[player].currentGame.enemiesOnField[room.data.currentGame.players[player].currentGame.enemiesCreated] = new enemy.Enemy({
@@ -242,7 +251,8 @@ async function computeUpdateForRoomPlayerIndicators(room, player, deltaTimeInMil
 	let indicatorName;
 	switch (room.gameMode) {
 		case "easySingleplayerMode":
-		case "standardSingleplayerMode": {
+		case "standardSingleplayerMode":
+case "customSingleplayerMode": {
 			indicatorName = "scoreGainIndicators";
 			break;
 		}
@@ -270,7 +280,8 @@ async function computeUpdateForRoomPlayerThingsToRemove(room, player, deltaTimeI
 
 	switch (room.gameMode) {
 		case "easySingleplayerMode":
-		case "standardSingleplayerMode": {
+		case "standardSingleplayerMode":
+case "customSingleplayerMode": {
 			indicatorName = "scoreGainIndicators";
 			break;
 		}
@@ -293,182 +304,7 @@ async function computeUpdateForRoomPlayerThingsToRemove(room, player, deltaTimeI
 	});
 }
 
-function createNewSingleplayerGameData(mode, roomID, gameMode, socket) {
-	let data = {
-		id: roomID,
-		mode: modes.SINGLEPLAYER,
-		gameMode: gameMode,
-		currentGame: {
-			players: {
-				[socket.id]: {
-					currentGame: {
-						mode: mode,
-
-						gameMode: gameMode,
-						currentScore: 0,
-						currentInGameTimeInMilliseconds: 0,
-						actionsPerformed: 0,
-
-						currentCombo: -1,
-
-						enemiesCreated: 0,
-						enemiesKilled: 0,
-						enemiesOnField: [],
-						enemiesToKill: [],
-
-						tilesCreated: 0,
-						tilesOnBoard: [],
-						bagQuantities: [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-						availableTermsIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-
-						framesRenderedSinceGameStart: 0,
-						enemyGenerationElapsedTimeCounterInMilliseconds: 0,
-						timeElapsedSinceLastEnemyKillInMilliseconds: 0,
-
-						baseHealth: 10,
-
-						scoreGainIndicators: [],
-						scoreGainIndicatorsToDestroy: [],
-
-						currentProblemAsText: "",
-						currentProblemAsBeautifulText: "",
-						tilesInCurrentProblem: [],
-
-						valueOfVariableA: undefined,
-						valueOfVariableB: undefined,
-						valueOfVariableC: undefined,
-						valueOfVariableD: undefined,
-
-						dead: false,
-
-						gameIsOver: false,
-						gameOverScreenShown: false,
-					},
-				},
-			},
-		},
-	};
-	return data;
-}
-
-// TODO: Unused?
-function createNewDefaultMultiplayerGameData(roomID, socket) {
-	let data = {
-		id: roomID,
-		mode: modes.DEFAULT_MULTIPLAYER,
-		currentGame: {
-			players: {
-				[socket.id]: {
-					playerName: socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner,
-
-					currentInGameTimeInMilliseconds: 0,
-					actionsPerformed: 0,
-
-					currentCombo: -1,
-
-					enemiesPending: 0,
-					sentEnemiesToSpawn: 0,
-					enemySenders: [],
-
-					enemiesCreated: 0,
-					enemiesKilled: 0,
-					enemiesOnField: [],
-					enemiesToKill: [],
-
-					tilesCreated: 0,
-					tilesOnBoard: [],
-					tileQueue: [],
-					bagQuantities: [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-					availableTermsIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-
-					framesRenderedSinceGameStart: 0,
-					enemyGenerationElapsedTimeCounterInMilliseconds: 0,
-					timeElapsedSinceLastEnemyKillInMilliseconds: 0,
-
-					baseHealth: 10,
-
-					scoreGainIndicators: [],
-					scoreGainIndicatorsToDestroy: [],
-
-					currentProblemAsText: "",
-					currentProblemAsBeautifulText: "",
-					tilesInCurrentProblem: [],
-
-					valueOfVariableA: undefined,
-					valueOfVariableB: undefined,
-					valueOfVariableC: undefined,
-					valueOfVariableD: undefined,
-
-					gameIsOver: false,
-					gameOverScreenShown: false,
-
-					// leveling
-					experiencePointsEarned: 0,
-				},
-			},
-		},
-	};
-	return data;
-}
-
-function createNewDefaultMultiplayerRoomPlayerObject(socket) {
-	let data = {
-		playerName: socket.loggedIn ? socket.usernameOfSocketOwner : socket.guestNameOfSocketOwner,
-		playerRank: socket.playerRank,
-		connectionID: socket.id,
-
-		dead: false,
-
-		enemiesSent: 0,
-
-		currentInGameTimeInMilliseconds: 0,
-
-		actionsPerformed: 0,
-
-		currentCombo: -1,
-
-		enemiesCreated: 0,
-		enemiesKilled: 0,
-		enemiesOnField: [],
-		enemiesToKill: [],
-
-		enemiesPending: 0,
-		sentEnemiesToSpawn: 0,
-		enemySenders: [],
-
-		currentTileQueue: 1,
-
-		tilesCreated: 0,
-		tilesOnBoard: [],
-		tileQueue: [],
-		bagQuantities: [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-		availableTermsIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-
-		framesRenderedSinceGameStart: 0,
-		enemyGenerationElapsedTimeCounterInMilliseconds: 0,
-		timeElapsedSinceLastEnemyKillInMilliseconds: 0,
-
-		baseHealth: 10,
-
-		enemiesSentIndicators: [],
-		enemiesSentIndicatorsToDestroy: [],
-
-		currentProblemAsText: "",
-		currentProblemAsBeautifulText: "",
-		tilesInCurrentProblem: [],
-
-		valueOfVariableA: undefined,
-		valueOfVariableB: undefined,
-		valueOfVariableC: undefined,
-		valueOfVariableD: undefined,
-
-		gameIsOver: false,
-		gameOverScreenShown: false,
-	};
-	return data;
-}
-
-function startSingleplayerGame(roomID) {}
+function startDefaultSingleplayerGame(roomID) {}
 
 /**
  * Submits a singleplayer game.
@@ -478,7 +314,7 @@ function startSingleplayerGame(roomID) {}
  * @param {*} gameMode
  * @returns
  */
-async function submitSingleplayerGame(socket, finalGameData, userIDOfSocketOwner, gameMode) {
+async function submitDefaultSingleplayerGame(socket, finalGameData, userIDOfSocketOwner, gameMode) {
 	// determine mode
 	let gameModeAsShortenedString = "";
 	if (gameMode == "easySingleplayerMode") {
@@ -832,7 +668,8 @@ function killPlayerRoomEnemies(enemiesToKill, room, socket) {
 
 	switch (room.gameMode) {
 		case "easySingleplayerMode":
-		case "standardSingleplayerMode": {
+		case "standardSingleplayerMode":
+case "customSingleplayerMode": {
 			indicatorName = "scoreGainIndicators";
 			statToAddTo = "currentScore";
 			for (i = 0; i < enemiesToKill.length; i++) {
@@ -961,7 +798,8 @@ function assignValueToRoomPlayerVariable(problemOnLeftSide, problemOnRightSide, 
 function replacePlayerRoomTiles(room, socket) {
 	switch (room.gameMode) {
 		case "easySingleplayerMode":
-		case "standardSingleplayerMode": {
+		case "standardSingleplayerMode":
+case "customSingleplayerMode": {
 			for (i = 0; i < room.data.currentGame.players[socket.id].currentGame.tilesInCurrentProblem.length; i++) {
 				let t = new tile.Tile(generateRandomTileTermID(room, socket.id), i, false, room.data.currentGame.players[socket.id].currentGame.tilesCreated + 1);
 				room.data.currentGame.players[socket.id].currentGame.tilesCreated++;
@@ -1174,13 +1012,97 @@ function generateRandomEnemyTerm() {
 	}
 }
 
+function performDataValidationForCustomSingleplayerMode(settings) {
+	let toReturn = {
+		good: true,
+		problems: {},
+	};
+
+	let allowedValueRanges = {
+		baseHealth: {
+			minimum: 1,
+			maximum: 100,
+		},
+		allowedComboTimeInMilliseconds: {
+			minimum: 1,
+			maximum: 60 * 1000,
+		},
+		enemyGenerationThreshold: {
+			minimum: 1,
+			maximum: 100,
+		},
+		enemyGenerationIntervalInMilliseconds: {
+			minimum: 10,
+			maximum: 60 * 1000,
+		},
+		enemySpeedMultiplier: {
+			minimum: 0.1,
+			maximum: 100,
+		},
+		enemyLimit: {
+			minimum: 1,
+			maximum: 250,
+		},
+		valueOfVariableA: {
+			minimum: -2147483648,
+			maximum: 2147483647,
+		},
+		valueOfVariableB: {
+			minimum: -2147483648,
+			maximum: 2147483647,
+		},
+		valueOfVariableC: {
+			minimum: -2147483648,
+			maximum: 2147483647,
+		},
+		valueOfVariableD: {
+			minimum: -2147483648,
+			maximum: 2147483647,
+		},
+	};
+
+	
+	let keys = Object.keys(settings);
+
+
+	for (i = 0; i < keys.length; i++) {
+		// check that supplied value is a number
+		if (/[0-9]+/.test(settings[keys[i]])) {
+			// good - check if value is within limit
+			if (allowedValueRanges[keys[i]]) {
+				if (allowedValueRanges[keys[i]].minimum <= parseInt(settings[keys[i]]) && parseInt(settings[keys[i]]) <= allowedValueRanges[keys[i]].maximum) {
+					// good
+				} else {
+					// bad
+					toReturn.good = false;
+					toReturn.problems[keys[i]] = {
+						message: `Value for ${keys[i]} must be in the range [${allowedValueRanges[keys[i]].minimum}, ${allowedValueRanges[keys[i]].maximum}].`,
+					};
+				}
+			}
+		} else {
+			// bad
+			toReturn.good = false;
+			toReturn.problems[keys[i]] = {
+				message: `Value for ${keys[i]} is not a number.`,
+			};
+		}
+	}
+
+	return toReturn;
+}
+
+
+function getCustomSingleplayerRoomInstance(room, player){
+	return room.data.currentGame.players[player].currentGame;
+}
+
 module.exports = {
 	// major
 	computeUpdate,
-	createNewSingleplayerGameData,
-	createNewDefaultMultiplayerGameData,
-	startSingleplayerGame,
-	submitSingleplayerGame,
+
+	startDefaultSingleplayerGame,
+	submitDefaultSingleplayerGame,
 
 	// minor
 	checkProblem,
@@ -1197,6 +1119,6 @@ module.exports = {
 	forceSelectTileWithTermID,
 	processTileClick,
 	generateRandomEnemyTerm,
-	createNewDefaultMultiplayerRoomPlayerObject,
 	generateMultiplayerTileQueue,
+	performDataValidationForCustomSingleplayerMode,
 };
