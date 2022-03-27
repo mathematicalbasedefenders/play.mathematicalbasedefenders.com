@@ -123,10 +123,10 @@ function createNewCustomSingleplayerGameData(
                         currentProblemAsBeautifulText: "",
                         tilesInCurrentProblem: [],
 
-                        valueOfVariableA: settings.valueOfVariableA,
-                        valueOfVariableB: settings.valueOfVariableB,
-                        valueOfVariableC: settings.valueOfVariableC,
-                        valueOfVariableD: settings.valueOfVariableD,
+                        valueOfVariableA: settings.valueOfVariableA !== "" ? settings.valueOfVariableA : undefined,
+                        valueOfVariableB: settings.valueOfVariableB !== "" ? settings.valueOfVariableB : undefined,
+                        valueOfVariableC: settings.valueOfVariableC !== "" ? settings.valueOfVariableC : undefined,
+                        valueOfVariableD: settings.valueOfVariableD !== "" ? settings.valueOfVariableD : undefined,
 
                         dead: false,
 

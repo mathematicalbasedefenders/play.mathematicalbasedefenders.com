@@ -778,8 +778,8 @@ io.on("connection", (socket) => {
                         console.log(
                             log.addMetadata(
                                 `Correct password for ${username}!`
-                            ),
-                            "info"
+                            ,"info"),
+                            
                         );
                     } else {
                         socket.emit("loginResult", username, false);
@@ -790,8 +790,8 @@ io.on("connection", (socket) => {
                         console.log(
                             log.addMetadata(
                                 `Incorrect password for ${username}!`
-                            ),
-                            "info"
+                            ,"info"),
+                            
                         );
                     }
                 } else {

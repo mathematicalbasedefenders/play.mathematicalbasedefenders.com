@@ -70,19 +70,19 @@ socket.on("currentGameData", (gameData) => {
                         ? ""
                         : currentGameData.currentGame.currentCombo + " Combo";
                 singleplayerScreenContainerItems.valueOfVariableAText.text =
-                    currentGameData.currentGame.valueOfVariableA === undefined
+                    (currentGameData.currentGame.valueOfVariableA === undefined || currentGameData.currentGame.valueOfVariableA == "")
                         ? "a = ?"
                         : "a = " + currentGameData.currentGame.valueOfVariableA;
                 singleplayerScreenContainerItems.valueOfVariableBText.text =
-                    currentGameData.currentGame.valueOfVariableB === undefined
+                    (currentGameData.currentGame.valueOfVariableB === undefined || currentGameData.currentGame.valueOfVariableB == "")
                         ? "b = ?"
                         : "b = " + currentGameData.currentGame.valueOfVariableB;
                 singleplayerScreenContainerItems.valueOfVariableCText.text =
-                    currentGameData.currentGame.valueOfVariableC === undefined
+                    (currentGameData.currentGame.valueOfVariableC === undefined || currentGameData.currentGame.valueOfVariableC == "")
                         ? "c = ?"
                         : "c = " + currentGameData.currentGame.valueOfVariableC;
                 singleplayerScreenContainerItems.valueOfVariableDText.text =
-                    currentGameData.currentGame.valueOfVariableD === undefined
+                    (currentGameData.currentGame.valueOfVariableD === undefined || currentGameData.currentGame.valueOfVariableD == "")
                         ? "d = ?"
                         : "d = " + currentGameData.currentGame.valueOfVariableD;
                 singleplayerScreenContainerItems.currentTimeText.text =
