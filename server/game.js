@@ -1876,7 +1876,7 @@ function performDataValidationForCustomSingleplayerMode(settings) {
 
     for (i = 0; i < keys.length; i++) {
         // check that supplied value is a number
-        if (/[0-9]+/.test(settings[keys[i]]) || (/(valueOfVariable)[A-D]/.test(Object.keys(settings)[i]) && (/[0-9]+/.test(settings[keys[i]]) ||  "" == settings[keys[i]]))) {
+        if (/^([0-9]\d*)(\.\d+)?$/.test(settings[keys[i]]) || (/(valueOfVariable)[A-D]/.test(Object.keys(settings)[i]) && (/^([0-9]\d*)(\.\d+)?$/.test(settings[keys[i]]) ||  "" == settings[keys[i]]))) {
             // good - check if value is within limit
             if (allowedValueRanges[keys[i]]) {
                 if (
@@ -1889,7 +1889,7 @@ function performDataValidationForCustomSingleplayerMode(settings) {
                 } else {
                     // bad - check one more time that its a variable
                     if (
-                        (/(valueOfVariable)[A-D]/.test(Object.keys(settings)[i]) && (/[0-9]+/.test(settings[keys[i]]) ||  "" == settings[keys[i]]))
+                        (/(valueOfVariable)[A-D]/.test(Object.keys(settings)[i]) && (/^([0-9]\d*)(\.\d+)?$/.test(settings[keys[i]]) ||  "" == settings[keys[i]]))
                     ) {
                         // good
                     } else {
