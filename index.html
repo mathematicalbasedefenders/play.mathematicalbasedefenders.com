@@ -282,70 +282,124 @@
                         style="font-size: 24px; display: none"
                     >
                         <!-- wth? -->
-                        <div>
-                            <span style="font-size: 36px">General</span>
-                            <br />
-                            <!-- TODO: add div but that probably wont be necessary lol -->
 
+                        <span style="font-size: 36px">General</span>
+                        <br />
+                        <!-- TODO: add div but that probably wont be necessary lol -->
+
+                        <div
+                            class="custom-singleplayer-game-setting-container"
+                            onMouseEnter="$('#bottom-toolbar-text').text('How many health points your base starts with.');"
+                            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+                        >
                             Starting Base Health:
-                            <input autocomplete="off"
+                            <input
+                                autocomplete="off"
                                 style="width: 400px"
                                 id="starting-base-health"
                                 name="starting-base-health"
                                 placeholder="Enter number..."
                                 type="text"
+                                value="10"
                             />
-                            <br /><br />
+                        </div>
+                        <br />
 
+                        <div
+                            class="custom-singleplayer-game-setting-container"
+                            onMouseEnter="$('#bottom-toolbar-text').text('How many milliseconds you can keep your combo without killing an enemy.');"
+                            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+                        >
                             Allowed Combo Time (milliseconds):
-                            <input autocomplete="off"
+                            <input
+                                autocomplete="off"
                                 style="width: 400px"
                                 id="allowed-combo-time"
                                 name="allowed-combo-time"
                                 placeholder="Enter number..."
                                 type="text"
+                                value="5000"
                             />
-                            <br />
-                            <hr />
-                            <span style="font-size: 36px">Enemies</span>
-                            <br />
+                        </div>
+                        <br />
+
+                        <hr />
+                        <span style="font-size: 36px">Enemies</span>
+                        <br />
+                        <div
+                            class="custom-singleplayer-game-setting-container"
+                            onMouseEnter="$('#bottom-toolbar-text').text('The chance of an enemy spawning after a certain amount of time (Enemy Generation Interval).');"
+                            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+                        >
                             Enemy Spawn Chance (percent):
-                            <input autocomplete="off"
+                            <input
+                                autocomplete="off"
                                 style="width: 400px"
                                 id="enemy-spawn-chance-in-percent"
                                 name="enemy-spawn-chance-in-percent"
                                 placeholder="Enter number..."
                                 type="text"
+                                value="5"
                             />
-                            <br /><br />
+                        </div>
+                        <br />
+                        <div
+                            class="custom-singleplayer-game-setting-container"
+                            onMouseEnter="$('#bottom-toolbar-text').text('The amount of time before an enemy has a chance to spawn.');"
+                            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+                        >
                             Enemy Generation Interval (milliseconds):
-                            <input autocomplete="off"
+                            <input
+                                autocomplete="off"
                                 style="width: 400px"
                                 id="enemy-generation-interval-in-milliseconds"
                                 name="enemy-generation-interval-in-milliseconds"
                                 placeholder="Enter number..."
                                 type="text"
+                                value="50"
                             />
-                            <br /><br />
+                        </div>
+                        <br />
+                        <div
+                            class="custom-singleplayer-game-setting-container"
+                            onMouseEnter="$('#bottom-toolbar-text').text('The maximum number of enemies the field can hold.');"
+                            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+                        >
                             Enemy Limit:
-                            <input autocomplete="off"
+                            <input
+                                autocomplete="off"
                                 style="width: 400px"
                                 id="enemy-limit"
                                 name="enemy-limit"
                                 placeholder="Enter number..."
                                 type="text"
+                                value="250"
                             />
-                            <br /><br />
+                        </div>
+                        <br />
+                        <div
+                            class="custom-singleplayer-game-setting-container"
+                            onMouseEnter="$('#bottom-toolbar-text').text('The speed multiplier to apply to every enemy.');"
+                            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+                        >
                             Enemy Speed Multiplier:
-                            <input autocomplete="off"
+                            <input
+                                autocomplete="off"
                                 style="width: 400px"
                                 id="enemy-speed-multiplier"
                                 name="enemy-speed-multiplier"
                                 placeholder="Enter number..."
                                 type="text"
+                                value="1"
                             />
-                            <br />
-                            <hr />
+                        </div>
+                        <br />
+                        <hr />
+                        <div
+                            class="custom-singleplayer-game-setting-container"
+                            onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
+                            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+                        >
                             <span style="font-size: 36px">Variables</span>
                             <br />
                             Starting Value of Variable
@@ -356,14 +410,21 @@
                                 "
                                 >a</span
                             >:
-                            <input autocomplete="off"
+                            <input
+                                autocomplete="off"
                                 style="width: 400px"
                                 id="starting-value-of-variable-a"
                                 name="starting-value-of-variable-a"
                                 placeholder="Enter number..."
                                 type="text"
                             />
-                            <br /><br />
+                        </div>
+                        <br />
+                        <div
+                            class="custom-singleplayer-game-setting-container"
+                            onMouseEnter="$('#bottom-toolbar-text').text('How many health points your base starts with.');"
+                            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+                        >
                             Starting Value of Variable
                             <span
                                 style="
@@ -372,14 +433,21 @@
                                 "
                                 >b</span
                             >:
-                            <input autocomplete="off"
+                            <input
+                                autocomplete="off"
                                 style="width: 400px"
                                 id="starting-value-of-variable-b"
                                 name="starting-value-of-variable-b"
                                 placeholder="Enter number..."
                                 type="text"
                             />
-                            <br /><br />
+                        </div>
+                        <br />
+                        <div
+                            class="custom-singleplayer-game-setting-container"
+                            onMouseEnter="$('#bottom-toolbar-text').text('How many health points your base starts with.');"
+                            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+                        >
                             Starting Value of Variable
                             <span
                                 style="
@@ -388,14 +456,21 @@
                                 "
                                 >c</span
                             >:
-                            <input autocomplete="off"
+                            <input
+                                autocomplete="off"
                                 style="width: 400px"
                                 id="starting-value-of-variable-c"
                                 name="starting-value-of-variable-c"
                                 placeholder="Enter number..."
                                 type="text"
                             />
-                            <br /><br />
+                        </div>
+                        <br />
+                        <div
+                            class="custom-singleplayer-game-setting-container"
+                            onMouseEnter="$('#bottom-toolbar-text').text('How many health points your base starts with.');"
+                            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+                        >
                             Starting Value of Variable
                             <span
                                 style="
@@ -404,32 +479,30 @@
                                 "
                                 >d</span
                             >:
-                            <input autocomplete="off"
+
+                            <input
+                                autocomplete="off"
                                 style="width: 400px"
                                 id="starting-value-of-variable-d"
                                 name="starting-value-of-variable-d"
                                 placeholder="Enter number..."
                                 type="text"
                             />
-                            <br />
-                            <hr />
-                            <br />
-                            <span id="singleplayer-screen-custom-mode-issues"
-                                >&nbsp;</span
-                            ><br />
-                            <button
-                                id="start-button"
-                                onClick="startCustomSingleplayerGame(getCustomSingleplayerModeInputs());"
-                                style="
-                                    width: 256px;
-                                    height: 64px;
-                                    font-size: 28px;
-                                "
-                            >
-                                Start Game
-                            </button>
-                            <br /><br /><br /><br />
                         </div>
+                        <br />
+                        <hr />
+                        <br />
+                        <span id="singleplayer-screen-custom-mode-issues"
+                            >&nbsp;</span
+                        ><br />
+                        <button
+                            id="start-button"
+                            onClick="startCustomSingleplayerGame(getCustomSingleplayerModeInputs());"
+                            style="width: 256px; height: 64px; font-size: 28px"
+                        >
+                            Start Game
+                        </button>
+                        <br /><br /><br /><br />
                     </div>
                 </div>
 
@@ -465,9 +538,9 @@
                     </div>
                     <div class="multiplayer-room-chat-box-container">
                         <div class="multiplayer-room-chat-box"></div>
-                        <div  class="multiplayer-room-message-box-container">
+                        <div class="multiplayer-room-message-box-container">
                             <input
-							style="height:16px;font-size:12px;"
+                                style="height: 16px; font-size: 12px"
                                 type="text"
                                 autocomplete="off"
                                 id="multiplayer-room-message-box"

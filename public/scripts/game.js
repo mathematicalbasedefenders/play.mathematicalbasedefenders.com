@@ -96,15 +96,12 @@ var game = {
     tilesOnBoard: [],
     opponentGameInstances: [],
     opponentGameInstanceSettings: {
-
         opponentGameInstancesPerRow: 3,
         opponentGameInstancePositionIncrements: {
-        x: 130,
-        y: 210,
-            
-    }
-    
-},
+            x: 130,
+            y: 210
+        }
+    },
     cachedLengthOfOpponentGameInstances: 0,
     toastNotifications: {},
     toastNotificationsCreated: 0,
@@ -989,9 +986,13 @@ function processKeypress(event) {
 }
 
 function startDefaultSingleplayerGame(mode) {
-    socket.emit("createAndJoinDefaultSingleplayerRoom", mode);
-    game.lastSingleplayerGameModePlayed = mode;
-    setPropertiesAndChangeScreen(screens.SINGLEPLAYER_GAME_SCREEN, true);
+    if (game.lastSingleplayerGameModePlayed == "customSingleplayerMode") {
+        startCustomSingleplayerGame(getCustomSingleplayerModeInputs());
+    } else {
+        socket.emit("createAndJoinDefaultSingleplayerRoom", mode);
+        game.lastSingleplayerGameModePlayed = mode;
+        setPropertiesAndChangeScreen(screens.SINGLEPLAYER_GAME_SCREEN, true);
+    }
 }
 
 function processAction() {
@@ -1380,6 +1381,7 @@ function getCustomSingleplayerModeInputs() {
 }
 
 function startCustomSingleplayerGame(data) {
+    game.lastSingleplayerGameModePlayed = "customSingleplayerMode";
     socket.emit("createAndJoinCustomSingleplayerRoom", JSON.stringify(data));
 }
 

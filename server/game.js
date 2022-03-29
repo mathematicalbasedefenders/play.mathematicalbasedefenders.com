@@ -111,7 +111,6 @@ const GAME_SETTINGS = {
         enemySpeedMultiplier: 1,
         enemyLimit: 250
     },
-    // TODO: will it break?
     customSingleplayerMode: {},
     defaultMultiplayerMode: {
         allowedComboTimeInMilliseconds: 5000,
