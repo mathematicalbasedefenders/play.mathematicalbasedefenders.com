@@ -740,6 +740,17 @@ io.on("connection", (socket) => {
                         socket
                     );
                     if (result) {
+                        let oldSocket = utilities.getSocketAccordingToUsername(username, sockets);
+                        if (oldSocket){
+                            oldSocket.emit("showTextModal", "Your account has been accessed from another location. If this wasn't you, consider changing your password.", "Forced Disconnection Notice");
+                            oldSocket.disconnect();
+                        }
+
+
+
+
+
+                        
                         socket.usernameOfSocketOwner =
                             socket.playerDataOfSocketOwner.username;
                         socket.userIDOfSocketOwner =
@@ -774,6 +785,8 @@ io.on("connection", (socket) => {
                             "#secondary-top-bar-container",
                             `Level ${playerLevel}`
                         );
+                        
+
 
                         console.log(
                             log.addMetadata(
@@ -781,6 +794,10 @@ io.on("connection", (socket) => {
                             ,"info"),
                             
                         );
+
+
+                        
+
                     } else {
                         socket.emit("loginResult", username, false);
                         usersCurrentlyAttemptingToLogIn.splice(

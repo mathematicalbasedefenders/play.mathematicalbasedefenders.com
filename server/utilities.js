@@ -44,9 +44,17 @@ function checkIfVariablesAreUndefined(...inputs) {
     return false;
 }
 
+function getSocketAccordingToUsername(username, sockets){
+    return sockets.filter((socket) => {
+        return socket.usernameOfSocketOwner == username;
+    })[0];
+}
+
+
 module.exports = {
     generateRoomID,
     generateGuestName,
     getSizeInBytes,
-    checkIfVariablesAreUndefined
+    checkIfVariablesAreUndefined,
+    getSocketAccordingToUsername
 };
