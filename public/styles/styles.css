@@ -128,6 +128,7 @@ body {
     position: absolute;
     bottom: 0;
     width: 100%;
+    max-height: 54px;
     z-index: 0;
     background-color: #eeeeee;
 }
@@ -305,13 +306,14 @@ input {
     margin-left: 2vw;
 }
 
+
 #information-screen-content-container {
     float: right;
     right: 1vw;
-    width: 98vw;
+    width: 75vw;
     overflow-y: auto;
-    z-index: -1;
-    height: 100vh;
+    z-index: -100;
+    height: 100vh;    
 }
 
 .information-screen-navigation-button {
