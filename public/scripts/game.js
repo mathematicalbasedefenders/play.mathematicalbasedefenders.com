@@ -95,10 +95,16 @@ var game = {
     enemiesSentIndicatorRenderStatus: {},
     tilesOnBoard: [],
     opponentGameInstances: [],
-    opponentGameInstancePositionIncrements: {
+    opponentGameInstanceSettings: {
+
+        opponentGameInstancesPerRow: 3,
+        opponentGameInstancePositionIncrements: {
         x: 130,
-        y: 210
-    },
+        y: 210,
+            
+    }
+    
+},
     cachedLengthOfOpponentGameInstances: 0,
     toastNotifications: {},
     toastNotificationsCreated: 0,
