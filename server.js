@@ -153,7 +153,7 @@ function update(deltaTime) {
     // events
     let socketIOEventQueue = game.getSocketIOEventQueue();
 
-    // FIXME: I hope this doesn't break...
+    // FIXME: I hope this doesn't break... (unsafe?)
     if (socketIOEventQueue.length > 0){
         io.emit(socketIOEventQueue[0].eventToEmit, ...socketIOEventQueue[0].arguments)
         game.getSocketIOEventQueue().splice(0,1);
@@ -292,7 +292,6 @@ function update(deltaTime) {
                                 connections[0]
                             ].currentGame.enemiesOnField[enemy].toDestroy
                         ) {
-                            // FIXME: this?
                             delete rooms[roomID].data.currentGame.players[
                                 connections[0]
                             ].currentGame.enemiesOnField[enemy];

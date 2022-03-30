@@ -12,7 +12,18 @@ const UserModelSchema = new Schema({
         easyModePersonalBestScore: Number,
         standardModePersonalBestScore: Number,
         gamesPlayed: Number,
-        totalExperiencePoints: Number
+        totalExperiencePoints: Number,
+        // TODO: Switch to this
+        personalBestScoreOnEasyMode: {
+            score: Number,
+            timeInMilliseconds: Number,
+            scoreSubmissionDateAndTime: Date,
+        },
+        personalBestScoreOnStandardMode: {
+            score: Number,
+            timeInMilliseconds: Number,
+            scoreSubmissionDateAndTime: Date,
+        }
     },
     membership: {
         isDeveloper: Boolean,
@@ -30,7 +41,9 @@ const UserModel = mongoose.model("UserModel", UserModelSchema, "users");
 const EasyModeLeaderboardsSchema = new Schema({
     rankNumber: Number,
     userIDOfHolder: String,
-    score: Number
+    score: Number,
+    timeInMilliseconds: Number,
+    scoreSubmissionDateAndTime: Date,
 });
 
 const EasyModeLeaderboardsModel = mongoose.model(
@@ -42,7 +55,9 @@ const EasyModeLeaderboardsModel = mongoose.model(
 const StandardModeLeaderboardsSchema = new Schema({
     rankNumber: Number,
     userIDOfHolder: String,
-    score: Number
+    score: Number,
+    timeInMilliseconds: Number,
+    scoreSubmissionDateAndTime: Date,
 });
 
 const StandardModeLeaderboardsModel = mongoose.model(

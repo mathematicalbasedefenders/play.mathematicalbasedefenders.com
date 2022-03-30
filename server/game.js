@@ -828,6 +828,7 @@ async function checkAndModifyLeaderboards(
     var placePlayerRankedBefore = -1;
     let leaderboardsModel;
     let score = finalGameData.currentScore;
+    let timeInMilliseconds = finalGameData.currentInGameTimeInMilliseconds;
 
     if (gameMode == "easySingleplayerMode") {
         leaderboardsModel = schemas.getEasyModeLeaderboardsModel();
@@ -894,13 +895,13 @@ async function checkAndModifyLeaderboards(
             break;
         }
     }
-
+    // TODO: Find out what this does.
     if (placePlayerRankedBefore != -1) {
         for (var i = placePlayerRankedBefore; i < 50; i++) {
             var data1 = await leaderboardsModel.findOne({ rankNumber: i + 1 });
             await leaderboardsModel.findOneAndUpdate(
                 { rankNumber: i },
-                { userIDOfHolder: data1.userIDOfHolder, score: data1.score },
+                { userIDOfHolder: data1.userIDOfHolder, score: data1.score, timeInMilliseconds: data1.timeInMilliseconds, scoreSubmissionDateAndTime: data1.scoreSubmissionDateAndTime },
                 function (error4, result4) {
                     if (error4) {
                         console.error(log.addMetadata(error4.stack, "error"));
@@ -916,7 +917,7 @@ async function checkAndModifyLeaderboards(
             var data1 = await leaderboardsModel.findOne({ rankNumber: i - 1 });
             await leaderboardsModel.findOneAndUpdate(
                 { rankNumber: i },
-                { userIDOfHolder: data1.userIDOfHolder, score: data1.score },
+                { userIDOfHolder: data1.userIDOfHolder, score: data1.score, timeInMilliseconds: data1.timeInMilliseconds, scoreSubmissionDateAndTime: data1.scoreSubmissionDateAndTime },
                 function (error4, result4) {
                     if (error4) {
                         console.error(log.addMetadata(error4.stack, "error"));
