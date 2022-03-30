@@ -121,6 +121,11 @@ const GAME_SETTINGS = {
     }
 };
 
+var socketIOEventQueue = [];
+
+
+
+
 /**
  * Computes an update.
  * @param {Object} room
@@ -695,6 +700,12 @@ async function submitDefaultSingleplayerGame(
             finalGameData.currentScore,
             gameModeAsShortenedString
         );
+
+        socketIOEventQueue.push({eventToEmit: "createToastNotification", arguments: [{position: "topRight", message: `User ${usernameOfSocketOwner} submitted a score of ${
+            finalGameData.currentScore
+        } and reached #${globalRank} on a ${_.startCase(
+            gameModeAsShortenedString
+        )} Singleplayer game.`}]});
     }
 
     levelStatus = await checkPlayerLevelStatusForPlayer(
@@ -1920,14 +1931,15 @@ function getCustomSingleplayerRoomInstance(room, player) {
     return room.data.currentGame.players[player].currentGame;
 }
 
-module.exports = {
-    // major
-    computeUpdate,
+function getSocketIOEventQueue(){
+    return socketIOEventQueue;
+}
 
+module.exports = {
+    getSocketIOEventQueue,
+    computeUpdate,
     startDefaultSingleplayerGame,
     submitDefaultSingleplayerGame,
-
-    // minor
     checkProblem,
     evaluateProblem,
     generateRandomTileTermID,

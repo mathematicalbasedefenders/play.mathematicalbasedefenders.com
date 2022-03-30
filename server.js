@@ -148,7 +148,19 @@ var guests = [];
 
 function update(deltaTime) {
     timeSinceLastTimeStatsPrintedInMilliseconds += deltaTime;
-    var activeRoomIDs = Object.keys(rooms);
+    // global
+    let activeRoomIDs = Object.keys(rooms);
+    // events
+    let socketIOEventQueue = game.getSocketIOEventQueue();
+
+    // FIXME: I hope this doesn't break...
+    if (socketIOEventQueue.length > 0){
+        io.emit(socketIOEventQueue[0].eventToEmit, ...socketIOEventQueue[0].arguments)
+        game.getSocketIOEventQueue().splice(0,1);
+    }
+
+
+
     // hub
 
     // game
@@ -1499,6 +1511,9 @@ function constructMinifiedGameDataObjectToSend(connectionID, playerIndex) {
     return opponentGameData;
 }
 
+
+
+
 server.listen(PORT, () => {
     console.log(log.addMetadata(`Listening at localhost:${PORT}`, "info"));
     if (credentials.getWhetherTestingCredentialsAreUsed()) {
@@ -1507,3 +1522,5 @@ server.listen(PORT, () => {
         );
     }
 });
+
+
