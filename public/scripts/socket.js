@@ -1062,7 +1062,7 @@ socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
                 $("#last-game-ranks-content").prepend(
                     `#${parameters[0][i][0][0]} ${
                         parameters[0][i][0][1]
-                    } ${turnMillisecondsToTime(parameters[0][i][0][2])}`
+                    } ${turnMillisecondsToTime(parameters[0][i][0][2])} ${parameters[0][i][0][3]} enemies sent` 
                 );
                 $("#last-game-ranks-content").prepend(`<br>`);
             }

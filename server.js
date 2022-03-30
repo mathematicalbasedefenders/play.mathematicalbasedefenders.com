@@ -373,7 +373,11 @@ function update(deltaTime) {
                                                         .currentGame.players[
                                                         client
                                                     ].currentGame
-                                                        .currentInGameTimeInMilliseconds
+                                                        .currentInGameTimeInMilliseconds,
+                                                    rooms[roomID].data
+                                                        .currentGame.players[
+                                                        client
+                                                    ].currentGame.enemiesSent
                                                 ]
                                             ]);
                                             rooms[
@@ -392,8 +396,10 @@ function update(deltaTime) {
                                                 "defaultMultiplayerRoomAction",
                                                 "updateRanks",
                                                 [
-                                                    rooms[roomID].data
-                                                        .currentGame.ranks
+                                                    DOMPurify.sanitize(
+                                                        rooms[roomID].data
+                                                            .currentGame.ranks
+                                                    )
                                                 ]
                                             );
                                         }
@@ -457,7 +463,11 @@ function update(deltaTime) {
                                                         .currentGame.players[
                                                         winnerSocket.id
                                                     ].currentGame
-                                                        .currentInGameTimeInMilliseconds
+                                                        .currentInGameTimeInMilliseconds,
+                                                    rooms[roomID].data
+                                                        .currentGame.players[
+                                                        winnerSocket.id
+                                                    ].currentGame.enemiesSent
                                                 ]
                                             ]);
                                             winnerSocket.emit(
@@ -740,17 +750,18 @@ io.on("connection", (socket) => {
                         socket
                     );
                     if (result) {
-                        let oldSocket = utilities.getSocketAccordingToUsername(username, sockets);
-                        if (oldSocket){
-                            oldSocket.emit("showTextModal", "Your account has been accessed from another location. If this wasn't you, consider changing your password.", "Forced Disconnection Notice");
+                        let oldSocket = utilities.getSocketAccordingToUsername(
+                            username,
+                            sockets
+                        );
+                        if (oldSocket) {
+                            oldSocket.emit(
+                                "showTextModal",
+                                "Your account has been accessed from another location. If this wasn't you, consider changing your password.",
+                                "Forced Disconnection Notice"
+                            );
                             oldSocket.disconnect();
                         }
-
-
-
-
-
-                        
                         socket.usernameOfSocketOwner =
                             socket.playerDataOfSocketOwner.username;
                         socket.userIDOfSocketOwner =
@@ -785,19 +796,13 @@ io.on("connection", (socket) => {
                             "#secondary-top-bar-container",
                             `Level ${playerLevel}`
                         );
-                        
-
 
                         console.log(
                             log.addMetadata(
-                                `Correct password for ${username}!`
-                            ,"info"),
-                            
+                                `Correct password for ${username}!`,
+                                "info"
+                            )
                         );
-
-
-                        
-
                     } else {
                         socket.emit("loginResult", username, false);
                         usersCurrentlyAttemptingToLogIn.splice(
@@ -806,9 +811,9 @@ io.on("connection", (socket) => {
                         );
                         console.log(
                             log.addMetadata(
-                                `Incorrect password for ${username}!`
-                            ,"info"),
-                            
+                                `Incorrect password for ${username}!`,
+                                "info"
+                            )
                         );
                     }
                 } else {
