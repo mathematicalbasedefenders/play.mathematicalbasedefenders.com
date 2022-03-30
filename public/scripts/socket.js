@@ -1086,6 +1086,30 @@ socket.on("createToastNotification", (options) => {
     createToastNotification(options);
 });
 
+socket.on("sendMessageToConsole", (message, messageType) => {
+    switch (messageType){
+        case "log": {
+            console.log(message);
+            break;
+        }
+        case "warn": {
+            console.warn(message);
+            break;
+        }
+        case "error": {
+            console.error(message);
+            break;
+        }
+        case "debug": {
+            console.debug(message);
+            break;
+        }
+        default: {
+        console.log(message);
+    break;
+    }}
+});
+
 // important
 socket.on("disconnect", (reason) => {
     alert(

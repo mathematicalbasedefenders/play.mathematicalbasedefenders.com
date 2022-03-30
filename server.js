@@ -549,6 +549,8 @@ var loop = setInterval(() => {
     lastUpdateTime = Date.now();
 }, LOOP_INTERVAL);
 
+// SOCKET.IO CODE IS HERE
+
 io.on("connection", (socket) => {
     sockets.push(socket);
 
@@ -1185,6 +1187,15 @@ io.on("connection", (socket) => {
 
     socket.on("sendProblem", () => {
         game.checkProblem(rooms[socket.currentRoomSocketIsIn], socket);
+    });
+
+    socket.on("broadcastMessageAsStaff", (message) => {
+        if (socket.usernameOfSocketOwner == "mistertfy64" || socket.playerRank == playerRanks.ADMINISTRATOR || socket.playerRank == playerRanks.MODERATOR){
+            io.emit("createToastNotification", {position: "topCenter", message: DOMPurify.sanitize(`Message from ${socket.usernameOfSocketOwner == "mistertfy64" ? "Game Master" : beautifyRankName(socket.playerRank)} ${socket.usernameOfSocketOwner}:<br>${message}`)});
+            socket.emit("sendMessageToConsole", "Successfully sent message to all online players!", "log");            
+        }else{
+            socket.emit("sendMessageToConsole", "Wow! You found an easter egg! Unfortunately this easter egg is only for staff members...", "log");
+        }
     });
 });
 
