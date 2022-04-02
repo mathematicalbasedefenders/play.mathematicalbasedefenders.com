@@ -723,35 +723,20 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
         resizeContainer();
     }
 
-    // animate currentScreen first
-    switch (currentScreen) {
-        case screens.MAIN_MENU_SCREEN: {
-            $(".main-menu-screen-button").animate({ opacity: 0 });
-        }
-        case screens.SETTINGS_SCREEN: {
-            $(".settings-screen-navigation-button").animate({ opacity: 0 });
-        }
-    }
+    // // animate currentScreen first
+    // switch (currentScreen) {
+    //     case screens.MAIN_MENU_SCREEN: {
+    //         $(".main-menu-screen-button").animate({ opacity: 0 });
+    //     }
+    //     case screens.SETTINGS_SCREEN: {
+    //         $(".settings-screen-navigation-button").animate({ opacity: 0 });
+    //     }
+    // }
 
     setCustomEnemyPictureMetadata(settings.video.customEnemyPictureURL);
 
-    $("#hub-container").hide(0);
-    $("#main-menu-screen-container").hide(0);
-    $("#information-screen-container").hide(0);
-    $("#singleplayer-lobby-screen-container").hide(0);
-    $("#multiplayer-lobby-screen-container").hide(0);
-    $("#default-multiplayer-room-lobby-screen-container").hide(0);
-    $("#statistics-screen-container").hide(0);
-    $("#settings-screen-container").hide(0);
-    $("#game-over-screen-container").hide(0);
+    hideEverything();
 
-    $(
-        "#singleplayer-screen-custom-mode-settings-screen-content-container"
-    ).hide(0);
-
-    $("#bottom-user-interface-container").hide(0);
-
-    $("#pixi-canvas").hide(0);
     currentScreen = newScreen; // might remove later
     // mainMenuScreenContainer.visible = false;
     singleplayerScreenContainer.visible = false;
@@ -766,7 +751,7 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
             $("#hub-container").show(0);
             $("#main-menu-screen-container").show(0);
             $("#bottom-user-interface-container").show(0);
-            $(".main-menu-screen-button").animate({ opacity: 1 });
+            // $(".main-menu-screen-button").animate({ opacity: 1 });
             break;
         }
         case screens.INFORMATION_SCREEN: {
@@ -903,9 +888,26 @@ function setPropertiesAndChangeSettingsScreen(newSettingsScreen) {
     }
 }
 
-// socket.io functions
 
-// Logical Functions
+function hideEverything(){
+    $("#hub-container").hide(0);
+    $("#main-menu-screen-container").hide(0);
+    $("#information-screen-container").hide(0);
+    $("#singleplayer-lobby-screen-container").hide(0);
+    $("#multiplayer-lobby-screen-container").hide(0);
+    $("#default-multiplayer-room-lobby-screen-container").hide(0);
+    $("#statistics-screen-container").hide(0);
+    $("#settings-screen-container").hide(0);
+    $("#game-over-screen-container").hide(0);
+
+    $(
+        "#singleplayer-screen-custom-mode-settings-screen-content-container"
+    ).hide(0);
+
+    $("#bottom-user-interface-container").hide(0);
+
+    $("#pixi-canvas").hide(0);
+}
 
 function startKeyRebindProcess(tileID) {
     keyRebindProcessUnderway = tileID;
@@ -1404,8 +1406,3 @@ function getAllowedComboTimeAccordingToMode(
         }
     }
 }
-
-// DEBUG
-socket.on("debugData", (what) => {
-    console.log(what);
-});
