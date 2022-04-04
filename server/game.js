@@ -5,6 +5,8 @@ const log = require("./core/log.js");
 
 const _ = require("lodash");
 
+const credentials = require("../credentials/credentials.js");
+
 const enemy = require("./game/enemy.js");
 const tile = require("./game/tile.js");
 const leveling = require("./game/leveling.js");
@@ -123,9 +125,6 @@ const GAME_SETTINGS = {
 
 var socketIOEventQueue = [];
 
-
-
-
 /**
  * Computes an update.
  * @param {Object} room
@@ -240,6 +239,8 @@ async function computeUpdateForRoomPlayerBaseHealth(
                 ].currentGame.gameIsOver = true;
                 let socketOfGamePlayed = room.host;
                 let finalGameData = JSON.parse(JSON.stringify(room.data));
+                finalGameData.currentGame.players[player].currentGame.scoreSubmissionDateAndTime = new Date();
+
                 socketOfGamePlayed.emit(
                     "currentGameData",
                     JSON.stringify(finalGameData.currentGame.players[player])
@@ -694,18 +695,35 @@ async function submitDefaultSingleplayerGame(
     );
 
     if (globalRank != -1) {
-        webhook.createAndSendWebhook(
-            usernameOfSocketOwner,
-            globalRank,
-            finalGameData.currentScore,
-            gameModeAsShortenedString
-        );
+        if (!credentials.getWhetherTestingCredentialsAreUsed()) {
+            webhook.createAndSendWebhook(
+                usernameOfSocketOwner,
+                globalRank,
+                finalGameData.currentScore,
+                gameModeAsShortenedString
+            );
+        } else {
+            console.log(
+                log.addMetadata(
+                    "Webhook not sent because testing credentials are used.",
+                    "info"
+                )
+            );
+        }
 
-        socketIOEventQueue.push({eventToEmit: "createToastNotification", arguments: [{position: "topRight", message: `User ${usernameOfSocketOwner} submitted a score of ${
-            finalGameData.currentScore
-        } and reached #${globalRank} on a ${_.startCase(
-            gameModeAsShortenedString
-        )} Singleplayer game.`}]});
+        socketIOEventQueue.push({
+            eventToEmit: "createToastNotification",
+            arguments: [
+                {
+                    position: "topRight",
+                    message: `User ${usernameOfSocketOwner} submitted a score of ${
+                        finalGameData.currentScore
+                    } and reached #${globalRank} on a ${_.startCase(
+                        gameModeAsShortenedString
+                    )} Singleplayer game.`
+                }
+            ]
+        });
     }
 
     levelStatus = await checkPlayerLevelStatusForPlayer(
@@ -747,9 +765,9 @@ async function checkSingleplayerPersonalBestForPlayer(
     let fullPathOfFieldToUpdate;
 
     if (gameMode == "easySingleplayerMode") {
-        fieldToUpdate = "easyModePersonalBestScore";
+        fieldToUpdate = "personalBestScoreOnEasySingleplayerMode";
     } else if (gameMode == "standardSingleplayerMode") {
-        fieldToUpdate = "standardModePersonalBestScore";
+        fieldToUpdate = "personalBestScoreOnStandardSingleplayerMode";
     } else {
         console.error(
             log.addMetadata(
@@ -760,14 +778,27 @@ async function checkSingleplayerPersonalBestForPlayer(
         return;
     }
 
-    if (playerDataOfSocketOwner["statistics"][fieldToUpdate] === undefined) {
+    if (
+        Object.values(
+            playerDataOfSocketOwner["statistics"][fieldToUpdate]
+        ).every((property) => property === undefined || property == null)
+    ) {
         // personal best field doesn't exist
         // so create one, and assign the score to the field
         await schemas.getUserModel().findByIdAndUpdate(
             userIDAsString,
             {
                 $set: {
-                    [`statistics.${fieldToUpdate}`]: finalGameData.currentScore
+                    [`statistics.${fieldToUpdate}`]: {
+                        score: finalGameData.currentScore,
+                        timeInMilliseconds:
+                            finalGameData.currentInGameTimeInMilliseconds,
+                        scoreSubmissionDateAndTime:
+                            finalGameData.scoreSubmissionDateAndTime,
+                        actionsPerformed: finalGameData.actionsPerformed,
+                        enemiesKilled: finalGameData.enemiesKilled,
+                        enemiesCreated: finalGameData.enemiesCreated
+                    }
                 }
             },
             { upsert: true },
@@ -784,15 +815,23 @@ async function checkSingleplayerPersonalBestForPlayer(
         // personal best field exists
         if (
             finalGameData.currentScore >
-            playerDataOfSocketOwner["statistics"][fieldToUpdate]
+            playerDataOfSocketOwner["statistics"][fieldToUpdate].score
         ) {
             // score is higher than personal best
             await schemas.getUserModel().findByIdAndUpdate(
                 userIDAsString,
                 {
                     $set: {
-                        [`statistics.${fieldToUpdate}`]:
-                            finalGameData.currentScore
+                        [`statistics.${fieldToUpdate}`]: {
+                            score: finalGameData.currentScore,
+                            timeInMilliseconds:
+                                finalGameData.currentInGameTimeInMilliseconds,
+                            scoreSubmissionDateAndTime:
+                                finalGameData.scoreSubmissionDateAndTime,
+                            actionsPerformed: finalGameData.actionsPerformed,
+                            enemiesKilled: finalGameData.enemiesKilled,
+                            enemiesCreated: finalGameData.enemiesCreated
+                        }
                     }
                 },
                 { upsert: true },
@@ -896,12 +935,22 @@ async function checkAndModifyLeaderboards(
         }
     }
     // TODO: Find out what this does.
+    // My guess would be this pushes the ??? down
     if (placePlayerRankedBefore != -1) {
         for (var i = placePlayerRankedBefore; i < 50; i++) {
             var data1 = await leaderboardsModel.findOne({ rankNumber: i + 1 });
             await leaderboardsModel.findOneAndUpdate(
                 { rankNumber: i },
-                { userIDOfHolder: data1.userIDOfHolder, score: data1.score, timeInMilliseconds: data1.timeInMilliseconds, scoreSubmissionDateAndTime: data1.scoreSubmissionDateAndTime },
+                {
+                    userIDOfHolder: data1.userIDOfHolder,
+                    score: data1.score,
+                    timeInMilliseconds: data1.timeInMilliseconds,
+                    scoreSubmissionDateAndTime:
+                        data1.scoreSubmissionDateAndTime,
+                    actionsPerformed: data1.actionsPerformed,
+                    enemiesKilled: data1.enemiesKilled,
+                    enemiesCreated: data1.enemiesCreated
+                },
                 function (error4, result4) {
                     if (error4) {
                         console.error(log.addMetadata(error4.stack, "error"));
@@ -912,12 +961,22 @@ async function checkAndModifyLeaderboards(
         }
     }
     // modify
+    // this actually sets the new score
     for (var i = 50; i >= placePlayerRanked; i--) {
         if (i != 1) {
             var data1 = await leaderboardsModel.findOne({ rankNumber: i - 1 });
             await leaderboardsModel.findOneAndUpdate(
                 { rankNumber: i },
-                { userIDOfHolder: data1.userIDOfHolder, score: data1.score, timeInMilliseconds: data1.timeInMilliseconds, scoreSubmissionDateAndTime: data1.scoreSubmissionDateAndTime },
+                {
+                    userIDOfHolder: data1.userIDOfHolder,
+                    score: data1.score,
+                    timeInMilliseconds: data1.timeInMilliseconds,
+                    scoreSubmissionDateAndTime:
+                        data1.scoreSubmissionDateAndTime,
+                    actionsPerformed: data1.actionsPerformed,
+                    enemiesKilled: data1.enemiesKilled,
+                    enemiesCreated: data1.enemiesCreated
+                },
                 function (error4, result4) {
                     if (error4) {
                         console.error(log.addMetadata(error4.stack, "error"));
@@ -928,9 +987,19 @@ async function checkAndModifyLeaderboards(
         }
     }
 
+    // this actually sets the new score
     await leaderboardsModel.findOneAndUpdate(
         { rankNumber: placePlayerRanked },
-        { userIDOfHolder: userIDAsString, score: score },
+        {
+            userIDOfHolder: userIDAsString,
+            score: finalGameData.currentScore,
+            timeInMilliseconds: finalGameData.currentInGameTimeInMilliseconds,
+            scoreSubmissionDateAndTime:
+                finalGameData.scoreSubmissionDateAndTime,
+            actionsPerformed: finalGameData.actionsPerformed,
+            enemiesKilled: finalGameData.enemiesKilled,
+            enemiesCreated: finalGameData.enemiesCreated
+        },
         function (error5, result5) {
             if (error5) {
                 console.error(log.addMetadata(error5.stack, "error"));
@@ -1887,33 +1956,41 @@ function performDataValidationForCustomSingleplayerMode(settings) {
 
     for (i = 0; i < keys.length; i++) {
         // check that supplied value is a number
-        if (/^([0-9]\d*)(\.\d+)?$/.test(settings[keys[i]]) || (/(valueOfVariable)[A-D]/.test(Object.keys(settings)[i]) && (/^([0-9]\d*)(\.\d+)?$/.test(settings[keys[i]]) ||  "" == settings[keys[i]]))) {
+        if (
+            /^([0-9]\d*)(\.\d+)?$/.test(settings[keys[i]]) ||
+            (/(valueOfVariable)[A-D]/.test(Object.keys(settings)[i]) &&
+                (/^([0-9]\d*)(\.\d+)?$/.test(settings[keys[i]]) ||
+                    "" == settings[keys[i]]))
+        ) {
             // good - check if value is within limit
             if (allowedValueRanges[keys[i]]) {
                 if (
-                    (allowedValueRanges[keys[i]].minimum <=
+                    allowedValueRanges[keys[i]].minimum <=
                         parseInt(settings[keys[i]]) &&
                     parseInt(settings[keys[i]]) <=
-                        allowedValueRanges[keys[i]].maximum)
+                        allowedValueRanges[keys[i]].maximum
                 ) {
                     // good
                 } else {
                     // bad - check one more time that its a variable
                     if (
-                        (/(valueOfVariable)[A-D]/.test(Object.keys(settings)[i]) && (/^([0-9]\d*)(\.\d+)?$/.test(settings[keys[i]]) ||  "" == settings[keys[i]]))
+                        /(valueOfVariable)[A-D]/.test(
+                            Object.keys(settings)[i]
+                        ) &&
+                        (/^([0-9]\d*)(\.\d+)?$/.test(settings[keys[i]]) ||
+                            "" == settings[keys[i]])
                     ) {
                         // good
                     } else {
-
-
-
-                    toReturn.good = false;
-                    toReturn.problems[keys[i]] = {
-                        message: `Value for ${keys[i]} must be in the range [${
-                            allowedValueRanges[keys[i]].minimum
-                        }, ${allowedValueRanges[keys[i]].maximum}].`
-                    };
-                }
+                        toReturn.good = false;
+                        toReturn.problems[keys[i]] = {
+                            message: `Value for ${
+                                keys[i]
+                            } must be in the range [${
+                                allowedValueRanges[keys[i]].minimum
+                            }, ${allowedValueRanges[keys[i]].maximum}].`
+                        };
+                    }
                 }
             }
         } else {
@@ -1932,7 +2009,7 @@ function getCustomSingleplayerRoomInstance(room, player) {
     return room.data.currentGame.players[player].currentGame;
 }
 
-function getSocketIOEventQueue(){
+function getSocketIOEventQueue() {
     return socketIOEventQueue;
 }
 

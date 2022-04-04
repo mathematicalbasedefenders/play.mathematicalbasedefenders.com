@@ -14,15 +14,21 @@ const UserModelSchema = new Schema({
         gamesPlayed: Number,
         totalExperiencePoints: Number,
         // TODO: Switch to this
-        personalBestScoreOnEasyMode: {
+        personalBestScoreOnEasySingleplayerMode: {
             score: Number,
             timeInMilliseconds: Number,
             scoreSubmissionDateAndTime: Date,
+            actionsPerformed: Number,
+            enemiesKilled: Number,
+            enemiesCreated: Number
         },
-        personalBestScoreOnStandardMode: {
+        personalBestScoreOnStandardSingleplayerMode: {
             score: Number,
             timeInMilliseconds: Number,
             scoreSubmissionDateAndTime: Date,
+            actionsPerformed: Number,
+            enemiesKilled: Number,
+            enemiesCreated: Number
         }
     },
     membership: {
@@ -44,6 +50,9 @@ const EasyModeLeaderboardsSchema = new Schema({
     score: Number,
     timeInMilliseconds: Number,
     scoreSubmissionDateAndTime: Date,
+    enemiesKilled: Number,
+    enemiesCreated: Number,
+    actionsPerformed: Number
 });
 
 const EasyModeLeaderboardsModel = mongoose.model(
@@ -58,6 +67,9 @@ const StandardModeLeaderboardsSchema = new Schema({
     score: Number,
     timeInMilliseconds: Number,
     scoreSubmissionDateAndTime: Date,
+    enemiesKilled: Number,
+    enemiesCreated: Number,
+    actionsPerformed: Number
 });
 
 const StandardModeLeaderboardsModel = mongoose.model(

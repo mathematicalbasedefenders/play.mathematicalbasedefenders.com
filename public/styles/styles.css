@@ -284,6 +284,7 @@ input {
     text-align: left;
     font-size: 24px;
     background-color: #eeeeee;
+    color: #000000;
 }
 
 .main-menu-screen-button {
@@ -326,6 +327,7 @@ input {
     text-align: left;
     font-size: 24px;
     transition: all 0.1s ease-out;
+    color: #000000;
 }
 .information-screen-navigation-button:hover {
     box-shadow: inset 15.625vw 0 0 #b6b6b6;
@@ -359,6 +361,7 @@ input {
     border-left: 2px solid #000000;
     text-align: left;
     font-size: 24px;
+    color: #000000;
 }
 
 .singleplayer-lobby-screen-button {
@@ -400,6 +403,7 @@ input {
     border-left: 2px solid #000000;
     text-align: left;
     font-size: 24px;
+    color: #000000;
 }
 
 .multiplayer-lobby-screen-button {
@@ -420,6 +424,7 @@ input {
     bottom: 10vh;
     margin-bottom: 1vh;
     margin-left: 2vw;
+    color: #000000;
 }
 
 .default-multiplayer-room-lobby-screen-button {
@@ -431,6 +436,7 @@ input {
     border-left: 2px solid #000000;
     text-align: left;
     font-size: 24px;
+    color: #000000;
 }
 
 .default-multiplayer-room-lobby-screen-button {
@@ -496,6 +502,7 @@ input {
     position: absolute;
     top: 95%;
     right: 0.5%;
+    color: #000000;
 }
 
 #last-game-ranks-content {
@@ -548,6 +555,7 @@ input {
     text-align: left;
     font-size: 24px;
     transition: all 0.1s ease-out;
+    color: #000000;
 }
 
 .statistics-screen-button:hover {
@@ -588,6 +596,7 @@ input {
     text-align: left;
     font-size: 24px;
     transition: all 0.1s ease-out;
+    color: #000000;
 }
 #settings-screen-navigation-button-container {
     position: absolute;
@@ -629,6 +638,7 @@ input {
     height: 28px;
     background-color: #eeeeee;
     right: 5vw;
+    color: #000000;
 }
 
 #settings-screen-back-button-container {
@@ -637,6 +647,7 @@ input {
     width: 100%;
     z-index: 1;
     background: none;
+    color: #000000;
 }
 
 #settings-screen-content-container {
@@ -671,6 +682,7 @@ GAME OVER
     bottom: 10vh;
     margin-bottom: 1vh;
     margin-left: 2vw;
+    color: #000000;
 }
 
 .game-over-screen-navigation-button {
@@ -683,6 +695,7 @@ GAME OVER
     text-align: left;
     font-size: 24px;
     transition: all 0.1s ease-out;
+    color: #000000;
 }
 
 .game-over-screen-navigation-button:hover {
