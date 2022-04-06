@@ -50,11 +50,31 @@ function getSocketAccordingToUsername(username, sockets){
     })[0];
 }
 
+function turnMillisecondsToTime(milliseconds) {
+    let h = Math.floor(milliseconds / (60 * 60 * 1000));
+    let dm = milliseconds % (60 * 60 * 1000);
+    let m = Math.floor(dm / (60 * 1000));
+    let ds = dm % (60 * 1000);
+    let s = Math.floor(ds / 1000);
+
+    let hh = h < 10 ? "0" + h : h;
+    let mm = m < 10 ? "0" + m : m;
+    let ss = s < 10 ? "0" + s : s;
+    let ms = String(Math.floor(ds % 1000)).padStart(3, "0");
+
+    if (h >= 1) {
+        return hh + ":" + mm + ":" + ss + "." + ms;
+    } else {
+        return mm + ":" + ss + "." + ms;
+    }
+}
+
 
 module.exports = {
     generateRoomID,
     generateGuestName,
     getSizeInBytes,
     checkIfVariablesAreUndefined,
-    getSocketAccordingToUsername
+    getSocketAccordingToUsername,
+    turnMillisecondsToTime,
 };

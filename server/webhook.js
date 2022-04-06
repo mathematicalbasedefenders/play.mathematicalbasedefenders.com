@@ -1,8 +1,9 @@
 const credentials = require("../credentials/credentials.js");
+const utilities = require("./utilities.js");
 const fetch = require("isomorphic-fetch");
 const _ = require("lodash");
 
-function createAndSendWebhook(username, rank, score, gameMode) {
+function createAndSendWebhook(username, rank, finalGameData, gameMode) {
     let url = credentials.getDiscordWebhookURL();
     let parameters = {
         embeds: [
@@ -12,7 +13,7 @@ function createAndSendWebhook(username, rank, score, gameMode) {
                     gameMode == "easy" ? "n" : ""
                 } ${_.startCase(
                     gameMode
-                )} Singleplayer game with a score of ${score} points.`,
+                )} Singleplayer game with a score of ${finalGameData.currentScore} points, killing ${finalGameData.enemiesKilled} out of ${finalGameData.enemiesCreated} enemies and survived for ${utilities.turnMillisecondsToTime(finalGameData.currentInGameTimeInMilliseconds)} at ${(finalGameData.actionsPerformed/(finalGameData.currentInGameTimeInMilliseconds/60000)).toFixed(3)} actions per minute.`,
                 color: generateColor(rank)
             }
         ]

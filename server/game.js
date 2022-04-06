@@ -699,7 +699,7 @@ async function submitDefaultSingleplayerGame(
             webhook.createAndSendWebhook(
                 usernameOfSocketOwner,
                 globalRank,
-                finalGameData.currentScore,
+                finalGameData,
                 gameModeAsShortenedString
             );
         } else {
