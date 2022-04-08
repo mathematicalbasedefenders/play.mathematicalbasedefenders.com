@@ -178,6 +178,7 @@ kbd {
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.6);
+    display: none;
 }
 
 #text-modal-content-container {
@@ -188,6 +189,7 @@ kbd {
     border: #000000;
     border-style: solid;
     border-radius: 10px;
+    position: absolute;
 }
 
 #text-modal-button {
@@ -208,6 +210,7 @@ kbd {
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.6);
+    display: none;
 }
 
 #user-information-modal-content-container {
@@ -669,7 +672,6 @@ GAME OVER
     height: 50vh;
     left: 20vw;
     border: none;
-    position: absolute;
 }
 
 #game-over-screen-navigation-button-container {
@@ -700,6 +702,15 @@ GAME OVER
 
 .game-over-screen-navigation-button:hover {
     box-shadow: inset 15.625vw 0 0 #b6b6b6;
+}
+
+#game-over-screen-content-container {
+    float: right;
+    right: 1vw;
+    width: 75vw;
+    overflow-y: auto;
+    z-index: -100;
+    height: 100vh;    
 }
 
 /*
