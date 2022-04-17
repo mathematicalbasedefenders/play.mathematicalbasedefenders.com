@@ -407,10 +407,10 @@ function update(deltaTime) {
                                                 "defaultMultiplayerRoomAction",
                                                 "updateRanks",
                                                 [
-                                                    DOMPurify.sanitize(
+                                                    
                                                         rooms[roomID].data
                                                             .currentGame.ranks
-                                                    )
+                                                    
                                                 ]
                                             );
                                         }
