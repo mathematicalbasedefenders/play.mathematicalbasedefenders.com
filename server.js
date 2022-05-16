@@ -89,7 +89,7 @@ const LOOP_INTERVAL = 1000 / DESIRED_UPDATES_PER_SECOND;
 
 // variables
 var sockets = [];
-var rooms = {};
+var rooms = Object.create(null);
 
 var roomIDOfDefaultMultiplayerRoom = "";
 
