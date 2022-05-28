@@ -1,46 +1,26 @@
-const schemas = require("../core/schemas.js");
 const log = require("../core/log.js");
 
-function giveExperiencePointsToPlayer(username, amount) {}
+// models
+var User = require("../models/User.js");
+var EasyModeLeaderboardsRecord = require("../models/EasyModeLeaderboardsRecord.js");
+var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboardsRecord.js");
 
-async function giveExperiencePointsToPlayerID(userIDAsString, amount) {
+async function giveExperiencePointsToUserID(userIDAsString, amount) {
     let toReturn = {
         leveledUp: false,
         currentLevel: 0
     };
 
-    let oldData = await schemas
-        .getUserModel()
-        .findById(userIDAsString, (error2, result2) => {
-            if (error2) {
-                console.error(log.addMetadata(error2, "error"));
-            }
-            return result2;
-        });
+    let userInstance = await User.safeFindByUserID(userIDAsString);
+    let oldExperiencePoints = userInstance.statistics.totalExperiencePoints;
 
-    let oldExperiencePointAmount = oldData.statistics.totalExperiencePoints;
+    await User.giveExperiencePointsToUserID(userIDAsString, amount);
 
-    await schemas
-        .getUserModel()
-        .findByIdAndUpdate(
-            userIDAsString,
-            { $inc: { "statistics.totalExperiencePoints": amount } },
-            { upsert: true },
-            (error3, result3) => {
-                if (error3) {
-                    console.error(log.addMetadata(error3, "error"));
-                }
-                return result3;
-            }
-        );
+    let newExperiencePoints = oldExperiencePoints + amount;
 
-    toReturn.currentLevel = getLevel(oldExperiencePointAmount + amount);
+    toReturn.currentLevel = getLevel(newExperiencePoints);
 
-    if (
-        oldExperiencePointAmount + amount > oldExperiencePointAmount &&
-        getLevel(oldExperiencePointAmount + amount) >
-            getLevel(oldExperiencePointAmount)
-    ) {
+    if (newExperiencePoints > oldExperiencePoints && getLevel(newExperiencePoints) > getLevel(oldExperiencePoints)){
         toReturn.leveledUp = true;
     }
 
@@ -56,4 +36,4 @@ function getLevel(experiencePoints) {
     return currentLevel;
 }
 
-module.exports = { giveExperiencePointsToPlayerID, getLevel };
+module.exports = { giveExperiencePointsToUserID, getLevel };

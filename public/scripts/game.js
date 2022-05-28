@@ -105,7 +105,8 @@ var game = {
     cachedLengthOfOpponentGameInstances: 0,
     toastNotifications: {},
     toastNotificationsCreated: 0,
-    lastSingleplayerGameModePlayed: null
+    lastSingleplayerGameModePlayed: null,
+    userCurrentUserIsViewing: null
 };
 
 var finalGameData;
@@ -1326,7 +1327,7 @@ function showTextModal(text, title, color) {
     $("#text-modal-title").text(title);
     $("#text-modal-text").text(text);
     $("#text-modal-container").fadeIn(200);
-    $("#text-modal-container").show(0);
+    $("#text-modal-container").show(0).css("display","flex");
 }
 
 function showUserInformationModal(name) {
@@ -1336,8 +1337,17 @@ function showUserInformationModal(name) {
 
     socket.emit("getDataForUserInformationModalAndUpdateText", name);
 
+    game.userCurrentUserIsViewing = name;
+
     $("#user-information-modal-container").fadeIn(200);
-    $("#user-information-modal-container").show(0);
+    $("#user-information-modal-container").show(0).css("display","flex");
+}
+
+function showReportUserModal(){
+    $("#report-user-modal-title").text(`Report ${game.userCurrentUserIsViewing}?`);
+
+    $("#report-user-modal-container").fadeIn(200);
+    $("#report-user-modal-container").show(0).css("display","flex");
 }
 
 function showCustomSingleplayerGameModeSettingsScreen() {

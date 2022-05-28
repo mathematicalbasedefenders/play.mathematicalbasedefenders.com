@@ -232,6 +232,40 @@ kbd {
     bottom: 5%;
 }
 
+#report-user-modal-container {
+    position: fixed;
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none;
+}
+
+#report-user-modal-content-container {
+    width: 60%;
+    height: 65%;
+    margin: 15% auto;
+    padding: 15px;
+    background-color: #555555;
+    border: #000000;
+    border-style: solid;
+    border-radius: 10px;
+}
+
+#report-user-modal-button {
+    width: 60%;
+    height: 50px;
+    font-size: 32px;
+    background-color: #cdcdcd;
+    color: #000000;
+    bottom: 5%;
+}
+
+
+
 input {
     font-size: 24px;
     height: 28px;

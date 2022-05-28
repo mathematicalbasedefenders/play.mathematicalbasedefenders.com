@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, user-scalable=no"/>
+        <meta name="viewport" content="width=device-width, user-scalable=no" />
         <title>Mathematical Base Defenders</title>
 
         <link
@@ -42,7 +42,14 @@
                 </div>
             </div>
 
-            <div id="text-modal-container">
+            <div
+                id="text-modal-container"
+                style="
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                "
+            >
                 <div id="text-modal-content-container">
                     <div style="position: relative">
                         <p
@@ -109,7 +116,40 @@
                             <br />
                             <button
                                 id="user-information-modal-button"
-                                onClick="	$('#user-information-modal-container').fadeOut(200);$('#user-information-modal-container').hide(0);"
+                                onClick="$('#user-information-modal-container').fadeOut(200);$('#user-information-modal-container').hide(0);game.userCurrentUserIsViewing=null;"
+                            >
+                                Close
+                            </button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="report-user-modal-container">
+                <div id="report-user-modal-content-container">
+                    <div style="position: relative">
+                        <p
+                            style="text-align: center"
+                            style="background-color: #555555"
+                        >
+                            <span
+                                style="
+                                    font-size: 36px;
+                                    color: #ffffff;
+                                    background-color: inherit;
+                                "
+                                id="report-user-modal-title"
+                                >text1</span
+                            >
+                            <br>
+                            <span
+                            style="
+                                color: #ffffff;">Note: Misuse of the report system may result in actions taken on <strong>your</strong> account.</span>
+                            <input type="text" autocomplete="off" placeholder="Why are you reporting this user? (500 characters maximum)" style="width:75%;height:50vh;font-size:16px;">
+                            <br /><br>
+                            <button
+                                id="report-user-modal-button"
+                                onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);"
                             >
                                 Close
                             </button>
@@ -146,15 +186,26 @@
                             </button></span
                         >
                     </div>
-                    
+
                     <div>
-                    <span style="opacity:0.3;font-size:72px;position:absolute;top:5%;left:5%;;white-space:nowrap;">IN DEVELOPMENT</span>
-                    <div id="mathematical-base-defenders-logo-container">
-                        <img
-                        src="/assets/images/mathematicalbasedefenders.png"
-                        />
-                    </div></div>
-                    
+                        <span
+                            style="
+                                opacity: 0.3;
+                                font-size: 72px;
+                                position: absolute;
+                                top: 5%;
+                                left: 5%;
+                                white-space: nowrap;
+                            "
+                            >IN DEVELOPMENT</span
+                        >
+                        <div id="mathematical-base-defenders-logo-container">
+                            <img
+                                src="/assets/images/mathematicalbasedefenders.png"
+                            />
+                        </div>
+                    </div>
+
                     <div id="main-menu-screen-button-container">
                         <button
                             class="main-menu-screen-button"
@@ -200,11 +251,20 @@
                         <div class="large-text">
                             <p style="text-align: center">
                                 Mathematical Base Defenders
-                                <span style="margin-top:10px" class="medium-text">0.3.0-alpha.11 </span>
-                                <span style="margin-top:10px" class="large-medium-text"
+                                <span
+                                    style="margin-top: 10px"
+                                    class="medium-text"
+                                    >0.3.0-alpha.11
+                                </span>
+                                <span
+                                    style="margin-top: 10px"
+                                    class="large-medium-text"
                                     >by
-                                    <img 
-                                        style="margin-top:10px;transform: translateY(5px)"
+                                    <img
+                                        style="
+                                            margin-top: 10px;
+                                            transform: translateY(5px);
+                                        "
                                         onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')"
                                         onClick="document.location='https://mistertfy64.com'"
                                         ;
@@ -1163,42 +1223,43 @@
                 <!-- Game over screen-->
                 <div id="game-over-screen-container">
                     <div id="game-over-screen-content-container">
-                    <div id="final-stats-container">
-                        <br><br>
-                        <div
-                            id="final-score-container"
-                            style="vertical-align: text-bottom; clear: both"
-                        >
-                            <p style="text-align: center">
-                                <span class="medium-text">Score</span>
-                                <br />
-                                <span id="final-score" class="large-text"
-                                    >???</span
-                                >
-                                <br />
-                                <span class="medium-text"
-                                    >Time:
-                                    <span id="final-time">???</span
-                                    >&nbsp;Enemies:
-                                    <span id="final-enemies">???</span
-                                    >&nbsp;APM:
-                                    <span id="final-actions-per-minute"
+                        <div id="final-stats-container">
+                            <br /><br />
+                            <div
+                                id="final-score-container"
+                                style="vertical-align: text-bottom; clear: both"
+                            >
+                                <p style="text-align: center">
+                                    <span class="medium-text">Score</span>
+                                    <br />
+                                    <span id="final-score" class="large-text"
                                         >???</span
-                                    ></span
-                                >
-                                <br />
-                                <span
-                                    class="medium-text"
-                                    id="personal-best-broken"
-                                ></span>
-                                <br />
-                                <span
-                                    class="medium-text"
-                                    id="final-global-rank"
-                                ></span>
-                            </p>
+                                    >
+                                    <br />
+                                    <span class="medium-text"
+                                        >Time:
+                                        <span id="final-time">???</span
+                                        >&nbsp;Enemies:
+                                        <span id="final-enemies">???</span
+                                        >&nbsp;APM:
+                                        <span id="final-actions-per-minute"
+                                            >???</span
+                                        ></span
+                                    >
+                                    <br />
+                                    <span
+                                        class="medium-text"
+                                        id="personal-best-broken"
+                                    ></span>
+                                    <br />
+                                    <span
+                                        class="medium-text"
+                                        id="final-global-rank"
+                                    ></span>
+                                </p>
+                            </div>
                         </div>
-                    </div></div>
+                    </div>
                     <div id="game-over-screen-navigation-button-container">
                         <button
                             class="game-over-screen-navigation-button"

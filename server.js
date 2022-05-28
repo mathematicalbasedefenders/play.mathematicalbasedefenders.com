@@ -71,13 +71,18 @@ const configuration = require("./server/configuration.js");
 const authentication = require("./server/authentication.js");
 
 const game = require("./server/game.js");
-const utilities = require("./server/utilities.js");
+const tiles = require("./server/game/tiles.js");
+const utilities = require("./server/game/utilities.js");
 
-const schemas = require("./server/core/schemas.js");
 const log = require("./server/core/log.js");
 
 const leveling = require("./server/game/leveling.js");
-const tile = require("./server/game/tile.js");
+const evaluation = require("./server/game/evaluation.js");
+const generation = require("./server/game/generation.js");
+const tile = require("./server/game/constructors/tile.js");
+const validation = require("./server/core/validation.js");
+const input = require("./server/game/input.js");
+
 
 const defaults = require("./server/core/defaults.js");
 
@@ -92,6 +97,14 @@ var sockets = [];
 var rooms = Object.create(null);
 
 var roomIDOfDefaultMultiplayerRoom = "";
+
+// models
+var User = require("./server/models/User.js");
+var EasyModeLeaderboardsRecord = require("./server/models/EasyModeLeaderboardsRecord.js");
+var StandardModeLeaderboardsRecord = require("./server/models/StandardModeLeaderboardsRecord.js");
+
+
+
 
 const roomTypes = {
     SINGLEPLAYER: "singleplayer",
@@ -128,7 +141,7 @@ mongoose.connect(credentials.getMongooseURI(), {
     useFindAndModify: false
 });
 
-mongoose.connection.on("connected", () => {
+mongoose.connection.on("connected", async () => {
     console.log(log.addMetadata("Successfully connected to mongoose.", "info"));
 });
 
@@ -699,8 +712,8 @@ io.on("connection", (socket) => {
                                 socket.currentRoomSocketIsIn != "" &&
                                 socket.socketIsHostOfRoomItIsIn
                             ) {
-                                game.forceSelectTileWithTermID(
-                                    game.convertPressedKeyToTermID(
+                                tiles.forceSelectTileWithTermID(
+                                    tiles.convertPressedKeyToTermID(
                                         code,
                                         playerTileKeybinds,
                                         rooms[socket.currentRoomSocketIsIn],
@@ -717,8 +730,8 @@ io.on("connection", (socket) => {
                                 socket.currentRoomSocketIsIn != "" &&
                                 socket.ownerOfSocketIsPlaying
                             ) {
-                                game.forceSelectTileWithTermID(
-                                    game.convertPressedKeyToTermID(
+                                tiles.forceSelectTileWithTermID(
+                                    tiles.convertPressedKeyToTermID(
                                         code,
                                         playerTileKeybinds,
                                         rooms[socket.currentRoomSocketIsIn],
@@ -749,11 +762,11 @@ io.on("connection", (socket) => {
         username = DOMPurify.sanitize(mongoDBSanitize(username));
         console.log(log.addMetadata("Log in attempt from " + username, "info"));
 
+        
         if (!usersCurrentlyAttemptingToLogIn.includes(username)) {
             if (/^[a-zA-Z0-9_]*$/g.test(username)) {
                 usersCurrentlyAttemptingToLogIn.push(username);
-                socket.playerDataOfSocketOwner = await schemas
-                    .getUserModel()
+                socket.playerDataOfSocketOwner = await User
                     .findOne({ username: username });
 
                 if (socket.playerDataOfSocketOwner) {
@@ -785,7 +798,7 @@ io.on("connection", (socket) => {
                             1
                         );
                         socket.loggedIn = true;
-                        socket.playerRank = getPlayerRank(
+                        socket.playerRank = utilities.getPlayerRank(
                             socket.playerDataOfSocketOwner
                         );
                         let playerLevel = leveling.getLevel(
@@ -795,13 +808,13 @@ io.on("connection", (socket) => {
                         socket.emit(
                             "updateText",
                             "#player-rank",
-                            beautifyRankName(socket.playerRank, username)
+                            utilities.beautifyRankName(socket.playerRank, username)
                         );
                         socket.emit(
                             "updateCSS",
                             "#player-rank",
                             "color",
-                            formatPlayerName(socket.playerRank, username)
+                            utilities.formatPlayerName(socket.playerRank, username)
                         );
                         socket.emit("updateText", "#player-name", username);
                         socket.emit(
@@ -930,7 +943,8 @@ io.on("connection", (socket) => {
 
         if (socket.currentRoomSocketIsIn == "") {
             let dataValidationResult =
-                game.performDataValidationForCustomSingleplayerMode(settings);
+                validation.performDataValidationForCustomSingleplayerMode
+(settings);
             if (dataValidationResult.good) {
                 let roomID = undefined;
                 while (roomID === undefined || roomID in rooms) {
@@ -1138,7 +1152,7 @@ io.on("connection", (socket) => {
                         ? socket.usernameOfSocketOwner
                         : socket.guestNameOfSocketOwner,
                     message,
-                    formatPlayerName(
+                    utilities.formatPlayerName(
                         socket.playerRank,
                         socket.usernameOfSocketOwner
                     )
@@ -1177,7 +1191,7 @@ io.on("connection", (socket) => {
             slot = parseInt(slot);
         }
         if (slot % 1 == 0 && slot >= 0 && slot <= 48) {
-            game.processTileClick(
+            input.processTileClick(
                 slot,
                 rooms[socket.currentRoomSocketIsIn],
                 socket
@@ -1186,12 +1200,12 @@ io.on("connection", (socket) => {
     });
 
     socket.on("sendProblem", () => {
-        game.checkProblem(rooms[socket.currentRoomSocketIsIn], socket);
+        evaluation.checkProblem(rooms[socket.currentRoomSocketIsIn], socket);
     });
 
     socket.on("broadcastMessageAsStaff", (message) => {
         if (socket.usernameOfSocketOwner == "mistertfy64" || socket.playerRank == playerRanks.ADMINISTRATOR || socket.playerRank == playerRanks.MODERATOR){
-            io.emit("createToastNotification", {position: "topCenter", message: DOMPurify.sanitize(`Message from ${socket.usernameOfSocketOwner == "mistertfy64" ? "Game Master" : beautifyRankName(socket.playerRank)} ${socket.usernameOfSocketOwner}:<br>${message}`)});
+            io.emit("createToastNotification", {position: "topCenter", message: DOMPurify.sanitize(`Message from ${socket.usernameOfSocketOwner == "mistertfy64" ? "Game Master" : utilities.beautifyRankName(socket.playerRank)} ${socket.usernameOfSocketOwner}:<br>${message}`)});
             socket.emit("sendMessageToConsole", "Successfully sent message to all online players!", "log");            
         }else{
             socket.emit("sendMessageToConsole", "Wow! You found an easter egg! Unfortunately this easter egg is only for staff members...", "log");
@@ -1201,8 +1215,7 @@ io.on("connection", (socket) => {
 
 async function getCurrentPlayerData(socket, ...dataRequested) {
     if (socket.loggedIn) {
-        let data = await schemas
-            .getUserModel()
+        let data = await User
             .findOne({ username: socket.usernameOfSocketOwner });
 
         // strip sensitive information
@@ -1232,7 +1245,7 @@ async function getCurrentPlayerData(socket, ...dataRequested) {
 
 async function getPlayerData(name, ...dataRequested) {
     if (!/Guest\s[0-9]{8}/gm.test(name)) {
-        let data = await schemas.getUserModel().findOne({ username: name });
+        let data = await User.findOne({ username: name });
 
         if (data) {
             // strip sensitive information
@@ -1266,73 +1279,11 @@ async function getPlayerData(name, ...dataRequested) {
     }
 }
 
-function getPlayerRank(playerDataOfSocketOwner) {
-    if (playerDataOfSocketOwner.username == "mistertfy64") {
-        return playerRanks.GAME_MASTER;
-    } else if (playerDataOfSocketOwner.membership.isDeveloper) {
-        return playerRanks.DEVELOPER;
-    } else if (playerDataOfSocketOwner.membership.isAdministrator) {
-        return playerRanks.ADMINISTRATOR;
-    } else if (playerDataOfSocketOwner.membership.isModerator) {
-        return playerRanks.MODERATOR;
-    } else if (playerDataOfSocketOwner.membership.isContributor) {
-        return playerRanks.CONTRIBUTOR;
-    } else if (playerDataOfSocketOwner.membership.isTester) {
-        return playerRanks.TESTER;
-    } else if (playerDataOfSocketOwner.membership.isDonator) {
-        return playerRanks.DONATOR;
-    }
-}
-
-function formatPlayerName(rank, username) {
-    if (username === undefined || username == null) {
-        return "#000000";
-    }
-    if (username == "mistertfy64") {
-        return "#ff0000";
-    } else if (rank == playerRanks.DEVELOPER) {
-        return "#ff0000";
-    } else if (rank == playerRanks.ADMINISTRATOR) {
-        return "#ff0000";
-    } else if (rank == playerRanks.MODERATOR) {
-        return "#ff7f00";
-    } else if (rank == playerRanks.CONTRIBUTOR) {
-        return "#4070ff";
-    } else if (rank == playerRanks.TESTER) {
-        return "#0194ff";
-    } else if (rank == playerRanks.DONATOR) {
-        return "#1dc444";
-    }
-    return "#000000";
-}
-
-function beautifyRankName(rank, username) {
-    if (username === undefined || username == null) {
-        return "";
-    }
-    if (username == "mistertfy64") {
-        return "Game Master";
-    } else if (rank == playerRanks.DEVELOPER) {
-        return "Developer";
-    } else if (rank == playerRanks.ADMINISTRATOR) {
-        return "Administrator";
-    } else if (rank == playerRanks.MODERATOR) {
-        return "Moderator";
-    } else if (rank == playerRanks.CONTRIBUTOR) {
-        return "Contributor";
-    } else if (rank == playerRanks.TESTER) {
-        return "Tester";
-    } else if (rank == playerRanks.DONATOR) {
-        return "Donator";
-    }
-    return "";
-}
-
 function initializeSingleplayerGame(room, mode, player) {
     for (let i = 0; i < 49; i++) {
         room.data.currentGame.players[player].currentGame.tilesOnBoard[i] =
             new tile.Tile(
-                game.generateRandomTileTermID(room, player),
+                generation.generateRandomTileTermID(room, player),
                 i,
                 false,
                 room.data.currentGame.players[player].currentGame.tilesCreated +
@@ -1368,12 +1319,12 @@ async function startDefaultMultiplayerGame(roomID) {
     rooms[
         roomIDOfDefaultMultiplayerRoom
     ].data.currentGame.globalTileQueues.push(
-        game.generateMultiplayerTileQueue()
+        tiles.generateMultiplayerTileQueue()
     );
     rooms[
         roomIDOfDefaultMultiplayerRoom
     ].data.currentGame.globalTileQueues.push(
-        game.generateMultiplayerTileQueue()
+        tiles.generateMultiplayerTileQueue()
     );
 
     let playersAlive = [];
@@ -1511,7 +1462,7 @@ function constructMinifiedGameDataObjectToSend(connectionID, playerIndex) {
             rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
                 connectionID
             ].currentGame.currentProblemAsBeautifulText,
-        nameColor: formatPlayerName(
+        nameColor: utilities.formatPlayerName(
             rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
                 connectionID
             ].currentGame.playerRank

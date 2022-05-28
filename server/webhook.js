@@ -1,5 +1,5 @@
 const credentials = require("../credentials/credentials.js");
-const utilities = require("./utilities.js");
+const utilities = require("./game/utilities.js");
 const fetch = require("isomorphic-fetch");
 const _ = require("lodash");
 

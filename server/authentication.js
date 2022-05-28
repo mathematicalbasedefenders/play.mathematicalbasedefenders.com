@@ -12,6 +12,8 @@ const mongoDBSanitize = require("mongo-sanitize");
 
 const log = require("./core/log.js");
 
+
+
 async function checkPassword(username, encodedPassword, socket) {
     decodedPassword = new Buffer.from(
         new Buffer.from(
