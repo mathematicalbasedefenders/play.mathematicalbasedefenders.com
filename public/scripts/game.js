@@ -989,7 +989,7 @@ function processKeypress(event) {
 }
 
 function startDefaultSingleplayerGame(mode) {
-    if (game.lastSingleplayerGameModePlayed == "customSingleplayerMode") {
+    if (game.lastSingleplayerGameModePlayed == "customSingleplayerMode" && mode == "customSingleplayerMode") {
         startCustomSingleplayerGame(getCustomSingleplayerModeInputs());
     } else {
         socket.emit("createAndJoinDefaultSingleplayerRoom", mode);
