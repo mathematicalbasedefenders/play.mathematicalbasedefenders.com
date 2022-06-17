@@ -133,13 +133,14 @@ body {
     bottom: 0;
     width: 100%;
     max-height: 54px;
-    z-index: 0;
+    z-index: 800;
     background-color: #eeeeee;
 }
 
 #bottom-toolbar-text {
-    font-size: 36px;
+    font-size: 3vh;
     margin-left: 10px;
+    
 }
 
 kbd {
