@@ -141,12 +141,23 @@
                                 id="report-user-modal-title"
                                 >text1</span
                             >
-                            <br>
-                            <span
-                            style="
-                                color: #ffffff;">Note: Misuse of the report system may result in actions taken on <strong>your</strong> account.</span>
-                            <input type="text" autocomplete="off" placeholder="Why are you reporting this user? (500 characters maximum)" style="width:75%;height:50vh;font-size:16px;">
-                            <br /><br>
+                            <br />
+                            <span style="color: #ffffff"
+                                >Note: Misuse of the report system may result in
+                                actions taken on
+                                <strong>your</strong> account.</span
+                            >
+                            <input
+                                type="text"
+                                autocomplete="off"
+                                placeholder="Why are you reporting this user? (500 characters maximum)"
+                                style="
+                                    width: 75%;
+                                    height: 50vh;
+                                    font-size: 16px;
+                                "
+                            />
+                            <br /><br />
                             <button
                                 id="report-user-modal-button"
                                 onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);"
@@ -1229,34 +1240,73 @@
                                 id="final-score-container"
                                 style="vertical-align: text-bottom; clear: both"
                             >
-                                <p style="text-align: center">
+                                <div style="text-align: center">
                                     <span class="medium-text">Score</span>
                                     <br />
                                     <span id="final-score" class="large-text"
                                         >???</span
                                     >
-                                    <br />
-                                    <span class="medium-text"
-                                        >Time:
-                                        <span id="final-time">???</span
-                                        >&nbsp;Enemies:
-                                        <span id="final-enemies">???</span
-                                        >&nbsp;APM:
-                                        <span id="final-actions-per-minute"
-                                            >???</span
-                                        ></span
-                                    >
-                                    <br />
-                                    <span
-                                        class="medium-text"
-                                        id="personal-best-broken"
-                                    ></span>
-                                    <br />
-                                    <span
-                                        class="medium-text"
-                                        id="final-global-rank"
-                                    ></span>
-                                </p>
+                                </div>
+                                <br />
+                            <span
+                                    class="medium-text"
+                                    id="personal-best-broken"
+                                ></span>
+                                <br />
+                                <span
+                                    class="medium-text"
+                                    id="final-global-rank"
+                                ></span>
+                                <div class="medium-text;width:100%;">
+                                    <table class="medium-text"style="width: 100%;">
+                                        <tbody>
+                                            <tr>
+                                                <td style="width: 50%">
+                                                    In Game Time
+                                                </td>
+                                                <td
+                                                    style="
+                                                        float: right;
+                                                        text-align: right;
+                                                        width: 50%;
+                                                    "
+                                                    id="final-time"
+                                                ></td>
+                                            </tr>
+                                            
+
+                                            <tr>
+                                                <td>
+                                                    Enemies
+                                                </td>
+                                                <td
+                                                    style="
+                                                        float: right;
+                                                        text-align: right;
+                                                        width: 50%;
+                                                    "
+                                                    id="final-enemies"
+                                                ></td>
+                                            </tr>
+                                            
+                                            <tr>
+                                                <td>Actions Per Minute</td>
+                                                <td
+                                                    style="
+                                                        float: right;
+                                                        text-align: right;
+                                                        width: 50%;
+                                                    "
+                                                    id="final-actions-per-minute"
+                                                >
+                                                    
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <br />
+                                
                             </div>
                         </div>
                     </div>

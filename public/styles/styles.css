@@ -73,6 +73,10 @@
 body {
     background-color: #eeeeee;
 }
+
+#game-container {
+    overflow: hidden;
+}
 /*
     GLOBAL
 */

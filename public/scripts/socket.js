@@ -1056,6 +1056,7 @@ socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
 
             break;
         }
+        //TODO: Make this less confusing.
         case "updateRanks": {
             $("#last-game-ranks-content").html("");
             for (let i = 0; i < parameters[0].length; i++) {
