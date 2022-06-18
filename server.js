@@ -82,6 +82,7 @@ const generation = require("./server/game/generation.js");
 const tile = require("./server/game/constructors/tile.js");
 const validation = require("./server/core/validation.js");
 const input = require("./server/game/input.js");
+const room = require("./server/game/rooms.js");
 
 
 const defaults = require("./server/core/defaults.js");
@@ -651,23 +652,7 @@ io.on("connection", (socket) => {
             io.to(roomToLeave).emit(
                 "defaultMultiplayerRoomAction",
                 "updatePlayerList",
-                [
-                    Object.keys(
-                        rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom
-                    ).map((player) => {
-                        if (
-                            rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[
-                                player
-                            ].loggedIn
-                        ) {
-                            return rooms[roomIDOfDefaultMultiplayerRoom]
-                                .playersInRoom[player].usernameOfSocketOwner;
-                        } else {
-                            return rooms[roomIDOfDefaultMultiplayerRoom]
-                                .playersInRoom[player].guestNameOfSocketOwner;
-                        }
-                    })
-                ]
+                room.getRoomPlayers(rooms[roomToLeave])
             );
 
             if (rooms[roomToLeave].playing) {
@@ -1037,24 +1022,7 @@ io.on("connection", (socket) => {
                 io.to(roomIDOfDefaultMultiplayerRoom).emit(
                     "defaultMultiplayerRoomAction",
                     "updatePlayerList",
-                    [
-                        Object.keys(
-                            rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom
-                        ).map((player) => {
-                            if (
-                                rooms[roomIDOfDefaultMultiplayerRoom]
-                                    .playersInRoom[player].loggedIn
-                            ) {
-                                return rooms[roomIDOfDefaultMultiplayerRoom]
-                                    .playersInRoom[player]
-                                    .usernameOfSocketOwner;
-                            } else {
-                                return rooms[roomIDOfDefaultMultiplayerRoom]
-                                    .playersInRoom[player]
-                                    .guestNameOfSocketOwner;
-                            }
-                        })
-                    ]
+                    room.getRoomPlayers(rooms[roomID])
                 );
             } else {
                 socket.join(roomIDOfDefaultMultiplayerRoom);
@@ -1065,24 +1033,7 @@ io.on("connection", (socket) => {
                 io.to(roomIDOfDefaultMultiplayerRoom).emit(
                     "defaultMultiplayerRoomAction",
                     "updatePlayerList",
-                    [
-                        Object.keys(
-                            rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom
-                        ).map((player) => {
-                            if (
-                                rooms[roomIDOfDefaultMultiplayerRoom]
-                                    .playersInRoom[player].loggedIn
-                            ) {
-                                return rooms[roomIDOfDefaultMultiplayerRoom]
-                                    .playersInRoom[player]
-                                    .usernameOfSocketOwner;
-                            } else {
-                                return rooms[roomIDOfDefaultMultiplayerRoom]
-                                    .playersInRoom[player]
-                                    .guestNameOfSocketOwner;
-                            }
-                        })
-                    ]
+                    room.getRoomPlayers(rooms[roomIDOfDefaultMultiplayerRoom])
                 );
             }
         } else {
@@ -1105,23 +1056,7 @@ io.on("connection", (socket) => {
             io.to(roomToLeave).emit(
                 "defaultMultiplayerRoomAction",
                 "updatePlayerList",
-                [
-                    Object.keys(
-                        rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom
-                    ).map((player) => {
-                        if (
-                            rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[
-                                player
-                            ].loggedIn
-                        ) {
-                            return rooms[roomIDOfDefaultMultiplayerRoom]
-                                .playersInRoom[player].usernameOfSocketOwner;
-                        } else {
-                            return rooms[roomIDOfDefaultMultiplayerRoom]
-                                .playersInRoom[player].guestNameOfSocketOwner;
-                        }
-                    })
-                ]
+                room.getRoomPlayers(rooms[roomToLeave])
             );
             if (rooms[roomToLeave].playing) {
                 rooms[roomToLeave].data.currentGame.players[

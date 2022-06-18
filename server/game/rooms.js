@@ -1,8 +1,7 @@
 const tiles = require("./tiles.js");
 const tile = require("./constructors/tile.js");
-const utilities= require("./utilities.js");
+const utilities = require("./utilities.js");
 const generation = require("./generation.js");
-
 
 /**
  * Replaces tiles for a player in a Multiplayer Room.
@@ -14,7 +13,6 @@ function replacePlayerRoomTiles(room, socket) {
         case "easySingleplayerMode":
         case "standardSingleplayerMode":
         case "customSingleplayerMode": {
-            
             for (
                 i = 0;
                 i <
@@ -29,7 +27,7 @@ function replacePlayerRoomTiles(room, socket) {
                     room.data.currentGame.players[socket.id].currentGame
                         .tilesCreated + 1
                 );
-                
+
                 room.data.currentGame.players[socket.id].currentGame
                     .tilesCreated++;
                 room.data.currentGame.players[
@@ -122,7 +120,7 @@ function getMultiplayerTileQueueOfPlayer(room, socket) {
             );
         }
     }
-    
+
     let tile =
         room.data.currentGame.players[socket.id].currentGame.tileQueue[
             room.data.currentGame.players[socket.id].currentGame
@@ -135,7 +133,29 @@ function getMultiplayerTileQueueOfPlayer(room, socket) {
     return tile;
 }
 
+function getRoomPlayers(roomData) {
+    return [
+        Object.keys(roomData.playersInRoom).map((player) => {
+            if (roomData.playersInRoom[player].loggedIn) {
+                return {
+                    name: roomData.playersInRoom[player].usernameOfSocketOwner,
+                    nameColor: utilities.formatPlayerName(
+                        roomData.playersInRoom[player],
+                        roomData.playersInRoom[player].usernameOfSocketOwner
+                    )
+                };
+            } else {
+                return {
+                    name: roomData.playersInRoom[player].guestNameOfSocketOwner,
+                    nameColor: "#000000"
+                };
+            }
+        })
+    ];
+}
 
 module.exports = {
-    replacePlayerRoomTiles,getMultiplayerTileQueueOfPlayer
-}
+    getRoomPlayers,
+    replacePlayerRoomTiles,
+    getMultiplayerTileQueueOfPlayer
+};

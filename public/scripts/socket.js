@@ -1018,7 +1018,7 @@ socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
         case "updatePlayerList": {
             let formattedPlayers = "";
             for (let i = 0; i < parameters[0].length; i++) {
-                formattedPlayers += `<button class="multiplayer-player-list-player-name-container" onClick="showUserInformationModal('${parameters[0][i]}')">${parameters[0][i]}</button>`;
+                formattedPlayers += `<button style="color:${parameters[0][i].nameColor};" class="multiplayer-player-list-player-name-container" onClick="showUserInformationModal('${parameters[0][i].name}')">${parameters[0][i].name}</button>`;
                 if (i != parameters[0].length - 1) {
                     formattedPlayers += "<br>";
                 }
