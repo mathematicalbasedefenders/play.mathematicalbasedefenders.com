@@ -285,11 +285,11 @@ function update(deltaTime) {
                     game.computeUpdate(rooms[roomID], deltaTime);
                     io.to(roomID).emit(
                         "currentGameData",
-                        JSON.stringify(
+                        //JSON.stringify(
                             rooms[roomID].data.currentGame.players[
                                 connections[0]
                             ]
-                        )
+                       // )
                     );
                     dataSentWithoutCompression += utilities.getSizeInBytes(
                         JSON.stringify(
@@ -339,11 +339,11 @@ function update(deltaTime) {
                                         ) {
                                             connection.emit(
                                                 "currentGameData",
-                                                JSON.stringify(
+                                               // JSON.stringify(
                                                     constructDefaultMultiplayerGameDataObjectToSend(
                                                         connection
                                                     )
-                                                )
+                                                //)
                                             );
                                             dataSentWithoutCompression +=
                                                 utilities.getSizeInBytes(
@@ -373,7 +373,8 @@ function update(deltaTime) {
                                                 ) {
                                                     connection.emit(
                                                         "currentGameData",
-                                                        JSON.stringify(data)
+                                                        //JSON.stringify(data)
+                                                        data
                                                     );
                                                 }
                                                 dataSentWithoutCompression +=
@@ -497,7 +498,8 @@ function update(deltaTime) {
                                             ]);
                                             winnerSocket.emit(
                                                 "currentGameData",
-                                                JSON.stringify(data)
+                                                //JSON.stringify(data)
+                                                data
                                             );
                                             winnerSocket.ownerOfSocketIsPlaying = false;
                                             io.to(roomID).emit(

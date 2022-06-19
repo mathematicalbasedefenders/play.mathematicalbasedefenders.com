@@ -24,7 +24,7 @@ const developerConfiguration = {
 
         // Log Data Sent
         // Logs the egress sent every second.
-        logAmountOfDataSent: false
+        logAmountOfDataSent: true
     }
 };
 

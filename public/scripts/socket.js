@@ -1,5 +1,5 @@
 socket.on("currentGameData", (gameData) => {
-    let currentGameData = JSON.parse(gameData);
+    let currentGameData = gameData;
     // delta = frames "skipped" (1 frame = 1/60 seconds)
     if (!firstUpdateReceived) {
         forceWeakResizeContainer();

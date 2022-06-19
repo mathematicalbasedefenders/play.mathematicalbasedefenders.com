@@ -201,15 +201,16 @@ async function computeUpdateForRoomPlayerBaseHealth(
 
                 socketOfGamePlayed.emit(
                     "currentGameData",
-                    JSON.stringify(finalGameData.currentGame.players[player])
+                    //JSON.stringify(finalGameData.currentGame.players[player])
+                    finalGameData.currentGame.players[player]
                 );
                 socketOfGamePlayed
                     .to(room.id)
                     .emit(
                         "currentGameData",
-                        JSON.stringify(
+                        // JSON.stringify(
                             finalGameData.currentGame.players[player]
-                        )
+                        // )
                     );
                 room.host.leave(room.id);
                 socketOfGamePlayed.currentRoomSocketIsIn = "";
