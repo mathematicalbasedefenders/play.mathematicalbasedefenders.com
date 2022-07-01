@@ -3,6 +3,15 @@ function updateText(selector, text, useHTML) {
     $(selector).text(text);
 }
 
+function addText(selector, text, useHTML){
+    if (useHTML) {$(selector).html($(selector).text() + `<br>` + text); return;}
+    $(selector).text(
+        $(selector).text() +
+            `<br>` +
+            text
+    );
+}
+
 function updateCSS(selector, property, value) {
     $(selector).css({ [property]: value });
 }

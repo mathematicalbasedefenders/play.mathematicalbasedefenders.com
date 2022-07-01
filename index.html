@@ -610,8 +610,8 @@
                             <p id="default-multiplayer-room-player-list"></p>
                         </div>
                     </div>
-                    <div class="multiplayer-room-chat-box-container">
-                        <div class="multiplayer-room-chat-box"></div>
+                    <div class="multiplayer-room-chat-content-container">
+                        <p id="multiplayer-room-chat-content"></p>
                         <div class="multiplayer-room-message-box-container">
                             <input
                                 style="height: 16px; font-size: 12px"
@@ -621,8 +621,8 @@
                                 placeholder="Enter message..."
                             /><button
                                 id="chat-box-send-button"
+                                onClick="sendChatMessage();"
                                 >
-                                <!-- onClick="socket.emit('defaultMultiplayerRoomChatMessage', $('#multiplayer-room-message-box').val());$('#multiplayer-room-message-box').val('')" --> -->
                                 Send
                             </button>
                         </div>

@@ -208,7 +208,7 @@ async function computeUpdateForRoomPlayerBaseHealth(
                     JSON.stringify({
                         action: "currentGameData",
 
-                        parameters: {
+                        arguments: {
                             data: finalGameData.currentGame.players[player]
                         }
                     })
@@ -614,7 +614,7 @@ async function submitDefaultSingleplayerGame(
         socket.send(
             JSON.stringify({
                 action: "updateText",
-                parameters: {
+                arguments: {
                     selector: "#personal-best-broken",
                     text: "Score not saved. Register for an account to save your scores."
                 }
@@ -651,7 +651,7 @@ async function submitDefaultSingleplayerGame(
 
     socket.send(JSON.stringify({
         action: "updateText",
-        parameters: {
+        arguments: {
             selector:
                 "#personal-best-broken",
             text: personalBestBroken ? "New Personal Best!" : ""
@@ -659,7 +659,7 @@ async function submitDefaultSingleplayerGame(
     }))
     socket.send(JSON.stringify({
         action: "updateText",
-        parameters: {
+        arguments: {
             selector:
                 "#final-global-rank",
             text: utilities.calculateMessageForGlobalRank(globalRank)
@@ -702,7 +702,7 @@ async function submitDefaultSingleplayerGame(
 
         socketEventQueue.push({
             eventToPublish: "createToastNotification",
-            parameters: 
+            arguments: 
                 {
                     position: "topRight",
                     message: `User ${usernameOfSocketOwner} submitted a score of ${
@@ -734,7 +734,7 @@ async function submitDefaultSingleplayerGame(
     // }
     socket.send(JSON.stringify({
         action: "updateText",
-        parameters: {
+        arguments: {
             selector:
                 "#experience-points-earned",
             text: Math.floor(finalGameData.currentScore / (gameModeAsShortenedString === "easy" ? 200 : 100)).toString(),

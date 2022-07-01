@@ -44,7 +44,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                     );
                     if (oldSocket) {
                         oldSocket.send(JSON.stringify({
-                            action:"showTextModal",parameters:{
+                            action:"showTextModal",arguments:{
                             text:"Your account has been accessed from another location. If this wasn't you, consider changing your password.",
                             title:"Forced Disconnection Notice"}
                     }));
@@ -54,7 +54,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                         socket.variables.playerDataOfSocketOwner.username;
                     socket.variables.userIDOfSocketOwner =
                         socket.variables.playerDataOfSocketOwner["_id"];
-                    socket.send(JSON.stringify({action:"showTextModal",parameters:{title:"Successful Login!",text:`Successfully logged in as ${username}!`}}));
+                    socket.send(JSON.stringify({action:"showTextModal",arguments:{title:"Successful Login!",text:`Successfully logged in as ${username}!`}}));
                     usersCurrentlyAttemptingToLogIn.splice(
                         usersCurrentlyAttemptingToLogIn.indexOf(username),
                         1
@@ -68,12 +68,12 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                             .totalExperiencePoints
                     );
                     socket.send(
-                        JSON.stringify({action:"updateText",parameters:
+                        JSON.stringify({action:"updateText",arguments:
                         {title:"#player-rank",
                         text:utilities.beautifyRankName(socket.variables.playerRank, username)}})
                     );
                     socket.send(
-                        JSON.stringify({action:"updateCSS",parameters:{
+                        JSON.stringify({action:"updateCSS",arguments:{
                         selector:"#player-rank",
                         property:"color",
                         value:utilities.formatPlayerName(socket.variables.playerRank, username)}})
@@ -82,7 +82,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                     // socket.send(
                     //     JSON.stringify({
                     //         action: "updateText",
-                    //         parameters: { selector: username, text: $5 }
+                    //         arguments: { selector: username, text: $5 }
                     //     })
                     // );
                     "updateText",
@@ -97,7 +97,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                     );
                 } else {
                     // failed log in
-                    socket.send(JSON.stringify({action:"showTextModal",parameters:{title:"Failed log in!",text:`Failed to log in as ${username}`}}));
+                    socket.send(JSON.stringify({action:"showTextModal",arguments:{title:"Failed log in!",text:`Failed to log in as ${username}`}}));
                     usersCurrentlyAttemptingToLogIn.splice(
                         usersCurrentlyAttemptingToLogIn.indexOf(username),
                         1
@@ -113,7 +113,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                 console.log(
                     log.addMetadata("User " + username + " not found!", "info")
                 );
-                socket.send(JSON.stringify({action:"showTextModal",parameters:{title:"Failed log in!",text:`Failed to log in as ${username}`}}));
+                socket.send(JSON.stringify({action:"showTextModal",arguments:{title:"Failed log in!",text:`Failed to log in as ${username}`}}));
                 usersCurrentlyAttemptingToLogIn.splice(
                     usersCurrentlyAttemptingToLogIn.indexOf(username),
                     1
@@ -125,7 +125,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
             console.log(
                 log.addMetadata("User " + username + " not found!", "info")
             );
-            socket.send(JSON.stringify({action:"showTextModal",parameters:{title:"Failed log in!",text:`Failed to log in as ${username}`}}));
+            socket.send(JSON.stringify({action:"showTextModal",arguments:{title:"Failed log in!",text:`Failed to log in as ${username}`}}));
             usersCurrentlyAttemptingToLogIn.splice(
                 usersCurrentlyAttemptingToLogIn.indexOf(username),
                 1
@@ -138,7 +138,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                 "info"
             )
         );
-        socket.send(JSON.stringify({action:"showTextModal",parameters:{title:"Failed log in!",text:`Failed to log in as ${username}`}}));
+        socket.send(JSON.stringify({action:"showTextModal",arguments:{title:"Failed log in!",text:`Failed to log in as ${username}`}}));
     }
 }
 

@@ -4,7 +4,7 @@ socket.onmessage = (message) => {
     message = JSON.parse(message.data);
     switch (message.action) {
         case "currentGameData": {
-            let currentGameData = message.parameters.data;
+            let currentGameData = message.arguments.data;
             // delta = frames "skipped" (1 frame = 1/60 seconds)
             if (!firstUpdateReceived) {
                 forceWeakResizeContainer();
@@ -1041,9 +1041,9 @@ socket.onmessage = (message) => {
         }
         case "updateMultiplayerPlayerList": {
             let formattedPlayers = "";
-            for (let i = 0; i < message.parameters.data[0].length; i++) {
-                formattedPlayers += `<button style="color:${message.parameters.data[0][i].nameColor};" class="multiplayer-player-list-player-name-container" onClick="showUserInformationModal('${message.parameters.data[0][i].name}')">${message.parameters.data[0][i].name}</button>`;
-                if (i != message.parameters.data[0].length - 1) {
+            for (let i = 0; i < message.arguments.data[0].length; i++) {
+                formattedPlayers += `<button style="color:${message.arguments.data[0][i].nameColor};" class="multiplayer-player-list-player-name-container" onClick="showUserInformationModal('${message.arguments.data[0][i].name}')">${message.arguments.data[0][i].name}</button>`;
+                if (i != message.arguments.data[0].length - 1) {
                     formattedPlayers += "<br>";
                 }
             }
@@ -1051,17 +1051,26 @@ socket.onmessage = (message) => {
             break;
         }
         case "updateText": {
-            updateText(message.parameters.selector, message.parameters.text, message.parameters?.useHTML);
+            updateText(
+                message.arguments.selector,
+                message.arguments.text,
+                message.arguments?.useHTML
+            );
             break;
         }
-        case "showTextModal":{
-                showTextModal(message.parameters.text, message.parameters.title);
-                break;
-            }
-            case "createToastNotification":  {
-                    createToastNotification(message.parameters);
-                    break;
-                }
+        case "showTextModal": {
+            showTextModal(message.arguments.text, message.arguments.title);
+            break;
+        }
+        case "createToastNotification": {
+            createToastNotification(message.arguments);
+            break;
+        }
+        case "addText": {
+            console.debug(message.arguments.selector);
+            addText(message.arguments.selector, message.arguments.text, message.arguments.useHTML);
+            break;
+        }
         default: {
             break;
         }
@@ -1114,14 +1123,14 @@ socket.onmessage = (message) => {
 //     }
 // });
 
-// socket.on("defaultMultiplayerRoomAction", (action, parameters) => {
+// socket.on("defaultMultiplayerRoomAction", (action, arguments) => {
 //     switch (action) {
 //         // used when someone joins or leaves
 //         case "updateMultiplayerPlayerList": {
 //             let formattedPlayers = "";
-//             for (let i = 0; i < parameters[0].length; i++) {
-//                 formattedPlayers += `<button style="color:${parameters[0][i].nameColor};" class="multiplayer-player-list-player-name-container" onClick="showUserInformationModal('${parameters[0][i].name}')">${parameters[0][i].name}</button>`;
-//                 if (i != parameters[0].length - 1) {
+//             for (let i = 0; i < arguments[0].length; i++) {
+//                 formattedPlayers += `<button style="color:${arguments[0][i].nameColor};" class="multiplayer-player-list-player-name-container" onClick="showUserInformationModal('${arguments[0][i].name}')">${arguments[0][i].name}</button>`;
+//                 if (i != arguments[0].length - 1) {
 //                     formattedPlayers += "<br>";
 //                 }
 //             }
@@ -1129,7 +1138,7 @@ socket.onmessage = (message) => {
 //             break;
 //         }
 //         case "updateStatusText": {
-//             $("#default-multiplayer-room-status-text").text(parameters[0]);
+//             $("#default-multiplayer-room-status-text").text(arguments[0]);
 //             break;
 //         }
 //         case "switchToGameContainer": {
@@ -1142,31 +1151,31 @@ socket.onmessage = (message) => {
 //         }
 //         case "updateChatBox": {
 //             let name = document.createElement("span");
-//             name.appendChild(document.createTextNode(parameters[0].toString()));
-//             if (parameters[2] == "special") {
+//             name.appendChild(document.createTextNode(arguments[0].toString()));
+//             if (arguments[2] == "special") {
 //                 name.classList.add("rainbow-letters");
 //             } else {
-//                 name.style.color = parameters[2];
+//                 name.style.color = arguments[2];
 //             }
 
 //             name.append(": ");
 //             let name2 = document.createElement("span");
-//             name2.append(parameters[1].toString());
+//             name2.append(arguments[1].toString());
 //             name2.style.color = "#000000";
 //             name.append(name2);
-//             $(".multiplayer-room-chat-box").prepend(name);
+//             $(".multiplayer-room-chat-content").prepend(name);
 
 //             break;
 //         }
 //         //TODO: Make this less confusing.
 //         case "updateRanks": {
 //             $("#last-game-ranks-content").html("");
-//             for (let i = 0; i < parameters[0].length; i++) {
+//             for (let i = 0; i < arguments[0].length; i++) {
 //                 $("#last-game-ranks-content").prepend(
-//                     `#${parameters[0][i][0][0]} ${
-//                         parameters[0][i][0][1]
-//                     } ${turnMillisecondsToTime(parameters[0][i][0][2])} ${
-//                         parameters[0][i][0][3]
+//                     `#${arguments[0][i][0][0]} ${
+//                         arguments[0][i][0][1]
+//                     } ${turnMillisecondsToTime(arguments[0][i][0][2])} ${
+//                         arguments[0][i][0][3]
 //                     } enemies sent`
 //                 );
 //                 $("#last-game-ranks-content").prepend(`<br>`);

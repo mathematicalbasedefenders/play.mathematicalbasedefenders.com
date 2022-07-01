@@ -5,7 +5,7 @@ const _ = require("lodash");
 
 function createAndSendWebhook(username, rank, finalGameData, gameMode) {
     let url = credentials.getDiscordWebhookURL();
-    let parameters = {
+    let arguments = {
         embeds: [
             {
                 title: generateTitle(rank, gameMode),
@@ -23,7 +23,7 @@ function createAndSendWebhook(username, rank, finalGameData, gameMode) {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(parameters)
+        body: JSON.stringify(arguments)
     });
 }
 

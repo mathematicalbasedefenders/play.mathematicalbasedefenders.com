@@ -917,7 +917,7 @@ function endSingleplayerGame() {
 
 function processKeypress(event) {
     // console.log(event);
-    socket.send(JSON.stringify({action:"keypress",parameters:{code:event.code, playerTileKeybinds:settings.input.keybinds.tiles}}));
+    socket.send(JSON.stringify({action:"keypress",arguments:{code:event.code, playerTileKeybinds:settings.input.keybinds.tiles}}));
     switch (currentScreen) {
         case screens.MAIN_MENU_SCREEN: {
             break;
@@ -989,7 +989,7 @@ function startDefaultSingleplayerGame(mode) {
     if (game.lastSingleplayerGameModePlayed == "customSingleplayerMode" && mode == "customSingleplayerMode") {
         startCustomSingleplayerGame(getCustomSingleplayerModeInputs());
     } else {
-        socket.send(JSON.stringify({action: "createAndJoinDefaultSingleplayerRoom",parameters:{gameMode: mode}}));
+        socket.send(JSON.stringify({action: "createAndJoinDefaultSingleplayerRoom",arguments:{gameMode: mode}}));
         game.lastSingleplayerGameModePlayed = mode;
         setPropertiesAndChangeScreen(screens.SINGLEPLAYER_GAME_SCREEN, true);
     }
@@ -1022,7 +1022,7 @@ function deleteLastSelectedTerm() {
 
 function sendProblem() {
     // //TODO: socket.emit("action");
-    socket.send(JSON.stringify({action:"keypress",parameters:{code:"Space", playerTileKeybinds:settings.input.keybinds.tiles}}));
+    socket.send(JSON.stringify({action:"keypress",arguments:{code:"Space", playerTileKeybinds:settings.input.keybinds.tiles}}));
 }
 
 // Random Generators
@@ -1416,4 +1416,8 @@ function getAllowedComboTimeAccordingToMode(
 
 function authenticate(username,password){
     $.post(`/authenticate?guestName=${guestNameOfSocketOwner}&username=${username}&password=${btoa(btoa(btoa(btoa(password))))}`);
+}
+
+function sendChatMessage(){
+    socket.send(JSON.stringify({action:"chatMessage",arguments:{message:$("#multiplayer-room-message-box").val()}}));
 }

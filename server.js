@@ -119,7 +119,7 @@ var User = require("./server/models/User.js");
 var EasyModeLeaderboardsRecord = require("./server/models/EasyModeLeaderboardsRecord.js");
 var StandardModeLeaderboardsRecord = require("./server/models/StandardModeLeaderboardsRecord.js");
 
-const indexFileContent = fs.readFileSync("./index.html");
+const INDEX_FILE_CONTENT = fs.readFileSync("./index.html");
 
 const roomTypes = {
     SINGLEPLAYER: "singleplayer",
@@ -182,7 +182,7 @@ function update(deltaTime) {
         broadcastToEverySocket(
             JSON.stringify({
                 action: game.getSocketEventQueue()[0].eventToPublish,
-                parameters: game.getSocketEventQueue()[0].parameters
+                arguments: game.getSocketEventQueue()[0].arguments
             })
         );
         game.getSocketEventQueue().splice(0, 1);
@@ -195,7 +195,7 @@ function update(deltaTime) {
         broadcastToEverySocket(
             JSON.stringify({
                 action: "updateText",
-                parameters: {
+                arguments: {
                     selector: "#online-players",
                     text: sockets.length
                 }
@@ -270,7 +270,7 @@ function update(deltaTime) {
                             roomIDOfDefaultMultiplayerRoom,
                             JSON.stringify({
                                 action: "updateText",
-                                parameters: {
+                                arguments: {
                                     selector:
                                         "#default-multiplayer-room-status-text",
                                     text:
@@ -291,7 +291,7 @@ function update(deltaTime) {
                         roomIDOfDefaultMultiplayerRoom,
                         JSON.stringify({
                             action: "updateText",
-                            parameters: {
+                            arguments: {
                                 selector:
                                     "#default-multiplayer-room-status-text",
                                 text: rooms[roomID].playing
@@ -323,7 +323,7 @@ function update(deltaTime) {
                         ?.send(
                             JSON.stringify({
                                 action: "currentGameData",
-                                parameters: {
+                                arguments: {
                                     data: rooms[roomID].data.currentGame
                                         .players[Object.keys(connections)[0]]
                                 }
@@ -386,7 +386,7 @@ function update(deltaTime) {
                                                     ?.send(
                                                         JSON.stringify({
                                                             action: "currentGameData",
-                                                            parameters: {
+                                                            arguments: {
                                                                 data: constructDefaultMultiplayerGameDataObjectToSend(
                                                                     clientConnectionID
                                                                 )
@@ -480,7 +480,7 @@ function update(deltaTime) {
                                                         .send(
                                                             JSON.stringify({
                                                                 action: "currentGameData",
-                                                                parameters: {
+                                                                arguments: {
                                                                     data: data
                                                                 }
                                                             })
@@ -609,7 +609,7 @@ function update(deltaTime) {
                                             winnerSocket.send(
                                                 JSON.stringify({
                                                     action: "currentGameData",
-                                                    parameters: {
+                                                    arguments: {
                                                         data: data
                                                     }
                                                 })
@@ -618,7 +618,7 @@ function update(deltaTime) {
                                             winnerSocket.send(
                                                 JSON.stringify({
                                                     action: "updateText",
-                                                    parameters: {
+                                                    arguments: {
                                                         selector:
                                                             "#last-game-ranks-content",
                                                         text: game.formatMultiplayerRoomRanks(
@@ -697,7 +697,7 @@ var loop = setInterval(() => {
 // io.on("connection", (socket) => {
 //     sockets.push(socket);
 
-//     socket.send(JSON.stringify({action:"updateText":{parameters:{selector: sockets.length,text:$5}}}));
+//     socket.send(JSON.stringify({action:"updateText":{arguments:{selector: sockets.length,text:$5}}}));
 
 //     socket.playerDataOfSocketOwner; // use this
 
@@ -715,10 +715,10 @@ var loop = setInterval(() => {
 //     }
 
 //     socket.guestNameOfSocketOwner = toBeGuestName;
-//     socket.send(JSON.stringify({action:"updateText":{parameters:{selector: socket.guestNameOfSocketOwner,text:$5}}}));
+//     socket.send(JSON.stringify({action:"updateText":{arguments:{selector: socket.guestNameOfSocketOwner,text:$5}}}));
 
 //     // socket.on("getPlayerDataAndUpdateText", (selector, ...dataToGet) => {
-//     // 	socket.send(JSON.stringify({action:"updateText":{parameters:{selector: getPlayerData(socket, ...dataToGet,text:$5}}})));
+//     // 	socket.send(JSON.stringify({action:"updateText":{arguments:{selector: getPlayerData(socket, ...dataToGet,text:$5}}})));
 //     // });
 
 //     socket.on(
@@ -936,7 +936,7 @@ var loop = setInterval(() => {
 //                                 username
 //                             )
 //                         );
-//                         socket.send(JSON.stringify({action:"updateText":{parameters:{selector: username,text:$5}}}));
+//                         socket.send(JSON.stringify({action:"updateText":{arguments:{selector: username,text:$5}}}));
 //                         (
 //                             "updateText",
 //                             "#secondary-top-bar-container",
@@ -1403,6 +1403,9 @@ function deleteSocket(socket) {
         socket.variables.currentRoomSocketIsIn &&
         socket.variables.currentRoomSocketIsIn != ""
     ) {
+        if (rooms[socket.variables.currentRoomSocketIsIn]?.data?.currentGame?.players[
+            socket.connectionID
+        ]){
         rooms[socket.variables.currentRoomSocketIsIn].data.currentGame.players[
             socket.connectionID
         ].currentGame.forfeited = true;
@@ -1410,7 +1413,7 @@ function deleteSocket(socket) {
         rooms[socket.variables.currentRoomSocketIsIn].data.currentGame.players[
             socket.connectionID
         ].currentGame.dead = true;
-    }
+    }}``
     delete rooms[roomIDOfDefaultMultiplayerRoom]?.players?.[
         socket.connectionID
     ];
@@ -1693,7 +1696,7 @@ uWS.App()
             socket.send(
                 JSON.stringify({
                     action: "updateText",
-                    parameters: {
+                    arguments: {
                         selector: "#player-name",
                         text: socket.variables.guestNameOfSocketOwner
                     }
@@ -1710,9 +1713,9 @@ uWS.App()
                 case "createAndJoinDefaultSingleplayerRoom": {
                     if (socket.variables.currentRoomSocketIsIn === "") {
                         if (
-                            parsedMessage.parameters.gameMode ==
+                            parsedMessage.arguments.gameMode ==
                                 "easySingleplayerMode" ||
-                            parsedMessage.parameters.gameMode ==
+                            parsedMessage.arguments.gameMode ==
                                 "standardSingleplayerMode"
                         ) {
                             let roomID = undefined;
@@ -1729,11 +1732,11 @@ uWS.App()
                                 host: socket,
                                 userIDOfHost: socket.variables.userIDOfSocketOwner,
                                 playing: false,
-                                gameMode: parsedMessage.parameters.gameMode,
+                                gameMode: parsedMessage.arguments.gameMode,
                                 data: defaults.createNewDefaultSingleplayerGameData(
                                     modes.SINGLEPLAYER,
                                     roomID,
-                                    parsedMessage.parameters.gameMode,
+                                    parsedMessage.arguments.gameMode,
                                     socket
                                 )
                             };
@@ -1741,7 +1744,7 @@ uWS.App()
                             socket.subscribe(roomID);
                             initializeSingleplayerGame(
                                 rooms[socket.variables.currentRoomSocketIsIn],
-                                parsedMessage.parameters.gameMode,
+                                parsedMessage.arguments.gameMode,
                                 socket.connectionID
                             );
                             socket.variables.ownerOfSocketIsPlaying = true;
@@ -1802,7 +1805,7 @@ uWS.App()
                             socket.send(
                                 JSON.stringify({
                                     action: "updateMultiplayerPlayerList",
-                                    parameters: {
+                                    arguments: {
                                         data: room.getRoomPlayers(rooms[roomID])
                                     }
                                 })
@@ -1811,7 +1814,7 @@ uWS.App()
                                 roomID,
                                 JSON.stringify({
                                     action: "updateMultiplayerPlayerList",
-                                    parameters: {
+                                    arguments: {
                                         data: room.getRoomPlayers(rooms[roomID])
                                     }
                                 })
@@ -1826,7 +1829,7 @@ uWS.App()
                             socket.send(
                                 JSON.stringify({
                                     action: "updateMultiplayerPlayerList",
-                                    parameters: {
+                                    arguments: {
                                         data: room.getRoomPlayers(rooms[roomID])
                                     }
                                 })
@@ -1835,7 +1838,7 @@ uWS.App()
                                 roomIDOfDefaultMultiplayerRoom,
                                 JSON.stringify({
                                     action: "updateMultiplayerPlayerList",
-                                    parameters: {
+                                    arguments: {
                                         data: room.getRoomPlayers(rooms[roomID])
                                     }
                                 })
@@ -1853,9 +1856,9 @@ uWS.App()
                     break;
                 }
                 case "keypress": {
-                    let code = parsedMessage.parameters.code;
+                    let code = parsedMessage.arguments.code;
                     let playerTileKeybinds =
-                        parsedMessage.parameters.playerTileKeybinds;
+                        parsedMessage.arguments.playerTileKeybinds;
                     code = DOMPurify.sanitize(code);
 
                     playerTileKeybinds = DOMPurify.sanitize(playerTileKeybinds);
@@ -1961,7 +1964,7 @@ uWS.App()
 
                             JSON.stringify({
                                 action: "updateText",
-                                parameters: {
+                                arguments: {
                                     selector:
                                         "#default-multiplayer-room-status-text",
                                     text: room.getRoomPlayers(
@@ -1996,7 +1999,7 @@ uWS.App()
                     break;
                 }
                 case "tileClick": {
-                    let slot = parsedMessage.parameters.slot;
+                    let slot = parsedMessage.arguments.slot;
                     slot = slot.toString();
                     slot = DOMPurify.sanitize(slot);
                     if (utilities.checkIfVariablesAreUndefined(slot)) {
@@ -2014,6 +2017,21 @@ uWS.App()
                             socket
                         );
                     }
+                    break;
+                }
+                case "chatMessage": {
+                    broadcastToEverySocketInRoom(
+                        roomIDOfDefaultMultiplayerRoom,
+                        JSON.stringify({
+                            action: "addText",
+                            arguments: {
+                                selector: "#multiplayer-room-chat-content",
+                                text: parsedMessage.arguments.message,
+                                useHTML: true
+                            }
+                        })
+                    );
+                    break;
                 }
             }
         },
@@ -2041,7 +2059,7 @@ uWS.App()
         response
             .writeStatus("200 OK")
             .writeHeader("Content-Type", "text/html")
-            .tryEnd(indexFileContent);
+            .tryEnd(INDEX_FILE_CONTENT);
     })
     .get("/public/*", (response, request) => {
         //TODO: Add data validation

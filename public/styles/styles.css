@@ -517,7 +517,7 @@ input {
     word-wrap: break-word;
 }
 
-.multiplayer-room-chat-box-container {
+.multiplayer-room-chat-content-container {
     border: 2px solid #000000;
     width: 350px;
     top: 24.5vh;
