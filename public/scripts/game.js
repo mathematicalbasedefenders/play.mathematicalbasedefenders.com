@@ -948,10 +948,10 @@ function processKeypress(event) {
                         document.activeElement ==
                         document.getElementById("multiplayer-room-message-box")
                     ) {
-                        //TODO: socket.emit(
-                            "defaultMultiplayerRoomChatMessage",
-                            $("#multiplayer-room-message-box").val()
-                        );
+                        // //TODO: socket.emit(
+                        //     "defaultMultiplayerRoomChatMessage",
+                        //     $("#multiplayer-room-message-box").val()
+                        // );
                         $("#multiplayer-room-message-box").val("");
                     }
                 }
