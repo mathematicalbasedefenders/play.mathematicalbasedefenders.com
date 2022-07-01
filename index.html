@@ -611,7 +611,8 @@
                         </div>
                     </div>
                     <div class="multiplayer-room-chat-content-container">
-                        <p id="multiplayer-room-chat-content"></p>
+                        <p id="multiplayer-room-chat-content" style="overflow-y: scroll;width:100%;height:90%;position:absolute;display:flex;flex-direction: column-reverse;"></p>
+                        <div style="position:absolute; bottom:5%; width:100%;height:10%;">
                         <div class="multiplayer-room-message-box-container">
                             <input
                                 style="height: 16px; font-size: 12px"
@@ -626,6 +627,7 @@
                                 Send
                             </button>
                         </div>
+                    </div>
                     </div>
 
                     Multiplayer is in its testing stage. Report issues or

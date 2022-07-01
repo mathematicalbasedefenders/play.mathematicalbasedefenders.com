@@ -4,7 +4,7 @@ function updateText(selector, text, useHTML) {
 }
 
 function addText(selector, text, useHTML){
-    if (useHTML) {$(selector).html($(selector).text() + `<br>` + text); return;}
+    if (useHTML) {$(selector).html($(selector).html() + `<br>` + text); return;}
     $(selector).text(
         $(selector).text() +
             `<br>` +
@@ -97,3 +97,5 @@ function combineText(...textToCombine) {
     }
     return text;
 }
+
+

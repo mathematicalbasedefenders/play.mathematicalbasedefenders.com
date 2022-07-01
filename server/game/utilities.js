@@ -240,6 +240,14 @@ function calculateMessageForGlobalRank(rank) {
     }
 }
 
+function getNameOfSocketOwner(socket){
+    if (socket.variables.loggedIn){
+        return socket.connectionID
+    } else {
+        return socket.connectionID.replace("-", " ")
+    }
+}
+
 module.exports = {
     generateRoomID,
     generateGuestName,
@@ -253,5 +261,5 @@ module.exports = {
     convertTermIDToTerm,
     convertTermIDToBeautifulString,
     getPlayerRank,beautifyRankName,formatPlayerName,
-    calculateMessageForGlobalRank
+    calculateMessageForGlobalRank, getNameOfSocketOwner
 };

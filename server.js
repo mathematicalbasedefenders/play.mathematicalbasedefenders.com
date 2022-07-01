@@ -2026,7 +2026,7 @@ uWS.App()
                             action: "addText",
                             arguments: {
                                 selector: "#multiplayer-room-chat-content",
-                                text: parsedMessage.arguments.message,
+                                text: `${utilities.getNameOfSocketOwner(socket)}: ${parsedMessage.arguments.message}`,
                                 useHTML: true
                             }
                         })
