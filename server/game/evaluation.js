@@ -20,13 +20,13 @@ const rooms = require("./rooms.js");
             if (evaluateProblem(room, socket)) {
             } else {
                 room.data.currentGame.players[
-                    socket.id
+                    socket.connectionID
                 ].currentGame.sentEnemiesToSpawn +=
                     room.data.currentGame.players[
-                        socket.id
+                        socket.connectionID
                     ].currentGame.enemiesPending;
                 room.data.currentGame.players[
-                    socket.id
+                    socket.connectionID
                 ].currentGame.enemiesPending = 0;
             }
             break;
@@ -55,7 +55,7 @@ function assignValueToRoomPlayerVariable(
         switch (problemOnLeftSide) {
             case "a": {
                 room.data.currentGame.players[
-                    socket.id
+                    socket.connectionID
                 ].currentGame.valueOfVariableA = calculateProblem(
                     problemOnRightSide,
                     room,
@@ -65,7 +65,7 @@ function assignValueToRoomPlayerVariable(
             }
             case "b": {
                 room.data.currentGame.players[
-                    socket.id
+                    socket.connectionID
                 ].currentGame.valueOfVariableB = calculateProblem(
                     problemOnRightSide,
                     room,
@@ -75,7 +75,7 @@ function assignValueToRoomPlayerVariable(
             }
             case "c": {
                 room.data.currentGame.players[
-                    socket.id
+                    socket.connectionID
                 ].currentGame.valueOfVariableC = calculateProblem(
                     problemOnRightSide,
                     room,
@@ -85,7 +85,7 @@ function assignValueToRoomPlayerVariable(
             }
             case "d": {
                 room.data.currentGame.players[
-                    socket.id
+                    socket.connectionID
                 ].currentGame.valueOfVariableD = calculateProblem(
                     problemOnRightSide,
                     room,
@@ -110,13 +110,13 @@ function assignValueToRoomPlayerVariable(
     switch (
         (
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.currentProblemAsText.match("=") || []
         ).length
     ) {
         case 0: {
             let originalProblem =
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .currentProblemAsText;
             let problemToEvaluate = fixProblem(originalProblem);
             let result = calculateProblem(problemToEvaluate, room, socket);
@@ -125,7 +125,7 @@ function assignValueToRoomPlayerVariable(
         }
         case 1: {
             let originalProblem =
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .currentProblemAsText;
             let problemToEvaluate = fixProblem(originalProblem);
             let problemOnLeftSide = problemToEvaluate.substring(
@@ -180,13 +180,13 @@ function fixProblem(problemToFix) {
                 { type: 3, token: "d", show: "d", value: "d" }
             ],
             {
-                a: room.data.currentGame.players[socket.id].currentGame
+                a: room.data.currentGame.players[socket.connectionID].currentGame
                     .valueOfVariableA,
-                b: room.data.currentGame.players[socket.id].currentGame
+                b: room.data.currentGame.players[socket.connectionID].currentGame
                     .valueOfVariableB,
-                c: room.data.currentGame.players[socket.id].currentGame
+                c: room.data.currentGame.players[socket.connectionID].currentGame
                     .valueOfVariableC,
-                d: room.data.currentGame.players[socket.id].currentGame
+                d: room.data.currentGame.players[socket.connectionID].currentGame
                     .valueOfVariableD
             }
         );
@@ -208,24 +208,24 @@ function fixProblem(problemToFix) {
     let answers = 0;
     let enemiesToKill = [];
     let originalProblem =
-        room.data.currentGame.players[socket.id].currentGame
+        room.data.currentGame.players[socket.connectionID].currentGame
             .currentProblemAsText;
     if (result) {
         // evaluate calculated string
         for (
             i = 0;
             i <
-            room.data.currentGame.players[socket.id].currentGame.enemiesOnField
+            room.data.currentGame.players[socket.connectionID].currentGame.enemiesOnField
                 .length;
             i++
         ) {
             requestedValues.push(
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .enemiesOnField[i] === undefined &&
-                    room.data.currentGame.players[socket.id].currentGame
+                    room.data.currentGame.players[socket.connectionID].currentGame
                         .enemiesOnField[i].sPosition < 0
                     ? undefined
-                    : room.data.currentGame.players[socket.id].currentGame
+                    : room.data.currentGame.players[socket.connectionID].currentGame
                           .enemiesOnField[i].requestedValue
             );
         }
@@ -239,7 +239,7 @@ function fixProblem(problemToFix) {
             ) {
                 answers++;
                 enemiesToKill.push(
-                    room.data.currentGame.players[socket.id].currentGame
+                    room.data.currentGame.players[socket.connectionID].currentGame
                         .enemiesOnField[i]
                 );
             }
@@ -256,17 +256,17 @@ function fixProblem(problemToFix) {
         for (
             i = 0;
             i <
-            room.data.currentGame.players[socket.id].currentGame.enemiesOnField
+            room.data.currentGame.players[socket.connectionID].currentGame.enemiesOnField
                 .length;
             i++
         ) {
             requestedValues.push(
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .enemiesOnField[i] === undefined &&
-                    room.data.currentGame.players[socket.id].currentGame
+                    room.data.currentGame.players[socket.connectionID].currentGame
                         .enemiesOnField[i].sPosition < 0
                     ? undefined
-                    : room.data.currentGame.players[socket.id].currentGame
+                    : room.data.currentGame.players[socket.connectionID].currentGame
                           .enemiesOnField[i].requestedValue
             );
         }
@@ -281,7 +281,7 @@ function fixProblem(problemToFix) {
             ) {
                 answers++;
                 enemiesToKill.push(
-                    room.data.currentGame.players[socket.id].currentGame
+                    room.data.currentGame.players[socket.connectionID].currentGame
                         .enemiesOnField[i]
                 );
             }

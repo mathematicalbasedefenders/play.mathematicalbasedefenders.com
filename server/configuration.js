@@ -12,7 +12,7 @@ const developerConfiguration = {
 
         // Impatient Mode
         // Multiplayer game intermission times is now 250ms instead of 30000ms
-        impatientMode: false,
+        impatientMode: true,
 
         // Tank Mode
         // All players have 1,000 BHP instead of 10 BHP.
@@ -24,7 +24,7 @@ const developerConfiguration = {
 
         // Log Data Sent
         // Logs the egress sent every second.
-        logAmountOfDataSent: true
+        logAmountOfDataSent: false
     }
 };
 

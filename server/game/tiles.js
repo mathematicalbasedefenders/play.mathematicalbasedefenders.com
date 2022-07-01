@@ -45,9 +45,9 @@ function convertPressedKeyToTermID(keyPressed, playerKeybinds, room, socket) {
 function forceSelectTileWithTermID(termIDToSelect, room, socket) {
     for (i = 0; i < 49; i++) {
         if (
-            room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[i]
+            room.data.currentGame.players[socket.connectionID].currentGame.tilesOnBoard[i]
                 .termID == termIDToSelect &&
-            room.data.currentGame.players[socket.id].currentGame.tilesOnBoard[i]
+            room.data.currentGame.players[socket.connectionID].currentGame.tilesOnBoard[i]
                 .selected == false
         ) {
             input.processTileClick(i, room, socket);
@@ -71,36 +71,36 @@ function forceSelectTileWithTermID(termIDToSelect, room, socket) {
             for (
                 i = 0;
                 i <
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .tilesInCurrentProblem.length;
                 i++
             ) {
                 let t = new tile.Tile(
-                    generateRandomTileTermID(room, socket.id),
+                    generateRandomTileTermID(room, socket.connectionID),
                     i,
                     false,
-                    room.data.currentGame.players[socket.id].currentGame
+                    room.data.currentGame.players[socket.connectionID].currentGame
                         .tilesCreated + 1
                 );
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .tilesCreated++;
                 room.data.currentGame.players[
-                    socket.id
+                    socket.connectionID
                 ].currentGame.tilesOnBoard[
                     room.data.currentGame.players[
-                        socket.id
+                        socket.connectionID
                     ].currentGame.tilesInCurrentProblem[i]
                 ] = t;
             }
 
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.currentProblemAsText = "";
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.currentProblemAsBeautifulText = "";
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.tilesInCurrentProblem = [];
             break;
         }
@@ -108,7 +108,7 @@ function forceSelectTileWithTermID(termIDToSelect, room, socket) {
             for (
                 i = 0;
                 i <
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .tilesInCurrentProblem.length;
                 i++
             ) {
@@ -116,28 +116,30 @@ function forceSelectTileWithTermID(termIDToSelect, room, socket) {
                     getMultiplayerTileQueueOfPlayer(room, socket),
                     i,
                     false,
-                    room.data.currentGame.players[socket.id].currentGame
+                    room.data.currentGame.players[socket.connectionID].currentGame
                         .tilesCreated + 1
                 );
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .tilesCreated++;
                 room.data.currentGame.players[
-                    socket.id
+                    socket.connectionID
                 ].currentGame.tilesOnBoard[
                     room.data.currentGame.players[
-                        socket.id
+                        socket.connectionID
                     ].currentGame.tilesInCurrentProblem[i]
                 ] = t;
+
+                
             }
 
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.currentProblemAsText = "";
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.currentProblemAsBeautifulText = "";
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.tilesInCurrentProblem = [];
             break;
         }

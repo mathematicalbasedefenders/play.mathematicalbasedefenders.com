@@ -123,15 +123,21 @@ class OpponentGameInstance {
     update(minifiedGameData) {
         for (let i = 0; i < 49; i++) {
             this.tileSprites[i].texture = new Tile(
-                minifiedGameData.tiles[i].termID,
+                minifiedGameData.tiles[i][1],
                 i,
-                minifiedGameData.tiles[i].selected,
-                minifiedGameData.tiles[i].tileID
+                minifiedGameData.tiles[i][2],
+                null
             ).sprite.texture;
         }
 
         for (let i = 0; i < minifiedGameData.enemies.length; i++) {
-            let enemy = minifiedGameData.enemies[i];
+            let minifiedEnemy = minifiedGameData.enemies[i];
+
+            let enemy = {
+                sPosition: minifiedEnemy[0],
+                enemyNumber: minifiedEnemy[1],
+                minified: true
+            }
 
             if (!this.enemySprites[enemy.enemyNumber]) {
                 this.enemySprites[enemy.enemyNumber] = {};

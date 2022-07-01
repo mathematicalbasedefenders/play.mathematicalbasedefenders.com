@@ -92,20 +92,20 @@ function killSingleplayerRoomEnemies(
     statToAddTo
 ) {
     for (i = 0; i < enemiesToKill.length; i++) {
-        resetEnemyKillTimerForSocketID(room, socket.id);
+        resetEnemyKillTimerForSocketID(room, socket.connectionID);
 
-        room.data.currentGame.players[socket.id].currentGame.currentCombo++;
+        room.data.currentGame.players[socket.connectionID].currentGame.currentCombo++;
 
         let problemLength =
-            room.data.currentGame.players[socket.id].currentGame
+            room.data.currentGame.players[socket.connectionID].currentGame
                 .currentProblemAsText.length;
         let currentCombo =
-            room.data.currentGame.players[socket.id].currentGame.currentCombo;
+            room.data.currentGame.players[socket.connectionID].currentGame.currentCombo;
         let enemySPosition = enemiesToKill[i].sPosition;
 
         scoring.addScoreToPlayerInSingleplayerRoom(
             room,
-            socket.id,
+            socket.connectionID,
             problemLength,
             currentCombo,
             enemySPosition
@@ -113,19 +113,19 @@ function killSingleplayerRoomEnemies(
 
         indicators.addIndicatorToSingleplayerRoom(
             room,
-            socket.id,
+            socket.connectionID,
             problemLength,
             currentCombo,
             enemySPosition
         );
 
-        room.data.currentGame.players[socket.id].currentGame.enemiesOnField[
+        room.data.currentGame.players[socket.connectionID].currentGame.enemiesOnField[
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.enemiesOnField.indexOf(enemiesToKill[i])
         ].toDestroy = true;
 
-        room.data.currentGame.players[socket.id].currentGame.enemiesKilled++;
+        room.data.currentGame.players[socket.connectionID].currentGame.enemiesKilled++;
     }
 }
 
@@ -138,16 +138,16 @@ function killMultiplayerRoomEnemies(
 ) {
     for (i = 0; i < enemiesToKill.length; i++) {
         // Reset counter
-        resetEnemyKillTimerForSocketID(room, socket.id);
+        resetEnemyKillTimerForSocketID(room, socket.connectionID);
 
-        room.data.currentGame.players[socket.id].currentGame.currentCombo++;
+        room.data.currentGame.players[socket.connectionID].currentGame.currentCombo++;
 
         let problemLength =
-            room.data.currentGame.players[socket.id].currentGame
+            room.data.currentGame.players[socket.connectionID].currentGame
                 .currentProblemAsText.length;
 
         let currentCombo =
-            room.data.currentGame.players[socket.id].currentGame.currentCombo;
+            room.data.currentGame.players[socket.connectionID].currentGame.currentCombo;
 
         let enemySPosition = enemiesToKill[i].sPosition;
 
@@ -159,28 +159,28 @@ function killMultiplayerRoomEnemies(
 
         indicators.addIndicatorToMultiplayerRoom(
             room,
-            socket.id,
+            socket.connectionID,
             enemiesSent,
             enemySPosition
         );
 
-        room.data.currentGame.players[socket.id].currentGame.enemiesSent +=
+        room.data.currentGame.players[socket.connectionID].currentGame.enemiesSent +=
             enemiesSent;
 
         let playerToSendEnemiesTo = _.sample(room.data.currentGame.players);
-        while (playerToSendEnemiesTo.currentGame.connectionID == socket.id) {
+        while (playerToSendEnemiesTo.currentGame.connectionID == socket.connectionID) {
             playerToSendEnemiesTo = _.sample(room.data.currentGame.players);
         }
 
-        sendEnemiesToPlayer(room, socket.id, playerToSendEnemiesTo.currentGame.connectionID, enemiesSent);
+        sendEnemiesToPlayer(room, socket.connectionID, playerToSendEnemiesTo, enemiesSent);
 
-        room.data.currentGame.players[socket.id].currentGame.enemiesOnField[
+        room.data.currentGame.players[socket.connectionID].currentGame.enemiesOnField[
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.enemiesOnField.indexOf(enemiesToKill[i])
         ].toDestroy = true;
 
-        room.data.currentGame.players[socket.id].currentGame.enemiesKilled++;
+        room.data.currentGame.players[socket.connectionID].currentGame.enemiesKilled++;
     }
 }
 
@@ -222,10 +222,10 @@ function sendEnemiesToPlayer(
                 .enemiesPending <= 0
         ) {
             room.data.currentGame.players[
-                targetSocketID
+                targetSocketID.currentGame.connectionID
             ].currentGame.enemiesPending += 1;
             room.data.currentGame.players[
-                targetSocketID
+                targetSocketID.currentGame.connectionID
             ].currentGame.enemySenders.push(
                 room.data.currentGame.players[senderSocketID].currentGame
                     .playerName

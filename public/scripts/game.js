@@ -19,13 +19,7 @@ Promise.all([
     console.log("Loaded fonts!");
 });
 
-var socket = io();
 
-// socket.io functions
-socket.on("connect", () => {
-    // either with send()
-    console.log("Connected to server!");
-});
 
 var isMobile = false; //initiate as false
 // device detection
@@ -245,10 +239,10 @@ const textStyles = {
 
 // Sprites
 var sendButtonTexture = PIXI.Texture.from(
-    "assets/images/game-screen/sendbutton.png"
+    "/public/assets/images/game-screen/sendbutton.png"
 );
 
-var baseTexture = new PIXI.Texture.from("assets/images/game-screen/base.png");
+var baseTexture = new PIXI.Texture.from("/public/assets/images/game-screen/base.png");
 
 // Text
 
@@ -525,7 +519,7 @@ for (i = 0; i < 2; i++) {
     for (j = 0; j < 24; j++) {
         var s1 = i == 1 ? "selected" : "";
         var tile = PIXI.Texture.from(
-            "assets/images/game-screen/tile" + j.toString() + s1 + ".png"
+            "/public/assets/images/game-screen/tile" + j.toString() + s1 + ".png"
         );
         tileTextures[i][j] = tile;
     }
@@ -587,7 +581,10 @@ let resize = function resize() {
     resizeContainer();
 };
 
+var guestNameOfSocketOwner;
+
 window.onload = () => {
+    guestNameOfSocketOwner = $("#player-name").text();
     $("#loading-screen-text").html(
         "Mathematical Base Defenders is in its development stage.<br>Features may not work unexpectedly, and current product is not indicative of final product.<br><br>Mathematical Base Defenders is <span style='color:#ff0000;background-color:#000000;'>not</span> a substitute for a legitimate math tutor."
     );
@@ -920,7 +917,7 @@ function endSingleplayerGame() {
 
 function processKeypress(event) {
     // console.log(event);
-    socket.emit("keypress", event.code, settings.input.keybinds.tiles);
+    socket.send(JSON.stringify({action:"keypress",parameters:{code:event.code, playerTileKeybinds:settings.input.keybinds.tiles}}));
     switch (currentScreen) {
         case screens.MAIN_MENU_SCREEN: {
             break;
@@ -930,7 +927,7 @@ function processKeypress(event) {
             if (event.key != "Escape") {
             } else {
                 setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN, true);
-                socket.emit("leaveRoom");
+                socket.send(JSON.stringify({action:"leaveRoom"}));
             }
             break;
         }
@@ -951,7 +948,7 @@ function processKeypress(event) {
                         document.activeElement ==
                         document.getElementById("multiplayer-room-message-box")
                     ) {
-                        socket.emit(
+                        //TODO: socket.emit(
                             "defaultMultiplayerRoomChatMessage",
                             $("#multiplayer-room-message-box").val()
                         );
@@ -959,7 +956,7 @@ function processKeypress(event) {
                     }
                 }
             } else {
-                socket.emit("leaveRoom");
+                socket.send(JSON.stringify({action:"leaveRoom"}));
                 setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN, true);
             }
             break;
@@ -968,7 +965,7 @@ function processKeypress(event) {
             // check if input is from numpad
             if (event.key != "Escape") {
             } else {
-                socket.emit("leaveRoom");
+                socket.send(JSON.stringify({action:"leaveRoom"}));
                 setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN, true);
             }
             break;
@@ -992,7 +989,7 @@ function startDefaultSingleplayerGame(mode) {
     if (game.lastSingleplayerGameModePlayed == "customSingleplayerMode" && mode == "customSingleplayerMode") {
         startCustomSingleplayerGame(getCustomSingleplayerModeInputs());
     } else {
-        socket.emit("createAndJoinDefaultSingleplayerRoom", mode);
+        socket.send(JSON.stringify({action: "createAndJoinDefaultSingleplayerRoom",parameters:{gameMode: mode}}));
         game.lastSingleplayerGameModePlayed = mode;
         setPropertiesAndChangeScreen(screens.SINGLEPLAYER_GAME_SCREEN, true);
     }
@@ -1024,8 +1021,8 @@ function deleteLastSelectedTerm() {
 }
 
 function sendProblem() {
-    socket.emit("action");
-    socket.emit("sendProblem");
+    // //TODO: socket.emit("action");
+    socket.send(JSON.stringify({action:"keypress",parameters:{code:"Space", playerTileKeybinds:settings.input.keybinds.tiles}}));
 }
 
 // Random Generators
@@ -1335,7 +1332,7 @@ function showUserInformationModal(name) {
     $("#user-information-modal-title").text("");
     $("#user-information-modal-text").text("");
 
-    socket.emit("getDataForUserInformationModalAndUpdateText", name);
+    //TODO: socket.emit("getDataForUserInformationModalAndUpdateText", name);
 
     game.userCurrentUserIsViewing = name;
 
@@ -1394,7 +1391,7 @@ function getCustomSingleplayerModeInputs() {
 
 function startCustomSingleplayerGame(data) {
     game.lastSingleplayerGameModePlayed = "customSingleplayerMode";
-    socket.emit("createAndJoinCustomSingleplayerRoom", JSON.stringify(data));
+    //TODO: socket.emit("createAndJoinCustomSingleplayerRoom", JSON.stringify(data));
 }
 
 function getAllowedComboTimeAccordingToMode(
@@ -1415,4 +1412,8 @@ function getAllowedComboTimeAccordingToMode(
             return parseInt(comboTimeForCustomSingleplayerMode);
         }
     }
+}
+
+function authenticate(username,password){
+    $.post(`/authenticate?guestName=${guestNameOfSocketOwner}&username=${username}&password=${btoa(btoa(btoa(btoa(password))))}`);
 }

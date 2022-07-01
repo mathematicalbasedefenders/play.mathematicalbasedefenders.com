@@ -1,4 +1,5 @@
-function updateText(selector, text) {
+function updateText(selector, text, useHTML) {
+    if (useHTML) {$(selector).html(text); return;}
     $(selector).text(text);
 }
 
@@ -31,15 +32,7 @@ function turnMillisecondsToTime(milliseconds) {
     }
 }
 
-function calculateMessageForGlobalRank(rank) {
-    if (rank == 1) {
-        return "New World Record!";
-    } else if (rank >= 2 && rank <= 50) {
-        return "Global Rank #" + rank;
-    } else {
-        return "";
-    }
-}
+
 
 function createEnemyColor() {
     switch (settings.video.enemyColor) {

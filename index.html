@@ -11,7 +11,7 @@
             href="https://fonts.googleapis.com/icon?family=Material+Icons"
         />
 
-        <link rel="stylesheet" href="/styles/styles.css" />
+        <link rel="stylesheet" href="/public/styles/styles.css" />
     </head>
 
     <body>
@@ -212,7 +212,7 @@
                         >
                         <div id="mathematical-base-defenders-logo-container">
                             <img
-                                src="/assets/images/mathematicalbasedefenders.png"
+                                src="/public/assets/images/mathematicalbasedefenders.png"
                             />
                         </div>
                     </div>
@@ -280,7 +280,7 @@
                                         onClick="document.location='https://mistertfy64.com'"
                                         ;
                                         onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
-                                        src="/assets/images/mistertfy64.svg"
+                                        src="/public/assets/images/mistertfy64.svg"
                                         height="40px;"
                                 /></span>
                             </p>
@@ -585,7 +585,7 @@
                     <div id="multiplayer-lobby-screen-button-container">
                         <button
                             class="multiplayer-lobby-screen-button"
-                            onClick="setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);socket.emit('joinOrCreateDefaultMultiplayerRoom')"
+                            onClick="setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);socket.send(JSON.stringify({action:'joinOrCreateDefaultMultiplayerRoom'}))"
                             onMouseEnter="$('#bottom-toolbar-text').text('Join the default room.')"
                             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
                         >
@@ -621,8 +621,8 @@
                                 placeholder="Enter message..."
                             /><button
                                 id="chat-box-send-button"
-                                onClick="socket.emit('defaultMultiplayerRoomChatMessage', $('#multiplayer-room-message-box').val());$('#multiplayer-room-message-box').val('')"
-                            >
+                                >
+                                <!-- onClick="socket.emit('defaultMultiplayerRoomChatMessage', $('#multiplayer-room-message-box').val());$('#multiplayer-room-message-box').val('')" --> -->
                                 Send
                             </button>
                         </div>
@@ -647,7 +647,7 @@
                     >
                         <button
                             class="default-multiplayer-room-lobby-screen-button"
-                            onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);socket.emit('leaveRoom');"
+                            onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);socket.send(JSON.stringify({action:`leaveRoom`}));"
                             onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
                             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
                         >
@@ -1217,7 +1217,7 @@
                             <br /><br />
                             <button
                                 id="login-button"
-                                onClick="socket.emit('authenticate', $('#username-input-box')[0].value, btoa(btoa(btoa(btoa($('#password-input-box')[0].value)))));$(this).addClass('disabled-button').text('Please Wait...');"
+                                onClick="authenticate($('#username-input-box').val(),$('#password-input-box').val());$(this).addClass('disabled-button').text('Please Wait...');"
                                 style="
                                     width: 256px;
                                     height: 64px;
@@ -1246,7 +1246,7 @@
                                     <span id="final-score" class="large-text"
                                         >???</span
                                     >
-                                </div>
+                                
                                 <br />
                             <span
                                     class="medium-text"
@@ -1256,7 +1256,7 @@
                                 <span
                                     class="medium-text"
                                     id="final-global-rank"
-                                ></span>
+                                ></span></div>
                                 <div class="medium-text;width:100%;">
                                     <table class="medium-text"style="width: 100%;">
                                         <tbody>
@@ -1304,6 +1304,25 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                    <hr>
+                                    <table class="medium-text"style="width: 100%;">
+                                        <tbody>
+                                            <tr>
+                                                <td style="width: 50%">
+                                                   Experience Points Earned
+                                                </td>
+                                                <td
+                                                    style="
+                                                        float: right;
+                                                        text-align: right;
+                                                        width: 50%;
+                                                    "
+                                                    id="experience-points-earned"
+                                                ></td>
+                                            </tr>
+                                    
+                                        </tbody>
+                                    </table>
                                 </div>
                                 <br />
                                 
@@ -1349,7 +1368,7 @@
                             onClick="document.location='https://mistertfy64.com'"
                             ;
                             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
-                            src="/assets/images/mistertfy64.svg"
+                            src="/public/assets/images/mistertfy64.svg"
                             width="100px;"
                     /></span>
                     <br />
@@ -1387,18 +1406,22 @@
             integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
             crossorigin="anonymous"
         ></script>
+        
+        
+        <!-- <script src="/public/scripts/socket-2.js"></script> -->
+        <script src="/public/scripts/socket.js"></script>
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.msgpack.min.js"></script> -->
+        <script src="/public/scripts/lib/fontfaceobserver.js"></script>
 
-        <script src="/scripts/lib/socket.io.js"></script>
-        <script src="/scripts/lib/fontfaceobserver.js"></script>
+        <script src="/public/scripts/toastnotification.js"></script>
+        <script src="/public/scripts/opponent.js"></script>
 
-        <script src="/scripts/toastnotification.js"></script>
-        <script src="/scripts/opponent.js"></script>
+        <script src="/public/scripts/utilities.js"></script>
+        <script src="/public/scripts/enemy.js"></script>
+        <script src="/public/scripts/tile.js"></script>
 
-        <script src="/scripts/utilities.js"></script>
-        <script src="/scripts/enemy.js"></script>
-        <script src="/scripts/tile.js"></script>
+        <script src="/public/scripts/game.js"></script>
 
-        <script src="/scripts/game.js"></script>
-        <script src="/scripts/socket.js"></script>
+        
     </body>
 </html>

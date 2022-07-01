@@ -118,9 +118,9 @@ function checkIfVariablesAreUndefined(...inputs) {
 }
 
 function getSocketAccordingToUsername(username, sockets) {
-    return sockets.filter((socket) => {
-        return socket.usernameOfSocketOwner == username;
-    })[0];
+    return sockets.find((socket) => {
+        return socket.variables.usernameOfSocketOwner == username;
+    });
 }
 
 function turnMillisecondsToTime(milliseconds) {
@@ -230,6 +230,16 @@ function beautifyRankName(rank, username) {
     return "";
 }
 
+function calculateMessageForGlobalRank(rank) {
+    if (rank == 1) {
+        return "New World Record!";
+    } else if (rank >= 2 && rank <= 50) {
+        return "Global Rank #" + rank;
+    } else {
+        return "";
+    }
+}
+
 module.exports = {
     generateRoomID,
     generateGuestName,
@@ -242,5 +252,6 @@ module.exports = {
     calculateComboMultiplier,
     convertTermIDToTerm,
     convertTermIDToBeautifulString,
-    getPlayerRank,beautifyRankName,formatPlayerName
+    getPlayerRank,beautifyRankName,formatPlayerName,
+    calculateMessageForGlobalRank
 };

@@ -13,7 +13,7 @@ function createNewDefaultSingleplayerGameData(mode, roomID, gameMode, socket) {
         gameMode: gameMode,
         currentGame: {
             players: {
-                [socket.id]: {
+                [socket.connectionID]: {
                     currentGame: {
                         mode: mode,
 
@@ -83,7 +83,7 @@ function createNewCustomSingleplayerGameData(
         gameMode: gameMode,
         currentGame: {
             players: {
-                [socket.id]: {
+                [socket.connectionID]: {
                     currentGame: {
                         mode: mode,
 
@@ -157,7 +157,7 @@ function createNewDefaultMultiplayerGameData(roomID, socket) {
         mode: modes.DEFAULT_MULTIPLAYER,
         currentGame: {
             players: {
-                [socket.id]: {
+                [socket.connectionID]: {
                     playerName: socket.loggedIn
                         ? socket.usernameOfSocketOwner
                         : socket.guestNameOfSocketOwner,
@@ -219,11 +219,11 @@ function createNewDefaultMultiplayerGameData(roomID, socket) {
 
 function createNewDefaultMultiplayerRoomPlayerObject(socket) {
     let data = {
-        playerName: socket.loggedIn
-            ? socket.usernameOfSocketOwner
-            : socket.guestNameOfSocketOwner,
-        playerRank: socket.playerRank,
-        connectionID: socket.id,
+        playerName: socket.variables.loggedIn
+            ? socket.variables.usernameOfSocketOwner
+            : socket.variables.guestNameOfSocketOwner,
+        playerRank: socket.variables.playerRank,
+        connectionID: socket.connectionID,
 
         dead: false,
 

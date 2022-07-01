@@ -12,12 +12,10 @@ const tile = require("./game/constructors/tile.js");
 const leveling = require("./game/leveling.js");
 const enemies = require("./game/enemies.js");
 const leaderboards = require("./game/leaderboards.js");
-const utilities= require("./game/utilities.js");
-const personalbests= require("./game/personalbests.js");
-
+const utilities = require("./game/utilities.js");
+const personalbests = require("./game/personalbests.js");
 
 const mexp = require("math-expression-evaluator");
-
 
 const FRAMES_PER_SECOND = 60;
 
@@ -81,7 +79,7 @@ const GAME_SETTINGS = {
     }
 };
 
-var socketIOEventQueue = [];
+var socketEventQueue = [];
 
 /**
  * Computes an update.
@@ -137,42 +135,47 @@ async function computeUpdateForRoom(room, deltaTimeInMilliseconds) {
     let playersAliveThisUpdate = room.data.currentGame.playersAlive;
     for (let i = 0; i < playersAliveThisUpdate.length; i++) {
         let player = playersAliveThisUpdate[i];
+        if (room.data.currentGame.players[player]) {
+            // player specific stats
+            room.data.currentGame.players[
+                player
+            ].currentGame.currentInGameTimeInMilliseconds += deltaTimeInMilliseconds;
+            room.data.currentGame.players[
+                player
+            ].currentGame.enemyGenerationElapsedTimeCounterInMilliseconds += deltaTimeInMilliseconds;
+            room.data.currentGame.players[
+                player
+            ].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
+            room.data.currentGame.players[
+                player
+            ].currentGame.framesRenderedSinceGameStart += framesRendered;
 
-        // player specific stats
-        room.data.currentGame.players[
-            player
-        ].currentGame.currentInGameTimeInMilliseconds += deltaTimeInMilliseconds;
-        room.data.currentGame.players[
-            player
-        ].currentGame.enemyGenerationElapsedTimeCounterInMilliseconds += deltaTimeInMilliseconds;
-        room.data.currentGame.players[
-            player
-        ].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
-        room.data.currentGame.players[
-            player
-        ].currentGame.framesRenderedSinceGameStart += framesRendered;
-
-        computeUpdateForRoomPlayerBaseHealth(
-            room,
-            player,
-            deltaTimeInMilliseconds
-        );
-        computeUpdateForRoomPlayerCombo(room, player, deltaTimeInMilliseconds);
-        computeUpdateForRoomPlayerEnemies(
-            room,
-            player,
-            deltaTimeInMilliseconds
-        );
-        computeUpdateForRoomPlayerIndicators(
-            room,
-            player,
-            deltaTimeInMilliseconds
-        );
-        computeUpdateForRoomPlayerThingsToRemove(
-            room,
-            player,
-            deltaTimeInMilliseconds
-        );
+            computeUpdateForRoomPlayerBaseHealth(
+                room,
+                player,
+                deltaTimeInMilliseconds
+            );
+            computeUpdateForRoomPlayerCombo(
+                room,
+                player,
+                deltaTimeInMilliseconds
+            );
+            computeUpdateForRoomPlayerEnemies(
+                room,
+                player,
+                deltaTimeInMilliseconds
+            );
+            computeUpdateForRoomPlayerIndicators(
+                room,
+                player,
+                deltaTimeInMilliseconds
+            );
+            computeUpdateForRoomPlayerThingsToRemove(
+                room,
+                player,
+                deltaTimeInMilliseconds
+            );
+        }
     }
 }
 
@@ -197,23 +200,27 @@ async function computeUpdateForRoomPlayerBaseHealth(
                 ].currentGame.gameIsOver = true;
                 let socketOfGamePlayed = room.host;
                 let finalGameData = JSON.parse(JSON.stringify(room.data));
-                finalGameData.currentGame.players[player].currentGame.scoreSubmissionDateAndTime = new Date();
+                finalGameData.currentGame.players[
+                    player
+                ].currentGame.scoreSubmissionDateAndTime = new Date();
 
-                socketOfGamePlayed.emit(
-                    "currentGameData",
-                    //JSON.stringify(finalGameData.currentGame.players[player])
-                    finalGameData.currentGame.players[player]
+                socketOfGamePlayed.send(
+                    JSON.stringify({
+                        action: "currentGameData",
+
+                        parameters: {
+                            data: finalGameData.currentGame.players[player]
+                        }
+                    })
                 );
-                socketOfGamePlayed
-                    .to(room.id)
-                    .emit(
-                        "currentGameData",
-                        // JSON.stringify(
-                            finalGameData.currentGame.players[player]
-                        // )
-                    );
-                room.host.leave(room.id);
-                socketOfGamePlayed.currentRoomSocketIsIn = "";
+                // socketOfGamePlayed.to(room.id).emit(
+                //     "currentGameData",
+                //     // JSON.stringify(
+                //     finalGameData.currentGame.players[player]
+                //     // )
+                // );
+                room.host.unsubscribe(room.id);
+                socketOfGamePlayed.variables.currentRoomSocketIsIn = "";
                 submitDefaultSingleplayerGame(
                     room.host,
                     finalGameData.currentGame.players[player].currentGame,
@@ -604,7 +611,15 @@ async function submitDefaultSingleplayerGame(
                 "info"
             )
         );
-        socket.emit("finalRanks", false, false, false);
+        socket.send(
+            JSON.stringify({
+                action: "updateText",
+                parameters: {
+                    selector: "#personal-best-broken",
+                    text: "Score not saved. Register for an account to save your scores."
+                }
+            })
+        );
         return;
     }
 
@@ -613,18 +628,18 @@ async function submitDefaultSingleplayerGame(
         JSON.stringify(await User.findById(userIDAsString))
     ).username;
     let personalBestBroken = false;
-    let playerDataOfSocketOwner = await User
-        .findById(userIDAsString);
+    let playerDataOfSocketOwner = await User.findById(userIDAsString);
     let globalRank = -1;
     let levelStatus = {};
 
-    personalBestBroken = await personalbests.checkSingleplayerPersonalBestForPlayer(
-        userIDAsString,
-        finalGameData,
-        gameMode,
-        usernameOfSocketOwner,
-        playerDataOfSocketOwner
-    );
+    personalBestBroken =
+        await personalbests.checkSingleplayerPersonalBestForPlayer(
+            userIDAsString,
+            finalGameData,
+            gameMode,
+            usernameOfSocketOwner,
+            playerDataOfSocketOwner
+        );
     globalRank = await leaderboards.checkAndModifyLeaderboards(
         userIDAsString,
         finalGameData,
@@ -633,7 +648,23 @@ async function submitDefaultSingleplayerGame(
         playerDataOfSocketOwner
     );
 
-    socket.emit("finalRanks", personalBestBroken, globalRank, true);
+
+    socket.send(JSON.stringify({
+        action: "updateText",
+        parameters: {
+            selector:
+                "#personal-best-broken",
+            text: personalBestBroken ? "New Personal Best!" : ""
+        }
+    }))
+    socket.send(JSON.stringify({
+        action: "updateText",
+        parameters: {
+            selector:
+                "#final-global-rank",
+            text: utilities.calculateMessageForGlobalRank(globalRank)
+        }
+    }))
 
     console.log(
         log.addMetadata(
@@ -669,9 +700,9 @@ async function submitDefaultSingleplayerGame(
             );
         }
 
-        socketIOEventQueue.push({
-            eventToEmit: "createToastNotification",
-            arguments: [
+        socketEventQueue.push({
+            eventToPublish: "createToastNotification",
+            parameters: 
                 {
                     position: "topRight",
                     message: `User ${usernameOfSocketOwner} submitted a score of ${
@@ -680,7 +711,7 @@ async function submitDefaultSingleplayerGame(
                         gameModeAsShortenedString
                     )} Singleplayer game.`
                 }
-            ]
+            
         });
     }
 
@@ -690,19 +721,27 @@ async function submitDefaultSingleplayerGame(
         gameMode,
         usernameOfSocketOwner
     );
-    socket.emit("levelStatus", levelStatus);
-    if (levelStatus.leveledUp) {
-        console.log(
-            log.addMetadata(
-                `User ${usernameOfSocketOwner} leveled up from Level ${
-                    levelStatus.currentLevel - 1
-                } to Level ${levelStatus.currentLevel}`,
-                "info"
-            )
-        );
-    }
+    // //TODO: socket.emit("levelStatus", levelStatus);
+    // if (levelStatus.leveledUp) {
+    //     console.log(
+    //         log.addMetadata(
+    //             `User ${usernameOfSocketOwner} leveled up from Level ${
+    //                 levelStatus.currentLevel - 1
+    //             } to Level ${levelStatus.currentLevel}`,
+    //             "info"
+    //         )
+    //     );
+    // }
+    socket.send(JSON.stringify({
+        action: "updateText",
+        parameters: {
+            selector:
+                "#experience-points-earned",
+            text: Math.floor(finalGameData.currentScore / (gameModeAsShortenedString === "easy" ? 200 : 100)).toString(),
+        }
+    }))
+    // console.debug(`${usernameOfSocketOwner} gained ${Math.floor(finalGameData.currentScore / (gameModeAsShortenedString === "easy" ? 200 : 100))}`);
 }
-
 
 /**
  * Gives and checks the player's experience points.
@@ -725,18 +764,32 @@ async function checkPlayerLevelStatusForPlayer(
     );
 }
 
-
 function getCustomSingleplayerRoomInstance(room, player) {
     return room.data.currentGame.players[player].currentGame;
 }
 
-function getSocketIOEventQueue() {
-    return socketIOEventQueue;
+function getSocketEventQueue() {
+    return socketEventQueue;
+}
+
+function formatMultiplayerRoomRanks(ranks) {
+    let text = "";
+    for (let i = 0; i < ranks[0].length; i++) {
+        text = `#${ranks[0][i][0][0]} ${
+            ranks[0][i][0][1]
+        } ${utilities.turnMillisecondsToTime(ranks[0][i][0][2])} ${
+            ranks[0][i][0][3]
+        } enemies sent` + text;
+
+        text = `<br>` + text;
+    }
+    return text;
 }
 
 module.exports = {
-    getSocketIOEventQueue,
+    getSocketEventQueue,
     computeUpdate,
     startDefaultSingleplayerGame,
     submitDefaultSingleplayerGame,
+    formatMultiplayerRoomRanks
 };

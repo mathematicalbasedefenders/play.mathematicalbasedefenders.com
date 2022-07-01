@@ -27,6 +27,8 @@ class Tile {
 }
 
 function processTileClick(slot) {
-    socket.emit("tileClick", slot);
+    socket.send(
+        JSON.stringify({ action: "tileClick", parameters: { slot: slot } })
+    );
     game.tilesOnBoard[slot].selected = !game.tilesOnBoard[slot].selected;
 }

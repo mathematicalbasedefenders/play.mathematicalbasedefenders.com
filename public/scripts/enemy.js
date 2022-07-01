@@ -12,7 +12,7 @@ class Enemy {
         this.requestedValue = enemyInformation.requestedValue;
         this.enemyNumber = enemyInformation.enemyNumber;
         this.senderName = enemyInformation.senderName;
-
+        this.minified = enemyInformation.minified;
         // create sprite
 
         this.enemySprite;
@@ -62,6 +62,9 @@ class Enemy {
                     : "#ffffff",
             fontSize: 32
         });
+
+
+        if (!this.minified){
         this.requestedValueTextSprite = new PIXI.Text(
             enemyInformation.requestedValue.toString().replace("-", "\u2013"),
             requestedValueTextStyleToUse
@@ -103,5 +106,6 @@ class Enemy {
             35;
         this.senderNameTextSprite.color =
             enemyColor == "blind" ? "#eeeeee" : enemyColor;
+        }
     }
 }

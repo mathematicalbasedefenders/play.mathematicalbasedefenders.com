@@ -16,37 +16,37 @@ function replacePlayerRoomTiles(room, socket) {
             for (
                 i = 0;
                 i <
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .tilesInCurrentProblem.length;
                 i++
             ) {
                 let t = new tile.Tile(
-                    generation.generateRandomTileTermID(room, socket.id),
+                    generation.generateRandomTileTermID(room, socket.connectionID),
                     i,
                     false,
-                    room.data.currentGame.players[socket.id].currentGame
+                    room.data.currentGame.players[socket.connectionID].currentGame
                         .tilesCreated + 1
                 );
 
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .tilesCreated++;
                 room.data.currentGame.players[
-                    socket.id
+                    socket.connectionID
                 ].currentGame.tilesOnBoard[
                     room.data.currentGame.players[
-                        socket.id
+                        socket.connectionID
                     ].currentGame.tilesInCurrentProblem[i]
                 ] = t;
             }
 
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.currentProblemAsText = "";
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.currentProblemAsBeautifulText = "";
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.tilesInCurrentProblem = [];
             break;
         }
@@ -54,36 +54,43 @@ function replacePlayerRoomTiles(room, socket) {
             for (
                 i = 0;
                 i <
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .tilesInCurrentProblem.length;
                 i++
             ) {
                 let t = new tile.Tile(
                     getMultiplayerTileQueueOfPlayer(room, socket),
-                    i,
+                    room.data.currentGame.players[
+                        socket.connectionID
+                    ].currentGame.tilesOnBoard[
+                        room.data.currentGame.players[
+                            socket.connectionID
+                        ].currentGame.tilesInCurrentProblem[i]
+                    ].slot,
                     false,
-                    room.data.currentGame.players[socket.id].currentGame
+                    room.data.currentGame.players[socket.connectionID].currentGame
                         .tilesCreated + 1
                 );
-                room.data.currentGame.players[socket.id].currentGame
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .tilesCreated++;
                 room.data.currentGame.players[
-                    socket.id
+                    socket.connectionID
                 ].currentGame.tilesOnBoard[
                     room.data.currentGame.players[
-                        socket.id
+                        socket.connectionID
                     ].currentGame.tilesInCurrentProblem[i]
                 ] = t;
+                
             }
 
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.currentProblemAsText = "";
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.currentProblemAsBeautifulText = "";
             room.data.currentGame.players[
-                socket.id
+                socket.connectionID
             ].currentGame.tilesInCurrentProblem = [];
             break;
         }
@@ -100,53 +107,54 @@ function replacePlayerRoomTiles(room, socket) {
 
 function getMultiplayerTileQueueOfPlayer(room, socket) {
     if (
-        room.data.currentGame.players[socket.id].currentGame.tileQueue[
-            room.data.currentGame.players[socket.id].currentGame
+        room.data.currentGame.players[socket.connectionID].currentGame.tileQueue[
+            room.data.currentGame.players[socket.connectionID].currentGame
                 .currentTileQueue
         ].length == 0
     ) {
-        room.data.currentGame.players[socket.id].currentGame.currentTileQueue++;
+        room.data.currentGame.players[socket.connectionID].currentGame.currentTileQueue++;
         if (
             room.data.currentGame.globalTileQueues.length <
-            room.data.currentGame.players[socket.id].currentGame
+            room.data.currentGame.players[socket.connectionID].currentGame
                 .currentTileQueue
         ) {
             room.data.currentGame.globalTileQueue.push(
                 generateMultiplayerTileQueue()
             );
-            room.data.currentGame.players[socket.id].currentGame.tileQueue.push(
-                room.data.currentGame.players[socket.id].currentGame
+            room.data.currentGame.players[socket.connectionID].currentGame.tileQueue.push(
+                room.data.currentGame.players[socket.connectionID].currentGame
                     .currentTileQueue
             );
         }
     }
 
     let tile =
-        room.data.currentGame.players[socket.id].currentGame.tileQueue[
-            room.data.currentGame.players[socket.id].currentGame
+        room.data.currentGame.players[socket.connectionID].currentGame.tileQueue[
+            room.data.currentGame.players[socket.connectionID].currentGame
                 .currentTileQueue
         ][0];
 
-    room.data.currentGame.players[socket.id].currentGame.tileQueue[
-        room.data.currentGame.players[socket.id].currentGame.currentTileQueue
+    room.data.currentGame.players[socket.connectionID].currentGame.tileQueue[
+        room.data.currentGame.players[socket.connectionID].currentGame.currentTileQueue
     ].shift();
+
     return tile;
 }
 
 function getRoomPlayers(roomData) {
     return [
         Object.keys(roomData.playersInRoom).map((player) => {
-            if (roomData.playersInRoom[player].loggedIn) {
+            if (roomData.playersInRoom[player].variables.loggedIn) {
                 return {
-                    name: roomData.playersInRoom[player].usernameOfSocketOwner,
+                    name: roomData.playersInRoom[player].variables.usernameOfSocketOwner,
                     nameColor: utilities.formatPlayerName(
                         roomData.playersInRoom[player],
-                        roomData.playersInRoom[player].usernameOfSocketOwner
+                        roomData.playersInRoom[player].variables.usernameOfSocketOwner
                     )
                 };
             } else {
                 return {
-                    name: roomData.playersInRoom[player].guestNameOfSocketOwner,
+                    name: roomData.playersInRoom[player].variables.guestNameOfSocketOwner,
                     nameColor: "#000000"
                 };
             }
