@@ -948,10 +948,7 @@ function processKeypress(event) {
                         document.activeElement ==
                         document.getElementById("multiplayer-room-message-box")
                     ) {
-                        // //TODO: socket.emit(
-                        //     "defaultMultiplayerRoomChatMessage",
-                        //     $("#multiplayer-room-message-box").val()
-                        // );
+                        sendChatMessage();
                         $("#multiplayer-room-message-box").val("");
                     }
                 }
@@ -1420,4 +1417,5 @@ function authenticate(username,password){
 
 function sendChatMessage(){
     socket.send(JSON.stringify({action:"chatMessage",arguments:{message:$("#multiplayer-room-message-box").val()}}));
+    $("#multiplayer-room-message-box").val("");
 }
