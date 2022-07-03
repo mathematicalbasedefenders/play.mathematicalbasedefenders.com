@@ -579,6 +579,10 @@ input {
     color: #000000;
 }
 
+#default-multiplayer-room-player-list {
+    color: black;
+}
+
 /*
 	STATISTICS
 */
@@ -619,6 +623,10 @@ input {
 /*
     SETTINGS
 */
+
+.login-button {
+    color: #000000;
+}
 
 .video-settings-screen-setting-container {
     display: flex;
