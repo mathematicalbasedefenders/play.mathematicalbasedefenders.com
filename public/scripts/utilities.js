@@ -13,7 +13,7 @@ function addText(selector, text, useHTML){
 }
 
 function updateCSS(selector, property, value) {
-    $(selector).css({ [property]: value });
+    $(selector).css(property, value);
 }
 
 function convertTermIDToBeautifulString(id) {

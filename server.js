@@ -225,7 +225,6 @@ function update(deltaTime) {
         if (roomID.length == 8) {
             // room is default multiplayer room
             if (roomID == roomIDOfDefaultMultiplayerRoom) {
-                
                 if (
                     !rooms[roomID].playing &&
                     !rooms[roomIDOfDefaultMultiplayerRoom].readyToStart &&
@@ -519,8 +518,6 @@ function update(deltaTime) {
                                             //             .currentGame.ranks
                                             //     ]
                                             // );
-
-                                            
                                         }
                                     }
 
@@ -559,7 +556,6 @@ function update(deltaTime) {
                                             rooms[roomID].data.currentGame
                                                 .playersAlive.length == 1
                                         ) {
-                                           
                                             let winnerSocket = sockets.find(
                                                 (socket) =>
                                                     socket.connectionID ===
@@ -637,7 +633,7 @@ function update(deltaTime) {
                                                 roomID
                                             ].data.currentGame.playersAlive = [];
                                         }
-                                        
+
                                         rooms[
                                             roomIDOfDefaultMultiplayerRoom
                                         ].readyToStart = false;
@@ -1403,17 +1399,24 @@ function deleteSocket(socket) {
         socket.variables.currentRoomSocketIsIn &&
         socket.variables.currentRoomSocketIsIn != ""
     ) {
-        if (rooms[socket.variables.currentRoomSocketIsIn]?.data?.currentGame?.players[
-            socket.connectionID
-        ]){
-        rooms[socket.variables.currentRoomSocketIsIn].data.currentGame.players[
-            socket.connectionID
-        ].currentGame.forfeited = true;
+        if (
+            rooms[socket.variables.currentRoomSocketIsIn]?.data?.currentGame
+                ?.players[socket.connectionID]
+        ) {
+            rooms[
+                socket.variables.currentRoomSocketIsIn
+            ].data.currentGame.players[
+                socket.connectionID
+            ].currentGame.forfeited = true;
 
-        rooms[socket.variables.currentRoomSocketIsIn].data.currentGame.players[
-            socket.connectionID
-        ].currentGame.dead = true;
-    }}``
+            rooms[
+                socket.variables.currentRoomSocketIsIn
+            ].data.currentGame.players[
+                socket.connectionID
+            ].currentGame.dead = true;
+        }
+    }
+    ``;
     delete rooms[roomIDOfDefaultMultiplayerRoom]?.players?.[
         socket.connectionID
     ];
@@ -1542,32 +1545,33 @@ function constructDefaultMultiplayerGameDataObjectToSend(connection) {
             rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
                 connection
             ];
-            if (data?.currentGame){
-        data.currentGame.currentInGameTimeInMilliseconds =
-            rooms[
-                roomIDOfDefaultMultiplayerRoom
-            ].data.currentGame.currentInGameTimeInMilliseconds;
-        data.currentGame.playersRemaining =
-            rooms[
-                roomIDOfDefaultMultiplayerRoom
-            ].data.currentGame.playersAlive.length;
-        data.currentGame.opponentGameData = [];
+        if (data?.currentGame) {
+            data.currentGame.currentInGameTimeInMilliseconds =
+                rooms[
+                    roomIDOfDefaultMultiplayerRoom
+                ].data.currentGame.currentInGameTimeInMilliseconds;
+            data.currentGame.playersRemaining =
+                rooms[
+                    roomIDOfDefaultMultiplayerRoom
+                ].data.currentGame.playersAlive.length;
+            data.currentGame.opponentGameData = [];
 
-        let allConnections = Object.keys(
-            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players
-        );
+            let allConnections = Object.keys(
+                rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players
+            );
 
-        for (let opponentConnection of allConnections) {
-            if (opponentConnection != connection) {
-                playerIndex++;
-                data.currentGame.opponentGameData[playerIndex] =
-                    constructMinifiedGameDataObjectToSend(
-                        opponentConnection,
-                        playerIndex
-                    );
+            for (let opponentConnection of allConnections) {
+                if (opponentConnection != connection) {
+                    playerIndex++;
+                    data.currentGame.opponentGameData[playerIndex] =
+                        constructMinifiedGameDataObjectToSend(
+                            opponentConnection,
+                            playerIndex
+                        );
+                }
             }
+            return data;
         }
-        return data;}
     }
     return {};
 }
@@ -1665,6 +1669,21 @@ function broadcastToEverySocketInRoom(room, toBroadcast) {
     }
 }
 
+async function checkIfFileExists(file) {
+    await fs.stat(file, function (error, stat) {
+        if (error == null) {
+            return true;
+        } else if (err.code === "ENOENT") {
+            return false;
+        }
+    });
+}
+
+async function readFile(requestURL) {
+    let data = await fs.promises.readFile(`.${requestURL}`, "utf8");
+    return Buffer.from(data);
+}
+
 uWS.App()
     .ws("/", {
         // handle messages from client
@@ -1707,9 +1726,6 @@ uWS.App()
         message: (socket, message, isBinary) => {
             let parsedMessage = JSON.parse(decoder.write(Buffer.from(message)));
             switch (parsedMessage.action) {
-                case "authenticate": {
-                    break;
-                }
                 case "createAndJoinDefaultSingleplayerRoom": {
                     if (socket.variables.currentRoomSocketIsIn === "") {
                         if (
@@ -1730,7 +1746,8 @@ uWS.App()
                                 id: roomID,
                                 type: roomTypes.SINGLEPLAYER,
                                 host: socket,
-                                userIDOfHost: socket.variables.userIDOfSocketOwner,
+                                userIDOfHost:
+                                    socket.variables.userIDOfSocketOwner,
                                 playing: false,
                                 gameMode: parsedMessage.arguments.gameMode,
                                 data: defaults.createNewDefaultSingleplayerGameData(
@@ -1844,7 +1861,6 @@ uWS.App()
                                 })
                             );
                         }
-                        
                     } else {
                         console.log(
                             log.addMetadata(
@@ -2026,7 +2042,9 @@ uWS.App()
                             action: "addText",
                             arguments: {
                                 selector: "#multiplayer-room-chat-content",
-                                text: `${utilities.getNameOfSocketOwner(socket)}: ${parsedMessage.arguments.message}`,
+                                text: `${utilities.getNameOfSocketOwner(
+                                    socket
+                                )}: ${parsedMessage.arguments.message}`,
                                 useHTML: true
                             }
                         })
@@ -2061,21 +2079,30 @@ uWS.App()
             .writeHeader("Content-Type", "text/html")
             .tryEnd(INDEX_FILE_CONTENT);
     })
-    .get("/public/*", (response, request) => {
-        //TODO: Add data validation
+    .get("/public/*", async (response, request) => {
+        if (!
+            (checkIfFileExists(`.${request.getUrl()}`) &&
+            !request.getUrl().indexOf("..") > -1
+        )) {
+            response.writeStatus("400 Bad Request").end("");
+            return;
+        }
+
         response
-            .writeStatus("200 OK")
-            .writeHeader(
-                "Content-Type",
-                FILE_TYPES[
-                    request
-                        .getUrl()
-                        .substring(request.getUrl().lastIndexOf(".") + 1)
-                ]
-            )
-            .tryEnd(fs.readFileSync(`.${request.getUrl()}`));
+        .writeStatus("200 OK")
+        .writeHeader(
+            "Content-Type",
+            FILE_TYPES[
+                request
+                    .getUrl()
+                    .substring(request.getUrl().lastIndexOf(".") + 1)
+            ]
+        )
+        .tryEnd(fs.readFileSync(`.${request.getUrl()}`));
+
+
     })
-    .post("/authenticate", (response, request) => {
+    .post("/authenticate", async (response, request) => {
         response.onAborted(() => {});
         //FIXME: Unsafe?
         let connectionID = request.getQuery("guestName");
@@ -2099,16 +2126,58 @@ uWS.App()
                     )
                 ) {
                     socketToChangeConnectionID.connectionID = username;
-                    socketToChangeConnectionID.variables.userIDOfSocketHolder = User.findOne({
+
+                    let data = await User.findOne({
                         username: username
-                    })._id;
+                    });
+                    socketToChangeConnectionID.variables.userIDOfSocketHolder =
+                        data._id;
+                    socketToChangeConnectionID.variables.playerRank =
+                        utilities.getPlayerRank(data, data.username);
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateText",
+                            arguments: {
+                                selector: "#player-rank",
+                                text: utilities.beautifyRankName(
+                                    socketToChangeConnectionID.variables
+                                        .playerRank,
+                                    data.username
+                                )
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateText",
+                            arguments: {
+                                selector: "#player-name",
+                                text: socketToChangeConnectionID.connectionID
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateCSS",
+                            arguments: {
+                                selector: "#player-rank",
+                                property: "color",
+                                value: utilities.formatPlayerName(
+                                    data,
+                                    data.username
+                                )
+                            }
+                        })
+                    );
                     response.writeStatus("200 OK").end("");
                 } else {
-                    console.warn(
-                        log.addMetadata("FORGED REQUEST DETECTED", "warn")
-                    );
                     response.writeStatus("400 Bad Request").end("");
                 }
+            } else {
+                console.warn(
+                    log.addMetadata("FORGED REQUEST DETECTED", "warn")
+                );
+                response.writeStatus("400 Bad Request").end("");
             }
         }
     })

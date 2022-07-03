@@ -1067,8 +1067,11 @@ socket.onmessage = (message) => {
             break;
         }
         case "addText": {
-            console.debug(message.arguments.selector);
             addText(message.arguments.selector, message.arguments.text, message.arguments.useHTML);
+            break;
+        }
+        case "updateCSS": {
+            updateCSS(message.arguments.selector, message.arguments.property, message.arguments.value);
             break;
         }
         default: {
