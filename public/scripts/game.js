@@ -1388,7 +1388,9 @@ function getCustomSingleplayerModeInputs() {
 
 function startCustomSingleplayerGame(data) {
     game.lastSingleplayerGameModePlayed = "customSingleplayerMode";
-    //TODO: socket.emit("createAndJoinCustomSingleplayerRoom", JSON.stringify(data));
+    socket.send(JSON.stringify({action:"createAndJoinCustomSingleplayerRoom",arguments:{
+        settings: data
+    }}))
 }
 
 function getAllowedComboTimeAccordingToMode(

@@ -1074,26 +1074,16 @@ socket.onmessage = (message) => {
             updateCSS(message.arguments.selector, message.arguments.property, message.arguments.value);
             break;
         }
+        case "changeScreen": {
+            setPropertiesAndChangeScreen(message.arguments.newScreen);
+            break;
+        }
         default: {
             break;
         }
     }
 };
-// socket.on("finalRanks", (personalBestBroken, finalGlobalRank, scoreSaved) => {
-//     console.log(scoreSaved ? "Score saved!" : "Score not saved!");
-//     if (scoreSaved) {
-//         $("#personal-best-broken").text(
-//             personalBestBroken ? "New Personal Best!" : ""
-//         );
-//         $("#final-global-rank").text(
-//             calculateMessageForGlobalRank(finalGlobalRank)
-//         );
-//     } else {
-//         $("#personal-best-broken").text(
-//             "Score not saved! Register for an account to save your scores!"
-//         );
-//     }
-// });
+
 
 // socket.on("levelStatus", (levelStatus) => {
 //     if (levelStatus.leveledUp) {
@@ -1109,9 +1099,7 @@ socket.onmessage = (message) => {
 //     }
 // });
 
-// socket.on("showTextModal", (text, title) => {
-//     showTextModal(text, title);
-// });
+
 
 // socket.on("loginResult", (username, success) => {
 //     showTextModal(
@@ -1126,82 +1114,13 @@ socket.onmessage = (message) => {
 //     }
 // });
 
-// socket.on("defaultMultiplayerRoomAction", (action, arguments) => {
-//     switch (action) {
-//         // used when someone joins or leaves
-//         case "updateMultiplayerPlayerList": {
-//             let formattedPlayers = "";
-//             for (let i = 0; i < arguments[0].length; i++) {
-//                 formattedPlayers += `<button style="color:${arguments[0][i].nameColor};" class="multiplayer-player-list-player-name-container" onClick="showUserInformationModal('${arguments[0][i].name}')">${arguments[0][i].name}</button>`;
-//                 if (i != arguments[0].length - 1) {
-//                     formattedPlayers += "<br>";
-//                 }
-//             }
-//             $("#default-multiplayer-room-player-list").html(formattedPlayers);
-//             break;
-//         }
-//         case "updateStatusText": {
-//             $("#default-multiplayer-room-status-text").text(arguments[0]);
-//             break;
-//         }
-//         case "switchToGameContainer": {
-//             $("#pixi-canvas").show(0);
-//             $("#default-multiplayer-room-lobby-screen-container").hide(0);
-//             currentScreen = "multiplayerGameScreen";
-//             setPropertiesAndChangeScreen(screens.MULTIPLAYER_GAME_SCREEN);
-//             multiplayerScreenContainer.visible = true;
-//             break;
-//         }
-//         case "updateChatBox": {
-//             let name = document.createElement("span");
-//             name.appendChild(document.createTextNode(arguments[0].toString()));
-//             if (arguments[2] == "special") {
-//                 name.classList.add("rainbow-letters");
-//             } else {
-//                 name.style.color = arguments[2];
-//             }
 
-//             name.append(": ");
-//             let name2 = document.createElement("span");
-//             name2.append(arguments[1].toString());
-//             name2.style.color = "#000000";
-//             name.append(name2);
-//             $(".multiplayer-room-chat-content").prepend(name);
-
-//             break;
-//         }
-//         //TODO: Make this less confusing.
-//         case "updateRanks": {
-//             $("#last-game-ranks-content").html("");
-//             for (let i = 0; i < arguments[0].length; i++) {
-//                 $("#last-game-ranks-content").prepend(
-//                     `#${arguments[0][i][0][0]} ${
-//                         arguments[0][i][0][1]
-//                     } ${turnMillisecondsToTime(arguments[0][i][0][2])} ${
-//                         arguments[0][i][0][3]
-//                     } enemies sent`
-//                 );
-//                 $("#last-game-ranks-content").prepend(`<br>`);
-//             }
-//         }
-//     }
-// });
 
 // socket.on("changeScreen", (newScreen) => {
 //     setPropertiesAndChangeScreen(newScreen);
 // });
 
-// socket.on("updateText", (selector, text) => {
-//     updateText(selector, text);
-// });
 
-// socket.on("updateCSS", (selector, property, value) => {
-//     updateCSS(selector, property, value);
-// });
-
-// socket.on("createToastNotification", (options) => {
-//     createToastNotification(options);
-// });
 
 // socket.on("sendMessageToConsole", (message, messageType) => {
 //     switch (messageType) {
