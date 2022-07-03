@@ -1863,9 +1863,19 @@ uWS.App()
                     );
                     response.writeStatus("200 OK").end("");
                 } else {
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateText",
+                            arguments: {
+                                selector: "#login-button",
+                                text: "Login",
+                            }
+                        })
+                    );
                     response.writeStatus("400 Bad Request").end("");
                 }
             } else {
+                
                 console.warn(
                     log.addMetadata("FORGED REQUEST DETECTED", "warn")
                 );
