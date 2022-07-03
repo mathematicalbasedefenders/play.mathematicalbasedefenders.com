@@ -690,7 +690,6 @@ var loop = setInterval(() => {
 
 // SOCKET.IO CODE IS HERE
 
-
 //     // socket.on("getPlayerDataAndUpdateText", (selector, ...dataToGet) => {
 //     // 	socket.send(JSON.stringify({action:"updateText":{arguments:{selector: getPlayerData(socket, ...dataToGet,text:$5}}})));
 //     // });
@@ -774,7 +773,6 @@ var loop = setInterval(() => {
 //         guests.splice(guests.indexOf(socket.guestNameOfSocketOwner), 1);
 //     });
 
-
 //     /**
 //      * Creates a singleplayer room.
 //      */
@@ -845,7 +843,6 @@ var loop = setInterval(() => {
 //             );
 //         }
 //     });
-
 
 //     socket.on("broadcastMessageAsStaff", (message) => {
 //         if (
@@ -1613,22 +1610,27 @@ uWS.App()
                     break;
                 }
                 case "chatMessage": {
-                    if (parsedMessage.arguments.message === DOMPurify.sanitize(parsedMessage.arguments.message)){
-                    broadcastToEverySocketInRoom(
-                        roomIDOfDefaultMultiplayerRoom,
-                        JSON.stringify({
-                            action: "addText",
-                            arguments: {
-                                selector: "#multiplayer-room-chat-content",
-                                text: `${utilities.getNameOfSocketOwner(
-                                    socket
-                                )}: ${parsedMessage.arguments.message}`,
-                                useHTML: true
-                            }
-                        })
-                    );
-                    break;
+                    if (
+                        parsedMessage.arguments.message ===
+                        DOMPurify.sanitize(parsedMessage.arguments.message)
+                    ) {
+                        broadcastToEverySocketInRoom(
+                            roomIDOfDefaultMultiplayerRoom,
+                            JSON.stringify({
+                                action: "addText",
+                                arguments: {
+                                    selector: "#multiplayer-room-chat-content",
+                                    text: `${utilities.getNameOfSocketOwner(
+                                        socket
+                                    )}: ${parsedMessage.arguments.message}`,
+                                    useHTML: true
+                                }
+                            })
+                        );
+                        break;
                     }
+                }
+                case "getDataForUser": {
                 }
             }
         },
@@ -1659,27 +1661,27 @@ uWS.App()
             .tryEnd(INDEX_FILE_CONTENT);
     })
     .get("/public/*", async (response, request) => {
-        if (!
-            (checkIfFileExists(`.${request.getUrl()}`) &&
-            !request.getUrl().indexOf("..") > -1
-        )) {
+        if (
+            !(
+                checkIfFileExists(`.${request.getUrl()}`) &&
+                !request.getUrl().indexOf("..") > -1
+            )
+        ) {
             response.writeStatus("400 Bad Request").end("");
             return;
         }
 
         response
-        .writeStatus("200 OK")
-        .writeHeader(
-            "Content-Type",
-            FILE_TYPES[
-                request
-                    .getUrl()
-                    .substring(request.getUrl().lastIndexOf(".") + 1)
-            ]
-        )
-        .tryEnd(fs.readFileSync(`.${request.getUrl()}`));
-
-
+            .writeStatus("200 OK")
+            .writeHeader(
+                "Content-Type",
+                FILE_TYPES[
+                    request
+                        .getUrl()
+                        .substring(request.getUrl().lastIndexOf(".") + 1)
+                ]
+            )
+            .tryEnd(fs.readFileSync(`.${request.getUrl()}`));
     })
     .post("/authenticate", async (response, request) => {
         response.onAborted(() => {});
@@ -1697,7 +1699,7 @@ uWS.App()
             );
             if (socketToChangeConnectionID) {
                 if (
-                    authentication.authenticate(
+                    await authentication.authenticate(
                         socketToChangeConnectionID,
                         username,
                         encodedPassword,
@@ -1709,6 +1711,8 @@ uWS.App()
                     let data = await User.findOne({
                         username: username
                     });
+                    
+                    // TODO: Write a function that wraps these calls
                     socketToChangeConnectionID.variables.userIDOfSocketHolder =
                         data._id;
                     socketToChangeConnectionID.variables.playerRank =
@@ -1723,6 +1727,17 @@ uWS.App()
                                         .playerRank,
                                     data.username
                                 )
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateText",
+                            arguments: {
+                                selector: "#player-level-indicator",
+                                text: `Level ${leveling.getLevel(
+                                    data.statistics.totalExperiencePoints
+                                )}`
                             }
                         })
                     );
@@ -1745,6 +1760,46 @@ uWS.App()
                                     data,
                                     data.username
                                 )
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateCSS",
+                            arguments: {
+                                selector: "#login-shortcut-button",
+                                property: "display",
+                                value: "none"
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateCSS",
+                            arguments: {
+                                selector: "#player-level-indicator",
+                                property: "display",
+                                value: "initial"
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateCSS",
+                            arguments: {
+                                selector: "#player-level-indicator",
+                                property: "display",
+                                value: "initial"
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateCSS",
+                            arguments: {
+                                selector: "#login-button",
+                                property: "display",
+                                value: "none"
                             }
                         })
                     );

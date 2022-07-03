@@ -95,6 +95,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                             "info"
                         )
                     );
+                    return true;
                 } else {
                     // failed log in
                     socket.send(JSON.stringify({action:"showTextModal",arguments:{title:"Failed log in!",text:`Failed to log in as ${username}`}}));
@@ -108,6 +109,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                             "info"
                         )
                     );
+                    return false;
                 }
             } else {
                 console.log(
@@ -119,8 +121,10 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                     1
                 );
             }
+            if (!socket){
             delete socket.variables.playerDataOfSocketOwner.emailAddress;
             delete socket.variables.playerDataOfSocketOwner.hashedPassword;
+            }return false;
         } else {
             console.log(
                 log.addMetadata("User " + username + " not found!", "info")
@@ -131,6 +135,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                 1
             );
         }
+        return false;
     } else {
         console.log(
             log.addMetadata(
@@ -139,7 +144,9 @@ async function authenticate(socket, username, encodedPassword, sockets) {
             )
         );
         socket.send(JSON.stringify({action:"showTextModal",arguments:{title:"Failed log in!",text:`Failed to log in as ${username}`}}));
-    }
+                
+    return false;}
+
 }
 
 async function checkPassword(username, encodedPassword, socket){
