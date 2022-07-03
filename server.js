@@ -105,7 +105,7 @@ const FILE_TYPES = {
     js: "text/js",
     ttf: "font/ttf",
     png: "image/png",
-    svg: "image/svg"
+    svg: "image/svg+xml"
 };
 
 // variables
