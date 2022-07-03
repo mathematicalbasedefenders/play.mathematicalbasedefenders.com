@@ -601,6 +601,7 @@ async function submitDefaultSingleplayerGame(
     }
     // check #1
     if (userIDOfSocketOwner === undefined) {
+        // guest user playing
         console.log(
             log.addMetadata(
                 `A guest user has submitted a score of ${
@@ -620,9 +621,20 @@ async function submitDefaultSingleplayerGame(
                 }
             })
         );
+        socket.send(
+            JSON.stringify({
+                action: "updateCSS",
+                arguments: {
+                    selector: "#account-stats-gained",
+                    property: "display",
+                    value: "none"
+                }
+            })
+        );
         return;
     }
 
+    //registered player playing
     let userIDAsString = userIDOfSocketOwner.toString();
     let usernameOfSocketOwner = JSON.parse(
         JSON.stringify(await User.findById(userIDAsString))
@@ -648,23 +660,34 @@ async function submitDefaultSingleplayerGame(
         playerDataOfSocketOwner
     );
 
-
-    socket.send(JSON.stringify({
-        action: "updateText",
-        arguments: {
-            selector:
-                "#personal-best-broken",
-            text: personalBestBroken ? "New Personal Best!" : ""
-        }
-    }))
-    socket.send(JSON.stringify({
-        action: "updateText",
-        arguments: {
-            selector:
-                "#final-global-rank",
-            text: utilities.calculateMessageForGlobalRank(globalRank)
-        }
-    }))
+    socket.send(
+        JSON.stringify({
+            action: "updateText",
+            arguments: {
+                selector: "#personal-best-broken",
+                text: personalBestBroken ? "New Personal Best!" : ""
+            }
+        })
+    );
+    socket.send(
+        JSON.stringify({
+            action: "updateText",
+            arguments: {
+                selector: "#final-global-rank",
+                text: utilities.calculateMessageForGlobalRank(globalRank)
+            }
+        })
+    );
+    socket.send(
+        JSON.stringify({
+            action: "updateCSS",
+            arguments: {
+                selector: "#account-stats-gained",
+                property: "display",
+                value: "block"
+            }
+        })
+    );
 
     console.log(
         log.addMetadata(
@@ -702,16 +725,14 @@ async function submitDefaultSingleplayerGame(
 
         socketEventQueue.push({
             eventToPublish: "createToastNotification",
-            arguments: 
-                {
-                    position: "topRight",
-                    message: `User ${usernameOfSocketOwner} submitted a score of ${
-                        finalGameData.currentScore
-                    } and reached #${globalRank} on a ${_.startCase(
-                        gameModeAsShortenedString
-                    )} Singleplayer game.`
-                }
-            
+            arguments: {
+                position: "topRight",
+                message: `User ${usernameOfSocketOwner} submitted a score of ${
+                    finalGameData.currentScore
+                } and reached #${globalRank} on a ${_.startCase(
+                    gameModeAsShortenedString
+                )} Singleplayer game.`
+            }
         });
     }
 
@@ -732,14 +753,18 @@ async function submitDefaultSingleplayerGame(
     //         )
     //     );
     // }
-    socket.send(JSON.stringify({
-        action: "updateText",
-        arguments: {
-            selector:
-                "#experience-points-earned",
-            text: Math.floor(finalGameData.currentScore / (gameModeAsShortenedString === "easy" ? 200 : 100)).toString(),
-        }
-    }))
+    socket.send(
+        JSON.stringify({
+            action: "updateText",
+            arguments: {
+                selector: "#experience-points-earned",
+                text: Math.floor(
+                    finalGameData.currentScore /
+                        (gameModeAsShortenedString === "easy" ? 200 : 100)
+                ).toString()
+            }
+        })
+    );
     // console.debug(`${usernameOfSocketOwner} gained ${Math.floor(finalGameData.currentScore / (gameModeAsShortenedString === "easy" ? 200 : 100))}`);
 }
 
@@ -775,11 +800,12 @@ function getSocketEventQueue() {
 function formatMultiplayerRoomRanks(ranks) {
     let text = "";
     for (let i = 0; i < ranks[0].length; i++) {
-        text = `#${ranks[0][i][0][0]} ${
-            ranks[0][i][0][1]
-        } ${utilities.turnMillisecondsToTime(ranks[0][i][0][2])} ${
-            ranks[0][i][0][3]
-        } enemies sent` + text;
+        text =
+            `#${ranks[0][i][0][0]} ${
+                ranks[0][i][0][1]
+            } ${utilities.turnMillisecondsToTime(ranks[0][i][0][2])} ${
+                ranks[0][i][0][3]
+            } enemies sent` + text;
 
         text = `<br>` + text;
     }
