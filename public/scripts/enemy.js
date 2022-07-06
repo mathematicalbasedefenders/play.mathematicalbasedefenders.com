@@ -23,7 +23,7 @@ class Enemy {
             if (
                 document
                     .querySelector("#custom-enemy-picture")
-                    .querySelector("img").src != null
+                    .querySelector("img").src
             ) {
                 let customEnemyPictureURL = document
                     .querySelector("#custom-enemy-picture")

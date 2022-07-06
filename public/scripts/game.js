@@ -1287,18 +1287,20 @@ function testCustomBackgroundPicture(url) {
 }
 
 function setCustomEnemyPictureMetadata(url) {
+    if (url){
     $("#custom-enemy-picture").html(
         `<img src=${url} width="150" height="150">`
     );
-    if (document.querySelector("#custom-enemy-picture")) {
+    }if (document.querySelector("#custom-enemy-picture")) {
         if (
             !document
                 .querySelector("#custom-enemy-picture")
-                .querySelector("img").complete
+                .querySelector("img")?.complete
         ) {
             $("#custom-enemy-picture").html("Failed to get image.");
         }
     }
+    
 }
 
 // TODO: Unused?
