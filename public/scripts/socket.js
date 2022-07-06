@@ -1,5 +1,19 @@
 const socket = new WebSocket(`ws${window.location.protocol === "https:" ? "s" : ""}://${window.location.host}`);
 
+socket.onclose = () => {
+    alert(
+                "Disconnected from server."
+            );
+            location.reload();
+}
+
+socket.onerror = (event) => {
+    alert(
+                "Disconnected from server. Click OK to refresh page. Error Code: " +
+event            );
+            location.reload();
+}
+
 socket.onmessage = (message) => {
     message = JSON.parse(message.data);
     switch (message.action) {

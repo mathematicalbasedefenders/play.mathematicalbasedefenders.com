@@ -741,76 +741,7 @@ var loop = setInterval(() => {
 //         }
 //     );
 
-//     /**
-//      * Creates a singleplayer room.
-//      */
-//     socket.on("createAndJoinCustomSingleplayerRoom", async (settings) => {
-//         // sanitize data
-//         settings = JSON.parse(settings);
 
-//         if (socket.currentRoomSocketIsIn == "") {
-//             let dataValidationResult =
-//                 validation.performDataValidationForCustomSingleplayerMode(
-//                     settings
-//                 );
-//             if (dataValidationResult.good) {
-//                 let roomID = undefined;
-//                 while (roomID === undefined || roomID in rooms) {
-//                     roomID = utilities.generateRoomID();
-//                 }
-
-//                 socket.currentRoomSocketIsIn = roomID;
-//                 socket.socketIsHostOfRoomItIsIn = true;
-
-//                 rooms[roomID] = {
-//                     id: roomID,
-//                     type: roomTypes.SINGLEPLAYER,
-//                     host: socket,
-//                     userIDOfHost: socket.userIDOfSocketOwner,
-//                     playing: false,
-//                     gameMode: "customSingleplayerMode",
-//                     data: defaults.createNewCustomSingleplayerGameData(
-//                         modes.SINGLEPLAYER,
-//                         roomID,
-//                         "customSingleplayerMode",
-//                         socket,
-//                         settings
-//                     )
-//                 };
-
-//                 socket.emit("changeScreen", "singleplayerGameScreen");
-//                 socket.join(roomID);
-//                 initializeSingleplayerGame(
-//                     rooms[socket.currentRoomSocketIsIn],
-//                     "customSingleplayerMode",
-//                     socket.connectionID
-//                 );
-//                 socket.ownerOfSocketIsPlaying = true;
-//                 rooms[
-//                     socket.currentRoomSocketIsIn
-//                 ].data.currentGame.playersAlive = [socket.connectionID];
-//                 rooms[socket.currentRoomSocketIsIn].playing = true;
-//             } else {
-//                 let issueMessage = "Unable to start game. (";
-
-//                 for (let problem in dataValidationResult.problems) {
-//                     issueMessage += `${problem}: ${dataValidationResult.problems[problem].message}`;
-//                 }
-
-//                 issueMessage += ")";
-
-//                 socket.emit(
-//                     "updateText",
-//                     "#singleplayer-screen-custom-mode-issues",
-//                     issueMessage
-//                 );
-//             }
-//         } else {
-//             console.log(
-//                 log.addMetadata("Socket is already in a room!", "info")
-//             );
-//         }
-//     });
 
 //     socket.on("broadcastMessageAsStaff", (message) => {
 //         if (
