@@ -188,7 +188,7 @@ class OpponentGameInstance {
         this.problemText.text = minifiedGameData.problem;
         this.baseHealth = minifiedGameData.baseHealth;
         this.statisticsText.text =
-            minifiedGameData.actionsPerMinute +
+            minifiedGameData.actionsPerMinute.toFixed(3) +
             " " +
             minifiedGameData.baseHealth +
             "/10 " +
