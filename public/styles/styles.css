@@ -147,7 +147,11 @@ kbd {
     font-family: monospace;
     border-radius: 3px;
     padding: 1px 2px 0;
-    border: 1px solid black;
+    border: 1px solid #000000;
+}
+
+select {
+    color: #000000;
 }
 
 .monospace-text {
@@ -580,7 +584,7 @@ input {
 }
 
 #default-multiplayer-room-player-list {
-    color: black;
+    color: #000000;
 }
 
 /*
@@ -623,8 +627,7 @@ input {
 /*
     SETTINGS
 */
-
-.login-button {
+#login-button {
     color: #000000;
 }
 
