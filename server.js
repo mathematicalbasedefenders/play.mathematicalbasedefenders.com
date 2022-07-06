@@ -552,6 +552,7 @@ function update(deltaTime) {
                                                 .players
                                         ).length <= 1
                                     ) {
+                                        
                                         if (
                                             rooms[roomID].data.currentGame
                                                 .playersAlive.length == 1
@@ -629,9 +630,29 @@ function update(deltaTime) {
                                                     }
                                                 })
                                             );
+                                            
+                                            broadcastToEverySocketInRoom(roomID, JSON.stringify({
+                                                action: "updateText",
+                                                arguments: {
+                                                    selector:
+                                                        "#last-game-ranks-content",
+                                                    text: game.formatMultiplayerRoomRanks(
+                                                        [
+                                                            rooms[roomID]
+                                                                .data
+                                                                .currentGame
+                                                                .ranks
+                                                        ]
+                                                    ),
+                                                    useHTML: true
+                                                }
+                                            }))
+                                            broadcastToEverySocketInRoom(roomID, JSON.stringify({action:"changeScreen",arguments:{newScreen:`defaultMultiplayerRoomLobbyScreen`}}));
+                                            if (winnerSocket){
                                             rooms[
                                                 roomID
                                             ].data.currentGame.playersAlive = [];
+                                        }
                                         }
 
                                         rooms[
