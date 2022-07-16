@@ -86,13 +86,6 @@ const decoder = new StringDecoder("utf8");
 
 const defaults = require("./server/core/defaults.js");
 
-// // socket.io
-// const server = http.createServer(app);
-// const { Server } = require("socket.io");
-// const io = new Server(server);
-
-// io.attachApp(uWebSocketsApp);
-
 // other stuff
 const PORT = 8080;
 const DESIRED_UPDATES_PER_SECOND = 60;
@@ -552,7 +545,6 @@ function update(deltaTime) {
                                                 .players
                                         ).length <= 1
                                     ) {
-                                        
                                         if (
                                             rooms[roomID].data.currentGame
                                                 .playersAlive.length == 1
@@ -630,29 +622,41 @@ function update(deltaTime) {
                                                     }
                                                 })
                                             );
-                                            
-                                            broadcastToEverySocketInRoom(roomID, JSON.stringify({
-                                                action: "updateText",
-                                                arguments: {
-                                                    selector:
-                                                        "#last-game-ranks-content",
-                                                    text: game.formatMultiplayerRoomRanks(
-                                                        [
-                                                            rooms[roomID]
-                                                                .data
-                                                                .currentGame
-                                                                .ranks
-                                                        ]
-                                                    ),
-                                                    useHTML: true
-                                                }
-                                            }))
-                                            broadcastToEverySocketInRoom(roomID, JSON.stringify({action:"changeScreen",arguments:{newScreen:`defaultMultiplayerRoomLobbyScreen`}}));
-                                            if (winnerSocket){
-                                            rooms[
-                                                roomID
-                                            ].data.currentGame.playersAlive = [];
-                                        }
+
+                                            broadcastToEverySocketInRoom(
+                                                roomID,
+                                                JSON.stringify({
+                                                    action: "updateText",
+                                                    arguments: {
+                                                        selector:
+                                                            "#last-game-ranks-content",
+                                                        text: game.formatMultiplayerRoomRanks(
+                                                            [
+                                                                rooms[roomID]
+                                                                    .data
+                                                                    .currentGame
+                                                                    .ranks
+                                                            ]
+                                                        ),
+                                                        useHTML: true
+                                                    }
+                                                })
+                                            );
+                                            broadcastToEverySocketInRoom(
+                                                roomID,
+                                                JSON.stringify({
+                                                    action: "changeScreen",
+                                                    arguments: {
+                                                        newScreen: `defaultMultiplayerRoomLobbyScreen`
+                                                    }
+                                                })
+                                            );
+                                            if (winnerSocket) {
+                                                rooms[
+                                                    roomID
+                                                ].data.currentGame.playersAlive =
+                                                    [];
+                                            }
                                         }
 
                                         rooms[
@@ -761,8 +765,6 @@ var loop = setInterval(() => {
 //             }
 //         }
 //     );
-
-
 
 //     socket.on("broadcastMessageAsStaff", (message) => {
 //         if (
@@ -1540,9 +1542,16 @@ uWS.App()
                                 action: "addText",
                                 arguments: {
                                     selector: "#multiplayer-room-chat-content",
-                                    text: `${utilities.getNameOfSocketOwner(
+                                    text: `<div><span style="color:${utilities.formatPlayerName(
+                                        socket.variables.playerRank,utilities.getNameOfSocketOwner(
+                                            socket
+                                        ))
+
+                                    }">${utilities.getNameOfSocketOwner(
                                         socket
-                                    )}: ${parsedMessage.arguments.message}`,
+                                    )}</span>: ${
+                                        parsedMessage.arguments.message
+                                    }</div>`,
                                     useHTML: true
                                 }
                             })
@@ -1820,14 +1829,13 @@ uWS.App()
                             action: "updateText",
                             arguments: {
                                 selector: "#login-button",
-                                text: "Login",
+                                text: "Login"
                             }
                         })
                     );
                     response.writeStatus("400 Bad Request").end("");
                 }
             } else {
-                
                 console.warn(
                     log.addMetadata("FORGED REQUEST DETECTED", "warn")
                 );

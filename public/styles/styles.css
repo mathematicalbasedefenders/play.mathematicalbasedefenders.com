@@ -517,9 +517,14 @@ input {
     right: 0.5vw;
     width: 96%;
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     word-wrap: break-word;
 }
+
+.multiplayer-room-chat-content-container > .multiplayer-room-chat-content-container-2 {
+    display: flex;
+    flex-direction: column-reverse;
+} 
 
 .multiplayer-room-chat-content-container {
     border: 2px solid #000000;
@@ -581,6 +586,12 @@ input {
     background-color: transparent;
     font-size: 16px;
     color: #000000;
+}
+
+.multiplayer-room-chat-content-container br {
+    display: block; 
+            content: ""; 
+            margin-top: 0;
 }
 
 #default-multiplayer-room-player-list {
