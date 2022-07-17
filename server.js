@@ -1782,6 +1782,11 @@ uWS.App()
     .post("/authenticate", async (response, request) => {
         response.onAborted(() => {});
         //FIXME: Unsafe?
+
+        //TODO: make user leave room
+        
+
+
         let connectionID = request.getQuery("guestName");
         let username = request.getQuery("username");
         let encodedPassword = request.getQuery("password");

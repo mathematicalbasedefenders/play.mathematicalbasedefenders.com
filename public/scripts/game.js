@@ -1327,17 +1327,6 @@ function showTextModal(text, title, color) {
 }
 
 function showUserInformationModal(name) {
-    // clear old text
-    // $("#user-information-modal-title").text("");
-    // $("#user-information-modal-text").text("");
-
-    // //TODO: socket.emit("getDataForUserInformationModalAndUpdateText", name);
-
-    // game.userCurrentUserIsViewing = name;
-
-    // $("#user-information-modal-container").fadeIn(200);
-    // $("#user-information-modal-container").show(0).css("display","flex");
-
     socket.send(JSON.stringify({action:"getDataForUser",arguments:{
         userToGetDataOf: name
     }}))

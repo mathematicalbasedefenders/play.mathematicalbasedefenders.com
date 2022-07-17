@@ -374,6 +374,8 @@ input {
     font-size: 24px;
     transition: all 0.1s ease-out;
     color: #000000;
+    background-color: #eeeeee;
+
 }
 .information-screen-navigation-button:hover {
     box-shadow: inset 15.625vw 0 0 #b6b6b6;
@@ -408,6 +410,7 @@ input {
     text-align: left;
     font-size: 24px;
     color: #000000;
+    background-color: #eeeeee;
 }
 
 .singleplayer-lobby-screen-button {
@@ -450,6 +453,7 @@ input {
     text-align: left;
     font-size: 24px;
     color: #000000;
+    background-color: #eeeeee;
 }
 
 .multiplayer-lobby-screen-button {
@@ -483,6 +487,8 @@ input {
     text-align: left;
     font-size: 24px;
     color: #000000;
+    background-color: #eeeeee;
+
 }
 
 .default-multiplayer-room-lobby-screen-button {
@@ -608,6 +614,7 @@ input {
     bottom: 10vh;
     margin-bottom: 1vh;
     margin-left: 2vw;
+
 }
 
 .statistics-screen-button {
@@ -621,6 +628,8 @@ input {
     font-size: 24px;
     transition: all 0.1s ease-out;
     color: #000000;
+    background-color: #eeeeee;
+
 }
 
 .statistics-screen-button:hover {
@@ -665,6 +674,8 @@ input {
     font-size: 24px;
     transition: all 0.1s ease-out;
     color: #000000;
+    background-color: #eeeeee;
+
 }
 #settings-screen-navigation-button-container {
     position: absolute;
@@ -763,6 +774,8 @@ GAME OVER
     font-size: 24px;
     transition: all 0.1s ease-out;
     color: #000000;
+    background-color: #eeeeee;
+
 }
 
 .game-over-screen-navigation-button:hover {
