@@ -1337,7 +1337,19 @@ function showUserInformationModal(name) {
 
     // $("#user-information-modal-container").fadeIn(200);
     // $("#user-information-modal-container").show(0).css("display","flex");
+
+    socket.send(JSON.stringify({action:"getDataForUser",arguments:{
+        userToGetDataOf: name
+    }}))
+    
+    $("#user-information-modal-title").text("");
+    $("#user-information-modal-text").text("");
+    $("#user-information-modal-container").fadeIn(200);
+    $("#user-information-modal-container").show(0).css("display","flex");
+
 }
+
+
 
 function showReportUserModal(){
     $("#report-user-modal-title").text(`Report ${game.userCurrentUserIsViewing}?`);

@@ -1219,7 +1219,7 @@ uWS.App()
             );
         },
 
-        message: (socket, message, isBinary) => {
+        message: async (socket, message, isBinary) => {
             let parsedMessage = JSON.parse(decoder.write(Buffer.from(message)));
             switch (parsedMessage.action) {
                 case "createAndJoinDefaultSingleplayerRoom": {
@@ -1543,11 +1543,9 @@ uWS.App()
                                 arguments: {
                                     selector: "#multiplayer-room-chat-content",
                                     text: `<div><span style="color:${utilities.formatPlayerName(
-                                        socket.variables.playerRank,utilities.getNameOfSocketOwner(
-                                            socket
-                                        ))
-
-                                    }">${utilities.getNameOfSocketOwner(
+                                        socket.variables.playerRank,
+                                        utilities.getNameOfSocketOwner(socket)
+                                    )}">${utilities.getNameOfSocketOwner(
                                         socket
                                     )}</span>: ${
                                         parsedMessage.arguments.message
@@ -1560,6 +1558,85 @@ uWS.App()
                     }
                 }
                 case "getDataForUser": {
+                    // sanitize data
+                    if (
+                        parsedMessage.arguments.userToGetDataOf !==
+                        mongoDBSanitize(parsedMessage.arguments.userToGetDataOf)
+                    ) {
+                        // invalid
+                        socket.send(
+                            JSON.stringify({
+                                action: "updateText",
+                                arguments: {
+                                    selector: "#user-information-modal-text",
+                                    text: `User ${userToGetDataOf} not found.`
+                                }
+                            })
+                        );
+                        return;
+                    }
+                    let userToGetDataOf = mongoDBSanitize(
+                        parsedMessage.arguments.userToGetDataOf
+                    );socket.send(
+                        JSON.stringify({
+                            action: "updateText",
+                            arguments: {
+                                selector: "#user-information-modal-title",
+                                text: `User Data for ${userToGetDataOf}`
+                            }
+                        })
+                    );
+                    if (/Guest[-\s]{0,1}[0-9]{8}/.test(userToGetDataOf)) {
+                        // guest player: return guest data
+                        socket.send(
+                            JSON.stringify({
+                                action: "updateText",
+                                arguments: {
+                                    selector: "#user-information-modal-text",
+                                    text: `This player is playing as a guest. Scores they made will not be submitted unless they sign up.`
+                                }
+                            })
+                        );
+                        return;
+                    }
+                    let data = await User.superSafeFindByUsername(
+                        userToGetDataOf
+                    );
+                    
+                    if (!data) {
+                        socket.send(
+                            JSON.stringify({
+                                action: "updateText",
+                                arguments: {
+                                    selector: "#user-information-modal-text",
+                                    text: `User ${userToGetDataOf} not found.`
+                                }
+                            })
+                        );
+                        return;
+                    }
+
+                    socket.send(
+                        JSON.stringify({
+                            action: "updateText",
+                            arguments: {
+                                selector: "#user-information-modal-text",
+                                text: `Standard Mode PB: ${
+                                    data.statistics
+                                        .personalBestScoreOnStandardSingleplayerMode
+                                        .score
+                                }\nEasy Mode PB: ${
+                                    data.statistics
+                                        .personalBestScoreOnStandardSingleplayerMode
+                                        .score
+                                }\n Level ${leveling.getLevel(
+                                    data.statistics.totalExperiencePoints
+                                )}`,
+                                useHTML: true
+                            }
+                        })
+                    );
+
                     break;
                 }
                 case "createAndJoinCustomSingleplayerRoom": {
