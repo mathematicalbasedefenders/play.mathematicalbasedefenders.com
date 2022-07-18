@@ -8,6 +8,8 @@ const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const uWS = require("uWebSockets.js");
 
+const _ = require("lodash");
+
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
@@ -797,73 +799,6 @@ var loop = setInterval(() => {
 //     });
 // });
 
-// async function getCurrentPlayerData(socket, ...dataRequested) {
-//     if (socket.loggedIn) {
-//         let data = await User.findOne({
-//             username: socket.usernameOfSocketOwner
-//         });
-
-//         // strip sensitive information
-//         data.emailAddress = null;
-//         data.hashedPassword = null;
-
-//         switch (dataRequested[0]) {
-//             case "name": {
-//                 return socket.loggedIn
-//                     ? socket.usernameOfSocketOwner
-//                     : socket.guestNameOfSocketOwner;
-//             }
-//             case "level": {
-//                 return leveling.getLevel(data.statistics.totalExperiencePoints);
-//             }
-//             case "userObject": {
-//                 return data;
-//             }
-//         }
-//     } else {
-//         if (dataRequested[0] == "name") {
-//             return socket.guestNameOfSocketOwner;
-//         }
-//         return null;
-//     }
-// }
-
-// async function getPlayerData(name, ...dataRequested) {
-//     if (!/Guest\s[0-9]{8}/gm.test(name)) {
-//         let data = await User.findOne({ username: name });
-
-//         if (data) {
-//             // strip sensitive information
-//             data.emailAddress = null;
-//             data.hashedPassword = null;
-
-//             switch (dataRequested[0]) {
-//                 case "name": {
-//                     return name;
-//                 }
-//                 case "level": {
-//                     return leveling.getLevel(
-//                         data.statistics.totalExperiencePoints
-//                     );
-//                 }
-//                 case "userObject": {
-//                     return data;
-//                 }
-//             }
-//         } else {
-//             if (dataRequested[0] == "name") {
-//                 return name;
-//             }
-//             return null;
-//         }
-//     } else {
-//         if (dataRequested[0] == "name") {
-//             return name;
-//         }
-//         return null;
-//     }
-// }
-
 function initializeSingleplayerGame(room, mode, player) {
     for (let i = 0; i < 49; i++) {
         room.data.currentGame.players[player].currentGame.tilesOnBoard[i] =
@@ -1220,9 +1155,14 @@ uWS.App()
         },
 
         message: async (socket, message, isBinary) => {
+            // validation
+            if (!(validation.checkIfJSONStringIsValid(decoder.write(Buffer.from(message))))) {return;}
+
+
             let parsedMessage = JSON.parse(decoder.write(Buffer.from(message)));
             switch (parsedMessage.action) {
                 case "createAndJoinDefaultSingleplayerRoom": {
+                    // validation
                     if (socket.variables.currentRoomSocketIsIn === "") {
                         if (
                             parsedMessage.arguments.gameMode ==
@@ -1376,6 +1316,11 @@ uWS.App()
                     playerTileKeybinds = DOMPurify.sanitize(playerTileKeybinds);
                     playerTileKeybinds = playerTileKeybinds.split(",");
 
+                    // validation 0
+                    if (socket.variables.currentRoomSocketIsIn == undefined) {
+                        return;
+                    }
+
                     // validation 1
                     if (
                         utilities.checkIfVariablesAreUndefined(
@@ -1511,6 +1456,11 @@ uWS.App()
                     break;
                 }
                 case "tileClick": {
+                    // validation 0
+                    if (socket.variables.currentRoomSocketIsIn == undefined) {
+                        return;
+                    }
+                    
                     let slot = parsedMessage.arguments.slot;
                     slot = slot.toString();
                     slot = DOMPurify.sanitize(slot);
@@ -1577,7 +1527,8 @@ uWS.App()
                     }
                     let userToGetDataOf = mongoDBSanitize(
                         parsedMessage.arguments.userToGetDataOf
-                    );socket.send(
+                    );
+                    socket.send(
                         JSON.stringify({
                             action: "updateText",
                             arguments: {
@@ -1602,7 +1553,7 @@ uWS.App()
                     let data = await User.superSafeFindByUsername(
                         userToGetDataOf
                     );
-                    
+
                     if (!data) {
                         socket.send(
                             JSON.stringify({
@@ -1623,12 +1574,12 @@ uWS.App()
                                 selector: "#user-information-modal-text",
                                 text: `Standard Mode PB: ${
                                     data.statistics
-                                        .personalBestScoreOnStandardSingleplayerMode
-                                        .score
+                                        ?.personalBestScoreOnStandardSingleplayerMode
+                                        .score ?? "N/A"
                                 }\nEasy Mode PB: ${
                                     data.statistics
-                                        .personalBestScoreOnStandardSingleplayerMode
-                                        .score
+                                        ?.personalBestScoreOnEasySingleplayerMode
+                                        .score ?? "N/A"
                                 }\n Level ${leveling.getLevel(
                                     data.statistics.totalExperiencePoints
                                 )}`,
@@ -1725,6 +1676,63 @@ uWS.App()
                     }
                     break;
                 }
+                case "broadcastMessageAsStaff": {
+                    if (
+                        !(
+                            utilities.getNameOfSocketOwner(socket) ===
+                                "mistertfy64" ||
+                            socket.variables.playerRank ===
+                                playerRanks.ADMINISTRATOR ||
+                            socket.variables.playerRank ===
+                                playerRanks.MODERATOR
+                        )
+                    ) {
+                        socket.send(
+                            JSON.stringify({
+                                action: "createToastNotification",
+                                arguments: {
+                                    message: DOMPurify.sanitize(
+                                        `Only staff members may use this command.`
+                                    )
+                                }
+                            })
+                        );
+                        return;
+                        break;
+                    }
+                    socket.send(
+                        JSON.stringify({
+                            action: "createToastNotification",
+                            arguments: {
+                                position: "topCenter",
+                                message: DOMPurify.sanitize(
+                                    `Message from ${
+                                        utilities.getNameOfSocketOwner(
+                                            socket
+                                        ) == "mistertfy64"
+                                            ? "Game Master"
+                                            : utilities.beautifyRankName(
+                                                  socket.playerRank
+                                              )
+                                    } ${utilities.getNameOfSocketOwner(
+                                        socket
+                                    )}:<br>${parsedMessage.arguments.message}`
+                                )
+                            }
+                        })
+                    );
+
+                    socket.send(
+                        JSON.stringify({
+                            action: "createToastNotification",
+                            arguments: {
+                                message: DOMPurify.sanitize(
+                                    `Sent message to all online players!`
+                                )
+                            }
+                        })
+                    );
+                }
                 default: {
                     break;
                 }
@@ -1784,8 +1792,6 @@ uWS.App()
         //FIXME: Unsafe?
 
         //TODO: make user leave room
-        
-
 
         let connectionID = request.getQuery("guestName");
         let username = request.getQuery("username");

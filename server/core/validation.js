@@ -1,3 +1,15 @@
+const Ajv = require("ajv");
+const ajv = new Ajv();
+const jsonMessageSchema = {
+    type: "object",
+    properties: {
+        action: {type: "string"}
+    },
+    required: ["action"],
+    additionalProperties: true
+}
+const validate = ajv.compile(jsonMessageSchema);
+
 function performDataValidationForCustomSingleplayerMode(settings) {
     let toReturn = {
         good: true,
@@ -99,4 +111,23 @@ function performDataValidationForCustomSingleplayerMode(settings) {
 
     return toReturn;
 }
-module.exports = { performDataValidationForCustomSingleplayerMode}
+
+function checkIfJSONStringIsValid(string){
+        string = typeof string !== "string"
+            ? JSON.stringify(string)
+            : string;
+    
+        try {
+            string = JSON.parse(string);
+        } catch (error) {
+            return false;
+        }
+    
+        if (typeof string === "object" && string !== null) {
+            return true;
+        }
+
+        return false;
+}
+
+module.exports = { performDataValidationForCustomSingleplayerMode,checkIfJSONStringIsValid }
