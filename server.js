@@ -1700,7 +1700,7 @@ uWS.App()
                         return;
                         break;
                     }
-                    socket.send(
+                    broadcastToEverySocket(
                         JSON.stringify({
                             action: "createToastNotification",
                             arguments: {
