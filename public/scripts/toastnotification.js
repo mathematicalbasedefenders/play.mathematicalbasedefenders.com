@@ -27,15 +27,15 @@ function createToastNotification(options) {
 
     game.toastNotificationsCreated++;
     $("#toast-notifications-container").append(
-        `<div id="toast-notification-${
+        `<div id="toast-notification-${game.toastNotificationsCreated}-container" ${options.position?.toString()?.indexOf("Center") > -1 ? 'style="display:flex;justify-content:center;left:50%;right:auto"' : style=""}><div id="toast-notification-${
             game.toastNotificationsCreated
         }" class="toast-notification ${(options.position || "bottomRight")
             .replace(/([A-Z])/, "-$1")
             .toLowerCase()}-toast-notification" style="border: 2px solid ${
             options.borderColor || "#111111"
-        };"><div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%;background-color:#333333;">${
+        };"><div style="display:flex;justify-content:center;align-items:center;width:100%;height:100%"><div>${
             options.message || ""
-        }</div></div>`
+        }</div></div></div></div>`
     );
     game.toastNotifications[game.toastNotificationsCreated] = {};
     game.toastNotifications[game.toastNotificationsCreated].zonePosition =

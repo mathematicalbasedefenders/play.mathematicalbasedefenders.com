@@ -611,7 +611,7 @@ app.ticker.add((delta) => {
         if (
             game.toastNotifications[toastNotification].expiryTime < Date.now()
         ) {
-            $("#toast-notification-" + toastNotification).remove();
+            $("#toast-notification-" + toastNotification + "-container").remove();
 
             delete game.toastNotifications[toastNotification];
         }

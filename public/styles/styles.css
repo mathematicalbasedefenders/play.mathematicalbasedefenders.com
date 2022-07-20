@@ -796,13 +796,17 @@ TOAST NOTIFICATIONS
 */
 
 .toast-notification {
-    z-index: 3;
+    z-index: 10000000;
     background-color: #333333;
     width: 400px;
     height: 75px;
     color: #cccccc;
     position: fixed;
     animation: fade-in-and-wait-and-fade-out 5s forwards;
+}
+
+.toast-notification div {
+    z-index: 10000001;
 }
 
 .toast-notification.top-right-toast-notification {
@@ -812,10 +816,10 @@ TOAST NOTIFICATIONS
 .toast-notification.top-center-toast-notification {
     margin: 0 auto;
     top: 0.25vh;
-    position: relative;
+    left: calc(50% - 200px);
+
 }
 .toast-notification.bottom-right-toast-notification {
     right: 0.25vh;
     bottom: 0.25vh;
 }
-
