@@ -23,7 +23,7 @@ class Enemy {
             if (
                 document
                     .querySelector("#custom-enemy-picture")
-                    .querySelector("img").src
+                    .querySelector("img").src && JSON.parse(localStorage.getItem("settings"))?.video?.customEnemyPictureURL
             ) {
                 let customEnemyPictureURL = document
                     .querySelector("#custom-enemy-picture")
