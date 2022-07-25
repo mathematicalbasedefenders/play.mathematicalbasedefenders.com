@@ -1279,6 +1279,7 @@ function testCustomEnemyPicture(url) {
 }
 
 function testCustomBackgroundPicture(url) {
+    url = DOMPurify.sanitize(url);
     if (url) {
         $("body").css("background", `url(${url})`);
     } else {
@@ -1288,8 +1289,9 @@ function testCustomBackgroundPicture(url) {
 
 function setCustomEnemyPictureMetadata(url) {
     if (url){
-    $("#custom-enemy-picture").html(
-        `<img src=${url} width="150" height="150">`
+
+        $("#custom-enemy-picture").html(
+        `<img src=${DOMPurify.sanitize(url)} width="150" height="150">`
     );
     }if (document.querySelector("#custom-enemy-picture")) {
         if (
