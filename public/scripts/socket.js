@@ -1115,57 +1115,8 @@ socket.onmessage = (message) => {
 
 
 
-// socket.on("loginResult", (username, success) => {
-//     showTextModal(
-//         success
-//             ? "Successfully logged in as " + username + "!"
-//             : " Failed to log in as" + " " + username + "!",
-//         success ? "Successfully Logged In!" : " Failed to Log In!"
-//     );
-//     $("#login-button").removeClass("disabled-button").text("Login");
-//     if (success) {
-//         $("#login-button").hide();
-//     }
-// });
 
 
 
-// socket.on("changeScreen", (newScreen) => {
-//     setPropertiesAndChangeScreen(newScreen);
-// });
 
 
-
-// socket.on("sendMessageToConsole", (message, messageType) => {
-//     switch (messageType) {
-//         case "log": {
-//             console.log(message);
-//             break;
-//         }
-//         case "warn": {
-//             console.warn(message);
-//             break;
-//         }
-//         case "error": {
-//             console.error(message);
-//             break;
-//         }
-//         case "debug": {
-//             console.debug(message);
-//             break;
-//         }
-//         default: {
-//             console.log(message);
-//             break;
-//         }
-//     }
-// });
-
-// // important
-// socket.on("disconnect", (reason) => {
-//     alert(
-//         "Disconnected from server. Click OK to refresh page. Error Code: " +
-//             reason
-//     );
-//     location.reload();
-// });
