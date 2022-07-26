@@ -1,6 +1,5 @@
-const http = require("http");
-const util = require("util");
 const fs = require("fs");
+const path = require("path");
 // express.js
 const express = require("express");
 const app = express();
@@ -17,7 +16,10 @@ const limiter = rateLimit({
     legacyHeaders: false
 });
 
-app.use(express.static("public"));
+const WEBSOCKET_PORT = 7000;
+const PORT = 8080;
+
+app.use("/public",express.static("public"));
 app.use(limiter);
 app.use(
     helmet({
@@ -29,7 +31,10 @@ app.use(
                     "'unsafe-inline'",
                     "https://www.googletagmanager.com",
                     "https://www.google-analytics.com",
-                    "cdnjs.cloudflare.com"
+                    "cdnjs.cloudflare.com",
+                    `ws://localhost:${WEBSOCKET_PORT}`,
+                    `ws://mathematicalbasedefenders.com:${WEBSOCKET_PORT}`,
+                    `wss://mathematicalbasedefenders.com:${WEBSOCKET_PORT}`,
                 ],
                 "img-src": ["'self'", "*"],
                 "script-src": [
@@ -89,7 +94,6 @@ const decoder = new StringDecoder("utf8");
 const defaults = require("./server/core/defaults.js");
 
 // other stuff
-const PORT = 8080;
 const DESIRED_UPDATES_PER_SECOND = 60;
 
 const LOOP_INTERVAL = 1000 / DESIRED_UPDATES_PER_SECOND;
@@ -155,9 +159,147 @@ mongoose.connection.on("connected", async () => {
     console.log(log.addMetadata("Successfully connected to mongoose.", "info"));
 });
 
-app.get("*", (request, response) => {
-    response.redirect("/");
+app.get("/", (request, response) => {
+    response.sendFile(path.join(__dirname, "index.html"));
 });
+
+app.post("/authenticate", async (request, response) => {
+    let connectionID = request.query.guestName;
+        let username = request.query.username;
+        let encodedPassword = request.query.password;
+        connectionID = connectionID.replace(" ", "-");
+        if (!/Guest-[0-9]{8}/.test(connectionID)) {
+            console.warn(log.addMetadata("FORGED REQUEST DETECTED", "warn"));
+            response.writeStatus("400 Bad Request").end("");
+        } else {
+            let socketToChangeConnectionID = sockets.find(
+                (element) => element.connectionID === connectionID
+            );
+            if (socketToChangeConnectionID) {
+                if (
+                    await authentication.authenticate(
+                        socketToChangeConnectionID,
+                        username,
+                        encodedPassword,
+                        sockets
+                    )
+                ) {
+                    socketToChangeConnectionID.connectionID = username;
+
+                    let data = await User.findOne({
+                        username: username
+                    });
+
+                    // TODO: Write a function that wraps these calls
+                    socketToChangeConnectionID.variables.userIDOfSocketHolder =
+                        data._id;
+                    socketToChangeConnectionID.variables.playerRank =
+                        utilities.getPlayerRank(data, data.username);
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateText",
+                            arguments: {
+                                selector: "#player-rank",
+                                text: utilities.beautifyRankName(
+                                    socketToChangeConnectionID.variables
+                                        .playerRank,
+                                    data.username
+                                )
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateText",
+                            arguments: {
+                                selector: "#player-level-indicator",
+                                text: `Level ${leveling.getLevel(
+                                    data.statistics.totalExperiencePoints
+                                )}`
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateText",
+                            arguments: {
+                                selector: "#player-name",
+                                text: socketToChangeConnectionID.connectionID
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateCSS",
+                            arguments: {
+                                selector: "#player-rank",
+                                property: "color",
+                                value: utilities.formatPlayerName(
+                                    data,
+                                    data.username
+                                )
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateCSS",
+                            arguments: {
+                                selector: "#login-shortcut-button",
+                                property: "display",
+                                value: "none"
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateCSS",
+                            arguments: {
+                                selector: "#player-level-indicator",
+                                property: "display",
+                                value: "initial"
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateCSS",
+                            arguments: {
+                                selector: "#player-level-indicator",
+                                property: "display",
+                                value: "initial"
+                            }
+                        })
+                    );
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateCSS",
+                            arguments: {
+                                selector: "#login-button",
+                                property: "display",
+                                value: "none"
+                            }
+                        })
+                    );
+                } else {
+                    socketToChangeConnectionID.send(
+                        JSON.stringify({
+                            action: "updateText",
+                            arguments: {
+                                selector: "#login-button",
+                                text: "Login"
+                            }
+                        })
+                    );
+                }
+            } else {
+                console.warn(
+                    log.addMetadata("FORGED REQUEST DETECTED", "warn")
+                );
+            }
+        }
+
+})
 
 var timeSinceLastTimeStatsPrintedInMilliseconds = 0;
 var dataSentWithoutCompression = 0;
@@ -1156,8 +1298,13 @@ uWS.App()
 
         message: async (socket, message, isBinary) => {
             // validation
-            if (!(validation.checkIfJSONStringIsValid(decoder.write(Buffer.from(message))))) {return;}
-
+            if (
+                !validation.checkIfJSONStringIsValid(
+                    decoder.write(Buffer.from(message))
+                )
+            ) {
+                return;
+            }
 
             let parsedMessage = JSON.parse(decoder.write(Buffer.from(message)));
             switch (parsedMessage.action) {
@@ -1460,7 +1607,7 @@ uWS.App()
                     if (socket.variables.currentRoomSocketIsIn == undefined) {
                         return;
                     }
-                    
+
                     let slot = parsedMessage.arguments.slot;
                     slot = slot.toString();
                     slot = DOMPurify.sanitize(slot);
@@ -1931,11 +2078,15 @@ uWS.App()
             }
         }
     })
-    .listen(PORT, (token) => {
-        console.log(log.addMetadata(`Listening at localhost:${PORT}`, "info"));
-        if (credentials.getWhetherTestingCredentialsAreUsed()) {
-            console.log(
-                log.addMetadata("WARNING: Using testing credentials.", "info")
-            );
-        }
-    });
+.listen(WEBSOCKET_PORT, (token) => {
+    console.log(log.addMetadata(`Listening to WebSockets at localhost:${WEBSOCKET_PORT}`, "info"));
+});
+
+app.listen(PORT, () => {
+    console.log(log.addMetadata(`Listening at localhost:${PORT}`, "info"));
+    if (credentials.getWhetherTestingCredentialsAreUsed()) {
+        console.log(
+            log.addMetadata("WARNING: Using testing credentials.", "warn")
+        );
+    }
+});

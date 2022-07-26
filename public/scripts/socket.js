@@ -1,4 +1,5 @@
-const socket = new WebSocket(`ws${window.location.protocol === "https:" ? "s" : ""}://${window.location.host}`);
+// const socket = new WebSocket(`ws${window.location.protocol === "https:" ? "s" : ""}://${window.location.host}`);
+const socket = new WebSocket(`ws${window.location.protocol === "https:" ? "s" : ""}://${window.location.hostname}:7000`);
 
 socket.onclose = () => {
     alert(
