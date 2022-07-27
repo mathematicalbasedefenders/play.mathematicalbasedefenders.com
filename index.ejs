@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, user-scalable=no" />
+        <meta name="csrf-token" content=<%=csrfToken%>>
         <title>Mathematical Base Defenders</title>
 
         <link
@@ -1204,8 +1205,9 @@
                             id="online-settings-screen-container"
                             style="font-size: 24px"
                         >
+                        
                             <br />
-                            Username:
+                            <form action="authenticate" method="POST" id="login-form" onsubmit="return false;">Username:
                             <input
                                 id="username-input-box"
                                 class="settings-input-box"
@@ -1221,6 +1223,7 @@
                             <br /><br />
                             <button
                                 id="login-button"
+                                type="submit"
                                 onClick="authenticate($('#username-input-box').val(),$('#password-input-box').val());$(this).addClass('disabled-button').text('Please Wait...');"
                                 style="
                                     width: 256px;
@@ -1230,6 +1233,7 @@
                             >
                                 Login
                             </button>
+                        </form>
                             <br /><br /><br />
                         </div>
                     </div>

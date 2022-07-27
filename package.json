@@ -18,6 +18,7 @@
         "cookie-parser": "^1.4.6",
         "csurf": "^1.11.0",
         "dompurify": "^2.3.5",
+        "ejs": "^3.1.8",
         "express": "^4.17.1",
         "express-rate-limit": "^6.1.0",
         "fast-json-stringify": "^4.2.0",

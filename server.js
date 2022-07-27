@@ -3,9 +3,9 @@ const path = require("path");
 // express.js
 const express = require("express");
 const app = express();
-const cookieParser = require('cookie-parser')
-const csurf = require('csurf')
-const bodyParser = require('body-parser')
+const cookieParser = require("cookie-parser");
+const csurf = require("csurf");
+const bodyParser = require("body-parser");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const uWS = require("uWebSockets.js");
@@ -23,7 +23,6 @@ const limiter = rateLimit({
 
 const WEBSOCKET_PORT = 7000;
 const PORT = 8080;
-
 
 // mongoose
 const mongoose = require("mongoose");
@@ -79,11 +78,12 @@ const FILE_TYPES = {
     svg: "image/svg+xml"
 };
 
-const parseForm = bodyParser.urlencoded({ extended: false });
+const jsonParser = bodyParser.json();
 
+app.set("view engine", "ejs");
 app.use(favicon(__dirname + "/public/assets/images/favicon.ico"));
 app.use(cookieParser());
-app.use("/public",express.static("public"));
+app.use("/public", express.static("public"));
 app.use(limiter);
 app.use(
     helmet({
@@ -98,7 +98,7 @@ app.use(
                     "cdnjs.cloudflare.com",
                     `ws://localhost:${WEBSOCKET_PORT}`,
                     `ws://mathematicalbasedefenders.com:${WEBSOCKET_PORT}`,
-                    `wss://mathematicalbasedefenders.com:${WEBSOCKET_PORT}`,
+                    `wss://mathematicalbasedefenders.com:${WEBSOCKET_PORT}`
                 ],
                 "img-src": ["'self'", "*"],
                 "script-src": [
@@ -128,8 +128,6 @@ var User = require("./server/models/User.js");
 var EasyModeLeaderboardsRecord = require("./server/models/EasyModeLeaderboardsRecord.js");
 var StandardModeLeaderboardsRecord = require("./server/models/StandardModeLeaderboardsRecord.js");
 
-const INDEX_FILE_CONTENT = fs.readFileSync("./index.html");
-
 const roomTypes = {
     SINGLEPLAYER: "singleplayer",
     DEFAULT_MULTIPLAYER: "defaultMultiplayerMode",
@@ -152,7 +150,6 @@ const playerRanks = {
     DONATOR: "donator"
 };
 
-
 // Loop variables
 var currentTime = Date.now();
 var deltaTime = Date.now();
@@ -169,12 +166,17 @@ mongoose.connection.on("connected", async () => {
 });
 
 app.get("/", csrfProtection, (request, response) => {
-    response.cookie("csrfToken", request.csrfToken())
-    response.sendFile(path.join(__dirname, "index.html"));
+    response.render(path.join(__dirname, "index"), {
+        csrfToken: request.csrfToken()
+    });
 });
 
-app.post("/authenticate", parseForm, csrfProtection, async (request, response) => {
-    let connectionID = request.query.guestName;
+app.post(
+    "/authenticate",
+    jsonParser,
+    csrfProtection,
+    async (request, response) => {
+        let connectionID = request.query.guestName;
         let username = request.query.username;
         let encodedPassword = request.query.password;
         connectionID = connectionID.replace(" ", "-");
@@ -308,8 +310,8 @@ app.post("/authenticate", parseForm, csrfProtection, async (request, response) =
                 );
             }
         }
-
-})
+    }
+);
 
 var timeSinceLastTimeStatsPrintedInMilliseconds = 0;
 var dataSentWithoutCompression = 0;
@@ -1915,10 +1917,14 @@ uWS.App()
         }
     })
 
-    
-.listen(WEBSOCKET_PORT, (token) => {
-    console.log(log.addMetadata(`Listening to WebSockets at localhost:${WEBSOCKET_PORT}`, "info"));
-});
+    .listen(WEBSOCKET_PORT, (token) => {
+        console.log(
+            log.addMetadata(
+                `Listening to WebSockets at localhost:${WEBSOCKET_PORT}`,
+                "info"
+            )
+        );
+    });
 
 app.listen(PORT, () => {
     console.log(log.addMetadata(`Listening at localhost:${PORT}`, "info"));

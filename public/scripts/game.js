@@ -1419,7 +1419,9 @@ function getAllowedComboTimeAccordingToMode(
 }
 
 function authenticate(username,password){
-    $.post(`/authenticate?guestName=${guestNameOfSocketOwner}&username=${username}&password=${btoa(btoa(btoa(btoa(password))))}`);
+    $.ajax({url:`/authenticate?guestName=${guestNameOfSocketOwner}&username=${username}&password=${btoa(btoa(btoa(btoa(password))))}`,method:"POST",headers: {
+        'CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      }});
 }
 
 function sendChatMessage(){
