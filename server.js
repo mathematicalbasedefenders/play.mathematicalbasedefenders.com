@@ -3,9 +3,14 @@ const path = require("path");
 // express.js
 const express = require("express");
 const app = express();
+const cookieParser = require('cookie-parser')
+const csurf = require('csurf')
+const bodyParser = require('body-parser')
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const uWS = require("uWebSockets.js");
+
+const csrfProtection = csurf({ cookie: true });
 
 const _ = require("lodash");
 
@@ -19,39 +24,6 @@ const limiter = rateLimit({
 const WEBSOCKET_PORT = 7000;
 const PORT = 8080;
 
-app.use("/public",express.static("public"));
-app.use(limiter);
-app.use(
-    helmet({
-        contentSecurityPolicy: {
-            directives: {
-                ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-                "connect-src": [
-                    "'self'",
-                    "'unsafe-inline'",
-                    "https://www.googletagmanager.com",
-                    "https://www.google-analytics.com",
-                    "cdnjs.cloudflare.com",
-                    `ws://localhost:${WEBSOCKET_PORT}`,
-                    `ws://mathematicalbasedefenders.com:${WEBSOCKET_PORT}`,
-                    `wss://mathematicalbasedefenders.com:${WEBSOCKET_PORT}`,
-                ],
-                "img-src": ["'self'", "*"],
-                "script-src": [
-                    "'self'",
-                    "'unsafe-inline'",
-                    "'unsafe-eval'",
-                    "pixijs.download",
-                    "code.jquery.com",
-                    "www.googletagmanager.com",
-                    "cdnjs.cloudflare.com"
-                ],
-                "script-src-attr": ["'self'", "'unsafe-inline'"]
-            }
-        },
-        crossOriginEmbedderPolicy: false
-    })
-);
 
 // mongoose
 const mongoose = require("mongoose");
@@ -107,6 +79,44 @@ const FILE_TYPES = {
     svg: "image/svg+xml"
 };
 
+const parseForm = bodyParser.urlencoded({ extended: false });
+
+app.use(favicon(__dirname + "/public/assets/images/favicon.ico"));
+app.use(cookieParser());
+app.use("/public",express.static("public"));
+app.use(limiter);
+app.use(
+    helmet({
+        contentSecurityPolicy: {
+            directives: {
+                ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+                "connect-src": [
+                    "'self'",
+                    "'unsafe-inline'",
+                    "https://www.googletagmanager.com",
+                    "https://www.google-analytics.com",
+                    "cdnjs.cloudflare.com",
+                    `ws://localhost:${WEBSOCKET_PORT}`,
+                    `ws://mathematicalbasedefenders.com:${WEBSOCKET_PORT}`,
+                    `wss://mathematicalbasedefenders.com:${WEBSOCKET_PORT}`,
+                ],
+                "img-src": ["'self'", "*"],
+                "script-src": [
+                    "'self'",
+                    "'unsafe-inline'",
+                    "'unsafe-eval'",
+                    "pixijs.download",
+                    "code.jquery.com",
+                    "www.googletagmanager.com",
+                    "cdnjs.cloudflare.com"
+                ],
+                "script-src-attr": ["'self'", "'unsafe-inline'"]
+            }
+        },
+        crossOriginEmbedderPolicy: false
+    })
+);
+
 // variables
 var sockets = [];
 var rooms = Object.create(null);
@@ -142,7 +152,6 @@ const playerRanks = {
     DONATOR: "donator"
 };
 
-app.use(favicon(__dirname + "/public/assets/images/favicon.ico"));
 
 // Loop variables
 var currentTime = Date.now();
@@ -159,11 +168,12 @@ mongoose.connection.on("connected", async () => {
     console.log(log.addMetadata("Successfully connected to mongoose.", "info"));
 });
 
-app.get("/", (request, response) => {
+app.get("/", csrfProtection, (request, response) => {
+    response.cookie("csrfToken", request.csrfToken())
     response.sendFile(path.join(__dirname, "index.html"));
 });
 
-app.post("/authenticate", async (request, response) => {
+app.post("/authenticate", parseForm, csrfProtection, async (request, response) => {
     let connectionID = request.query.guestName;
         let username = request.query.username;
         let encodedPassword = request.query.password;
@@ -1905,179 +1915,7 @@ uWS.App()
         }
     })
 
-    .get("/", (response, request) => {
-        response
-            .writeStatus("200 OK")
-            .writeHeader("Content-Type", "text/html")
-            .tryEnd(INDEX_FILE_CONTENT);
-    })
-    .get("/public/*", async (response, request) => {
-        if (
-            !(
-                checkIfFileExists(`.${request.getUrl()}`) &&
-                !request.getUrl().indexOf("..") > -1
-            )
-        ) {
-            response.writeStatus("400 Bad Request").end("");
-            return;
-        }
-
-        response
-            .writeStatus("200 OK")
-            .writeHeader(
-                "Content-Type",
-                FILE_TYPES[
-                    request
-                        .getUrl()
-                        .substring(request.getUrl().lastIndexOf(".") + 1)
-                ]
-            )
-            .tryEnd(fs.readFileSync(`.${request.getUrl()}`));
-    })
-    .post("/authenticate", async (response, request) => {
-        response.onAborted(() => {});
-        //FIXME: Unsafe?
-
-        //TODO: make user leave room
-
-        let connectionID = request.getQuery("guestName");
-        let username = request.getQuery("username");
-        let encodedPassword = request.getQuery("password");
-        connectionID = connectionID.replace(" ", "-");
-        if (!/Guest-[0-9]{8}/.test(connectionID)) {
-            console.warn(log.addMetadata("FORGED REQUEST DETECTED", "warn"));
-            response.writeStatus("400 Bad Request").end("");
-        } else {
-            let socketToChangeConnectionID = sockets.find(
-                (element) => element.connectionID === connectionID
-            );
-            if (socketToChangeConnectionID) {
-                if (
-                    await authentication.authenticate(
-                        socketToChangeConnectionID,
-                        username,
-                        encodedPassword,
-                        sockets
-                    )
-                ) {
-                    socketToChangeConnectionID.connectionID = username;
-
-                    let data = await User.findOne({
-                        username: username
-                    });
-
-                    // TODO: Write a function that wraps these calls
-                    socketToChangeConnectionID.variables.userIDOfSocketHolder =
-                        data._id;
-                    socketToChangeConnectionID.variables.playerRank =
-                        utilities.getPlayerRank(data, data.username);
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateText",
-                            arguments: {
-                                selector: "#player-rank",
-                                text: utilities.beautifyRankName(
-                                    socketToChangeConnectionID.variables
-                                        .playerRank,
-                                    data.username
-                                )
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateText",
-                            arguments: {
-                                selector: "#player-level-indicator",
-                                text: `Level ${leveling.getLevel(
-                                    data.statistics.totalExperiencePoints
-                                )}`
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateText",
-                            arguments: {
-                                selector: "#player-name",
-                                text: socketToChangeConnectionID.connectionID
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateCSS",
-                            arguments: {
-                                selector: "#player-rank",
-                                property: "color",
-                                value: utilities.formatPlayerName(
-                                    data,
-                                    data.username
-                                )
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateCSS",
-                            arguments: {
-                                selector: "#login-shortcut-button",
-                                property: "display",
-                                value: "none"
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateCSS",
-                            arguments: {
-                                selector: "#player-level-indicator",
-                                property: "display",
-                                value: "initial"
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateCSS",
-                            arguments: {
-                                selector: "#player-level-indicator",
-                                property: "display",
-                                value: "initial"
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateCSS",
-                            arguments: {
-                                selector: "#login-button",
-                                property: "display",
-                                value: "none"
-                            }
-                        })
-                    );
-                    response.writeStatus("200 OK").end("");
-                } else {
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateText",
-                            arguments: {
-                                selector: "#login-button",
-                                text: "Login"
-                            }
-                        })
-                    );
-                    response.writeStatus("400 Bad Request").end("");
-                }
-            } else {
-                console.warn(
-                    log.addMetadata("FORGED REQUEST DETECTED", "warn")
-                );
-                response.writeStatus("400 Bad Request").end("");
-            }
-        }
-    })
+    
 .listen(WEBSOCKET_PORT, (token) => {
     console.log(log.addMetadata(`Listening to WebSockets at localhost:${WEBSOCKET_PORT}`, "info"));
 });
