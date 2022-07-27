@@ -1,5 +1,7 @@
 const logLevels = {
     ERROR: "error",
+    WARN: "warn",
+    WARNING: "warning",
     INFO: "info",
     DEBUG: "debug"
 };
@@ -16,6 +18,11 @@ function addMetadata(message, level) {
         }
         case logLevels.INFO: {
             logLevel = "INFO";
+            break;
+        }
+        case logLevels.WARNING:
+        case logLevels.WARN: {
+            logLevel = "WARNING";
             break;
         }
         case logLevels.DEBUG: {
