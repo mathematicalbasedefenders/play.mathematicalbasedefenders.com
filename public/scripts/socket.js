@@ -1,19 +1,22 @@
 // const socket = new WebSocket(`ws${window.location.protocol === "https:" ? "s" : ""}://${window.location.host}`);
-const socket = new WebSocket(`ws${window.location.protocol === "https:" ? "s" : ""}://${window.location.hostname}:7000`);
+const socket = new WebSocket(
+    `ws${window.location.protocol === "https:" ? "s" : ""}://${
+        window.location.hostname
+    }:7000`
+);
 
 socket.onclose = () => {
-    alert(
-                "Disconnected from server."
-            );
-            location.reload();
-}
+    alert("Disconnected from server.");
+    location.reload();
+};
 
 socket.onerror = (event) => {
     alert(
-                "Disconnected from server. Click OK to refresh page. Error Code: " +
-event            );
-            location.reload();
-}
+        "Disconnected from server. Click OK to refresh page. Error Code: " +
+            event
+    );
+    location.reload();
+};
 
 socket.onmessage = (message) => {
     message = JSON.parse(message.data);
@@ -666,8 +669,20 @@ socket.onmessage = (message) => {
                             multiplayerScreenContainerItems.currentPlayersRemainingText.text =
                                 "Players Remaining: " +
                                 currentGameData.currentGame.playersRemaining;
-                            multiplayerScreenContainerItems.playerNameText.text =
+                            
+                                // TODO: fix me
+                            if (multiplayerScreenContainerItems.playerName?.text !== currentGameData.currentGame.playerName){
+                                multiplayerScreenContainerItems.playerNameText.text =
                                 currentGameData.currentGame.playerName;
+                            // multiplayerScreenContainerItems.playerNameText.style.fill =
+                            // currentGameData.currentGame.nameColor;
+                            
+                            changePIXIJSTextStyle(
+                                multiplayerScreenContainerItems.playerNameText,
+                                "fill",
+                                currentGameData.currentGame.nameColor
+                            );
+                            }
                             // tiles
                             for (let i = 0; i < 49; i++) {
                                 // why?
@@ -1082,11 +1097,19 @@ socket.onmessage = (message) => {
             break;
         }
         case "addText": {
-            addText(message.arguments.selector, message.arguments.text, message.arguments.useHTML);
+            addText(
+                message.arguments.selector,
+                message.arguments.text,
+                message.arguments.useHTML
+            );
             break;
         }
         case "updateCSS": {
-            updateCSS(message.arguments.selector, message.arguments.property, message.arguments.value);
+            updateCSS(
+                message.arguments.selector,
+                message.arguments.property,
+                message.arguments.value
+            );
             break;
         }
         case "changeScreen": {
@@ -1098,7 +1121,6 @@ socket.onmessage = (message) => {
         }
     }
 };
-
 
 // socket.on("levelStatus", (levelStatus) => {
 //     if (levelStatus.leveledUp) {
@@ -1113,11 +1135,3 @@ socket.onmessage = (message) => {
 //         );
 //     }
 // });
-
-
-
-
-
-
-
-
