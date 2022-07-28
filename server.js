@@ -247,7 +247,7 @@ app.post(
                                 selector: "#player-rank",
                                 property: "color",
                                 value: utilities.formatPlayerName(
-                                    data,
+                                    utilities.getPlayerRank(data),
                                     data.username
                                 )
                             }

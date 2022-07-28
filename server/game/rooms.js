@@ -148,7 +148,7 @@ function getRoomPlayers(roomData) {
                 return {
                     name: roomData.playersInRoom[player].variables.usernameOfSocketOwner,
                     nameColor: utilities.formatPlayerName(
-                        roomData.playersInRoom[player],
+                        roomData.playersInRoom[player].variables.playerRank,
                         roomData.playersInRoom[player].variables.usernameOfSocketOwner
                     )
                 };
