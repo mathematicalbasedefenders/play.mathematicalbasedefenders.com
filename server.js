@@ -179,11 +179,11 @@ app.post(
         let connectionID = request.query.guestName;
         let username = request.query.username;
         let encodedPassword = request.query.password;
-        connectionID = connectionID.replace(" ", "-");
-        if (!/Guest-[0-9]{8}/.test(connectionID)) {
+        if (!/Guest(-|\s)[0-9]{8}/.test(connectionID)) {
             console.warn(log.addMetadata("FORGED REQUEST DETECTED", "warn"));
-            response.writeStatus("400 Bad Request").end("");
+            response.status(400);
         } else {
+            connectionID = connectionID.replace(" ", "-");
             let socketToChangeConnectionID = sockets.find(
                 (element) => element.connectionID === connectionID
             );
