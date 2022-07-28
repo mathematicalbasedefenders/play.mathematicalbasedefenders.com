@@ -123,6 +123,17 @@ function getSocketAccordingToUsername(username, sockets) {
     });
 }
 
+function getSocketAccordingToPlayerName(name, sockets) {
+    if (/Guest(-|\s)[0-9]{8}/.test(name)) {
+        return sockets.find((socket) => {
+            return socket.variables.guestNameOfSocketOwner == name.replace(" ", "-");
+        });
+    }
+        return sockets.find((socket) => {
+            return socket.variables.usernameOfSocketOwner == name;
+        });
+}
+
 function turnMillisecondsToTime(milliseconds) {
     let h = Math.floor(milliseconds / (60 * 60 * 1000));
     let dm = milliseconds % (60 * 60 * 1000);
@@ -240,11 +251,11 @@ function calculateMessageForGlobalRank(rank) {
     }
 }
 
-function getNameOfSocketOwner(socket){
-    if (socket.variables.loggedIn){
-        return socket.connectionID
+function getNameOfSocketOwner(socket) {
+    if (socket.variables.loggedIn) {
+        return socket.connectionID;
     } else {
-        return socket.connectionID.replace("-", " ")
+        return socket.connectionID.replace("-", " ");
     }
 }
 
@@ -260,6 +271,10 @@ module.exports = {
     calculateComboMultiplier,
     convertTermIDToTerm,
     convertTermIDToBeautifulString,
-    getPlayerRank,beautifyRankName,formatPlayerName,
-    calculateMessageForGlobalRank, getNameOfSocketOwner
+    getPlayerRank,
+    beautifyRankName,
+    formatPlayerName,
+    calculateMessageForGlobalRank,
+    getNameOfSocketOwner,
+    getSocketAccordingToPlayerName,
 };

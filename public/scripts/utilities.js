@@ -98,4 +98,10 @@ function combineText(...textToCombine) {
     return text;
 }
 
+function changePIXIJSTextStyle(textObject, key, newValue){
+    let originalStyle = JSON.parse(JSON.stringify(textObject.style));
+    originalStyle[key] = newValue;
+    textObject.style = originalStyle;
+}
+
 

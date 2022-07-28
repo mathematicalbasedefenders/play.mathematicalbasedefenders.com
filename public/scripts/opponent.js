@@ -16,6 +16,9 @@ class OpponentGameInstance {
             minifiedGameData.playerName,
             textStyles.SIZE_16_FONT
         );
+        // TODO: pass by reference
+        // this.nameText.style."fill" = minifiedGameData.nameColor;
+        changePIXIJSTextStyle(this.nameText, "fill", minifiedGameData.nameColor);
         this.problemText = new PIXI.Text(
             minifiedGameData.problem,
             textStyles.SIZE_16_FONT
@@ -194,6 +197,8 @@ class OpponentGameInstance {
             "/10 " +
             minifiedGameData.enemiesPending;
         this.nameText.text = minifiedGameData.name;
+        // this.nameText.style."fill" = minifiedGameData.nameColor;
+        changePIXIJSTextStyle(this.nameText, "fill", minifiedGameData.nameColor);
     }
 
     render(container) {

@@ -869,90 +869,6 @@ var loop = setInterval(() => {
     lastUpdateTime = Date.now();
 }, LOOP_INTERVAL);
 
-// SOCKET.IO CODE IS HERE
-
-// TODO: CONVERT COMMENTED CODE TO uWebSockets.js
-//     // socket.on("getPlayerDataAndUpdateText", (selector, ...dataToGet) => {
-//     // 	socket.send(JSON.stringify({action:"updateText":{arguments:{selector: getPlayerData(socket, ...dataToGet,text:$5}}})));
-//     // });
-
-//     socket.on(
-//         "getDataForUserInformationModalAndUpdateText",
-//         async (nameToUse) => {
-//             let name = await getPlayerData(nameToUse, "name");
-//             let data = await getPlayerData(nameToUse, "userObject");
-
-//             socket.emit(
-//                 "updateText",
-//                 "#user-information-modal-title",
-//                 `Play data for ${name}`
-//             );
-
-//             if (!/Guest\s[0-9]{8}/gm.test(name) && !/\s+/.test(name)) {
-//                 if (data) {
-//                     socket.emit(
-//                         "updateText",
-//                         "#user-information-modal-text",
-//                         `
-// 			Total Experience Points: ${
-//                 data.statistics.totalExperiencePoints
-//             } (Level ${leveling.getLevel(
-//                             data.statistics.totalExperiencePoints
-//                         )}) |
-// 			Easy Mode Personal Best: ${data.statistics.easyModePersonalBestScore} |
-// 			Standard Mode Personal Best: ${data.statistics.standardModePersonalBestScore}
-// 		`
-//                     );
-//                 } else {
-//                     socket.emit(
-//                         "updateText",
-//                         "#user-information-modal-text",
-//                         "Player not found."
-//                     );
-//                 }
-//             } else {
-//                 socket.emit(
-//                     "updateText",
-//                     "#user-information-modal-text",
-//                     `
-// 			This user is playing as a guest. Their scores will not be submitted unless they sign up for an account.
-// 		`
-//                 );
-//             }
-//         }
-//     );
-
-//     socket.on("broadcastMessageAsStaff", (message) => {
-//         if (
-//             socket.usernameOfSocketOwner == "mistertfy64" ||
-//             socket.playerRank == playerRanks.ADMINISTRATOR ||
-//             socket.playerRank == playerRanks.MODERATOR
-//         ) {
-//             io.emit("createToastNotification", {
-//                 position: "topCenter",
-//                 message: DOMPurify.sanitize(
-//                     `Message from ${
-//                         socket.usernameOfSocketOwner == "mistertfy64"
-//                             ? "Game Master"
-//                             : utilities.beautifyRankName(socket.playerRank)
-//                     } ${socket.usernameOfSocketOwner}:<br>${message}`
-//                 )
-//             });
-//             socket.emit(
-//                 "sendMessageToConsole",
-//                 "Successfully sent message to all online players!",
-//                 "log"
-//             );
-//         } else {
-//             socket.emit(
-//                 "sendMessageToConsole",
-//                 "Wow! You found an easter egg! Unfortunately this easter egg is only for staff members...",
-//                 "log"
-//             );
-//         }
-//     });
-// });
-
 function initializeSingleplayerGame(room, mode, player) {
     for (let i = 0; i < 49; i++) {
         room.data.currentGame.players[player].currentGame.tilesOnBoard[i] =
@@ -1125,12 +1041,20 @@ async function startDefaultMultiplayerGame(roomID) {
 
 function constructDefaultMultiplayerGameDataObjectToSend(connection) {
     if (connection) {
-        playerIndex = -1;
+        let playerIndex = -1;
         let data =
             rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
                 connection
             ];
         if (data?.currentGame) {
+            if (rooms[roomIDOfDefaultMultiplayerRoom]?.playersInRoom[connection]?.variables){
+            data.currentGame.nameColor = utilities.formatPlayerName(
+                rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.playerRank,
+                rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.loggedIn
+                    ? rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.usernameOfSocketOwner
+                    : rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.guestNameOfSocketOwner
+            );
+            }
             data.currentGame.currentInGameTimeInMilliseconds =
                 rooms[
                     roomIDOfDefaultMultiplayerRoom
@@ -1207,7 +1131,9 @@ function constructMinifiedGameDataObjectToSend(connectionID, playerIndex) {
         (minifiedOpponentGameData.nameColor = utilities.formatPlayerName(
             rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
                 connectionID
-            ].currentGame.playerRank
+            ].currentGame.playerRank,  rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
+                connectionID
+            ].currentGame.playerName.toString()
         ));
 
     return minifiedOpponentGameData;
