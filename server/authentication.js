@@ -48,7 +48,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                             text:"Your account has been accessed from another location. If this wasn't you, consider changing your password.",
                             title:"Forced Disconnection Notice"}
                     }));
-                        oldSocket.disconnect();
+                        oldSocket.close();
                     }
                     socket.variables.usernameOfSocketOwner =
                         socket.variables.playerDataOfSocketOwner.username;
