@@ -1182,21 +1182,6 @@ function broadcastToEverySocketInRoom(room, toBroadcast) {
     }
 }
 
-async function checkIfFileExists(file) {
-    await fs.stat(file, function (error, stat) {
-        if (error == null) {
-            return true;
-        } else if (err.code === "ENOENT") {
-            return false;
-        }
-    });
-}
-
-async function readFile(requestURL) {
-    let data = await fs.promises.readFile(`.${requestURL}`, "utf8");
-    return Buffer.from(data);
-}
-
 uWS.App()
     .ws("/", {
         // handle messages from client
