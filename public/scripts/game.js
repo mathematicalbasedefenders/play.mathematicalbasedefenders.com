@@ -429,7 +429,6 @@ multiplayerScreenContainerItems.numberOfPendingEnemiesText.y =
     initialWindowHeight / 2 - 400;
 
 multiplayerScreenContainerItems.playerNameText.style.align = "center";
-multiplayerScreenContainerItems.playerNameText.tint = 0x000000;
 multiplayerScreenContainerItems.playerNameText.y =
     initialWindowHeight / 2 + 440;
 

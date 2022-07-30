@@ -127,6 +127,7 @@ async function computeGlobalUpdateForRoom(room, deltaTimeInMilliseconds) {
 
 async function computeUpdateForRoom(room, deltaTimeInMilliseconds) {
     let framesRendered = (deltaTimeInMilliseconds * FRAMES_PER_SECOND) / 1000;
+    room.updateRound += 1;
     // counters
     // general stats
     room.data.currentGame.currentInGameTimeInMilliseconds +=

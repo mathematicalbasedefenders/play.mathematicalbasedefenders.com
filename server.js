@@ -381,6 +381,7 @@ function update(deltaTime) {
                         rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom
                     ).length >= 2
                 ) {
+                    rooms[roomIDOfDefaultMultiplayerRoom].updateRound = 0;
                     rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
                     rooms[roomIDOfDefaultMultiplayerRoom].timeToStart =
                         new Date(
@@ -1064,7 +1065,8 @@ function constructDefaultMultiplayerGameDataObjectToSend(connection) {
                     roomIDOfDefaultMultiplayerRoom
                 ].data.currentGame.playersAlive.length;
             data.currentGame.opponentGameData = [];
-
+            data.currentGame.updateRound = rooms[roomIDOfDefaultMultiplayerRoom].updateRound;
+            
             let allConnections = Object.keys(
                 rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players
             );
@@ -1332,6 +1334,7 @@ uWS.App()
                                 data: {},
                                 readyToStart: false,
                                 timeToStart: "",
+                                updateRound: 0,
                                 gameMode: "defaultMultiplayerMode",
                                 playersInRoom: {}
                             };

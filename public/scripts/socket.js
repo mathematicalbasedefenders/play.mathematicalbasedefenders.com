@@ -28,6 +28,7 @@ socket.onmessage = (message) => {
                 forceWeakResizeContainer();
                 firstUpdateReceived = true;
             }
+           console.log(currentGameData.currentGame.nameColor);
             switch (currentGameData.currentGame.mode) {
                 case "singleplayer": {
                     if (currentGameData.currentGame.gameIsOver) {
@@ -466,6 +467,20 @@ socket.onmessage = (message) => {
                 }
                 case "defaultMultiplayerMode": {
                     {
+                        if (currentGameData.currentGame.updateRound <= 1){
+                            multiplayerScreenContainerItems.playerNameText.text =
+                            currentGameData.currentGame.playerName;
+                        
+
+                        
+                        changePIXIJSTextStyle2(
+                            multiplayerScreenContainerItems.playerNameText,
+                            "fill",
+                            currentGameData.currentGame.nameColor
+                        );
+                            console.debug(multiplayerScreenContainerItems.playerNameText);
+
+                        }
                         if (currentGameData.currentGame.dead) {
                             setPropertiesAndChangeScreen(
                                 screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN
@@ -671,18 +686,8 @@ socket.onmessage = (message) => {
                                 currentGameData.currentGame.playersRemaining;
                             
                                 // TODO: fix me
-                            if (multiplayerScreenContainerItems.playerName?.text !== currentGameData.currentGame.playerName){
-                                multiplayerScreenContainerItems.playerNameText.text =
-                                currentGameData.currentGame.playerName;
-                            // multiplayerScreenContainerItems.playerNameText.style.fill =
-                            // currentGameData.currentGame.nameColor;
-                            
-                            changePIXIJSTextStyle(
-                                multiplayerScreenContainerItems.playerNameText,
-                                "fill",
-                                currentGameData.currentGame.nameColor
-                            );
-                            }
+                            // if (multiplayerScreenContainerItems.playerName?.text !== currentGameData.currentGame.playerName){
+                            // }
                             // tiles
                             for (let i = 0; i < 49; i++) {
                                 // why?
