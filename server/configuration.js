@@ -12,7 +12,7 @@ const developerConfiguration = {
 
         // Impatient Mode
         // Multiplayer game intermission times is now 250ms instead of 30000ms
-        impatientMode: true,
+        impatientMode: false,
 
         // Tank Mode
         // All players have 1,000 BHP instead of 10 BHP.
