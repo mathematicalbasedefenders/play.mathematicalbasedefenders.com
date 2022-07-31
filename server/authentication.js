@@ -40,7 +40,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                     // successful login
                     let oldSocket = utilities.getSocketAccordingToUsername(
                         username,
-                        sockets
+                        global.sockets
                     );
                     if (oldSocket) {
                         oldSocket.send(JSON.stringify({

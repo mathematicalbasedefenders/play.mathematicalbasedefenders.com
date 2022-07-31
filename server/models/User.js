@@ -43,6 +43,7 @@ const UserModelSchema = new mongoose.Schema({
         specialRank: String
     },
     moderation: {
+        timeLastReportFiled: Date,
         isBanned: Boolean,
         isMuted: Boolean,
     }

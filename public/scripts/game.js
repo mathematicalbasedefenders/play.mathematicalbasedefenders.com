@@ -879,7 +879,7 @@ function setPropertiesAndChangeSettingsScreen(newSettingsScreen) {
                 "online-settings-screen-container"
             ).style.display = "block";
             break;
-        }
+            }
         default: {
             break;
         }

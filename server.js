@@ -59,6 +59,8 @@ const validation = require("./server/core/validation.js");
 const input = require("./server/game/input.js");
 const room = require("./server/game/rooms.js");
 
+const global = require("./server/global.js");
+
 const { StringDecoder } = require("string_decoder");
 const decoder = new StringDecoder("utf8");
 
@@ -118,7 +120,7 @@ app.use(
 );
 
 // variables
-var sockets = [];
+global.initialize();
 var rooms = Object.create(null);
 
 var roomIDOfDefaultMultiplayerRoom = "";
@@ -184,7 +186,7 @@ app.post(
             response.status(400);
         } else {
             connectionID = connectionID.replace(" ", "-");
-            let socketToChangeConnectionID = sockets.find(
+            let socketToChangeConnectionID = global.sockets.find(
                 (element) => element.connectionID === connectionID
             );
             if (socketToChangeConnectionID) {
@@ -193,7 +195,7 @@ app.post(
                         socketToChangeConnectionID,
                         username,
                         encodedPassword,
-                        sockets
+                        global.sockets
                     )
                 ) {
                     socketToChangeConnectionID.connectionID = username;
@@ -346,7 +348,7 @@ function update(deltaTime) {
                 action: "updateText",
                 arguments: {
                     selector: "#online-players",
-                    text: sockets.length
+                    text: global.sockets.length
                 }
             })
         );
@@ -464,7 +466,7 @@ function update(deltaTime) {
                     game.computeUpdate(rooms[roomID], deltaTime);
 
                     //TODO: Move this
-                    sockets
+                    global.sockets
                         .find(
                             (socket) =>
                                 connections[socket.connectionID] != undefined
@@ -525,7 +527,7 @@ function update(deltaTime) {
                                                 .currentGame.dead
                                         ) {
                                             try {
-                                                sockets
+                                                global.sockets
                                                     .find(
                                                         (socket) =>
                                                             socket.connectionID ===
@@ -550,7 +552,7 @@ function update(deltaTime) {
                                                     )
                                                 );
                                                 deleteSocket(
-                                                    sockets.find(
+                                                    global.sockets.find(
                                                         (socket) =>
                                                             socket.connectionID ===
                                                             clientConnectionID
@@ -620,7 +622,7 @@ function update(deltaTime) {
                                                         .currentGame.players[
                                                         clientConnectionID
                                                     ];
-                                                    sockets
+                                                    global.sockets
                                                         .find(
                                                             (element) =>
                                                                 element.connectionID ===
@@ -640,7 +642,7 @@ function update(deltaTime) {
                                                         JSON.stringify(data)
                                                     );
                                                 let socketToClose =
-                                                    sockets.find(
+                                                    global.sockets.find(
                                                         (element) =>
                                                             element.connectionID ===
                                                             clientConnectionID
@@ -706,7 +708,7 @@ function update(deltaTime) {
                                             rooms[roomID].data.currentGame
                                                 .playersAlive.length == 1
                                         ) {
-                                            let winnerSocket = sockets.find(
+                                            let winnerSocket = global.sockets.find(
                                                 (socket) =>
                                                     socket.connectionID ===
                                                     rooms[roomID].data
@@ -834,12 +836,12 @@ function update(deltaTime) {
                                         ].playing = false;
 
                                         // let connections = [];
-                                        // // io.sockets.adapter.rooms.get(
+                                        // // io.global.sockets.adapter.rooms.get(
                                         // //     roomID
                                         // // );
                                         // for (clientConnectionID in connections) {
                                         //     let connection =
-                                        //         // io.sockets.sockets.get(client);
+                                        //         // io.global.sockets.global.sockets.get(client);
                                         //         (connection.ownerOfSocketIsPlaying = false);
                                         // }
                                     }
@@ -850,7 +852,7 @@ function update(deltaTime) {
                 }
             }
             // TODO: Move this
-            let connections = sockets.filter(
+            let connections = global.sockets.filter(
                 (socket) => socket.variables.currentRoomSocketIsIn === roomID
             );
             if (!connections || connections.length == 0) {
@@ -885,7 +887,7 @@ function initializeSingleplayerGame(room, mode, player) {
 }
 
 function broadcastToEverySocket(toBroadcast) {
-    for (let socket of sockets) {
+    for (let socket of global.sockets) {
         try {
             socket.send(toBroadcast);
         } catch (error) {
@@ -928,13 +930,13 @@ function deleteSocket(socket) {
     ];
 
     // delete rooms[
-    //     sockets[sockets.indexOf(socket)].variables.currentRoomSocketIsIn
+    //     global.sockets[global.sockets.indexOf(socket)].variables.currentRoomSocketIsIn
     // ]?.data?.currentGame?.players[socket.connectionID];
-    sockets.splice(sockets.indexOf(socket), 1);
+    global.sockets.splice(global.sockets.indexOf(socket), 1);
 }
 
 async function startDefaultMultiplayerGame(roomID) {
-    let connections = sockets.filter(
+    let connections = global.sockets.filter(
         (socket) =>
             socket.variables.currentRoomSocketIsIn ===
             roomIDOfDefaultMultiplayerRoom
@@ -1028,7 +1030,7 @@ async function startDefaultMultiplayerGame(roomID) {
     //     "switchToGameContainer"
     // );
 
-    let players = sockets.filter(
+    let players = global.sockets.filter(
         (socket) =>
             socket.variables.currentRoomSocketIsIn ===
             roomIDOfDefaultMultiplayerRoom
@@ -1169,7 +1171,7 @@ function minifyTiles(tiles) {
 }
 
 function broadcastToEverySocketInRoom(room, toBroadcast) {
-    let socketsToBroadcastTo = sockets.filter(
+    let socketsToBroadcastTo = global.sockets.filter(
         (element) => element.variables.currentRoomSocketIsIn === room
     );
     for (let socket of socketsToBroadcastTo) {
@@ -1208,7 +1210,7 @@ uWS.App()
 
             socket.variables.guestNameOfSocketOwner = toBeGuestName;
 
-            sockets.push(socket);
+            global.sockets.push(socket);
 
             socket.send(
                 JSON.stringify({
@@ -1814,7 +1816,7 @@ uWS.App()
 
         close: (socket, code, message) => {
             deleteSocket(
-                sockets.find(
+                global.sockets.find(
                     (socketToClose) =>
                         socketToClose.connectionID === socket.connectionID
                 )
@@ -1823,7 +1825,7 @@ uWS.App()
 
         end: (socket, code, message) => {
             deleteSocket(
-                sockets.find(
+                global.sockets.find(
                     (socketToClose) =>
                         socketToClose.connectionID === socket.connectionID
                 )
