@@ -10,6 +10,7 @@ const mongoDBSanitize = require("mongo-sanitize");
 const User = require("./models/User.js");
 
 const utilities = require("./game/utilities.js");
+const global = require("./global.js");
 
 
 

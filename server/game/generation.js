@@ -1,3 +1,4 @@
+const global = require("../global.js");
 
 
 function generateRandomTileTermID(room, player) {

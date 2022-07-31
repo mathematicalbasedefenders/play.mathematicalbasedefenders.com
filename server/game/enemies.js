@@ -3,6 +3,7 @@ const _ = require("lodash");
 
 const scoring = require("./scoring.js");
 const indicators = require("./indicators.js");
+const global = require("../global.js");
 
 
 /**

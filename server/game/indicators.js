@@ -1,4 +1,5 @@
 const utilities = require("./utilities.js");
+const global = require("../global.js");
 
 function addIndicatorToSingleplayerRoom(
     room,

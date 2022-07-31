@@ -2,6 +2,7 @@ const terms = require("./terms.js")
 const evaluation = require("./evaluation.js");
 const input = require("./input.js");
 
+const global = require("../global.js");
 
 
 function convertPressedKeyToTermID(keyPressed, playerKeybinds, room, socket) {

@@ -1,6 +1,7 @@
 const sizeof = require("object-sizeof");
 
 const configuration = require("../configuration.js");
+const global = require("../global.js");
 
 const roomTypes = {
     SINGLEPLAYER: "singleplayer",
