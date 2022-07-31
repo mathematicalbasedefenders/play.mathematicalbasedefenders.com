@@ -9,6 +9,7 @@ const mongoDBSanitize = require("mongo-sanitize");
 
 const User = require("./models/User.js");
 
+const utilities = require("./game/utilities.js");
 
 
 
@@ -17,7 +18,7 @@ async function fileReport(socket, reportedUser, reportDescription){
     let report = {}
 
     // sanitize
-    report.reportDescription = mongoDBSanitize(DOMPurify.sanitize(report.reportDescription));
+    report.reportDescription = mongoDBSanitize(DOMPurify.sanitize(reportDescription));
 
     // not logged in
     if (!socket.variables.loggedIn) {
@@ -30,15 +31,22 @@ async function fileReport(socket, reportedUser, reportDescription){
     }
 
     report.reporter = socket.variables.userIDOfSocketHolder;
-    report.reportedUser = getSocketAccordingToPlayerName(reportedUser, );
+    report.reportedUser = utilities.getSocketAccordingToPlayerName(reportedUser);
     
-    
-    recordReport(report);
+    console.debug(report);
+
+    return recordReport(report);
 
 }
 
-async function recordReport(report, socket, reportedUser){
-    
+async function recordReport(report){
+    try {
+        await report.save();
+        return true;
+    } catch (error) {
+
+        return false;
+    }
 }
 
 module.exports = { fileReport }
