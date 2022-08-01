@@ -315,6 +315,15 @@ app.post(
     }
 );
 
+app.post(
+    "/send-report",
+    jsonParser,
+    csrfProtection,
+    async (request, response) => {
+        
+    }
+);
+
 var timeSinceLastTimeStatsPrintedInMilliseconds = 0;
 var dataSentWithoutCompression = 0;
 
