@@ -1332,7 +1332,7 @@ function showUserInformationModal(name) {
     socket.send(JSON.stringify({action:"getDataForUser",arguments:{
         userToGetDataOf: name
     }}))
-    
+    game.userCurrentUserIsViewing = name;
     $("#user-information-modal-title").text("");
     $("#user-information-modal-text").text("");
     $("#user-information-modal-container").fadeIn(200);
