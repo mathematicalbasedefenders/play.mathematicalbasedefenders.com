@@ -1207,8 +1207,10 @@
                         >
                         
                             <br />
-                            <form action="authenticate" method="POST" id="login-form" onsubmit="return false;">Username:
+                            <form id="login-form" onsubmit="return false;">
+                                Username:
                             <input
+                                name="username"
                                 id="username-input-box"
                                 class="settings-input-box"
                             />
@@ -1217,6 +1219,7 @@
                             Password:
                             <input
                                 type="password"
+                                name="password"
                                 id="password-input-box"
                                 class="settings-input-box"
                             />
@@ -1224,7 +1227,7 @@
                             <button
                                 id="login-button"
                                 type="submit"
-                                onClick="authenticate($('#username-input-box').val(),$('#password-input-box').val());$(this).addClass('disabled-button').text('Please Wait...');"
+                                onClick="authenticate();$(this).addClass('disabled-button').text('Please Wait...');"
                                 style="
                                     width: 256px;
                                     height: 64px;

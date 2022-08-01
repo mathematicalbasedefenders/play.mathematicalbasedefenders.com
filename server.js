@@ -177,8 +177,9 @@ app.post(
     csrfProtection,
     async (request, response) => {
         let connectionID = request.query.guestName;
-        let username = request.query.username;
-        let encodedPassword = request.query.password;
+        console.debug(request);
+        let username = request.data["username"];
+        let encodedPassword = request.data["password"];
         if (!/Guest(-|\s)[0-9]{8}/.test(connectionID)) {
             console.warn(log.addMetadata("FORGED REQUEST DETECTED", "warn"));
             response.status(400);
