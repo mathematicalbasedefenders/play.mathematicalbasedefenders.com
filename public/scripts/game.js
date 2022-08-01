@@ -1457,7 +1457,10 @@ function getAllowedComboTimeAccordingToMode(
 }
 
 function authenticate() {
-    
+    let formData = new FormData();
+    formData.append("guestName",guestNameOfSocketOwner);
+    formData.append("username", $("#login-form").find("#username-input-box").val());
+    formData.append("password", $("#login-form").find("#password-input-box").val());
     $.ajax({
         url: `/authenticate?guestName=${guestNameOfSocketOwner}`,
         method: "POST",
@@ -1466,8 +1469,10 @@ function authenticate() {
                 .querySelector('meta[name="csrf-token"]')
                 .getAttribute("content")
         },
-        data: $("#login-form"),
-    });
+        data: formData,
+        processData: false,
+        contentType: false
+     });
 }
 
 function sendChatMessage() {

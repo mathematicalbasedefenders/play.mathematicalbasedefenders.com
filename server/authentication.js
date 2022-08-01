@@ -150,17 +150,17 @@ async function authenticate(socket, username, encodedPassword, sockets) {
 }
 
 async function checkPassword(username, encodedPassword, socket){
-    decodedPassword = new Buffer.from(
-        new Buffer.from(
-            new Buffer.from(
-                new Buffer.from(encodedPassword, "base64").toString(),
-                "base64"
-            ).toString(),
-            "base64"
-        ).toString(),
-        "base64"
-    ).toString();
-    decodedPassword = DOMPurify.sanitize(mongoDBSanitize(decodedPassword));
+    // decodedPassword = new Buffer.from(
+    //     new Buffer.from(
+    //         new Buffer.from(
+    //             new Buffer.from(encodedPassword, "base64").toString(),
+    //             "base64"
+    //         ).toString(),
+    //         "base64"
+    //     ).toString(),
+    //     "base64"
+    // ).toString();
+    decodedPassword = DOMPurify.sanitize(mongoDBSanitize(encodedPassword));
     return await bcrypt.compare(
         decodedPassword,
         socket.variables.playerDataOfSocketOwner.hashedPassword
