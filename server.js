@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 // express.js
 const express = require("express");
 const app = express();
@@ -171,7 +172,7 @@ mongoose.connection.on("connected", async () => {
 
 app.get("/", csrfProtection, (request, response) => {
     response.render(path.join(__dirname, "index"), {
-        csrfToken: request.csrfToken()
+        csrfToken: request.csrfToken(),
     });
 });
 
@@ -318,19 +319,18 @@ app.post(
     }
 );
 
-app.post(
-    "/send-report",
-    jsonParser,
-    csrfProtection,
-    async (request, response) => {
-        let reporter = request.socket;
-
-        let reportedPlayer = request.body["report-target"];
-        let reportDescription = request.body["report-description"] 
-    
-        console.debug(`${reporter} reported ${reportedPlayer} for this reason: ${reportDescription}`);
-    }
-);
+// app.post(
+//     "/send-report",
+//     jsonParser,
+//     csrfProtection,
+//     upload.none(),
+//     async (request, response) => {
+//         // let reporter = request.body["reporter"];
+//         let reportedPlayer = request.body["reportTarget"];
+//         let reportDescription = request.body["reportDescription"]; 
+//         console.debug(`reported ${reportedPlayer} for this reason: ${reportDescription}`)
+//     }
+// );
 
 var timeSinceLastTimeStatsPrintedInMilliseconds = 0;
 var dataSentWithoutCompression = 0;
@@ -1824,6 +1824,9 @@ uWS.App()
                             }
                         })
                     );
+                }
+                case "sendReport": {
+                    console.debug(`${utilities.getNameOfSocketOwner(socket)} reported ${parsedMessage.arguments.reportTarget} for this reason: ${parsedMessage.arguments.reportDescription}`)
                 }
                 default: {
                     break;

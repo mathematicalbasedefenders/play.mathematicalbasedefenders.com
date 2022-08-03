@@ -1457,7 +1457,7 @@ function authenticate() {
     formData.append("username", $("#login-form").find("#username-input-box").val());
     formData.append("password", $("#login-form").find("#password-input-box").val());
     $.ajax({
-        url: `/authenticate?guestName=${guestNameOfSocketOwner}`,
+        url: `/authenticate`,
         method: "POST",
         headers: {
             "CSRF-Token": document
@@ -1469,6 +1469,19 @@ function authenticate() {
         contentType: false
      });
 }
+
+function sendReport(){
+    let reportTarget = $("#report-target").val();
+    let reportDescription = $("#report-description-box").val();
+    socket.send(JSON.stringify({
+        action: "sendReport",
+        arguments:{
+            reportTarget: reportTarget,
+            reportDescription: reportDescription
+        }
+    }))
+}
+
 
 function sendChatMessage() {
     socket.send(

@@ -113,9 +113,9 @@
                         <span style="color: #ffffff">Note: Misuse of the report system may result in
                             actions taken on
                             <strong>your</strong> account.</span>
-                            <form action="send-report" method="POST" onsubmit="return false;">
-                                <input type="hidden" id="report-target" name="report-target" value="">
-                        <textarea name="report-description" type="text" autocomplete="off"
+                    <form input="report-form" action="send-report" method="POST" onsubmit="return false;">
+                        <input type="hidden" id="report-target" name="report-target" value="">
+                        <textarea id="report-description-box" name="report-description" type="text" autocomplete="off"
                             placeholder="Why are you reporting this user? (500 characters maximum)" style="
                                     width: 75%;
                                     height: 50vh;
@@ -126,22 +126,22 @@
                                     vertical-align: top;
                                     
                                     " rows="5" columns="100"></textarea>
-                    <div style="display: flex;justify-content: center;align-items: center;">
-                        <div style="width:75%">
-                            <div>
-                                <button class="report-user-modal-button" style=" margin-right: 9.2%;"
-                                    onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
-                                    Close
-                                </button>
-                                <button class="report-user-modal-button dangerous-button"
-                                    onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
-                                    Report
-                                </button>
-                                </p>
+                        <div style="display: flex;justify-content: center;align-items: center;">
+                            <div style="width:75%">
+                                <div>
+                                    <button class="report-user-modal-button" style=" margin-right: 9.2%;"
+                                        onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
+                                        Close
+                                    </button>
+                                    <button class="report-user-modal-button dangerous-button" type="submit"
+                                        onClick="sendReport();$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
+                                        Report
+                                    </button>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
                 </div>
             </div>
         </div>
@@ -760,7 +760,7 @@
                 <div id="online-settings-screen-container" style="font-size: 24px">
 
                     <br />
-                    <form action="authenticate" method="POST" id="login-form" onsubmit="return false;">Username:
+                    <form id="login-form" onsubmit="return false;">Username:
                         <input id="username-input-box" class="settings-input-box" />
                         <br />
                         <br />
