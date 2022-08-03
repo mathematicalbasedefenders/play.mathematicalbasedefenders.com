@@ -82,7 +82,7 @@
                                     font-size: 36px;
                                     color: #ffffff;
                                     background-color: inherit;
-                                " id="user-information-modal-title">text1</span>
+                                " id="user-information-modal-title">User Modal</span>
                         <br />
                         <span style="
                                     font-size: 24px;
@@ -99,7 +99,50 @@
             </div>
         </div>
 
-        <div id="report-user-modal-container">
+        <div id="report-user-modal-container" style="display:none;">
+            <div id="report-user-modal-content-container">
+                <div style="position: relative">
+
+                    <p style="text-align: center" style="background-color: #555555">
+                        <span style="
+                                    font-size: 36px;
+                                    color: #ffffff;
+                                    background-color: inherit;
+                                " id="report-user-modal-title">text1</span>
+                        <br />
+                        <span style="color: #ffffff">Note: Misuse of the report system may result in
+                            actions taken on
+                            <strong>your</strong> account.</span>
+                        <textarea type="text" autocomplete="off"
+                            placeholder="Why are you reporting this user? (500 characters maximum)" style="
+                                    width: 75%;
+                                    height: 50vh;
+                                    font-size: 16px;
+                                    text-align: left;
+                                    padding-left:0;
+                                    padding-top:0;
+                                    vertical-align: top;
+                                    
+                                    " rows="5" columns="100">
+                    <div style="display: flex;justify-content: center;align-items: center;">
+                        <div style="width:75%">
+                            <div>
+                                <button class="report-user-modal-button" style=" margin-right: 9.2%;"
+                                    onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
+                                    Close
+                                </button>
+                                <button class="report-user-modal-button dangerous-button"
+                                    onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
+                                    Report
+                                </button>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div id="report-user-modal-container">
             <div id="report-user-modal-content-container">
 
                 <div style="position: relative">
@@ -118,23 +161,27 @@
                                     width: 75%;
                                     height: 50vh;
                                     font-size: 16px;
-                                " />
+                                " /><div>
+                            <button id="report-user-modal-button"
+                                onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
+                                Close
+                            </button>
+                            <button id="report-user-modal-button"
+                                onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
+                                Close
+                            </button>
+                        </div>
                         <br /><br />
-                    <div style="display:grid;grid-template-columns: 1fr 1fr;">
-                        <button id="report-user-modal-button"
-                            onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
-                            Close
-                        </button>
-                        <button id="report-user-modal-button"
-                            onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
-                            Close
-                        </button>
+                    <div style="display:flex;justify-content: center;align-items:center;">
+                        
                     </div>
                     </p>
                 </div>
 
             </div>
-        </div>
+        </div> -->
+
+
 
         <div id="hub-container">
             <!-- Main menu -->

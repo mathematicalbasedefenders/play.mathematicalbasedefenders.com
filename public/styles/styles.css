@@ -164,6 +164,12 @@ select {
     animation-duration: 0.25s;
 }
 
+.dangerous-button {
+    background-color: #bb0000 !important;
+    color:#ffffff !important;
+    border-color: #dd0000 !important;
+}
+
 .disabled-button {
     cursor: not-allowed;
 }
@@ -264,14 +270,16 @@ select {
     border-radius: 10px;
 }
 
-#report-user-modal-button {
-    width: 60%;
+.report-user-modal-button {
+    width: 45%;
     height: 50px;
     font-size: 32px;
     background-color: #cdcdcd;
     color: #000000;
     bottom: 5%;
+   
 }
+
 
 
 
