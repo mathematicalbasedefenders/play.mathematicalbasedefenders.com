@@ -1372,7 +1372,7 @@ function showReportUserModal() {
     $("#report-user-modal-title").text(
         `Report ${game.userCurrentUserIsViewing}?`
     );
-
+    $("#report-target").val(`${game.userCurrentUserIsViewing}`);
     $("#report-user-modal-container").fadeIn(200);
     $("#report-user-modal-container").show(0).css("display", "flex");
 }

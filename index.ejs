@@ -113,8 +113,9 @@
                         <span style="color: #ffffff">Note: Misuse of the report system may result in
                             actions taken on
                             <strong>your</strong> account.</span>
-                    <form>
-                        <textarea type="text" autocomplete="off"
+                            <form action="send-report" method="POST" onsubmit="return false;">
+                                <input type="hidden" id="report-target" name="report-target" value="">
+                        <textarea name="report-description" type="text" autocomplete="off"
                             placeholder="Why are you reporting this user? (500 characters maximum)" style="
                                     width: 75%;
                                     height: 50vh;
@@ -124,7 +125,7 @@
                                     padding-top:0;
                                     vertical-align: top;
                                     
-                                    " rows="5" columns="100">
+                                    " rows="5" columns="100"></textarea>
                     <div style="display: flex;justify-content: center;align-items: center;">
                         <div style="width:75%">
                             <div>
@@ -899,6 +900,8 @@
         <div id="metadata-container" style="display: none">
             <span id="custom-enemy-picture"></span>
         </div>
+
+
         <!-- Scripts -->
         <!-- Global site tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-XVRB5TXW3K"></script>

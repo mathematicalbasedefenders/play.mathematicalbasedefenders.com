@@ -323,7 +323,12 @@ app.post(
     jsonParser,
     csrfProtection,
     async (request, response) => {
-        
+        let reporter = request.socket;
+
+        let reportedPlayer = request.body["report-target"];
+        let reportDescription = request.body["report-description"] 
+    
+        console.debug(`${reporter} reported ${reportedPlayer} for this reason: ${reportDescription}`);
     }
 );
 
