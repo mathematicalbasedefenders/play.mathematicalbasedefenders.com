@@ -44,6 +44,8 @@ const mongoDBSanitize = require("mongo-sanitize");
 const favicon = require("serve-favicon");
 
 // other files
+const moderation = require("./server/moderation.js");
+
 const credentials = require("./credentials/credentials.js");
 const configuration = require("./server/configuration.js");
 const authentication = require("./server/authentication.js");
@@ -1826,7 +1828,8 @@ uWS.App()
                     );
                 }
                 case "sendReport": {
-                    console.debug(`${utilities.getNameOfSocketOwner(socket)} reported ${parsedMessage.arguments.reportTarget} for this reason: ${parsedMessage.arguments.reportDescription}`)
+                    // console.debug(`${utilities.getNameOfSocketOwner(socket)} reported ${parsedMessage.arguments.reportTarget} for this reason: ${parsedMessage.arguments.reportDescription}`)
+                    moderation.sendReport(socket, parsedMessage.arguments.reportTarget, parsedMessage.arguments.reportDescription);
                 }
                 default: {
                     break;
