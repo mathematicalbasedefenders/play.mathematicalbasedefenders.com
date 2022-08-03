@@ -19,8 +19,6 @@ Promise.all([
     console.log("Loaded fonts!");
 });
 
-
-
 var isMobile = false; //initiate as false
 // device detection
 if (
@@ -242,7 +240,9 @@ var sendButtonTexture = PIXI.Texture.from(
     "/public/assets/images/game-screen/sendbutton.png"
 );
 
-var baseTexture = new PIXI.Texture.from("/public/assets/images/game-screen/base.png");
+var baseTexture = new PIXI.Texture.from(
+    "/public/assets/images/game-screen/base.png"
+);
 
 // Text
 
@@ -518,7 +518,10 @@ for (i = 0; i < 2; i++) {
     for (j = 0; j < 24; j++) {
         var s1 = i == 1 ? "selected" : "";
         var tile = PIXI.Texture.from(
-            "/public/assets/images/game-screen/tile" + j.toString() + s1 + ".png"
+            "/public/assets/images/game-screen/tile" +
+                j.toString() +
+                s1 +
+                ".png"
         );
         tileTextures[i][j] = tile;
     }
@@ -587,7 +590,9 @@ window.onload = () => {
     $("#loading-screen-text").html(
         "Mathematical Base Defenders is in its development stage.<br>Features may not work unexpectedly, and current product is not indicative of final product.<br><br>Mathematical Base Defenders is <span style='color:#ff0000;background-color:#000000;'>not</span> a substitute for a legitimate math tutor."
     );
-    $("#loading-screen").click(() => $("#loading-screen-container").fadeOut(1000).hide(0) );    
+    $("#loading-screen").click(() =>
+        $("#loading-screen-container").fadeOut(1000).hide(0)
+    );
     $("#loading-screen-container").delay(2000).fadeOut(1000).hide(0);
 };
 
@@ -611,7 +616,9 @@ app.ticker.add((delta) => {
         if (
             game.toastNotifications[toastNotification].expiryTime < Date.now()
         ) {
-            $("#toast-notification-" + toastNotification + "-container").remove();
+            $(
+                "#toast-notification-" + toastNotification + "-container"
+            ).remove();
 
             delete game.toastNotifications[toastNotification];
         }
@@ -886,8 +893,7 @@ function setPropertiesAndChangeSettingsScreen(newSettingsScreen) {
     }
 }
 
-
-function hideEverything(){
+function hideEverything() {
     $("#hub-container").hide(0);
     $("#main-menu-screen-container").hide(0);
     $("#information-screen-container").hide(0);
@@ -917,7 +923,15 @@ function endSingleplayerGame() {
 
 function processKeypress(event) {
     // console.log(event);
-    socket.send(JSON.stringify({action:"keypress",arguments:{code:event.code, playerTileKeybinds:settings.input.keybinds.tiles}}));
+    socket.send(
+        JSON.stringify({
+            action: "keypress",
+            arguments: {
+                code: event.code,
+                playerTileKeybinds: settings.input.keybinds.tiles
+            }
+        })
+    );
     switch (currentScreen) {
         case screens.MAIN_MENU_SCREEN: {
             break;
@@ -927,7 +941,7 @@ function processKeypress(event) {
             if (event.key != "Escape") {
             } else {
                 setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN, true);
-                socket.send(JSON.stringify({action:"leaveRoom"}));
+                socket.send(JSON.stringify({ action: "leaveRoom" }));
             }
             break;
         }
@@ -953,7 +967,7 @@ function processKeypress(event) {
                     }
                 }
             } else {
-                socket.send(JSON.stringify({action:"leaveRoom"}));
+                socket.send(JSON.stringify({ action: "leaveRoom" }));
                 setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN, true);
             }
             break;
@@ -962,7 +976,7 @@ function processKeypress(event) {
             // check if input is from numpad
             if (event.key != "Escape") {
             } else {
-                socket.send(JSON.stringify({action:"leaveRoom"}));
+                socket.send(JSON.stringify({ action: "leaveRoom" }));
                 setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN, true);
             }
             break;
@@ -983,10 +997,18 @@ function processKeypress(event) {
 }
 
 function startDefaultSingleplayerGame(mode) {
-    if (game.lastSingleplayerGameModePlayed == "customSingleplayerMode" && mode == "customSingleplayerMode") {
+    if (
+        game.lastSingleplayerGameModePlayed == "customSingleplayerMode" &&
+        mode == "customSingleplayerMode"
+    ) {
         startCustomSingleplayerGame(getCustomSingleplayerModeInputs());
     } else {
-        socket.send(JSON.stringify({action: "createAndJoinDefaultSingleplayerRoom",arguments:{gameMode: mode}}));
+        socket.send(
+            JSON.stringify({
+                action: "createAndJoinDefaultSingleplayerRoom",
+                arguments: { gameMode: mode }
+            })
+        );
         game.lastSingleplayerGameModePlayed = mode;
         setPropertiesAndChangeScreen(screens.SINGLEPLAYER_GAME_SCREEN, true);
     }
@@ -1019,7 +1041,15 @@ function deleteLastSelectedTerm() {
 
 function sendProblem() {
     // //TODO: socket.emit("action");
-    socket.send(JSON.stringify({action:"keypress",arguments:{code:"Space", playerTileKeybinds:settings.input.keybinds.tiles}}));
+    socket.send(
+        JSON.stringify({
+            action: "keypress",
+            arguments: {
+                code: "Space",
+                playerTileKeybinds: settings.input.keybinds.tiles
+            }
+        })
+    );
 }
 
 // Random Generators
@@ -1288,12 +1318,12 @@ function testCustomBackgroundPicture(url) {
 }
 
 function setCustomEnemyPictureMetadata(url) {
-    if (url){
-
+    if (url) {
         $("#custom-enemy-picture").html(
-        `<img src=${DOMPurify.sanitize(url)} width="150" height="150">`
-    );
-    }if (document.querySelector("#custom-enemy-picture")) {
+            `<img src=${DOMPurify.sanitize(url)} width="150" height="150">`
+        );
+    }
+    if (document.querySelector("#custom-enemy-picture")) {
         if (
             !document
                 .querySelector("#custom-enemy-picture")
@@ -1302,7 +1332,6 @@ function setCustomEnemyPictureMetadata(url) {
             $("#custom-enemy-picture").html("Failed to get image.");
         }
     }
-    
 }
 
 // TODO: Unused?
@@ -1325,7 +1354,7 @@ function showTextModal(text, title, color) {
     $("#text-modal-title").text(title);
     $("#text-modal-text").text(text);
     $("#text-modal-container").fadeIn(200);
-    $("#text-modal-container").show(0).css("display","flex");
+    $("#text-modal-container").show(0).css("display", "flex");
 }
 
 function showUserInformationModal(name) {
@@ -1336,17 +1365,16 @@ function showUserInformationModal(name) {
     $("#user-information-modal-title").text("");
     $("#user-information-modal-text").text("");
     $("#user-information-modal-container").fadeIn(200);
-    $("#user-information-modal-container").show(0).css("display","flex");
-
+    $("#user-information-modal-container").show(0).css("display", "flex");
 }
 
-
-
-function showReportUserModal(){
-    $("#report-user-modal-title").text(`Report ${game.userCurrentUserIsViewing}?`);
+function showReportUserModal() {
+    $("#report-user-modal-title").text(
+        `Report ${game.userCurrentUserIsViewing}?`
+    );
 
     $("#report-user-modal-container").fadeIn(200);
-    $("#report-user-modal-container").show(0).css("display","flex");
+    $("#report-user-modal-container").show(0).css("display", "flex");
 }
 
 function showCustomSingleplayerGameModeSettingsScreen() {
@@ -1393,9 +1421,14 @@ function getCustomSingleplayerModeInputs() {
 
 function startCustomSingleplayerGame(data) {
     game.lastSingleplayerGameModePlayed = "customSingleplayerMode";
-    socket.send(JSON.stringify({action:"createAndJoinCustomSingleplayerRoom",arguments:{
-        settings: data
-    }}))
+    socket.send(
+        JSON.stringify({
+            action: "createAndJoinCustomSingleplayerRoom",
+            arguments: {
+                settings: data
+            }
+        })
+    );
 }
 
 function getAllowedComboTimeAccordingToMode(
@@ -1418,13 +1451,31 @@ function getAllowedComboTimeAccordingToMode(
     }
 }
 
-function authenticate(username,password){
-    $.ajax({url:`/authenticate?guestName=${guestNameOfSocketOwner}&username=${username}&password=${btoa(btoa(btoa(btoa(password))))}`,method:"POST",headers: {
-        'CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-      }});
+function authenticate() {
+    let formData = new FormData();
+    formData.append("guestName",guestNameOfSocketOwner);
+    formData.append("username", $("#login-form").find("#username-input-box").val());
+    formData.append("password", $("#login-form").find("#password-input-box").val());
+    $.ajax({
+        url: `/authenticate?guestName=${guestNameOfSocketOwner}`,
+        method: "POST",
+        headers: {
+            "CSRF-Token": document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute("content")
+        },
+        data: formData,
+        processData: false,
+        contentType: false
+     });
 }
 
-function sendChatMessage(){
-    socket.send(JSON.stringify({action:"chatMessage",arguments:{message:$("#multiplayer-room-message-box").val()}}));
+function sendChatMessage() {
+    socket.send(
+        JSON.stringify({
+            action: "chatMessage",
+            arguments: { message: $("#multiplayer-room-message-box").val() }
+        })
+    );
     $("#multiplayer-room-message-box").val("");
 }

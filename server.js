@@ -9,7 +9,9 @@ const bodyParser = require("body-parser");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const uWS = require("uWebSockets.js");
+const multer = require("multer");
 
+const upload = multer();
 const csrfProtection = csurf({ cookie: true });
 
 const _ = require("lodash");
@@ -177,10 +179,11 @@ app.post(
     "/authenticate",
     jsonParser,
     csrfProtection,
+    upload.none(),
     async (request, response) => {
-        let connectionID = request.query.guestName;
-        let username = request.query.username;
-        let encodedPassword = request.query.password;
+        let connectionID = request.body["guestName"];
+        let username = request.body["username"];
+        let encodedPassword = request.body["password"];
         if (!/Guest(-|\s)[0-9]{8}/.test(connectionID)) {
             console.warn(log.addMetadata("FORGED REQUEST DETECTED", "warn"));
             response.status(400);
