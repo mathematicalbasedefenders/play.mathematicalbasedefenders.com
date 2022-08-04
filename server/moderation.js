@@ -57,7 +57,7 @@ async function validateReport(reporter){
     let reporterInformation = await User.safeFindByUserID(reporter.variables.userIDOfSocketOwner);
 
     // return false if reporter has already reported someone in the past 5 minutes
-    if (reporterInformation.moderation.timeLastReportFiled + (5 * 60 * 1000) > Date.now()){
+    if (new Date(reporterInformation.moderation.timeLastReportFiled).getTime() + (5 * 60 * 1000) > Date.now()){
         return false;
     }
 
