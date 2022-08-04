@@ -116,6 +116,21 @@ UserModelSchema.statics.giveExperiencePointsToUserID = function (
     );
 };
 
+UserModelSchema.statics.setLastReportTimeForUserID = function (
+    userID
+) {
+    this.findByIdAndUpdate(
+        userID,
+        { $set: { "moderation.timeLastReportFiled": Date.now() } },
+        { upsert: true },
+        (error, data) => {
+            if (error) {
+                console.error(log.addMetadata(error.stack, "error"));
+            }
+        }
+    );
+};
+
 UserModelSchema.statics.setNewPersonalBestForUserID = function (
     userID,
     gameMode,
@@ -159,5 +174,7 @@ UserModelSchema.statics.setNewPersonalBestForUserID = function (
         }
     );
 };
+
+
 
 module.exports = mongoose.model("UserModel", UserModelSchema, "users");

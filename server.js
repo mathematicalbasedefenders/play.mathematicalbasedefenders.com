@@ -1829,7 +1829,11 @@ uWS.App()
                 }
                 case "sendReport": {
                     // console.debug(`${utilities.getNameOfSocketOwner(socket)} reported ${parsedMessage.arguments.reportTarget} for this reason: ${parsedMessage.arguments.reportDescription}`)
-                    moderation.sendReport(socket, parsedMessage.arguments.reportTarget, parsedMessage.arguments.reportDescription);
+                    let result = moderation.sendReport(socket, parsedMessage.arguments.reportTarget, parsedMessage.arguments.reportDescription);
+                    let message = "";
+                    if (result) {message = "Successfully sent report."} else {message = "Failed to send report."}    
+                    socket.send(JSON.stringify({action: "createToastNotification", arguments:{message:DOMPurify.sanitize(message)}}));
+                    break;
                 }
                 default: {
                     break;
