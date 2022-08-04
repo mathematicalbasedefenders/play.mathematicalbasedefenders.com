@@ -23,7 +23,7 @@ async function sendReport(reporter, reported, description){
         userIDOfReportedPlayer = "(Guest User)"
     }
 
-    if (!await validateReport(reporter)){
+    if (!await validateReport(reporter) || description.length > 500){
         return false;
     }
     
