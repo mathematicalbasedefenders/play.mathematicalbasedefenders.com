@@ -261,7 +261,7 @@ select {
 
 #report-user-modal-content-container {
     width: 60%;
-    height: 65%;
+    height: calc(max-content + 30px);
     margin: 15% auto;
     padding: 15px;
     background-color: #555555;

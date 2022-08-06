@@ -117,22 +117,24 @@
                         <input type="hidden" id="report-target" name="report-target" value="">
                         <textarea id="report-description-box" name="report-description" type="text" autocomplete="off"
                             placeholder="Why are you reporting this user? (500 characters maximum)" style="
-                                    width: 75%;
-                                    height: 50vh;
+                                    width: 100%;
+                                    height: 40vh;
                                     font-size: 16px;
                                     text-align: left;
                                     padding-left:0;
                                     padding-top:0;
                                     vertical-align: top;
-                                    
+                                    resize: none;
                                     "></textarea>
+                                    <br><br>
                         <div style="display: flex;justify-content: center;align-items: center;">
                             <div style="width:75%">
                                 <div>
-                                    <button class="report-user-modal-button" style=" margin-right: 9.2%;"
+                                    <button class="report-user-modal-button"
                                         onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
                                         Close
                                     </button>
+                                    &nbsp;&nbsp;
                                     <button class="report-user-modal-button dangerous-button" type="submit"
                                         onClick="sendReport();$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
                                         Report
