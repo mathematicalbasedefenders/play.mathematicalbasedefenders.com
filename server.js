@@ -162,11 +162,7 @@ var currentTime = Date.now();
 var deltaTime = Date.now();
 var lastUpdateTime = Date.now();
 
-mongoose.connect(credentials.getMongooseURI(), {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false
-});
+mongoose.connect(credentials.getMongooseURI());
 
 mongoose.connection.on("connected", async () => {
     console.log(log.addMetadata("Successfully connected to mongoose.", "info"));
@@ -1829,7 +1825,7 @@ uWS.App()
                 }
                 case "sendReport": {
                     // console.debug(`${utilities.getNameOfSocketOwner(socket)} reported ${parsedMessage.arguments.reportTarget} for this reason: ${parsedMessage.arguments.reportDescription}`)
-                    let result = moderation.sendReport(socket, parsedMessage.arguments.reportTarget, parsedMessage.arguments.reportDescription);
+                    let result = await moderation.sendReport(socket, parsedMessage.arguments.reportTarget, parsedMessage.arguments.reportDescription);
                     let message = "";
                     if (result) {message = "Successfully sent report."} else {message = "Failed to send report."}    
                     socket.send(JSON.stringify({action: "createToastNotification", arguments:{message:DOMPurify.sanitize(message)}}));
