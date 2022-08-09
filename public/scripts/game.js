@@ -1386,6 +1386,8 @@ function showUserInformationModal(name) {
 }
 
 function showReportUserModal() {
+    $("#report-description-box").val("");
+
     $("#report-user-modal-title").text(
         `Report ${game.userCurrentUserIsViewing}?`
     );
