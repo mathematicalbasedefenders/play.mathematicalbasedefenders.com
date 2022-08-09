@@ -49,62 +49,62 @@ const UserModelSchema = new mongoose.Schema({
     }
 });
 
-UserModelSchema.statics.safeFindByUsername = function (username) {
-    return this.findOne({ username: username }).select({
+UserModelSchema.statics.safeFindByUsername = async function (username) {
+    return await this.findOne({ username: username }).select({
         emailAddress: 0,
         hashedPassword: 0
-    });
+    }).clone();
 };
 
-UserModelSchema.statics.findByUsername = function (username) {
-    return this.findOne({ username: username });
+UserModelSchema.statics.findByUsername = async function (username) {
+    return await this.findOne({ username: username }).clone();
 };
 
-UserModelSchema.statics.superSafeFindByUsername = function (username){
-    return this.findOne({ username: username}).select({
+UserModelSchema.statics.superSafeFindByUsername = async function (username){
+    return await this.findOne({ username: username}).select({
         username: 1,
         creationDateAndTime: 1,
         statistics: 1,
         membership: 1
-    });
+    }).clone();
 }
 
 
-UserModelSchema.statics.superSafeFindByUserNumber = function (userID){
-return this.findOne({  _id: userID} ).select({
+UserModelSchema.statics.superSafeFindByUserNumber = async function (userID){
+return await this.findOne({  _id: userID} ).select({
     username: 1,
     creationDateAndTime: 1,
     statistics: 1,
     membership: 1
-    });
+}).query.clone();
 }
 
-UserModelSchema.statics.safeFindByUserNumber = function (userNumber) {
-    return this.findOne(
+UserModelSchema.statics.safeFindByUserNumber = async function (userNumber) {
+    return await this.findOne(
         { userNumber: userNumber }.select({
             emailAddress: 0,
             hashedPassword: 0
         })
-    );
+    ).clone();
 };
 
-UserModelSchema.statics.findByUserNumber = function (userNumber) {
-    return this.findOne({ userNumber: userNumber });
+UserModelSchema.statics.findByUserNumber = async function (userNumber) {
+    return await this.findOne({ userNumber: userNumber }).clone();
 };
 
-UserModelSchema.statics.safeFindByUserID = function (userID) {
-    return this.findById(userID)
+UserModelSchema.statics.safeFindByUserID = async function (userID) {
+    return await this.findById(userID)
         .select({
             emailAddress: 0,
             hashedPassword: 0
-        });
+        }).clone();
 };
 
-UserModelSchema.statics.giveExperiencePointsToUserID = function (
+UserModelSchema.statics.giveExperiencePointsToUserID = async function (
     userID,
     amount
 ) {
-    this.findByIdAndUpdate(
+    return await this.findByIdAndUpdate(
         userID,
         { $inc: { "statistics.totalExperiencePoints": amount } },
         { upsert: true },
@@ -113,13 +113,13 @@ UserModelSchema.statics.giveExperiencePointsToUserID = function (
                 console.error(log.addMetadata(error.stack, "error"));
             }
         }
-    );
+    ).clone();
 };
 
-UserModelSchema.statics.setLastReportTimeForUserID = function (
+UserModelSchema.statics.setLastReportTimeForUserID = async function (
     userID
 ) {
-    this.findByIdAndUpdate(
+    return await this.findByIdAndUpdate(
         userID,
         { $set: { "moderation.timeLastReportFiled": Date.now() } },
         { upsert: true },
@@ -128,10 +128,10 @@ UserModelSchema.statics.setLastReportTimeForUserID = function (
                 console.error(log.addMetadata(error.stack, "error"));
             }
         }
-    );
+    ).clone();
 };
 
-UserModelSchema.statics.setNewPersonalBestForUserID = function (
+UserModelSchema.statics.setNewPersonalBestForUserID = async function (
     userID,
     gameMode,
     finalGameData
@@ -150,7 +150,7 @@ UserModelSchema.statics.setNewPersonalBestForUserID = function (
         return;
     }
 
-    this.findByIdAndUpdate(
+    return await this.findByIdAndUpdate(
         userID,
         {
             $set: {
@@ -172,7 +172,7 @@ UserModelSchema.statics.setNewPersonalBestForUserID = function (
                 console.error(log.addMetadata(error.stack, "error"));
             }
         }
-    );
+    ).clone();
 };
 
 

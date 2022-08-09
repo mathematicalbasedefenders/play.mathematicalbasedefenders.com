@@ -44,7 +44,7 @@ var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboards
     }
     // main check #1
     for (var i = 1; i <= 50; i++) {
-        var data = await leaderboardsModel.find(
+        let data = await leaderboardsModel.find(
             { rankNumber: i },
             function (error2, result2) {
                 if (error2) {
@@ -52,7 +52,8 @@ var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboards
                 }
                 return result2;
             }
-        );
+        ).clone();
+
         if (score > data[0].score) {
             placePlayerRanked = i;
             break;
@@ -64,7 +65,7 @@ var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboards
     }
     // main check #2
     for (var i = 1; i < placePlayerRanked; i++) {
-        var data = await leaderboardsModel.find(
+        let data = await leaderboardsModel.find(
             { rankNumber: i },
             function (error2, result2) {
                 if (error2) {
@@ -72,7 +73,9 @@ var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboards
                 }
                 return result2;
             }
-        );
+        ).clone();
+
+
         if (userIDAsString == data[0].userIDOfHolder) {
             return placePlayerRanked;
         }
@@ -80,7 +83,7 @@ var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboards
     // middle check #1
     // check if player is already on leaderboard but at a lower rank
     for (var i = placePlayerRanked; i <= 50; i++) {
-        var data = await leaderboardsModel.find(
+        let data = await leaderboardsModel.find(
             { rankNumber: i },
             function (error2, result2) {
                 if (error2) {
@@ -88,7 +91,7 @@ var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboards
                 }
                 return result2;
             }
-        );
+        ).clone();
         if (userIDAsString == data[0].userIDOfHolder) {
             placePlayerRankedBefore = i;
             break;
@@ -98,7 +101,7 @@ var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboards
     // My guess would be this pushes the ??? down
     if (placePlayerRankedBefore != -1) {
         for (var i = placePlayerRankedBefore; i < 50; i++) {
-            var data1 = await leaderboardsModel.findOne({ rankNumber: i + 1 });
+            let data1 = await leaderboardsModel.findOne({ rankNumber: i + 1 }).clone();
             await leaderboardsModel.findOneAndUpdate(
                 { rankNumber: i },
                 {
@@ -117,14 +120,14 @@ var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboards
                     }
                     return result4;
                 }
-            );
+            ).clone();
         }
     }
     // modify
     // this actually sets the new score
     for (var i = 50; i >= placePlayerRanked; i--) {
         if (i != 1) {
-            var data1 = await leaderboardsModel.findOne({ rankNumber: i - 1 });
+            let data1 = await leaderboardsModel.findOne({ rankNumber: i - 1 }).clone();
             await leaderboardsModel.findOneAndUpdate(
                 { rankNumber: i },
                 {
@@ -143,7 +146,7 @@ var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboards
                     }
                     return result4;
                 }
-            );
+            ).clone();
         }
     }
 
@@ -166,7 +169,7 @@ var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboards
             }
             return result5;
         }
-    );
+    ).clone();
     return placePlayerRanked;
 }
 
