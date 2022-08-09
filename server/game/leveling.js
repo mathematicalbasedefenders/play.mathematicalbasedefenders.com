@@ -1,4 +1,5 @@
 const log = require("../core/log.js");
+const global = require("../global.js");
 
 // models
 var User = require("../models/User.js");

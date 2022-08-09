@@ -1,6 +1,7 @@
 const sizeof = require("object-sizeof");
 
 const configuration = require("../configuration.js");
+const global = require("../global.js");
 
 const roomTypes = {
     SINGLEPLAYER: "singleplayer",
@@ -118,18 +119,18 @@ function checkIfVariablesAreUndefined(...inputs) {
 }
 
 function getSocketAccordingToUsername(username, sockets) {
-    return sockets.find((socket) => {
+    return global.sockets.find((socket) => {
         return socket.variables.usernameOfSocketOwner == username;
     });
 }
 
 function getSocketAccordingToPlayerName(name, sockets) {
     if (/Guest(-|\s)[0-9]{8}/.test(name)) {
-        return sockets.find((socket) => {
+        return global.sockets.find((socket) => {
             return socket.variables.guestNameOfSocketOwner == name.replace(" ", "-");
         });
     }
-        return sockets.find((socket) => {
+        return global.sockets.find((socket) => {
             return socket.variables.usernameOfSocketOwner == name;
         });
 }

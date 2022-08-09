@@ -3,6 +3,8 @@ const utilities = require("./game/utilities.js");
 const fetch = require("isomorphic-fetch");
 const _ = require("lodash");
 
+const global = require("./global.js");
+
 function createAndSendWebhook(username, rank, finalGameData, gameMode) {
     let url = credentials.getDiscordWebhookURL();
     let arguments = {

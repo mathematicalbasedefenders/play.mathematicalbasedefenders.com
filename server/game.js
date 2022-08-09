@@ -14,6 +14,7 @@ const enemies = require("./game/enemies.js");
 const leaderboards = require("./game/leaderboards.js");
 const utilities = require("./game/utilities.js");
 const personalbests = require("./game/personalbests.js");
+const global = require("./global.js");
 
 const mexp = require("math-expression-evaluator");
 

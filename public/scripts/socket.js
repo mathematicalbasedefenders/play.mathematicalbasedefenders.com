@@ -28,7 +28,6 @@ socket.onmessage = (message) => {
                 forceWeakResizeContainer();
                 firstUpdateReceived = true;
             }
-           console.log(currentGameData.currentGame.nameColor);
             switch (currentGameData.currentGame.mode) {
                 case "singleplayer": {
                     if (currentGameData.currentGame.gameIsOver) {

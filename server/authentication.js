@@ -13,6 +13,7 @@ const mongoDBSanitize = require("mongo-sanitize");
 const log = require("./core/log.js");
 const utilities = require("./game/utilities.js");
 const leveling = require("./game/leveling.js");
+const global = require("./global.js");
 
 
 var User = require("./models/User.js");
@@ -40,7 +41,7 @@ async function authenticate(socket, username, encodedPassword, sockets) {
                     // successful login
                     let oldSocket = utilities.getSocketAccordingToUsername(
                         username,
-                        sockets
+                        global.sockets
                     );
                     if (oldSocket) {
                         oldSocket.send(JSON.stringify({

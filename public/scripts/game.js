@@ -756,6 +756,8 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
             $("#hub-container").show(0);
             $("#main-menu-screen-container").show(0);
             $("#bottom-user-interface-container").show(0);
+            $("#bottom-toolbar-container").show(0);
+
             // $(".main-menu-screen-button").animate({ opacity: 1 });
             break;
         }
@@ -763,12 +765,16 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
             // set properties
             $("#hub-container").show(0);
             $("#information-screen-container").show(0);
+            $("#bottom-toolbar-container").show(0);
+
             break;
         }
         case screens.SINGLEPLAYER_LOBBY_SCREEN: {
             document.body.style.overflow = "none";
             $("#hub-container").show(0);
             $("#singleplayer-lobby-screen-container").show(0);
+            $("#bottom-toolbar-container").show(0);
+
             break;
         }
         case screens.SINGLEPLAYER_GAME_SCREEN: {
@@ -784,6 +790,8 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
             document.body.style.overflow = "none";
             $("#hub-container").show(0);
             $("#multiplayer-lobby-screen-container").show(0);
+            $("#bottom-toolbar-container").show(0);
+
             break;
         }
         case screens.MULTIPLAYER_GAME_SCREEN: {
@@ -813,10 +821,14 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
             document.body.style.overflow = "none";
             $("#hub-container").show(0);
             $("#default-multiplayer-room-lobby-screen-container").show(0);
+
+            $("#bottom-toolbar-container").show(0);
             break;
         }
         case screens.STATISTICS_SCREEN: {
             $("#hub-container").show(0);
+            $("#bottom-toolbar-container").show(0);
+
             $("#statistics-screen-container").show(0);
             break;
         }
@@ -839,6 +851,7 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
                     }
                 };
             }
+            $("#bottom-toolbar-container").show(0);
 
             break;
         }
@@ -849,6 +862,8 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
             document.getElementById(
                 "game-over-screen-container"
             ).style.display = "block";
+            $("#bottom-toolbar-container").show(0);
+
             break;
         }
     }
@@ -886,7 +901,7 @@ function setPropertiesAndChangeSettingsScreen(newSettingsScreen) {
                 "online-settings-screen-container"
             ).style.display = "block";
             break;
-        }
+            }
         default: {
             break;
         }
@@ -903,6 +918,8 @@ function hideEverything() {
     $("#statistics-screen-container").hide(0);
     $("#settings-screen-container").hide(0);
     $("#game-over-screen-container").hide(0);
+
+    $("#bottom-toolbar-container").hide(0);
 
     $(
         "#singleplayer-screen-custom-mode-settings-screen-content-container"
@@ -1358,15 +1375,10 @@ function showTextModal(text, title, color) {
 }
 
 function showUserInformationModal(name) {
-    socket.send(
-        JSON.stringify({
-            action: "getDataForUser",
-            arguments: {
-                userToGetDataOf: name
-            }
-        })
-    );
-
+    socket.send(JSON.stringify({action:"getDataForUser",arguments:{
+        userToGetDataOf: name
+    }}))
+    game.userCurrentUserIsViewing = name;
     $("#user-information-modal-title").text("");
     $("#user-information-modal-text").text("");
     $("#user-information-modal-container").fadeIn(200);
@@ -1377,7 +1389,7 @@ function showReportUserModal() {
     $("#report-user-modal-title").text(
         `Report ${game.userCurrentUserIsViewing}?`
     );
-
+    $("#report-target").val(`${game.userCurrentUserIsViewing}`);
     $("#report-user-modal-container").fadeIn(200);
     $("#report-user-modal-container").show(0).css("display", "flex");
 }
@@ -1462,7 +1474,7 @@ function authenticate() {
     formData.append("username", $("#login-form").find("#username-input-box").val());
     formData.append("password", $("#login-form").find("#password-input-box").val());
     $.ajax({
-        url: `/authenticate?guestName=${guestNameOfSocketOwner}`,
+        url: `/authenticate`,
         method: "POST",
         headers: {
             "CSRF-Token": document
@@ -1474,6 +1486,19 @@ function authenticate() {
         contentType: false
      });
 }
+
+function sendReport(){
+    let reportTarget = $("#report-target").val();
+    let reportDescription = $("#report-description-box").val();
+    socket.send(JSON.stringify({
+        action: "sendReport",
+        arguments:{
+            reportTarget: reportTarget,
+            reportDescription: reportDescription
+        }
+    }))
+}
+
 
 function sendChatMessage() {
     socket.send(
