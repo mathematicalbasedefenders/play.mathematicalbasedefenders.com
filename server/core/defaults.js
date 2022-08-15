@@ -159,8 +159,8 @@ function createNewDefaultMultiplayerGameData(roomID, socket) {
             players: {
                 [socket.connectionID]: {
                     playerName: socket.loggedIn
-                        ? socket.usernameOfSocketOwner
-                        : socket.guestNameOfSocketOwner,
+                        ? socket.variables.usernameOfSocketOwner
+                        : socket.variables.guestNameOfSocketOwner,
 
                     currentInGameTimeInMilliseconds: 0,
                     actionsPerformed: 0,
@@ -275,7 +275,9 @@ function createNewDefaultMultiplayerRoomPlayerObject(socket) {
         valueOfVariableD: undefined,
 
         gameIsOver: false,
-        gameOverScreenShown: false
+        gameOverScreenShown: false,
+
+        experiencePointsEarned: 0,
     };
     return data;
 }

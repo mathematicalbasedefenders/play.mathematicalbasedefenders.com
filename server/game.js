@@ -177,6 +177,8 @@ async function computeUpdateForRoom(room, deltaTimeInMilliseconds) {
                 player,
                 deltaTimeInMilliseconds
             );
+
+            computeUpdateForRoomPlayerExperiencePoints(room,player,deltaTimeInMilliseconds);
         }
     }
 }
@@ -566,6 +568,14 @@ async function computeUpdateForRoomPlayerThingsToRemove(
                 return element != null || element !== undefined;
             }
         );
+}
+
+async function computeUpdateForRoomPlayerExperiencePoints(room, player, deltaTimeInMilliseconds){
+    if (room.gameMode === "defaultMultiplayerMode"){
+    room.data.currentGame.players[
+        player
+    ].currentGame.experiencePointsEarned += deltaTimeInMilliseconds / 1000
+}
 }
 
 function startDefaultSingleplayerGame(roomID) {}
