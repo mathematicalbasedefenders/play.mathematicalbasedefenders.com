@@ -1472,7 +1472,7 @@ function getAllowedComboTimeAccordingToMode(
 
 function authenticate() {
     let formData = new FormData();
-    formData.append("guestName",guestNameOfSocketOwner);
+    formData.append("guestName",$("#player-name").text());
     formData.append("username", $("#login-form").find("#username-input-box").val());
     formData.append("password", $("#login-form").find("#password-input-box").val());
     $.ajax({

@@ -2,7 +2,7 @@
 const socket = new WebSocket(
     `ws${window.location.protocol === "https:" ? "s" : ""}://${
         window.location.hostname
-    }:7000`
+    }${production ? "" : ":7000"}`
 );
 
 socket.onclose = () => {
