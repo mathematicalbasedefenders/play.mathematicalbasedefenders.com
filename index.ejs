@@ -601,6 +601,19 @@
                         </button>
                         <br /><br /><br />
                     </div>
+                    <br>
+                    <div id="game-screen-information-mode-setting-container"
+                    onMouseEnter="$('#bottom-toolbar-text').text('Change how much information is shown while playing a game.')"
+                    onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+                    Information During Games: 
+                    <select id="game-screen-information-mode-setting-drop-down-menu" class="settings-screen-dropdown-menu"
+                            name="game-screen-information-mode">
+                            <option value="technical">Technical</option>
+                            <option value="enough">Enough</option>
+                            <option value="basic">Basic</option>
+                            <option value="empty">Empty</option>
+                        </select>
+                    </div>
                 </div>
                 <div id="input-settings-screen-container" style="font-size: 24px">
                     <br />

@@ -1234,6 +1234,7 @@ function updateSettingsSelections() {
         settings.video.multiplicationSignForm
     );
     $("#enemy-custom-selected-picture").val(settings.video.enemyPicture);
+    $("#game-screen-information-mode-setting-drop-down-menu").val(settings.video.gameScreenInformationMode);
     // input
     for (let i = 0; i < 19; i++) {
         $("#key-to-force-select-tile-" + i).text(
@@ -1275,7 +1276,8 @@ function changeSettings() {
             multiplicationSignForm: $(
                 "#multiplication-sign-form-setting-drop-down-menu"
             ).val(),
-            customEnemyPictureURL: $("#enemy-custom-selected-picture").val()
+            customEnemyPictureURL: $("#enemy-custom-selected-picture").val(),
+            gameScreenInformationMode: $("#game-screen-information-mode-setting-drop-down-menu").val()
         },
         input: {
             keybinds: {
