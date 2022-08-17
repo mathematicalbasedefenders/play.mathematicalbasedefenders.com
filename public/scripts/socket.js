@@ -300,22 +300,21 @@ socket.onmessage = (message) => {
 
                             // interface
                             multiplayerScreenContainerItems.numberOfPendingEnemiesText.text = currentGameData.currentGame.enemiesPending;
-                            multiplayerScreenContainerItems.currentEnemiesSentText.text = currentGameData.currentGame.enemiesSent;
+                            multiplayerScreenContainerItems.currentEnemiesSentText.text = settings.video.gameScreenInformationMode >= 20 ? currentGameData.currentGame.enemiesSent: "";
                             multiplayerScreenContainerItems.currentProblemText.text =
                                 settings.video.multiplicationSignForm == "dot"
                                     ? currentGameData.currentGame.currentProblemAsBeautifulText.replaceAll("×", "·")
                                     : currentGameData.currentGame.currentProblemAsBeautifulText;
-                            multiplayerScreenContainerItems.baseHealthText.text = "Base Health: " + currentGameData.currentGame.baseHealth + "/10";
-                            multiplayerScreenContainerItems.enemiesText.text =
-                                "Enemies: " + currentGameData.currentGame.enemiesKilled + "/" + currentGameData.currentGame.enemiesCreated;
-                            multiplayerScreenContainerItems.actionsPerMinuteText.text = (
+                            multiplayerScreenContainerItems.baseHealthText.text = settings.video.gameScreenInformationMode >= 20 ? "Base Health: " + currentGameData.currentGame.baseHealth + "/10": "";
+                            multiplayerScreenContainerItems.enemiesText.text = settings.video.gameScreenInformationMode >= 20 ? "Enemies: " + currentGameData.currentGame.enemiesKilled + "/" + currentGameData.currentGame.enemiesCreated: "";
+                            multiplayerScreenContainerItems.actionsPerMinuteText.text = settings.video.gameScreenInformationMode >= 30 ? (
                                 (currentGameData.currentGame.actionsPerformed / (currentGameData.currentGame.currentInGameTimeInMilliseconds / 1000)) *
                                 60
                             )
                                 .toFixed(3)
-                                .toString();
+                                .toString() : ""
                             multiplayerScreenContainerItems.currentComboText.text =
-                                currentGameData.currentGame.currentCombo < 1 ? "" : currentGameData.currentGame.currentCombo + " Combo" + (settings.video.gameScreenInformationMode >= 100 ? (`(×${parseInt(currentGameData.currentGame.currentCombo)*0.1+1})`) : "");
+                            (settings.video.gameScreenInformationMode < 20 || currentGameData.currentGame.currentCombo < 1) ? "" : currentGameData.currentGame.currentCombo + " Combo" + (settings.video.gameScreenInformationMode >= 100 ? (`(×${parseInt(currentGameData.currentGame.currentCombo)*0.1+1})`) : "");
                             multiplayerScreenContainerItems.valueOfVariableAText.text =
                                 currentGameData.currentGame.valueOfVariableA === undefined ? "a = ?" : "a = " + currentGameData.currentGame.valueOfVariableA;
                             multiplayerScreenContainerItems.valueOfVariableBText.text =
@@ -324,11 +323,11 @@ socket.onmessage = (message) => {
                                 currentGameData.currentGame.valueOfVariableC === undefined ? "c = ?" : "c = " + currentGameData.currentGame.valueOfVariableC;
                             multiplayerScreenContainerItems.valueOfVariableDText.text =
                                 currentGameData.currentGame.valueOfVariableD === undefined ? "d = ?" : "d = " + currentGameData.currentGame.valueOfVariableD;
-                            multiplayerScreenContainerItems.currentTimeText.text = turnMillisecondsToTime(
+                            multiplayerScreenContainerItems.currentTimeText.text = settings.video.gameScreenInformationMode >= 20 ? turnMillisecondsToTime(
                                 currentGameData.currentGame.currentInGameTimeInMilliseconds
-                            );
+                            ) : "";
                             multiplayerScreenContainerItems.currentComboTimeLeftText.text =
-                                currentGameData.currentGame.currentCombo < 1 || currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > 5000
+                            (settings.video.gameScreenInformationMode < 30 || currentGameData.currentGame.currentCombo < 1 || currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds > 5000)
                                     ? ""
                                     : turnMillisecondsToTime(5000 - currentGameData.currentGame.timeElapsedSinceLastEnemyKillInMilliseconds);
                             multiplayerScreenContainerItems.currentPlayersRemainingText.text =

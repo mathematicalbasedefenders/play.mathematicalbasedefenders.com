@@ -551,10 +551,6 @@ function formatMultiplayerRoomRanks(ranks) {
     return text;
 }
 
-function setLabelerTextVisibilities(){
-    
-}
-
 module.exports = {
     getSocketEventQueue,
     computeUpdate,

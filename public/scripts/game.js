@@ -1246,18 +1246,29 @@ function sendChatMessage() {
 }
 
 function setLabelerTextVisibilities() {
-    // 20
+    // 20s
     singleplayerScreenContainerItems.scoreLabelerText.text = "";
     singleplayerScreenContainerItems.timeLabelerText.text = "";
-    // 30
+    // 20m
+    multiplayerScreenContainerItems.enemiesSentLabelerText.text = "";
+    multiplayerScreenContainerItems.timeLabelerText.text = "";
+
+    // 30s
     singleplayerScreenContainerItems.actionsPerMinuteLabelerText.text = "";
+    // 30m
+    multiplayerScreenContainerItems.actionsPerMinuteLabelerText.text = "";
 
     if (settings.video.gameScreenInformationMode >= 20) {
         singleplayerScreenContainerItems.scoreLabelerText.text = "Score";
         singleplayerScreenContainerItems.timeLabelerText.text = "Time";
+
+        multiplayerScreenContainerItems.enemiesSentLabelerText.text = "Enemies Sent";
+        multiplayerScreenContainerItems.timeLabelerText.text = "Time";
     }
     if (settings.video.gameScreenInformationMode >= 30) {
         singleplayerScreenContainerItems.actionsPerMinuteLabelerText.text = "Actions Per Minute";
+    
+        multiplayerScreenContainerItems.actionsPerMinuteLabelerText.text = "Actions Per Minute";
     }
     if (settings.video.gameScreenInformationMode >= 100) {
     }
