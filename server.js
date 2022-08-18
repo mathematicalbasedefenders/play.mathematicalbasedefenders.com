@@ -103,9 +103,9 @@ app.use(
                     "https://www.googletagmanager.com",
                     "https://www.google-analytics.com",
                     "cdnjs.cloudflare.com",
-                    `ws://localhost:${WEBSOCKET_PORT}`,
-                    `ws://mathematicalbasedefenders.com:${WEBSOCKET_PORT}`,
-                    `wss://mathematicalbasedefenders.com:${WEBSOCKET_PORT}`
+                    `ws://localhost:*`,
+                    `ws://mathematicalbasedefenders.com:*`,
+                    `wss://mathematicalbasedefenders.com:*`
                 ],
                 "img-src": ["'self'", "*"],
                 "script-src": [
