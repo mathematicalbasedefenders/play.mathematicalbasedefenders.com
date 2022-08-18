@@ -1258,6 +1258,10 @@ function setLabelerTextVisibilities() {
     // 30m
     multiplayerScreenContainerItems.actionsPerMinuteLabelerText.text = "";
 
+    if (isNaN(settings.video.gameScreenInformationMode)) {
+        settings.video.gameScreenInformationMode = 30;
+    }
+
     if (settings.video.gameScreenInformationMode >= 20) {
         singleplayerScreenContainerItems.scoreLabelerText.text = "Score";
         singleplayerScreenContainerItems.timeLabelerText.text = "Time";
