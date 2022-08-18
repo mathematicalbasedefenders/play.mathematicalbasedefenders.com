@@ -418,7 +418,7 @@ addThingsToMultiplayerScreenContainer();
 resizeContainer();
 $("#status-bar-container").hide(0);
 if (isMobile) {
-    alert("Hi there! It looks like you are playing on a phone or tablet. Please note that the game might not be fully playable on a phone or tablet.");
+    showTextModal("It looks like you are playing on a phone or tablet. Please note that the game might not be fully playable on a phone or tablet.","Note");
 }
 var firstUpdateReceived = false;
 let resize = function resize() {
