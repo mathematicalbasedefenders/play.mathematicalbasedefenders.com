@@ -539,15 +539,9 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
         resizeContainer();
     }
 
-    // // animate currentScreen first
-    // switch (currentScreen) {
-    //     case screens.MAIN_MENU_SCREEN: {
-    //         $(".main-menu-screen-button").animate({ opacity: 0 });
-    //     }
-    //     case screens.SETTINGS_SCREEN: {
-    //         $(".settings-screen-navigation-button").animate({ opacity: 0 });
-    //     }
-    // }
+    // clean redundant text
+    $("#multiplayer-room-chat-content").empty();
+    $("#singleplayer-screen-custom-mode-issues").text("");
 
     setCustomEnemyPictureMetadata(settings.video.customEnemyPictureURL);
 
