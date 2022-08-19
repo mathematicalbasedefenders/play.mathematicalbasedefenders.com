@@ -103,9 +103,12 @@ app.use(
                     "https://www.googletagmanager.com",
                     "https://www.google-analytics.com",
                     "cdnjs.cloudflare.com",
-                    `ws://localhost:*`,
-                    `ws://mathematicalbasedefenders.com:*`,
-                    `wss://mathematicalbasedefenders.com:*`
+                    `ws://localhost:7000`,
+                    `ws://mathematicalbasedefenders.com:7000`,
+                    `wss://mathematicalbasedefenders.com:7000`,
+                    `ws://localhost:443`,
+                    `ws://mathematicalbasedefenders.com:443`,
+                    `wss://mathematicalbasedefenders.com:443`
                 ],
                 "img-src": ["'self'", "*"],
                 "script-src": [
