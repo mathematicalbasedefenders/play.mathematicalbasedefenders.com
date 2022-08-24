@@ -479,9 +479,6 @@ function update(deltaTime) {
                                                     userIDOfEliminatedPlayer,
                                                     Math.round(rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.experiencePointsEarned)
                                                 );
-                                                console.debug(
-                                                    `Eliminated: ${userIDOfEliminatedPlayer}, gave ${rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.experiencePointsEarned} exp to said player.`
-                                                );
                                                 utilities.getSocketAccordingToPlayerName(rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.playerName).send(JSON.stringify({
                                                     action: "addText",
                                                     arguments: {
@@ -551,12 +548,31 @@ function update(deltaTime) {
                                             }
                                         }
                                     }
+                                    // 1 player remaining - end game
                                     if (Object.keys(rooms[roomID].data.currentGame.players).length <= 1) {
                                         if (rooms[roomID].data.currentGame.playersAlive.length == 1) {
                                             let winnerSocket = global.sockets.find(
                                                 (socket) => socket.connectionID === rooms[roomID].data.currentGame.playersAlive[0]
                                             );
                                             let data = constructDefaultMultiplayerGameDataObjectToSend(clientConnectionID);
+                                            let userIDOfEliminatedPlayer = winnerSocket?.variables.userIDOfSocketOwner || false;
+                                            
+                                            if (userIDOfEliminatedPlayer) {
+                                                leveling.giveExperiencePointsToUserID(
+                                                    userIDOfEliminatedPlayer,
+                                                    Math.round(rooms[roomID].data.currentGame.players[winnerSocket.connectionID].currentGame.experiencePointsEarned*1.5)
+                                                );
+
+                                                winnerSocket?.send(JSON.stringify({
+                                                    action: "addText",
+                                                    arguments: {
+                                                        selector: "#multiplayer-room-chat-content",
+                                                        text: `<div><span>(System)</span>: Added ${Math.round(rooms[roomID].data.currentGame.players[winnerSocket.connectionID].currentGame.experiencePointsEarned*1.5)} experience points to your account.</div>`,
+                                                        useHTML: true
+                                                    }
+                                                }))
+                                            }
+
                                             if (!data.currentGame) {
                                                 data.currentGame = "";
                                             }
@@ -614,7 +630,6 @@ function update(deltaTime) {
                                             );
                                             if (winnerSocket) {
                                                 rooms[roomID].data.currentGame.playersAlive = [];
-                                            }
                                         }
 
                                         rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = false;
@@ -639,6 +654,7 @@ function update(deltaTime) {
                                         //         // io.global.sockets.global.sockets.get(client);
                                         //         (connection.ownerOfSocketIsPlaying = false);
                                         // }
+                                    }
                                     }
                                 }
                             }
