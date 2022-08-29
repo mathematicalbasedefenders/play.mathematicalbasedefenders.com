@@ -173,152 +173,124 @@ mongoose.connection.on("connected", async () => {
 
 app.get("/", csrfProtection, (request, response) => {
     response.render(path.join(__dirname, "index"), {
-        csrfToken: request.csrfToken(),
+        csrfToken: request.csrfToken()
     });
 });
 
-app.post(
-    "/authenticate",
-    jsonParser,
-    csrfProtection,
-    upload.none(),
-    async (request, response) => {
-        let connectionID = request.body["guestName"];
-        let username = request.body["username"];
-        let encodedPassword = request.body["password"];
-        if (!/Guest(-|\s)[0-9]{8}/.test(connectionID)) {
-            console.warn(log.addMetadata("FORGED REQUEST DETECTED", "warn"));
-            response.status(400);
-        } else {
-            connectionID = connectionID.replace(" ", "-");
-            let socketToChangeConnectionID = global.sockets.find(
-                (element) => element.connectionID === connectionID
-            );
-            if (socketToChangeConnectionID) {
-                if (
-                    await authentication.authenticate(
-                        socketToChangeConnectionID,
-                        username,
-                        encodedPassword,
-                        global.sockets
-                    )
-                ) {
-                    socketToChangeConnectionID.connectionID = username;
+app.post("/authenticate", jsonParser, csrfProtection, upload.none(), async (request, response) => {
+    let connectionID = request.body["guestName"];
+    let username = request.body["username"];
+    let encodedPassword = request.body["password"];
+    if (!/Guest(-|\s)[0-9]{8}/.test(connectionID)) {
+        console.warn(log.addMetadata("FORGED REQUEST DETECTED", "warn"));
+        response.status(400);
+    } else {
+        connectionID = connectionID.replace(" ", "-");
+        let socketToChangeConnectionID = global.sockets.find((element) => element.connectionID === connectionID);
+        if (socketToChangeConnectionID) {
+            if (await authentication.authenticate(socketToChangeConnectionID, username, encodedPassword, global.sockets)) {
+                socketToChangeConnectionID.connectionID = username;
 
-                    let data = await User.findOne({
-                        username: username
-                    });
+                let data = await User.findOne({
+                    username: username
+                });
 
-                    // TODO: Write a function that wraps these calls
-                    socketToChangeConnectionID.variables.userIDOfSocketHolder =
-                        data._id;
-                    socketToChangeConnectionID.variables.playerRank =
-                        utilities.getPlayerRank(data, data.username);
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateText",
-                            arguments: {
-                                selector: "#player-rank",
-                                text: utilities.beautifyRankName(
-                                    socketToChangeConnectionID.variables
-                                        .playerRank,
-                                    data.username
-                                )
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateText",
-                            arguments: {
-                                selector: "#player-level-indicator",
-                                text: `Level ${leveling.getLevel(
-                                    data.statistics.totalExperiencePoints
-                                )}`
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateText",
-                            arguments: {
-                                selector: "#player-name",
-                                text: socketToChangeConnectionID.connectionID
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateCSS",
-                            arguments: {
-                                selector: "#player-rank",
-                                property: "color",
-                                value: utilities.formatPlayerName(
-                                    utilities.getPlayerRank(data),
-                                    data.username
-                                )
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateCSS",
-                            arguments: {
-                                selector: "#login-shortcut-button",
-                                property: "display",
-                                value: "none"
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateCSS",
-                            arguments: {
-                                selector: "#player-level-indicator",
-                                property: "display",
-                                value: "initial"
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateCSS",
-                            arguments: {
-                                selector: "#player-level-indicator",
-                                property: "display",
-                                value: "initial"
-                            }
-                        })
-                    );
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateCSS",
-                            arguments: {
-                                selector: "#login-button",
-                                property: "display",
-                                value: "none"
-                            }
-                        })
-                    );
-                } else {
-                    socketToChangeConnectionID.send(
-                        JSON.stringify({
-                            action: "updateText",
-                            arguments: {
-                                selector: "#login-button",
-                                text: "Login"
-                            }
-                        })
-                    );
-                }
+                // TODO: Write a function that wraps these calls
+                socketToChangeConnectionID.variables.userIDOfSocketHolder = data._id;
+                socketToChangeConnectionID.variables.playerRank = utilities.getPlayerRank(data, data.username);
+                socketToChangeConnectionID.send(
+                    JSON.stringify({
+                        action: "updateText",
+                        arguments: {
+                            selector: "#player-rank",
+                            text: utilities.beautifyRankName(socketToChangeConnectionID.variables.playerRank, data.username)
+                        }
+                    })
+                );
+                socketToChangeConnectionID.send(
+                    JSON.stringify({
+                        action: "updateText",
+                        arguments: {
+                            selector: "#player-level-indicator",
+                            text: `Level ${leveling.getLevel(data.statistics.totalExperiencePoints)}`
+                        }
+                    })
+                );
+                socketToChangeConnectionID.send(
+                    JSON.stringify({
+                        action: "updateText",
+                        arguments: {
+                            selector: "#player-name",
+                            text: socketToChangeConnectionID.connectionID
+                        }
+                    })
+                );
+                socketToChangeConnectionID.send(
+                    JSON.stringify({
+                        action: "updateCSS",
+                        arguments: {
+                            selector: "#player-rank",
+                            property: "color",
+                            value: utilities.formatPlayerName(utilities.getPlayerRank(data), data.username)
+                        }
+                    })
+                );
+                socketToChangeConnectionID.send(
+                    JSON.stringify({
+                        action: "updateCSS",
+                        arguments: {
+                            selector: "#login-shortcut-button",
+                            property: "display",
+                            value: "none"
+                        }
+                    })
+                );
+                socketToChangeConnectionID.send(
+                    JSON.stringify({
+                        action: "updateCSS",
+                        arguments: {
+                            selector: "#player-level-indicator",
+                            property: "display",
+                            value: "initial"
+                        }
+                    })
+                );
+                socketToChangeConnectionID.send(
+                    JSON.stringify({
+                        action: "updateCSS",
+                        arguments: {
+                            selector: "#player-level-indicator",
+                            property: "display",
+                            value: "initial"
+                        }
+                    })
+                );
+                socketToChangeConnectionID.send(
+                    JSON.stringify({
+                        action: "updateCSS",
+                        arguments: {
+                            selector: "#login-button",
+                            property: "display",
+                            value: "none"
+                        }
+                    })
+                );
             } else {
-                console.warn(
-                    log.addMetadata("FORGED REQUEST DETECTED", "warn")
+                socketToChangeConnectionID.send(
+                    JSON.stringify({
+                        action: "updateText",
+                        arguments: {
+                            selector: "#login-button",
+                            text: "Login"
+                        }
+                    })
                 );
             }
+        } else {
+            console.warn(log.addMetadata("FORGED REQUEST DETECTED", "warn"));
         }
     }
-);
+});
 
 // app.post(
 //     "/send-report",
@@ -328,7 +300,7 @@ app.post(
 //     async (request, response) => {
 //         // let reporter = request.body["reporter"];
 //         let reportedPlayer = request.body["reportTarget"];
-//         let reportDescription = request.body["reportDescription"]; 
+//         let reportDescription = request.body["reportDescription"];
 //         console.debug(`reported ${reportedPlayer} for this reason: ${reportDescription}`)
 //     }
 // );
@@ -376,10 +348,7 @@ function update(deltaTime) {
                 log.addMetadata(
                     `${dataSentWithoutCompression
                         .toString()
-                        .replace(
-                            /\B(?=(\d{3})+(?!\d))/g,
-                            ","
-                        )} bytes sent in ${timeSinceLastTimeStatsPrintedInMilliseconds}ms.`,
+                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")} bytes sent in ${timeSinceLastTimeStatsPrintedInMilliseconds}ms.`,
                     "info"
                 )
             );
@@ -397,42 +366,26 @@ function update(deltaTime) {
                 if (
                     !rooms[roomID].playing &&
                     !rooms[roomIDOfDefaultMultiplayerRoom].readyToStart &&
-                    Object.keys(
-                        rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom
-                    ).length >= 2
+                    Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length >= 2
                 ) {
                     rooms[roomIDOfDefaultMultiplayerRoom].updateRound = 0;
                     rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = true;
-                    rooms[roomIDOfDefaultMultiplayerRoom].timeToStart =
-                        new Date(
-                            Date.now() +
-                                (configuration.developerConfiguration.settings
-                                    .impatientMode
-                                    ? 250
-                                    : 30000)
-                        );
+                    rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = new Date(
+                        Date.now() + (configuration.developerConfiguration.settings.impatientMode ? 250 : 30000)
+                    );
                 } else if (
                     !rooms[roomID].playing &&
                     rooms[roomIDOfDefaultMultiplayerRoom].readyToStart &&
-                    Object.keys(
-                        rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom
-                    ).length <= 1
+                    Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom).length <= 1
                 ) {
                     rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = false;
                     rooms[roomIDOfDefaultMultiplayerRoom].timeToStart = "";
                 }
 
-                if (
-                    rooms[roomIDOfDefaultMultiplayerRoom].readyToStart &&
-                    !rooms[roomID].playing
-                ) {
-                    let timeLeft =
-                        rooms[roomIDOfDefaultMultiplayerRoom].timeToStart -
-                        Date.now();
+                if (rooms[roomIDOfDefaultMultiplayerRoom].readyToStart && !rooms[roomID].playing) {
+                    let timeLeft = rooms[roomIDOfDefaultMultiplayerRoom].timeToStart - Date.now();
                     if (timeLeft <= 0) {
-                        rooms[
-                            roomIDOfDefaultMultiplayerRoom
-                        ].readyToStart = false;
+                        rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = false;
                         startDefaultMultiplayerGame();
                     } else {
                         broadcastToEverySocketInRoom(
@@ -440,20 +393,12 @@ function update(deltaTime) {
                             JSON.stringify({
                                 action: "updateText",
                                 arguments: {
-                                    selector:
-                                        "#default-multiplayer-room-status-text",
-                                    text:
-                                        "Game starting in " +
-                                        Math.floor(timeLeft / 1000).toString() +
-                                        " seconds."
+                                    selector: "#default-multiplayer-room-status-text",
+                                    text: "Game starting in " + Math.floor(timeLeft / 1000).toString() + " seconds."
                                 }
                             })
                         );
-                        dataSentWithoutCompression += utilities.getSizeInBytes([
-                            "Game starting in " +
-                                Math.floor(timeLeft / 1000).toString() +
-                                " seconds."
-                        ]);
+                        dataSentWithoutCompression += utilities.getSizeInBytes(["Game starting in " + Math.floor(timeLeft / 1000).toString() + " seconds."]);
                     }
                 } else {
                     broadcastToEverySocketInRoom(
@@ -461,19 +406,12 @@ function update(deltaTime) {
                         JSON.stringify({
                             action: "updateText",
                             arguments: {
-                                selector:
-                                    "#default-multiplayer-room-status-text",
-                                text: rooms[roomID].playing
-                                    ? "Game in progress."
-                                    : "Waiting for 2 or more players."
+                                selector: "#default-multiplayer-room-status-text",
+                                text: rooms[roomID].playing ? "Game in progress." : "Waiting for 2 or more players."
                             }
                         })
                     );
-                    dataSentWithoutCompression += utilities.getSizeInBytes([
-                        rooms[roomID].playing
-                            ? "Game in progress."
-                            : "Waiting for 2 or more players."
-                    ]);
+                    dataSentWithoutCompression += utilities.getSizeInBytes([rooms[roomID].playing ? "Game in progress." : "Waiting for 2 or more players."]);
                 }
             }
 
@@ -485,37 +423,19 @@ function update(deltaTime) {
 
                     //TODO: Move this
                     global.sockets
-                        .find(
-                            (socket) =>
-                                connections[socket.connectionID] != undefined
-                        )
+                        .find((socket) => connections[socket.connectionID] != undefined)
                         ?.send(
                             JSON.stringify({
                                 action: "currentGameData",
                                 arguments: {
-                                    data: rooms[roomID].data.currentGame
-                                        .players[Object.keys(connections)[0]]
+                                    data: rooms[roomID].data.currentGame.players[Object.keys(connections)[0]]
                                 }
                             })
                         );
-                    dataSentWithoutCompression += utilities.getSizeInBytes(
-                        JSON.stringify(
-                            rooms[roomID].data.currentGame.players[
-                                Object.keys(connections)[0]
-                            ]
-                        )
-                    );
-                    for (let enemy in rooms[roomID].data.currentGame.players[
-                        Object.keys(connections)[0]
-                    ]?.currentGame.enemiesOnField) {
-                        if (
-                            rooms[roomID].data.currentGame.players[
-                                Object.keys(connections)[0]
-                            ].currentGame.enemiesOnField[enemy].toDestroy
-                        ) {
-                            delete rooms[roomID].data.currentGame.players[
-                                Object.keys(connections)[0]
-                            ].currentGame.enemiesOnField[enemy];
+                    dataSentWithoutCompression += utilities.getSizeInBytes(JSON.stringify(rooms[roomID].data.currentGame.players[Object.keys(connections)[0]]));
+                    for (let enemy in rooms[roomID].data.currentGame.players[Object.keys(connections)[0]]?.currentGame.enemiesOnField) {
+                        if (rooms[roomID].data.currentGame.players[Object.keys(connections)[0]].currentGame.enemiesOnField[enemy].toDestroy) {
+                            delete rooms[roomID].data.currentGame.players[Object.keys(connections)[0]].currentGame.enemiesOnField[enemy];
                         }
                     }
                 } else if (rooms[roomID].type == "defaultMultiplayerMode") {
@@ -523,59 +443,26 @@ function update(deltaTime) {
                     let connections = rooms[roomID].data.currentGame.players;
                     if (connections) {
                         //TODO: check if other unrelated keys appear
-                        for (let clientConnectionID of Object.keys(
-                            connections
-                        )) {
+                        for (let clientConnectionID of Object.keys(connections)) {
                             if (clientConnectionID) {
-                                if (
-                                    rooms[roomID].data.currentGame.players[
-                                        clientConnectionID
-                                    ]
-                                ) {
-                                    if (
-                                        rooms[
-                                            roomID
-                                        ].data.currentGame.players.hasOwnProperty(
-                                            clientConnectionID
-                                        )
-                                    ) {
-                                        if (
-                                            !rooms[roomID].data.currentGame
-                                                .players[clientConnectionID]
-                                                .currentGame.dead
-                                        ) {
+                                if (rooms[roomID].data.currentGame.players[clientConnectionID]) {
+                                    if (rooms[roomID].data.currentGame.players.hasOwnProperty(clientConnectionID)) {
+                                        if (!rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.dead) {
                                             try {
                                                 global.sockets
-                                                    .find(
-                                                        (socket) =>
-                                                            socket.connectionID ===
-                                                            clientConnectionID
-                                                    )
+                                                    .find((socket) => socket.connectionID === clientConnectionID)
 
                                                     ?.send(
                                                         JSON.stringify({
                                                             action: "currentGameData",
                                                             arguments: {
-                                                                data: constructDefaultMultiplayerGameDataObjectToSend(
-                                                                    clientConnectionID
-                                                                )
+                                                                data: constructDefaultMultiplayerGameDataObjectToSend(clientConnectionID)
                                                             }
                                                         })
                                                     );
                                             } catch (error) {
-                                                console.warn(
-                                                    log.addMetadata(
-                                                        error.stack,
-                                                        "warn"
-                                                    )
-                                                );
-                                                deleteSocket(
-                                                    global.sockets.find(
-                                                        (socket) =>
-                                                            socket.connectionID ===
-                                                            clientConnectionID
-                                                    )
-                                                );
+                                                console.warn(log.addMetadata(error.stack, "warn"));
+                                                deleteSocket(global.sockets.find((socket) => socket.connectionID === clientConnectionID));
                                             }
                                             // dataSentWithoutCompression +=
                                             //     utilities.getSizeInBytes(
@@ -587,65 +474,42 @@ function update(deltaTime) {
                                             //     );
                                         } else {
                                             // someone got eliminated
-
-                                            rooms[
-                                                roomID
-                                            ].data.currentGame.ranks.push([
+                                           
+                                            let userIDOfEliminatedPlayer = utilities.getSocketAccordingToPlayerName(rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.playerName)?.variables.userIDOfSocketOwner || false;
+                                            
+                                            if (userIDOfEliminatedPlayer) {
+                                                leveling.giveExperiencePointsToUserID(
+                                                    userIDOfEliminatedPlayer,
+                                                    Math.round(rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.experiencePointsEarned)
+                                                );
+                                                utilities.getSocketAccordingToPlayerName(rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.playerName).send(JSON.stringify({
+                                                    action: "addText",
+                                                    arguments: {
+                                                        selector: "#multiplayer-room-chat-content",
+                                                        text: `<div><span>(System)</span>: Added ${Math.round(rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.experiencePointsEarned)} experience points to your account.</div>`,
+                                                        useHTML: true
+                                                    }
+                                                }))
+                                            }
+                                            rooms[roomID].data.currentGame.ranks.push([
                                                 [
-                                                    rooms[roomID].data
-                                                        .currentGame
-                                                        .playersAlive.length,
-                                                    rooms[
-                                                        roomID
-                                                    ].data.currentGame.players[
-                                                        clientConnectionID
-                                                    ].currentGame.playerName.toString(),
-                                                    rooms[roomID].data
-                                                        .currentGame.players[
-                                                        clientConnectionID
-                                                    ].currentGame
-                                                        .currentInGameTimeInMilliseconds,
-                                                    rooms[roomID].data
-                                                        .currentGame.players[
-                                                        clientConnectionID
-                                                    ].currentGame.enemiesSent
+                                                    rooms[roomID].data.currentGame.playersAlive.length,
+                                                    rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.playerName.toString(),
+                                                    rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.currentInGameTimeInMilliseconds,
+                                                    rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.enemiesSent
                                                 ]
                                             ]);
-                                            rooms[
-                                                roomID
-                                            ].data.currentGame.playersAlive.splice(
-                                                rooms[
-                                                    roomID
-                                                ].data.currentGame.playersAlive.indexOf(
-                                                    clientConnectionID
-                                                ),
+                                            rooms[roomID].data.currentGame.playersAlive.splice(
+                                                rooms[roomID].data.currentGame.playersAlive.indexOf(clientConnectionID),
                                                 1
                                             );
                                             if (clientConnectionID) {
-                                                let data =
-                                                    constructDefaultMultiplayerGameDataObjectToSend(
-                                                        clientConnectionID
-                                                    );
-                                                data.currentGame.rank =
-                                                    rooms[
-                                                        roomID
-                                                    ].data.currentGame.playersAlive.length;
-                                                if (
-                                                    !rooms[roomID].data
-                                                        .currentGame.players[
-                                                        clientConnectionID
-                                                    ].currentGame.forfeited
-                                                ) {
-                                                    delete rooms[roomID].data
-                                                        .currentGame.players[
-                                                        clientConnectionID
-                                                    ];
+                                                let data = constructDefaultMultiplayerGameDataObjectToSend(clientConnectionID);
+                                                data.currentGame.rank = rooms[roomID].data.currentGame.playersAlive.length;
+                                                if (!rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.forfeited) {
+                                                    delete rooms[roomID].data.currentGame.players[clientConnectionID];
                                                     global.sockets
-                                                        .find(
-                                                            (element) =>
-                                                                element.connectionID ===
-                                                                clientConnectionID
-                                                        )
+                                                        .find((element) => element.connectionID === clientConnectionID)
                                                         .send(
                                                             JSON.stringify({
                                                                 action: "currentGameData",
@@ -655,23 +519,12 @@ function update(deltaTime) {
                                                             })
                                                         );
                                                 }
-                                                dataSentWithoutCompression +=
-                                                    utilities.getSizeInBytes(
-                                                        JSON.stringify(data)
-                                                    );
-                                                let socketToClose =
-                                                    global.sockets.find(
-                                                        (element) =>
-                                                            element.connectionID ===
-                                                            clientConnectionID
-                                                    );
+                                                dataSentWithoutCompression += utilities.getSizeInBytes(JSON.stringify(data));
+                                                let socketToClose = global.sockets.find((element) => element.connectionID === clientConnectionID);
                                                 if (socketToClose) {
                                                     socketToClose.ownerOfSocketIsPlaying = false;
                                                 }
-                                                delete rooms[roomID].data
-                                                    .currentGame.players[
-                                                    clientConnectionID
-                                                ];
+                                                delete rooms[roomID].data.currentGame.players[clientConnectionID];
                                             }
 
                                             // delete rooms[roomID].data
@@ -691,84 +544,50 @@ function update(deltaTime) {
                                         }
                                     }
 
-                                    if (
-                                        rooms[roomID].data.currentGame.players[
-                                            clientConnectionID
-                                        ]
-                                    ) {
-                                        for (let enemy in rooms[roomID].data
-                                            .currentGame.players[
-                                            clientConnectionID
-                                        ].currentGame.enemiesOnField) {
-                                            if (
-                                                rooms[roomID].data.currentGame
-                                                    .players[clientConnectionID]
-                                                    .currentGame.enemiesOnField[
-                                                    enemy
-                                                ].toDestroy
-                                            ) {
-                                                delete rooms[roomID].data
-                                                    .currentGame.players[
-                                                    clientConnectionID
-                                                ].currentGame.enemiesOnField[
-                                                    enemy
-                                                ];
+                                    if (rooms[roomID].data.currentGame.players[clientConnectionID]) {
+                                        for (let enemy in rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.enemiesOnField) {
+                                            if (rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.enemiesOnField[enemy].toDestroy) {
+                                                delete rooms[roomID].data.currentGame.players[clientConnectionID].currentGame.enemiesOnField[enemy];
                                             }
                                         }
                                     }
-                                    if (
-                                        Object.keys(
-                                            rooms[roomID].data.currentGame
-                                                .players
-                                        ).length <= 1
-                                    ) {
-                                        if (
-                                            rooms[roomID].data.currentGame
-                                                .playersAlive.length == 1
-                                        ) {
+                                    // 1 player remaining - end game
+                                    if (Object.keys(rooms[roomID].data.currentGame.players).length <= 1) {
+                                        if (rooms[roomID].data.currentGame.playersAlive.length == 1) {
                                             let winnerSocket = global.sockets.find(
-                                                (socket) =>
-                                                    socket.connectionID ===
-                                                    rooms[roomID].data
-                                                        .currentGame
-                                                        .playersAlive[0]
+                                                (socket) => socket.connectionID === rooms[roomID].data.currentGame.playersAlive[0]
                                             );
-                                            let data =
-                                                constructDefaultMultiplayerGameDataObjectToSend(
-                                                    clientConnectionID
+                                            let data = constructDefaultMultiplayerGameDataObjectToSend(clientConnectionID);
+                                            let userIDOfEliminatedPlayer = winnerSocket?.variables.userIDOfSocketOwner || false;
+                                            
+                                            if (userIDOfEliminatedPlayer) {
+                                                leveling.giveExperiencePointsToUserID(
+                                                    userIDOfEliminatedPlayer,
+                                                    Math.round(rooms[roomID].data.currentGame.players[winnerSocket.connectionID].currentGame.experiencePointsEarned*1.5)
                                                 );
+
+                                                winnerSocket?.send(JSON.stringify({
+                                                    action: "addText",
+                                                    arguments: {
+                                                        selector: "#multiplayer-room-chat-content",
+                                                        text: `<div><span>(System)</span>: Added ${Math.round(rooms[roomID].data.currentGame.players[winnerSocket.connectionID].currentGame.experiencePointsEarned*1.5)} experience points to your account.</div>`,
+                                                        useHTML: true
+                                                    }
+                                                }))
+                                            }
+
                                             if (!data.currentGame) {
                                                 data.currentGame = "";
                                             }
-                                            data.currentGame.rank =
-                                                rooms[
-                                                    roomID
-                                                ].data.currentGame.playersAlive.length;
+                                            data.currentGame.rank = rooms[roomID].data.currentGame.playersAlive.length;
                                             data.currentGame.dead = true;
-                                            rooms[
-                                                roomID
-                                            ].data.currentGame.ranks.push([
+                                            rooms[roomID].data.currentGame.ranks.push([
                                                 [
-                                                    rooms[roomID].data
-                                                        .currentGame
-                                                        .playersAlive.length,
-                                                    rooms[
-                                                        roomID
-                                                    ].data.currentGame.players[
-                                                        winnerSocket
-                                                            .connectionID
-                                                    ].currentGame.playerName.toString(),
-                                                    rooms[roomID].data
-                                                        .currentGame.players[
-                                                        winnerSocket
-                                                            .connectionID
-                                                    ].currentGame
+                                                    rooms[roomID].data.currentGame.playersAlive.length,
+                                                    rooms[roomID].data.currentGame.players[winnerSocket.connectionID].currentGame.playerName.toString(),
+                                                    rooms[roomID].data.currentGame.players[winnerSocket.connectionID].currentGame
                                                         .currentInGameTimeInMilliseconds,
-                                                    rooms[roomID].data
-                                                        .currentGame.players[
-                                                        winnerSocket
-                                                            .connectionID
-                                                    ].currentGame.enemiesSent
+                                                    rooms[roomID].data.currentGame.players[winnerSocket.connectionID].currentGame.enemiesSent
                                                 ]
                                             ]);
                                             winnerSocket.ownerOfSocketIsPlaying = false;
@@ -785,16 +604,8 @@ function update(deltaTime) {
                                                 JSON.stringify({
                                                     action: "updateText",
                                                     arguments: {
-                                                        selector:
-                                                            "#last-game-ranks-content",
-                                                        text: game.formatMultiplayerRoomRanks(
-                                                            [
-                                                                rooms[roomID]
-                                                                    .data
-                                                                    .currentGame
-                                                                    .ranks
-                                                            ]
-                                                        ),
+                                                        selector: "#last-game-ranks-content",
+                                                        text: game.formatMultiplayerRoomRanks([rooms[roomID].data.currentGame.ranks]),
                                                         useHTML: true
                                                     }
                                                 })
@@ -805,16 +616,8 @@ function update(deltaTime) {
                                                 JSON.stringify({
                                                     action: "updateText",
                                                     arguments: {
-                                                        selector:
-                                                            "#last-game-ranks-content",
-                                                        text: game.formatMultiplayerRoomRanks(
-                                                            [
-                                                                rooms[roomID]
-                                                                    .data
-                                                                    .currentGame
-                                                                    .ranks
-                                                            ]
-                                                        ),
+                                                        selector: "#last-game-ranks-content",
+                                                        text: game.formatMultiplayerRoomRanks([rooms[roomID].data.currentGame.ranks]),
                                                         useHTML: true
                                                     }
                                                 })
@@ -829,16 +632,10 @@ function update(deltaTime) {
                                                 })
                                             );
                                             if (winnerSocket) {
-                                                rooms[
-                                                    roomID
-                                                ].data.currentGame.playersAlive =
-                                                    [];
-                                            }
+                                                rooms[roomID].data.currentGame.playersAlive = [];
                                         }
 
-                                        rooms[
-                                            roomIDOfDefaultMultiplayerRoom
-                                        ].readyToStart = false;
+                                        rooms[roomIDOfDefaultMultiplayerRoom].readyToStart = false;
                                         // rooms[
                                         //     roomIDOfDefaultMultiplayerRoom
                                         // ].timeToStart = new Date(
@@ -849,9 +646,7 @@ function update(deltaTime) {
                                         //             ? 250
                                         //             : 30000)
                                         // );
-                                        rooms[
-                                            roomIDOfDefaultMultiplayerRoom
-                                        ].playing = false;
+                                        rooms[roomIDOfDefaultMultiplayerRoom].playing = false;
 
                                         // let connections = [];
                                         // // io.global.sockets.adapter.rooms.get(
@@ -863,6 +658,7 @@ function update(deltaTime) {
                                         //         (connection.ownerOfSocketIsPlaying = false);
                                         // }
                                     }
+                                    }
                                 }
                             }
                         }
@@ -870,9 +666,7 @@ function update(deltaTime) {
                 }
             }
             // TODO: Move this
-            let connections = global.sockets.filter(
-                (socket) => socket.variables.currentRoomSocketIsIn === roomID
-            );
+            let connections = global.sockets.filter((socket) => socket.variables.currentRoomSocketIsIn === roomID);
             if (!connections || connections.length == 0) {
                 if (roomID == roomIDOfDefaultMultiplayerRoom) {
                     roomIDOfDefaultMultiplayerRoom = "";
@@ -892,14 +686,12 @@ var loop = setInterval(() => {
 
 function initializeSingleplayerGame(room, mode, player) {
     for (let i = 0; i < 49; i++) {
-        room.data.currentGame.players[player].currentGame.tilesOnBoard[i] =
-            new tile.Tile(
-                generation.generateRandomTileTermID(room, player),
-                i,
-                false,
-                room.data.currentGame.players[player].currentGame.tilesCreated +
-                    1
-            );
+        room.data.currentGame.players[player].currentGame.tilesOnBoard[i] = new tile.Tile(
+            generation.generateRandomTileTermID(room, player),
+            i,
+            false,
+            room.data.currentGame.players[player].currentGame.tilesCreated + 1
+        );
         room.data.currentGame.players[player].currentGame.tilesCreated++;
     }
 }
@@ -917,35 +709,17 @@ function broadcastToEverySocket(toBroadcast) {
 
 function deleteSocket(socket) {
     // variables
-    if (
-        socket.variables.currentRoomSocketIsIn &&
-        socket.variables.currentRoomSocketIsIn != ""
-    ) {
-        if (
-            rooms[socket.variables.currentRoomSocketIsIn]?.data?.currentGame
-                ?.players[socket.connectionID]
-        ) {
-            rooms[
-                socket.variables.currentRoomSocketIsIn
-            ].data.currentGame.players[
-                socket.connectionID
-            ].currentGame.forfeited = true;
+    if (socket.variables.currentRoomSocketIsIn && socket.variables.currentRoomSocketIsIn != "") {
+        if (rooms[socket.variables.currentRoomSocketIsIn]?.data?.currentGame?.players[socket.connectionID]) {
+            rooms[socket.variables.currentRoomSocketIsIn].data.currentGame.players[socket.connectionID].currentGame.forfeited = true;
 
-            rooms[
-                socket.variables.currentRoomSocketIsIn
-            ].data.currentGame.players[
-                socket.connectionID
-            ].currentGame.dead = true;
+            rooms[socket.variables.currentRoomSocketIsIn].data.currentGame.players[socket.connectionID].currentGame.dead = true;
         }
     }
     ``;
-    delete rooms[roomIDOfDefaultMultiplayerRoom]?.players?.[
-        socket.connectionID
-    ];
+    delete rooms[roomIDOfDefaultMultiplayerRoom]?.players?.[socket.connectionID];
 
-    delete rooms[roomIDOfDefaultMultiplayerRoom]?.playersInRoom[
-        socket.connectionID
-    ];
+    delete rooms[roomIDOfDefaultMultiplayerRoom]?.playersInRoom[socket.connectionID];
 
     // delete rooms[
     //     global.sockets[global.sockets.indexOf(socket)].variables.currentRoomSocketIsIn
@@ -954,11 +728,7 @@ function deleteSocket(socket) {
 }
 
 async function startDefaultMultiplayerGame(roomID) {
-    let connections = global.sockets.filter(
-        (socket) =>
-            socket.variables.currentRoomSocketIsIn ===
-            roomIDOfDefaultMultiplayerRoom
-    );
+    let connections = global.sockets.filter((socket) => socket.variables.currentRoomSocketIsIn === roomIDOfDefaultMultiplayerRoom);
     rooms[roomIDOfDefaultMultiplayerRoom].data = {
         currentGame: {
             currentInGameTimeInMilliseconds: 0,
@@ -968,91 +738,49 @@ async function startDefaultMultiplayerGame(roomID) {
             framesRenderedSinceGameStart: 0,
             players: {},
             globalTileQueues: [],
-            globalBagQuantities: [
-                4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2
-            ],
-            globalAvailableTermsIndexes: [
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
-            ],
+            globalBagQuantities: [4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            globalAvailableTermsIndexes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
             ranks: []
         }
     };
-    rooms[
-        roomIDOfDefaultMultiplayerRoom
-    ].data.currentGame.globalTileQueues.push(
-        tiles.generateMultiplayerTileQueue()
-    );
-    rooms[
-        roomIDOfDefaultMultiplayerRoom
-    ].data.currentGame.globalTileQueues.push(
-        tiles.generateMultiplayerTileQueue()
-    );
+    rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.globalTileQueues.push(tiles.generateMultiplayerTileQueue());
+    rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.globalTileQueues.push(tiles.generateMultiplayerTileQueue());
 
     let playersAlive = [];
 
     for (let socket of connections) {
         socket.variables.ownerOfSocketIsPlaying = true;
 
-        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-            socket.connectionID
-        ] = {};
-        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-            socket.connectionID
-        ].currentGame =
+        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[socket.connectionID] = {};
+        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[socket.connectionID].currentGame =
             defaults.createNewDefaultMultiplayerRoomPlayerObject(socket);
 
-        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-            socket.connectionID
-        ].currentGame.mode = "defaultMultiplayerMode";
-        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-            socket.connectionID
-        ].currentGame.tilesCreated = 0;
+        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[socket.connectionID].currentGame.mode = "defaultMultiplayerMode";
+        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[socket.connectionID].currentGame.tilesCreated = 0;
         for (let i = 0; i < 49; i++) {
-            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-                socket.connectionID
-            ].currentGame.tilesOnBoard[i] = new tile.Tile(
-                rooms[
-                    roomIDOfDefaultMultiplayerRoom
-                ].data.currentGame.globalTileQueues[0][i],
+            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[socket.connectionID].currentGame.tilesOnBoard[i] = new tile.Tile(
+                rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.globalTileQueues[0][i],
                 i,
                 false,
-                rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-                    socket.connectionID
-                ].currentGame.tilesCreated + 1
+                rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[socket.connectionID].currentGame.tilesCreated + 1
             );
-            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-                socket.connectionID
-            ].currentGame.tilesCreated++;
+            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[socket.connectionID].currentGame.tilesCreated++;
         }
-        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-            socket.connectionID
-        ].currentGame.tileQueue = [];
-        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-            socket.connectionID
-        ].currentGame.tileQueue[0] = [];
-        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-            socket.connectionID
-        ].currentGame.tileQueue[1] = JSON.parse(
-            JSON.stringify(
-                rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame
-                    .globalTileQueues[1]
-            )
+        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[socket.connectionID].currentGame.tileQueue = [];
+        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[socket.connectionID].currentGame.tileQueue[0] = [];
+        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[socket.connectionID].currentGame.tileQueue[1] = JSON.parse(
+            JSON.stringify(rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.globalTileQueues[1])
         );
         playersAlive.push(socket.connectionID);
     }
-    rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.playersAlive =
-        playersAlive;
+    rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.playersAlive = playersAlive;
 
     // io.to(roomIDOfDefaultMultiplayerRoom).emit(
     //     "defaultMultiplayerRoomAction",
     //     "switchToGameContainer"
     // );
 
-    let players = global.sockets.filter(
-        (socket) =>
-            socket.variables.currentRoomSocketIsIn ===
-            roomIDOfDefaultMultiplayerRoom
-    );
+    let players = global.sockets.filter((socket) => socket.variables.currentRoomSocketIsIn === roomIDOfDefaultMultiplayerRoom);
     for (let player of players) {
         player.send(JSON.stringify({ action: "switchToGameContainer" }));
     }
@@ -1063,42 +791,27 @@ async function startDefaultMultiplayerGame(roomID) {
 function constructDefaultMultiplayerGameDataObjectToSend(connection) {
     if (connection) {
         let playerIndex = -1;
-        let data =
-            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-                connection
-            ];
+        let data = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connection];
         if (data?.currentGame) {
-            if (rooms[roomIDOfDefaultMultiplayerRoom]?.playersInRoom[connection]?.variables){
-            data.currentGame.nameColor = utilities.formatPlayerName(
-                rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.playerRank,
-                rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.loggedIn
-                    ? rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.usernameOfSocketOwner
-                    : rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.guestNameOfSocketOwner
-            );
+            if (rooms[roomIDOfDefaultMultiplayerRoom]?.playersInRoom[connection]?.variables) {
+                data.currentGame.nameColor = utilities.formatPlayerName(
+                    rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.playerRank,
+                    rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.loggedIn
+                        ? rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.usernameOfSocketOwner
+                        : rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[connection].variables.guestNameOfSocketOwner
+                );
             }
-            data.currentGame.currentInGameTimeInMilliseconds =
-                rooms[
-                    roomIDOfDefaultMultiplayerRoom
-                ].data.currentGame.currentInGameTimeInMilliseconds;
-            data.currentGame.playersRemaining =
-                rooms[
-                    roomIDOfDefaultMultiplayerRoom
-                ].data.currentGame.playersAlive.length;
+            data.currentGame.currentInGameTimeInMilliseconds = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.currentInGameTimeInMilliseconds;
+            data.currentGame.playersRemaining = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.playersAlive.length;
             data.currentGame.opponentGameData = [];
             data.currentGame.updateRound = rooms[roomIDOfDefaultMultiplayerRoom].updateRound;
-            
-            let allConnections = Object.keys(
-                rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players
-            );
+
+            let allConnections = Object.keys(rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players);
 
             for (let opponentConnection of allConnections) {
                 if (opponentConnection != connection) {
                     playerIndex++;
-                    data.currentGame.opponentGameData[playerIndex] =
-                        constructMinifiedGameDataObjectToSend(
-                            opponentConnection,
-                            playerIndex
-                        );
+                    data.currentGame.opponentGameData[playerIndex] = constructMinifiedGameDataObjectToSend(opponentConnection, playerIndex);
                 }
             }
             return data;
@@ -1113,49 +826,23 @@ function constructMinifiedGameDataObjectToSend(connectionID, playerIndex) {
 
     minifiedOpponentGameData.playerIndex = playerIndex;
 
-    minifiedOpponentGameData.enemies = minifyEnemies(
-        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-            connectionID
-        ].currentGame.enemiesOnField
-    );
+    minifiedOpponentGameData.enemies = minifyEnemies(rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.enemiesOnField);
 
-    minifiedOpponentGameData.tiles = minifyTiles(
-        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-            connectionID
-        ].currentGame.tilesOnBoard
-    );
+    minifiedOpponentGameData.tiles = minifyTiles(rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.tilesOnBoard);
 
     minifiedOpponentGameData.actionsPerMinute =
-        (rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-            connectionID
-        ].currentGame.actionsPerformed /
-            (rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame
-                .currentInGameTimeInMilliseconds /
-                1000)) *
+        (rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.actionsPerformed /
+            (rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.currentInGameTimeInMilliseconds / 1000)) *
         60;
 
-    (minifiedOpponentGameData.baseHealth =
-        rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-            connectionID
-        ].currentGame.baseHealth),
-        (minifiedOpponentGameData.enemiesPending =
-            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-                connectionID
-            ].currentGame.enemiesPending),
-        (minifiedOpponentGameData.name =
-            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-                connectionID
-            ].currentGame.playerName),
+    (minifiedOpponentGameData.baseHealth = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.baseHealth),
+        (minifiedOpponentGameData.enemiesPending = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.enemiesPending),
+        (minifiedOpponentGameData.name = rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.playerName),
         (minifiedOpponentGameData.problem =
-            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-                connectionID
-            ].currentGame.currentProblemAsBeautifulText),
+            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.currentProblemAsBeautifulText),
         (minifiedOpponentGameData.nameColor = utilities.formatPlayerName(
-            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-                connectionID
-            ].currentGame.playerRank,  rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[
-                connectionID
-            ].currentGame.playerName.toString()
+            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.playerRank,
+            rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.players[connectionID].currentGame.playerName.toString()
         ));
 
     return minifiedOpponentGameData;
@@ -1189,9 +876,7 @@ function minifyTiles(tiles) {
 }
 
 function broadcastToEverySocketInRoom(room, toBroadcast) {
-    let socketsToBroadcastTo = global.sockets.filter(
-        (element) => element.variables.currentRoomSocketIsIn === room
-    );
+    let socketsToBroadcastTo = global.sockets.filter((element) => element.variables.currentRoomSocketIsIn === room);
     for (let socket of socketsToBroadcastTo) {
         try {
             socket.send(toBroadcast);
@@ -1243,11 +928,7 @@ uWS.App()
 
         message: async (socket, message, isBinary) => {
             // validation
-            if (
-                !validation.checkIfJSONStringIsValid(
-                    decoder.write(Buffer.from(message))
-                )
-            ) {
+            if (!validation.checkIfJSONStringIsValid(decoder.write(Buffer.from(message)))) {
                 return;
             }
 
@@ -1256,12 +937,7 @@ uWS.App()
                 case "createAndJoinDefaultSingleplayerRoom": {
                     // validation
                     if (socket.variables.currentRoomSocketIsIn === "") {
-                        if (
-                            parsedMessage.arguments.gameMode ==
-                                "easySingleplayerMode" ||
-                            parsedMessage.arguments.gameMode ==
-                                "standardSingleplayerMode"
-                        ) {
+                        if (parsedMessage.arguments.gameMode == "easySingleplayerMode" || parsedMessage.arguments.gameMode == "standardSingleplayerMode") {
                             let roomID = undefined;
                             while (roomID === undefined || roomID in rooms) {
                                 roomID = utilities.generateRoomID();
@@ -1274,49 +950,22 @@ uWS.App()
                                 id: roomID,
                                 type: roomTypes.SINGLEPLAYER,
                                 host: socket,
-                                userIDOfHost:
-                                    socket.variables.userIDOfSocketOwner,
+                                userIDOfHost: socket.variables.userIDOfSocketOwner,
                                 playing: false,
                                 gameMode: parsedMessage.arguments.gameMode,
-                                data: defaults.createNewDefaultSingleplayerGameData(
-                                    modes.SINGLEPLAYER,
-                                    roomID,
-                                    parsedMessage.arguments.gameMode,
-                                    socket
-                                )
+                                data: defaults.createNewDefaultSingleplayerGameData(modes.SINGLEPLAYER, roomID, parsedMessage.arguments.gameMode, socket)
                             };
 
                             socket.subscribe(roomID);
-                            initializeSingleplayerGame(
-                                rooms[socket.variables.currentRoomSocketIsIn],
-                                parsedMessage.arguments.gameMode,
-                                socket.connectionID
-                            );
+                            initializeSingleplayerGame(rooms[socket.variables.currentRoomSocketIsIn], parsedMessage.arguments.gameMode, socket.connectionID);
                             socket.variables.ownerOfSocketIsPlaying = true;
-                            rooms[
-                                socket.variables.currentRoomSocketIsIn
-                            ].data.currentGame.playersAlive = [
-                                socket.connectionID
-                            ];
-                            rooms[
-                                socket.variables.currentRoomSocketIsIn
-                            ].playing = true;
+                            rooms[socket.variables.currentRoomSocketIsIn].data.currentGame.playersAlive = [socket.connectionID];
+                            rooms[socket.variables.currentRoomSocketIsIn].playing = true;
                         } else {
-                            console.error(
-                                log.addMetadata(
-                                    gameMode +
-                                        " is not a valid Singleplayer game mode!",
-                                    "error"
-                                )
-                            );
+                            console.error(log.addMetadata(gameMode + " is not a valid Singleplayer game mode!", "error"));
                         }
                     } else {
-                        console.log(
-                            log.addMetadata(
-                                "Socket is already in a room!",
-                                "info"
-                            )
-                        );
+                        console.log(log.addMetadata("Socket is already in a room!", "info"));
                     }
                     break;
                 }
@@ -1346,8 +995,7 @@ uWS.App()
 
                             socket.subscribe(roomID);
 
-                            rooms[roomID].playersInRoom[socket.connectionID] =
-                                socket;
+                            rooms[roomID].playersInRoom[socket.connectionID] = socket;
                             socket.send(
                                 JSON.stringify({
                                     action: "updateMultiplayerPlayerList",
@@ -1367,11 +1015,8 @@ uWS.App()
                             );
                         } else {
                             socket.subscribe(roomIDOfDefaultMultiplayerRoom);
-                            socket.variables.currentRoomSocketIsIn =
-                                roomIDOfDefaultMultiplayerRoom;
-                            rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[
-                                socket.connectionID
-                            ] = socket;
+                            socket.variables.currentRoomSocketIsIn = roomIDOfDefaultMultiplayerRoom;
+                            rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[socket.connectionID] = socket;
                             socket.send(
                                 JSON.stringify({
                                     action: "updateMultiplayerPlayerList",
@@ -1391,19 +1036,13 @@ uWS.App()
                             );
                         }
                     } else {
-                        console.log(
-                            log.addMetadata(
-                                "Socket is already in a room!",
-                                "info"
-                            )
-                        );
+                        console.log(log.addMetadata("Socket is already in a room!", "info"));
                     }
                     break;
                 }
                 case "keypress": {
                     let code = parsedMessage.arguments.code;
-                    let playerTileKeybinds =
-                        parsedMessage.arguments.playerTileKeybinds;
+                    let playerTileKeybinds = parsedMessage.arguments.playerTileKeybinds;
                     code = DOMPurify.sanitize(code);
 
                     playerTileKeybinds = DOMPurify.sanitize(playerTileKeybinds);
@@ -1415,12 +1054,7 @@ uWS.App()
                     }
 
                     // validation 1
-                    if (
-                        utilities.checkIfVariablesAreUndefined(
-                            code,
-                            playerTileKeybinds
-                        )
-                    ) {
+                    if (utilities.checkIfVariablesAreUndefined(code, playerTileKeybinds)) {
                         return;
                     }
 
@@ -1432,58 +1066,32 @@ uWS.App()
                     if (socket.variables.currentRoomSocketIsIn != "") {
                         if (socket.variables.ownerOfSocketIsPlaying) {
                             if (code != "Escape") {
-                                switch (
-                                    rooms[
-                                        socket.variables.currentRoomSocketIsIn
-                                    ].type
-                                ) {
+                                switch (rooms[socket.variables.currentRoomSocketIsIn].type) {
                                     case modes.SINGLEPLAYER: {
-                                        if (
-                                            socket.variables
-                                                .currentRoomSocketIsIn != "" &&
-                                            socket.variables
-                                                .socketIsHostOfRoomItIsIn
-                                        ) {
+                                        if (socket.variables.currentRoomSocketIsIn != "" && socket.variables.socketIsHostOfRoomItIsIn) {
                                             tiles.forceSelectTileWithTermID(
                                                 tiles.convertPressedKeyToTermID(
                                                     code,
                                                     playerTileKeybinds,
-                                                    rooms[
-                                                        socket.variables
-                                                            .currentRoomSocketIsIn
-                                                    ],
+                                                    rooms[socket.variables.currentRoomSocketIsIn],
                                                     socket
                                                 ),
-                                                rooms[
-                                                    socket.variables
-                                                        .currentRoomSocketIsIn
-                                                ],
+                                                rooms[socket.variables.currentRoomSocketIsIn],
                                                 socket
                                             );
                                         }
                                         break;
                                     }
                                     case modes.DEFAULT_MULTIPLAYER: {
-                                        if (
-                                            socket.variables
-                                                .currentRoomSocketIsIn != "" &&
-                                            socket.variables
-                                                .ownerOfSocketIsPlaying
-                                        ) {
+                                        if (socket.variables.currentRoomSocketIsIn != "" && socket.variables.ownerOfSocketIsPlaying) {
                                             tiles.forceSelectTileWithTermID(
                                                 tiles.convertPressedKeyToTermID(
                                                     code,
                                                     playerTileKeybinds,
-                                                    rooms[
-                                                        socket.variables
-                                                            .currentRoomSocketIsIn
-                                                    ],
+                                                    rooms[socket.variables.currentRoomSocketIsIn],
                                                     socket
                                                 ),
-                                                rooms[
-                                                    socket.variables
-                                                        .currentRoomSocketIsIn
-                                                ],
+                                                rooms[socket.variables.currentRoomSocketIsIn],
                                                 socket
                                             );
                                         }
@@ -1493,9 +1101,7 @@ uWS.App()
                             } else {
                                 // Escape
                                 socket.variables.ownerOfSocketIsPlaying = false;
-                                socket.unsubscribe(
-                                    socket.variables.currentRoomSocketIsIn
-                                );
+                                socket.unsubscribe(socket.variables.currentRoomSocketIsIn);
                             }
                         }
                     }
@@ -1504,45 +1110,25 @@ uWS.App()
                 case "leaveRoom": {
                     let roomToLeave = socket.variables.currentRoomSocketIsIn;
 
-                    if (
-                        roomToLeave != undefined &&
-                        roomToLeave == roomIDOfDefaultMultiplayerRoom &&
-                        rooms[roomToLeave] !== undefined
-                    ) {
+                    if (roomToLeave != undefined && roomToLeave == roomIDOfDefaultMultiplayerRoom && rooms[roomToLeave] !== undefined) {
                         broadcastToEverySocketInRoom(
                             roomToLeave,
 
                             JSON.stringify({
                                 action: "updateText",
                                 arguments: {
-                                    selector:
-                                        "#default-multiplayer-room-status-text",
-                                    text: room.getRoomPlayers(
-                                        rooms[roomToLeave]
-                                    )
+                                    selector: "#default-multiplayer-room-status-text",
+                                    text: room.getRoomPlayers(rooms[roomToLeave])
                                 }
                             })
                         );
-                        if (
-                            rooms[roomToLeave].playing &&
-                            rooms[roomToLeave].data.currentGame.players[
-                                socket.connectionID
-                            ]
-                        ) {
-                            rooms[roomToLeave].data.currentGame.players[
-                                socket.connectionID
-                            ].currentGame.baseHealth = 0;
-                            rooms[roomToLeave].data.currentGame.players[
-                                socket.connectionID
-                            ].currentGame.forfeited = true;
+                        if (rooms[roomToLeave].playing && rooms[roomToLeave].data.currentGame.players[socket.connectionID]) {
+                            rooms[roomToLeave].data.currentGame.players[socket.connectionID].currentGame.baseHealth = 0;
+                            rooms[roomToLeave].data.currentGame.players[socket.connectionID].currentGame.forfeited = true;
                         }
-                        delete rooms[roomToLeave].playersInRoom[
-                            socket.connectionID
-                        ];
+                        delete rooms[roomToLeave].playersInRoom[socket.connectionID];
                     } else {
-                        delete rooms[roomToLeave].data.currentGame.players[
-                            socket.connectionID
-                        ];
+                        delete rooms[roomToLeave].data.currentGame.players[socket.connectionID];
                     }
                     socket.unsubscribe(socket.variables.currentRoomSocketIsIn);
                     socket.variables.currentRoomSocketIsIn = "";
@@ -1566,19 +1152,12 @@ uWS.App()
                         slot = parseInt(slot);
                     }
                     if (slot % 1 == 0 && slot >= 0 && slot <= 48) {
-                        input.processTileClick(
-                            slot,
-                            rooms[socket.variables.currentRoomSocketIsIn],
-                            socket
-                        );
+                        input.processTileClick(slot, rooms[socket.variables.currentRoomSocketIsIn], socket);
                     }
                     break;
                 }
                 case "chatMessage": {
-                    if (
-                        parsedMessage.arguments.message ===
-                        DOMPurify.sanitize(parsedMessage.arguments.message)
-                    ) {
+                    if (parsedMessage.arguments.message === DOMPurify.sanitize(parsedMessage.arguments.message)) {
                         broadcastToEverySocketInRoom(
                             roomIDOfDefaultMultiplayerRoom,
                             JSON.stringify({
@@ -1588,11 +1167,7 @@ uWS.App()
                                     text: `<div><span style="color:${utilities.formatPlayerName(
                                         socket.variables.playerRank,
                                         utilities.getNameOfSocketOwner(socket)
-                                    )}">${utilities.getNameOfSocketOwner(
-                                        socket
-                                    )}</span>: ${
-                                        parsedMessage.arguments.message
-                                    }</div>`,
+                                    )}">${utilities.getNameOfSocketOwner(socket)}</span>: ${parsedMessage.arguments.message}</div>`,
                                     useHTML: true
                                 }
                             })
@@ -1602,10 +1177,7 @@ uWS.App()
                 }
                 case "getDataForUser": {
                     // sanitize data
-                    if (
-                        parsedMessage.arguments.userToGetDataOf !==
-                        mongoDBSanitize(parsedMessage.arguments.userToGetDataOf)
-                    ) {
+                    if (parsedMessage.arguments.userToGetDataOf !== mongoDBSanitize(parsedMessage.arguments.userToGetDataOf)) {
                         // invalid
                         socket.send(
                             JSON.stringify({
@@ -1618,9 +1190,7 @@ uWS.App()
                         );
                         return;
                     }
-                    let userToGetDataOf = mongoDBSanitize(
-                        parsedMessage.arguments.userToGetDataOf
-                    );
+                    let userToGetDataOf = mongoDBSanitize(parsedMessage.arguments.userToGetDataOf);
                     socket.send(
                         JSON.stringify({
                             action: "updateText",
@@ -1643,9 +1213,7 @@ uWS.App()
                         );
                         return;
                     }
-                    let data = await User.superSafeFindByUsername(
-                        userToGetDataOf
-                    );
+                    let data = await User.superSafeFindByUsername(userToGetDataOf);
 
                     if (!data) {
                         socket.send(
@@ -1665,17 +1233,9 @@ uWS.App()
                             action: "updateText",
                             arguments: {
                                 selector: "#user-information-modal-text",
-                                text: `Standard Mode PB: ${
-                                    data.statistics
-                                        ?.personalBestScoreOnStandardSingleplayerMode
-                                        .score ?? "N/A"
-                                }\nEasy Mode PB: ${
-                                    data.statistics
-                                        ?.personalBestScoreOnEasySingleplayerMode
-                                        .score ?? "N/A"
-                                }\n Level ${leveling.getLevel(
-                                    data.statistics.totalExperiencePoints
-                                )}`,
+                                text: `Standard Mode PB: ${data.statistics?.personalBestScoreOnStandardSingleplayerMode.score ?? "N/A"}\nEasy Mode PB: ${
+                                    data.statistics?.personalBestScoreOnEasySingleplayerMode.score ?? "N/A"
+                                }\n Level ${leveling.getLevel(data.statistics.totalExperiencePoints)}`,
                                 useHTML: true
                             }
                         })
@@ -1687,10 +1247,7 @@ uWS.App()
                     // sanitize data
 
                     if (socket.variables.currentRoomSocketIsIn === "") {
-                        let dataValidationResult =
-                            validation.performDataValidationForCustomSingleplayerMode(
-                                parsedMessage.arguments.settings
-                            );
+                        let dataValidationResult = validation.performDataValidationForCustomSingleplayerMode(parsedMessage.arguments.settings);
                         if (dataValidationResult.good) {
                             let roomID = undefined;
                             while (roomID === undefined || roomID in rooms) {
@@ -1725,20 +1282,10 @@ uWS.App()
                                 })
                             );
                             socket.subscribe(roomID);
-                            initializeSingleplayerGame(
-                                rooms[socket.variables.currentRoomSocketIsIn],
-                                "customSingleplayerMode",
-                                socket.connectionID
-                            );
+                            initializeSingleplayerGame(rooms[socket.variables.currentRoomSocketIsIn], "customSingleplayerMode", socket.connectionID);
                             socket.variables.ownerOfSocketIsPlaying = true;
-                            rooms[
-                                socket.variables.currentRoomSocketIsIn
-                            ].data.currentGame.playersAlive = [
-                                socket.connectionID
-                            ];
-                            rooms[
-                                socket.variables.currentRoomSocketIsIn
-                            ].playing = true;
+                            rooms[socket.variables.currentRoomSocketIsIn].data.currentGame.playersAlive = [socket.connectionID];
+                            rooms[socket.variables.currentRoomSocketIsIn].playing = true;
                         } else {
                             let issueMessage = "Unable to start game. (";
 
@@ -1752,41 +1299,30 @@ uWS.App()
                                 JSON.stringify({
                                     action: "updateText",
                                     arguments: {
-                                        selector:
-                                            "#singleplayer-screen-custom-mode-issues",
+                                        selector: "#singleplayer-screen-custom-mode-issues",
                                         text: issueMessage
                                     }
                                 })
                             );
                         }
                     } else {
-                        console.log(
-                            log.addMetadata(
-                                "Socket is already in a room!",
-                                "info"
-                            )
-                        );
+                        console.log(log.addMetadata("Socket is already in a room!", "info"));
                     }
                     break;
                 }
                 case "broadcastMessageAsStaff": {
                     if (
                         !(
-                            utilities.getNameOfSocketOwner(socket) ===
-                                "mistertfy64" ||
-                            socket.variables.playerRank ===
-                                playerRanks.ADMINISTRATOR ||
-                            socket.variables.playerRank ===
-                                playerRanks.MODERATOR
+                            utilities.getNameOfSocketOwner(socket) === "mistertfy64" ||
+                            socket.variables.playerRank === playerRanks.ADMINISTRATOR ||
+                            socket.variables.playerRank === playerRanks.MODERATOR
                         )
                     ) {
                         socket.send(
                             JSON.stringify({
                                 action: "createToastNotification",
                                 arguments: {
-                                    message: DOMPurify.sanitize(
-                                        `Only staff members may use this command.`
-                                    )
+                                    message: DOMPurify.sanitize(`Only staff members may use this command.`)
                                 }
                             })
                         );
@@ -1800,16 +1336,8 @@ uWS.App()
                                 position: "topCenter",
                                 message: DOMPurify.sanitize(
                                     `Message from ${
-                                        utilities.getNameOfSocketOwner(
-                                            socket
-                                        ) == "mistertfy64"
-                                            ? "Game Master"
-                                            : utilities.beautifyRankName(
-                                                  socket.playerRank
-                                              )
-                                    } ${utilities.getNameOfSocketOwner(
-                                        socket
-                                    )}:<br>${parsedMessage.arguments.message}`
+                                        utilities.getNameOfSocketOwner(socket) == "mistertfy64" ? "Game Master" : utilities.beautifyRankName(socket.playerRank)
+                                    } ${utilities.getNameOfSocketOwner(socket)}:<br>${parsedMessage.arguments.message}`
                                 )
                             }
                         })
@@ -1819,9 +1347,7 @@ uWS.App()
                         JSON.stringify({
                             action: "createToastNotification",
                             arguments: {
-                                message: DOMPurify.sanitize(
-                                    `Sent message to all online players!`
-                                )
+                                message: DOMPurify.sanitize(`Sent message to all online players!`)
                             }
                         })
                     );
@@ -1830,8 +1356,12 @@ uWS.App()
                     // console.debug(`${utilities.getNameOfSocketOwner(socket)} reported ${parsedMessage.arguments.reportTarget} for this reason: ${parsedMessage.arguments.reportDescription}`)
                     let result = await moderation.sendReport(socket, parsedMessage.arguments.reportTarget, parsedMessage.arguments.reportDescription);
                     let message = "";
-                    if (result) {message = "Successfully sent report."} else {message = "Failed to send report."}    
-                    socket.send(JSON.stringify({action: "createToastNotification", arguments:{message:DOMPurify.sanitize(message)}}));
+                    if (result) {
+                        message = "Successfully sent report.";
+                    } else {
+                        message = "Failed to send report.";
+                    }
+                    socket.send(JSON.stringify({ action: "createToastNotification", arguments: { message: DOMPurify.sanitize(message) } }));
                     break;
                 }
                 default: {
@@ -1841,38 +1371,21 @@ uWS.App()
         },
 
         close: (socket, code, message) => {
-            deleteSocket(
-                global.sockets.find(
-                    (socketToClose) =>
-                        socketToClose.connectionID === socket.connectionID
-                )
-            );
+            deleteSocket(global.sockets.find((socketToClose) => socketToClose.connectionID === socket.connectionID));
         },
 
         end: (socket, code, message) => {
-            deleteSocket(
-                global.sockets.find(
-                    (socketToClose) =>
-                        socketToClose.connectionID === socket.connectionID
-                )
-            );
+            deleteSocket(global.sockets.find((socketToClose) => socketToClose.connectionID === socket.connectionID));
         }
     })
 
     .listen(WEBSOCKET_PORT, (token) => {
-        console.log(
-            log.addMetadata(
-                `Listening to WebSockets at localhost:${WEBSOCKET_PORT}`,
-                "info"
-            )
-        );
+        console.log(log.addMetadata(`Listening to WebSockets at localhost:${WEBSOCKET_PORT}`, "info"));
     });
 
 app.listen(PORT, () => {
     console.log(log.addMetadata(`Listening at localhost:${PORT}`, "info"));
     if (credentials.getWhetherTestingCredentialsAreUsed()) {
-        console.log(
-            log.addMetadata("WARNING: Using testing credentials.", "warn")
-        );
+        console.log(log.addMetadata("WARNING: Using testing credentials.", "warn"));
     }
 });

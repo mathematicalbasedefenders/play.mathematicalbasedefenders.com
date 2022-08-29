@@ -135,11 +135,33 @@ async function computeUpdateForRoom(room, deltaTimeInMilliseconds) {
             room.data.currentGame.players[player].currentGame.timeElapsedSinceLastEnemyKillInMilliseconds += deltaTimeInMilliseconds;
             room.data.currentGame.players[player].currentGame.framesRenderedSinceGameStart += framesRendered;
 
-            computeUpdateForRoomPlayerBaseHealth(room, player, deltaTimeInMilliseconds);
-            computeUpdateForRoomPlayerCombo(room, player, deltaTimeInMilliseconds);
-            computeUpdateForRoomPlayerEnemies(room, player, deltaTimeInMilliseconds);
-            computeUpdateForRoomPlayerIndicators(room, player, deltaTimeInMilliseconds);
-            computeUpdateForRoomPlayerThingsToRemove(room, player, deltaTimeInMilliseconds);
+            computeUpdateForRoomPlayerBaseHealth(
+                room,
+                player,
+                deltaTimeInMilliseconds
+            );
+            computeUpdateForRoomPlayerCombo(
+                room,
+                player,
+                deltaTimeInMilliseconds
+            );
+            computeUpdateForRoomPlayerEnemies(
+                room,
+                player,
+                deltaTimeInMilliseconds
+            );
+            computeUpdateForRoomPlayerIndicators(
+                room,
+                player,
+                deltaTimeInMilliseconds
+            );
+            computeUpdateForRoomPlayerThingsToRemove(
+                room,
+                player,
+                deltaTimeInMilliseconds
+            );
+
+            computeUpdateForRoomPlayerExperiencePoints(room,player,deltaTimeInMilliseconds);
         }
     }
 }
@@ -358,11 +380,20 @@ async function computeUpdateForRoomPlayerThingsToRemove(room, player, deltaTimeI
     }
     room.data.currentGame.players[player].currentGame[`${indicatorName}ToDestroy`] = [];
 
-    room.data.currentGame.players[player].currentGame.enemiesOnField = room.data.currentGame.players[player].currentGame.enemiesOnField.filter(function (
-        element
-    ) {
-        return element != null || element !== undefined;
-    });
+    room.data.currentGame.players[player].currentGame.enemiesOnField =
+        room.data.currentGame.players[player].currentGame.enemiesOnField.filter(
+            function (element) {
+                return element != null || element !== undefined;
+            }
+        );
+}
+
+async function computeUpdateForRoomPlayerExperiencePoints(room, player, deltaTimeInMilliseconds){
+    if (room.gameMode === "defaultMultiplayerMode"){
+    room.data.currentGame.players[
+        player
+    ].currentGame.experiencePointsEarned += deltaTimeInMilliseconds / 1000
+}
 }
 
 function startDefaultSingleplayerGame(roomID) {}
