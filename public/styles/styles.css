@@ -77,9 +77,38 @@ body {
 #game-container {
     overflow: hidden;
 }
+
+:root {
+    --color-black: #000000;
+    --color-white: #ffffff;
+    --color-background: #eeeeee;
+}
+
 /*
     GLOBAL
 */
+
+.black-background {
+    background-color: #000000;
+}
+
+.loading-screen-text {
+    background-color: var(--color-black);
+                        color: var(--color-white);
+                        text-decoration: none;
+}
+
+#text-modal-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display:none;                                                       
+}
+
+
+.loading-screen__text {
+    color: var(--color-white);
+}
 
 .very-small-text {
     font-size: 12px;
@@ -207,13 +236,36 @@ select {
     position: absolute;
 }
 
-#text-modal-button {
+.text-modal__title {
+    font-size: 36px;
+    color: #ffffff;
+    background-color: inherit;
+}
+
+.text-modal__text {
+    font-size: 24px;
+    color: #ffffff;
+    background-color: inherit;
+
+}
+
+.text-modal__content-text {
+    background-color: #555555;border: none;color:white;padding:0;
+}
+
+.text-modal__button {
     width: 60%;
     height: 50px;
     font-size: 32px;
     background-color: #cdcdcd;
     color: #000000;
     bottom: 5%;
+}
+
+.text-modal__button-dangerous{
+    background-color: #bb0000 !important;
+    color:#ffffff !important;
+    border-color: #dd0000 !important;
 }
 
 #user-information-modal-container {
@@ -280,6 +332,16 @@ select {
    
 }
 
+.report-description-box {
+    width: 100%;
+    height: 40vh;
+    font-size: 16px;
+    text-align: left;
+    padding-left:0;
+    padding-top:0;
+    vertical-align: top;
+    resize: none;
+}
 
 
 

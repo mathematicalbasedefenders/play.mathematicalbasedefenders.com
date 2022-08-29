@@ -15,13 +15,9 @@
 
 <body>
     <!-- Loading screen -->
-    <div id="loading-screen-container" style="background-color: #000000">
-        <div id="loading-screen" style="background-color: #000000">
-            <span style="
-                        background-color: #000000;
-                        color: #ffffff;
-                        text-decoration: none;
-                    " id="loading-screen-text">Loading...</span>
+    <div id="loading-screen-container" class="black-background">
+        <div id="loading-screen" class="black-background">
+            <span id="loading-screen__text">Loading...</span>
         </div>
     </div>
 
@@ -32,33 +28,20 @@
 
         <div id="status-bar-container">
             <div id="status-bar-content-container">
-                <span id="frames-per-second"></span> FPS |
-                <span id="online-players"></span> online players
+                <span id="status-bar__frames-per-second-text"></span> FPS |
+                <span id="status-bar__online-players-text"></span> online players
             </div>
         </div>
 
-        <div id="text-modal-container" style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    display:none;
-                ">
+        <div id="text-modal-container">
             <div id="text-modal-content-container">
                 <div style="position: relative">
-                    <p style="text-align: center" style="background-color: #555555">
-                        <span style="
-                                    font-size: 36px;
-                                    color: #ffffff;
-                                    background-color: inherit;
-                                " id="text-modal-title">text1</span>
+                    <p style="text-align: center">
+                        <span class="text-modal__title">text modal title</span>
                         <br />
-                        <span style="
-                                    font-size: 24px;
-                                    color: #ffffff;
-                                    background-color: inherit;
-                                " id="text-modal-text">text2</span>
+                        <span class="text-modal__text">text modal text</span>
                         <br />
-                        <button id="text-modal-button"
+                        <button class="text-modal__button"
                             onClick="	$('#text-modal-container').fadeOut(200);$('#text-modal-container').hide(0);">
                             Close
                         </button>
@@ -70,7 +53,7 @@
         <div id="user-information-modal-container" style="display:none;">
             <div id="user-information-modal-content-container">
                 <div style="display:flex;flex-direction:column;align-items: flex-end;">
-                    <span style="background-color: #555555;border: none;color:white;padding:0;"
+                    <span class="text-modal__content-text"
                         onClick="showReportUserModal()">Report User</span>
                 </div>
                 <div style="position: relative">
@@ -78,19 +61,11 @@
                     <p style="text-align: center" style="background-color: #555555">
 
                         <br>
-                        <span style="
-                                    font-size: 36px;
-                                    color: #ffffff;
-                                    background-color: inherit;
-                                " id="user-information-modal-title">User Modal</span>
+                        <span class="text-modal__title" id="user-information-modal-title">User Modal</span>
                         <br />
-                        <span style="
-                                    font-size: 24px;
-                                    color: #ffffff;
-                                    background-color: inherit;
-                                " id="user-information-modal-text">text2</span>
+                        <span class="text-modal__text" id="user-information-modal-text">text2</span>
                         <br />
-                        <button id="user-information-modal-button"
+                        <button class="text-modal__button"
                             onClick="$('#user-information-modal-container').fadeOut(200);$('#user-information-modal-container').hide(0);game.userCurrentUserIsViewing=null;">
                             Close
                         </button>
@@ -104,38 +79,25 @@
                 <div style="position: relative">
 
                     <p style="text-align: center" style="background-color: #555555">
-                        <span style="
-                                    font-size: 36px;
-                                    color: #ffffff;
-                                    background-color: inherit;
-                                " id="report-user-modal-title">text1</span>
+                        <span class="text-modal__title" id="report-user-modal-title">text1</span>
                         <br />
                         <span style="color: #ffffff">Note: You must be a registered user to report, misuse of the report system may result in
                             actions taken on
                             <strong>your</strong> account and you may only report <strong>once</strong> every five minutes.</span>
                     <form input="report-form" action="send-report" method="POST" onsubmit="return false;">
                         <input type="hidden" id="report-target" name="report-target" value="">
-                        <textarea id="report-description-box" name="report-description" type="text" autocomplete="off"
-                            placeholder="Why are you reporting this user? (500 characters maximum)" style="
-                                    width: 100%;
-                                    height: 40vh;
-                                    font-size: 16px;
-                                    text-align: left;
-                                    padding-left:0;
-                                    padding-top:0;
-                                    vertical-align: top;
-                                    resize: none;
-                                    "></textarea>
+                        <textarea class="report-description-box" id="report-description-box" name="report-description" type="text" autocomplete="off"
+                            placeholder="Why are you reporting this user? (500 characters maximum)"></textarea>
                                     <br><br>
                         <div style="display: flex;justify-content: center;align-items: center;">
                             <div style="width:75%">
                                 <div>
-                                    <button class="report-user-modal-button"
+                                    <button class="ext-modal__button"
                                         onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
                                         Close
                                     </button>
                                     &nbsp;&nbsp;
-                                    <button class="report-user-modal-button dangerous-button" type="submit"
+                                    <button class="text-modal__button text-modal__button__dangerous" type="submit"
                                         onClick="sendReport();$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
                                         Report
                                     </button>

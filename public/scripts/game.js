@@ -449,7 +449,7 @@ app.ticker.add((delta) => {
     framesPerSecondCounterTimeInMilliseconds += delta;
     framesPerSecondThisSecond++;
 
-    $("#frames-per-second").text(Math.round(app.ticker.FPS));
+    $("#status-bar__frames-per-second-text").text(Math.round(app.ticker.FPS));
 
     // global
     for (let toastNotification in game.toastNotifications) {

@@ -337,7 +337,7 @@ function update(deltaTime) {
             JSON.stringify({
                 action: "updateText",
                 arguments: {
-                    selector: "#online-players",
+                    selector: "#status-bar__online-players-text",
                     text: global.sockets.length
                 }
             })
