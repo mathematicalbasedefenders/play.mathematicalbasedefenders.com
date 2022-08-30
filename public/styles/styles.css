@@ -88,6 +88,12 @@ body {
     GLOBAL
 */
 
+.math-font {
+                                            font-family: 'Computer Modern Math Italic',
+                                                'Computer Modern Unicode Serif';
+                                        
+}
+
 .black-background {
     background-color: #000000;
 }
@@ -859,6 +865,16 @@ GAME OVER
     overflow-y: auto;
     z-index: -100;
     height: 100vh;    
+}
+
+.game-over-screen-result-table__stat-label {
+    width: 50%
+}
+
+.game-over-screen-result-table__stat-value {
+    float: right;
+    text-align: right;
+    width: 50%;
 }
 
 /*
