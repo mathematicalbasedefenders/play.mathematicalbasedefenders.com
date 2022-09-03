@@ -80,7 +80,7 @@ return await this.findOne({  _id: userID} ).select({
     creationDateAndTime: 1,
     statistics: 1,
     membership: 1
-}).query.clone();
+}).clone();
 }
 
 UserModelSchema.statics.safeFindByUserNumber = async function (userNumber) {
@@ -111,12 +111,7 @@ UserModelSchema.statics.giveExperiencePointsToUserID = async function (
     return await this.findByIdAndUpdate(
         userID,
         { $inc: { "statistics.totalExperiencePoints": amount } },
-        { upsert: true },
-        (error, data) => {
-            if (error) {
-                console.error(log.addMetadata(error.stack, "error"));
-            }
-        }
+        { upsert: true }
     ).clone();
 };
 
@@ -126,12 +121,7 @@ UserModelSchema.statics.setLastReportTimeForUserID = async function (
     return await this.findByIdAndUpdate(
         userID,
         { $set: { "moderation.timeLastReportFiled": Date.now() } },
-        { upsert: true },
-        (error, data) => {
-            if (error) {
-                console.error(log.addMetadata(error.stack, "error"));
-            }
-        }
+        { upsert: true }
     ).clone();
 };
 
@@ -170,12 +160,7 @@ UserModelSchema.statics.setNewPersonalBestForUserID = async function (
                 }
             }
         },
-        { upsert: true },
-        (error, data) => {
-            if (error) {
-                console.error(log.addMetadata(error.stack, "error"));
-            }
-        }
+        { upsert: true }
     ).clone();
 };
 
@@ -183,14 +168,9 @@ UserModelSchema.statics.incrementMultiplayerGamesPlayedCount = async function(us
     console.debug(`+${amount} game played for player ${userID}`)
     return await this.findByIdAndUpdate(
         userID,
-        { $inc: { "statistics.multiplayer.gamesPlayed": amount } },
+        { $inc: { "statistics.multiplayer.gamesPlayed": 1 } },
         { upsert: true },
-        (error, data) => {
-            if (error) {
-                console.error(log.addMetadata(error.stack, "error"));
-            }
-        }
-    ).clone();
+    ).clone().exec();
 }
 
 UserModelSchema.statics.incrementMultiplayerGamesWonCount = async function(userID, amount=1){
@@ -198,12 +178,7 @@ UserModelSchema.statics.incrementMultiplayerGamesWonCount = async function(userI
         userID,
         { $inc: { "statistics.multiplayer.gamesWon": amount } },
         { upsert: true },
-        (error, data) => {
-            if (error) {
-                console.error(log.addMetadata(error.stack, "error"));
-            }
-        }
-    ).clone();
+    ).clone().exec();
 }
 
 module.exports = mongoose.model("UserModel", UserModelSchema, "users");

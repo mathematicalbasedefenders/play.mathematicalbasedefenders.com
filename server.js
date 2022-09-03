@@ -794,7 +794,7 @@ async function startDefaultMultiplayerGame(roomID) {
     for (let player of players){
         console.debug(player);
         let connectionID = utilities.getUserIDOfSocketOwnerIfLoggedIn(player);
-        if (connectionID) {User.incrementMultiplayerGamesPlayedCount(connectionID);}
+        if (connectionID) {User.incrementMultiplayerGamesPlayedCount(connectionID, 1);}
     }
 
 }
@@ -1028,6 +1028,8 @@ uWS.App()
                             socket.subscribe(roomIDOfDefaultMultiplayerRoom);
                             socket.variables.currentRoomSocketIsIn = roomIDOfDefaultMultiplayerRoom;
                             rooms[roomIDOfDefaultMultiplayerRoom].playersInRoom[socket.connectionID] = socket;
+                            
+
                             socket.send(
                                 JSON.stringify({
                                     action: "updateMultiplayerPlayerList",
