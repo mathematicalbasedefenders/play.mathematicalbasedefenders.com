@@ -107,12 +107,7 @@ UserModelSchema.statics.giveExperiencePointsToUserID = async function (
     return await this.findByIdAndUpdate(
         userID,
         { $inc: { "statistics.totalExperiencePoints": amount } },
-        { upsert: true },
-        (error, data) => {
-            if (error) {
-                console.error(log.addMetadata(error.stack, "error"));
-            }
-        }
+        { upsert: true }
     ).clone();
 };
 
@@ -122,12 +117,7 @@ UserModelSchema.statics.setLastReportTimeForUserID = async function (
     return await this.findByIdAndUpdate(
         userID,
         { $set: { "moderation.timeLastReportFiled": Date.now() } },
-        { upsert: true },
-        (error, data) => {
-            if (error) {
-                console.error(log.addMetadata(error.stack, "error"));
-            }
-        }
+        { upsert: true }
     ).clone();
 };
 
@@ -166,12 +156,7 @@ UserModelSchema.statics.setNewPersonalBestForUserID = async function (
                 }
             }
         },
-        { upsert: true },
-        (error, data) => {
-            if (error) {
-                console.error(log.addMetadata(error.stack, "error"));
-            }
-        }
+        { upsert: true }
     ).clone();
 };
 
