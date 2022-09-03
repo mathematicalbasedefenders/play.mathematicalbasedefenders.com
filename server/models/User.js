@@ -31,6 +31,10 @@ const UserModelSchema = new mongoose.Schema({
             actionsPerformed: Number,
             enemiesKilled: Number,
             enemiesCreated: Number
+        },
+        multiplayer: {
+            gamesPlayed: Number,
+            gamesWon: Number,
         }
     },
     membership: {
@@ -175,6 +179,30 @@ UserModelSchema.statics.setNewPersonalBestForUserID = async function (
     ).clone();
 };
 
+UserModelSchema.statics.incrementMultiplayerGamesPlayedCount = async function(userID, amount=1){
+    return await this.findByIdAndUpdate(
+        userID,
+        { $inc: { "statistics.multiplayer.gamesPlayed": amount } },
+        { upsert: true },
+        (error, data) => {
+            if (error) {
+                console.error(log.addMetadata(error.stack, "error"));
+            }
+        }
+    ).clone();
+}
 
+UserModelSchema.statics.incrementMultiplayerGamesWonCount = async function(userID, amount=1){
+    return await this.findByIdAndUpdate(
+        userID,
+        { $inc: { "statistics.multiplayer.gamesWon": amount } },
+        { upsert: true },
+        (error, data) => {
+            if (error) {
+                console.error(log.addMetadata(error.stack, "error"));
+            }
+        }
+    ).clone();
+}
 
 module.exports = mongoose.model("UserModel", UserModelSchema, "users");
