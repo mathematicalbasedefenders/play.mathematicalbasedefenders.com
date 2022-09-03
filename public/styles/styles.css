@@ -98,8 +98,7 @@ body {
     background-color: #000000;
 }
 
-.loading-screen-text {
-    background-color: var(--color-black);
+#loading-screen__text {
                         color: var(--color-white);
                         text-decoration: none;
 }
