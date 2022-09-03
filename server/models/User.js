@@ -180,6 +180,7 @@ UserModelSchema.statics.setNewPersonalBestForUserID = async function (
 };
 
 UserModelSchema.statics.incrementMultiplayerGamesPlayedCount = async function(userID, amount=1){
+    console.debug(`+${amount} game played for player ${userID}`)
     return await this.findByIdAndUpdate(
         userID,
         { $inc: { "statistics.multiplayer.gamesPlayed": amount } },

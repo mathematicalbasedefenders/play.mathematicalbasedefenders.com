@@ -728,7 +728,11 @@ function deleteSocket(socket) {
 }
 
 async function startDefaultMultiplayerGame(roomID) {
+    // get connections (i.e. players) in default room
     let connections = global.sockets.filter((socket) => socket.variables.currentRoomSocketIsIn === roomIDOfDefaultMultiplayerRoom);
+    let players = global.sockets.filter((socket) => socket.variables.currentRoomSocketIsIn === roomIDOfDefaultMultiplayerRoom);
+    
+    // tie data according to each player
     rooms[roomIDOfDefaultMultiplayerRoom].data = {
         currentGame: {
             currentInGameTimeInMilliseconds: 0,
@@ -748,6 +752,7 @@ async function startDefaultMultiplayerGame(roomID) {
 
     let playersAlive = [];
 
+    // add players to alive players 
     for (let socket of connections) {
         socket.variables.ownerOfSocketIsPlaying = true;
 
@@ -775,17 +780,23 @@ async function startDefaultMultiplayerGame(roomID) {
     }
     rooms[roomIDOfDefaultMultiplayerRoom].data.currentGame.playersAlive = playersAlive;
 
-    // io.to(roomIDOfDefaultMultiplayerRoom).emit(
-    //     "defaultMultiplayerRoomAction",
-    //     "switchToGameContainer"
-    // );
-
-    let players = global.sockets.filter((socket) => socket.variables.currentRoomSocketIsIn === roomIDOfDefaultMultiplayerRoom);
+    // force everyone to go to game screen
     for (let player of players) {
         player.send(JSON.stringify({ action: "switchToGameContainer" }));
     }
 
+
+
+    // set property to playing for room
     rooms[roomIDOfDefaultMultiplayerRoom].playing = true;
+
+    // increment games played count for REGISTERED players
+    for (let player of players){
+        console.debug(player);
+        let connectionID = utilities.getUserIDOfSocketOwnerIfLoggedIn(player);
+        if (connectionID) {User.incrementMultiplayerGamesPlayedCount(connectionID);}
+    }
+
 }
 
 function constructDefaultMultiplayerGameDataObjectToSend(connection) {
