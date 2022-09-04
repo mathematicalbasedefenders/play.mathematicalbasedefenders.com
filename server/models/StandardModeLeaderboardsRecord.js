@@ -13,33 +13,30 @@ const StandardModeLeaderboardsSchema = new mongoose.Schema({
     actionsPerformed: Number
 });
 
-StandardModeLeaderboardsSchema.statics.findByRankSlot = async function(rank){
-    return await this.find(
-        { rankNumber: rank },
-        function (error2, result2) {
+StandardModeLeaderboardsSchema.statics.findByRankSlot = async function (rank) {
+    try {
+        return await this.find({ rankNumber: rank }, function (error2, result2) {
             if (error2) {
                 console.error(log.addMetadata(error2.stack, "error"));
             }
             return result2;
-        }
-    ).clone();
-}
+        }).clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
+};
 
-StandardModeLeaderboardsSchema.statics.findAndUpdateByRankSlot = async function(rank, data){
-    return await this.findOneAndUpdate(
-        { rankNumber: rank },
-        data,
-        function (error2, result2) {
+StandardModeLeaderboardsSchema.statics.findAndUpdateByRankSlot = async function (rank, data) {
+    try {
+        return await this.findOneAndUpdate({ rankNumber: rank }, data, function (error2, result2) {
             if (error2) {
                 console.error(log.addMetadata(error2.stack, "error"));
             }
             return result2;
-        }
-    ).clone();
-}
+        }).clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
+};
 
-module.exports = mongoose.model(
-    "StandardModeLeaderboardsModel",
-    StandardModeLeaderboardsSchema,
-    "standardModeLeaderboardsRecords"
-);
+module.exports = mongoose.model("StandardModeLeaderboardsModel", StandardModeLeaderboardsSchema, "standardModeLeaderboardsRecords");

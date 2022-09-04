@@ -792,7 +792,6 @@ async function startDefaultMultiplayerGame(roomID) {
 
     // increment games played count for REGISTERED players
     for (let player of players){
-        console.debug(player);
         let connectionID = utilities.getUserIDOfSocketOwnerIfLoggedIn(player);
         if (connectionID) {User.incrementMultiplayerGamesPlayedCount(connectionID, 1);}
     }

@@ -34,7 +34,6 @@ async function fileReport(socket, reportedUser, reportDescription){
     report.reporter = socket.variables.userIDOfSocketHolder;
     report.reportedUser = utilities.getSocketAccordingToPlayerName(reportedUser);
     
-    console.debug(report);
 
     return recordReport(report);
 
