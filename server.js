@@ -573,7 +573,12 @@ function update(deltaTime) {
                                                         text: `<div><span>(System)</span>: Added ${Math.round(rooms[roomID].data.currentGame.players[winnerSocket.connectionID].currentGame.experiencePointsEarned*1.5)} experience points to your account.</div>`,
                                                         useHTML: true
                                                     }
-                                                }))
+                                                }));
+
+                                                if(winnerSocket){
+                                                    let userID = utilities.getUserIDOfSocketOwnerIfLoggedIn(winnerSocket);
+                                                    if (userID) {User.incrementMultiplayerGamesWonCount(userID);}
+                                                }
                                             }
 
                                             if (!data.currentGame) {
