@@ -171,6 +171,7 @@ mongoose.connection.on("connected", async () => {
     console.log(log.addMetadata("Successfully connected to mongoose.", "info"));
 });
 
+
 app.get("/", csrfProtection, (request, response) => {
     response.render(path.join(__dirname, "index"), {
         csrfToken: request.csrfToken()

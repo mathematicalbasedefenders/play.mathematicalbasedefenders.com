@@ -45,121 +45,141 @@ const UserModelSchema = new mongoose.Schema({
     moderation: {
         timeLastReportFiled: Date,
         isBanned: Boolean,
-        isMuted: Boolean,
+        isMuted: Boolean
     }
 });
 
 UserModelSchema.statics.safeFindByUsername = async function (username) {
-    return await this.findOne({ username: username }).select({
-        emailAddress: 0,
-        hashedPassword: 0
-    }).clone();
+    try {
+        return await this.findOne({ username: username })
+            .select({
+                emailAddress: 0,
+                hashedPassword: 0
+            })
+            .clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
 };
 
 UserModelSchema.statics.findByUsername = async function (username) {
-    return await this.findOne({ username: username }).clone();
+    try {
+        return await this.findOne({ username: username }).clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
 };
 
-UserModelSchema.statics.superSafeFindByUsername = async function (username){
-    return await this.findOne({ username: username}).select({
-        username: 1,
-        creationDateAndTime: 1,
-        statistics: 1,
-        membership: 1
-    }).clone();
-}
+UserModelSchema.statics.superSafeFindByUsername = async function (username) {
+    try {
+        return await this.findOne({ username: username })
+            .select({
+                username: 1,
+                creationDateAndTime: 1,
+                statistics: 1,
+                membership: 1
+            })
+            .clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
+};
 
-
-UserModelSchema.statics.superSafeFindByUserNumber = async function (userID){
-return await this.findOne({  _id: userID} ).select({
-    username: 1,
-    creationDateAndTime: 1,
-    statistics: 1,
-    membership: 1
-}).query.clone();
-}
+UserModelSchema.statics.superSafeFindByUserNumber = async function (userID) {
+    try {
+        return await this.findOne({ _id: userID })
+            .select({
+                username: 1,
+                creationDateAndTime: 1,
+                statistics: 1,
+                membership: 1
+            })
+            .clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
+};
 
 UserModelSchema.statics.safeFindByUserNumber = async function (userNumber) {
-    return await this.findOne(
-        { userNumber: userNumber }.select({
-            emailAddress: 0,
-            hashedPassword: 0
-        })
-    ).clone();
+    try {
+        return await this.findOne(
+            { userNumber: userNumber }.select({
+                emailAddress: 0,
+                hashedPassword: 0
+            })
+        ).clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
 };
 
 UserModelSchema.statics.findByUserNumber = async function (userNumber) {
-    return await this.findOne({ userNumber: userNumber }).clone();
+    try {
+        return await this.findOne({ userNumber: userNumber }).clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
 };
 
 UserModelSchema.statics.safeFindByUserID = async function (userID) {
-    return await this.findById(userID)
-        .select({
-            emailAddress: 0,
-            hashedPassword: 0
-        }).clone();
+    try {
+        return await this.findById(userID)
+            .select({
+                emailAddress: 0,
+                hashedPassword: 0
+            })
+            .clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
 };
 
-UserModelSchema.statics.giveExperiencePointsToUserID = async function (
-    userID,
-    amount
-) {
-    return await this.findByIdAndUpdate(
-        userID,
-        { $inc: { "statistics.totalExperiencePoints": amount } },
-        { upsert: true }
-    ).clone();
+UserModelSchema.statics.giveExperiencePointsToUserID = async function (userID, amount) {
+    try {
+        return await this.findByIdAndUpdate(userID, { $inc: { "statistics.totalExperiencePoints": amount } }, { upsert: true }).clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
 };
 
-UserModelSchema.statics.setLastReportTimeForUserID = async function (
-    userID
-) {
-    return await this.findByIdAndUpdate(
-        userID,
-        { $set: { "moderation.timeLastReportFiled": Date.now() } },
-        { upsert: true }
-    ).clone();
+UserModelSchema.statics.setLastReportTimeForUserID = async function (userID) {
+    try {
+        return await this.findByIdAndUpdate(userID, { $set: { "moderation.timeLastReportFiled": Date.now() } }, { upsert: true }).clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
 };
 
-UserModelSchema.statics.setNewPersonalBestForUserID = async function (
-    userID,
-    gameMode,
-    finalGameData
-) {
+UserModelSchema.statics.setNewPersonalBestForUserID = async function (userID, gameMode, finalGameData) {
     if (gameMode == "easySingleplayerMode") {
         fieldToUpdate = "personalBestScoreOnEasySingleplayerMode";
     } else if (gameMode == "standardSingleplayerMode") {
         fieldToUpdate = "personalBestScoreOnStandardSingleplayerMode";
     } else {
-        console.error(
-            log.addMetadata(
-                `${gameMode} is not a valid Singleplayer game mode!`,
-                "error"
-            )
-        );
+        console.error(log.addMetadata(`${gameMode} is not a valid Singleplayer game mode!`, "error"));
         return;
     }
 
-    return await this.findByIdAndUpdate(
-        userID,
-        {
-            $set: {
-                [`statistics.${fieldToUpdate}`]: {
-                    score: finalGameData.currentScore,
-                    timeInMilliseconds:
-                        finalGameData.currentInGameTimeInMilliseconds,
-                    scoreSubmissionDateAndTime:
-                        finalGameData.scoreSubmissionDateAndTime,
-                    actionsPerformed: finalGameData.actionsPerformed,
-                    enemiesKilled: finalGameData.enemiesKilled,
-                    enemiesCreated: finalGameData.enemiesCreated
+    try {
+        return await this.findByIdAndUpdate(
+            userID,
+            {
+                $set: {
+                    [`statistics.${fieldToUpdate}`]: {
+                        score: finalGameData.currentScore,
+                        timeInMilliseconds: finalGameData.currentInGameTimeInMilliseconds,
+                        scoreSubmissionDateAndTime: finalGameData.scoreSubmissionDateAndTime,
+                        actionsPerformed: finalGameData.actionsPerformed,
+                        enemiesKilled: finalGameData.enemiesKilled,
+                        enemiesCreated: finalGameData.enemiesCreated
+                    }
                 }
-            }
-        },
-        { upsert: true }
-    ).clone();
+            },
+            { upsert: true }
+        ).clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
 };
-
-
 
 module.exports = mongoose.model("UserModel", UserModelSchema, "users");
