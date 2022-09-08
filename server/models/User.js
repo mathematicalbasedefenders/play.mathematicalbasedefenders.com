@@ -31,6 +31,10 @@ const UserModelSchema = new mongoose.Schema({
             actionsPerformed: Number,
             enemiesKilled: Number,
             enemiesCreated: Number
+        },
+        multiplayer: {
+            gamesPlayed: Number,
+            gamesWon: Number,
         }
     },
     membership: {
@@ -182,4 +186,23 @@ UserModelSchema.statics.setNewPersonalBestForUserID = async function (userID, ga
     }
 };
 
+<<<<<<< HEAD
+=======
+UserModelSchema.statics.incrementMultiplayerGamesPlayedCount = async function (userID, amount = 1) {
+    try {
+        return await this.findByIdAndUpdate(userID, { $inc: { "statistics.multiplayer.gamesPlayed": 1 } }, { upsert: true }).clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
+};
+
+UserModelSchema.statics.incrementMultiplayerGamesWonCount = async function (userID, amount = 1) {
+    try {
+        return await this.findByIdAndUpdate(userID, { $inc: { "statistics.multiplayer.gamesWon": amount } }, { upsert: true }).clone();
+    } catch (error) {
+        console.error(log.addMetadata(error.stack, "error"));
+    }
+};
+
+>>>>>>> new-feature/count-multiplayer-games
 module.exports = mongoose.model("UserModel", UserModelSchema, "users");

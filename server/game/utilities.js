@@ -260,6 +260,13 @@ function getNameOfSocketOwner(socket) {
     }
 }
 
+function getUserIDOfSocketOwnerIfLoggedIn(socket) {
+    if (socket.variables.loggedIn) {
+        return socket.variables.userIDOfSocketOwner;
+    }
+    return null;
+}
+
 module.exports = {
     generateRoomID,
     generateGuestName,
@@ -278,4 +285,5 @@ module.exports = {
     calculateMessageForGlobalRank,
     getNameOfSocketOwner,
     getSocketAccordingToPlayerName,
+    getUserIDOfSocketOwnerIfLoggedIn,
 };
