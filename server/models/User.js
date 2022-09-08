@@ -186,8 +186,6 @@ UserModelSchema.statics.setNewPersonalBestForUserID = async function (userID, ga
     }
 };
 
-<<<<<<< HEAD
-=======
 UserModelSchema.statics.incrementMultiplayerGamesPlayedCount = async function (userID, amount = 1) {
     try {
         return await this.findByIdAndUpdate(userID, { $inc: { "statistics.multiplayer.gamesPlayed": 1 } }, { upsert: true }).clone();
@@ -204,5 +202,4 @@ UserModelSchema.statics.incrementMultiplayerGamesWonCount = async function (user
     }
 };
 
->>>>>>> new-feature/count-multiplayer-games
 module.exports = mongoose.model("UserModel", UserModelSchema, "users");
