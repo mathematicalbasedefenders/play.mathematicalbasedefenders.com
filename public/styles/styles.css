@@ -268,7 +268,7 @@ select {
     bottom: 5%;
 }
 
-.text-modal__button-dangerous{
+.text-modal__button--dangerous{
     background-color: #bb0000 !important;
     color:#ffffff !important;
     border-color: #dd0000 !important;
