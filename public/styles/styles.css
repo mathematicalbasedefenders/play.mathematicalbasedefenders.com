@@ -255,16 +255,16 @@ select {
 }
 
 .text-modal__content-text {
-    background-color: #555555;border: none;color:white;padding:0;
+    background-color: #555555;border: none;color:white;padding:0;text-align:center;
 }
 
 .text-modal__button {
-    width: 60%;
     height: 50px;
     font-size: 32px;
     background-color: #cdcdcd;
     color: #000000;
     bottom: 5%;
+    width: 30%;
 }
 
 .text-modal__button--dangerous{
