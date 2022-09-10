@@ -1252,7 +1252,7 @@ function setLabelerTextVisibilities() {
     // 30m
     multiplayerScreenContainerItems.actionsPerMinuteLabelerText.text = "";
 
-    if (isNaN(settings.video.gameScreenInformationMode)) {
+    if (isNaN(settings.video.gameScreenInformationMode) || !settings.video.gameScreenInformationMode) {
         settings.video.gameScreenInformationMode = 30;
     }
 
