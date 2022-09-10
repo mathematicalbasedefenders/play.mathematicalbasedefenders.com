@@ -314,7 +314,7 @@ socket.onmessage = (message) => {
                                 .toFixed(3)
                                 .toString() : ""
                             multiplayerScreenContainerItems.currentComboText.text =
-                            (settings.video.gameScreenInformationMode < 20 || currentGameData.currentGame.currentCombo < 1) ? "" : currentGameData.currentGame.currentCombo + " Combo" + (settings.video.gameScreenInformationMode >= 100 ? (`(×${parseInt(currentGameData.currentGame.currentCombo)*0.1+1})`) : "");
+                            (settings.video.gameScreenInformationMode < 20 || currentGameData.currentGame.currentCombo < 1) ? "" : currentGameData.currentGame.currentCombo + " Combo";
                             multiplayerScreenContainerItems.valueOfVariableAText.text =
                                 currentGameData.currentGame.valueOfVariableA === undefined ? "a = ?" : "a = " + currentGameData.currentGame.valueOfVariableA;
                             multiplayerScreenContainerItems.valueOfVariableBText.text =
