@@ -530,7 +530,12 @@ socket.onmessage = (message) => {
             addText(message.arguments.selector, message.arguments.text, message.arguments.useHTML);
             break;
         }
-        case "updateCSS": {
+        case "prependText": {
+            prependText(message.arguments.selector, message.arguments.text, message.arguments.useHTML);
+            break;
+
+        }
+        case "updateCSS":{
             updateCSS(message.arguments.selector, message.arguments.property, message.arguments.value);
             break;
         }

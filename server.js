@@ -1179,7 +1179,7 @@ uWS.App()
                         broadcastToEverySocketInRoom(
                             roomIDOfDefaultMultiplayerRoom,
                             JSON.stringify({
-                                action: "addText",
+                                action: "prependText",
                                 arguments: {
                                     selector: "#multiplayer-room-chat-content",
                                     text: `<div><span style="color:${utilities.formatPlayerName(
