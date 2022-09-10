@@ -1175,7 +1175,7 @@ uWS.App()
                     break;
                 }
                 case "chatMessage": {
-                    if (parsedMessage.arguments.message === DOMPurify.sanitize(parsedMessage.arguments.message)) {
+                    if (/\S/.test(parsedMessage.arguments.message.toString()) && parsedMessage.arguments.message === DOMPurify.sanitize(parsedMessage.arguments.message)) {
                         broadcastToEverySocketInRoom(
                             roomIDOfDefaultMultiplayerRoom,
                             JSON.stringify({

@@ -12,6 +12,14 @@ function addText(selector, text, useHTML){
     );
 }
 
+function prependText(selector, text, useHTML){
+    if (useHTML) {$(selector).html(text + `<br>` + $(selector).html()); return;}
+    $(selector).text(
+        `${text}` + `<br>` + $(selector).text()
+            
+    );
+}
+
 function updateCSS(selector, property, value) {
     $(selector).css(property, value);
 }
