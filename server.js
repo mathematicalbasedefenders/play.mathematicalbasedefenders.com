@@ -104,11 +104,11 @@ app.use(
                     "https://www.google-analytics.com",
                     "cdnjs.cloudflare.com",
                     `ws://localhost:7000`,
-                    `ws://mathematicalbasedefenders.com:7000`,
-                    `wss://mathematicalbasedefenders.com:7000`,
+                    `ws://play.mathematicalbasedefenders.com:7000`,
+                    `wss://play.mathematicalbasedefenders.com:7000`,
                     `ws://localhost:443`,
-                    `ws://mathematicalbasedefenders.com:443`,
-                    `wss://mathematicalbasedefenders.com:443`
+                    `ws://play.mathematicalbasedefenders.com:443`,
+                    `wss://play.mathematicalbasedefenders.com:443`
                 ],
                 "img-src": ["'self'", "*"],
                 "script-src": [
