@@ -1095,11 +1095,11 @@ function toggleStatusBarVisibility() {
 
 function showTextModal(text, title, color) {
     // clear old text
-    $("#text-modal-title").text("");
-    $("#text-modal-text").text("");
+    $("#text-modal__title").text("");
+    $("#text-modal__text").text("");
 
-    $("#text-modal-title").text(title);
-    $("#text-modal-text").text(text);
+    $("#text-modal__title").text(title);
+    $("#text-modal__text").text(text);
     $("#text-modal-container").fadeIn(200);
     $("#text-modal-container").show(0).css("display", "flex");
 }
@@ -1114,8 +1114,8 @@ function showUserInformationModal(name) {
         })
     );
     game.userCurrentUserIsViewing = name;
-    $("#user-information-modal-title").text("");
-    $("#user-information-modal-text").text("");
+    $("#user-information-modal__title").text("");
+    $("#user-information-modal__text").text("");
     $("#user-information-modal-container").fadeIn(200);
     $("#user-information-modal-container").show(0).css("display", "flex");
 }

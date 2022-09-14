@@ -1201,7 +1201,7 @@ uWS.App()
                             JSON.stringify({
                                 action: "updateText",
                                 arguments: {
-                                    selector: "#user-information-modal-text",
+                                    selector: "#user-information-modal__text",
                                     text: `User ${userToGetDataOf} not found.`
                                 }
                             })
@@ -1213,7 +1213,7 @@ uWS.App()
                         JSON.stringify({
                             action: "updateText",
                             arguments: {
-                                selector: "#user-information-modal-title",
+                                selector: "#user-information-modal__title",
                                 text: `User Data for ${userToGetDataOf}`
                             }
                         })
@@ -1224,7 +1224,7 @@ uWS.App()
                             JSON.stringify({
                                 action: "updateText",
                                 arguments: {
-                                    selector: "#user-information-modal-text",
+                                    selector: "#user-information-modal__text",
                                     text: `This player is playing as a guest. Scores they made will not be submitted unless they sign up.`
                                 }
                             })
@@ -1238,7 +1238,7 @@ uWS.App()
                             JSON.stringify({
                                 action: "updateText",
                                 arguments: {
-                                    selector: "#user-information-modal-text",
+                                    selector: "#user-information-modal__text",
                                     text: `User ${userToGetDataOf} not found.`
                                 }
                             })
@@ -1250,7 +1250,7 @@ uWS.App()
                         JSON.stringify({
                             action: "updateText",
                             arguments: {
-                                selector: "#user-information-modal-text",
+                                selector: "#user-information-modal__text",
                                 text: `Standard Mode PB: ${data.statistics?.personalBestScoreOnStandardSingleplayerMode.score ?? "N/A"}\nEasy Mode PB: ${
                                     data.statistics?.personalBestScoreOnEasySingleplayerMode.score ?? "N/A"
                                 }\n Level ${leveling.getLevel(data.statistics.totalExperiencePoints)}`,
