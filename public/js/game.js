@@ -429,12 +429,43 @@ var guestNameOfSocketOwner;
 
 window.onload = () => {
     guestNameOfSocketOwner = $("#player-name").text();
-    $("#loading-screen__text").html(
-        "Mathematical Base Defenders is in its development stage.<br>Features may not work unexpectedly, and current product is not indicative of final product.<br><br>Mathematical Base Defenders is <span style='color:#ff0000;background-color:#000000;'>not</span> a substitute for a legitimate math tutor."
-    );
-    $("#loading-screen").click(() => $("#loading-screen-container").fadeOut(1000).hide(0));
-    $("#loading-screen-container").delay(2000).fadeOut(1000).hide(0);
+    initializeSplashScreen();
 };
+
+async function initializeSplashScreen(){
+    $("#loading-screen").click(() => $("#loading-screen-container").fadeOut(1000).hide(0));
+    $("#loading-screen__text").html(
+        `
+        <div style="color:#ffffff">
+    <p style="text-align:center;">
+        <img src="/public/assets/images/warning.svg" style="filter:invert(1);width:10vw;">
+        <br>
+        Mathematical Base Defenders is in its development stage.<br>Features may not work unexpectedly, and current product is not indicative of final product.<br><br>Mathematical Base Defenders is <span style='color:#ff0000;background-color:#000000;'>not</span> a substitute for a legitimate math tutor.
+    </p>        
+        </div>
+        `
+    );
+    await wait(5000);
+    $("#loading-screen__text").html(
+        `
+        <div style="color:#ffffff">
+    <p style="text-align:center;">
+        <img src="/public/assets/images/numpad-lookalike.svg" style="filter:invert(1);width:10vw;">
+        <br>
+        This game uses the numpad.
+        <br>
+        The top row and number keys above it can also be used as input.
+        <br>
+        The mouse and touch can also be used as input.
+    </p>        
+        </div>
+        `
+    )
+    await wait(5000);
+
+
+    $("#loading-screen-container").fadeOut(1000).hide(0);
+}
 
 window.addEventListener("resize", resize);
 

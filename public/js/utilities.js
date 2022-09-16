@@ -122,5 +122,7 @@ function changePIXIJSTextStyle2(textObject, key, newValue){
     textObject.style = originalStyle;
 }
 
-
+function wait(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 

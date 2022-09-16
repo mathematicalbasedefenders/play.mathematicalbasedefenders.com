@@ -87,6 +87,9 @@ body {
 /*
     GLOBAL
 */
+img {
+    pointer-events: none;
+}
 
 .math-font {
                                             font-family: 'Computer Modern Math Italic',
