@@ -409,6 +409,54 @@ $(document).keydown(function (event) {
 // Initialization Finished
 initializationFinished = true;
 
+const KEYBIND_PRESETS = {
+    numpadEmulation: {
+        tiles: [
+            "KeyM",
+            "KeyJ",
+            "KeyK",
+            "KeyL",
+            "KeyU",
+            "KeyI",
+            "KeyO",
+            "Digit7",
+            "Digit8",
+            "Digit9",
+            "Slash",
+            "Semicolon",
+            "KeyP",
+            "Digit0",
+            "Quote",
+            "KeyW",
+            "KeyE",
+            "KeyS",
+            "KeyD"
+        ]
+    },
+    numberKeysAndNearbyKeys: {
+        tiles: [
+            "Digit0",
+            "Digit1",
+            "Digit2",
+            "Digit3",
+            "Digit4",
+            "Digit5",
+            "Digit6",
+            "Digit7",
+            "Digit8",
+            "Digit9",
+            "KeyQ",
+            "KeyW",
+            "KeyE",
+            "KeyR",
+            "KeyT",
+            "KeyA",
+            "KeyS",
+            "KeyD",
+            "KeyF"
+        ]
+    }
+}
 // ======================================================================================== END OF INITIALIZATION =====================================================================
 console.log("Initialization finished!");
 var game = JSON.parse(JSON.stringify(game));
@@ -1013,30 +1061,12 @@ function updateSettingsSelections() {
     }
 }
 
-function resetKeybinds() {
-    settings.input.keybinds.tiles = [
-        "KeyM",
-        "KeyJ",
-        "KeyK",
-        "KeyL",
-        "KeyU",
-        "KeyI",
-        "KeyO",
-        "Key7",
-        "Key8",
-        "Key9",
-        "Slash",
-        "Semicolon",
-        "KeyP",
-        "Key0",
-        "Quote",
-        "KeyW",
-        "KeyE",
-        "KeyS",
-        "KeyD"
-    ];
-    updateSettingsSelections();
-    saveSettings();
+function useKeybindPreset(type) {
+    if (type in KEYBIND_PRESETS){
+        settings.input.keybinds.tiles = KEYBIND_PRESETS[type].tiles;
+        updateSettingsSelections();
+        saveSettings();
+    }
 }
 
 function changeSettings() {
