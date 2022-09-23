@@ -388,12 +388,20 @@ $(document).keydown(function (event) {
                     keyAlreadyHasATile = true;
                     break;
                 }
+                $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
             }
             if (keyAlreadyHasATile) {
                 alert("Key already has a tile assigned to it!");
+                for (let i = 0; i < 19; i++) {
+                    $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
+                }
                 keyRebindProcessUnderway = false;
             } else {
                 $("#key-to-force-select-tile-" + keyRebindProcessUnderway).text(event.code);
+                for (let i = 0; i < 19; i++) {
+                    $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
+                }
+
                 keyRebindProcessUnderway = false;
             }
         } else {
@@ -798,6 +806,10 @@ function hideEverything() {
 }
 
 function startKeyRebindProcess(tileID) {
+    for (let i = 0; i < 19; i++){
+        $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
+    }
+    $(`#key-to-force-select-tile-${tileID}-rebind-message`).text(" Press key to assign it to this tile.");
     keyRebindProcessUnderway = tileID;
 }
 
