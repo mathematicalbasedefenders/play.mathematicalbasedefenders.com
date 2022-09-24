@@ -61,7 +61,7 @@ function performDataValidationForCustomSingleplayerMode(settings) {
 
   let keys = Object.keys(settings);
 
-  for (i = 0; i < keys.length; i++) {
+  for (let i = 0; i < keys.length; i++) {
     // check that supplied value is a number
     if (
       /^([0-9]\d*)(\.\d+)?$/.test(settings[keys[i]]) ||

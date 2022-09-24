@@ -3,7 +3,7 @@ var User = require("../models/User.js");
 var EasyModeLeaderboardsRecord = require("../models/EasyModeLeaderboardsRecord.js");
 var StandardModeLeaderboardsRecord = require("../models/StandardModeLeaderboardsRecord.js");
 const global = require("../global.js");
-
+const log = require("../core/log.js");
 /**
  * Checks a player's personal best for a Singleplayer game.
  * @param {*} userIDAsString

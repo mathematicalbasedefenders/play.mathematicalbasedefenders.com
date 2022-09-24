@@ -3,6 +3,7 @@ const tile = require("./constructors/tile.js");
 const utilities = require("./utilities.js");
 const generation = require("./generation.js");
 const global = require("../global.js");
+const log = require("../log.js");
 
 /**
  * Replaces tiles for a player in a Multiplayer Room.
@@ -15,7 +16,7 @@ function replacePlayerRoomTiles(room, socket) {
     case "standardSingleplayerMode":
     case "customSingleplayerMode": {
       for (
-        i = 0;
+        let i = 0;
         i <
         room.data.currentGame.players[socket.connectionID].currentGame
           .tilesInCurrentProblem.length;
@@ -53,7 +54,7 @@ function replacePlayerRoomTiles(room, socket) {
     }
     case "defaultMultiplayerMode": {
       for (
-        i = 0;
+        let i = 0;
         i <
         room.data.currentGame.players[socket.connectionID].currentGame
           .tilesInCurrentProblem.length;
@@ -117,7 +118,7 @@ function getMultiplayerTileQueueOfPlayer(room, socket) {
         .currentTileQueue
     ) {
       room.data.currentGame.globalTileQueue.push(
-        generateMultiplayerTileQueue()
+        tiles.generateMultiplayerTileQueue()
       );
       room.data.currentGame.players[
         socket.connectionID

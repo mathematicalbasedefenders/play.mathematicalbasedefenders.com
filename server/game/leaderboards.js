@@ -42,7 +42,7 @@ async function checkAndModifyLeaderboards(
     return;
   }
   // main check #1
-  for (var i = 1; i <= 50; i++) {
+  for (let i = 1; i <= 50; i++) {
     let data = await leaderboardsModel
       .find({ rankNumber: i }, function (error2, result2) {
         if (error2) {
@@ -62,7 +62,7 @@ async function checkAndModifyLeaderboards(
     return -1;
   }
   // main check #2
-  for (var i = 1; i < placePlayerRanked; i++) {
+  for (let i = 1; i < placePlayerRanked; i++) {
     let data = await leaderboardsModel
       .find({ rankNumber: i }, function (error2, result2) {
         if (error2) {
@@ -78,7 +78,7 @@ async function checkAndModifyLeaderboards(
   }
   // middle check #1
   // check if player is already on leaderboard but at a lower rank
-  for (var i = placePlayerRanked; i <= 50; i++) {
+  for (let i = placePlayerRanked; i <= 50; i++) {
     let data = await leaderboardsModel
       .find({ rankNumber: i }, function (error2, result2) {
         if (error2) {
@@ -95,7 +95,7 @@ async function checkAndModifyLeaderboards(
   // TODO: Find out what this does.
   // My guess would be this pushes the ??? down
   if (placePlayerRankedBefore != -1) {
-    for (var i = placePlayerRankedBefore; i < 50; i++) {
+    for (let i = placePlayerRankedBefore; i < 50; i++) {
       let data1 = await leaderboardsModel
         .findOne({ rankNumber: i + 1 })
         .clone();

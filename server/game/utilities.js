@@ -77,11 +77,11 @@ const TERMS_AS_BEAUTIFUL_STRINGS = [
 ];
 
 function generateRoomID() {
-  characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  roomID = undefined;
+  let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let roomID = undefined;
   while (roomID === undefined) {
-    generatedRoomID = "";
-    for (i = 0; i < 8; i++) {
+    let generatedRoomID = "";
+    for (let i = 0; i < 8; i++) {
       generatedRoomID += characters.charAt(
         Math.floor(Math.random() * characters.length)
       );
@@ -92,9 +92,9 @@ function generateRoomID() {
 }
 
 function generateGuestName() {
-  characters = "0123456789";
-  generatedName = "";
-  for (i = 0; i < 8; i++) {
+  let characters = "0123456789";
+  let generatedName = "";
+  for (let i = 0; i < 8; i++) {
     generatedName += characters
       .charAt(Math.floor(Math.random() * characters.length))
       .toString();
@@ -118,13 +118,13 @@ function checkIfVariablesAreUndefined(...inputs) {
   return false;
 }
 
-function getSocketAccordingToUsername(username, sockets) {
+function getSocketAccordingToUsername(username) {
   return global.sockets.find((socket) => {
     return socket.variables.usernameOfSocketOwner == username;
   });
 }
 
-function getSocketAccordingToPlayerName(name, sockets) {
+function getSocketAccordingToPlayerName(name) {
   if (/Guest(-|\s)[0-9]{8}/.test(name)) {
     return global.sockets.find((socket) => {
       return socket.variables.guestNameOfSocketOwner == name.replace(" ", "-");

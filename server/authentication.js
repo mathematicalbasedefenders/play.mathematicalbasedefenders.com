@@ -19,7 +19,7 @@ var User = require("./models/User.js");
 
 let usersCurrentlyAttemptingToLogIn = [];
 
-async function authenticate(socket, username, encodedPassword, sockets) {
+async function authenticate(socket, username, encodedPassword) {
   username = DOMPurify.sanitize(mongoDBSanitize(username));
   console.log(log.addMetadata("Log in attempt from " + username, "info"));
 
@@ -205,7 +205,7 @@ async function checkPassword(username, encodedPassword, socket) {
   //     ).toString(),
   //     "base64"
   // ).toString();
-  decodedPassword = DOMPurify.sanitize(mongoDBSanitize(encodedPassword));
+  let decodedPassword = DOMPurify.sanitize(mongoDBSanitize(encodedPassword));
   return await bcrypt.compare(
     decodedPassword,
     socket.variables.playerDataOfSocketOwner.hashedPassword

@@ -28,10 +28,5 @@ const developerConfiguration = {
   }
 };
 
-const defaultMultiplayerRoomConfiguration = {
-  settings: {
-    // ???
-  }
-};
 
 module.exports = { developerConfiguration: developerConfiguration };

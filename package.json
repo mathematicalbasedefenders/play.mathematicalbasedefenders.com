@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "checkUndefVarsOnly": "npx eslint --rule 'no-undef: error' --parser-options=ecmaVersion:latest --env node,browser,es2021,commonjs --no-eslintrc ."
   },
   "author": "mistertfy64",
   "license": "GPL-3.0-or-later",
@@ -49,5 +50,12 @@
   },
   "bugs": {
     "url": "https://github.com/mistertfy64/play.mathematicalbasedefenders.com/issues"
+  },
+  "devDependencies": {
+    "eslint": "^8.24.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.3.0",
+    "eslint-plugin-promise": "^6.0.1"
   }
 }

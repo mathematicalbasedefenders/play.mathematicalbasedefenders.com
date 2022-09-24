@@ -212,7 +212,7 @@ function evaluateProblemResult(result, room, socket) {
   if (result) {
     // evaluate calculated string
     for (
-      i = 0;
+      let i = 0;
       i <
       room.data.currentGame.players[socket.connectionID].currentGame
         .enemiesOnField.length;
@@ -228,7 +228,7 @@ function evaluateProblemResult(result, room, socket) {
               .enemiesOnField[i].requestedValue
       );
     }
-    for (i = 0; i < requestedValues.length; i++) {
+    for (let i = 0; i < requestedValues.length; i++) {
       if (
         result == calculateProblem(requestedValues[i], room, socket) ||
         (requestedValues[i] !== undefined
@@ -252,7 +252,7 @@ function evaluateProblemResult(result, room, socket) {
   } else {
     // evaluate RAW result (i.e. the problem string itself)
     for (
-      i = 0;
+      let i = 0;
       i <
       room.data.currentGame.players[socket.connectionID].currentGame
         .enemiesOnField.length;
@@ -269,7 +269,7 @@ function evaluateProblemResult(result, room, socket) {
       );
     }
 
-    for (i = 0; i < requestedValues.length; i++) {
+    for (let i = 0; i < requestedValues.length; i++) {
       if (
         result == calculateProblem(requestedValues[i], room, socket) ||
         (requestedValues[i] !== undefined

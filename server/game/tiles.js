@@ -1,8 +1,10 @@
+const generation = require("./generation.js");
 const terms = require("./terms.js");
 const evaluation = require("./evaluation.js");
 const input = require("./input.js");
-
-const global = require("../global.js");
+const tile = require("../constructors/tile.js");
+const log = require("../core/log.js");
+const tiles = require("../tiles.js");
 
 function convertPressedKeyToTermID(keyPressed, playerKeybinds, room, socket) {
   if (keyPressed == "Space") {
@@ -43,7 +45,7 @@ function convertPressedKeyToTermID(keyPressed, playerKeybinds, room, socket) {
 }
 
 function forceSelectTileWithTermID(termIDToSelect, room, socket) {
-  for (i = 0; i < 49; i++) {
+  for (let i = 0; i < 49; i++) {
     if (
       room.data.currentGame.players[socket.connectionID].currentGame
         .tilesOnBoard[i].termID == termIDToSelect &&
@@ -67,14 +69,14 @@ function replacePlayerRoomTiles(room, socket) {
     case "standardSingleplayerMode":
     case "customSingleplayerMode": {
       for (
-        i = 0;
+        let i = 0;
         i <
         room.data.currentGame.players[socket.connectionID].currentGame
           .tilesInCurrentProblem.length;
         i++
       ) {
         let t = new tile.Tile(
-          generateRandomTileTermID(room, socket.connectionID),
+          generation.generateRandomTileTermID(room, socket.connectionID),
           i,
           false,
           room.data.currentGame.players[socket.connectionID].currentGame
@@ -104,14 +106,14 @@ function replacePlayerRoomTiles(room, socket) {
     }
     case "defaultMultiplayerMode": {
       for (
-        i = 0;
+        let i = 0;
         i <
         room.data.currentGame.players[socket.connectionID].currentGame
           .tilesInCurrentProblem.length;
         i++
       ) {
         let t = new tile.Tile(
-          getMultiplayerTileQueueOfPlayer(room, socket),
+          tiles.getMultiplayerTileQueueOfPlayer(room, socket),
           i,
           false,
           room.data.currentGame.players[socket.connectionID].currentGame

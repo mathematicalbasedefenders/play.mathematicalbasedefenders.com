@@ -24,7 +24,7 @@ async function sendReport(reporter, reported, description) {
     return false;
   }
 
-  reportedUser = DOMPurify.sanitize(reported);
+  reportedPlayer = DOMPurify.sanitize(reported);
   description = DOMPurify.sanitize(description);
 
   // actually send the report

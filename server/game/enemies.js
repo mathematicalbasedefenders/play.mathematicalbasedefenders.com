@@ -4,7 +4,7 @@ const _ = require("lodash");
 const scoring = require("./scoring.js");
 const indicators = require("./indicators.js");
 const global = require("../global.js");
-
+const log = require("../core/log.js");
 /**
  * Kills enemies for a player in a Multiplayer room.
  * @param {*} enemiesToKill
@@ -79,10 +79,8 @@ function killSingleplayerRoomEnemies(
   enemiesToKill,
   room,
   socket,
-  indicatorName,
-  statToAddTo
 ) {
-  for (i = 0; i < enemiesToKill.length; i++) {
+  for (let i = 0; i < enemiesToKill.length; i++) {
     resetEnemyKillTimerForSocketID(room, socket.connectionID);
 
     room.data.currentGame.players[socket.connectionID].currentGame
@@ -129,10 +127,8 @@ function killMultiplayerRoomEnemies(
   enemiesToKill,
   room,
   socket,
-  indicatorName,
-  statToAddTo
 ) {
-  for (i = 0; i < enemiesToKill.length; i++) {
+  for (let i = 0; i < enemiesToKill.length; i++) {
     // Reset counter
     resetEnemyKillTimerForSocketID(room, socket.connectionID);
 

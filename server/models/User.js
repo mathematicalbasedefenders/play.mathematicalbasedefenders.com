@@ -170,6 +170,7 @@ UserModelSchema.statics.setNewPersonalBestForUserID = async function (
   gameMode,
   finalGameData
 ) {
+  let fieldToUpdate;
   if (gameMode == "easySingleplayerMode") {
     fieldToUpdate = "personalBestScoreOnEasySingleplayerMode";
   } else if (gameMode == "standardSingleplayerMode") {

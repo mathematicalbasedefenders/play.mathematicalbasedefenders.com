@@ -1287,7 +1287,7 @@ uWS
             } else {
               console.error(
                 log.addMetadata(
-                  gameMode + " is not a valid Singleplayer game mode!",
+                  parsedMessage.arguments.gameMode + " is not a valid Singleplayer game mode!",
                   "error"
                 )
               );
@@ -1302,7 +1302,7 @@ uWS
         case "joinOrCreateDefaultMultiplayerRoom": {
           if (socket.variables.currentRoomSocketIsIn == "") {
             if (roomIDOfDefaultMultiplayerRoom == "") {
-              let roomID = undefined;
+              let roomID = utilities.generateRoomID();
               while (roomID === undefined || roomID in rooms) {
                 roomID = utilities.generateRoomID();
               }
@@ -1355,7 +1355,7 @@ uWS
                 JSON.stringify({
                   action: "updateMultiplayerPlayerList",
                   arguments: {
-                    data: room.getRoomPlayers(rooms[roomID])
+                    data: room.getRoomPlayers(rooms[roomIDOfDefaultMultiplayerRoom])
                   }
                 })
               );
@@ -1364,7 +1364,7 @@ uWS
                 JSON.stringify({
                   action: "updateMultiplayerPlayerList",
                   arguments: {
-                    data: room.getRoomPlayers(rooms[roomID])
+                    data: room.getRoomPlayers(rooms[roomIDOfDefaultMultiplayerRoom])
                   }
                 })
               );
