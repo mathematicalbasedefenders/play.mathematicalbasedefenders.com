@@ -6,7 +6,7 @@ const _ = require("lodash");
 const global = require("./global.js");
 
 function createAndSendWebhook(username, rank, finalGameData, gameMode) {
-  let url = credentials.getDiscordWebhookURL();
+  let url = process.env.DISCORD_WEBHOOK_URL;
   let arguments = {
     embeds: [
       {

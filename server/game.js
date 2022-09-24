@@ -663,7 +663,7 @@ async function submitDefaultSingleplayerGame(
   );
 
   if (globalRank != -1) {
-    if (!credentials.getWhetherTestingCredentialsAreUsed()) {
+    if (!process.env.CREDENTIAL_SET_USED === "testing") {
       webhook.createAndSendWebhook(
         usernameOfSocketOwner,
         globalRank,

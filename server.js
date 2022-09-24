@@ -12,6 +12,8 @@ const helmet = require("helmet");
 const uWS = require("uWebSockets.js");
 const multer = require("multer");
 
+require('dotenv').config({ path: './credentials/.env' })
+
 const upload = multer();
 const csrfProtection = csurf({ cookie: true });
 
@@ -165,7 +167,7 @@ var currentTime = Date.now();
 var deltaTime = Date.now();
 var lastUpdateTime = Date.now();
 
-mongoose.connect(credentials.getMongooseURI());
+mongoose.connect(process.env.DATABASE_CONNECTION_URI);
 
 mongoose.connection.on("connected", async () => {
   console.log(log.addMetadata("Successfully connected to mongoose.", "info"));
@@ -1802,7 +1804,7 @@ uWS
 
 app.listen(PORT, () => {
   console.log(log.addMetadata(`Listening at localhost:${PORT}`, "info"));
-  if (credentials.getWhetherTestingCredentialsAreUsed()) {
+  if (process.env.CREDENTIAL_SET_USED === "testing") {
     console.log(log.addMetadata("WARNING: Using testing credentials.", "warn"));
   }
 });
