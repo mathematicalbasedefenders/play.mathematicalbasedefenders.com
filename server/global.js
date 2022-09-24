@@ -1,7 +1,7 @@
 var sockets = [];
 
-function initialize(){
-    sockets = [];
+function initialize() {
+  sockets = [];
 }
 
-module.exports = {sockets: sockets, initialize}
+module.exports = { sockets: sockets, initialize };

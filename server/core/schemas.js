@@ -79,19 +79,19 @@ const Schema = mongoose.Schema;
 // );
 
 function getUserModel() {
-    return UserModel;
+  return UserModel;
 }
 
 function getEasyModeLeaderboardsModel() {
-    return EasyModeLeaderboardsModel;
+  return EasyModeLeaderboardsModel;
 }
 
 function getStandardModeLeaderboardsModel() {
-    return StandardModeLeaderboardsModel;
+  return StandardModeLeaderboardsModel;
 }
 
 module.exports = {
-    getUserModel,
-    getEasyModeLeaderboardsModel,
-    getStandardModeLeaderboardsModel
+  getUserModel,
+  getEasyModeLeaderboardsModel,
+  getStandardModeLeaderboardsModel
 };

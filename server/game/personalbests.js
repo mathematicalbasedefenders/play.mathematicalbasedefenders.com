@@ -12,53 +12,51 @@ const global = require("../global.js");
  * @param {*} usernameOfSocketOwner
  * @returns Whether the player's personal best is broken.
  */
- async function checkSingleplayerPersonalBestForPlayer(
-    userIDAsString,
-    finalGameData,
-    gameMode,
-    usernameOfSocketOwner,
-    playerDataOfSocketOwner
+async function checkSingleplayerPersonalBestForPlayer(
+  userIDAsString,
+  finalGameData,
+  gameMode,
+  usernameOfSocketOwner,
+  playerDataOfSocketOwner
 ) {
-    let personalBestBroken = false;
-    let fieldToUpdate;
-    let fullPathOfFieldToUpdate;
+  let personalBestBroken = false;
+  let fieldToUpdate;
+  let fullPathOfFieldToUpdate;
 
-    if (gameMode == "easySingleplayerMode") {
-        fieldToUpdate = "personalBestScoreOnEasySingleplayerMode";
-    } else if (gameMode == "standardSingleplayerMode") {
-        fieldToUpdate = "personalBestScoreOnStandardSingleplayerMode";
-    } else {
-        console.error(
-            log.addMetadata(
-                `${gameMode} is not a valid Singleplayer game mode!`,
-                "error"
-            )
-        );
-        return;
-    }
+  if (gameMode == "easySingleplayerMode") {
+    fieldToUpdate = "personalBestScoreOnEasySingleplayerMode";
+  } else if (gameMode == "standardSingleplayerMode") {
+    fieldToUpdate = "personalBestScoreOnStandardSingleplayerMode";
+  } else {
+    console.error(
+      log.addMetadata(
+        `${gameMode} is not a valid Singleplayer game mode!`,
+        "error"
+      )
+    );
+    return;
+  }
 
+  if (
+    Object.values(playerDataOfSocketOwner["statistics"][fieldToUpdate]).every(
+      (property) => property === undefined || property == null
+    )
+  ) {
+    User.setNewPersonalBestForUserID(userIDAsString, gameMode, finalGameData);
+    personalBestBroken = true;
+  } else {
+    // personal best field exists
     if (
-        Object.values(
-            playerDataOfSocketOwner["statistics"][fieldToUpdate]
-        ).every((property) => property === undefined || property == null)
+      finalGameData.currentScore >
+      playerDataOfSocketOwner["statistics"][fieldToUpdate].score
     ) {
-        
-        User.setNewPersonalBestForUserID(userIDAsString, gameMode, finalGameData);
-        personalBestBroken = true;
-    } else {
-        // personal best field exists
-        if (
-            finalGameData.currentScore >
-            playerDataOfSocketOwner["statistics"][fieldToUpdate].score
-        ) {
-            
-            User.setNewPersonalBestForUserID(userIDAsString, gameMode, finalGameData);
-            personalBestBroken = true;
-        }
+      User.setNewPersonalBestForUserID(userIDAsString, gameMode, finalGameData);
+      personalBestBroken = true;
     }
-    return personalBestBroken;
+  }
+  return personalBestBroken;
 }
 
 module.exports = {
-    checkSingleplayerPersonalBestForPlayer
-}
+  checkSingleplayerPersonalBestForPlayer
+};

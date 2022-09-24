@@ -13,6 +13,7 @@ However, please note that while this only covers the `play` subdomain, meaning i
 Note: As of 2022-09-23, this source code has been exclusively made for Mathematical Base Defenders's official server. So if you are planning to use this in your own server (or domain), it might not work (You can still run it on localhost). This will be fixed sometime later.
 
 Finally, please note that if the Game Master decides to do something stupid (e.g. host an 2x exp event), it will only be on the official server. Likewise, if you want to host your own event, it will only be on your server.
+
 ### Contributing
 
 If you instead want to contribute to the official server, feel free to open an issue/pull request!
