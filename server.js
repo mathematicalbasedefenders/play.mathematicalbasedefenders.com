@@ -1541,9 +1541,9 @@ uWS
                   useHTML: true
                 }
               })
-            );
-            break;
+            );  
           }
+          break;
         }
         case "getDataForUser": {
           // sanitize data
