@@ -212,7 +212,7 @@ app.post(
           });
 
           // TODO: Write a function that wraps these calls
-          socketToChangeConnectionID.variables.userIDOfSocketHolder = data._id;
+          socketToChangeConnectionID.variables.userIDOfSocketOwner = data._id;
           socketToChangeConnectionID.variables.playerRank =
             utilities.getPlayerRank(data, data.username);
           socketToChangeConnectionID.send(
@@ -1197,6 +1197,8 @@ uWS
     // handle messages from client
 
     open: (socket, req) => {
+
+      // =================================================================
       socket.variables = {};
 
       socket.variables.playerDataOfSocketOwner; // use this
@@ -1217,6 +1219,7 @@ uWS
       socket.connectionID = toBeGuestName.replace(" ", "-");
 
       socket.variables.guestNameOfSocketOwner = toBeGuestName;
+      // =================================================================
 
       global.sockets.push(socket);
 
