@@ -89,7 +89,7 @@ UserModelSchema.statics.superSafeFindByUsername = async function (username) {
   }
 };
 
-UserModelSchema.statics.superSafeFindByUserNumber = async function (userID) {
+UserModelSchema.statics.superSafeFindByUserID = async function (userID) {
   try {
     return await this.findOne({ _id: userID })
       .select({
