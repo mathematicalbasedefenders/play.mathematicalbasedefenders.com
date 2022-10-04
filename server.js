@@ -1566,15 +1566,6 @@ uWS
           let userToGetDataOf = mongoDBSanitize(
             parsedMessage.arguments.userToGetDataOf
           );
-          socket.send(
-            JSON.stringify({
-              action: "updateText",
-              arguments: {
-                selector: "#user-information-modal__title",
-                text: `User Data for ${userToGetDataOf}`
-              }
-            })
-          );
           if (/Guest[-\s]{0,1}[0-9]{8}/.test(userToGetDataOf)) {
             // guest player: return guest data
             socket.send(
@@ -1589,7 +1580,7 @@ uWS
             return;
           }
           let data = await User.superSafeFindByUsername(userToGetDataOf);
-
+          
           if (!data) {
             socket.send(
               JSON.stringify({
@@ -1602,6 +1593,18 @@ uWS
             );
             return;
           }
+          
+          socket.send(
+            JSON.stringify({
+              action: "updateHTML",
+              arguments: {
+                selector: "#user-information-modal__title",
+                text: `<div class="display:flex;justify-content:space-between"><span>${userToGetDataOf}</span><span>Level ${leveling.getLevel(
+                  data.statistics.totalExperiencePoints
+                )} (${data.statistics.totalExperiencePoints} EXP)</span>`
+              }
+            })
+          );
 
           socket.send(
             JSON.stringify({
