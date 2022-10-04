@@ -12,7 +12,7 @@ const helmet = require("helmet");
 const uWS = require("uWebSockets.js");
 const multer = require("multer");
 
-require('dotenv').config({ path: './credentials/.env' })
+require("dotenv").config({ path: "./credentials/.env" });
 
 const upload = multer();
 const csrfProtection = csurf({ cookie: true });
@@ -1197,7 +1197,6 @@ uWS
     // handle messages from client
 
     open: (socket, req) => {
-
       // =================================================================
       socket.variables = {};
 
@@ -1290,7 +1289,8 @@ uWS
             } else {
               console.error(
                 log.addMetadata(
-                  parsedMessage.arguments.gameMode + " is not a valid Singleplayer game mode!",
+                  parsedMessage.arguments.gameMode +
+                    " is not a valid Singleplayer game mode!",
                   "error"
                 )
               );
@@ -1358,7 +1358,9 @@ uWS
                 JSON.stringify({
                   action: "updateMultiplayerPlayerList",
                   arguments: {
-                    data: room.getRoomPlayers(rooms[roomIDOfDefaultMultiplayerRoom])
+                    data: room.getRoomPlayers(
+                      rooms[roomIDOfDefaultMultiplayerRoom]
+                    )
                   }
                 })
               );
@@ -1367,7 +1369,9 @@ uWS
                 JSON.stringify({
                   action: "updateMultiplayerPlayerList",
                   arguments: {
-                    data: room.getRoomPlayers(rooms[roomIDOfDefaultMultiplayerRoom])
+                    data: room.getRoomPlayers(
+                      rooms[roomIDOfDefaultMultiplayerRoom]
+                    )
                   }
                 })
               );
@@ -1541,11 +1545,12 @@ uWS
                   useHTML: true
                 }
               })
-            );  
+            );
           }
           break;
         }
         case "getDataForUser": {
+          // TODO: Turn this into 2+ separate functions
           // sanitize data
           if (
             parsedMessage.arguments.userToGetDataOf !==
@@ -1572,54 +1577,102 @@ uWS
               JSON.stringify({
                 action: "updateText",
                 arguments: {
+                  selector: "#user-information-modal__title",
+                  text: `<div style="display:flex;justify-content:space-between"><span>${userToGetDataOf}</span><span></span>`,
+                  useHTML: true
+                }
+              })
+            );
+
+            socket.send(
+              JSON.stringify({
+                action: "updateText",
+                arguments: {
                   selector: "#user-information-modal__text",
-                  text: `This player is playing as a guest. Scores they made will not be submitted unless they sign up.`
+                  text: `<div style="text-align:center;">This player is playing as a guest. Scores they made will not be submitted unless they sign up.</div>`,
+                  useHTML: true,
                 }
               })
             );
             return;
           }
           let data = await User.superSafeFindByUsername(userToGetDataOf);
-          
+
           if (!data) {
             socket.send(
               JSON.stringify({
                 action: "updateText",
                 arguments: {
                   selector: "#user-information-modal__text",
-                  text: `User ${userToGetDataOf} not found.`
+                  text: `<div style="text-align:center;">User ${userToGetDataOf} not found.</div>`,
+                  useHTML: true,
                 }
               })
             );
             return;
           }
-          
+
           socket.send(
             JSON.stringify({
-              action: "updateHTML",
+              action: "updateText",
               arguments: {
                 selector: "#user-information-modal__title",
-                text: `<div class="display:flex;justify-content:space-between"><span>${userToGetDataOf}</span><span>Level ${leveling.getLevel(
+                text: `<div style="display:flex;justify-content:space-between"><span>${userToGetDataOf}</span><span>Level ${leveling.getLevel(
                   data.statistics.totalExperiencePoints
-                )} (${data.statistics.totalExperiencePoints} EXP)</span>`
+                )} (${data.statistics.totalExperiencePoints} EXP)</span>`,
+                useHTML: true
               }
             })
           );
+
+          data.statistics.multiplayerWinRate =
+            data.statistics?.multiplayer?.gamesWon /
+            data.statistics?.multiplayer?.gamesPlayed;
+          if (data.statistics?.multiplayer?.gamesPlayed) {
+            if (data.statistics?.multiplayer?.gamesWon) {
+              data.statistics.primaryMultiplayerWinRateMessage = `${(
+                data.statistics.multiplayerWinRate * 100
+              ).toFixed(3)}%`;
+            } else {
+              data.statistics.primaryMultiplayerWinRateMessage = `0.000%`;
+            }
+          } else {
+            data.statistics.primaryMultiplayerWinRateMessage = "N/A";
+          }
 
           socket.send(
             JSON.stringify({
               action: "updateText",
               arguments: {
                 selector: "#user-information-modal__text",
-                text: `Standard Mode PB: ${
-                  data.statistics?.personalBestScoreOnStandardSingleplayerMode
-                    .score ?? "N/A"
-                }\nEasy Mode PB: ${
-                  data.statistics?.personalBestScoreOnEasySingleplayerMode
-                    .score ?? "N/A"
-                }\n Level ${leveling.getLevel(
-                  data.statistics.totalExperiencePoints
-                )}`,
+                text: `
+                <div style="display:grid;grid-template-columns: 1fr 1fr 1fr;">
+                  <div style="text-align:center;">
+                    <span style="font-size:16px;">Easy Singleplayer\nPersonal Best</span>
+                    
+                    <br><span style="font-size:48px;">${
+                      data.statistics?.personalBestScoreOnEasySingleplayerMode
+                        .score ?? "N/A"
+                    }</span>
+                  </div>
+                  <div style="text-align:center;">
+                    <span style="font-size:16px;">Standard Singleplayer\nPersonal Best</span>
+                    <br>
+                    <span style="font-size:48px;">${
+                      data.statistics
+                        ?.personalBestScoreOnStandardSingleplayerMode.score ??
+                      "N/A"
+                    }</span>
+                  </div>
+                  <div style="text-align:center;">
+                    <span style="font-size:16px;">Multiplayer</span>
+                    <br><span style="font-size:48px;">${
+                      data.statistics.primaryMultiplayerWinRateMessage
+                    }</span><br>
+                      <span style="font-size:16px;">win rate</span>
+                  </div>
+                </div>
+                `,
                 useHTML: true
               }
             })

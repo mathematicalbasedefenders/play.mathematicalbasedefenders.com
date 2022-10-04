@@ -1373,6 +1373,8 @@ function showTextModal(text, title, color) {
 }
 
 function showUserInformationModal(name) {
+  $("#user-information-modal__title").text("");
+  $("#user-information-modal__text").text("");
   socket.send(
     JSON.stringify({
       action: "getDataForUser",
@@ -1382,8 +1384,6 @@ function showUserInformationModal(name) {
     })
   );
   game.userCurrentUserIsViewing = name;
-  $("#user-information-modal__title").text("");
-  $("#user-information-modal__text").text("");
   $("#user-information-modal-container").fadeIn(200);
   $("#user-information-modal-container").show(0).css("display", "flex");
 }
