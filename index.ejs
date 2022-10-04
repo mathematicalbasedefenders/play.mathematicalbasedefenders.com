@@ -227,26 +227,26 @@
     <!-- Singleplayer Lobby -->
     <div id="singleplayer-lobby-screen-container">
       <div id="singleplayer-lobby-screen-button-container">
-        <button class="singleplayer-lobby-screen-button" onClick="startDefaultSingleplayerGame('easySingleplayerMode');"
+        <button class="lobby-screen-button--singleplayer-screen" onClick="startDefaultSingleplayerGame('easySingleplayerMode');"
           onMouseEnter="$('#bottom-toolbar-text').text('Play on the easy mode.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
           &nbsp;Easy
         </button>
         <br /><br />
-        <button class="singleplayer-lobby-screen-button"
+        <button class="lobby-screen-button--singleplayer-screen"
           onClick="startDefaultSingleplayerGame('standardSingleplayerMode');"
           onMouseEnter="$('#bottom-toolbar-text').text('Play on the (hard) standard mode.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
           &nbsp;Standard
         </button>
         <br /><br />
-        <button class="singleplayer-lobby-screen-button" onClick="showCustomSingleplayerGameModeSettingsScreen()"
+        <button class="lobby-screen-button--singleplayer-screen" onClick="showCustomSingleplayerGameModeSettingsScreen()"
           onMouseEnter="$('#bottom-toolbar-text').text('Customize your parameters and play with them. Scores will not be submitted.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
           &nbsp;Custom
         </button>
         <br /><br />
-        <button class="singleplayer-lobby-screen-button"
+        <button class="lobby-screen-button--singleplayer-screen"
           onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
           onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
@@ -379,14 +379,14 @@
     <!-- Multiplayer Lobby -->
     <div id="multiplayer-lobby-screen-container">
       <div id="multiplayer-lobby-screen-button-container">
-        <button class="multiplayer-lobby-screen-button"
+        <button class="lobby-screen-button--multiplayer-screen"
           onClick="setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);socket.send(JSON.stringify({action:'joinOrCreateDefaultMultiplayerRoom'}))"
           onMouseEnter="$('#bottom-toolbar-text').text('Join the default room.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
           &nbsp;Default Room
         </button>
         <br /><br />
-        <button class="multiplayer-lobby-screen-button"
+        <button class="lobby-screen-button--multiplayer-screen"
           onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
           onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
@@ -431,7 +431,7 @@
         <p id="last-game-ranks-content"></p>
       </div>
       <div id="default-multiplayer-room-lobby-screen-button-container">
-        <button class="default-multiplayer-room-lobby-screen-button"
+        <button class="lobby-screen-button--default-multiplayer-room-screen"
           onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);socket.send(JSON.stringify({action:`leaveRoom`}));"
           onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
