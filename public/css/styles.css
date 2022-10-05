@@ -472,7 +472,7 @@ input {
   margin-left: 2vw;
 }
 
-.lobby-screen-button--singleplayer-screen {
+.singleplayer-lobby-screen-button {
   width: 15.625vw;
   height: 50px;
   border-top: none;
@@ -485,11 +485,11 @@ input {
   background-color: #eeeeee;
 }
 
-.lobby-screen-button--singleplayer-screen {
+.singleplayer-lobby-screen-button {
   transition: all 0.1s ease-out;
 }
 
-.lobby-screen-button--singleplayer-screen:hover {
+.singleplayer-lobby-screen-button:hover {
   box-shadow: inset 15.625vw 0 0 #b6b6b6;
 }
 
@@ -515,7 +515,7 @@ input {
   margin-left: 2vw;
 }
 
-.lobby-screen-button--multiplayer-screen {
+.multiplayer-lobby-screen-button {
   width: 15.625vw;
   height: 50px;
   border-top: none;
@@ -528,11 +528,11 @@ input {
   background-color: #eeeeee;
 }
 
-.lobby-screen-button--multiplayer-screen {
+.multiplayer-lobby-screen-button {
   transition: all 0.1s ease-out;
 }
 
-.lobby-screen-button--multiplayer-screen:hover {
+.multiplayer-lobby-screen-button:hover {
   box-shadow: inset 15.625vw 0 0 #b6b6b6;
 }
 
@@ -549,7 +549,7 @@ input {
   color: #000000;
 }
 
-.lobby-screen-button--default-multiplayer-room-screen {
+.default-multiplayer-room-lobby-screen-button {
   width: 15.625vw;
   height: 50px;
   border-top: none;
@@ -562,11 +562,11 @@ input {
   background-color: #eeeeee;
 }
 
-.lobby-screen-button--default-multiplayer-room-screen {
+.default-multiplayer-room-lobby-screen-button {
   transition: all 0.1s ease-out;
 }
 
-.lobby-screen-button--default-multiplayer-room-screen:hover {
+.default-multiplayer-room-lobby-screen-button:hover {
   box-shadow: inset 15.625vw 0 0 #b6b6b6;
 }
 
