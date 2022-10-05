@@ -1590,7 +1590,7 @@ uWS
                 arguments: {
                   selector: "#user-information-modal__text",
                   text: `<div style="text-align:center;">This player is playing as a guest. Scores they made will not be submitted unless they sign up.</div>`,
-                  useHTML: true,
+                  useHTML: true
                 }
               })
             );
@@ -1605,21 +1605,34 @@ uWS
                 arguments: {
                   selector: "#user-information-modal__text",
                   text: `<div style="text-align:center;">User ${userToGetDataOf} not found.</div>`,
-                  useHTML: true,
+                  useHTML: true
                 }
               })
             );
             return;
           }
 
+          data.rank = utilities.getPlayerRank(data);
+
           socket.send(
             JSON.stringify({
               action: "updateText",
               arguments: {
                 selector: "#user-information-modal__title",
-                text: `<div style="display:flex;justify-content:space-between"><span>${userToGetDataOf}</span><span>Level ${leveling.getLevel(
+                text: `<div style="
+                display: flex;
+                flex-direction: column;
+            "><div style="font-size:16px;margin-bottom:-10px;"><span style="float:left;color:${utilities.formatPlayerName(
+              data.rank,
+              data.username
+            )}">${utilities.beautifyRankName(
+                  data.rank,
+                  data.username
+                )}</span><span style="float:right;"></span></div><div><span style="float:left;">${userToGetDataOf}</span><span style="float:right;">Level ${leveling.getLevel(
                   data.statistics.totalExperiencePoints
-                )} (${data.statistics.totalExperiencePoints} EXP)</span>`,
+                )}</span></div><div style="font-size:16px"><span span style="float:left;"></span><span span style="float:right;">${
+                  data.statistics.totalExperiencePoints
+                } EXP</span></div></div>`,
                 useHTML: true
               }
             })
