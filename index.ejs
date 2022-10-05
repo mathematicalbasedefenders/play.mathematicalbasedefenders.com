@@ -62,17 +62,18 @@
           <p class="text-modal__content-text">
 
             <br>
-            <span class="text-modal__title" id="user-information-modal__title">User Modal</span>
+            <div class="text-modal__title" id="user-information-modal__title">User Modal</div>
+            <div class="text-modal__text" id="user-information-modal__text">text2</div>
             <br />
-            <span class="text-modal__text" id="user-information-modal__text">text2</span>
-            <br />
+            <span style="display:flex;justify-content: center;">
             <button class="text-modal__button"
               onClick="$('#user-information-modal-container').fadeOut(200);$('#user-information-modal-container').hide(0);game.userCurrentUserIsViewing=null;">
               Close
-            </button>
+            </button></span>
           </p>
         </div>
       </div>
+    </div>
     </div>
 
     <div id="report-user-modal-container" style="display:none;">
@@ -227,7 +228,8 @@
     <!-- Singleplayer Lobby -->
     <div id="singleplayer-lobby-screen-container">
       <div id="singleplayer-lobby-screen-button-container">
-        <button class="lobby-screen-button--singleplayer-screen" onClick="startDefaultSingleplayerGame('easySingleplayerMode');"
+        <button class="lobby-screen-button--singleplayer-screen"
+          onClick="startDefaultSingleplayerGame('easySingleplayerMode');"
           onMouseEnter="$('#bottom-toolbar-text').text('Play on the easy mode.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
           &nbsp;Easy
@@ -240,7 +242,8 @@
           &nbsp;Standard
         </button>
         <br /><br />
-        <button class="lobby-screen-button--singleplayer-screen" onClick="showCustomSingleplayerGameModeSettingsScreen()"
+        <button class="lobby-screen-button--singleplayer-screen"
+          onClick="showCustomSingleplayerGameModeSettingsScreen()"
           onMouseEnter="$('#bottom-toolbar-text').text('Customize your parameters and play with them. Scores will not be submitted.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
           &nbsp;Custom

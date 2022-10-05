@@ -12,7 +12,7 @@ const helmet = require("helmet");
 const uWS = require("uWebSockets.js");
 const multer = require("multer");
 
-require('dotenv').config({ path: './credentials/.env' })
+require("dotenv").config({ path: "./credentials/.env" });
 
 const upload = multer();
 const csrfProtection = csurf({ cookie: true });
@@ -215,18 +215,7 @@ app.post(
           socketToChangeConnectionID.variables.userIDOfSocketOwner = data._id;
           socketToChangeConnectionID.variables.playerRank =
             utilities.getPlayerRank(data, data.username);
-          socketToChangeConnectionID.send(
-            JSON.stringify({
-              action: "updateText",
-              arguments: {
-                selector: "#player-rank",
-                text: utilities.beautifyRankName(
-                  socketToChangeConnectionID.variables.playerRank,
-                  data.username
-                )
-              }
-            })
-          );
+
           socketToChangeConnectionID.send(
             JSON.stringify({
               action: "updateText",
@@ -243,23 +232,34 @@ app.post(
               action: "updateText",
               arguments: {
                 selector: "#player-name",
-                text: socketToChangeConnectionID.connectionID
-              }
-            })
-          );
-          socketToChangeConnectionID.send(
-            JSON.stringify({
-              action: "updateCSS",
-              arguments: {
-                selector: "#player-rank",
-                property: "color",
-                value: utilities.formatPlayerName(
+                text: `<button style="border:none;background-color:#eeeeee"onclick="showUserInformationModal('${
+                  data.username
+                }')"><span style="color:${utilities.formatPlayerName(
                   utilities.getPlayerRank(data),
                   data.username
-                )
+                )}">${utilities.beautifyRankName(
+                  socketToChangeConnectionID.variables.playerRank,
+                  data.username
+                )}</span> <span>${
+                  socketToChangeConnectionID.connectionID
+                }</span></button>`,
+                useHTML: true
               }
             })
           );
+          // socketToChangeConnectionID.send(
+          //   JSON.stringify({
+          //     action: "updateCSS",
+          //     arguments: {
+          //       selector: "#player-rank",
+          //       property: "color",
+          //       value: utilities.formatPlayerName(
+          //         utilities.getPlayerRank(data),
+          //         data.username
+          //       )
+          //     }
+          //   })
+          // );
           socketToChangeConnectionID.send(
             JSON.stringify({
               action: "updateCSS",
@@ -1197,7 +1197,6 @@ uWS
     // handle messages from client
 
     open: (socket, req) => {
-
       // =================================================================
       socket.variables = {};
 
@@ -1290,7 +1289,8 @@ uWS
             } else {
               console.error(
                 log.addMetadata(
-                  parsedMessage.arguments.gameMode + " is not a valid Singleplayer game mode!",
+                  parsedMessage.arguments.gameMode +
+                    " is not a valid Singleplayer game mode!",
                   "error"
                 )
               );
@@ -1358,7 +1358,9 @@ uWS
                 JSON.stringify({
                   action: "updateMultiplayerPlayerList",
                   arguments: {
-                    data: room.getRoomPlayers(rooms[roomIDOfDefaultMultiplayerRoom])
+                    data: room.getRoomPlayers(
+                      rooms[roomIDOfDefaultMultiplayerRoom]
+                    )
                   }
                 })
               );
@@ -1367,7 +1369,9 @@ uWS
                 JSON.stringify({
                   action: "updateMultiplayerPlayerList",
                   arguments: {
-                    data: room.getRoomPlayers(rooms[roomIDOfDefaultMultiplayerRoom])
+                    data: room.getRoomPlayers(
+                      rooms[roomIDOfDefaultMultiplayerRoom]
+                    )
                   }
                 })
               );
@@ -1541,11 +1545,12 @@ uWS
                   useHTML: true
                 }
               })
-            );  
+            );
           }
           break;
         }
         case "getDataForUser": {
+          // TODO: Turn this into 2+ separate functions
           // sanitize data
           if (
             parsedMessage.arguments.userToGetDataOf !==
@@ -1566,23 +1571,26 @@ uWS
           let userToGetDataOf = mongoDBSanitize(
             parsedMessage.arguments.userToGetDataOf
           );
-          socket.send(
-            JSON.stringify({
-              action: "updateText",
-              arguments: {
-                selector: "#user-information-modal__title",
-                text: `User Data for ${userToGetDataOf}`
-              }
-            })
-          );
           if (/Guest[-\s]{0,1}[0-9]{8}/.test(userToGetDataOf)) {
             // guest player: return guest data
             socket.send(
               JSON.stringify({
                 action: "updateText",
                 arguments: {
+                  selector: "#user-information-modal__title",
+                  text: `<div style="display:flex;justify-content:space-between"><span>${userToGetDataOf}</span><span></span>`,
+                  useHTML: true
+                }
+              })
+            );
+
+            socket.send(
+              JSON.stringify({
+                action: "updateText",
+                arguments: {
                   selector: "#user-information-modal__text",
-                  text: `This player is playing as a guest. Scores they made will not be submitted unless they sign up.`
+                  text: `<div style="text-align:center;">This player is playing as a guest. Scores they made will not be submitted unless they sign up.</div>`,
+                  useHTML: true
                 }
               })
             );
@@ -1596,11 +1604,53 @@ uWS
                 action: "updateText",
                 arguments: {
                   selector: "#user-information-modal__text",
-                  text: `User ${userToGetDataOf} not found.`
+                  text: `<div style="text-align:center;">User ${userToGetDataOf} not found.</div>`,
+                  useHTML: true
                 }
               })
             );
             return;
+          }
+
+          data.rank = utilities.getPlayerRank(data);
+
+          socket.send(
+            JSON.stringify({
+              action: "updateText",
+              arguments: {
+                selector: "#user-information-modal__title",
+                text: `<div style="
+                display: flex;
+                flex-direction: column;
+            "><div style="font-size:16px;margin-bottom:-10px;"><span style="float:left;color:${utilities.formatPlayerName(
+              data.rank,
+              data.username
+            )}">${utilities.beautifyRankName(
+                  data.rank,
+                  data.username
+                )}</span><span style="float:right;"></span></div><div><span style="float:left;">${userToGetDataOf}</span><span style="float:right;">Level ${leveling.getLevel(
+                  data.statistics.totalExperiencePoints
+                )}</span></div><div style="font-size:16px"><span span style="float:left;"></span><span span style="float:right;">${
+                  data.statistics.totalExperiencePoints
+                } EXP</span></div></div>`,
+                useHTML: true
+              }
+            })
+          );
+
+          data.statistics.multiplayerWinRate =
+            data.statistics?.multiplayer?.gamesWon /
+            data.statistics?.multiplayer?.gamesPlayed;
+          if (data.statistics?.multiplayer?.gamesPlayed) {
+            if (data.statistics?.multiplayer?.gamesWon) {
+              data.statistics.primaryMultiplayerWinRateMessage = `${(
+                data.statistics.multiplayerWinRate * 100
+              ).toFixed(3)}%`;
+            } else {
+              data.statistics.primaryMultiplayerWinRateMessage = `0.000%`;
+            }
+          } else {
+            data.statistics.primaryMultiplayerWinRateMessage = "N/A";
           }
 
           socket.send(
@@ -1608,15 +1658,34 @@ uWS
               action: "updateText",
               arguments: {
                 selector: "#user-information-modal__text",
-                text: `Standard Mode PB: ${
-                  data.statistics?.personalBestScoreOnStandardSingleplayerMode
-                    .score ?? "N/A"
-                }\nEasy Mode PB: ${
-                  data.statistics?.personalBestScoreOnEasySingleplayerMode
-                    .score ?? "N/A"
-                }\n Level ${leveling.getLevel(
-                  data.statistics.totalExperiencePoints
-                )}`,
+                text: `
+                <div style="display:grid;grid-template-columns: 1fr 1fr 1fr;">
+                  <div style="text-align:center;">
+                    <span style="font-size:16px;">Easy Singleplayer\nPersonal Best</span>
+                    
+                    <br><span style="font-size:48px;">${
+                      data.statistics?.personalBestScoreOnEasySingleplayerMode
+                        .score ?? "N/A"
+                    }</span>
+                  </div>
+                  <div style="text-align:center;">
+                    <span style="font-size:16px;">Standard Singleplayer\nPersonal Best</span>
+                    <br>
+                    <span style="font-size:48px;">${
+                      data.statistics
+                        ?.personalBestScoreOnStandardSingleplayerMode.score ??
+                      "N/A"
+                    }</span>
+                  </div>
+                  <div style="text-align:center;">
+                    <span style="font-size:16px;">Multiplayer</span>
+                    <br><span style="font-size:48px;">${
+                      data.statistics.primaryMultiplayerWinRateMessage
+                    }</span><br>
+                      <span style="font-size:16px;">win rate</span>
+                  </div>
+                </div>
+                `,
                 useHTML: true
               }
             })
