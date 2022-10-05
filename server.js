@@ -215,18 +215,7 @@ app.post(
           socketToChangeConnectionID.variables.userIDOfSocketOwner = data._id;
           socketToChangeConnectionID.variables.playerRank =
             utilities.getPlayerRank(data, data.username);
-          socketToChangeConnectionID.send(
-            JSON.stringify({
-              action: "updateText",
-              arguments: {
-                selector: "#player-rank",
-                text: utilities.beautifyRankName(
-                  socketToChangeConnectionID.variables.playerRank,
-                  data.username
-                )
-              }
-            })
-          );
+
           socketToChangeConnectionID.send(
             JSON.stringify({
               action: "updateText",
@@ -243,23 +232,34 @@ app.post(
               action: "updateText",
               arguments: {
                 selector: "#player-name",
-                text: socketToChangeConnectionID.connectionID
-              }
-            })
-          );
-          socketToChangeConnectionID.send(
-            JSON.stringify({
-              action: "updateCSS",
-              arguments: {
-                selector: "#player-rank",
-                property: "color",
-                value: utilities.formatPlayerName(
+                text: `<button style="border:none;background-color:#eeeeee"onclick="showUserInformationModal('${
+                  data.username
+                }')"><span style="color:${utilities.formatPlayerName(
                   utilities.getPlayerRank(data),
                   data.username
-                )
+                )}">${utilities.beautifyRankName(
+                  socketToChangeConnectionID.variables.playerRank,
+                  data.username
+                )}</span> <span>${
+                  socketToChangeConnectionID.connectionID
+                }</span></button>`,
+                useHTML: true
               }
             })
           );
+          // socketToChangeConnectionID.send(
+          //   JSON.stringify({
+          //     action: "updateCSS",
+          //     arguments: {
+          //       selector: "#player-rank",
+          //       property: "color",
+          //       value: utilities.formatPlayerName(
+          //         utilities.getPlayerRank(data),
+          //         data.username
+          //       )
+          //     }
+          //   })
+          // );
           socketToChangeConnectionID.send(
             JSON.stringify({
               action: "updateCSS",
