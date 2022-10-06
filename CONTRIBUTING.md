@@ -33,7 +33,7 @@ Don't forget to run `npm run test` to ensure that tests will pass.
 
 ## Contributing by Donating
 
-Mathematical Base Defenders is a one person project. Therefore, contributions are welcome. But if you are feeling extremely nice and would want to support the Game Master finacially directly, feel free to donate to his [Patreon](https://patreon.com/mistertfy64).
+Mathematical Base Defenders is a one person project. Therefore, contributions are welcome. But if you are feeling extremely nice and would want to support the Game Master financially directly, feel free to donate to his [Patreon](https://patreon.com/mistertfy64).
  
 ## Contacting the Game Master
 
