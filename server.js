@@ -247,7 +247,23 @@ app.post(
               }
             })
           );
+<<<<<<< HEAD
 
+=======
+          // socketToChangeConnectionID.send(
+          //   JSON.stringify({
+          //     action: "updateCSS",
+          //     arguments: {
+          //       selector: "#player-rank",
+          //       property: "color",
+          //       value: utilities.formatPlayerName(
+          //         utilities.getPlayerRank(data),
+          //         data.username
+          //       )
+          //     }
+          //   })
+          // );
+>>>>>>> 9782e5d2da448d6f38cbc2def5b24abfad3fc604
           socketToChangeConnectionID.send(
             JSON.stringify({
               action: "updateCSS",

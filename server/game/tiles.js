@@ -2,9 +2,8 @@ const generation = require("./generation.js");
 const terms = require("./terms.js");
 const evaluation = require("./evaluation.js");
 const input = require("./input.js");
-const tile = require("../constructors/tile.js");
+const tile = require("./constructors/tile.js");
 const log = require("../core/log.js");
-const tiles = require("../tiles.js");
 
 function convertPressedKeyToTermID(keyPressed, playerKeybinds, room, socket) {
   if (keyPressed == "Space") {
