@@ -3,7 +3,7 @@ const tile = require("./constructors/tile.js");
 const utilities = require("./utilities.js");
 const generation = require("./generation.js");
 const global = require("../global.js");
-const log = require("../log.js");
+const log = require("../core/log.js");
 
 /**
  * Replaces tiles for a player in a Multiplayer Room.

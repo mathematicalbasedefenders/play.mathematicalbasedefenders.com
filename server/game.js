@@ -373,7 +373,7 @@ async function computeUpdateForRoomPlayerEnemies(
   }
 
   for (
-let    j = 0;
+    let j = 0;
     j < room.data.currentGame.players[player].currentGame.enemiesOnField.length;
     j++
   ) {
