@@ -7,7 +7,8 @@
   <meta name="viewport" content="width=device-width, user-scalable=no" />
   <meta name="csrf-token" content=<%=csrfToken%>>
   <title>Mathematical Base Defenders</title>
-  <meta name="description" content="A math game where you use tiles to create math problems to kill enemies alone or to send them to other players around the world.">
+  <meta name="description"
+    content="A math game where you use tiles to create math problems to kill enemies alone or to send them to other players around the world.">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
   <link rel="icon" type="image/x-icon" href="/public/assets/images/favicon.ico">
   <link rel="stylesheet" href="/public/css/styles.css" />
@@ -62,10 +63,10 @@
           <p class="text-modal__content-text">
 
             <br>
-            <div class="text-modal__title" id="user-information-modal__title">User Modal</div>
-            <div class="text-modal__text" id="user-information-modal__text">text2</div>
-            <br />
-            <span style="display:flex;justify-content: center;">
+          <div class="text-modal__title" id="user-information-modal__title">User Modal</div>
+          <div class="text-modal__text" id="user-information-modal__text">text2</div>
+          <br />
+          <span style="display:flex;justify-content: center;">
             <button class="text-modal__button"
               onClick="$('#user-information-modal-container').fadeOut(200);$('#user-information-modal-container').hide(0);game.userCurrentUserIsViewing=null;">
               Close
@@ -74,73 +75,73 @@
         </div>
       </div>
     </div>
-    </div>
+  </div>
 
-    <div id="report-user-modal-container" style="display:none;">
-      <div id="report-user-modal-content-container">
-        <div style="position: relative">
+  <div id="report-user-modal-container" style="display:none;">
+    <div id="report-user-modal-content-container">
+      <div style="position: relative">
 
-          <p style="text-align: center" style="background-color: #555555">
-            <span class="text-modal__title" id="report-user-modal-title">text1</span>
-            <br />
-            <span style="color: #ffffff">Note: You must be a registered user to report, misuse of the report system may
-              result in
-              actions taken on
-              <strong>your</strong> account and you may only report <strong>once</strong> every five minutes.</span>
-          <form input="report-form" action="send-report" method="POST" onsubmit="return false;">
-            <input type="hidden" id="report-target" name="report-target" value="">
-            <textarea class="report-description-box" id="report-description-box" name="report-description" type="text"
-              autocomplete="off" placeholder="Why are you reporting this user? (500 characters maximum)"></textarea>
-            <br><br>
-            <div style="display: flex;justify-content: center;align-items: center;">
-              <div style="width:100%;">
-                <div style="width:100%;text-align:center;">
-                  <div>
-                    <button class="text-modal__button"
-                      onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
-                      Close
-                    </button>
-                    &nbsp;&nbsp;
-                    <button class="text-modal__button text-modal__button--dangerous" type="submit"
-                      onClick="sendReport();$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
-                      Report
-                    </button>
-                    </p>
-                  </div>
+        <p style="text-align: center" style="background-color: #555555">
+          <span class="text-modal__title" id="report-user-modal-title">text1</span>
+          <br />
+          <span style="color: #ffffff">Note: You must be a registered user to report, misuse of the report system may
+            result in
+            actions taken on
+            <strong>your</strong> account and you may only report <strong>once</strong> every five minutes.</span>
+        <form input="report-form" action="send-report" method="POST" onsubmit="return false;">
+          <input type="hidden" id="report-target" name="report-target" value="">
+          <textarea class="report-description-box" id="report-description-box" name="report-description" type="text"
+            autocomplete="off" placeholder="Why are you reporting this user? (500 characters maximum)"></textarea>
+          <br><br>
+          <div style="display: flex;justify-content: center;align-items: center;">
+            <div style="width:100%;">
+              <div style="width:100%;text-align:center;">
+                <div>
+                  <button class="text-modal__button"
+                    onClick="	$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
+                    Close
+                  </button>
+                  &nbsp;&nbsp;
+                  <button class="text-modal__button text-modal__button--dangerous" type="submit"
+                    onClick="sendReport();$('#report-user-modal-container').fadeOut(200);$('#report-user-modal-container').hide(0);">
+                    Report
+                  </button>
+                  </p>
                 </div>
               </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
-    <div id="hub-container">
-      <!-- Main menu -->
-      <div id="main-menu-screen-container">
-        <div id="top-bar-container" style="float: right;text-align:right;">
-          <button style="
+  </div>
+  <div id="hub-container">
+    <!-- Main menu -->
+    <div id="main-menu-screen-container">
+      <div id="top-bar-container" style="float: right;text-align:right;">
+        <button style="
                                 border-style: none;
                                 color: #000000;
                                 background-color: #eeeeee;
                             ">
-            <span id="player-rank"></span>
-            <span id="player-name">UNABLE TO LOGIN, PLEASE REFRESH PAGE!</span>
-          </button>
-          <span id="secondary-top-bar-container">
-            <span style="display:none;" id="player-level-indicator"></span>
-            <div id="login-shortcut-button"><button style="
+          <span id="player-rank"></span>
+          <span id="player-name">UNABLE TO LOGIN, PLEASE REFRESH PAGE!</span>
+        </button>
+        <span id="secondary-top-bar-container">
+          <span style="display:none;" id="player-level-indicator"></span>
+          <div id="login-shortcut-button"><button style="
                                     border-style: none;
                                     color: #000000;
                                     background-color: #eeeeee;
                                 "
-                onClick="setPropertiesAndChangeScreen(screens.SETTINGS_SCREEN);setPropertiesAndChangeSettingsScreen(settingsScreens.ONLINE_SETTINGS_SCREEN);">
-                Click here to log in!
-              </button></div>
-          </span>
-        </div>
+              onClick="setPropertiesAndChangeScreen(screens.SETTINGS_SCREEN);setPropertiesAndChangeSettingsScreen(settingsScreens.ONLINE_SETTINGS_SCREEN);">
+              Click here to log in!
+            </button></div>
+        </span>
+      </div>
 
-        <div>
-          <span style="
+      <div>
+        <span style="
                                 opacity: 0.3;
                                 font-size: 72px;
                                 position: absolute;
@@ -148,312 +149,74 @@
                                 left: 5%;
                                 white-space: nowrap;
                             ">IN DEVELOPMENT</span>
-          <div id="mathematical-base-defenders-logo-container">
-            <img src="/public/assets/images/mathematicalbasedefenders.png" />
-          </div>
-        </div>
-
-        <div id="main-menu-screen-button-container">
-          <button class="main-menu-screen-button"
-            onClick="setPropertiesAndChangeScreen(screens.SINGLEPLAYER_LOBBY_SCREEN);"
-            onMouseEnter="$('#bottom-toolbar-text').text('Test your math skills and maybe get on the leaderboards.')"
-            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Singleplayer
-          </button>
-          <br /><br />
-          <button class="main-menu-screen-button"
-            onMouseEnter="$('#bottom-toolbar-text').text('Play with others and make friends and enemies.')"
-            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
-            onClick="setPropertiesAndChangeScreen(screens.MULTIPLAYER_LOBBY_SCREEN)">
-            &nbsp;Multiplayer
-          </button>
-          <br /><br />
-          <button class="main-menu-screen-button"
-            onMouseEnter="$('#bottom-toolbar-text').text('View how far you or others have progressed.')"
-            onClick="createToastNotification({color:`#ff0000`, message:`A stats viewer will be released in a future update!`})"
-            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Statistics
-          </button>
-          <br /><br />
-          <button class="main-menu-screen-button"
-            onClick="updateSettingsSelections();setPropertiesAndChangeScreen(screens.SETTINGS_SCREEN); setPropertiesAndChangeSettingsScreen('')"
-            onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks, feels, and sounds.')"
-            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Settings
-          </button>
+        <div id="mathematical-base-defenders-logo-container">
+          <img src="/public/assets/images/mathematicalbasedefenders.png" />
         </div>
       </div>
 
-      <!-- Information -->
-      <div id="information-screen-container">
-        <div id="information-screen-content-container">
-          <div class="large-text">
-            <p style="text-align: center">
-              Mathematical Base Defenders
-              <span style="margin-top: 10px" class="medium-text">0.3.0-beta
-              </span>
-              <span style="margin-top: 10px" class="large-medium-text">by
-                <img style="
+      <div id="main-menu-screen-button-container">
+        <button class="main-menu-screen-button"
+          onClick="setPropertiesAndChangeScreen(screens.SINGLEPLAYER_LOBBY_SCREEN);"
+          onMouseEnter="$('#bottom-toolbar-text').text('Test your math skills and maybe get on the leaderboards.')"
+          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+          &nbsp;Singleplayer
+        </button>
+        <br /><br />
+        <button class="main-menu-screen-button"
+          onMouseEnter="$('#bottom-toolbar-text').text('Play with others and make friends and enemies.')"
+          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+          onClick="setPropertiesAndChangeScreen(screens.MULTIPLAYER_LOBBY_SCREEN)">
+          &nbsp;Multiplayer
+        </button>
+        <br /><br />
+        <button class="main-menu-screen-button"
+          onMouseEnter="$('#bottom-toolbar-text').text('View how far you or others have progressed.')"
+          onClick="createToastNotification({color:`#ff0000`, message:`A stats viewer will be released in a future update!`})"
+          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+          &nbsp;Statistics
+        </button>
+        <br /><br />
+        <button class="main-menu-screen-button"
+          onClick="updateSettingsSelections();setPropertiesAndChangeScreen(screens.SETTINGS_SCREEN); setPropertiesAndChangeSettingsScreen('')"
+          onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks, feels, and sounds.')"
+          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+          &nbsp;Settings
+        </button>
+      </div>
+    </div>
+
+    <!-- Information -->
+    <div id="information-screen-container">
+      <div id="information-screen-content-container">
+        <div class="large-text">
+          <p style="text-align: center">
+            Mathematical Base Defenders
+            <span style="margin-top: 10px" class="medium-text">0.3.0-beta
+            </span>
+            <span style="margin-top: 10px" class="large-medium-text">by
+              <img style="
                                             margin-top: 10px;
                                             transform: translateY(5px);
                                         "
-                  onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')"
-                  onClick="document.location='https://mistertfy64.com'" ;
-                  onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" src="/public/assets/images/mistertfy64.svg"
-                  height="40px;" /></span>
-            </p>
-          </div>
-          <div class="medium-text">
-            <p style="text-align: center">
-              A number-cruncher math game where you form
-              problems for enemies by using tiles.
-              <br />
-              <a href="https://github.com/mathematicalbasedefenders/issuetracker">Issue Tracker</a>
-              <br />
-              <a href="https://discord.gg/tJdwzjSgHh">Discord Server</a>
-            </p>
-          </div>
-          <div id="information-screen-button-container">
-            <button class="information-screen-navigation-button"
-              onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-              onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
-              onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-              &nbsp;Back
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Singleplayer Lobby -->
-    <div id="singleplayer-lobby-screen-container">
-      <div id="singleplayer-lobby-screen-button-container">
-        <button class="lobby-screen-button--singleplayer-screen"
-          onClick="startDefaultSingleplayerGame('easySingleplayerMode');"
-          onMouseEnter="$('#bottom-toolbar-text').text('Play on the easy mode.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Easy
-        </button>
-        <br /><br />
-        <button class="lobby-screen-button--singleplayer-screen"
-          onClick="startDefaultSingleplayerGame('standardSingleplayerMode');"
-          onMouseEnter="$('#bottom-toolbar-text').text('Play on the (hard) standard mode.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Standard
-        </button>
-        <br /><br />
-        <button class="lobby-screen-button--singleplayer-screen"
-          onClick="showCustomSingleplayerGameModeSettingsScreen()"
-          onMouseEnter="$('#bottom-toolbar-text').text('Customize your parameters and play with them. Scores will not be submitted.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Custom
-        </button>
-        <br /><br />
-        <button class="lobby-screen-button--singleplayer-screen"
-          onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-          onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Back
-        </button>
-      </div>
-      <div id="singleplayer-screen-custom-mode-settings-screen-content-container"
-        style="font-size: 24px; display: none">
-        <!-- wth? -->
-
-        <span style="font-size: 36px">General</span>
-        <br />
-
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('How many health points your base starts with.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Starting Base Health:
-          <input autocomplete="off" style="width: 400px" id="starting-base-health" name="starting-base-health"
-            placeholder="Enter number..." type="text" value="10" />
-        </div>
-        <br />
-
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('How many milliseconds you can keep your combo without killing an enemy.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Allowed Combo Time (milliseconds):
-          <input autocomplete="off" style="width: 400px" id="allowed-combo-time" name="allowed-combo-time"
-            placeholder="Enter number..." type="text" value="5000" />
-        </div>
-        <br />
-
-        <hr />
-        <span style="font-size: 36px">Enemies</span>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The chance of an enemy spawning after a certain amount of time (Enemy Generation Interval).');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Enemy Spawn Chance (percent):
-          <input autocomplete="off" style="width: 400px" id="enemy-spawn-chance-in-percent"
-            name="enemy-spawn-chance-in-percent" placeholder="Enter number..." type="text" value="5" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The amount of time before an enemy has a chance to spawn.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Enemy Generation Interval (milliseconds):
-          <input autocomplete="off" style="width: 400px" id="enemy-generation-interval-in-milliseconds"
-            name="enemy-generation-interval-in-milliseconds" placeholder="Enter number..." type="text" value="50" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The maximum number of enemies the field can hold.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Enemy Limit:
-          <input autocomplete="off" style="width: 400px" id="enemy-limit" name="enemy-limit"
-            placeholder="Enter number..." type="text" value="250" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The speed multiplier to apply to every enemy.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Enemy Speed Multiplier:
-          <input autocomplete="off" style="width: 400px" id="enemy-speed-multiplier" name="enemy-speed-multiplier"
-            placeholder="Enter number..." type="text" value="1" />
-        </div>
-        <br />
-        <hr />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          <span style="font-size: 36px">Variables</span>
-          <br />
-          Starting Value of Variable
-          <span style="
-                                    font-family: 'Computer Modern Math Italic',
-                                        'Computer Modern Unicode Serif';
-                                ">a</span>:
-          <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-a"
-            name="starting-value-of-variable-a" placeholder="Enter number..." type="text" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Starting Value of Variable
-          <span style="
-                                    font-family: 'Computer Modern Math Italic',
-                                        'Computer Modern Unicode Serif';
-                                ">b</span>:
-          <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-b"
-            name="starting-value-of-variable-b" placeholder="Enter number..." type="text" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Starting Value of Variable
-          <span style="
-                                    font-family: 'Computer Modern Math Italic',
-                                        'Computer Modern Unicode Serif';
-                                ">c</span>:
-          <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-c"
-            name="starting-value-of-variable-c" placeholder="Enter number..." type="text" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Starting Value of Variable
-          <span style="
-                                    font-family: 'Computer Modern Math Italic',
-                                        'Computer Modern Unicode Serif';
-                                ">d</span>:
-
-          <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-d"
-            name="starting-value-of-variable-d" placeholder="Enter number..." type="text" />
-        </div>
-        <br />
-        <hr />
-        <br />
-        <span id="singleplayer-screen-custom-mode-issues">&nbsp;</span><br />
-        <button id="start-button" onClick="startCustomSingleplayerGame(getCustomSingleplayerModeInputs());"
-          style="width: 256px; height: 64px; font-size: 28px">
-          Start Game
-        </button>
-        <br /><br /><br /><br />
-      </div>
-    </div>
-
-    <!-- Multiplayer Lobby -->
-    <div id="multiplayer-lobby-screen-container">
-      <div id="multiplayer-lobby-screen-button-container">
-        <button class="lobby-screen-button--multiplayer-screen"
-          onClick="setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);socket.send(JSON.stringify({action:'joinOrCreateDefaultMultiplayerRoom'}))"
-          onMouseEnter="$('#bottom-toolbar-text').text('Join the default room.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Default Room
-        </button>
-        <br /><br />
-        <button class="lobby-screen-button--multiplayer-screen"
-          onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-          onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Back
-        </button>
-      </div>
-    </div>
-
-    <!-- Default Multiplayer Room Lobby-->
-    <div id="default-multiplayer-room-lobby-screen-container">
-      <div class="multiplayer-room-player-list-container">
-        <div class="multiplayer-room-player-list">
-          <p id="default-multiplayer-room-player-list"></p>
-        </div>
-      </div>
-      <div class="multiplayer-room-chat-content-container">
-        <div id="multiplayer-room-chat-content-container-2">
-          <!-- ??? -->
-          <p id="multiplayer-room-chat-content"
-            style="overflow-y: scroll;width:96.5%;height:90%;position:absolute;display:flex;flex-direction: column-reverse;">
+                onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')"
+                onClick="document.location='https://mistertfy64.com'" ;
+                onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" src="/public/assets/images/mistertfy64.svg"
+                height="40px;" /></span>
           </p>
         </div>
-        <div style="position:absolute; bottom:5%; width:100%;height:10%;">
-          <div class="multiplayer-room-message-box-container">
-            <input style="height: 16px; font-size: 12px" type="text" autocomplete="off"
-              id="multiplayer-room-message-box" placeholder="Enter message..." /><button id="chat-box-send-button"
-              onClick="sendChatMessage();">
-              Send
-            </button>
-          </div>
+        <div class="medium-text">
+          <p style="text-align: center">
+            A number-cruncher math game where you form
+            problems for enemies by using tiles.
+            <br />
+            <a href="https://github.com/mathematicalbasedefenders/issuetracker">Issue Tracker</a>
+            <br />
+            <a href="https://discord.gg/tJdwzjSgHh">Discord Server</a>
+          </p>
         </div>
-      </div>
-
-      Multiplayer is in its testing stage. Report issues or
-      suggest features
-      <a href="https://github.com/mathematicalbasedefenders/issuetracker">here</a>.
-      <br />
-      <p id="default-multiplayer-room-status-text">
-      </p>
-      <br /><br />
-      <div class="last-game-ranks-content-container">
-        <p id="last-game-ranks-content"></p>
-      </div>
-      <div id="default-multiplayer-room-lobby-screen-button-container">
-        <button class="lobby-screen-button--default-multiplayer-room-screen"
-          onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);socket.send(JSON.stringify({action:`leaveRoom`}));"
-          onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Back
-        </button>
-      </div>
-    </div>
-
-    <!-- Statistics -->
-    <div id="statistics-screen-container">
-      <div id="statistics-screen-content-container">
-        <div style="font-size: 24px"></div>
-        <div id="statistics-screen-button-container">
-          <button class="statistics-screen-button" onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-            onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
-            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Player
-          </button>
-          <button class="statistics-screen-button" onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+        <div id="information-screen-button-container">
+          <button class="information-screen-navigation-button"
+            onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
             onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
             &nbsp;Back
@@ -461,381 +224,615 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Settings -->
-    <div id="settings-screen-container">
-      <div id="settings-screen-navigation-button-container">
-        <button class="settings-screen-navigation-button"
-          onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.VIDEO_SETTINGS_SCREEN)"
-          onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks.')"
+  <!-- Singleplayer Lobby -->
+  <div id="singleplayer-lobby-screen-container">
+    <div id="singleplayer-lobby-screen-button-container">
+      <button class="lobby-screen-button--singleplayer-screen"
+        onClick="startDefaultSingleplayerGame('easySingleplayerMode');"
+        onMouseEnter="$('#bottom-toolbar-text').text('Play on the easy mode.')"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Easy
+      </button>
+      <br /><br />
+      <button class="lobby-screen-button--singleplayer-screen"
+        onClick="startDefaultSingleplayerGame('standardSingleplayerMode');"
+        onMouseEnter="$('#bottom-toolbar-text').text('Play on the (hard) standard mode.')"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Standard
+      </button>
+      <br /><br />
+      <button class="lobby-screen-button--singleplayer-screen" onClick="showCustomSingleplayerGameModeSettingsScreen()"
+        onMouseEnter="$('#bottom-toolbar-text').text('Customize your parameters and play with them. Scores will not be submitted.')"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Custom
+      </button>
+      <br /><br />
+      <button class="lobby-screen-button--singleplayer-screen"
+        onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+        onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Back
+      </button>
+    </div>
+    <div id="singleplayer-screen-custom-mode-settings-screen-content-container" style="font-size: 24px; display: none">
+      <!-- wth? -->
+
+      <span style="font-size: 36px">General</span>
+      <br />
+
+      <div class="custom-singleplayer-game-setting-container"
+        onMouseEnter="$('#bottom-toolbar-text').text('How many health points your base starts with.');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        Starting Base Health:
+        <input autocomplete="off" style="width: 400px" id="starting-base-health" name="starting-base-health"
+          placeholder="Enter number..." type="text" value="10" />
+      </div>
+      <br />
+
+      <div class="custom-singleplayer-game-setting-container"
+        onMouseEnter="$('#bottom-toolbar-text').text('How many milliseconds you can keep your combo without killing an enemy.');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        Allowed Combo Time (milliseconds):
+        <input autocomplete="off" style="width: 400px" id="allowed-combo-time" name="allowed-combo-time"
+          placeholder="Enter number..." type="text" value="5000" />
+      </div>
+      <br />
+
+      <hr />
+      <span style="font-size: 36px">Enemies</span>
+      <br />
+      <div class="custom-singleplayer-game-setting-container"
+        onMouseEnter="$('#bottom-toolbar-text').text('The chance of an enemy spawning after a certain amount of time (Enemy Generation Interval).');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        Enemy Spawn Chance (percent):
+        <input autocomplete="off" style="width: 400px" id="enemy-spawn-chance-in-percent"
+          name="enemy-spawn-chance-in-percent" placeholder="Enter number..." type="text" value="5" />
+      </div>
+      <br />
+      <div class="custom-singleplayer-game-setting-container"
+        onMouseEnter="$('#bottom-toolbar-text').text('The amount of time before an enemy has a chance to spawn.');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        Enemy Generation Interval (milliseconds):
+        <input autocomplete="off" style="width: 400px" id="enemy-generation-interval-in-milliseconds"
+          name="enemy-generation-interval-in-milliseconds" placeholder="Enter number..." type="text" value="50" />
+      </div>
+      <br />
+      <div class="custom-singleplayer-game-setting-container"
+        onMouseEnter="$('#bottom-toolbar-text').text('The maximum number of enemies the field can hold.');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        Enemy Limit:
+        <input autocomplete="off" style="width: 400px" id="enemy-limit" name="enemy-limit" placeholder="Enter number..."
+          type="text" value="250" />
+      </div>
+      <br />
+      <div class="custom-singleplayer-game-setting-container"
+        onMouseEnter="$('#bottom-toolbar-text').text('The speed multiplier to apply to every enemy.');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        Enemy Speed Multiplier:
+        <input autocomplete="off" style="width: 400px" id="enemy-speed-multiplier" name="enemy-speed-multiplier"
+          placeholder="Enter number..." type="text" value="1" />
+      </div>
+      <br />
+      <hr />
+      <div class="custom-singleplayer-game-setting-container"
+        onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        <span style="font-size: 36px">Variables</span>
+        <br />
+        Starting Value of Variable
+        <span style="
+                                    font-family: 'Computer Modern Math Italic',
+                                        'Computer Modern Unicode Serif';
+                                ">a</span>:
+        <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-a"
+          name="starting-value-of-variable-a" placeholder="Enter number..." type="text" />
+      </div>
+      <br />
+      <div class="custom-singleplayer-game-setting-container"
+        onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        Starting Value of Variable
+        <span style="
+                                    font-family: 'Computer Modern Math Italic',
+                                        'Computer Modern Unicode Serif';
+                                ">b</span>:
+        <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-b"
+          name="starting-value-of-variable-b" placeholder="Enter number..." type="text" />
+      </div>
+      <br />
+      <div class="custom-singleplayer-game-setting-container"
+        onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        Starting Value of Variable
+        <span style="
+                                    font-family: 'Computer Modern Math Italic',
+                                        'Computer Modern Unicode Serif';
+                                ">c</span>:
+        <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-c"
+          name="starting-value-of-variable-c" placeholder="Enter number..." type="text" />
+      </div>
+      <br />
+      <div class="custom-singleplayer-game-setting-container"
+        onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        Starting Value of Variable
+        <span style="
+                                    font-family: 'Computer Modern Math Italic',
+                                        'Computer Modern Unicode Serif';
+                                ">d</span>:
+
+        <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-d"
+          name="starting-value-of-variable-d" placeholder="Enter number..." type="text" />
+      </div>
+      <br />
+      <hr />
+      <br />
+      <span id="singleplayer-screen-custom-mode-issues">&nbsp;</span><br />
+      <button id="start-button" onClick="startCustomSingleplayerGame(getCustomSingleplayerModeInputs());"
+        style="width: 256px; height: 64px; font-size: 28px">
+        Start Game
+      </button>
+      <br /><br /><br /><br />
+    </div>
+  </div>
+
+  <!-- Multiplayer Lobby -->
+  <div id="multiplayer-lobby-screen-container">
+    <div id="multiplayer-lobby-screen-button-container">
+      <button class="lobby-screen-button--multiplayer-screen"
+        onClick="setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);socket.send(JSON.stringify({action:'joinOrCreateDefaultMultiplayerRoom'}))"
+        onMouseEnter="$('#bottom-toolbar-text').text('Join the default room.')"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Default Room
+      </button>
+      <br /><br />
+      <button class="lobby-screen-button--multiplayer-screen"
+        onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+        onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Back
+      </button>
+    </div>
+  </div>
+
+  <!-- Default Multiplayer Room Lobby-->
+  <div id="default-multiplayer-room-lobby-screen-container">
+    <div class="multiplayer-room-player-list-container">
+      <div class="multiplayer-room-player-list">
+        <p id="default-multiplayer-room-player-list"></p>
+      </div>
+    </div>
+    <div class="multiplayer-room-chat-content-container">
+      <div id="multiplayer-room-chat-content-container-2">
+        <!-- ??? -->
+        <p id="multiplayer-room-chat-content"
+          style="overflow-y: scroll;width:96.5%;height:90%;position:absolute;display:flex;flex-direction: column-reverse;">
+        </p>
+      </div>
+      <div style="position:absolute; bottom:5%; width:100%;height:10%;">
+        <div class="multiplayer-room-message-box-container">
+          <input style="height: 16px; font-size: 12px" type="text" autocomplete="off" id="multiplayer-room-message-box"
+            placeholder="Enter message..." /><button id="chat-box-send-button" onClick="sendChatMessage();">
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    Multiplayer is in its testing stage. Report issues or
+    suggest features
+    <a href="https://github.com/mathematicalbasedefenders/issuetracker">here</a>.
+    <br />
+    <p id="default-multiplayer-room-status-text">
+    </p>
+    <br /><br />
+    <div class="last-game-ranks-content-container">
+      <p id="last-game-ranks-content"></p>
+    </div>
+    <div id="default-multiplayer-room-lobby-screen-button-container">
+      <button class="lobby-screen-button--default-multiplayer-room-screen"
+        onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);socket.send(JSON.stringify({action:`leaveRoom`}));"
+        onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Back
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics -->
+  <div id="statistics-screen-container">
+    <div id="statistics-screen-content-container">
+      <div style="font-size: 24px"></div>
+      <div id="statistics-screen-button-container">
+        <button class="statistics-screen-button" onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+          onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Video
+          &nbsp;Player
         </button>
-        <br /><br />
-        <button class="settings-screen-navigation-button"
-          onMouseEnter="$('#bottom-toolbar-text').text('Change how the game sounds.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
-          onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.AUDIO_SETTINGS_SCREEN)">
-          &nbsp;Audio
-        </button>
-        <br /><br />
-        <button class="settings-screen-navigation-button"
-          onMouseEnter="$('#bottom-toolbar-text').text('Change how you control the game.')"
-          onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.INPUT_SETTINGS_SCREEN)"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Input
-        </button>
-        <br /><br />
-        <button class="settings-screen-navigation-button"
-          onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.ONLINE_SETTINGS_SCREEN)"
-          onMouseEnter="$('#bottom-toolbar-text').text('Change how you appear to other players in the game.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Online
-        </button>
-        <br /><br />
-        <button class="settings-screen-navigation-button"
-          onClick="changeSettings();saveSettings();setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+        <button class="statistics-screen-button" onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
           onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
           &nbsp;Back
         </button>
       </div>
-      <div id="settings-screen-content-container">
-        <div id="video-settings-screen-container" style="font-size: 24px">
-          <br />
-          <div id="enemy-color-text-setting-container"
-            onMouseEnter="$('#bottom-toolbar-text').text('Select the color that all enemies will use.')"
-            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            Enemy Color:
-            <select id="enemy-color-setting-drop-down-menu" class="settings-screen-dropdown-menu"
-              name="selected-enemy-color">
-              <option value="randomForEach">
-                Random For Each
-              </option>
-              <option value="random">Random</option>
-              <option value="red">Red</option>
-              <option value="orange">Orange</option>
-              <option value="yellow">Yellow</option>
-              <option value="green">Green</option>
-              <option value="blue">Blue</option>
-              <option value="purple">Purple</option>
-              <option value="white">White</option>
-              <option value="gray">Gray</option>
-              <option value="black">Black</option>
-              <option value="backgroundColor">
-                Background Color
-              </option>
-              <option value="blind">Blind</option>
-            </select>
-          </div>
-          <br />
-          <div id="multiplication-sign-form-setting-container"
-            onMouseEnter="$('#bottom-toolbar-text').text('Select the multiplication sign form to be used in the game.')"
-            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            Multiplication Sign Form:
-            <select id="multiplication-sign-form-setting-drop-down-menu" class="settings-screen-dropdown-menu"
-              name="selected-multiplication-sign-form">
-              <option value="cross">×</option>
-              <option value="dot">·</option>
-            </select>
-          </div>
-          <br />
-          <div id="enemy-custom-picture-setting-container"
-            onMouseEnter="$('#bottom-toolbar-text').text('Select the picture to appear on every enemy (overrides Enemy Colors setting if not left blank.)')"
-            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            Enemy Picture:
-            <input class="settings-screen-text-field" style="width: 400px" id="enemy-custom-selected-picture"
-              name="enemy-custom-selected-picture" placeholder="Enter URL..." type="text" />
-            <button onClick="testCustomEnemyPicture($(`#enemy-custom-selected-picture`).val())">
-              Test
-            </button>
-            <div id="picture-tester"></div>
-          </div>
-          <br />
-          <div id="custom-background-picture-setting-container"
-            onMouseEnter="$('#bottom-toolbar-text').text('Select the picture to appear as the background for the game.')"
-            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            Background Picture:
-            <input class="settings-screen-text-field" style="width: 400px" id="background-custom-selected-picture"
-              name="background-custom-selected-picture" placeholder="Enter URL..." type="text" />
-            <button onClick="testCustomBackgroundPicture($(`#background-custom-selected-picture`).val())">
-              Test
-            </button>
-            <br /><br /><br />
-          </div>
-          <br>
-          <div id="game-screen-information-mode-setting-container"
-            onMouseEnter="$('#bottom-toolbar-text').text('Change how much information is shown while playing a game.')"
-            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            Information During Games:
-            <select id="game-screen-information-mode-setting-drop-down-menu" class="settings-screen-dropdown-menu"
-              name="game-screen-information-mode">
-              <option value="100">Technical</option>
-              <option value="30">Enough</option>
-              <option value="20">Basic</option>
-              <option value="10">Minimal</option>
-            </select>
-          </div>
-        </div>
-        <div id="input-settings-screen-container" style="font-size: 24px">
-          <br />
-          <div id="tile-keybinds-setting-container"
-            onMouseEnter="$('#bottom-toolbar-text').text('Select the color that all enemies will use.')"
-            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            Click on a key to rebind it. Only one key (not
-            counting Numpad keys) is allowed per tile.
-            <button onClick="resetKeybinds();">
-              Reset
-            </button>
-            <br />
-            <span onClick="startKeyRebindProcess(0)"><span class="math-font">0</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-0">KeyM</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(1)"><span class="math-font">1</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-1">KeyJ</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(2)"><span class="math-font">2</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-2">KeyK</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(3)"><span class="math-font">3</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-3">KeyL</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(4)"><span class="math-font">4</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-4">KeyU</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(5)"><span class="math-font">5</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-5">KeyI</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(6)"><span class="math-font">6</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-6">KeyO</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(7)"><span class="math-font">7</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-7">Key7</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(8)"><span class="math-font">8</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-8">Key8</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(9)"><span class="math-font">9</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-9">Key9</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(10)"><span class="math-font">+</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-10">Slash</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(11)"><span class="math-font">–</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-11">Semicolon</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(12)"><span class="math-font">×</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-12">KeyP</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(13)"><span class="math-font">÷</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-13">Key0</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(14)"><span class="math-font">=</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-14">Quote</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(15)"><span class="math-font">a</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-15">KeyW</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(16)"><span class="math-font">b</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-16">KeyE</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(17)"><span class="math-font">c</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-17">KeyS</span></kbd></span>
-            <br />
-            <span onClick="startKeyRebindProcess(18)"><span class="math-font">d</span>
-              Tile
-              <kbd><span class="monospace-text" id="key-to-force-select-tile-18">KeyD</span></kbd></span>
-            <br />
-            <kbd>Space</kbd> to send the problem.
-            <br />
-            <kbd>Backspace</kbd> to delete last selected
-            tile.
-            <br />
-            Numpad keys can also be used.
-            <br />
-            The mouse can also be used.
-            <br /><br /><br />
-          </div>
-          <br />
-        </div>
-        <div id="online-settings-screen-container" style="font-size: 24px">
+    </div>
+  </div>
 
+  <!-- Settings -->
+  <div id="settings-screen-container">
+    <div id="settings-screen-navigation-button-container">
+      <button class="settings-screen-navigation-button"
+        onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.VIDEO_SETTINGS_SCREEN)"
+        onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks.')"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Video
+      </button>
+      <br /><br />
+      <button class="settings-screen-navigation-button"
+        onMouseEnter="$('#bottom-toolbar-text').text('Change how the game sounds.')"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+        onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.AUDIO_SETTINGS_SCREEN)">
+        &nbsp;Audio
+      </button>
+      <br /><br />
+      <button class="settings-screen-navigation-button"
+        onMouseEnter="$('#bottom-toolbar-text').text('Change how you control the game.')"
+        onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.INPUT_SETTINGS_SCREEN)"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Input
+      </button>
+      <br /><br />
+      <button class="settings-screen-navigation-button"
+        onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.ONLINE_SETTINGS_SCREEN)"
+        onMouseEnter="$('#bottom-toolbar-text').text('Change how you appear to other players in the game.')"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Online
+      </button>
+      <br /><br />
+      <button class="settings-screen-navigation-button"
+        onClick="changeSettings();saveSettings();setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+        onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Back
+      </button>
+    </div>
+    <div id="settings-screen-content-container">
+      <div id="video-settings-screen-container" style="font-size: 24px">
+        <br />
+        <div id="enemy-color-text-setting-container"
+          onMouseEnter="$('#bottom-toolbar-text').text('Select the color that all enemies will use.')"
+          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+          Enemy Color:
+          <select id="enemy-color-setting-drop-down-menu" class="settings-screen-dropdown-menu"
+            name="selected-enemy-color">
+            <option value="randomForEach">
+              Random For Each
+            </option>
+            <option value="random">Random</option>
+            <option value="red">Red</option>
+            <option value="orange">Orange</option>
+            <option value="yellow">Yellow</option>
+            <option value="green">Green</option>
+            <option value="blue">Blue</option>
+            <option value="purple">Purple</option>
+            <option value="white">White</option>
+            <option value="gray">Gray</option>
+            <option value="black">Black</option>
+            <option value="backgroundColor">
+              Background Color
+            </option>
+            <option value="blind">Blind</option>
+          </select>
+        </div>
+        <br />
+        <div id="multiplication-sign-form-setting-container"
+          onMouseEnter="$('#bottom-toolbar-text').text('Select the multiplication sign form to be used in the game.')"
+          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+          Multiplication Sign Form:
+          <select id="multiplication-sign-form-setting-drop-down-menu" class="settings-screen-dropdown-menu"
+            name="selected-multiplication-sign-form">
+            <option value="cross">×</option>
+            <option value="dot">·</option>
+          </select>
+        </div>
+        <br />
+        <div id="enemy-custom-picture-setting-container"
+          onMouseEnter="$('#bottom-toolbar-text').text('Select the picture to appear on every enemy (overrides Enemy Colors setting if not left blank.)')"
+          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+          Enemy Picture:
+          <input class="settings-screen-text-field" style="width: 400px" id="enemy-custom-selected-picture"
+            name="enemy-custom-selected-picture" placeholder="Enter URL..." type="text" />
+          <button onClick="testCustomEnemyPicture($(`#enemy-custom-selected-picture`).val())">
+            Test
+          </button>
+          <div id="picture-tester"></div>
+        </div>
+        <br />
+        <div id="custom-background-picture-setting-container"
+          onMouseEnter="$('#bottom-toolbar-text').text('Select the picture to appear as the background for the game.')"
+          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+          Background Picture:
+          <input class="settings-screen-text-field" style="width: 400px" id="background-custom-selected-picture"
+            name="background-custom-selected-picture" placeholder="Enter URL..." type="text" />
+          <button onClick="testCustomBackgroundPicture($(`#background-custom-selected-picture`).val())">
+            Test
+          </button>
+          <br /><br /><br />
+        </div>
+        <br>
+        <div id="game-screen-information-mode-setting-container"
+          onMouseEnter="$('#bottom-toolbar-text').text('Change how much information is shown while playing a game.')"
+          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+          Information During Games:
+          <select id="game-screen-information-mode-setting-drop-down-menu" class="settings-screen-dropdown-menu"
+            name="game-screen-information-mode">
+            <option value="100">Technical</option>
+            <option value="30">Enough</option>
+            <option value="20">Basic</option>
+            <option value="10">Minimal</option>
+          </select>
+        </div>
+      </div>
+      <div id="input-settings-screen-container" style="font-size: 24px">
+        <br />
+        <div id="tile-keybinds-setting-container"
+          onMouseEnter="$('#bottom-toolbar-text').text('Select the color that all enemies will use.')"
+          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+          Click on a key to rebind it. Only one key (not
+          counting Numpad keys) is allowed per tile.
+          <button onClick="resetKeybinds();">
+            Reset
+          </button>
           <br />
-          <form id="login-form" onsubmit="return false;">Username:
-            <input id="username-input-box" class="settings-input-box" />
-            <br />
-            <br />
-            Password:
-            <input type="password" id="password-input-box" class="settings-input-box" />
-            <br /><br />
-            <button id="login-button" type="submit"
-              onClick="authenticate($('#username-input-box').val(),$('#password-input-box').val());$(this).addClass('disabled-button').text('Please Wait...');"
-              style="
+          <span onClick="startKeyRebindProcess(0)"><span class="math-font">0</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-0">KeyM</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(1)"><span class="math-font">1</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-1">KeyJ</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(2)"><span class="math-font">2</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-2">KeyK</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(3)"><span class="math-font">3</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-3">KeyL</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(4)"><span class="math-font">4</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-4">KeyU</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(5)"><span class="math-font">5</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-5">KeyI</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(6)"><span class="math-font">6</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-6">KeyO</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(7)"><span class="math-font">7</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-7">Key7</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(8)"><span class="math-font">8</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-8">Key8</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(9)"><span class="math-font">9</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-9">Key9</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(10)"><span class="math-font">+</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-10">Slash</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(11)"><span class="math-font">–</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-11">Semicolon</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(12)"><span class="math-font">×</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-12">KeyP</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(13)"><span class="math-font">÷</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-13">Key0</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(14)"><span class="math-font">=</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-14">Quote</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(15)"><span class="math-font">a</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-15">KeyW</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(16)"><span class="math-font">b</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-16">KeyE</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(17)"><span class="math-font">c</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-17">KeyS</span></kbd></span>
+          <br />
+          <span onClick="startKeyRebindProcess(18)"><span class="math-font">d</span>
+            Tile
+            <kbd><span class="monospace-text" id="key-to-force-select-tile-18">KeyD</span></kbd></span>
+          <br />
+          <kbd>Space</kbd> to send the problem.
+          <br />
+          <kbd>Backspace</kbd> to delete last selected
+          tile.
+          <br />
+          Numpad keys can also be used.
+          <br />
+          The mouse can also be used.
+          <br /><br /><br />
+        </div>
+        <br />
+      </div>
+      <div id="online-settings-screen-container" style="font-size: 24px">
+
+        <br />
+        <form id="login-form" onsubmit="return false;">Username:
+          <input id="username-input-box" class="settings-input-box" />
+          <br />
+          <br />
+          Password:
+          <input type="password" id="password-input-box" class="settings-input-box" />
+          <br /><br />
+          <button id="login-button" type="submit"
+            onClick="authenticate($('#username-input-box').val(),$('#password-input-box').val());$(this).addClass('disabled-button').text('Please Wait...');"
+            style="
                                     width: 256px;
                                     height: 64px;
                                     font-size: 28px;
                                 ">
-              Login
-            </button>
-          </form>
-          <br /><br /><br />
-        </div>
+            Login
+          </button>
+        </form>
+        <br /><br /><br />
       </div>
     </div>
+  </div>
 
-    <!-- Game over screen-->
-    <div id="game-over-screen-container">
-      <div id="game-over-screen-content-container">
-        <div id="final-stats-container">
-          <br /><br />
-          <div id="final-score-container" style="vertical-align: text-bottom; clear: both">
-            <div style="text-align: center">
-              <span class="medium-text">Score</span>
-              <br />
-              <span id="final-score" class="large-text">???</span>
+  <!-- Game over screen-->
+  <div id="game-over-screen-container">
+    <div id="game-over-screen-content-container">
+      <div id="final-stats-container">
+        <br /><br />
+        <div id="final-score-container" style="vertical-align: text-bottom; clear: both">
+          <div style="text-align: center">
+            <span class="medium-text">Score</span>
+            <br />
+            <span id="final-score" class="large-text">???</span>
 
-              <br />
-              <span class="medium-text" id="personal-best-broken"></span>
-              <br />
-              <span class="medium-text" id="final-global-rank"></span>
-            </div>
-            <div class="medium-text;width:100%;">
+            <br />
+            <span class="medium-text" id="personal-best-broken"></span>
+            <br />
+            <span class="medium-text" id="final-global-rank"></span>
+          </div>
+          <div class="medium-text;width:100%;">
+            <table class="medium-text" style="width: 100%;">
+              <tbody>
+                <tr>
+                  <td class="game-over-screen-result-table__stat-label">
+                    In Game Time
+                  </td>
+                  <td class="game-over-screen-result-table__stat-value" id="final-time"></td>
+                </tr>
+
+
+                <tr>
+                  <td>
+                    Enemies
+                  </td>
+                  <td class="game-over-screen-result-table__stat-value" id="final-enemies"></td>
+                </tr>
+
+                <tr>
+                  <td>Actions Per Minute</td>
+                  <td class="game-over-screen-result-table__stat-value" id="final-actions-per-minute">
+
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <hr>
+            <div id="account-stats-gained">
               <table class="medium-text" style="width: 100%;">
                 <tbody>
                   <tr>
                     <td class="game-over-screen-result-table__stat-label">
-                      In Game Time
+                      Experience Points Earned
                     </td>
-                    <td class="game-over-screen-result-table__stat-value" id="final-time"></td>
+                    <td class="game-over-screen-result-table__stat-value" id="experience-points-earned"></td>
                   </tr>
 
-
-                  <tr>
-                    <td>
-                      Enemies
-                    </td>
-                    <td class="game-over-screen-result-table__stat-value" id="final-enemies"></td>
-                  </tr>
-
-                  <tr>
-                    <td>Actions Per Minute</td>
-                    <td class="game-over-screen-result-table__stat-value" id="final-actions-per-minute">
-
-                    </td>
-                  </tr>
                 </tbody>
               </table>
-              <hr>
-              <div id="account-stats-gained">
-                <table class="medium-text" style="width: 100%;">
-                  <tbody>
-                    <tr>
-                      <td class="game-over-screen-result-table__stat-label">
-                        Experience Points Earned
-                      </td>
-                      <td class="game-over-screen-result-table__stat-value" id="experience-points-earned"></td>
-                    </tr>
-
-                  </tbody>
-                </table>
-              </div>
             </div>
-            <br />
-
           </div>
+          <br />
+
         </div>
       </div>
-      <div id="game-over-screen-navigation-button-container">
-        <button class="game-over-screen-navigation-button"
-          onClick="startDefaultSingleplayerGame(game.lastSingleplayerGameModePlayed);"
-          onMouseEnter="$('#bottom-toolbar-text').text('Play another singleplayer game.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Retry
-        </button>
-
-        <br /><br />
-        <button class="game-over-screen-navigation-button"
-          onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-          onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Back
-        </button>
-      </div>
     </div>
+    <div id="game-over-screen-navigation-button-container">
+      <button class="game-over-screen-navigation-button"
+        onClick="startDefaultSingleplayerGame(game.lastSingleplayerGameModePlayed);"
+        onMouseEnter="$('#bottom-toolbar-text').text('Play another singleplayer game.')"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Retry
+      </button>
 
-    <!-- Bottom toolbar -->
-    <div id="bottom-user-interface-container">
-      <span style="float: right" onMouseEnter="$('#bottom-toolbar-text').text('View information about the game.')"
-        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" class="material-icons md-36"
-        onClick="setPropertiesAndChangeScreen(screens.INFORMATION_SCREEN)">info</span>
       <br /><br />
-      <span style="float: right"><img
-          onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')"
-          onClick="document.location='https://mistertfy64.com'" ;
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" src="/public/assets/images/mistertfy64.svg"
-          width="100px;" /></span>
-      <br />
+      <button class="game-over-screen-navigation-button"
+        onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+        onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
+        onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+        &nbsp;Back
+      </button>
     </div>
+  </div>
 
-    <div id="bottom-toolbar-container">
-      <span id="bottom-toolbar-text">&nbsp;</span>
-    </div>
+  <!-- Bottom toolbar -->
+  <div id="bottom-user-interface-container">
+    <span style="float: right" onMouseEnter="$('#bottom-toolbar-text').text('View information about the game.')"
+      onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')" class="material-icons md-36"
+      onClick="setPropertiesAndChangeScreen(screens.INFORMATION_SCREEN)">info</span>
+    <br /><br />
+    <span style="float: right"><img
+        onMouseEnter="$('#bottom-toolbar-text').text('Visit Mathematical Base Defenders\' creator\'s personal website.')"
+        onClick="document.location='https://mistertfy64.com'" ; onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
+        src="/public/assets/images/mistertfy64.svg" width="100px;" /></span>
+    <br />
+  </div>
 
-    <div id="toast-notifications-container"></div>
-    <div id="metadata-container" style="display: none">
-      <span id="custom-enemy-picture"></span>
-    </div>
+  <div id="bottom-toolbar-container">
+    <span id="bottom-toolbar-text">&nbsp;</span>
+  </div>
+
+  <div id="toast-notifications-container"></div>
+  <div id="metadata-container" style="display: none">
+    <span id="custom-enemy-picture"></span>
+  </div>
 
 
-    <!-- Scripts -->
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XVRB5TXW3K"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
+  <!-- Scripts -->
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XVRB5TXW3K"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
 
-      gtag("config", "G-XVRB5TXW3K");
-    </script>
+    gtag("config", "G-XVRB5TXW3K");
+  </script>
 
-    <script src="https://pixijs.download/v6.1.2/pixi.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://pixijs.download/v6.1.2/pixi.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
-    <script src="/public/js/variables.js"></script>
-    <script src="/public/js/socket.js"></script>
+  <script src="/public/js/variables.js"></script>
+  <script src="/public/js/socket.js"></script>
 
-    <script src="/public/js/lib/purify.min.js"></script>
-    <script src="/public/js/lib/fontfaceobserver.js"></script>
+  <script src="/public/js/lib/purify.min.js"></script>
+  <script src="/public/js/lib/fontfaceobserver.js"></script>
 
-    <script src="/public/js/toastnotification.js"></script>
-    <script src="/public/js/opponent.js"></script>
+  <script src="/public/js/toastnotification.js"></script>
+  <script src="/public/js/opponent.js"></script>
 
-    <script src="/public/js/utilities.js"></script>
-    <script src="/public/js/enemy.js"></script>
-    <script src="/public/js/tile.js"></script>
+  <script src="/public/js/utilities.js"></script>
+  <script src="/public/js/enemy.js"></script>
+  <script src="/public/js/tile.js"></script>
 
-    <script src="/public/js/game.js"></script>
+  <script src="/public/js/game.js"></script>
 
 
 </body>
