@@ -582,8 +582,12 @@
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
           Click on a key to rebind it. Only one key (not
           counting Numpad keys) is allowed per tile.
-          <button onClick="resetKeybinds();">
-            Reset
+          <br>
+          <button onClick="useKeybindPreset('numpadEmulation');">
+            Use Numpad Emulation Preset (&lt;0.4.0-beta.2)
+          </button>
+          <button onClick="useKeybindPreset('numberKeysAndNearbyKeys');">
+            Use Number And Nearby Keys Preset (&gt;=0.4.0-beta.2)
           </button>
           <br />
           <span onClick="startKeyRebindProcess(0)"><span class="math-font">0</span>
