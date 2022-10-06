@@ -522,42 +522,31 @@ for (i = 0; i < 2; i++) {
 // Input
 var keyRebindProcessUnderway = false;
 $(document).keydown(function (event) {
-    if (event.code != "Tab") {
-        if (keyRebindProcessUnderway || keyRebindProcessUnderway === "0") {
-            // 3 equal signs or it wont work!!!!
-            let keyAlreadyHasATile = false;
-            for (let i = 0; i < 19; i++) {
-                if (event.code == $("#key-to-force-select-tile-" + i).text()) {
-                    keyAlreadyHasATile = true;
-                    break;
-                }
-                $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
-            }
-            if (keyAlreadyHasATile) {
-                alert("Key already has a tile assigned to it!");
-                for (let i = 0; i < 19; i++) {
-                    $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
-                }
-                keyRebindProcessUnderway = false;
-            } else {
-                $("#key-to-force-select-tile-" + keyRebindProcessUnderway).text(event.code);
-                for (let i = 0; i < 19; i++) {
-                    $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
-                }
-
-                keyRebindProcessUnderway = false;
-            }
-        } else {
-            processKeypress(event);
+  if (event.code != "Tab") {
+    if (keyRebindProcessUnderway || keyRebindProcessUnderway === "0") {
+      // 3 equal signs or it wont work!!!!
+      let keyAlreadyHasATile = false;
+      for (let i = 0; i < 19; i++) {
+        if (event.code == $("#key-to-force-select-tile-" + i).text()) {
+          keyAlreadyHasATile = true;
+          break;
         }
+        $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
       }
       if (keyAlreadyHasATile) {
         alert("Key already has a tile assigned to it!");
+        for (let i = 0; i < 19; i++) {
+          $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
+        }
         keyRebindProcessUnderway = false;
       } else {
         $("#key-to-force-select-tile-" + keyRebindProcessUnderway).text(
           event.code
         );
+        for (let i = 0; i < 19; i++) {
+          $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
+        }
+
         keyRebindProcessUnderway = false;
       }
     } else {
@@ -574,53 +563,53 @@ $(document).keydown(function (event) {
 initializationFinished = true;
 
 const KEYBIND_PRESETS = {
-    numpadEmulation: {
-        tiles: [
-            "KeyM",
-            "KeyJ",
-            "KeyK",
-            "KeyL",
-            "KeyU",
-            "KeyI",
-            "KeyO",
-            "Digit7",
-            "Digit8",
-            "Digit9",
-            "Slash",
-            "Semicolon",
-            "KeyP",
-            "Digit0",
-            "Quote",
-            "KeyW",
-            "KeyE",
-            "KeyS",
-            "KeyD"
-        ]
-    },
-    numberKeysAndNearbyKeys: {
-        tiles: [
-            "Digit0",
-            "Digit1",
-            "Digit2",
-            "Digit3",
-            "Digit4",
-            "Digit5",
-            "Digit6",
-            "Digit7",
-            "Digit8",
-            "Digit9",
-            "KeyQ",
-            "KeyW",
-            "KeyE",
-            "KeyR",
-            "KeyT",
-            "KeyA",
-            "KeyS",
-            "KeyD",
-            "KeyF"
-        ]
-    }
-}
+  numpadEmulation: {
+    tiles: [
+      "KeyM",
+      "KeyJ",
+      "KeyK",
+      "KeyL",
+      "KeyU",
+      "KeyI",
+      "KeyO",
+      "Digit7",
+      "Digit8",
+      "Digit9",
+      "Slash",
+      "Semicolon",
+      "KeyP",
+      "Digit0",
+      "Quote",
+      "KeyW",
+      "KeyE",
+      "KeyS",
+      "KeyD"
+    ]
+  },
+  numberKeysAndNearbyKeys: {
+    tiles: [
+      "Digit0",
+      "Digit1",
+      "Digit2",
+      "Digit3",
+      "Digit4",
+      "Digit5",
+      "Digit6",
+      "Digit7",
+      "Digit8",
+      "Digit9",
+      "KeyQ",
+      "KeyW",
+      "KeyE",
+      "KeyR",
+      "KeyT",
+      "KeyA",
+      "KeyS",
+      "KeyD",
+      "KeyF"
+    ]
+  }
+};
 // ======================================================================================== END OF INITIALIZATION =====================================================================
 console.log("Initialization finished!");
 var game = JSON.parse(JSON.stringify(game));
@@ -1001,11 +990,13 @@ function hideEverything() {
 }
 
 function startKeyRebindProcess(tileID) {
-    for (let i = 0; i < 19; i++){
-        $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
-    }
-    $(`#key-to-force-select-tile-${tileID}-rebind-message`).text(" Press key to assign it to this tile.");
-    keyRebindProcessUnderway = tileID;
+  for (let i = 0; i < 19; i++) {
+    $(`#key-to-force-select-tile-${i}-rebind-message`).text("");
+  }
+  $(`#key-to-force-select-tile-${tileID}-rebind-message`).text(
+    " Press key to assign it to this tile."
+  );
+  keyRebindProcessUnderway = tileID;
 }
 
 function endSingleplayerGame() {
@@ -1311,11 +1302,11 @@ function updateSettingsSelections() {
 }
 
 function useKeybindPreset(type) {
-    if (type in KEYBIND_PRESETS){
-        settings.input.keybinds.tiles = KEYBIND_PRESETS[type].tiles;
-        updateSettingsSelections();
-        saveSettings();
-    }
+  if (type in KEYBIND_PRESETS) {
+    settings.input.keybinds.tiles = KEYBIND_PRESETS[type].tiles;
+    updateSettingsSelections();
+    saveSettings();
+  }
 }
 
 function changeSettings() {
