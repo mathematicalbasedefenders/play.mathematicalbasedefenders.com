@@ -3,40 +3,49 @@ const _ = require("lodash");
 const log = require("../core/log.js");
 
 const StandardModeLeaderboardsSchema = new mongoose.Schema({
-    rankNumber: Number,
-    userIDOfHolder: String,
-    score: Number,
-    timeInMilliseconds: Number,
-    scoreSubmissionDateAndTime: Date,
-    enemiesKilled: Number,
-    enemiesCreated: Number,
-    actionsPerformed: Number
+  rankNumber: Number,
+  userIDOfHolder: String,
+  score: Number,
+  timeInMilliseconds: Number,
+  scoreSubmissionDateAndTime: Date,
+  enemiesKilled: Number,
+  enemiesCreated: Number,
+  actionsPerformed: Number
 });
 
 StandardModeLeaderboardsSchema.statics.findByRankSlot = async function (rank) {
-    try {
-        return await this.find({ rankNumber: rank }, function (error2, result2) {
-            if (error2) {
-                console.error(log.addMetadata(error2.stack, "error"));
-            }
-            return result2;
-        }).clone();
-    } catch (error) {
-        console.error(log.addMetadata(error.stack, "error"));
-    }
+  try {
+    return await this.find({ rankNumber: rank }, function (error2, result2) {
+      if (error2) {
+        console.error(log.addMetadata(error2.stack, "error"));
+      }
+      return result2;
+    }).clone();
+  } catch (error) {
+    console.error(log.addMetadata(error.stack, "error"));
+  }
 };
 
-StandardModeLeaderboardsSchema.statics.findAndUpdateByRankSlot = async function (rank, data) {
+StandardModeLeaderboardsSchema.statics.findAndUpdateByRankSlot =
+  async function (rank, data) {
     try {
-        return await this.findOneAndUpdate({ rankNumber: rank }, data, function (error2, result2) {
-            if (error2) {
-                console.error(log.addMetadata(error2.stack, "error"));
-            }
-            return result2;
-        }).clone();
+      return await this.findOneAndUpdate(
+        { rankNumber: rank },
+        data,
+        function (error2, result2) {
+          if (error2) {
+            console.error(log.addMetadata(error2.stack, "error"));
+          }
+          return result2;
+        }
+      ).clone();
     } catch (error) {
-        console.error(log.addMetadata(error.stack, "error"));
+      console.error(log.addMetadata(error.stack, "error"));
     }
-};
+  };
 
-module.exports = mongoose.model("StandardModeLeaderboardsModel", StandardModeLeaderboardsSchema, "standardModeLeaderboardsRecords");
+module.exports = mongoose.model(
+  "StandardModeLeaderboardsModel",
+  StandardModeLeaderboardsSchema,
+  "standardModeLeaderboardsRecords"
+);
