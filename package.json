@@ -9,7 +9,7 @@
     "checkUndefVarsOnly": "npx eslint --rule 'no-undef: error' --parser-options=ecmaVersion:latest --env node,browser,es2021,commonjs --no-eslintrc ."
   },
   "author": "mistertfy64",
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "dependencies": {
     "@skgdev/socket.io-msgpack-javascript": "^1.1.0",
     "ajv": "^8.11.0",

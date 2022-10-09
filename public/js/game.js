@@ -980,9 +980,7 @@ function hideEverything() {
 
   $("#bottom-toolbar-container").hide(0);
 
-  $("#singleplayer-screen-custom-mode-settings-screen-content-container").hide(
-    0
-  );
+  $("#singleplayer-screen__intermission-screen--custom-singleplayer").hide(0);
 
   $("#bottom-user-interface-container").hide(0);
 
@@ -1444,9 +1442,7 @@ function showReportUserModal() {
 }
 
 function showCustomSingleplayerGameModeSettingsScreen() {
-  $("#singleplayer-screen-custom-mode-settings-screen-content-container").show(
-    0
-  );
+  $("#singleplayer-screen__intermission-screen--custom-singleplayer").show(0);
 }
 
 function getCustomSingleplayerModeInputs() {
@@ -1603,4 +1599,33 @@ function setLabelerTextVisibilities() {
   }
   if (settings.video.gameScreenInformationMode >= 100) {
   }
+}
+
+function showSingleplayerIntermissionScreen(mode) {
+  $("#singleplayer-screen__intermission-screen--easy-singleplayer").hide(0);
+  $("#singleplayer-screen__intermission-screen--standard-singleplayer").hide(0);
+  $("#singleplayer-screen__intermission-screen--custom-singleplayer").hide(0);
+  switch (mode) {
+    case "easySingleplayerMode": {
+      $("#singleplayer-screen__intermission-screen--easy-singleplayer").show(0);
+      break;
+    }
+    case "standardSingleplayerMode": {
+      $(
+        "#singleplayer-screen__intermission-screen--standard-singleplayer"
+      ).show(0);
+
+      break;
+    }
+    case "customSingleplayerMode": {
+      $("#singleplayer-screen__intermission-screen--custom-singleplayer").show(
+        0
+      );
+      break;
+    }
+  }
+}
+
+function showMultiplayerIntermissionScreen() {
+  $("#multiplayer-lobby-screen__intermission-screen").show(0);
 }

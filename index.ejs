@@ -227,174 +227,229 @@
 
     <!-- Singleplayer Lobby -->
     <div id="singleplayer-lobby-screen-container">
-      <div id="singleplayer-lobby-screen-button-container">
-        <button class="lobby-screen-button--singleplayer-screen"
-          onClick="startDefaultSingleplayerGame('easySingleplayerMode');"
-          onMouseEnter="$('#bottom-toolbar-text').text('Play on the easy mode.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Easy
-        </button>
-        <br /><br />
-        <button class="lobby-screen-button--singleplayer-screen"
-          onClick="startDefaultSingleplayerGame('standardSingleplayerMode');"
-          onMouseEnter="$('#bottom-toolbar-text').text('Play on the (hard) standard mode.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Standard
-        </button>
-        <br /><br />
-        <button class="lobby-screen-button--singleplayer-screen"
-          onClick="showCustomSingleplayerGameModeSettingsScreen()"
-          onMouseEnter="$('#bottom-toolbar-text').text('Customize your parameters and play with them. Scores will not be submitted.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Custom
-        </button>
-        <br /><br />
-        <button class="lobby-screen-button--singleplayer-screen"
-          onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-          onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Back
-        </button>
+
+      <div style="width: 20%;">
+        <div id="singleplayer-lobby-screen-button-container">
+          <button class="lobby-screen-button--singleplayer-screen"
+            onClick="showSingleplayerIntermissionScreen('easySingleplayerMode');"
+            onMouseEnter="$('#bottom-toolbar-text').text('Play on the easy mode.')"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            &nbsp;Easy
+          </button>
+          <br /><br />
+          <button class="lobby-screen-button--singleplayer-screen"
+            onClick="showSingleplayerIntermissionScreen('standardSingleplayerMode');"
+            onMouseEnter="$('#bottom-toolbar-text').text('Play on the (hard) standard mode.')"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            &nbsp;Standard
+          </button>
+          <br /><br />
+          <button class="lobby-screen-button--singleplayer-screen"
+            onClick="showSingleplayerIntermissionScreen('customSingleplayerMode')"
+            onMouseEnter="$('#bottom-toolbar-text').text('Customize your parameters and play with them. Scores will not be submitted.')"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            &nbsp;Custom
+          </button>
+          <br /><br />
+          <button class="lobby-screen-button--singleplayer-screen"
+            onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+            onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            &nbsp;Back
+          </button>
+        </div>
       </div>
-      <div id="singleplayer-screen-custom-mode-settings-screen-content-container"
-        style="font-size: 24px; display: none">
-        <!-- wth? -->
+      <div id="singleplayer-screen__intermission-screen">
+        <div id="singleplayer-screen__intermission-screen--easy-singleplayer" style="font-size: 24px; display: none">
+          <div style="font-size:36px">Easy Singleplayer</div>
+          Gameplay is the same as Standard Singleplayer, with a few significant changes. The most notable of which is
+          the enemy limit of 5 enemies.
+          <br>
+          <button class="start-button" onClick="startDefaultSingleplayerGame('easySingleplayerMode');">
+            Start Game
+          </button>
+        </div>
 
-        <span style="font-size: 36px">General</span>
-        <br />
+        <div id="singleplayer-screen__intermission-screen--standard-singleplayer"
+          style="font-size: 24px; display: none">
+          <div style="font-size:36px">Standard Singleplayer</div>
+          The hardest math game ever? Play in the standard mode to see how long you can last!
+          <br>
+          Form problems to kill enemies, and use variables to store values.
+          <br>
+          Keybinds can be found in the settings, or you can just use the mouse.
+          <br>
+          <button class="start-button" onClick="startDefaultSingleplayerGame('standardSingleplayerMode');">
+            Start Game
+          </button>
+        </div>
 
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('How many health points your base starts with.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Starting Base Health:
-          <input autocomplete="off" style="width: 400px" id="starting-base-health" name="starting-base-health"
-            placeholder="Enter number..." type="text" value="10" />
-        </div>
-        <br />
+        <div id="singleplayer-screen__intermission-screen--custom-singleplayer" style="font-size: 24px; display: none">
+          <!-- wth? -->
 
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('How many milliseconds you can keep your combo without killing an enemy.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Allowed Combo Time (milliseconds):
-          <input autocomplete="off" style="width: 400px" id="allowed-combo-time" name="allowed-combo-time"
-            placeholder="Enter number..." type="text" value="5000" />
-        </div>
-        <br />
+          <span style="font-size: 36px">Custom Singleplayer</span>
+          <br>
+          Change how the game works, experiment, and create the most easy or extreme game mode you could imagine
+          of!<br>Scores will not be submitted.
 
-        <hr />
-        <span style="font-size: 36px">Enemies</span>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The chance of an enemy spawning after a certain amount of time (Enemy Generation Interval).');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Enemy Spawn Chance (percent):
-          <input autocomplete="off" style="width: 400px" id="enemy-spawn-chance-in-percent"
-            name="enemy-spawn-chance-in-percent" placeholder="Enter number..." type="text" value="5" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The amount of time before an enemy has a chance to spawn.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Enemy Generation Interval (milliseconds):
-          <input autocomplete="off" style="width: 400px" id="enemy-generation-interval-in-milliseconds"
-            name="enemy-generation-interval-in-milliseconds" placeholder="Enter number..." type="text" value="50" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The maximum number of enemies the field can hold.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Enemy Limit:
-          <input autocomplete="off" style="width: 400px" id="enemy-limit" name="enemy-limit"
-            placeholder="Enter number..." type="text" value="250" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The speed multiplier to apply to every enemy.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Enemy Speed Multiplier:
-          <input autocomplete="off" style="width: 400px" id="enemy-speed-multiplier" name="enemy-speed-multiplier"
-            placeholder="Enter number..." type="text" value="1" />
-        </div>
-        <br />
-        <hr />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          <span style="font-size: 36px">Variables</span>
+          <hr>
+
+          <span style="font-size: 36px">General</span>
           <br />
-          Starting Value of Variable
-          <span style="
+
+          <div class="custom-singleplayer-game-setting-container"
+            onMouseEnter="$('#bottom-toolbar-text').text('How many health points your base starts with.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            Starting Base Health:
+            <input autocomplete="off" style="width: 400px" id="starting-base-health" name="starting-base-health"
+              placeholder="Enter number..." type="text" value="10" />
+          </div>
+          <br />
+
+          <div class="custom-singleplayer-game-setting-container"
+            onMouseEnter="$('#bottom-toolbar-text').text('How many milliseconds you can keep your combo without killing an enemy.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            Allowed Combo Time (milliseconds):
+            <input autocomplete="off" style="width: 400px" id="allowed-combo-time" name="allowed-combo-time"
+              placeholder="Enter number..." type="text" value="5000" />
+          </div>
+          <br />
+
+          <hr />
+          <span style="font-size: 36px">Enemies</span>
+          <br />
+          <div class="custom-singleplayer-game-setting-container"
+            onMouseEnter="$('#bottom-toolbar-text').text('The chance of an enemy spawning after a certain amount of time (Enemy Generation Interval).');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            Enemy Spawn Chance (percent):
+            <input autocomplete="off" style="width: 400px" id="enemy-spawn-chance-in-percent"
+              name="enemy-spawn-chance-in-percent" placeholder="Enter number..." type="text" value="5" />
+          </div>
+          <br />
+          <div class="custom-singleplayer-game-setting-container"
+            onMouseEnter="$('#bottom-toolbar-text').text('The amount of time before an enemy has a chance to spawn.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            Enemy Generation Interval (milliseconds):
+            <input autocomplete="off" style="width: 400px" id="enemy-generation-interval-in-milliseconds"
+              name="enemy-generation-interval-in-milliseconds" placeholder="Enter number..." type="text" value="50" />
+          </div>
+          <br />
+          <div class="custom-singleplayer-game-setting-container"
+            onMouseEnter="$('#bottom-toolbar-text').text('The maximum number of enemies the field can hold.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            Enemy Limit:
+            <input autocomplete="off" style="width: 400px" id="enemy-limit" name="enemy-limit"
+              placeholder="Enter number..." type="text" value="250" />
+          </div>
+          <br />
+          <div class="custom-singleplayer-game-setting-container"
+            onMouseEnter="$('#bottom-toolbar-text').text('The speed multiplier to apply to every enemy.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            Enemy Speed Multiplier:
+            <input autocomplete="off" style="width: 400px" id="enemy-speed-multiplier" name="enemy-speed-multiplier"
+              placeholder="Enter number..." type="text" value="1" />
+          </div>
+          <br />
+          <hr />
+          <div class="custom-singleplayer-game-setting-container"
+            onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            <span style="font-size: 36px">Variables</span>
+            <br />
+            Starting Value of Variable
+            <span style="
                                     font-family: 'Computer Modern Math Italic',
                                         'Computer Modern Unicode Serif';
                                 ">a</span>:
-          <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-a"
-            name="starting-value-of-variable-a" placeholder="Enter number..." type="text" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Starting Value of Variable
-          <span style="
+            <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-a"
+              name="starting-value-of-variable-a" placeholder="Enter number..." type="text" />
+          </div>
+          <br />
+          <div class="custom-singleplayer-game-setting-container"
+            onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            Starting Value of Variable
+            <span style="
                                     font-family: 'Computer Modern Math Italic',
                                         'Computer Modern Unicode Serif';
                                 ">b</span>:
-          <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-b"
-            name="starting-value-of-variable-b" placeholder="Enter number..." type="text" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Starting Value of Variable
-          <span style="
+            <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-b"
+              name="starting-value-of-variable-b" placeholder="Enter number..." type="text" />
+          </div>
+          <br />
+          <div class="custom-singleplayer-game-setting-container"
+            onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            Starting Value of Variable
+            <span style="
                                     font-family: 'Computer Modern Math Italic',
                                         'Computer Modern Unicode Serif';
                                 ">c</span>:
-          <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-c"
-            name="starting-value-of-variable-c" placeholder="Enter number..." type="text" />
-        </div>
-        <br />
-        <div class="custom-singleplayer-game-setting-container"
-          onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          Starting Value of Variable
-          <span style="
+            <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-c"
+              name="starting-value-of-variable-c" placeholder="Enter number..." type="text" />
+          </div>
+          <br />
+          <div class="custom-singleplayer-game-setting-container"
+            onMouseEnter="$('#bottom-toolbar-text').text('The game will start with the value supplied for this variable. Leave blank for undefined.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            Starting Value of Variable
+            <span style="
                                     font-family: 'Computer Modern Math Italic',
                                         'Computer Modern Unicode Serif';
                                 ">d</span>:
 
-          <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-d"
-            name="starting-value-of-variable-d" placeholder="Enter number..." type="text" />
+            <input autocomplete="off" style="width: 400px" id="starting-value-of-variable-d"
+              name="starting-value-of-variable-d" placeholder="Enter number..." type="text" />
+          </div>
+          <br />
+          <hr />
+          <br />
+          <span id="singleplayer-screen-custom-mode-issues">&nbsp;</span><br />
+          <button class="start-button" onClick="startCustomSingleplayerGame(getCustomSingleplayerModeInputs());">
+            Start Game
+          </button>
+          <br /><br /><br /><br />
         </div>
-        <br />
-        <hr />
-        <br />
-        <span id="singleplayer-screen-custom-mode-issues">&nbsp;</span><br />
-        <button id="start-button" onClick="startCustomSingleplayerGame(getCustomSingleplayerModeInputs());"
-          style="width: 256px; height: 64px; font-size: 28px">
-          Start Game
-        </button>
-        <br /><br /><br /><br />
       </div>
     </div>
 
     <!-- Multiplayer Lobby -->
+
     <div id="multiplayer-lobby-screen-container">
-      <div id="multiplayer-lobby-screen-button-container">
-        <button class="lobby-screen-button--multiplayer-screen"
-          onClick="setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);socket.send(JSON.stringify({action:'joinOrCreateDefaultMultiplayerRoom'}))"
-          onMouseEnter="$('#bottom-toolbar-text').text('Join the default room.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Default Room
-        </button>
-        <br /><br />
-        <button class="lobby-screen-button--multiplayer-screen"
-          onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-          onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Back
-        </button>
+      <div style="width: 20%;">
+        <div id="multiplayer-lobby-screen-button-container">
+          <button class="lobby-screen-button--multiplayer-screen" onClick=""
+            onMouseEnter="$('#bottom-toolbar-text').text('Join the default room.')"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            &nbsp;Default Room
+          </button>
+          <br /><br />
+          <button class="lobby-screen-button--multiplayer-screen"
+            onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+            onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            &nbsp;Back
+          </button>
+        </div>
+      </div>
+
+
+      <div style="width: 80%;">
+        <div id="multiplayer-lobby-screen__intermission-screen">
+          <div style="font-size:24px;">
+            <span style="font-size:36px;">Default Room</span>
+            <br>
+            Play in the default room, where everyone is at!
+            <br>
+            Custom rooms will be available in a later update!
+            <br>
+            <button
+              onClick="setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);socket.send(JSON.stringify({action:'joinOrCreateDefaultMultiplayerRoom'}))"
+              class="start-button">
+              Join Room
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
