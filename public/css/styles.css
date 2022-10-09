@@ -363,6 +363,9 @@ input {
   right: 5vw;
 }
 
+.start-button {
+  width: 256px; height: 64px; font-size: 28px
+}
 /*
 	LOADING SCREEN
 */
