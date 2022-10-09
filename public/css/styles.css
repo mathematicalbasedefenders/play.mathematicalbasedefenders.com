@@ -155,6 +155,7 @@ img {
   /*
   TODO: Find a more stable way
   */
+  top: 0;
   bottom: 0;
 }
 
@@ -512,9 +513,6 @@ margin-left: 2vw;
 }
 
 #singleplayer-screen__intermission-screen--custom-singleplayer {
-  float: right;
-  right: 1vw;
-  width: 75vw;
   overflow-y: auto;
   height: 100vh;
   z-index: -100;
