@@ -1625,3 +1625,7 @@ function showSingleplayerIntermissionScreen(mode) {
     }
   }
 }
+
+function showMultiplayerIntermissionScreen() {
+  $("#multiplayer-lobby-screen__intermission-screen").show(0);
+}

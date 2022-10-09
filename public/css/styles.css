@@ -525,6 +525,9 @@ margin-left: 2vw;
 /*
 	MULTIPLAYER LOBBY
 */
+#multiplayer-lobby-screen-container {
+  display: flex;
+}
 
 #multiplayer-lobby-screen-button-container {
   position: absolute;

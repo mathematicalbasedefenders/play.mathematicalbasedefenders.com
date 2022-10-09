@@ -414,21 +414,42 @@
     </div>
 
     <!-- Multiplayer Lobby -->
+
     <div id="multiplayer-lobby-screen-container">
-      <div id="multiplayer-lobby-screen-button-container">
-        <button class="lobby-screen-button--multiplayer-screen"
-          onClick="setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);socket.send(JSON.stringify({action:'joinOrCreateDefaultMultiplayerRoom'}))"
-          onMouseEnter="$('#bottom-toolbar-text').text('Join the default room.')"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Default Room
-        </button>
-        <br /><br />
-        <button class="lobby-screen-button--multiplayer-screen"
-          onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
-          onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
-          onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Back
-        </button>
+      <div style="width: 20%;">
+        <div id="multiplayer-lobby-screen-button-container">
+          <button class="lobby-screen-button--multiplayer-screen" onClick=""
+            onMouseEnter="$('#bottom-toolbar-text').text('Join the default room.')"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            &nbsp;Default Room
+          </button>
+          <br /><br />
+          <button class="lobby-screen-button--multiplayer-screen"
+            onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
+            onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
+            onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
+            &nbsp;Back
+          </button>
+        </div>
+      </div>
+
+
+      <div style="width: 80%;">
+        <div id="multiplayer-lobby-screen__intermission-screen">
+          <div style="font-size:24px;">
+            <span style="font-size:36px;">Default Room</span>
+            <br>
+            Play in the default room, where everyone is at!
+            <br>
+            Custom rooms will be available in a later update!
+            <br>
+            <button
+              onClick="setPropertiesAndChangeScreen(screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN);socket.send(JSON.stringify({action:'joinOrCreateDefaultMultiplayerRoom'}))"
+              class="start-button">
+              Join Room
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
