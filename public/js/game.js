@@ -1604,3 +1604,14 @@ function setLabelerTextVisibilities() {
   if (settings.video.gameScreenInformationMode >= 100) {
   }
 }
+
+function showSingleplayerIntermissionScreen(mode) {
+  switch (mode) {
+    case "easySingleplayerMode": {
+      break;
+    }
+    case "standardSingleplayerMode": {
+      break;
+    }
+  }
+}
