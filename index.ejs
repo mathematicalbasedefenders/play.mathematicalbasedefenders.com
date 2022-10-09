@@ -158,28 +158,40 @@
             onClick="setPropertiesAndChangeScreen(screens.SINGLEPLAYER_LOBBY_SCREEN);"
             onMouseEnter="$('#bottom-toolbar-text').text('Test your math skills and maybe get on the leaderboards.')"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Singleplayer
+            <span class="vertical-aligned">
+              &nbsp;<span class="material-icons md-36">
+                person
+              </span>&nbsp;Singleplayer</span>
           </button>
           <br /><br />
           <button class="main-menu-screen-button"
             onMouseEnter="$('#bottom-toolbar-text').text('Play with others and make friends and enemies.')"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
             onClick="setPropertiesAndChangeScreen(screens.MULTIPLAYER_LOBBY_SCREEN)">
-            &nbsp;Multiplayer
+            <span class="vertical-aligned">
+              &nbsp;<span class="material-icons md-36">
+                people
+              </span>&nbsp;Multiplayer</span>
           </button>
           <br /><br />
           <button class="main-menu-screen-button"
             onMouseEnter="$('#bottom-toolbar-text').text('View how far you or others have progressed.')"
             onClick="createToastNotification({color:`#ff0000`, message:`A stats viewer will be released in a future update!`})"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Statistics
+            <span class="vertical-aligned">
+              &nbsp;<span class="material-icons md-36">
+                bar_chart
+              </span>&nbsp;Statistics</span>
           </button>
           <br /><br />
           <button class="main-menu-screen-button"
             onClick="updateSettingsSelections();setPropertiesAndChangeScreen(screens.SETTINGS_SCREEN); setPropertiesAndChangeSettingsScreen('')"
             onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks, feels, and sounds.')"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Settings
+            <span class="vertical-aligned">
+              &nbsp;<span class="material-icons md-36">
+                settings
+              </span>&nbsp;Settings</span>
           </button>
         </div>
       </div>
@@ -218,7 +230,10 @@
               onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
               onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
               onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-              &nbsp;Back
+              <span class="vertical-aligned">
+                &nbsp;<span class="material-icons md-36">
+                  arrow_back
+                </span>&nbsp;Back</span>
             </button>
           </div>
         </div>
@@ -234,28 +249,40 @@
             onClick="showSingleplayerIntermissionScreen('easySingleplayerMode');"
             onMouseEnter="$('#bottom-toolbar-text').text('Play on the easy mode.')"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Easy
+            <span class="vertical-aligned">
+              &nbsp;<span class="material-icons md-36">
+                sentiment_satisfied_alt
+              </span>&nbsp;Easy</span>
           </button>
           <br /><br />
           <button class="lobby-screen-button--singleplayer-screen"
             onClick="showSingleplayerIntermissionScreen('standardSingleplayerMode');"
             onMouseEnter="$('#bottom-toolbar-text').text('Play on the (hard) standard mode.')"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Standard
+            <span class="vertical-aligned">
+              &nbsp;<span class="material-icons md-36">
+                sentiment_neutral
+              </span>&nbsp;Standard</span>
           </button>
           <br /><br />
           <button class="lobby-screen-button--singleplayer-screen"
             onClick="showSingleplayerIntermissionScreen('customSingleplayerMode')"
             onMouseEnter="$('#bottom-toolbar-text').text('Customize your parameters and play with them. Scores will not be submitted.')"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Custom
+            <span class="vertical-aligned">
+              &nbsp;<span class="material-icons md-36">
+                tune
+              </span>&nbsp;Custom</span>
           </button>
           <br /><br />
           <button class="lobby-screen-button--singleplayer-screen"
             onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
             onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Back
+            <span class="vertical-aligned">
+              &nbsp;<span class="material-icons md-36">
+                arrow_back
+              </span>&nbsp;Back</span>
           </button>
         </div>
       </div>
@@ -421,14 +448,19 @@
           <button class="lobby-screen-button--multiplayer-screen" onClick=""
             onMouseEnter="$('#bottom-toolbar-text').text('Join the default room.')"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Default Room
+            <span class="vertical-aligned">&nbsp;<span class="material-icons md-36">
+                meeting_room
+              </span>&nbsp;Default Room</span>
           </button>
           <br /><br />
           <button class="lobby-screen-button--multiplayer-screen"
             onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
             onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.');"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Back
+            <span class="vertical-aligned">
+              &nbsp;<span class="material-icons md-36">
+                arrow_back
+              </span>&nbsp;Back</span>
           </button>
         </div>
       </div>
@@ -493,7 +525,10 @@
           onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);socket.send(JSON.stringify({action:`leaveRoom`}));"
           onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Back
+          <span class="vertical-aligned">
+            &nbsp;<span class="material-icons md-36">
+              arrow_back
+            </span>&nbsp;Back</span>
         </button>
       </div>
     </div>
@@ -511,7 +546,10 @@
           <button class="statistics-screen-button" onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
             onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-            &nbsp;Back
+            <span class="vertical-aligned">
+              &nbsp;<span class="material-icons md-36">
+                arrow_back
+              </span>&nbsp;Back</span>
           </button>
         </div>
       </div>
@@ -524,35 +562,46 @@
           onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.VIDEO_SETTINGS_SCREEN)"
           onMouseEnter="$('#bottom-toolbar-text').text('Change how the game looks.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Video
+          <span class="vertical-aligned">&nbsp;<span class="material-icons md-36">
+              tv
+            </span>&nbsp;Video</span>
         </button>
         <br /><br />
         <button class="settings-screen-navigation-button"
           onMouseEnter="$('#bottom-toolbar-text').text('Change how the game sounds.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')"
           onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.AUDIO_SETTINGS_SCREEN)">
-          &nbsp;Audio
+          <span class="vertical-aligned">&nbsp;<span class="material-icons md-36">
+              volume_up
+            </span>&nbsp;Audio</span>
         </button>
         <br /><br />
         <button class="settings-screen-navigation-button"
           onMouseEnter="$('#bottom-toolbar-text').text('Change how you control the game.')"
           onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.INPUT_SETTINGS_SCREEN)"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Input
+          <span class="vertical-aligned">&nbsp;<span class="material-icons md-36">
+              keyboard
+            </span>&nbsp;Input</span>
         </button>
         <br /><br />
         <button class="settings-screen-navigation-button"
           onClick="setPropertiesAndChangeSettingsScreen(settingsScreens.ONLINE_SETTINGS_SCREEN)"
           onMouseEnter="$('#bottom-toolbar-text').text('Change how you appear to other players in the game.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Online
+          <span class="vertical-aligned">&nbsp;<span class="material-icons md-36">
+              public
+            </span>&nbsp;Online</span>
         </button>
         <br /><br />
         <button class="settings-screen-navigation-button"
           onClick="changeSettings();saveSettings();setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
           onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Back
+          <span class="vertical-aligned">
+            &nbsp;<span class="material-icons md-36">
+              arrow_back
+            </span>&nbsp;Back</span>
         </button>
       </div>
       <div id="settings-screen-content-container">
@@ -835,7 +884,10 @@
           onClick="setPropertiesAndChangeScreen(screens.MAIN_MENU_SCREEN);"
           onMouseEnter="$('#bottom-toolbar-text').text('Go back to the main menu.')"
           onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
-          &nbsp;Back
+          <span class="vertical-aligned">
+            &nbsp;<span class="material-icons md-36">
+              arrow_back
+            </span>&nbsp;Back</span>
         </button>
       </div>
     </div>

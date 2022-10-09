@@ -86,6 +86,13 @@ body {
   --color-background: #eeeeee;
 }
 
+.vertical-aligned {
+  display: flex;
+  align-items: center;
+  line-height: normal;
+}
+
+
 /*
     GLOBAL
 */
