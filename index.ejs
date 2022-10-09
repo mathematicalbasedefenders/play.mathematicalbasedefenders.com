@@ -245,7 +245,7 @@
           </button>
           <br /><br />
           <button class="lobby-screen-button--singleplayer-screen"
-            onClick="showCustomSingleplayerGameModeSettingsScreen()"
+            onClick="showSingleplayerIntermissionScreen('customSingleplayerMode')"
             onMouseEnter="$('#bottom-toolbar-text').text('Customize your parameters and play with them. Scores will not be submitted.')"
             onMouseLeave="$('#bottom-toolbar-text').text('&nbsp;')">
             &nbsp;Custom
@@ -260,8 +260,23 @@
         </div>
       </div>
       <div id="singleplayer-screen__intermission-screen">
-        <div id="singleplayer-screen-custom-mode-settings-screen-content-container"
+        <div id="singleplayer-screen__intermission-screen--easy-singleplayer" style="font-size: 24px; display: none">
+          <div style="font-size:36px">Easy Singleplayer</div>
+          Gameplay is the same as Standard Singleplayer, with a few significant changes. The most notable of which is
+          the enemy limit of 5 enemies.
+        </div>
+
+        <div id="singleplayer-screen__intermission-screen--standard-singleplayer"
           style="font-size: 24px; display: none">
+          <div style="font-size:36px">Standard Singleplayer</div>
+          The hardest math game ever? Play in the standard mode to see how long you can last!
+          <br>
+          Form problems to kill enemies, and use variables to store values.
+          <br>
+          Keybinds can be found in the settings, or you can just use the mouse.
+        </div>
+
+        <div id="singleplayer-screen__intermission-screen--custom-singleplayer" style="font-size: 24px; display: none">
           <!-- wth? -->
 
           <span style="font-size: 36px">General</span>

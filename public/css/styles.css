@@ -152,6 +152,10 @@ img {
   position: absolute;
   width: 100%;
   height: 100%;
+  /*
+  TODO: Find a more stable way
+  */
+  bottom: 0;
 }
 
 #bottom-user-interface-container {
@@ -507,7 +511,7 @@ margin-left: 2vw;
   box-shadow: inset 15.625vw 0 0 #b6b6b6;
 }
 
-#singleplayer-screen-custom-mode-settings-screen-content-container {
+#singleplayer-screen__intermission-screen--custom-singleplayer {
   float: right;
   right: 1vw;
   width: 75vw;
