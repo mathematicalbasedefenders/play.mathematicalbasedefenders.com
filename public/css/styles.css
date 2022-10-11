@@ -667,7 +667,6 @@ input {
   position: absolute;
   right: 0.5vw;
   height: 56.5vh;
-  z-index: -2;
   max-height: 100%;
   word-wrap: break-word;
 }
