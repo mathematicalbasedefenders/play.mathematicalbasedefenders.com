@@ -94,6 +94,7 @@ var game = {
       y: 210
     }
   },
+  opponentGameInstanceScale: 1,
   cachedLengthOfOpponentGameInstances: 0,
   toastNotifications: {},
   toastNotificationsCreated: 0,
