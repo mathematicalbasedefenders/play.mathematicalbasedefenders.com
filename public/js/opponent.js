@@ -50,7 +50,7 @@ class OpponentGameInstance {
               .opponentGameInstancePositionIncrements.x *
             game.opponentGameInstanceScale +
           this.xPosition +
-          (i % 7) * 16;
+          (i % 7) * 16 * game.opponentGameInstanceScale;
         this.tileSprites[i].position.y =
           Math.floor(
             this.playerIndex /
@@ -61,7 +61,7 @@ class OpponentGameInstance {
             game.opponentGameInstanceScale +
           this.yPosition +
           30 +
-          Math.floor(i / 7) * 16;
+          Math.floor(i / 7) * 16 * game.opponentGameInstanceScale;
       }
 
       for (let i = 0; i < minifiedGameData.enemies.length; i++) {
