@@ -117,7 +117,7 @@ class OpponentGameInstance {
             .opponentGameInstancePositionIncrements.y *
           game.opponentGameInstanceScale +
         this.yPosition +
-        10;
+        10 * game.opponentGameInstanceScale;
 
       this.statisticsText.position.x =
         initialWindowWidth / 2 +
@@ -136,7 +136,7 @@ class OpponentGameInstance {
             .opponentGameInstancePositionIncrements.y *
           game.opponentGameInstanceScale +
         this.yPosition +
-        145;
+        145 * game.opponentGameInstanceScale;
 
       this.nameText.position.x =
         initialWindowWidth / 2 +
@@ -155,7 +155,7 @@ class OpponentGameInstance {
             .opponentGameInstancePositionIncrements.y *
           game.opponentGameInstanceScale +
         this.yPosition +
-        165;
+        165 * game.opponentGameInstanceScale;
     };
 
     this.setPositions();
@@ -248,6 +248,15 @@ class OpponentGameInstance {
       "/10 " +
       minifiedGameData.enemiesPending;
     this.nameText.text = minifiedGameData.name;
+
+    // scale text
+    this.problemText.scale.x = game.opponentGameInstanceScale;
+    this.problemText.scale.y = game.opponentGameInstanceScale;
+    this.statisticsText.scale.x = game.opponentGameInstanceScale;
+    this.statisticsText.scale.y = game.opponentGameInstanceScale;
+    this.nameText.scale.x = game.opponentGameInstanceScale;
+    this.nameText.scale.y = game.opponentGameInstanceScale;
+
     // this.nameText.style."fill" = minifiedGameData.nameColor;
     changePIXIJSTextStyle(this.nameText, "fill", minifiedGameData.nameColor);
   }
@@ -305,7 +314,7 @@ class OpponentGameInstance {
 
   rerender(newPlayerIndex, newContainer) {
     this.playerIndex = newPlayerIndex;
-    this.destroy(true);
+    this.destroy(false);
     this.setPositions();
     this.render(newContainer);
   }
