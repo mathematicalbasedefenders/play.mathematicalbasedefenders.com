@@ -19,9 +19,21 @@ socket.onerror = (event) => {
 
 socket.onmessage = (message) => {
   message = JSON.parse(message.data);
+
   switch (message.action) {
     case "currentGameData": {
       let currentGameData = message.arguments.data;
+
+      // FIXME: testing purposes only, remove this later
+      game.opponentGameInstanceScale = Math.abs(
+        Math.sin(currentGameData.currentGame.framesRenderedSinceGameStart / 10)
+      );
+
+      for (let i = 0; i < game.opponentGameInstances.length; i++) {
+        game.opponentGameInstances[i] &&
+          game.opponentGameInstances[i].rerender(i, multiplayerScreenContainer);
+      }
+
       // delta = frames "skipped" (1 frame = 1/60 seconds)
       if (!firstUpdateReceived) {
         forceWeakResizeContainer();
