@@ -100,6 +100,7 @@ class OpponentGameInstance {
         }
       }
 
+      // FIXME: refer to commit a2aec2f
       this.problemText.position.x =
         initialWindowWidth / 2 +
         (this.playerIndex %
