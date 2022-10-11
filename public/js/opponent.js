@@ -60,8 +60,7 @@ class OpponentGameInstance {
               .opponentGameInstancePositionIncrements.y +
             this.yPosition +
             30 +
-            Math.floor(i / 7)) *
-          16 *
+            Math.floor(i / 7) * 16) *
           game.opponentGameInstanceScale;
       }
 
