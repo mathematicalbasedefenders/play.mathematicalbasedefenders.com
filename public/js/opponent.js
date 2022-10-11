@@ -43,25 +43,25 @@ class OpponentGameInstance {
         this.tileSprites[i].scale.y = 0.25 * game.opponentGameInstanceScale;
 
         this.tileSprites[i].position.x =
-          (initialWindowWidth / 2 +
-            (this.playerIndex %
-              game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
-              game.opponentGameInstanceSettings
-                .opponentGameInstancePositionIncrements.x +
-            this.xPosition +
-            (i % 7) * 16) *
-          game.opponentGameInstanceScale;
+          initialWindowWidth / 2 +
+          (this.playerIndex %
+            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+            game.opponentGameInstanceSettings
+              .opponentGameInstancePositionIncrements.x *
+            game.opponentGameInstanceScale +
+          this.xPosition +
+          (i % 7) * 16;
         this.tileSprites[i].position.y =
-          (Math.floor(
+          Math.floor(
             this.playerIndex /
               game.opponentGameInstanceSettings.opponentGameInstancesPerRow
           ) *
             game.opponentGameInstanceSettings
-              .opponentGameInstancePositionIncrements.y +
-            this.yPosition +
-            30 +
-            Math.floor(i / 7) * 16) *
-          game.opponentGameInstanceScale;
+              .opponentGameInstancePositionIncrements.y *
+            game.opponentGameInstanceScale +
+          this.yPosition +
+          30 +
+          Math.floor(i / 7) * 16;
       }
 
       for (let i = 0; i < minifiedGameData.enemies.length; i++) {
@@ -73,23 +73,23 @@ class OpponentGameInstance {
             enemy
           ).enemySprite;
           this.enemySprites[enemy.enemyNumber]["sprite"].position.x =
-            (initialWindowWidth / 2 +
-              (this.playerIndex %
-                game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
-                game.opponentGameInstanceSettings
-                  .opponentGameInstancePositionIncrements.x +
-              this.xPosition +
-              enemy.sPosition * 11.2) *
-            game.opponentGameInstanceScale;
+            initialWindowWidth / 2 +
+            (this.playerIndex %
+              game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+              game.opponentGameInstanceSettings
+                .opponentGameInstancePositionIncrements.x *
+              game.opponentGameInstanceScale +
+            this.xPosition +
+            enemy.sPosition * 11.2;
           this.enemySprites[enemy.enemyNumber]["sprite"].position.y =
-            (Math.floor(
+            Math.floor(
               this.playerIndex /
                 game.opponentGameInstanceSettings.opponentGameInstancesPerRow
             ) *
               game.opponentGameInstanceSettings
-                .opponentGameInstancePositionIncrements.y +
-              this.yPosition) *
-            game.opponentGameInstanceScale;
+                .opponentGameInstancePositionIncrements.y *
+              game.opponentGameInstanceScale +
+            this.yPosition;
           this.enemySprites[enemy.enemyNumber]["sprite"].scale.x =
             0.585 * game.opponentGameInstanceScale;
           this.enemySprites[enemy.enemyNumber]["sprite"].scale.y =
@@ -101,61 +101,61 @@ class OpponentGameInstance {
       }
 
       this.problemText.position.x =
-        (initialWindowWidth / 2 +
-          (this.playerIndex %
-            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
-            game.opponentGameInstanceSettings
-              .opponentGameInstancePositionIncrements.x +
-          this.xPosition) *
-        game.opponentGameInstanceScale;
+        initialWindowWidth / 2 +
+        (this.playerIndex %
+          game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+          game.opponentGameInstanceSettings
+            .opponentGameInstancePositionIncrements.x *
+          game.opponentGameInstanceScale +
+        this.xPosition;
       this.problemText.position.y =
-        (Math.floor(
+        Math.floor(
           this.playerIndex /
             game.opponentGameInstanceSettings.opponentGameInstancesPerRow
         ) *
           game.opponentGameInstanceSettings
-            .opponentGameInstancePositionIncrements.y +
-          this.yPosition +
-          10) *
-        game.opponentGameInstanceScale;
+            .opponentGameInstancePositionIncrements.y *
+          game.opponentGameInstanceScale +
+        this.yPosition +
+        10;
 
       this.statisticsText.position.x =
-        (initialWindowWidth / 2 +
-          (this.playerIndex %
-            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
-            game.opponentGameInstanceSettings
-              .opponentGameInstancePositionIncrements.x +
-          this.xPosition) *
-        game.opponentGameInstanceScale;
+        initialWindowWidth / 2 +
+        (this.playerIndex %
+          game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+          game.opponentGameInstanceSettings
+            .opponentGameInstancePositionIncrements.x *
+          game.opponentGameInstanceScale +
+        this.xPosition;
       this.statisticsText.position.y =
-        (Math.floor(
+        Math.floor(
           this.playerIndex /
             game.opponentGameInstanceSettings.opponentGameInstancesPerRow
         ) *
           game.opponentGameInstanceSettings
-            .opponentGameInstancePositionIncrements.y +
-          this.yPosition +
-          145) *
-        game.opponentGameInstanceScale;
+            .opponentGameInstancePositionIncrements.y *
+          game.opponentGameInstanceScale +
+        this.yPosition +
+        145;
 
       this.nameText.position.x =
-        (initialWindowWidth / 2 +
-          (this.playerIndex %
-            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
-            game.opponentGameInstanceSettings
-              .opponentGameInstancePositionIncrements.x +
-          this.xPosition) *
-        game.opponentGameInstanceScale;
+        initialWindowWidth / 2 +
+        (this.playerIndex %
+          game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+          game.opponentGameInstanceSettings
+            .opponentGameInstancePositionIncrements.x *
+          game.opponentGameInstanceScale +
+        this.xPosition;
       this.nameText.position.y =
-        (Math.floor(
+        Math.floor(
           this.playerIndex /
             game.opponentGameInstanceSettings.opponentGameInstancesPerRow
         ) *
           game.opponentGameInstanceSettings
-            .opponentGameInstancePositionIncrements.y +
-          this.yPosition +
-          165) *
-        game.opponentGameInstanceScale;
+            .opponentGameInstancePositionIncrements.y *
+          game.opponentGameInstanceScale +
+        this.yPosition +
+        165;
     };
 
     this.setPositions();
@@ -186,23 +186,23 @@ class OpponentGameInstance {
           enemy
         ).enemySprite;
         this.enemySprites[enemy.enemyNumber]["sprite"].position.x =
-          (initialWindowWidth / 2 +
-            (this.playerIndex %
-              game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
-              game.opponentGameInstanceSettings
-                .opponentGameInstancePositionIncrements.x +
-            this.xPosition +
-            enemy.sPosition * 11.2) *
-          game.opponentGameInstanceScale;
+          initialWindowWidth / 2 +
+          (this.playerIndex %
+            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+            game.opponentGameInstanceSettings
+              .opponentGameInstancePositionIncrements.x *
+            game.opponentGameInstanceScale +
+          this.xPosition +
+          enemy.sPosition * 11.2;
         this.enemySprites[enemy.enemyNumber]["sprite"].position.y =
-          (Math.floor(
+          Math.floor(
             this.playerIndex /
               game.opponentGameInstanceSettings.opponentGameInstancesPerRow
           ) *
             game.opponentGameInstanceSettings
-              .opponentGameInstancePositionIncrements.y +
-            this.yPosition) *
-          game.opponentGameInstanceScale;
+              .opponentGameInstancePositionIncrements.y *
+            game.opponentGameInstanceScale +
+          this.yPosition;
         this.enemySprites[enemy.enemyNumber]["sprite"].scale.x =
           0.585 * game.opponentGameInstanceScale;
         this.enemySprites[enemy.enemyNumber]["sprite"].scale.y =
@@ -222,14 +222,14 @@ class OpponentGameInstance {
           this.enemySprites[enemy.enemyNumber]["appeared"] = true;
         } else {
           this.enemySprites[enemy.enemyNumber]["sprite"].position.x =
-            (initialWindowWidth / 2 +
-              (this.playerIndex %
-                game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
-                game.opponentGameInstanceSettings
-                  .opponentGameInstancePositionIncrements.x +
-              this.xPosition +
-              this.enemySprites[enemy.enemyNumber]["sPosition"] * 11.2) *
-            game.opponentGameInstanceScale;
+            initialWindowWidth / 2 +
+            (this.playerIndex %
+              game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+              game.opponentGameInstanceSettings
+                .opponentGameInstancePositionIncrements.x *
+              game.opponentGameInstanceScale +
+            this.xPosition +
+            this.enemySprites[enemy.enemyNumber]["sPosition"] * 11.2;
         }
       } else {
         this.container.removeChild(
@@ -267,17 +267,16 @@ class OpponentGameInstance {
         this.enemySprites[i]["appeared"] = true;
       } else {
         this.enemySprites[i]["sprite"].position.x =
-          (initialWindowWidth / 2 +
-            (Math.floor(
-              this.playerIndex /
-                game.opponentGameInstanceSettings.opponentGameInstancesPerRow
-            ) %
-              game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
-              game.opponentGameInstanceSettings
-                .opponentGameInstancePositionIncrements.y +
-            this.xPosition +
-            this.enemySprites[i]["sPosition"] * 11.2) *
-          game.opponentGameInstanceScale;
+          initialWindowWidth / 2 +
+          (Math.floor(
+            this.playerIndex /
+              game.opponentGameInstanceSettings.opponentGameInstancesPerRow
+          ) %
+            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+            game.opponentGameInstanceSettings
+              .opponentGameInstancePositionIncrements.y +
+          this.xPosition * game.opponentGameInstanceScale +
+          this.enemySprites[i]["sPosition"] * 11.2;
       }
     }
 
