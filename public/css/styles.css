@@ -84,6 +84,9 @@ body {
   --color-black: #000000;
   --color-white: #ffffff;
   --color-background: #eeeeee;
+  --color--text-modal-background: #555555;
+
+  --transition-duration-medium: 200ms;
 }
 
 .vertical-aligned {
@@ -91,7 +94,6 @@ body {
   align-items: center;
   line-height: normal;
 }
-
 
 /*
     GLOBAL
@@ -277,16 +279,26 @@ select {
 .text-modal__button {
   height: 50px;
   font-size: 32px;
-  background-color: #cdcdcd;
-  color: #000000;
+  background-color: #414141;
+  color: #ffffff;
+  border-radius: 2px;
+  border: 3px solid transparent;
   bottom: 5%;
   width: 30%;
 }
 
+.text-modal__button:hover {
+  background-color: #707070;
+  transition-duration: var(--transition-duration-medium);
+}
+
 .text-modal__button--dangerous {
-  background-color: #bb0000 !important;
-  color: #ffffff !important;
-  border-color: #dd0000 !important;
+  background-color: #bb0000;
+  color: #ffffff;
+}
+
+.text-modal__button--dangerous:hover {
+  background-color: #dd0000;
 }
 
 #user-information-modal-container {
@@ -370,9 +382,25 @@ input {
   right: 5vw;
 }
 
-.start-button {
-  width: 256px; height: 64px; font-size: 28px
+.action-button {
+  
+  border: 2px solid var(--color-black);
+  border-radius: 2px;
+  background-color: #eeeeee;
+
 }
+
+.start-button {
+  width: 256px;
+  height: 64px;
+  font-size: 28px;
+}
+
+.action-button:hover {
+  background-color:#f3f3f3;
+  transition-duration: var(--transition-duration-medium);
+}
+
 /*
 	LOADING SCREEN
 */
@@ -492,13 +520,12 @@ input {
 }
 
 #singleplayer-lobby-screen-button-container {
- 
   width: 20%;
-position: absolute;
-left: 0.5vw;
-bottom: 10vh;
-margin-bottom: 1vh;
-margin-left: 2vw;
+  position: absolute;
+  left: 0.5vw;
+  bottom: 10vh;
+  margin-bottom: 1vh;
+  margin-left: 2vw;
 }
 
 .lobby-screen-button--singleplayer-screen {
