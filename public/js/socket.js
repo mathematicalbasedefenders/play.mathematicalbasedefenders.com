@@ -24,16 +24,6 @@ socket.onmessage = (message) => {
     case "currentGameData": {
       let currentGameData = message.arguments.data;
 
-      // FIXME: testing purposes only, remove this later
-      game.opponentGameInstanceScale = Math.abs(
-        Math.sin(currentGameData.currentGame.framesRenderedSinceGameStart / 10)
-      );
-
-      for (let i = 0; i < game.opponentGameInstances.length; i++) {
-        game.opponentGameInstances[i] &&
-          game.opponentGameInstances[i].rerender(i, multiplayerScreenContainer);
-      }
-
       // delta = frames "skipped" (1 frame = 1/60 seconds)
       if (!firstUpdateReceived) {
         forceWeakResizeContainer();
@@ -104,20 +94,6 @@ socket.onmessage = (message) => {
                     .toFixed(3)
                     .toString()
                 : "";
-            // singleplayerScreenContainerItems.currentComboText.text =
-            //   settings.video.gameScreenInformationMode >= 20
-            //     ? currentGameData.currentGame.currentCombo < 1
-            //       ? ""
-            //       : currentGameData.currentGame.currentCombo +
-            //         " Combo" +
-            //         (settings.video.gameScreenInformationMode >= 100
-            //           ? ` (×${
-            //               parseInt(currentGameData.currentGame.currentCombo) *
-            //                 0.1 +
-            //               1
-            //             })`
-            //           : "")
-            //     : "";
 
             let comboText = "";
 
@@ -277,11 +253,14 @@ socket.onmessage = (message) => {
                 // render
                 game.enemyRenderStatus[enemy.enemyNumber.toString()][
                   "enemySprite"
-                ].x = initialWindowWidth / 2 + 80 * (enemy.sPosition - 5); // (enemy.sPosition / 10) * 800 + 560;
+                ].x =
+                  initialWindowWidth / 2 +
+                  80 * (enemy.sPosition - 5) +
+                  game.offsets.singleplayer.x; // (enemy.sPosition / 10) * 800 + 560;
 
                 game.enemyRenderStatus[enemy.enemyNumber.toString()][
                   "enemySprite"
-                ].y = enemy.yPosition;
+                ].y = enemy.yPosition + game.offsets.singleplayer.y;
                 game.enemyRenderStatus[enemy.enemyNumber.toString()][
                   "requestedValueTextSprite"
                 ].x =
@@ -291,7 +270,8 @@ socket.onmessage = (message) => {
                     game.enemyRenderStatus[enemy.enemyNumber.toString()][
                       "requestedValueTextMetrics"
                     ].width) /
-                    2;
+                    2 +
+                  game.offsets.singleplayer.x;
                 game.enemyRenderStatus[enemy.enemyNumber.toString()][
                   "requestedValueTextSprite"
                 ].y =
@@ -300,7 +280,8 @@ socket.onmessage = (message) => {
                     game.enemyRenderStatus[enemy.enemyNumber.toString()][
                       "requestedValueTextMetrics"
                     ].height) /
-                    2;
+                    2 +
+                  game.offsets.singleplayer.y;
                 if (enemy.reachedBase || enemy.destroyed) {
                   game.enemyRenderStatus[
                     enemy.enemyNumber.toString()
@@ -370,14 +351,16 @@ socket.onmessage = (message) => {
                     80 *
                       (currentGameData.currentGame.scoreGainIndicators[i]
                         .sPosition -
-                        5);
+                        5) +
+                    game.offsets.singleplayer.x;
                   scoreGainIndicator.y =
                     60 *
                       (currentGameData.currentGame.scoreGainIndicators[i].age /
                         600 -
                         5) *
                       -1 +
-                    300;
+                    300 +
+                    game.offsets.singleplayer.y;
                   // add to render
 
                   game.scoreGainIndicatorRenderStatus[
@@ -401,7 +384,8 @@ socket.onmessage = (message) => {
                       .ageInMilliseconds /
                       100 -
                       5) +
-                  50;
+                  50 +
+                  game.offsets.singleplayer.y;
               } else {
                 scoreGainIndicatorsToDelete.push(indicator.number.toString());
               }
@@ -760,7 +744,10 @@ socket.onmessage = (message) => {
                   }
                   game.enemyRenderStatus[enemy.enemyNumber.toString()][
                     "enemySprite"
-                  ].x = initialWindowWidth / 2 + 80 * (enemy.sPosition - 5); // (enemyObject.sPosition / 10) * 800 + 560;
+                  ].x =
+                    initialWindowWidth / 2 +
+                    80 * (enemy.sPosition - 5) +
+                    game.offsets.multiplayer.y; // (enemyObject.sPosition / 10) * 800 + 560;
                   game.enemyRenderStatus[enemy.enemyNumber.toString()][
                     "enemySprite"
                   ].y = enemy.yPosition;
@@ -773,7 +760,8 @@ socket.onmessage = (message) => {
                       game.enemyRenderStatus[enemy.enemyNumber.toString()][
                         "requestedValueTextMetrics"
                       ].width) /
-                      2;
+                      2 +
+                    game.offsets.multiplayer.y;
                   game.enemyRenderStatus[enemy.enemyNumber.toString()][
                     "requestedValueTextSprite"
                   ].y =
@@ -782,7 +770,8 @@ socket.onmessage = (message) => {
                       game.enemyRenderStatus[enemy.enemyNumber.toString()][
                         "requestedValueTextMetrics"
                       ].height) /
-                      2;
+                      2 +
+                    game.offsets.singleplayer.y;
                   game.enemyRenderStatus[enemy.enemyNumber.toString()][
                     "senderNameTextSprite"
                   ].x =
@@ -792,7 +781,8 @@ socket.onmessage = (message) => {
                       game.enemyRenderStatus[enemy.enemyNumber.toString()][
                         "senderNameTextMetrics"
                       ].width) /
-                      2;
+                      2 +
+                    game.offsets.multiplayer.y;
                   game.enemyRenderStatus[enemy.enemyNumber.toString()][
                     "senderNameTextSprite"
                   ].y =
@@ -802,7 +792,8 @@ socket.onmessage = (message) => {
                         "senderNameTextMetrics"
                       ].height) /
                       2 +
-                    50;
+                    50 +
+                    game.offsets.singleplayer.y;
                 } else {
                   renderedEnemiesOnFieldToDelete.push(
                     enemy.enemyNumber.toString()
@@ -871,7 +862,8 @@ socket.onmessage = (message) => {
                       80 *
                         (currentGameData.currentGame.enemiesSentIndicators[i]
                           .sPosition -
-                          5);
+                          5) +
+                      game.offsets.multiplayer.y;
                     enemiesSentIndicator.y =
                       60 *
                         (currentGameData.currentGame.enemiesSentIndicators[i]
@@ -879,7 +871,8 @@ socket.onmessage = (message) => {
                           600 -
                           5) *
                         -1 +
-                      300;
+                      300 +
+                      game.offsets.singleplayer.y;
                     // add to render
 
                     game.enemiesSentIndicatorRenderStatus[
@@ -903,7 +896,8 @@ socket.onmessage = (message) => {
                         .ageInMilliseconds /
                         100 -
                         5) +
-                    50;
+                    50 +
+                    game.offsets.singleplayer.y;
                 } else {
                   enemiesSentIndicatorsToDelete.push(
                     indicator.number.toString()

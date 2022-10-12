@@ -94,6 +94,17 @@ var game = {
       y: 210
     }
   },
+  offsets: {
+    singleplayer: {
+      x: 0,
+      y: 0
+    },
+    multiplayer: {
+      x: 0,
+      y: 0
+    }
+  },
+  currentGameModePlaying: null,
   opponentGameInstanceScale: 1,
   cachedLengthOfOpponentGameInstances: 0,
   toastNotifications: {},
@@ -273,10 +284,6 @@ var singleplayerScreenContainerItems = {
   currentComboText: new PIXI.Text("", textStyles.SIZE_40_FONT)
 };
 
-singleplayerScreenContainerItems.sendButtonSprite.x =
-  initialWindowWidth / 2 + 64 * -4 + 16;
-singleplayerScreenContainerItems.sendButtonSprite.y =
-  initialWindowHeight / 2 + 64 * 3 + 176;
 singleplayerScreenContainerItems.sendButtonSprite.interactive = true;
 singleplayerScreenContainerItems.sendButtonSprite.on(
   "pointerdown",
@@ -285,15 +292,24 @@ singleplayerScreenContainerItems.sendButtonSprite.on(
   }
 );
 
-setSingleplayerScreenItemOffsets();
+setSingleplayerScreenItemOffsets(
+  game.offsets.singleplayer.x,
+  game.offsets.singleplayer.y
+);
 
 function setSingleplayerScreenItemOffsets(xOffset, yOffset) {
   // for older browsers, too scared to use the new syntax (...(offset=0))
+
+  game.offsets.singleplayer.x = xOffset;
+  game.offsets.singleplayer.y = yOffset;
+
   if (xOffset == null) {
     xOffset = 0;
+    game.offsets.singleplayer.x = 0;
   }
   if (yOffset == null) {
     yOffset = 0;
+    game.offsets.singleplayer.y = 0;
   }
 
   singleplayerScreenContainerItems.baseSprite.x =
@@ -375,6 +391,13 @@ function setSingleplayerScreenItemOffsets(xOffset, yOffset) {
     initialWindowWidth / 2 - 260 + xOffset;
   singleplayerScreenContainerItems.currentComboTimeLeftText.y =
     initialWindowHeight / 2 - 35 + yOffset;
+
+  singleplayerScreenContainerItems.sendButtonSprite.x =
+    initialWindowWidth / 2 + 64 * -4 + 16 + xOffset;
+  singleplayerScreenContainerItems.sendButtonSprite.y =
+    initialWindowHeight / 2 + 64 * 3 + 176 + yOffset;
+
+  destroyRenderedTiles();
 }
 
 var multiplayerScreenContainerItems = {
@@ -414,8 +437,22 @@ var multiplayerScreenContainerItems = {
     textStyles.SIZE_24_FONT
   )
 };
-setMultiplayerScreenItemOffsets();
+setMultiplayerScreenItemOffsets(
+  game.offsets.multiplayer.x,
+  game.offsets.multiplayer.y
+);
 function setMultiplayerScreenItemOffsets(xOffset, yOffset) {
+  // set
+  game.offsets.multiplayer.x = xOffset;
+  game.offsets.multiplayer.y = yOffset;
+  if (xOffset == null) {
+    xOffset = 0;
+    game.offsets.multiplayer.x = 0;
+  }
+  if (yOffset == null) {
+    yOffset = 0;
+    game.offsets.multiplayer.y = 0;
+  }
   multiplayerScreenContainerItems.sendButtonSprite.x =
     initialWindowWidth / 2 + 64 * -4 + 16 + xOffset;
   multiplayerScreenContainerItems.sendButtonSprite.y =
@@ -522,6 +559,13 @@ function setMultiplayerScreenItemOffsets(xOffset, yOffset) {
     initialWindowHeight / 2 - 35 + yOffset;
   multiplayerScreenContainerItems.currentComboTimeLeftText.x =
     initialWindowWidth / 2 - 260 + xOffset;
+
+  multiplayerScreenContainerItems.sendButtonSprite.x =
+    initialWindowWidth / 2 + 64 * -4 + 16 + xOffset;
+  multiplayerScreenContainerItems.sendButtonSprite.y =
+    initialWindowHeight / 2 + 64 * 3 + 176 + yOffset;
+
+  destroyRenderedTiles();
 }
 
 var tileTextures = [[], []];
@@ -731,28 +775,32 @@ app.ticker.add((delta) => {
               : singleplayerScreenContainerItems.currentProblemText.text.toString(),
             textStyles.SIZE_72_MATH_FONT
           ).width) /
-        2;
+          2 +
+        game.offsets.singleplayer.x;
       singleplayerScreenContainerItems.actionsPerMinuteText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           singleplayerScreenContainerItems.actionsPerMinuteText.text,
           textStyles.SIZE_40_FONT
-        ).width;
+        ).width +
+        game.offsets.singleplayer.x;
       singleplayerScreenContainerItems.currentComboText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           singleplayerScreenContainerItems.currentComboText.text,
           textStyles.SIZE_40_FONT
-        ).width;
+        ).width +
+        game.offsets.singleplayer.x;
       singleplayerScreenContainerItems.currentComboTimeLeftText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           singleplayerScreenContainerItems.currentComboTimeLeftText.text,
           textStyles.SIZE_24_FONT
-        ).width;
+        ).width +
+        game.offsets.singleplayer.x;
       break;
     }
 
@@ -767,28 +815,32 @@ app.ticker.add((delta) => {
               : multiplayerScreenContainerItems.currentProblemText.text.toString(),
             textStyles.SIZE_72_MATH_FONT
           ).width) /
-        2;
+          2 +
+        game.offsets.multiplayer.x;
       multiplayerScreenContainerItems.actionsPerMinuteText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           multiplayerScreenContainerItems.actionsPerMinuteText.text,
           textStyles.SIZE_40_FONT
-        ).width;
+        ).width +
+        game.offsets.multiplayer.x;
       multiplayerScreenContainerItems.currentComboText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           multiplayerScreenContainerItems.currentComboText.text,
           textStyles.SIZE_40_FONT
-        ).width;
+        ).width +
+        game.offsets.multiplayer.x;
       multiplayerScreenContainerItems.currentComboTimeLeftText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           multiplayerScreenContainerItems.currentComboTimeLeftText.text,
           textStyles.SIZE_24_FONT
-        ).width;
+        ).width +
+        game.offsets.multiplayer.x;
 
       multiplayerScreenContainerItems.playerNameText.x =
         (initialWindowWidth -
@@ -798,7 +850,8 @@ app.ticker.add((delta) => {
               : multiplayerScreenContainerItems.playerNameText.text.toString(),
             textStyles.SIZE_24_FONT
           ).width) /
-        2;
+          2 +
+        game.offsets.multiplayer.x;
       break;
     }
   }
@@ -857,7 +910,6 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
       $("#hub-container").show(0);
       $("#singleplayer-lobby-screen-container").show(0);
       $("#bottom-toolbar-container").show(0);
-
       break;
     }
     case screens.SINGLEPLAYER_GAME_SCREEN: {
@@ -867,6 +919,7 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
       document.body.style.overflow = "none";
       document.getElementById("pixi-canvas").style.display = "block";
       singleplayerScreenContainer.visible = true; // for now
+      game.currentGameModePlaying = "singleplayer";
       break;
     }
     case screens.MULTIPLAYER_LOBBY_SCREEN: {
@@ -891,6 +944,7 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
       document.body.style.overflow = "none";
       document.getElementById("pixi-canvas").style.display = "block";
       multiplayerScreenContainer.visible = true; // for now
+      game.currentGameModePlaying = "multiplayer";
       break;
     }
     case screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN: {
@@ -997,13 +1051,9 @@ function hideEverything() {
   $("#statistics-screen-container").hide(0);
   $("#settings-screen-container").hide(0);
   $("#game-over-screen-container").hide(0);
-
   $("#bottom-toolbar-container").hide(0);
-
   $("#singleplayer-screen__intermission-screen--custom-singleplayer").hide(0);
-
   $("#bottom-user-interface-container").hide(0);
-
   $("#pixi-canvas").hide(0);
 }
 
@@ -1648,4 +1698,11 @@ function showSingleplayerIntermissionScreen(mode) {
 
 function showMultiplayerIntermissionScreen() {
   $("#multiplayer-lobby-screen__intermission-screen").show(0);
+}
+
+function destroyRenderedTiles() {
+  for (let tile of game.tilesOnBoard) {
+    tile.sprite.parent.removeChild(tile.sprite);
+  }
+  game.tilesOnBoard = [];
 }
