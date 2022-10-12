@@ -315,7 +315,7 @@ class OpponentGameInstance {
 
   rerender(newPlayerIndex, newContainer) {
     this.playerIndex = newPlayerIndex;
-    this.destroy(false);
+    this.destroy(true);
     this.setPositions();
     this.render(newContainer);
   }
