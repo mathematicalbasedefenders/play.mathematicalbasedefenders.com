@@ -296,14 +296,16 @@ class OpponentGameInstance {
   }
 
   // TODO: Find better function name
-  destroy(keepEnemies) {
+  destroy(keepEnemies, resetEnemies) {
     let enemySpritesToDestroy = Object.keys(this.enemySprites);
     if (!keepEnemies) {
       for (let enemy of enemySpritesToDestroy) {
         this.container.removeChild(this.enemySprites[enemy]["sprite"]);
       }
     }
-
+    if (resetEnemies) {
+      this.enemySprites[enemy]["sprite"].appeared = false;
+    }
     for (let i = 0; i < 49; i++) {
       this.container.removeChild(this.tileSprites[i]);
     }
@@ -315,7 +317,7 @@ class OpponentGameInstance {
 
   rerender(newPlayerIndex, newContainer) {
     this.playerIndex = newPlayerIndex;
-    this.destroy(true);
+    this.destroy(false, true);
     this.setPositions();
     this.render(newContainer);
   }
