@@ -104,20 +104,37 @@ socket.onmessage = (message) => {
                     .toFixed(3)
                     .toString()
                 : "";
-            singleplayerScreenContainerItems.currentComboText.text =
-              settings.video.gameScreenInformationMode >= 20
-                ? currentGameData.currentGame.currentCombo < 1
-                  ? ""
-                  : currentGameData.currentGame.currentCombo +
-                    " Combo" +
-                    (settings.video.gameScreenInformationMode >= 100
-                      ? ` (×${
-                          parseInt(currentGameData.currentGame.currentCombo) *
-                            0.1 +
-                          1
-                        })`
-                      : "")
-                : "";
+            // singleplayerScreenContainerItems.currentComboText.text =
+            //   settings.video.gameScreenInformationMode >= 20
+            //     ? currentGameData.currentGame.currentCombo < 1
+            //       ? ""
+            //       : currentGameData.currentGame.currentCombo +
+            //         " Combo" +
+            //         (settings.video.gameScreenInformationMode >= 100
+            //           ? ` (×${
+            //               parseInt(currentGameData.currentGame.currentCombo) *
+            //                 0.1 +
+            //               1
+            //             })`
+            //           : "")
+            //     : "";
+
+            let comboText = "";
+
+            if (
+              settings.video.gameScreenInformationMode >= 20 &&
+              currentGameData.currentGame.currentCombo < 1
+            ) {
+              comboText += `${currentGameData.currentGame.currentCombo} Combo`;
+              if (settings.video.gameScreenInformationMode >= 100) {
+                comboText += `×${
+                  parseInt(currentGameData.currentGame.currentCombo) * 0.1 + 1
+                })`;
+              }
+            }
+
+            singleplayerScreenContainerItems.currentComboText.text = comboText;
+
             singleplayerScreenContainerItems.valueOfVariableAText.text =
               currentGameData.currentGame.valueOfVariableA === undefined ||
               currentGameData.currentGame.valueOfVariableA == ""
