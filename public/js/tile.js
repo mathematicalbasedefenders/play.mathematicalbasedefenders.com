@@ -24,12 +24,12 @@ class Tile {
       initialWindowWidth / 2 +
       64 * ((slot % 7) - 4) +
       16 +
-      game.offsets[game.currentGameModePlaying].x;
+      game.renderingOffsets[game.currentGameModePlaying].x;
     this.sprite.y =
       initialWindowHeight / 2 +
       64 * (Math.floor(slot / 7) - 4) +
       156 +
-      game.offsets[game.currentGameModePlaying].y;
+      game.renderingOffsets[game.currentGameModePlaying].y;
     this.sprite.interactive = true;
   }
 }

@@ -94,7 +94,7 @@ var game = {
       y: 210
     }
   },
-  offsets: {
+  renderingOffsets: {
     singleplayer: {
       x: 0,
       y: 0
@@ -296,24 +296,24 @@ singleplayerScreenContainerItems.sendButtonSprite.on(
   }
 );
 
-setSingleplayerScreenItemOffsets(
-  game.offsets.singleplayer.x,
-  game.offsets.singleplayer.y
+setSingleplayerScreenItemRenderingOffsets(
+  game.renderingOffsets.singleplayer.x,
+  game.renderingOffsets.singleplayer.y
 );
 
-function setSingleplayerScreenItemOffsets(xOffset, yOffset) {
+function setSingleplayerScreenItemRenderingOffsets(xOffset, yOffset) {
   // for older browsers, too scared to use the new syntax (...(offset=0))
 
-  game.offsets.singleplayer.x = xOffset;
-  game.offsets.singleplayer.y = yOffset;
+  game.renderingOffsets.singleplayer.x = xOffset;
+  game.renderingOffsets.singleplayer.y = yOffset;
 
   if (xOffset == null) {
     xOffset = 0;
-    game.offsets.singleplayer.x = 0;
+    game.renderingOffsets.singleplayer.x = 0;
   }
   if (yOffset == null) {
     yOffset = 0;
-    game.offsets.singleplayer.y = 0;
+    game.renderingOffsets.singleplayer.y = 0;
   }
 
   singleplayerScreenContainerItems.baseSprite.x =
@@ -441,21 +441,21 @@ var multiplayerScreenContainerItems = {
     textStyles.SIZE_24_FONT
   )
 };
-setMultiplayerScreenItemOffsets(
-  game.offsets.multiplayer.x,
-  game.offsets.multiplayer.y
+setMultiplayerScreenItemRenderingOffsets(
+  game.renderingOffsets.multiplayer.x,
+  game.renderingOffsets.multiplayer.y
 );
-function setMultiplayerScreenItemOffsets(xOffset, yOffset) {
+function setMultiplayerScreenItemRenderingOffsets(xOffset, yOffset) {
   // set
-  game.offsets.multiplayer.x = xOffset;
-  game.offsets.multiplayer.y = yOffset;
+  game.renderingOffsets.multiplayer.x = xOffset;
+  game.renderingOffsets.multiplayer.y = yOffset;
   if (xOffset == null) {
     xOffset = 0;
-    game.offsets.multiplayer.x = 0;
+    game.renderingOffsets.multiplayer.x = 0;
   }
   if (yOffset == null) {
     yOffset = 0;
-    game.offsets.multiplayer.y = 0;
+    game.renderingOffsets.multiplayer.y = 0;
   }
   multiplayerScreenContainerItems.sendButtonSprite.x =
     initialWindowWidth / 2 + 64 * -4 + 16 + xOffset;
@@ -780,7 +780,7 @@ app.ticker.add((delta) => {
             textStyles.SIZE_72_MATH_FONT
           ).width) /
           2 +
-        game.offsets.singleplayer.x;
+        game.renderingOffsets.singleplayer.x;
       singleplayerScreenContainerItems.actionsPerMinuteText.x =
         initialWindowWidth / 2 -
         260 -
@@ -788,7 +788,7 @@ app.ticker.add((delta) => {
           singleplayerScreenContainerItems.actionsPerMinuteText.text,
           textStyles.SIZE_40_FONT
         ).width +
-        game.offsets.singleplayer.x;
+        game.renderingOffsets.singleplayer.x;
       singleplayerScreenContainerItems.currentComboText.x =
         initialWindowWidth / 2 -
         260 -
@@ -796,7 +796,7 @@ app.ticker.add((delta) => {
           singleplayerScreenContainerItems.currentComboText.text,
           textStyles.SIZE_40_FONT
         ).width +
-        game.offsets.singleplayer.x;
+        game.renderingOffsets.singleplayer.x;
       singleplayerScreenContainerItems.currentComboTimeLeftText.x =
         initialWindowWidth / 2 -
         260 -
@@ -804,7 +804,7 @@ app.ticker.add((delta) => {
           singleplayerScreenContainerItems.currentComboTimeLeftText.text,
           textStyles.SIZE_24_FONT
         ).width +
-        game.offsets.singleplayer.x;
+        game.renderingOffsets.singleplayer.x;
       break;
     }
 
@@ -820,7 +820,7 @@ app.ticker.add((delta) => {
             textStyles.SIZE_72_MATH_FONT
           ).width) /
           2 +
-        game.offsets.multiplayer.x;
+        game.renderingOffsets.multiplayer.x;
       multiplayerScreenContainerItems.actionsPerMinuteText.x =
         initialWindowWidth / 2 -
         260 -
@@ -828,7 +828,7 @@ app.ticker.add((delta) => {
           multiplayerScreenContainerItems.actionsPerMinuteText.text,
           textStyles.SIZE_40_FONT
         ).width +
-        game.offsets.multiplayer.x;
+        game.renderingOffsets.multiplayer.x;
       multiplayerScreenContainerItems.currentComboText.x =
         initialWindowWidth / 2 -
         260 -
@@ -836,7 +836,7 @@ app.ticker.add((delta) => {
           multiplayerScreenContainerItems.currentComboText.text,
           textStyles.SIZE_40_FONT
         ).width +
-        game.offsets.multiplayer.x;
+        game.renderingOffsets.multiplayer.x;
       multiplayerScreenContainerItems.currentComboTimeLeftText.x =
         initialWindowWidth / 2 -
         260 -
@@ -844,7 +844,7 @@ app.ticker.add((delta) => {
           multiplayerScreenContainerItems.currentComboTimeLeftText.text,
           textStyles.SIZE_24_FONT
         ).width +
-        game.offsets.multiplayer.x;
+        game.renderingOffsets.multiplayer.x;
 
       multiplayerScreenContainerItems.playerNameText.x =
         (initialWindowWidth -
@@ -855,7 +855,7 @@ app.ticker.add((delta) => {
             textStyles.SIZE_24_FONT
           ).width) /
           2 +
-        game.offsets.multiplayer.x;
+        game.renderingOffsets.multiplayer.x;
       break;
     }
   }
@@ -1711,7 +1711,7 @@ function destroyRenderedTiles() {
   game.tilesOnBoard = [];
 }
 
-function setOpponentGameInstanceOffsets(xOffset, yOffset) {
-  game.offsets.multiplayer.opponents.x = xOffset ?? 0;
-  game.offsets.multiplayer.opponents.y = yOffset ?? 0;
+function setOpponentGameInstanceRenderingOffsets(xOffset, yOffset) {
+  game.renderingOffsets.multiplayer.opponents.x = xOffset ?? 0;
+  game.renderingOffsets.multiplayer.opponents.y = yOffset ?? 0;
 }
