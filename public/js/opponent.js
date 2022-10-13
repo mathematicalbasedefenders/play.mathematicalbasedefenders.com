@@ -32,6 +32,7 @@ class OpponentGameInstance {
     this.container;
 
     this.cachedGameData;
+    this.cachedInstanceData;
 
     this.setPositions = () => {
       for (let i = 0; i < 49; i++) {
@@ -246,8 +247,10 @@ class OpponentGameInstance {
 
   updateEnemies(minifiedGameData, redrawEnemies) {
     if (redrawEnemies) {
-      for (let i = 0; i < minifiedGameData.enemies.length; i++) {
-        this.enemySprites[enemy.enemyNumber]["sprite"].position.x =
+      // Redraw (or change) enemy positions
+      for (let enemy in this.enemySprites) {
+        console.log(minifiedGameData);
+        this.enemySprites[enemy]["sprite"].position.x =
           initialWindowWidth / 2 +
           (this.playerIndex %
             game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
@@ -257,7 +260,7 @@ class OpponentGameInstance {
           game.renderingOffsets.multiplayer.opponents.x +
           this.xPosition +
           enemy.sPosition * 11.2;
-        this.enemySprites[enemy.enemyNumber]["sprite"].position.y =
+        this.enemySprites[enemy]["sprite"].position.y =
           Math.floor(
             this.playerIndex /
               game.opponentGameInstanceSettings.opponentGameInstancesPerRow
@@ -267,9 +270,9 @@ class OpponentGameInstance {
             game.opponentGameInstanceScale +
           game.renderingOffsets.multiplayer.opponents.y +
           this.yPosition;
-        this.enemySprites[enemy.enemyNumber]["sprite"].scale.x =
+        this.enemySprites[enemy]["sprite"].scale.x =
           0.585 * game.opponentGameInstanceScale;
-        this.enemySprites[enemy.enemyNumber]["sprite"].scale.y =
+        this.enemySprites[enemy]["sprite"].scale.y =
           0.585 * game.opponentGameInstanceScale;
       }
     }
@@ -360,7 +363,8 @@ class OpponentGameInstance {
       // for (let enemy of enemySpritesToDestroy) {
       //   this.enemySprites[enemy]["sprite"].appeared = false;
       // }
-      this.updateEnemies(this.cachedGameData);
+
+      this.updateEnemies(this.cachedGameData, true);
     }
     for (let i = 0; i < 49; i++) {
       this.container.removeChild(this.tileSprites[i]);
