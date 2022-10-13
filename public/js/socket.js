@@ -99,7 +99,7 @@ socket.onmessage = (message) => {
 
             if (
               settings.video.gameScreenInformationMode >= 20 &&
-              currentGameData.currentGame.currentCombo < 1
+              currentGameData.currentGame.currentCombo >= 1
             ) {
               comboText += `${currentGameData.currentGame.currentCombo} Combo`;
               if (settings.video.gameScreenInformationMode >= 100) {
@@ -588,7 +588,7 @@ socket.onmessage = (message) => {
                   : "";
               multiplayerScreenContainerItems.currentComboText.text =
                 settings.video.gameScreenInformationMode < 20 ||
-                currentGameData.currentGame.currentCombo < 1
+                currentGameData.currentGame.currentCombo >= 1
                   ? ""
                   : currentGameData.currentGame.currentCombo + " Combo";
               multiplayerScreenContainerItems.valueOfVariableAText.text =
