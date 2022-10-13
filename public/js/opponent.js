@@ -31,6 +31,8 @@ class OpponentGameInstance {
 
     this.container;
 
+    this.cachedGameData;
+
     this.setPositions = () => {
       for (let i = 0; i < 49; i++) {
         this.tileSprites[i] = new Tile(
@@ -173,6 +175,8 @@ class OpponentGameInstance {
   }
 
   update(minifiedGameData) {
+    this.cachedGameData = minifiedGameData;
+
     for (let i = 0; i < 49; i++) {
       this.tileSprites[i].texture = new Tile(
         minifiedGameData.tiles[i][1],
@@ -182,6 +186,65 @@ class OpponentGameInstance {
       ).sprite.texture;
     }
 
+    this.updateEnemies(minifiedGameData);
+
+    this.problemText.text = minifiedGameData.problem;
+    this.baseHealth = minifiedGameData.baseHealth;
+    this.statisticsText.text =
+      minifiedGameData.actionsPerMinute.toFixed(3) +
+      " " +
+      minifiedGameData.baseHealth +
+      "/10 " +
+      minifiedGameData.enemiesPending;
+    this.nameText.text = minifiedGameData.name;
+
+    // scale text
+    this.problemText.scale.x = game.opponentGameInstanceScale;
+    this.problemText.scale.y = game.opponentGameInstanceScale;
+    this.statisticsText.scale.x = game.opponentGameInstanceScale;
+    this.statisticsText.scale.y = game.opponentGameInstanceScale;
+    this.nameText.scale.x = game.opponentGameInstanceScale;
+    this.nameText.scale.y = game.opponentGameInstanceScale;
+
+    // this.nameText.style."fill" = minifiedGameData.nameColor;
+    changePIXIJSTextStyle(this.nameText, "fill", minifiedGameData.nameColor);
+  }
+
+  render(container) {
+    this.container = container;
+
+    // remove old
+
+    for (let i = 0; i < 49; i++) {
+      this.container.addChild(this.tileSprites[i]);
+    }
+
+    for (let i = 0; i < this.enemySprites.length; i++) {
+      if (!this.enemySprites[i].appeared) {
+        container.addChild(this.enemySprites[i]["sprite"]);
+        this.enemySprites[i]["appeared"] = true;
+      } else {
+        this.enemySprites[i]["sprite"].position.x =
+          initialWindowWidth / 2 +
+          (Math.floor(
+            this.playerIndex /
+              game.opponentGameInstanceSettings.opponentGameInstancesPerRow
+          ) %
+            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+            game.opponentGameInstanceSettings
+              .opponentGameInstancePositionIncrements.y +
+          game.renderingOffsets.multiplayer.opponents.x +
+          this.xPosition * game.opponentGameInstanceScale +
+          this.enemySprites[i]["sPosition"] * 11.2;
+      }
+    }
+
+    this.container.addChild(this.statisticsText);
+    this.container.addChild(this.nameText);
+    this.container.addChild(this.problemText);
+  }
+
+  updateEnemies(minifiedGameData) {
     for (let i = 0; i < minifiedGameData.enemies.length; i++) {
       let minifiedEnemy = minifiedGameData.enemies[i];
 
@@ -252,61 +315,6 @@ class OpponentGameInstance {
         delete this.enemySprites[enemy.enemyNumber];
       }
     }
-
-    this.problemText.text = minifiedGameData.problem;
-    this.baseHealth = minifiedGameData.baseHealth;
-    this.statisticsText.text =
-      minifiedGameData.actionsPerMinute.toFixed(3) +
-      " " +
-      minifiedGameData.baseHealth +
-      "/10 " +
-      minifiedGameData.enemiesPending;
-    this.nameText.text = minifiedGameData.name;
-
-    // scale text
-    this.problemText.scale.x = game.opponentGameInstanceScale;
-    this.problemText.scale.y = game.opponentGameInstanceScale;
-    this.statisticsText.scale.x = game.opponentGameInstanceScale;
-    this.statisticsText.scale.y = game.opponentGameInstanceScale;
-    this.nameText.scale.x = game.opponentGameInstanceScale;
-    this.nameText.scale.y = game.opponentGameInstanceScale;
-
-    // this.nameText.style."fill" = minifiedGameData.nameColor;
-    changePIXIJSTextStyle(this.nameText, "fill", minifiedGameData.nameColor);
-  }
-
-  render(container) {
-    this.container = container;
-
-    // remove old
-
-    for (let i = 0; i < 49; i++) {
-      this.container.addChild(this.tileSprites[i]);
-    }
-
-    for (let i = 0; i < this.enemySprites.length; i++) {
-      if (!this.enemySprites[i].appeared) {
-        container.addChild(this.enemySprites[i]["sprite"]);
-        this.enemySprites[i]["appeared"] = true;
-      } else {
-        this.enemySprites[i]["sprite"].position.x =
-          initialWindowWidth / 2 +
-          (Math.floor(
-            this.playerIndex /
-              game.opponentGameInstanceSettings.opponentGameInstancesPerRow
-          ) %
-            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
-            game.opponentGameInstanceSettings
-              .opponentGameInstancePositionIncrements.y +
-          game.renderingOffsets.multiplayer.opponents.x +
-          this.xPosition * game.opponentGameInstanceScale +
-          this.enemySprites[i]["sPosition"] * 11.2;
-      }
-    }
-
-    this.container.addChild(this.statisticsText);
-    this.container.addChild(this.nameText);
-    this.container.addChild(this.problemText);
   }
 
   // TODO: Find better function name
@@ -321,6 +329,7 @@ class OpponentGameInstance {
       for (let enemy of enemySpritesToDestroy) {
         this.enemySprites[enemy]["sprite"].appeared = false;
       }
+      this.updateEnemies(this.cachedGameData);
     }
     for (let i = 0; i < 49; i++) {
       this.container.removeChild(this.tileSprites[i]);
