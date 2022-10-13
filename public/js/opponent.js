@@ -244,7 +244,36 @@ class OpponentGameInstance {
     this.container.addChild(this.problemText);
   }
 
-  updateEnemies(minifiedGameData) {
+  updateEnemies(minifiedGameData, redrawEnemies) {
+    if (redrawEnemies) {
+      for (let i = 0; i < minifiedGameData.enemies.length; i++) {
+        this.enemySprites[enemy.enemyNumber]["sprite"].position.x =
+          initialWindowWidth / 2 +
+          (this.playerIndex %
+            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+            game.opponentGameInstanceSettings
+              .opponentGameInstancePositionIncrements.x *
+            game.opponentGameInstanceScale +
+          game.renderingOffsets.multiplayer.opponents.x +
+          this.xPosition +
+          enemy.sPosition * 11.2;
+        this.enemySprites[enemy.enemyNumber]["sprite"].position.y =
+          Math.floor(
+            this.playerIndex /
+              game.opponentGameInstanceSettings.opponentGameInstancesPerRow
+          ) *
+            game.opponentGameInstanceSettings
+              .opponentGameInstancePositionIncrements.y *
+            game.opponentGameInstanceScale +
+          game.renderingOffsets.multiplayer.opponents.y +
+          this.yPosition;
+        this.enemySprites[enemy.enemyNumber]["sprite"].scale.x =
+          0.585 * game.opponentGameInstanceScale;
+        this.enemySprites[enemy.enemyNumber]["sprite"].scale.y =
+          0.585 * game.opponentGameInstanceScale;
+      }
+    }
+
     for (let i = 0; i < minifiedGameData.enemies.length; i++) {
       let minifiedEnemy = minifiedGameData.enemies[i];
 
@@ -259,6 +288,8 @@ class OpponentGameInstance {
         this.enemySprites[enemy.enemyNumber]["sprite"] = new Enemy(
           enemy
         ).enemySprite;
+
+        // this part sets the positions for the opponent's enemies
         this.enemySprites[enemy.enemyNumber]["sprite"].position.x =
           initialWindowWidth / 2 +
           (this.playerIndex %
@@ -326,9 +357,9 @@ class OpponentGameInstance {
       }
     }
     if (resetEnemies) {
-      for (let enemy of enemySpritesToDestroy) {
-        this.enemySprites[enemy]["sprite"].appeared = false;
-      }
+      // for (let enemy of enemySpritesToDestroy) {
+      //   this.enemySprites[enemy]["sprite"].appeared = false;
+      // }
       this.updateEnemies(this.cachedGameData);
     }
     for (let i = 0; i < 49; i++) {
@@ -340,9 +371,9 @@ class OpponentGameInstance {
     this.container.removeChild(this.problemText);
   }
 
-  rerender(newPlayerIndex, newContainer) {
+  rerender(newPlayerIndex, newContainer, keepEnemies) {
     this.playerIndex = newPlayerIndex;
-    this.destroy(false, true);
+    this.destroy(keepEnemies, true);
     this.setPositions();
     this.render(newContainer);
   }

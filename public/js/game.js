@@ -1717,7 +1717,8 @@ function setOpponentGameInstanceRenderingOffsets(xOffset, yOffset) {
   for (let opponentGameInstance of game.opponentGameInstances) {
     opponentGameInstance.rerender(
       opponentGameInstance.playerIndex,
-      multiplayerScreenContainer
+      multiplayerScreenContainer,
+      true
     );
   }
 }

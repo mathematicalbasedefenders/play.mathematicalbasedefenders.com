@@ -539,7 +539,8 @@ socket.onmessage = (message) => {
                     game.opponentGameInstances[i] &&
                       game.opponentGameInstances[i].rerender(
                         i,
-                        multiplayerScreenContainer
+                        multiplayerScreenContainer,
+                        false
                       );
                   }
                 }
