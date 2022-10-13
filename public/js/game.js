@@ -1710,3 +1710,8 @@ function destroyRenderedTiles() {
   }
   game.tilesOnBoard = [];
 }
+
+function setOpponentGameInstanceOffsets(xOffset, yOffset) {
+  game.offsets.multiplayer.opponents.x = xOffset ?? 0;
+  game.offsets.multiplayer.opponents.y = yOffset ?? 0;
+}
