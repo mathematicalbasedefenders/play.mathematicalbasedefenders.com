@@ -318,7 +318,9 @@ class OpponentGameInstance {
       }
     }
     if (resetEnemies) {
-      this.enemySprites[enemy]["sprite"].appeared = false;
+      for (let enemy of enemySpritesToDestroy) {
+        this.enemySprites[enemy]["sprite"].appeared = false;
+      }
     }
     for (let i = 0; i < 49; i++) {
       this.container.removeChild(this.tileSprites[i]);

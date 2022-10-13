@@ -1714,4 +1714,10 @@ function destroyRenderedTiles() {
 function setOpponentGameInstanceRenderingOffsets(xOffset, yOffset) {
   game.renderingOffsets.multiplayer.opponents.x = xOffset ?? 0;
   game.renderingOffsets.multiplayer.opponents.y = yOffset ?? 0;
+  for (let opponentGameInstance of game.opponentGameInstances) {
+    opponentGameInstance.rerender(
+      opponentGameInstance.playerIndex,
+      multiplayerScreenContainer
+    );
+  }
 }
