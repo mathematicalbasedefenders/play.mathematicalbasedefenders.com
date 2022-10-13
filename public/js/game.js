@@ -101,7 +101,11 @@ var game = {
     },
     multiplayer: {
       x: 0,
-      y: 0
+      y: 0,
+      opponents: {
+        x: 0,
+        y: 0
+      }
     }
   },
   currentGameModePlaying: null,
