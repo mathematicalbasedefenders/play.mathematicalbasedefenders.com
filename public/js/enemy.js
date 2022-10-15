@@ -23,7 +23,34 @@ class Enemy {
     }
   }
 
-  checkIfOverlapping(other) {}
+  checkIfOverlapping(other) {
+    let thisLeft = this.xPosition;
+    let thisRight = this.xPosition + this.width;
+
+    let thisTop = this.yPosition;
+    let thisBottom = this.yPosition + this.height;
+
+    let otherLeft = other.xPosition;
+    let otherRight = other.xPosition + other.width;
+
+    let otherTop = other.yPosition;
+    let otherBottom = other.yPosition + other.height;
+
+    if (
+      thisLeft < otherRight &&
+      thisRight > otherLeft &&
+      thisTop < otherBottom &&
+      thisBottom > otherTop
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  countOverlapping() {
+    for (let enemy of game.enemyRenderStatus) {
+    }
+  }
 
   updateSprite() {
     let enemyColor = createEnemyColor();
