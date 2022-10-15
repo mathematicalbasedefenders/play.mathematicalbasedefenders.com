@@ -113,17 +113,26 @@ class Enemy {
   }
 
   checkIfOverlapping(other) {
-    let thisLeft = this.xPosition;
-    let thisRight = this.xPosition + this.width;
+    console.debug(other);
+    let thisLeft = game.enemyRenderStatus[this.enemyNumber].enemySprite.x;
+    let thisRight =
+      game.enemyRenderStatus[this.enemyNumber].enemySprite.x +
+      game.enemyRenderStatus[this.enemyNumber].enemySprite.width;
 
-    let thisTop = this.yPosition;
-    let thisBottom = this.yPosition + this.height;
+    let thisTop = game.enemyRenderStatus[this.enemyNumber].y;
+    let thisBottom =
+      game.enemyRenderStatus[this.enemyNumber].enemySprite.y +
+      game.enemyRenderStatus[this.enemyNumber].enemySprite.height;
 
-    let otherLeft = other.xPosition;
-    let otherRight = other.xPosition + other.width;
+    let otherLeft = game.enemyRenderStatus[other.enemyNumber].enemySprite.x;
+    let otherRight =
+      game.enemyRenderStatus[other.enemyNumber].enemySprite.x +
+      game.enemyRenderStatus[other.enemyNumber].enemySprite.width;
 
-    let otherTop = other.yPosition;
-    let otherBottom = other.yPosition + other.height;
+    let otherTop = game.enemyRenderStatus[other.enemyNumber].enemySprite.y;
+    let otherBottom =
+      game.enemyRenderStatus[other.enemyNumber].enemySprite.y +
+      game.enemyRenderStatus[other.enemyNumber].enemySprite.height;
 
     if (
       thisLeft < otherRight &&
@@ -138,12 +147,13 @@ class Enemy {
 
   countOverlapping() {
     let total = 0;
-    for (let enemy in game.enemyRenderStatus) {
+    for (let enemy of Enemy.instances) {
       if (enemy.enemyNumber === this.enemyNumber) {
         // don't compare with itself
         continue;
       }
-      if (this.checkIfOverlapping(this, enemy.enemySprite)) {
+
+      if (this.checkIfOverlapping(enemy)) {
         total++;
       }
     }
@@ -153,46 +163,48 @@ class Enemy {
   static updateSprites() {
     for (let enemy of Enemy.instances) {
       if (!this.minified) {
-      }
-      enemy.stackLevel = enemy.countOverlapping();
+        enemy.stackLevel = enemy.countOverlapping();
 
-      // debug only
-      enemy.requestedValueTextSprite.text = enemy.stackLevel;
+        // debug only
+        enemy.requestedValueTextSprite.text = enemy.stackLevel;
 
-      if (enemy.stackLevel === 0) {
-        enemy.requestedValueTextSprite.x =
-          enemy.enemyInformation.xPosition +
-          (enemy.enemyInformation.width -
-            enemy.requestedValueTextMetrics.width) /
-            2;
-        enemy.requestedValueTextSprite.y =
-          enemy.enemyInformation.yPosition +
-          (enemy.enemyInformation.height -
-            enemy.requestedValueTextMetrics.height) /
-            2;
+        if (enemy.stackLevel === 0) {
+          enemy.requestedValueTextSprite.x =
+            enemy.enemyInformation.xPosition +
+            (enemy.enemyInformation.width -
+              enemy.requestedValueTextMetrics.width) /
+              2;
+          enemy.requestedValueTextSprite.y =
+            enemy.enemyInformation.yPosition +
+            (enemy.enemyInformation.height -
+              enemy.requestedValueTextMetrics.height) /
+              2;
 
-        enemy.senderNameTextSprite.x =
-          enemy.enemyInformation.xPosition +
-          (enemy.enemyInformation.width - enemy.senderNameTextMetrics.width) /
-            2;
-        enemy.senderNameTextSprite.y =
-          enemy.enemyInformation.yPosition +
-          (enemy.enemyInformation.height - enemy.senderNameTextMetrics.height) /
-            2 +
-          35;
-      } else {
-        enemy.requestedValueTextSprite.y =
-          enemy.enemyInformation.yPosition +
-          (enemy.enemyInformation.height -
-            enemy.requestedValueTextMetrics.height) /
-            2 +
-          enemy.stackLevel * 40;
-        enemy.senderNameTextSprite.y =
-          enemy.enemyInformation.yPosition +
-          (enemy.enemyInformation.height - enemy.senderNameTextMetrics.height) /
-            2 +
-          35 +
-          enemy.stackLevel * 40;
+          enemy.senderNameTextSprite.x =
+            enemy.enemyInformation.xPosition +
+            (enemy.enemyInformation.width - enemy.senderNameTextMetrics.width) /
+              2;
+          enemy.senderNameTextSprite.y =
+            enemy.enemyInformation.yPosition +
+            (enemy.enemyInformation.height -
+              enemy.senderNameTextMetrics.height) /
+              2 +
+            35;
+        } else {
+          enemy.requestedValueTextSprite.y =
+            enemy.enemyInformation.yPosition +
+            (enemy.enemyInformation.height -
+              enemy.requestedValueTextMetrics.height) /
+              2 +
+            enemy.stackLevel * -40;
+          enemy.senderNameTextSprite.y =
+            enemy.enemyInformation.yPosition +
+            (enemy.enemyInformation.height -
+              enemy.senderNameTextMetrics.height) /
+              2 +
+            35 +
+            enemy.stackLevel * -40;
+        }
       }
     }
   }
