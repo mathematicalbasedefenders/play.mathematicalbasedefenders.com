@@ -2,6 +2,8 @@ let enemyNumber = 0;
 
 class Enemy {
   // create object
+  static instances = [];
+
   constructor(enemyInformation) {
     this.enemyInformation = enemyInformation;
 
@@ -108,8 +110,10 @@ class Enemy {
       enemyColor == "blind" ? "#eeeeee" : enemyColor;
 
     if (!this.minified) {
-      this.updateSprite();
+      this.updateSpriteAccordingToStackLayer();
     }
+
+    Enemy.instances.push(this);
   }
 
   checkIfOverlapping(other) {
@@ -143,16 +147,14 @@ class Enemy {
         // don't compare with itself
         continue;
       }
-      if (this.checkIfOverlapping(this, enemy)) {
+      if (this.checkIfOverlapping(this, enemy.enemySprite)) {
         total++;
       }
     }
     return total;
   }
 
-  updateSprite() {
-    // create text sprite for value
-
+  static updateSprites() {
     this.stackLevel = this.countOverlapping();
 
     // debug only
@@ -187,5 +189,9 @@ class Enemy {
         35 +
         this.stackLevel * 40;
     }
+  }
+
+  static clean() {
+    Enemy.instances = [];
   }
 }

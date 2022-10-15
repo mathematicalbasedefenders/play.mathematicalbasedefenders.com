@@ -998,6 +998,9 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
     }
     case screens.GAME_OVER_SCREEN: {
       // set properties
+
+      Enemy.clean();
+
       document.body.style.overflow = "hidden";
       document.getElementById("hub-container").style.display = "block";
       document.getElementById("game-over-screen-container").style.display =

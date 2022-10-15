@@ -236,6 +236,11 @@ socket.onmessage = (message) => {
                   game.enemyRenderStatus[enemy.enemyNumber.toString()][
                     "rendered"
                   ] = true;
+
+                  // TODO: Hope this doesn't break lol
+                  game.enemyRenderStatus[enemy.enemyNumber.toString()][
+                    "parent"
+                  ] = enemy;
                   game.spritesOfRenderedEnemiesOnField.push(
                     enemyObject.enemySprite
                   );
@@ -249,6 +254,7 @@ socket.onmessage = (message) => {
                       "requestedValueTextSprite"
                     ]
                   );
+                  // enemy.parent.updateSprite();
                 }
                 // render
                 game.enemyRenderStatus[enemy.enemyNumber.toString()][
@@ -287,6 +293,10 @@ socket.onmessage = (message) => {
                     enemy.enemyNumber.toString()
                   ].toDestroy = true;
                 }
+
+                game.enemyRenderStatus[
+                  enemy.enemyNumber.toString()
+                ].parent.updateSprite();
               } else {
                 renderedEnemiesOnFieldToDelete.push(
                   enemy.enemyNumber.toString()
@@ -721,6 +731,9 @@ socket.onmessage = (message) => {
                     game.enemyRenderStatus[enemy.enemyNumber.toString()][
                       "rendered"
                     ] = true;
+                    game.enemyRenderStatus[enemy.enemyNumber.toString()][
+                      "parent"
+                    ] = enemy;
 
                     multiplayerScreenContainer.addChild(
                       game.enemyRenderStatus[enemy.enemyNumber.toString()][
@@ -795,6 +808,10 @@ socket.onmessage = (message) => {
                       2 +
                     50 +
                     game.renderingOffsets.singleplayer.y;
+                  //enemy.parent.updateSprite();
+                  // game.enemyRenderStatus[
+                  //   enemy.enemyNumber.toString()
+                  // ].parent.updateSprite();
                 } else {
                   renderedEnemiesOnFieldToDelete.push(
                     enemy.enemyNumber.toString()
