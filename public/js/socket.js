@@ -255,7 +255,6 @@ socket.onmessage = (message) => {
                     ]
                   );
                   // enemy.parent.updateSprite();
-                  Enemy.updateSprites();
                 }
                 // render
                 game.enemyRenderStatus[enemy.enemyNumber.toString()][
@@ -294,16 +293,14 @@ socket.onmessage = (message) => {
                     enemy.enemyNumber.toString()
                   ].toDestroy = true;
                 }
-
-                game.enemyRenderStatus[
-                  enemy.enemyNumber.toString()
-                ].parent.updateSprite();
               } else {
                 renderedEnemiesOnFieldToDelete.push(
                   enemy.enemyNumber.toString()
                 );
               }
             }
+
+            Enemy.updateSprites();
 
             for (let enemy in game.enemyRenderStatus) {
               if (game.enemyRenderStatus[enemy].toDestroy) {
@@ -813,13 +810,14 @@ socket.onmessage = (message) => {
                   // game.enemyRenderStatus[
                   //   enemy.enemyNumber.toString()
                   // ].parent.updateSprite();
-                  Enemy.updateSprites();
                 } else {
                   renderedEnemiesOnFieldToDelete.push(
                     enemy.enemyNumber.toString()
                   );
                 }
               }
+
+              Enemy.updateSprites();
 
               for (let enemy in game.enemyRenderStatus) {
                 if (game.enemyRenderStatus[enemy].toDestroy) {
