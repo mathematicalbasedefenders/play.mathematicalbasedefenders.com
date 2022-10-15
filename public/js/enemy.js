@@ -109,10 +109,6 @@ class Enemy {
     this.senderNameTextSprite.color =
       enemyColor == "blind" ? "#eeeeee" : enemyColor;
 
-    if (!this.minified) {
-      this.updateSpriteAccordingToStackLayer();
-    }
-
     Enemy.instances.push(this);
   }
 
@@ -155,39 +151,49 @@ class Enemy {
   }
 
   static updateSprites() {
-    this.stackLevel = this.countOverlapping();
+    for (let enemy of Enemy.instances) {
+      if (!this.minified) {
+      }
+      enemy.stackLevel = enemy.countOverlapping();
 
-    // debug only
-    this.requestedValueTextSprite.text = this.stackLevel;
+      // debug only
+      enemy.requestedValueTextSprite.text = enemy.stackLevel;
 
-    if (this.stackLevel === 0) {
-      this.requestedValueTextSprite.x =
-        this.enemyInformation.xPosition +
-        (this.enemyInformation.width - this.requestedValueTextMetrics.width) /
-          2;
-      this.requestedValueTextSprite.y =
-        this.enemyInformation.yPosition +
-        (this.enemyInformation.height - this.requestedValueTextMetrics.height) /
-          2;
+      if (enemy.stackLevel === 0) {
+        enemy.requestedValueTextSprite.x =
+          enemy.enemyInformation.xPosition +
+          (enemy.enemyInformation.width -
+            enemy.requestedValueTextMetrics.width) /
+            2;
+        enemy.requestedValueTextSprite.y =
+          enemy.enemyInformation.yPosition +
+          (enemy.enemyInformation.height -
+            enemy.requestedValueTextMetrics.height) /
+            2;
 
-      this.senderNameTextSprite.x =
-        this.enemyInformation.xPosition +
-        (this.enemyInformation.width - this.senderNameTextMetrics.width) / 2;
-      this.senderNameTextSprite.y =
-        this.enemyInformation.yPosition +
-        (this.enemyInformation.height - this.senderNameTextMetrics.height) / 2 +
-        35;
-    } else {
-      this.requestedValueTextSprite.y =
-        this.enemyInformation.yPosition +
-        (this.enemyInformation.height - this.requestedValueTextMetrics.height) /
-          2 +
-        this.stackLevel * 40;
-      this.senderNameTextSprite.y =
-        this.enemyInformation.yPosition +
-        (this.enemyInformation.height - this.senderNameTextMetrics.height) / 2 +
-        35 +
-        this.stackLevel * 40;
+        enemy.senderNameTextSprite.x =
+          enemy.enemyInformation.xPosition +
+          (enemy.enemyInformation.width - enemy.senderNameTextMetrics.width) /
+            2;
+        enemy.senderNameTextSprite.y =
+          enemy.enemyInformation.yPosition +
+          (enemy.enemyInformation.height - enemy.senderNameTextMetrics.height) /
+            2 +
+          35;
+      } else {
+        enemy.requestedValueTextSprite.y =
+          enemy.enemyInformation.yPosition +
+          (enemy.enemyInformation.height -
+            enemy.requestedValueTextMetrics.height) /
+            2 +
+          enemy.stackLevel * 40;
+        enemy.senderNameTextSprite.y =
+          enemy.enemyInformation.yPosition +
+          (enemy.enemyInformation.height - enemy.senderNameTextMetrics.height) /
+            2 +
+          35 +
+          enemy.stackLevel * 40;
+      }
     }
   }
 

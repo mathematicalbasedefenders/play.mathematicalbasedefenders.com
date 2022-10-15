@@ -255,6 +255,7 @@ socket.onmessage = (message) => {
                     ]
                   );
                   // enemy.parent.updateSprite();
+                  Enemy.updateSprites();
                 }
                 // render
                 game.enemyRenderStatus[enemy.enemyNumber.toString()][
@@ -812,6 +813,7 @@ socket.onmessage = (message) => {
                   // game.enemyRenderStatus[
                   //   enemy.enemyNumber.toString()
                   // ].parent.updateSprite();
+                  Enemy.updateSprites();
                 } else {
                   renderedEnemiesOnFieldToDelete.push(
                     enemy.enemyNumber.toString()
