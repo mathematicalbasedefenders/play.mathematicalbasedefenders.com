@@ -1646,30 +1646,37 @@ uWS
               arguments: {
                 selector: "#user-information-modal__text",
                 text: `
-                <div style="display:grid;grid-template-columns: 1fr 1fr 1fr;">
-                  <div style="text-align:center;">
-                    <span style="font-size:16px;">Easy Singleplayer\nPersonal Best</span>
-                    
-                    <br><span style="font-size:48px;">${
-                      data.statistics?.personalBestScoreOnEasySingleplayerMode
-                        .score ?? "N/A"
-                    }</span>
+                <div style="display:flex;justify-content:space-around;">
+                  <div style="text-align:center;display:flex;flex-direction:column">
+                    <div style="font-size:16px;">Easy Singleplayer\nPersonal Best</div>
+                      <div style="font-size:48px;margin-top:-8px;">${
+                        data.statistics?.personalBestScoreOnEasySingleplayerMode
+                          .score ?? "N/A"
+                      }</div>
                   </div>
-                  <div style="text-align:center;">
-                    <span style="font-size:16px;">Standard Singleplayer\nPersonal Best</span>
-                    <br>
-                    <span style="font-size:48px;">${
+                  <div style="text-align:center;display:flex;flex-direction:column">
+                    <div style="font-size:16px;">Standard Singleplayer\nPersonal Best</div>
+                    
+                    <div style="font-size:48px;margin-top:-8px;">${
                       data.statistics
                         ?.personalBestScoreOnStandardSingleplayerMode.score ??
                       "N/A"
-                    }</span>
+                    }</div>
                   </div>
-                  <div style="text-align:center;">
-                    <span style="font-size:16px;">Multiplayer</span>
-                    <br><span style="font-size:48px;">${
+                  <div style="text-align:center;display:flex;flex-direction:column">
+                    <div style="font-size:16px;">Multiplayer</div>
+                    <div style="font-size:48px;margin-top:-8px;">${
                       data.statistics.primaryMultiplayerWinRateMessage
-                    }</span><br>
-                      <span style="font-size:16px;">win rate</span>
+                    }</div>
+                      <div style="font-size:16px;margin-top:-8px;">win rate</div>
+                      <div style="font-size:16px;">(${
+                        data.statistics?.multiplayer?.gamesWon ?? "N/A"
+                      }W/${
+                  data.statistics?.multiplayer?.gamesPlayed -
+                    data.statistics?.multiplayer?.gamesWon ?? "N/A"
+                }L, ${
+                  data.statistics?.multiplayer?.gamesPlayed ?? "N/A"
+                }T)</div>
                   </div>
                 </div>
                 `,
