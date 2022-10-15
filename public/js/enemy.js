@@ -48,8 +48,17 @@ class Enemy {
   }
 
   countOverlapping() {
+    let total = 0;
     for (let enemy of game.enemyRenderStatus) {
+      if (enemy.enemyNumber === this.enemyNumber) {
+        // don't compare with itself
+        continue;
+      }
+      if (this.checkIfOverlapping(this, enemy)) {
+        total++;
+      }
     }
+    return total;
   }
 
   updateSprite() {
