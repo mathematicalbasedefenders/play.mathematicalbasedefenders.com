@@ -1670,12 +1670,12 @@ uWS
                     }</div>
                       <div style="font-size:16px;margin-top:-8px;">win rate</div>
                       <div style="font-size:16px;">(${
-                        data.statistics?.multiplayer?.gamesWon ?? "N/A"
+                        data.statistics?.multiplayer?.gamesWon ?? "N/A "
                       }W/${
                   data.statistics?.multiplayer?.gamesPlayed -
-                    data.statistics?.multiplayer?.gamesWon ?? "N/A"
+                    data.statistics?.multiplayer?.gamesWon ?? "N/A "
                 }L, ${
-                  data.statistics?.multiplayer?.gamesPlayed ?? "N/A"
+                  data.statistics?.multiplayer?.gamesPlayed ?? "N/A "
                 }T)</div>
                   </div>
                 </div>
