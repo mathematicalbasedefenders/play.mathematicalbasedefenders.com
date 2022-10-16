@@ -67,7 +67,7 @@ class Enemy {
     this.enemySprite.width = enemyInformation.width;
     this.enemySprite.height = enemyInformation.height;
 
-    if (!this.minified || this.minified == null) {
+    if (this.minified === false) {
       this.requestedValueTextSprite = new PIXI.Text(
         this.enemyInformation.requestedValue.toString().replace("-", "\u2013"),
         this.requestedValueTextStyleToUse
@@ -122,14 +122,7 @@ class Enemy {
       return false;
     }
 
-    if (
-      !(
-        !this.minified ||
-        this.minified == null ||
-        !other.minified ||
-        other.minified == null
-      )
-    ) {
+    if (this.minified !== false || other.minified !== false) {
       return false;
     }
 
@@ -176,11 +169,7 @@ class Enemy {
     // console.debug(sortedEnemies);
     for (let enemyNumber in sortedEnemies) {
       // console.debug(`Current #: ${enemyNumber}`);
-      if (
-        [enemyNumber] === this.enemyNumber ||
-        !this.minified ||
-        this.minified == null
-      ) {
+      if ([enemyNumber] === this.enemyNumber || this.minified === false) {
         // don't compare with itself
         continue;
       }

@@ -14,6 +14,7 @@ class Enemy {
     this.reachedBase = false;
     this.toDestroy = false;
     this.senderName = enemyInformation.senderName || "";
+    this.minified = enemyInformation.minified || false;
   }
 
   move(speed) {

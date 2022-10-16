@@ -1144,8 +1144,8 @@ function minifyEnemies(enemies) {
     // index
     // 0 - sPosition
     // 1 - number
-
-    minifiedEnemies.push([enemy?.sPosition, enemy?.enemyNumber]);
+    // 2 - is it minified (should be true)
+    minifiedEnemies.push([enemy?.sPosition, enemy?.enemyNumber, true]);
   }
   return minifiedEnemies;
 }
