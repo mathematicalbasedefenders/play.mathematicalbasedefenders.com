@@ -115,8 +115,6 @@ class Enemy {
   }
 
   checkIfOverlapping(other) {
-    // console.debug(this, other);
-
     // don't compare with itself
     if (this.enemyNumber === other.enemyNumber) {
       return false;
@@ -166,11 +164,13 @@ class Enemy {
         return object;
       }, {});
 
-    // console.debug(sortedEnemies);
     for (let enemyNumber in sortedEnemies) {
-      // console.debug(`Current #: ${enemyNumber}`);
-      if ([enemyNumber] === this.enemyNumber || this.minified === false) {
-        // don't compare with itself
+      let initialEnemy = Enemy.findEnemyWithNumber(enemyNumber);
+      if (
+        [enemyNumber] === this.enemyNumber ||
+        this.minified !== false ||
+        initialEnemy.minified !== false
+      ) {
         continue;
       }
 
@@ -186,7 +186,6 @@ class Enemy {
       //   }
       // }
       // console.debug(Enemy.instances);
-      let initialEnemy = Enemy.findEnemyWithNumber(enemyNumber);
 
       if (this.checkIfOverlapping(initialEnemy)) {
         // first element is rightmost enemy, which should have highest stack value
@@ -302,41 +301,76 @@ class Enemy {
     }
   }
 
-  findNearestEnemyToTheLeft(ignoreSelf = true) {
+  findNearestEnemyToTheLeft(
+    ignoreSelf = true,
+    ignoreUndefinedMinified = true,
+    ignoreMinified = true
+  ) {
     let sorted = Enemy.instances
-      .sort((a, b) => parseFloat(a.sPosition) - parseFloat(b.sPosition))
+      .sort(
+        (a, b) =>
+          parseFloat(a.enemyInformation.sPosition) -
+          parseFloat(b.enemyInformation.sPosition)
+      )
       .reverse();
     let filtered = sorted.filter(
       (element) =>
-        parseFloat(element.sPosition) < this.sPosition &&
-        (ignoreSelf ? this.enemyNumber != element.enemyNumber : true)
+        parseFloat(element.enemyInformation.sPosition) < this.sPosition &&
+        (ignoreSelf
+          ? this.enemyNumber != element.enemyInformation.enemyNumber
+          : true) &&
+        (ignoreUndefinedMinified
+          ? element.enemyInformation.minified != null
+          : true) &&
+        (ignoreMinified ? element.enemyInformation.minified !== true : true)
     );
-    for (let i = 0; i < filtered; i++) {
-      if (filtered[i].sPosition >= this.sPosition) {
+    for (let i = 0; i < filtered.length; i++) {
+      if (filtered[i].sPosition <= this.sPosition) {
         return filtered[i];
       }
     }
   }
 
-  findNearestEnemyToTheRight(ignoreSelf = true) {
+  findNearestEnemyToTheRight(
+    ignoreSelf = true,
+    ignoreUndefinedMinified = true,
+    ignoreMinified = true
+  ) {
     let sorted = Enemy.instances.sort(
-      (a, b) => parseFloat(a.sPosition) - parseFloat(b.sPosition)
+      (a, b) =>
+        parseFloat(a.enemyInformation.sPosition) -
+        parseFloat(b.enemyInformation.sPosition)
     );
     let filtered = sorted.filter(
       (element) =>
-        parseFloat(element.sPosition) > this.sPosition &&
-        (ignoreSelf ? this.enemyNumber != element.enemyNumber : true)
+        parseFloat(element.enemyInformation.sPosition) > this.sPosition &&
+        (ignoreSelf
+          ? this.enemyNumber != element.enemyInformation.enemyNumber
+          : true) &&
+        (ignoreUndefinedMinified
+          ? element.enemyInformation.minified != null
+          : true) &&
+        (ignoreMinified ? element.enemyInformation.minified !== true : true)
     );
-    for (let i = 0; i < filtered; i++) {
+    for (let i = 0; i < filtered.length; i++) {
       if (filtered[i].sPosition >= this.sPosition) {
         return filtered[i];
       }
     }
   }
 
-  static findEnemyWithNumber(target) {
+  static findEnemyWithNumber(
+    target,
+    ignoreUndefinedMinified = true,
+    ignoreMinified = true
+  ) {
     return Enemy.instances.find(
-      (enemy) => enemy.enemyNumber.toString() === target.toString()
+      (element) =>
+        element.enemyNumber.toString() === target.toString() &&
+        (ignoreUndefinedMinified
+          ? element.enemyInformation.minified != null
+          : true) &&
+        (ignoreMinified ? element.enemyInformation.minified !== true : true)
     );
   }
 
