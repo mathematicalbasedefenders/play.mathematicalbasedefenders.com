@@ -197,8 +197,10 @@ app.stage.addChild(mainMenuScreenContainer);
 mainMenuScreenContainer.visible = false; // for now
 app.stage.addChild(singleplayerScreenContainer);
 singleplayerScreenContainer.visible = false; // for now
+singleplayerScreenContainer.sortableChildren = true;
 app.stage.addChild(multiplayerScreenContainer);
 multiplayerScreenContainer.visible = false; // for now
+multiplayerScreenContainer.sortableChildren = true;
 
 switch (currentScreen) {
   case screens.MAIN_MENU_SCREEN: {
@@ -1000,6 +1002,9 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
     }
     case screens.GAME_OVER_SCREEN: {
       // set properties
+
+      Enemy.clean();
+
       document.body.style.overflow = "hidden";
       document.getElementById("hub-container").style.display = "block";
       document.getElementById("game-over-screen-container").style.display =
@@ -1319,44 +1324,48 @@ function removeAllRenderedEnemies() {
 
 function restoreSettings() {
   settings = localStorage.getItem("settings");
-
   if (settings === undefined || settings == null) {
-    settings = {
-      video: {
-        enemyColor: "randomForEach",
-        multiplicationSignForm: "cross",
-        customEnemyPictureURL: ""
-      },
-      input: {
-        keybinds: {
-          tiles: [
-            "KeyM",
-            "KeyJ",
-            "KeyK",
-            "KeyL",
-            "KeyU",
-            "KeyI",
-            "KeyO",
-            "Digit7",
-            "Digit8",
-            "Digit9",
-            "Slash",
-            "Semicolon",
-            "KeyP",
-            "Digit0",
-            "Quote",
-            "KeyW",
-            "KeyE",
-            "KeyS",
-            "KeyD"
-          ]
-        }
-      }
-    };
-    localStorage.setItem("settings", JSON.stringify(settings));
+    resetSettings();
   } else {
     settings = JSON.parse(settings);
   }
+}
+
+function resetSettings() {
+  settings = {
+    video: {
+      enemyColor: "randomForEach",
+      multiplicationSignForm: "cross",
+      customEnemyPictureURL: "",
+      enableStackedEnemies: true
+    },
+    input: {
+      keybinds: {
+        tiles: [
+          "KeyM",
+          "KeyJ",
+          "KeyK",
+          "KeyL",
+          "KeyU",
+          "KeyI",
+          "KeyO",
+          "Digit7",
+          "Digit8",
+          "Digit9",
+          "Slash",
+          "Semicolon",
+          "KeyP",
+          "Digit0",
+          "Quote",
+          "KeyW",
+          "KeyE",
+          "KeyS",
+          "KeyD"
+        ]
+      }
+    }
+  };
+  localStorage.setItem("settings", JSON.stringify(settings));
 }
 
 function updateSettingsSelections() {
@@ -1373,6 +1382,7 @@ function updateSettingsSelections() {
   for (let i = 0; i < 19; i++) {
     $("#key-to-force-select-tile-" + i).text(settings.input.keybinds.tiles[i]);
   }
+  $("#stacked-enemies-form").val(settings.video.enableStackedEnemies);
 }
 
 function useKeybindPreset(type) {
@@ -1393,7 +1403,8 @@ function changeSettings() {
       customEnemyPictureURL: $("#enemy-custom-selected-picture").val(),
       gameScreenInformationMode: $(
         "#game-screen-information-mode-setting-drop-down-menu"
-      ).val()
+      ).val(),
+      enableStackedEnemies: $("#stacked-enemies-setting-drop-down-menu").val()
     },
     input: {
       keybinds: {
