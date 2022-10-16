@@ -300,7 +300,7 @@ async function computeUpdateForRoomPlayerEnemies(
                 ? getCustomSingleplayerRoomInstance(room, player)
                 : GAME_SETTINGS[room.gameMode]
               ).enemySpeedMultiplier *
-              (Math.random() * 2 + 1),
+              (Math.random() * 0.5 + 1),
             defaultAttack: 1,
             defaultHealth: 1,
             enemyNumber:
@@ -350,7 +350,7 @@ async function computeUpdateForRoomPlayerEnemies(
           width: 100,
           height: 100,
           requestedValue: enemies.generateRandomEnemyTerm(),
-          defaultSpeed: Math.random() * 2 + 1,
+          defaultSpeed: Math.random() * 0.5 + 1,
           defaultAttack: 1,
           defaultHealth: 1,
           enemyNumber:
