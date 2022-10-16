@@ -1402,7 +1402,7 @@ function changeSettings() {
       gameScreenInformationMode: $(
         "#game-screen-information-mode-setting-drop-down-menu"
       ).val(),
-      enableStackedEnemies: $("#stacked-enemies-form").val()
+      enableStackedEnemies: $("#stacked-enemies-setting-drop-down-menu").val()
     },
     input: {
       keybinds: {

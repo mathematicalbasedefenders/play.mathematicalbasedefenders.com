@@ -247,7 +247,10 @@ class Enemy {
           ].zIndex = -enemy.stackLevel;
         }
 
-        if (enemy.stackLevel <= 0 || settings.enableStackedEnemies !== "off") {
+        if (
+          enemy.stackLevel <= 0 ||
+          settings.video.enableStackedEnemies !== "on"
+        ) {
           game.enemyRenderStatus[enemy.enemyNumber].enemySprite.y =
             enemy.enemyInformation.yPosition;
 
