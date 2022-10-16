@@ -197,8 +197,10 @@ app.stage.addChild(mainMenuScreenContainer);
 mainMenuScreenContainer.visible = false; // for now
 app.stage.addChild(singleplayerScreenContainer);
 singleplayerScreenContainer.visible = false; // for now
+singleplayerScreenContainer.sortableChildren = true;
 app.stage.addChild(multiplayerScreenContainer);
 multiplayerScreenContainer.visible = false; // for now
+multiplayerScreenContainer.sortableChildren = true;
 
 switch (currentScreen) {
   case screens.MAIN_MENU_SCREEN: {

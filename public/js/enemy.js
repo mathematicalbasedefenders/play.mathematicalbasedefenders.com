@@ -232,6 +232,21 @@ class Enemy {
     }
     for (let enemy of Enemy.instances) {
       if (!this.minified) {
+        game.enemyRenderStatus[enemy.enemyNumber].enemySprite.zIndex =
+          -enemy.stackLevel;
+        game.enemyRenderStatus[enemy.enemyNumber][
+          "requestedValueTextSprite"
+        ].zIndex = -enemy.stackLevel;
+
+        if (
+          game.enemyRenderStatus[enemy.enemyNumber]["senderNameTextSprite"]
+            ?.zIndex
+        ) {
+          game.enemyRenderStatus[enemy.enemyNumber][
+            "senderNameTextSprite"
+          ].zIndex = -enemy.stackLevel;
+        }
+
         // debug only
         enemy.requestedValueTextSprite.text = enemy.stackLevel;
 
