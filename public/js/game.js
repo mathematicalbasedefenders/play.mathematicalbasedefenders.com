@@ -1341,7 +1341,7 @@ function resetSettings() {
       enemyColor: "randomForEach",
       multiplicationSignForm: "cross",
       customEnemyPictureURL: "",
-      enableStackedEnemies: true
+      enableStackedEnemies: "off"
     },
     input: {
       keybinds: {
