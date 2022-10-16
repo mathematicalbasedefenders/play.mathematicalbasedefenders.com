@@ -247,9 +247,6 @@ class Enemy {
           ].zIndex = -enemy.stackLevel;
         }
 
-        // debug only
-        enemy.requestedValueTextSprite.text = enemy.stackLevel;
-
         if (enemy.stackLevel <= 0) {
           game.enemyRenderStatus[enemy.enemyNumber].enemySprite.y =
             enemy.enemyInformation.yPosition;
