@@ -67,48 +67,50 @@ class Enemy {
     this.enemySprite.width = enemyInformation.width;
     this.enemySprite.height = enemyInformation.height;
 
-    this.requestedValueTextSprite = new PIXI.Text(
-      this.enemyInformation.requestedValue.toString().replace("-", "\u2013"),
-      this.requestedValueTextStyleToUse
-    );
-    this.requestedValueTextMetrics = PIXI.TextMetrics.measureText(
-      this.enemyInformation.requestedValue.toString(),
-      this.requestedValueTextStyleToUse
-    );
-    this.requestedValueTextSprite.x =
-      this.enemyInformation.xPosition +
-      (this.enemyInformation.width - this.requestedValueTextMetrics.width) / 2;
-    this.requestedValueTextSprite.y =
-      this.enemyInformation.yPosition +
-      (this.enemyInformation.height - this.requestedValueTextMetrics.height) /
-        2;
-    this.requestedValueTextSprite.color =
-      enemyColor == "blind"
-        ? "#eeeeee"
-        : (maximum + minimum) / 2 >= 0.5
-        ? "#000000"
-        : "#ffffff";
+    if (!this.minified || this.minified == null) {
+      this.requestedValueTextSprite = new PIXI.Text(
+        this.enemyInformation.requestedValue.toString().replace("-", "\u2013"),
+        this.requestedValueTextStyleToUse
+      );
+      this.requestedValueTextMetrics = PIXI.TextMetrics.measureText(
+        this.enemyInformation.requestedValue.toString(),
+        this.requestedValueTextStyleToUse
+      );
+      this.requestedValueTextSprite.x =
+        this.enemyInformation.xPosition +
+        (this.enemyInformation.width - this.requestedValueTextMetrics.width) /
+          2;
+      this.requestedValueTextSprite.y =
+        this.enemyInformation.yPosition +
+        (this.enemyInformation.height - this.requestedValueTextMetrics.height) /
+          2;
+      this.requestedValueTextSprite.color =
+        enemyColor == "blind"
+          ? "#eeeeee"
+          : (maximum + minimum) / 2 >= 0.5
+          ? "#000000"
+          : "#ffffff";
 
-    // create text sprite for sender name
-    let senderNameTextStyleToUse = textStyles.SIZE_16_FONT;
-    this.senderNameTextSprite = new PIXI.Text(
-      this.enemyInformation.senderName.toString(),
-      senderNameTextStyleToUse
-    );
-    this.senderNameTextMetrics = PIXI.TextMetrics.measureText(
-      this.enemyInformation.senderName.toString(),
-      senderNameTextStyleToUse
-    );
-    this.senderNameTextSprite.x =
-      this.enemyInformation.xPosition +
-      (this.enemyInformation.width - this.senderNameTextMetrics.width) / 2;
-    this.senderNameTextSprite.y =
-      this.enemyInformation.yPosition +
-      (this.enemyInformation.height - this.senderNameTextMetrics.height) / 2 +
-      35;
-    this.senderNameTextSprite.color =
-      enemyColor == "blind" ? "#eeeeee" : enemyColor;
-
+      // create text sprite for sender name
+      let senderNameTextStyleToUse = textStyles.SIZE_16_FONT;
+      this.senderNameTextSprite = new PIXI.Text(
+        this.enemyInformation.senderName.toString(),
+        senderNameTextStyleToUse
+      );
+      this.senderNameTextMetrics = PIXI.TextMetrics.measureText(
+        this.enemyInformation.senderName.toString(),
+        senderNameTextStyleToUse
+      );
+      this.senderNameTextSprite.x =
+        this.enemyInformation.xPosition +
+        (this.enemyInformation.width - this.senderNameTextMetrics.width) / 2;
+      this.senderNameTextSprite.y =
+        this.enemyInformation.yPosition +
+        (this.enemyInformation.height - this.senderNameTextMetrics.height) / 2 +
+        35;
+      this.senderNameTextSprite.color =
+        enemyColor == "blind" ? "#eeeeee" : enemyColor;
+    }
     Enemy.instances.push(this);
   }
 
@@ -117,6 +119,17 @@ class Enemy {
 
     // don't compare with itself
     if (this.enemyNumber === other.enemyNumber) {
+      return false;
+    }
+
+    if (
+      !(
+        !this.minified ||
+        this.minified == null ||
+        !other.minified ||
+        other.minified == null
+      )
+    ) {
       return false;
     }
 
@@ -163,7 +176,11 @@ class Enemy {
     // console.debug(sortedEnemies);
     for (let enemyNumber in sortedEnemies) {
       // console.debug(`Current #: ${enemyNumber}`);
-      if ([enemyNumber] === this.enemyNumber) {
+      if (
+        [enemyNumber] === this.enemyNumber ||
+        !this.minified ||
+        this.minified == null
+      ) {
         // don't compare with itself
         continue;
       }
@@ -231,7 +248,7 @@ class Enemy {
       enemy.changeStackLevel();
     }
     for (let enemy of Enemy.instances) {
-      if (!this.minified) {
+      if (enemy.minified === false) {
         game.enemyRenderStatus[enemy.enemyNumber].enemySprite.zIndex =
           -enemy.stackLevel;
         game.enemyRenderStatus[enemy.enemyNumber][
@@ -254,37 +271,43 @@ class Enemy {
           game.enemyRenderStatus[enemy.enemyNumber].enemySprite.y =
             enemy.enemyInformation.yPosition;
 
-          enemy.requestedValueTextSprite.y =
-            enemy.enemyInformation.yPosition +
-            (enemy.enemyInformation.height -
-              enemy.requestedValueTextMetrics.height) /
-              2;
-
-          enemy.senderNameTextSprite.y =
-            enemy.enemyInformation.yPosition +
-            (enemy.enemyInformation.height -
-              enemy.senderNameTextMetrics.height) /
-              2 +
-            35;
+          if (enemy?.requestedValueTextSprite?.y) {
+            enemy.requestedValueTextSprite.y =
+              enemy.enemyInformation.yPosition +
+              (enemy.enemyInformation.height -
+                (enemy?.requestedValueTextMetrics?.height ?? 0)) /
+                2;
+          }
+          if (enemy?.senderNameTextSprite?.y) {
+            enemy.senderNameTextSprite.y =
+              enemy.enemyInformation.yPosition +
+              (enemy.enemyInformation.height -
+                (enemy?.requestedValueTextMetrics?.height ?? 0)) /
+                2 +
+              35;
+          }
         } else {
           game.enemyRenderStatus[enemy.enemyNumber].enemySprite.y =
             enemy.enemyInformation.yPosition + enemy.stackLevel * -40;
-
-          enemy.requestedValueTextSprite.y =
-            enemy.enemyInformation.yPosition +
-            (enemy.enemyInformation.height -
-              enemy.requestedValueTextMetrics.height) /
-              2 +
-            enemy.stackLevel * -40 -
-            24;
-          enemy.senderNameTextSprite.y =
-            enemy.enemyInformation.yPosition +
-            (enemy.enemyInformation.height -
-              enemy.senderNameTextMetrics.height) /
-              2 +
-            35 +
-            enemy.stackLevel * -40 -
-            48;
+          if (enemy?.requestedValueTextSprite?.y) {
+            enemy.requestedValueTextSprite.y =
+              enemy.enemyInformation.yPosition +
+              (enemy.enemyInformation.height -
+                (enemy?.requestedValueTextMetrics?.height ?? 0)) /
+                2 +
+              enemy.stackLevel * -40 -
+              24;
+          }
+          if (enemy?.senderNameTextSprite?.y) {
+            enemy.senderNameTextSprite.y =
+              enemy.enemyInformation.yPosition +
+              (enemy.enemyInformation.height -
+                (enemy?.requestedValueTextMetrics?.height ?? 0)) /
+                2 +
+              35 +
+              enemy.stackLevel * -40 -
+              48;
+          }
         }
       }
     }
@@ -330,5 +353,11 @@ class Enemy {
 
   static clean() {
     Enemy.instances = [];
+  }
+
+  static cleanDead() {
+    Enemy.instances = Enemy.instances.filter(
+      (enemy) => parseFloat(enemy.sPosition) > -0.01
+    );
   }
 }

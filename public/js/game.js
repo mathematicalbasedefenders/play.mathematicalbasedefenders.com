@@ -963,7 +963,11 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
       }
       game.opponentGameInstances = [];
       game.cachedLengthOfOpponentGameInstances = 0;
+
+      Enemy.clean();
+
       document.body.style.overflow = "none";
+
       $("#hub-container").show(0);
       $("#default-multiplayer-room-lobby-screen-container").show(0);
 

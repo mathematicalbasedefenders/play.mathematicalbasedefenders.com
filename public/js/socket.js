@@ -431,6 +431,7 @@ socket.onmessage = (message) => {
                 1
               );
             }
+            Enemy.cleanDead();
             for (let numberToRemoveAsString of scoreGainIndicatorsToDelete) {
               game.scoreGainIndicatorRenderStatus[
                 numberToRemoveAsString.toString()
@@ -969,6 +970,7 @@ socket.onmessage = (message) => {
                   1
                 );
               }
+              Enemy.cleanDead();
               for (let numberToRemoveAsString of enemiesSentIndicatorsToDelete) {
                 game.enemiesSentIndicatorRenderStatus[
                   numberToRemoveAsString.toString()
