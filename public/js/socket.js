@@ -236,6 +236,11 @@ socket.onmessage = (message) => {
                   game.enemyRenderStatus[enemy.enemyNumber.toString()][
                     "rendered"
                   ] = true;
+
+                  // TODO: Hope this doesn't break lol
+                  game.enemyRenderStatus[enemy.enemyNumber.toString()][
+                    "parent"
+                  ] = enemy;
                   game.spritesOfRenderedEnemiesOnField.push(
                     enemyObject.enemySprite
                   );
@@ -249,6 +254,7 @@ socket.onmessage = (message) => {
                       "requestedValueTextSprite"
                     ]
                   );
+                  // enemy.parent.updateSprite();
                 }
                 // render
                 game.enemyRenderStatus[enemy.enemyNumber.toString()][
@@ -293,6 +299,8 @@ socket.onmessage = (message) => {
                 );
               }
             }
+
+            Enemy.updateSprites();
 
             for (let enemy in game.enemyRenderStatus) {
               if (game.enemyRenderStatus[enemy].toDestroy) {
@@ -416,6 +424,10 @@ socket.onmessage = (message) => {
                 game.spritesOfRenderedEnemiesOnField.indexOf(
                   numberToRemoveAsString
                 ),
+                1
+              );
+              Enemy.instances.splice(
+                Enemy.instances.indexOf(Enemy.findEnemyWithNumber(enemy)),
                 1
               );
             }
@@ -721,6 +733,9 @@ socket.onmessage = (message) => {
                     game.enemyRenderStatus[enemy.enemyNumber.toString()][
                       "rendered"
                     ] = true;
+                    game.enemyRenderStatus[enemy.enemyNumber.toString()][
+                      "parent"
+                    ] = enemy;
 
                     multiplayerScreenContainer.addChild(
                       game.enemyRenderStatus[enemy.enemyNumber.toString()][
@@ -795,12 +810,18 @@ socket.onmessage = (message) => {
                       2 +
                     50 +
                     game.renderingOffsets.singleplayer.y;
+                  //enemy.parent.updateSprite();
+                  // game.enemyRenderStatus[
+                  //   enemy.enemyNumber.toString()
+                  // ].parent.updateSprite();
                 } else {
                   renderedEnemiesOnFieldToDelete.push(
                     enemy.enemyNumber.toString()
                   );
                 }
               }
+
+              Enemy.updateSprites();
 
               for (let enemy in game.enemyRenderStatus) {
                 if (game.enemyRenderStatus[enemy].toDestroy) {
@@ -941,6 +962,10 @@ socket.onmessage = (message) => {
                   game.spritesOfRenderedEnemiesOnField.indexOf(
                     numberToRemoveAsString
                   ),
+                  1
+                );
+                Enemy.instances.splice(
+                  Enemy.instances.indexOf(Enemy.findEnemyWithNumber(enemy)),
                   1
                 );
               }

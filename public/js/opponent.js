@@ -249,7 +249,6 @@ class OpponentGameInstance {
     if (redrawEnemies) {
       // Redraw (or change) enemy positions
       for (let enemy in this.enemySprites) {
-        console.log(minifiedGameData);
         this.enemySprites[enemy]["sprite"].position.x =
           initialWindowWidth / 2 +
           (this.playerIndex %
