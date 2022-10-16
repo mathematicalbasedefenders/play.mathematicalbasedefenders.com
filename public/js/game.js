@@ -1322,44 +1322,48 @@ function removeAllRenderedEnemies() {
 
 function restoreSettings() {
   settings = localStorage.getItem("settings");
-
   if (settings === undefined || settings == null) {
-    settings = {
-      video: {
-        enemyColor: "randomForEach",
-        multiplicationSignForm: "cross",
-        customEnemyPictureURL: ""
-      },
-      input: {
-        keybinds: {
-          tiles: [
-            "KeyM",
-            "KeyJ",
-            "KeyK",
-            "KeyL",
-            "KeyU",
-            "KeyI",
-            "KeyO",
-            "Digit7",
-            "Digit8",
-            "Digit9",
-            "Slash",
-            "Semicolon",
-            "KeyP",
-            "Digit0",
-            "Quote",
-            "KeyW",
-            "KeyE",
-            "KeyS",
-            "KeyD"
-          ]
-        }
-      }
-    };
-    localStorage.setItem("settings", JSON.stringify(settings));
+    resetSettings();
   } else {
     settings = JSON.parse(settings);
   }
+}
+
+function resetSettings() {
+  settings = {
+    video: {
+      enemyColor: "randomForEach",
+      multiplicationSignForm: "cross",
+      customEnemyPictureURL: "",
+      enableStackedEnemies: true
+    },
+    input: {
+      keybinds: {
+        tiles: [
+          "KeyM",
+          "KeyJ",
+          "KeyK",
+          "KeyL",
+          "KeyU",
+          "KeyI",
+          "KeyO",
+          "Digit7",
+          "Digit8",
+          "Digit9",
+          "Slash",
+          "Semicolon",
+          "KeyP",
+          "Digit0",
+          "Quote",
+          "KeyW",
+          "KeyE",
+          "KeyS",
+          "KeyD"
+        ]
+      }
+    }
+  };
+  localStorage.setItem("settings", JSON.stringify(settings));
 }
 
 function updateSettingsSelections() {
@@ -1376,6 +1380,7 @@ function updateSettingsSelections() {
   for (let i = 0; i < 19; i++) {
     $("#key-to-force-select-tile-" + i).text(settings.input.keybinds.tiles[i]);
   }
+  $("#stacked-enemies-form").val(settings.video.enableStackedEnemies);
 }
 
 function useKeybindPreset(type) {
@@ -1396,7 +1401,8 @@ function changeSettings() {
       customEnemyPictureURL: $("#enemy-custom-selected-picture").val(),
       gameScreenInformationMode: $(
         "#game-screen-information-mode-setting-drop-down-menu"
-      ).val()
+      ).val(),
+      enableStackedEnemies: $("#stacked-enemies-form").val()
     },
     input: {
       keybinds: {
