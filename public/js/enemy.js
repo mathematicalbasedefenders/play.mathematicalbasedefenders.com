@@ -183,6 +183,7 @@ class Enemy {
       let initialEnemy = Enemy.findEnemyWithNumber(enemyNumber);
 
       if (this.checkIfOverlapping(initialEnemy)) {
+        // first element is rightmost enemy, which should have highest stack value
         let stack = [this, Enemy.findEnemyWithNumber(enemyNumber)];
         let index = 0;
         while (
@@ -190,19 +191,32 @@ class Enemy {
           stack[index + 1] &&
           stack[index].checkIfOverlapping(stack[index + 1])
         ) {
-          if (
-            game.enemyRenderStatus[this.enemyNumber].enemySprite.x <
-            game.enemyRenderStatus[enemyNumber].enemySprite.x
-          ) {
-            // this is leftmost
-            stack[index + 1].stackLevel++;
-          } else {
-            // enemy (i.e., other is left most)
-            stack[index].stackLevel++;
+          // if (
+          //   game.enemyRenderStatus[this.enemyNumber].enemySprite.x <
+          //   game.enemyRenderStatus[enemyNumber].enemySprite.x
+          // ) {
+          //   // this is leftmost
+          //   stack[index + 1].stackLevel++;
+          // } else {
+          //   // enemy (i.e., other is left most)
+          //   stack[index].stackLevel++;
+          // }
+
+          for (let i = index; i >= 0; i--) {
+            stack[i].stackLevel++;
+          }
+
+          for (let i = index + 1; i < stack.length; i++) {
+            stack[i].stackLevel > 0 && stack[i].stackLevel--;
+          }
+
+          // make every enemy before this lose 1 stack level
+          for (let i = 0; i < index; i++) {
+            stack[i].stackLevel--;
           }
 
           let nearestEnemyToTheRight =
-            stack[index + 1].findNearestEnemyToTheRight();
+            stack[index + 1].findNearestEnemyToTheLeft();
           if (nearestEnemyToTheRight) {
             stack.push(nearestEnemyToTheRight);
           }
@@ -261,6 +275,22 @@ class Enemy {
     }
   }
 
+  findNearestEnemyToTheLeft(ignoreSelf = true) {
+    let sorted = Enemy.instances
+      .sort((a, b) => parseFloat(a.sPosition) - parseFloat(b.sPosition))
+      .reverse();
+    let filtered = sorted.filter(
+      (element) =>
+        parseFloat(element.sPosition) < this.sPosition &&
+        (ignoreSelf ? this.enemyNumber != element.enemyNumber : true)
+    );
+    for (let i = 0; i < filtered; i++) {
+      if (filtered[i].sPosition >= this.sPosition) {
+        return filtered[i];
+      }
+    }
+  }
+
   findNearestEnemyToTheRight(ignoreSelf = true) {
     let sorted = Enemy.instances.sort(
       (a, b) => parseFloat(a.sPosition) - parseFloat(b.sPosition)
@@ -268,7 +298,7 @@ class Enemy {
     let filtered = sorted.filter(
       (element) =>
         parseFloat(element.sPosition) > this.sPosition &&
-        this.enemyNumber != element.enemyNumber
+        (ignoreSelf ? this.enemyNumber != element.enemyNumber : true)
     );
     for (let i = 0; i < filtered; i++) {
       if (filtered[i].sPosition >= this.sPosition) {
