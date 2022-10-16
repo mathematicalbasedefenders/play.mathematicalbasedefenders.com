@@ -320,6 +320,7 @@ function setSingleplayerScreenItemRenderingOffsets(xOffset, yOffset) {
     initialWindowWidth / 2 - 450 + xOffset;
   singleplayerScreenContainerItems.baseSprite.y =
     initialWindowHeight / 2 - 505 + yOffset;
+  singleplayerScreenContainerItems.baseSprite.zIndex = 2;
 
   singleplayerScreenContainerItems.currentProblemText.style.align = "center";
   singleplayerScreenContainerItems.currentProblemText.tint = 0x000000;
@@ -473,6 +474,7 @@ function setMultiplayerScreenItemRenderingOffsets(xOffset, yOffset) {
     initialWindowWidth / 2 - 450 + xOffset;
   multiplayerScreenContainerItems.baseSprite.y =
     initialWindowHeight / 2 - 465 + yOffset;
+  multiplayerScreenContainerItems.baseSprite.zIndex = 2;
 
   multiplayerScreenContainerItems.numberOfPendingEnemiesText.x =
     initialWindowWidth / 2 + 500 + xOffset;
