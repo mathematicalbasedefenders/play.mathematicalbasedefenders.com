@@ -113,7 +113,13 @@ class Enemy {
   }
 
   checkIfOverlapping(other) {
-    console.debug(other);
+    // console.debug(this, other);
+
+    // don't compare with itself
+    if (this.enemyNumber === other.enemyNumber) {
+      return false;
+    }
+
     let thisLeft = game.enemyRenderStatus[this.enemyNumber].enemySprite.x;
     let thisRight =
       game.enemyRenderStatus[this.enemyNumber].enemySprite.x +
@@ -145,45 +151,86 @@ class Enemy {
     return false;
   }
 
-  countOverlapping() {
-    let total = 0;
-    for (let enemy of Enemy.instances) {
-      if (enemy.enemyNumber === this.enemyNumber) {
+  changeStackLevel() {
+    this.stackLevel = 0;
+    let sortedEnemies = Object.keys(game.enemyRenderStatus)
+      .sort()
+      .reduce((object, key) => {
+        object[key] = game.enemyRenderStatus[key];
+        return object;
+      }, {});
+
+    // console.debug(sortedEnemies);
+    for (let enemyNumber in sortedEnemies) {
+      // console.debug(`Current #: ${enemyNumber}`);
+      if ([enemyNumber] === this.enemyNumber) {
         // don't compare with itself
         continue;
       }
 
-      if (this.checkIfOverlapping(enemy)) {
-        total++;
+      // if (this.checkIfOverlapping(enemy)) {
+      //   this.stackLevel++;
+      //   enemy.stackLevel++;
+      //   if (this.enemySprite.x < enemy.enemySprite.x) {
+      //     // this is leftmost
+      //     this.stackLevel--;
+      //   } else {
+      //     // enemy (i.e., other is left most)
+      //     enemy.stackLevel--;
+      //   }
+      // }
+      // console.debug(Enemy.instances);
+      let initialEnemy = Enemy.findEnemyWithNumber(enemyNumber);
+
+      if (this.checkIfOverlapping(initialEnemy)) {
+        let stack = [this, Enemy.findEnemyWithNumber(enemyNumber)];
+        let index = 0;
+        while (
+          stack[index] &&
+          stack[index + 1] &&
+          stack[index].checkIfOverlapping(stack[index + 1])
+        ) {
+          if (
+            game.enemyRenderStatus[this.enemyNumber].enemySprite.x <
+            game.enemyRenderStatus[enemyNumber].enemySprite.x
+          ) {
+            // this is leftmost
+            stack[index + 1].stackLevel++;
+          } else {
+            // enemy (i.e., other is left most)
+            stack[index].stackLevel++;
+          }
+
+          let nearestEnemyToTheRight =
+            stack[index + 1].findNearestEnemyToTheRight();
+          if (nearestEnemyToTheRight) {
+            stack.push(nearestEnemyToTheRight);
+          }
+          index += 1;
+        }
       }
     }
-    return total;
   }
 
   static updateSprites() {
     for (let enemy of Enemy.instances) {
+      enemy.changeStackLevel();
+    }
+    for (let enemy of Enemy.instances) {
       if (!this.minified) {
-        enemy.stackLevel = enemy.countOverlapping();
-
         // debug only
         enemy.requestedValueTextSprite.text = enemy.stackLevel;
 
-        if (enemy.stackLevel === 0) {
-          enemy.requestedValueTextSprite.x =
-            enemy.enemyInformation.xPosition +
-            (enemy.enemyInformation.width -
-              enemy.requestedValueTextMetrics.width) /
-              2;
+        if (enemy.stackLevel <= 0) {
+          game.enemyRenderStatus[enemy.enemyNumber].enemySprite.y =
+            enemy.enemyInformation.yPosition;
+
           enemy.requestedValueTextSprite.y =
             enemy.enemyInformation.yPosition +
             (enemy.enemyInformation.height -
               enemy.requestedValueTextMetrics.height) /
               2;
 
-          enemy.senderNameTextSprite.x =
-            enemy.enemyInformation.xPosition +
-            (enemy.enemyInformation.width - enemy.senderNameTextMetrics.width) /
-              2;
           enemy.senderNameTextSprite.y =
             enemy.enemyInformation.yPosition +
             (enemy.enemyInformation.height -
@@ -191,22 +238,49 @@ class Enemy {
               2 +
             35;
         } else {
+          game.enemyRenderStatus[enemy.enemyNumber].enemySprite.y =
+            enemy.enemyInformation.yPosition + enemy.stackLevel * -20 - 40;
+
           enemy.requestedValueTextSprite.y =
             enemy.enemyInformation.yPosition +
             (enemy.enemyInformation.height -
               enemy.requestedValueTextMetrics.height) /
               2 +
-            enemy.stackLevel * -40;
+            enemy.stackLevel * -20 -
+            40;
           enemy.senderNameTextSprite.y =
             enemy.enemyInformation.yPosition +
             (enemy.enemyInformation.height -
               enemy.senderNameTextMetrics.height) /
               2 +
             35 +
-            enemy.stackLevel * -40;
+            enemy.stackLevel * -20 -
+            40;
         }
       }
     }
+  }
+
+  findNearestEnemyToTheRight(ignoreSelf = true) {
+    let sorted = Enemy.instances.sort(
+      (a, b) => parseFloat(a.sPosition) - parseFloat(b.sPosition)
+    );
+    let filtered = sorted.filter(
+      (element) =>
+        parseFloat(element.sPosition) > this.sPosition &&
+        this.enemyNumber != element.enemyNumber
+    );
+    for (let i = 0; i < filtered; i++) {
+      if (filtered[i].sPosition >= this.sPosition) {
+        return filtered[i];
+      }
+    }
+  }
+
+  static findEnemyWithNumber(target) {
+    return Enemy.instances.find(
+      (enemy) => enemy.enemyNumber.toString() === target.toString()
+    );
   }
 
   static clean() {
