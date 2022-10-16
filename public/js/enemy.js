@@ -268,23 +268,23 @@ class Enemy {
             35;
         } else {
           game.enemyRenderStatus[enemy.enemyNumber].enemySprite.y =
-            enemy.enemyInformation.yPosition + enemy.stackLevel * -20 - 40;
+            enemy.enemyInformation.yPosition + enemy.stackLevel * -40;
 
           enemy.requestedValueTextSprite.y =
             enemy.enemyInformation.yPosition +
             (enemy.enemyInformation.height -
               enemy.requestedValueTextMetrics.height) /
               2 +
-            enemy.stackLevel * -20 -
-            40;
+            enemy.stackLevel * -40 -
+            24;
           enemy.senderNameTextSprite.y =
             enemy.enemyInformation.yPosition +
             (enemy.enemyInformation.height -
               enemy.senderNameTextMetrics.height) /
               2 +
             35 +
-            enemy.stackLevel * -20 -
-            40;
+            enemy.stackLevel * -40 -
+            48;
         }
       }
     }
