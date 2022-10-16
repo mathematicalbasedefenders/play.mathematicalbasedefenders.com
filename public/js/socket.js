@@ -426,6 +426,10 @@ socket.onmessage = (message) => {
                 ),
                 1
               );
+              Enemy.instances.splice(
+                Enemy.instances.indexOf(Enemy.findEnemyWithNumber(enemy)),
+                1
+              );
             }
             for (let numberToRemoveAsString of scoreGainIndicatorsToDelete) {
               game.scoreGainIndicatorRenderStatus[
@@ -958,6 +962,10 @@ socket.onmessage = (message) => {
                   game.spritesOfRenderedEnemiesOnField.indexOf(
                     numberToRemoveAsString
                   ),
+                  1
+                );
+                Enemy.instances.splice(
+                  Enemy.instances.indexOf(Enemy.findEnemyWithNumber(enemy)),
                   1
                 );
               }
