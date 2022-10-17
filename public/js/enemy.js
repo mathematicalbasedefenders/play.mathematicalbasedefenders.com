@@ -114,7 +114,7 @@ class Enemy {
     Enemy.instances.push(this);
   }
 
-  checkIfOverlapping(other) {
+  checkIfOverlapping(other, leftTrimAmount = 0, rightTrimAmount = 0) {
     // don't compare with itself
     if (this.enemyNumber === other.enemyNumber) {
       return false;
@@ -145,8 +145,8 @@ class Enemy {
       game.enemyRenderStatus[other.enemyNumber].enemySprite.height;
 
     if (
-      thisLeft < otherRight &&
-      thisRight > otherLeft // &&
+      thisLeft + leftTrimAmount - otherRight < 0 &&
+      thisRight - rightTrimAmount - otherLeft > 0 // &&
       // thisTop < otherBottom &&
       // thisBottom > otherTop
     ) {
