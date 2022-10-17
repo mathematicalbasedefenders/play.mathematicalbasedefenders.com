@@ -103,7 +103,7 @@ socket.onmessage = (message) => {
             ) {
               comboText += `${currentGameData.currentGame.currentCombo} Combo`;
               if (settings.video.gameScreenInformationMode >= 100) {
-                comboText += `×${
+                comboText += ` (×${
                   parseInt(currentGameData.currentGame.currentCombo) * 0.1 + 1
                 })`;
               }
