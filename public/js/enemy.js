@@ -169,6 +169,7 @@ class Enemy {
       if (
         [enemyNumber] === this.enemyNumber ||
         this.minified !== false ||
+        initialEnemy == null ||
         initialEnemy.minified !== false
       ) {
         continue;
@@ -380,7 +381,7 @@ class Enemy {
 
   static cleanDead() {
     Enemy.instances = Enemy.instances.filter(
-      (enemy) => parseFloat(enemy.sPosition) > -0.01
+      (enemy) => parseFloat(enemy.sPosition) > -0.01 // && !enemy.toDestroy
     );
   }
 }

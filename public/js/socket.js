@@ -300,8 +300,6 @@ socket.onmessage = (message) => {
               }
             }
 
-            Enemy.updateSprites();
-
             for (let enemy in game.enemyRenderStatus) {
               if (game.enemyRenderStatus[enemy].toDestroy) {
                 singleplayerScreenContainer.removeChild(
@@ -427,11 +425,14 @@ socket.onmessage = (message) => {
                 1
               );
               Enemy.instances.splice(
-                Enemy.instances.indexOf(Enemy.findEnemyWithNumber(enemy)),
+                Enemy.instances.indexOf(
+                  Enemy.findEnemyWithNumber(numberToRemoveAsString)
+                ),
                 1
               );
             }
             Enemy.cleanDead();
+            Enemy.updateSprites();
             for (let numberToRemoveAsString of scoreGainIndicatorsToDelete) {
               game.scoreGainIndicatorRenderStatus[
                 numberToRemoveAsString.toString()
@@ -822,8 +823,6 @@ socket.onmessage = (message) => {
                 }
               }
 
-              Enemy.updateSprites();
-
               for (let enemy in game.enemyRenderStatus) {
                 if (game.enemyRenderStatus[enemy].toDestroy) {
                   multiplayerScreenContainer.removeChild(
@@ -966,11 +965,14 @@ socket.onmessage = (message) => {
                   1
                 );
                 Enemy.instances.splice(
-                  Enemy.instances.indexOf(Enemy.findEnemyWithNumber(enemy)),
+                  Enemy.instances.indexOf(
+                    Enemy.findEnemyWithNumber(numberToRemoveAsString)
+                  ),
                   1
                 );
               }
               Enemy.cleanDead();
+              Enemy.updateSprites();
               for (let numberToRemoveAsString of enemiesSentIndicatorsToDelete) {
                 game.enemiesSentIndicatorRenderStatus[
                   numberToRemoveAsString.toString()
