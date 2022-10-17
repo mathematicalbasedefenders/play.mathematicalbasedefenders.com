@@ -293,8 +293,7 @@ class Enemy {
               (enemy.enemyInformation.height -
                 (enemy?.requestedValueTextMetrics?.height ?? 0)) /
                 2 +
-              35 +
-              enemy.stackLevel * -40 -
+              +enemy.stackLevel * -40 -
               48;
           }
         }
