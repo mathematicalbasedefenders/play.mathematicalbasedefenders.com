@@ -601,11 +601,15 @@ socket.onmessage = (message) => {
                       .toFixed(3)
                       .toString()
                   : "";
-              multiplayerScreenContainerItems.currentComboText.text =
-                settings.video.gameScreenInformationMode < 20 ||
+              let comboText = "";
+
+              if (
+                settings.video.gameScreenInformationMode >= 20 &&
                 currentGameData.currentGame.currentCombo >= 1
-                  ? ""
-                  : currentGameData.currentGame.currentCombo + " Combo";
+              ) {
+                comboText += `${currentGameData.currentGame.currentCombo} Combo`;
+              }
+              multiplayerScreenContainerItems.currentComboText.text = comboText;
               multiplayerScreenContainerItems.valueOfVariableAText.text =
                 currentGameData.currentGame.valueOfVariableA === undefined
                   ? "a = ?"
