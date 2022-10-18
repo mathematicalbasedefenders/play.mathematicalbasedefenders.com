@@ -58,7 +58,7 @@ const gameModes = {
 const GAME_SETTINGS = {
   easySingleplayerMode: {
     allowedComboTimeInMilliseconds: 10000,
-    enemyGenerationThreshold: 0.975,
+    enemyGenerationThreshold: 0.98125,
     enemyGenerationIntervalInMilliseconds: 50,
     enemySpeedMultiplier: 0.5,
     enemyLimit: 5
