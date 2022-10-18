@@ -76,12 +76,23 @@ body {
 
 #game-container {
   overflow: hidden;
+  width: 100vw;
+  height: 100vh;
 }
 
 :root {
   --color-black: #000000;
   --color-white: #ffffff;
   --color-background: #eeeeee;
+  --color--text-modal-background: #555555;
+
+  --transition-duration-medium: 200ms;
+}
+
+.vertical-aligned {
+  display: flex;
+  align-items: center;
+  line-height: normal;
 }
 
 /*
@@ -150,6 +161,11 @@ img {
   position: absolute;
   width: 100%;
   height: 100%;
+  /*
+  TODO: Find a more stable way
+  */
+  top: 0;
+  bottom: 0;
 }
 
 #bottom-user-interface-container {
@@ -263,16 +279,26 @@ select {
 .text-modal__button {
   height: 50px;
   font-size: 32px;
-  background-color: #cdcdcd;
-  color: #000000;
+  background-color: #414141;
+  color: #ffffff;
+  border-radius: 2px;
+  border: 3px solid transparent;
   bottom: 5%;
   width: 30%;
 }
 
+.text-modal__button:hover {
+  background-color: #707070;
+  transition-duration: var(--transition-duration-medium);
+}
+
 .text-modal__button--dangerous {
-  background-color: #bb0000 !important;
-  color: #ffffff !important;
-  border-color: #dd0000 !important;
+  background-color: #bb0000;
+  color: #ffffff;
+}
+
+.text-modal__button--dangerous:hover {
+  background-color: #dd0000;
 }
 
 #user-information-modal-container {
@@ -354,6 +380,25 @@ input {
   height: 28px;
   background-color: #eeeeee;
   right: 5vw;
+}
+
+.action-button {
+  
+  border: 2px solid var(--color-black);
+  border-radius: 2px;
+  background-color: #eeeeee;
+
+}
+
+.start-button {
+  width: 256px;
+  height: 64px;
+  font-size: 28px;
+}
+
+.action-button:hover {
+  background-color:#f3f3f3;
+  transition-duration: var(--transition-duration-medium);
 }
 
 /*
@@ -464,7 +509,18 @@ input {
 	SINGLEPLAYER LOBBY
 */
 
+#singleplayer-lobby-screen-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+#singleplayer-screen__intermission-screen {
+  width: 80%;
+}
+
 #singleplayer-lobby-screen-button-container {
+  width: 20%;
   position: absolute;
   left: 0.5vw;
   bottom: 10vh;
@@ -493,10 +549,7 @@ input {
   box-shadow: inset 15.625vw 0 0 #b6b6b6;
 }
 
-#singleplayer-screen-custom-mode-settings-screen-content-container {
-  float: right;
-  right: 1vw;
-  width: 75vw;
+#singleplayer-screen__intermission-screen--custom-singleplayer {
   overflow-y: auto;
   height: 100vh;
   z-index: -100;
@@ -506,6 +559,9 @@ input {
 /*
 	MULTIPLAYER LOBBY
 */
+#multiplayer-lobby-screen-container {
+  display: flex;
+}
 
 #multiplayer-lobby-screen-button-container {
   position: absolute;
@@ -611,7 +667,6 @@ input {
   position: absolute;
   right: 0.5vw;
   height: 56.5vh;
-  z-index: -2;
   max-height: 100%;
   word-wrap: break-word;
 }

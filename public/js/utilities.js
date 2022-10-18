@@ -116,9 +116,7 @@ function changePIXIJSTextStyle(textObject, key, newValue) {
 
 function changePIXIJSTextStyle2(textObject, key, newValue) {
   let originalStyle = JSON.parse(JSON.stringify(textObject.style));
-  console.log(originalStyle);
   originalStyle[key] = newValue;
-  console.log(originalStyle);
   textObject.style = originalStyle;
 }
 

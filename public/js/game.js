@@ -94,6 +94,22 @@ var game = {
       y: 210
     }
   },
+  renderingOffsets: {
+    singleplayer: {
+      x: 0,
+      y: 0
+    },
+    multiplayer: {
+      x: 0,
+      y: 0,
+      opponents: {
+        x: 0,
+        y: 0
+      }
+    }
+  },
+  currentGameModePlaying: null,
+  opponentGameInstanceScale: 1,
   cachedLengthOfOpponentGameInstances: 0,
   toastNotifications: {},
   toastNotificationsCreated: 0,
@@ -181,8 +197,10 @@ app.stage.addChild(mainMenuScreenContainer);
 mainMenuScreenContainer.visible = false; // for now
 app.stage.addChild(singleplayerScreenContainer);
 singleplayerScreenContainer.visible = false; // for now
+singleplayerScreenContainer.sortableChildren = true;
 app.stage.addChild(multiplayerScreenContainer);
 multiplayerScreenContainer.visible = false; // for now
+multiplayerScreenContainer.sortableChildren = true;
 
 switch (currentScreen) {
   case screens.MAIN_MENU_SCREEN: {
@@ -272,10 +290,6 @@ var singleplayerScreenContainerItems = {
   currentComboText: new PIXI.Text("", textStyles.SIZE_40_FONT)
 };
 
-singleplayerScreenContainerItems.sendButtonSprite.x =
-  initialWindowWidth / 2 + 64 * -4 + 16;
-singleplayerScreenContainerItems.sendButtonSprite.y =
-  initialWindowHeight / 2 + 64 * 3 + 176;
 singleplayerScreenContainerItems.sendButtonSprite.interactive = true;
 singleplayerScreenContainerItems.sendButtonSprite.on(
   "pointerdown",
@@ -284,86 +298,114 @@ singleplayerScreenContainerItems.sendButtonSprite.on(
   }
 );
 
-singleplayerScreenContainerItems.baseSprite.x = initialWindowWidth / 2 - 450;
-singleplayerScreenContainerItems.baseSprite.y = initialWindowHeight / 2 - 505;
+setSingleplayerScreenItemRenderingOffsets(
+  game.renderingOffsets.singleplayer.x,
+  game.renderingOffsets.singleplayer.y
+);
 
-singleplayerScreenContainerItems.currentProblemText.style.align = "center";
-singleplayerScreenContainerItems.currentProblemText.tint = 0x000000;
-singleplayerScreenContainerItems.currentProblemText.y =
-  initialWindowHeight / 2 - 200;
+function setSingleplayerScreenItemRenderingOffsets(xOffset, yOffset) {
+  // for older browsers, too scared to use the new syntax (...(offset=0))
 
-singleplayerScreenContainerItems.scoreLabelerText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-singleplayerScreenContainerItems.scoreLabelerText.y =
-  initialWindowHeight / 2 - 100;
+  game.renderingOffsets.singleplayer.x = xOffset;
+  game.renderingOffsets.singleplayer.y = yOffset;
 
-singleplayerScreenContainerItems.currentScoreText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-singleplayerScreenContainerItems.currentScoreText.y =
-  initialWindowHeight / 2 - 80;
+  if (xOffset == null) {
+    xOffset = 0;
+    game.renderingOffsets.singleplayer.x = 0;
+  }
+  if (yOffset == null) {
+    yOffset = 0;
+    game.renderingOffsets.singleplayer.y = 0;
+  }
 
-singleplayerScreenContainerItems.timeLabelerText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-singleplayerScreenContainerItems.timeLabelerText.y =
-  initialWindowHeight / 2 - 10;
+  singleplayerScreenContainerItems.baseSprite.x =
+    initialWindowWidth / 2 - 450 + xOffset;
+  singleplayerScreenContainerItems.baseSprite.y =
+    initialWindowHeight / 2 - 505 + yOffset;
+  singleplayerScreenContainerItems.baseSprite.zIndex = 2;
 
-singleplayerScreenContainerItems.currentTimeText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-singleplayerScreenContainerItems.currentTimeText.y =
-  initialWindowHeight / 2 + 10;
+  singleplayerScreenContainerItems.currentProblemText.style.align = "center";
+  singleplayerScreenContainerItems.currentProblemText.tint = 0x000000;
+  singleplayerScreenContainerItems.currentProblemText.y =
+    initialWindowHeight / 2 - 200 + yOffset;
 
-singleplayerScreenContainerItems.baseHealthText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-singleplayerScreenContainerItems.baseHealthText.y =
-  initialWindowHeight / 2 + 60;
+  singleplayerScreenContainerItems.scoreLabelerText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  singleplayerScreenContainerItems.scoreLabelerText.y =
+    initialWindowHeight / 2 - 100 + yOffset;
 
-singleplayerScreenContainerItems.enemiesText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-singleplayerScreenContainerItems.enemiesText.y = initialWindowHeight / 2 + 90;
+  singleplayerScreenContainerItems.currentScoreText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  singleplayerScreenContainerItems.currentScoreText.y =
+    initialWindowHeight / 2 - 80 + yOffset;
 
-singleplayerScreenContainerItems.valueOfVariableAText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-singleplayerScreenContainerItems.valueOfVariableAText.y =
-  initialWindowHeight / 2 + 120;
+  singleplayerScreenContainerItems.timeLabelerText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  singleplayerScreenContainerItems.timeLabelerText.y =
+    initialWindowHeight / 2 - 10 + yOffset;
 
-singleplayerScreenContainerItems.valueOfVariableBText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-singleplayerScreenContainerItems.valueOfVariableBText.y =
-  initialWindowHeight / 2 + 150;
+  singleplayerScreenContainerItems.currentTimeText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  singleplayerScreenContainerItems.currentTimeText.y =
+    initialWindowHeight / 2 + 10 + yOffset;
 
-singleplayerScreenContainerItems.valueOfVariableCText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-singleplayerScreenContainerItems.valueOfVariableCText.y =
-  initialWindowHeight / 2 + 180;
+  singleplayerScreenContainerItems.baseHealthText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  singleplayerScreenContainerItems.baseHealthText.y =
+    initialWindowHeight / 2 + 60 + yOffset;
 
-singleplayerScreenContainerItems.valueOfVariableDText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-singleplayerScreenContainerItems.valueOfVariableDText.y =
-  initialWindowHeight / 2 + 210;
+  singleplayerScreenContainerItems.enemiesText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  singleplayerScreenContainerItems.enemiesText.y =
+    initialWindowHeight / 2 + 90 + yOffset;
 
-// Left of grid
+  singleplayerScreenContainerItems.valueOfVariableAText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  singleplayerScreenContainerItems.valueOfVariableAText.y =
+    initialWindowHeight / 2 + 120 + yOffset;
 
-singleplayerScreenContainerItems.actionsPerMinuteLabelerText.x =
-  initialWindowWidth / 2 - 465;
-singleplayerScreenContainerItems.actionsPerMinuteLabelerText.y =
-  initialWindowHeight / 2 - 10;
+  singleplayerScreenContainerItems.valueOfVariableBText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  singleplayerScreenContainerItems.valueOfVariableBText.y =
+    initialWindowHeight / 2 + 150 + yOffset;
 
-singleplayerScreenContainerItems.actionsPerMinuteText.x =
-  initialWindowWidth / 2 - 450;
-singleplayerScreenContainerItems.actionsPerMinuteText.y =
-  initialWindowHeight / 2 + 10;
+  singleplayerScreenContainerItems.valueOfVariableCText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  singleplayerScreenContainerItems.valueOfVariableCText.y =
+    initialWindowHeight / 2 + 180 + yOffset;
 
-singleplayerScreenContainerItems.currentComboText.x =
-  initialWindowWidth / 2 - 450;
-singleplayerScreenContainerItems.currentComboText.y =
-  initialWindowHeight / 2 - 80;
+  singleplayerScreenContainerItems.valueOfVariableDText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  singleplayerScreenContainerItems.valueOfVariableDText.y =
+    initialWindowHeight / 2 + 210 + yOffset; // Left of grid
 
-singleplayerScreenContainerItems.currentComboTimeLeftText.x =
-  initialWindowWidth / 2 - 260;
-singleplayerScreenContainerItems.currentComboTimeLeftText.y =
-  initialWindowHeight / 2 - 35;
+  singleplayerScreenContainerItems.actionsPerMinuteLabelerText.x =
+    initialWindowWidth / 2 - 465 + xOffset;
+  singleplayerScreenContainerItems.actionsPerMinuteLabelerText.y =
+    initialWindowHeight / 2 - 10 + yOffset;
 
-// Images
+  singleplayerScreenContainerItems.actionsPerMinuteText.x =
+    initialWindowWidth / 2 - 450 + xOffset;
+  singleplayerScreenContainerItems.actionsPerMinuteText.y =
+    initialWindowHeight / 2 + 10 + yOffset;
+
+  singleplayerScreenContainerItems.currentComboText.x =
+    initialWindowWidth / 2 - 450 + xOffset;
+  singleplayerScreenContainerItems.currentComboText.y =
+    initialWindowHeight / 2 - 80 + yOffset;
+
+  singleplayerScreenContainerItems.currentComboTimeLeftText.x =
+    initialWindowWidth / 2 - 260 + xOffset;
+  singleplayerScreenContainerItems.currentComboTimeLeftText.y =
+    initialWindowHeight / 2 - 35 + yOffset;
+
+  singleplayerScreenContainerItems.sendButtonSprite.x =
+    initialWindowWidth / 2 + 64 * -4 + 16 + xOffset;
+  singleplayerScreenContainerItems.sendButtonSprite.y =
+    initialWindowHeight / 2 + 64 * 3 + 176 + yOffset;
+
+  destroyRenderedTiles();
+}
 
 var multiplayerScreenContainerItems = {
   sendButtonSprite: new PIXI.Sprite(sendButtonTexture),
@@ -402,107 +444,137 @@ var multiplayerScreenContainerItems = {
     textStyles.SIZE_24_FONT
   )
 };
+setMultiplayerScreenItemRenderingOffsets(
+  game.renderingOffsets.multiplayer.x,
+  game.renderingOffsets.multiplayer.y
+);
+function setMultiplayerScreenItemRenderingOffsets(xOffset, yOffset) {
+  // set
+  game.renderingOffsets.multiplayer.x = xOffset;
+  game.renderingOffsets.multiplayer.y = yOffset;
+  if (xOffset == null) {
+    xOffset = 0;
+    game.renderingOffsets.multiplayer.x = 0;
+  }
+  if (yOffset == null) {
+    yOffset = 0;
+    game.renderingOffsets.multiplayer.y = 0;
+  }
+  multiplayerScreenContainerItems.sendButtonSprite.x =
+    initialWindowWidth / 2 + 64 * -4 + 16 + xOffset;
+  multiplayerScreenContainerItems.sendButtonSprite.y =
+    initialWindowHeight / 2 + 64 * 3 + 176 + yOffset;
+  multiplayerScreenContainerItems.sendButtonSprite.interactive = true;
+  multiplayerScreenContainerItems.sendButtonSprite.on(
+    "pointerdown",
+    function () {
+      sendProblem();
+    }
+  );
 
-multiplayerScreenContainerItems.sendButtonSprite.x =
-  initialWindowWidth / 2 + 64 * -4 + 16;
-multiplayerScreenContainerItems.sendButtonSprite.y =
-  initialWindowHeight / 2 + 64 * 3 + 176;
-multiplayerScreenContainerItems.sendButtonSprite.interactive = true;
-multiplayerScreenContainerItems.sendButtonSprite.on("pointerdown", function () {
-  sendProblem();
-});
+  multiplayerScreenContainerItems.baseSprite.x =
+    initialWindowWidth / 2 - 450 + xOffset;
+  multiplayerScreenContainerItems.baseSprite.y =
+    initialWindowHeight / 2 - 465 + yOffset;
+  multiplayerScreenContainerItems.baseSprite.zIndex = 2;
 
-multiplayerScreenContainerItems.baseSprite.x = initialWindowWidth / 2 - 450;
-multiplayerScreenContainerItems.baseSprite.y = initialWindowHeight / 2 - 465;
+  multiplayerScreenContainerItems.numberOfPendingEnemiesText.x =
+    initialWindowWidth / 2 + 500 + xOffset;
+  multiplayerScreenContainerItems.numberOfPendingEnemiesText.y =
+    initialWindowHeight / 2 - 400 + yOffset;
 
-multiplayerScreenContainerItems.numberOfPendingEnemiesText.x =
-  initialWindowWidth / 2 + 500;
-multiplayerScreenContainerItems.numberOfPendingEnemiesText.y =
-  initialWindowHeight / 2 - 400;
+  multiplayerScreenContainerItems.playerNameText.style.align = "center";
+  multiplayerScreenContainerItems.playerNameText.y =
+    initialWindowHeight / 2 + 440 + yOffset;
 
-multiplayerScreenContainerItems.playerNameText.style.align = "center";
-multiplayerScreenContainerItems.playerNameText.y =
-  initialWindowHeight / 2 + 440;
+  multiplayerScreenContainerItems.currentProblemText.style.align = "center";
+  multiplayerScreenContainerItems.currentProblemText.tint = 0x000000;
+  multiplayerScreenContainerItems.currentProblemText.y =
+    initialWindowHeight / 2 - 200 + yOffset;
 
-multiplayerScreenContainerItems.currentProblemText.style.align = "center";
-multiplayerScreenContainerItems.currentProblemText.tint = 0x000000;
-multiplayerScreenContainerItems.currentProblemText.y =
-  initialWindowHeight / 2 - 200;
+  multiplayerScreenContainerItems.enemiesSentLabelerText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  multiplayerScreenContainerItems.enemiesSentLabelerText.y =
+    initialWindowHeight / 2 - 100 + yOffset;
 
-multiplayerScreenContainerItems.enemiesSentLabelerText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.enemiesSentLabelerText.y =
-  initialWindowHeight / 2 - 100;
+  multiplayerScreenContainerItems.currentEnemiesSentText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  multiplayerScreenContainerItems.currentEnemiesSentText.y =
+    initialWindowHeight / 2 - 80 + yOffset;
 
-multiplayerScreenContainerItems.currentEnemiesSentText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.currentEnemiesSentText.y =
-  initialWindowHeight / 2 - 80;
+  multiplayerScreenContainerItems.timeLabelerText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  multiplayerScreenContainerItems.timeLabelerText.y =
+    initialWindowHeight / 2 - 10 + yOffset;
 
-multiplayerScreenContainerItems.timeLabelerText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.timeLabelerText.y =
-  initialWindowHeight / 2 - 10;
+  multiplayerScreenContainerItems.currentTimeText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  multiplayerScreenContainerItems.currentTimeText.y =
+    initialWindowHeight / 2 + 10 + yOffset;
 
-multiplayerScreenContainerItems.currentTimeText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.currentTimeText.y =
-  initialWindowHeight / 2 + 10;
+  multiplayerScreenContainerItems.baseHealthText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  multiplayerScreenContainerItems.baseHealthText.y =
+    initialWindowHeight / 2 + 60 + yOffset;
 
-multiplayerScreenContainerItems.baseHealthText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.baseHealthText.y = initialWindowHeight / 2 + 60;
+  multiplayerScreenContainerItems.enemiesText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  multiplayerScreenContainerItems.enemiesText.y = initialWindowHeight / 2 + 90;
 
-multiplayerScreenContainerItems.enemiesText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.enemiesText.y = initialWindowHeight / 2 + 90;
+  multiplayerScreenContainerItems.valueOfVariableAText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  multiplayerScreenContainerItems.valueOfVariableAText.y =
+    initialWindowHeight / 2 + 120 + yOffset;
 
-multiplayerScreenContainerItems.valueOfVariableAText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.valueOfVariableAText.y =
-  initialWindowHeight / 2 + 120;
+  multiplayerScreenContainerItems.valueOfVariableBText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  multiplayerScreenContainerItems.valueOfVariableBText.y =
+    initialWindowHeight / 2 + 150 + yOffset;
 
-multiplayerScreenContainerItems.valueOfVariableBText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.valueOfVariableBText.y =
-  initialWindowHeight / 2 + 150;
+  multiplayerScreenContainerItems.valueOfVariableCText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  multiplayerScreenContainerItems.valueOfVariableCText.y =
+    initialWindowHeight / 2 + 180 + yOffset;
 
-multiplayerScreenContainerItems.valueOfVariableCText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.valueOfVariableCText.y =
-  initialWindowHeight / 2 + 180;
+  multiplayerScreenContainerItems.valueOfVariableDText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  multiplayerScreenContainerItems.valueOfVariableDText.y =
+    initialWindowHeight / 2 + 210 + yOffset;
 
-multiplayerScreenContainerItems.valueOfVariableDText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.valueOfVariableDText.y =
-  initialWindowHeight / 2 + 210;
+  multiplayerScreenContainerItems.currentPlayersRemainingText.x =
+    initialWindowWidth / 2 + 64 * 2 + 96 + xOffset;
+  multiplayerScreenContainerItems.currentPlayersRemainingText.y =
+    initialWindowHeight / 2 + 240 + yOffset;
 
-multiplayerScreenContainerItems.currentPlayersRemainingText.x =
-  initialWindowWidth / 2 + 64 * 2 + 96;
-multiplayerScreenContainerItems.currentPlayersRemainingText.y =
-  initialWindowHeight / 2 + 240;
+  // Left of grid
 
-// Left of grid
+  multiplayerScreenContainerItems.actionsPerMinuteLabelerText.x =
+    initialWindowWidth / 2 - 465 + xOffset;
+  multiplayerScreenContainerItems.actionsPerMinuteLabelerText.y =
+    initialWindowHeight / 2 - 10 + yOffset;
 
-multiplayerScreenContainerItems.actionsPerMinuteLabelerText.x =
-  initialWindowWidth / 2 - 465;
-multiplayerScreenContainerItems.actionsPerMinuteLabelerText.y =
-  initialWindowHeight / 2 - 10;
+  multiplayerScreenContainerItems.actionsPerMinuteText.x =
+    initialWindowWidth / 2 - 450 + xOffset;
+  multiplayerScreenContainerItems.actionsPerMinuteText.y =
+    initialWindowHeight / 2 + 10 + yOffset;
 
-multiplayerScreenContainerItems.actionsPerMinuteText.x =
-  initialWindowWidth / 2 - 450;
-multiplayerScreenContainerItems.actionsPerMinuteText.y =
-  initialWindowHeight / 2 + 10;
+  multiplayerScreenContainerItems.currentComboText.x =
+    initialWindowWidth / 2 - 450 + xOffset;
+  multiplayerScreenContainerItems.currentComboText.y =
+    initialWindowHeight / 2 - 80 + yOffset;
 
-multiplayerScreenContainerItems.currentComboText.x =
-  initialWindowWidth / 2 - 450;
-multiplayerScreenContainerItems.currentComboText.y =
-  initialWindowHeight / 2 - 80;
+  multiplayerScreenContainerItems.currentComboTimeLeftText.y =
+    initialWindowHeight / 2 - 35 + yOffset;
+  multiplayerScreenContainerItems.currentComboTimeLeftText.x =
+    initialWindowWidth / 2 - 260 + xOffset;
 
-multiplayerScreenContainerItems.currentComboTimeLeftText.y =
-  initialWindowHeight / 2 - 35;
-multiplayerScreenContainerItems.currentComboTimeLeftText.x =
-  initialWindowWidth / 2 - 260;
+  multiplayerScreenContainerItems.sendButtonSprite.x =
+    initialWindowWidth / 2 + 64 * -4 + 16 + xOffset;
+  multiplayerScreenContainerItems.sendButtonSprite.y =
+    initialWindowHeight / 2 + 64 * 3 + 176 + yOffset;
+
+  destroyRenderedTiles();
+}
 
 var tileTextures = [[], []];
 
@@ -637,7 +709,7 @@ window.onload = () => {
 };
 
 async function initializeSplashScreen() {
-  $("#loading-screen").click(() =>
+  $("#loading-screen-container").click(() =>
     $("#loading-screen-container").fadeOut(1000).hide(0)
   );
   $("#loading-screen__text").html(
@@ -711,28 +783,32 @@ app.ticker.add((delta) => {
               : singleplayerScreenContainerItems.currentProblemText.text.toString(),
             textStyles.SIZE_72_MATH_FONT
           ).width) /
-        2;
+          2 +
+        game.renderingOffsets.singleplayer.x;
       singleplayerScreenContainerItems.actionsPerMinuteText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           singleplayerScreenContainerItems.actionsPerMinuteText.text,
           textStyles.SIZE_40_FONT
-        ).width;
+        ).width +
+        game.renderingOffsets.singleplayer.x;
       singleplayerScreenContainerItems.currentComboText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           singleplayerScreenContainerItems.currentComboText.text,
           textStyles.SIZE_40_FONT
-        ).width;
+        ).width +
+        game.renderingOffsets.singleplayer.x;
       singleplayerScreenContainerItems.currentComboTimeLeftText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           singleplayerScreenContainerItems.currentComboTimeLeftText.text,
           textStyles.SIZE_24_FONT
-        ).width;
+        ).width +
+        game.renderingOffsets.singleplayer.x;
       break;
     }
 
@@ -747,28 +823,32 @@ app.ticker.add((delta) => {
               : multiplayerScreenContainerItems.currentProblemText.text.toString(),
             textStyles.SIZE_72_MATH_FONT
           ).width) /
-        2;
+          2 +
+        game.renderingOffsets.multiplayer.x;
       multiplayerScreenContainerItems.actionsPerMinuteText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           multiplayerScreenContainerItems.actionsPerMinuteText.text,
           textStyles.SIZE_40_FONT
-        ).width;
+        ).width +
+        game.renderingOffsets.multiplayer.x;
       multiplayerScreenContainerItems.currentComboText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           multiplayerScreenContainerItems.currentComboText.text,
           textStyles.SIZE_40_FONT
-        ).width;
+        ).width +
+        game.renderingOffsets.multiplayer.x;
       multiplayerScreenContainerItems.currentComboTimeLeftText.x =
         initialWindowWidth / 2 -
         260 -
         PIXI.TextMetrics.measureText(
           multiplayerScreenContainerItems.currentComboTimeLeftText.text,
           textStyles.SIZE_24_FONT
-        ).width;
+        ).width +
+        game.renderingOffsets.multiplayer.x;
 
       multiplayerScreenContainerItems.playerNameText.x =
         (initialWindowWidth -
@@ -778,7 +858,8 @@ app.ticker.add((delta) => {
               : multiplayerScreenContainerItems.playerNameText.text.toString(),
             textStyles.SIZE_24_FONT
           ).width) /
-        2;
+          2 +
+        game.renderingOffsets.multiplayer.x;
       break;
     }
   }
@@ -837,7 +918,6 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
       $("#hub-container").show(0);
       $("#singleplayer-lobby-screen-container").show(0);
       $("#bottom-toolbar-container").show(0);
-
       break;
     }
     case screens.SINGLEPLAYER_GAME_SCREEN: {
@@ -847,6 +927,7 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
       document.body.style.overflow = "none";
       document.getElementById("pixi-canvas").style.display = "block";
       singleplayerScreenContainer.visible = true; // for now
+      game.currentGameModePlaying = "singleplayer";
       break;
     }
     case screens.MULTIPLAYER_LOBBY_SCREEN: {
@@ -871,6 +952,7 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
       document.body.style.overflow = "none";
       document.getElementById("pixi-canvas").style.display = "block";
       multiplayerScreenContainer.visible = true; // for now
+      game.currentGameModePlaying = "multiplayer";
       break;
     }
     case screens.DEFAULT_MULTIPLAYER_ROOM_LOBBY_SCREEN: {
@@ -881,7 +963,11 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
       }
       game.opponentGameInstances = [];
       game.cachedLengthOfOpponentGameInstances = 0;
+
+      Enemy.clean();
+
       document.body.style.overflow = "none";
+
       $("#hub-container").show(0);
       $("#default-multiplayer-room-lobby-screen-container").show(0);
 
@@ -920,6 +1006,9 @@ function setPropertiesAndChangeScreen(newScreen, forceResizeContainer) {
     }
     case screens.GAME_OVER_SCREEN: {
       // set properties
+
+      Enemy.clean();
+
       document.body.style.overflow = "hidden";
       document.getElementById("hub-container").style.display = "block";
       document.getElementById("game-over-screen-container").style.display =
@@ -977,15 +1066,9 @@ function hideEverything() {
   $("#statistics-screen-container").hide(0);
   $("#settings-screen-container").hide(0);
   $("#game-over-screen-container").hide(0);
-
   $("#bottom-toolbar-container").hide(0);
-
-  $("#singleplayer-screen-custom-mode-settings-screen-content-container").hide(
-    0
-  );
-
+  $("#singleplayer-screen__intermission-screen--custom-singleplayer").hide(0);
   $("#bottom-user-interface-container").hide(0);
-
   $("#pixi-canvas").hide(0);
 }
 
@@ -1245,44 +1328,48 @@ function removeAllRenderedEnemies() {
 
 function restoreSettings() {
   settings = localStorage.getItem("settings");
-
   if (settings === undefined || settings == null) {
-    settings = {
-      video: {
-        enemyColor: "randomForEach",
-        multiplicationSignForm: "cross",
-        customEnemyPictureURL: ""
-      },
-      input: {
-        keybinds: {
-          tiles: [
-            "KeyM",
-            "KeyJ",
-            "KeyK",
-            "KeyL",
-            "KeyU",
-            "KeyI",
-            "KeyO",
-            "Digit7",
-            "Digit8",
-            "Digit9",
-            "Slash",
-            "Semicolon",
-            "KeyP",
-            "Digit0",
-            "Quote",
-            "KeyW",
-            "KeyE",
-            "KeyS",
-            "KeyD"
-          ]
-        }
-      }
-    };
-    localStorage.setItem("settings", JSON.stringify(settings));
+    resetSettings();
   } else {
     settings = JSON.parse(settings);
   }
+}
+
+function resetSettings() {
+  settings = {
+    video: {
+      enemyColor: "randomForEach",
+      multiplicationSignForm: "cross",
+      customEnemyPictureURL: "",
+      enableStackedEnemies: "off"
+    },
+    input: {
+      keybinds: {
+        tiles: [
+          "KeyM",
+          "KeyJ",
+          "KeyK",
+          "KeyL",
+          "KeyU",
+          "KeyI",
+          "KeyO",
+          "Digit7",
+          "Digit8",
+          "Digit9",
+          "Slash",
+          "Semicolon",
+          "KeyP",
+          "Digit0",
+          "Quote",
+          "KeyW",
+          "KeyE",
+          "KeyS",
+          "KeyD"
+        ]
+      }
+    }
+  };
+  localStorage.setItem("settings", JSON.stringify(settings));
 }
 
 function updateSettingsSelections() {
@@ -1299,6 +1386,7 @@ function updateSettingsSelections() {
   for (let i = 0; i < 19; i++) {
     $("#key-to-force-select-tile-" + i).text(settings.input.keybinds.tiles[i]);
   }
+  $("#stacked-enemies-form").val(settings.video.enableStackedEnemies);
 }
 
 function useKeybindPreset(type) {
@@ -1319,7 +1407,8 @@ function changeSettings() {
       customEnemyPictureURL: $("#enemy-custom-selected-picture").val(),
       gameScreenInformationMode: $(
         "#game-screen-information-mode-setting-drop-down-menu"
-      ).val()
+      ).val(),
+      enableStackedEnemies: $("#stacked-enemies-setting-drop-down-menu").val()
     },
     input: {
       keybinds: {
@@ -1444,9 +1533,7 @@ function showReportUserModal() {
 }
 
 function showCustomSingleplayerGameModeSettingsScreen() {
-  $("#singleplayer-screen-custom-mode-settings-screen-content-container").show(
-    0
-  );
+  $("#singleplayer-screen__intermission-screen--custom-singleplayer").show(0);
 }
 
 function getCustomSingleplayerModeInputs() {
@@ -1602,5 +1689,53 @@ function setLabelerTextVisibilities() {
       "Actions Per Minute";
   }
   if (settings.video.gameScreenInformationMode >= 100) {
+  }
+}
+
+function showSingleplayerIntermissionScreen(mode) {
+  $("#singleplayer-screen__intermission-screen--easy-singleplayer").hide(0);
+  $("#singleplayer-screen__intermission-screen--standard-singleplayer").hide(0);
+  $("#singleplayer-screen__intermission-screen--custom-singleplayer").hide(0);
+  switch (mode) {
+    case "easySingleplayerMode": {
+      $("#singleplayer-screen__intermission-screen--easy-singleplayer").show(0);
+      break;
+    }
+    case "standardSingleplayerMode": {
+      $(
+        "#singleplayer-screen__intermission-screen--standard-singleplayer"
+      ).show(0);
+
+      break;
+    }
+    case "customSingleplayerMode": {
+      $("#singleplayer-screen__intermission-screen--custom-singleplayer").show(
+        0
+      );
+      break;
+    }
+  }
+}
+
+function showMultiplayerIntermissionScreen() {
+  $("#multiplayer-lobby-screen__intermission-screen").show(0);
+}
+
+function destroyRenderedTiles() {
+  for (let tile of game.tilesOnBoard) {
+    tile.sprite.parent.removeChild(tile.sprite);
+  }
+  game.tilesOnBoard = [];
+}
+
+function setOpponentGameInstanceRenderingOffsets(xOffset, yOffset) {
+  game.renderingOffsets.multiplayer.opponents.x = xOffset ?? 0;
+  game.renderingOffsets.multiplayer.opponents.y = yOffset ?? 0;
+  for (let opponentGameInstance of game.opponentGameInstances) {
+    opponentGameInstance.rerender(
+      opponentGameInstance.playerIndex,
+      multiplayerScreenContainer,
+      true
+    );
   }
 }

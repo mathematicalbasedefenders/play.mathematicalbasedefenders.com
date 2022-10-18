@@ -58,7 +58,7 @@ const gameModes = {
 const GAME_SETTINGS = {
   easySingleplayerMode: {
     allowedComboTimeInMilliseconds: 10000,
-    enemyGenerationThreshold: 0.975,
+    enemyGenerationThreshold: 0.98125,
     enemyGenerationIntervalInMilliseconds: 50,
     enemySpeedMultiplier: 0.5,
     enemyLimit: 5
@@ -284,8 +284,11 @@ async function computeUpdateForRoomPlayerEnemies(
             .length <
             (room.gameMode == "customSingleplayerMode"
               ? getCustomSingleplayerRoomInstance(room, player)
-              : GAME_SETTINGS[room.gameMode]
-            ).enemyLimit
+              : utilities.getEnemyLimit(
+                  room.gameMode,
+                  room.data.currentGame.players[player].currentGame
+                    .currentInGameTimeInMilliseconds
+                ))
         ) {
           room.data.currentGame.players[player].currentGame.enemiesOnField[
             room.data.currentGame.players[player].currentGame.enemiesCreated
@@ -300,7 +303,7 @@ async function computeUpdateForRoomPlayerEnemies(
                 ? getCustomSingleplayerRoomInstance(room, player)
                 : GAME_SETTINGS[room.gameMode]
               ).enemySpeedMultiplier *
-              (Math.random() * 2 + 1),
+              (Math.random() * 0.5 + 1),
             defaultAttack: 1,
             defaultHealth: 1,
             enemyNumber:
@@ -350,7 +353,7 @@ async function computeUpdateForRoomPlayerEnemies(
           width: 100,
           height: 100,
           requestedValue: enemies.generateRandomEnemyTerm(),
-          defaultSpeed: Math.random() * 2 + 1,
+          defaultSpeed: Math.random() * 0.5 + 1,
           defaultAttack: 1,
           defaultHealth: 1,
           enemyNumber:

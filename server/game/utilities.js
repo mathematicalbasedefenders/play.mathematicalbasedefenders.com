@@ -1,5 +1,5 @@
 const sizeof = require("object-sizeof");
-
+const log = require("../core/log.js");
 const configuration = require("../configuration.js");
 const global = require("../global.js");
 
@@ -267,7 +267,35 @@ function getUserIDOfSocketOwnerIfLoggedIn(socket) {
   return null;
 }
 
+function getEnemyLimit(mode, timeElapsedInMilliseconds) {
+  switch (mode) {
+    case "easySingleplayerMode": {
+      // starting at 5 enemies, the enemy limit grows linearly, adding 1 to the limit every 30 seconds after 60 seconds ending at a limit of 25 total
+      if (timeElapsedInMilliseconds >= 60000) {
+        return Math.min(
+          Math.floor((timeElapsedInMilliseconds - 60000) / 30000) + 5,
+          25
+        );
+      } else {
+        return 5;
+      }
+    }
+    case "standardSingleplayerMode": {
+      return 250;
+    }
+    case "customSingleplayerMode": {
+      throw Error(
+        log.addMetadata(
+          "You can't calculate custom singleplayer enemy limits!",
+          "error"
+        )
+      );
+    }
+  }
+}
+
 module.exports = {
+  getEnemyLimit,
   generateRoomID,
   generateGuestName,
   getSizeInBytes,

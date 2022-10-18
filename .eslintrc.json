@@ -6,7 +6,13 @@
     "node": true
   },
   "extends": "eslint:recommended",
-  "overrides": [
+  "overrides": [{
+    "files": "public/js/*",
+    "rules": {
+      "no-undef": "off",
+      "no-unused-vars": "off"
+    }
+  }
   ],
   "parserOptions": {
     "ecmaVersion": "latest"
