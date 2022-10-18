@@ -9,7 +9,7 @@
   "overrides": [{
     "files": "public/js/*",
     "rules": {
-      "no-undef": "off"
+      "no-undef": "off",
     }
   }
   ],
