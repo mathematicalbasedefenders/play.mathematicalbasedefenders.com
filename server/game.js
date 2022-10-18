@@ -284,8 +284,11 @@ async function computeUpdateForRoomPlayerEnemies(
             .length <
             (room.gameMode == "customSingleplayerMode"
               ? getCustomSingleplayerRoomInstance(room, player)
-              : GAME_SETTINGS[room.gameMode]
-            ).enemyLimit
+              : utilities.getEnemyLimit(
+                  room.gameMode,
+                  room.data.currentGame.players[player].currentGame
+                    .currentInGameTimeInMilliseconds
+                ))
         ) {
           room.data.currentGame.players[player].currentGame.enemiesOnField[
             room.data.currentGame.players[player].currentGame.enemiesCreated
