@@ -201,6 +201,7 @@ socket.onmessage = (message) => {
               i++
             ) {
               let enemy = currentGameData.currentGame.enemiesOnField[i];
+              // console.debug(enemy);
               if (enemy !== undefined && enemy !== null && !enemy.toDestroy) {
                 if (
                   game.enemyRenderStatus[enemy.enemyNumber.toString()] ===
@@ -294,6 +295,7 @@ socket.onmessage = (message) => {
                   ].toDestroy = true;
                 }
               } else {
+                // console.debug(`Enemy added: #${enemy.enemyNumber.toString()}`);
                 renderedEnemiesOnFieldToDelete.push(
                   enemy.enemyNumber.toString()
                 );
@@ -308,6 +310,8 @@ socket.onmessage = (message) => {
                 singleplayerScreenContainer.removeChild(
                   game.enemyRenderStatus[enemy].requestedValueTextSprite
                 );
+                // console.debug(`Enemy added: #${enemy.toString()}`);
+                renderedEnemiesOnFieldToDelete.push(enemy.toString());
               }
             }
 
@@ -415,24 +419,27 @@ socket.onmessage = (message) => {
                 );
               delete game.enemyRenderStatus[numberToRemoveAsString.toString()];
               game.renderedEnemiesOnField.splice(
-                game.renderedEnemiesOnField.indexOf(numberToRemoveAsString),
+                game.renderedEnemiesOnField.indexOf(
+                  numberToRemoveAsString.toString()
+                ),
                 1
               );
               game.spritesOfRenderedEnemiesOnField.splice(
                 game.spritesOfRenderedEnemiesOnField.indexOf(
-                  numberToRemoveAsString
+                  numberToRemoveAsString.toString()
                 ),
                 1
               );
               Enemy.instances.splice(
                 Enemy.instances.indexOf(
-                  Enemy.findEnemyWithNumber(numberToRemoveAsString)
+                  Enemy.findEnemyWithNumber(numberToRemoveAsString.toString())
                 ),
                 1
               );
             }
             Enemy.cleanDead();
             Enemy.updateSprites();
+
             for (let numberToRemoveAsString of scoreGainIndicatorsToDelete) {
               game.scoreGainIndicatorRenderStatus[
                 numberToRemoveAsString.toString()
@@ -460,7 +467,7 @@ socket.onmessage = (message) => {
                 "fill",
                 currentGameData.currentGame.nameColor
               );
-              console.debug(multiplayerScreenContainerItems.playerNameText);
+              // console.debug(multiplayerScreenContainerItems.playerNameText);
             }
             if (currentGameData.currentGame.dead) {
               setPropertiesAndChangeScreen(
@@ -835,6 +842,8 @@ socket.onmessage = (message) => {
                   multiplayerScreenContainer.removeChild(
                     game.enemyRenderStatus[enemy].requestedValueTextSprite
                   );
+                  // console.debug(`Enemy added: #${enemy.toString()}`);
+                  renderedEnemiesOnFieldToDelete.push(enemy.toString());
                 }
               }
 
