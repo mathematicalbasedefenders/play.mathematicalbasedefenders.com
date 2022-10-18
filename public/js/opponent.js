@@ -31,6 +31,9 @@ class OpponentGameInstance {
 
     this.container;
 
+    this.cachedGameData;
+    this.cachedInstanceData;
+
     this.setPositions = () => {
       for (let i = 0; i < 49; i++) {
         this.tileSprites[i] = new Tile(
@@ -39,27 +42,31 @@ class OpponentGameInstance {
           minifiedGameData.tiles[i].selected,
           minifiedGameData.tiles[i].tileID
         ).sprite;
-        this.tileSprites[i].scale.x = 0.25;
-        this.tileSprites[i].scale.y = 0.25;
+        this.tileSprites[i].scale.x = 0.25 * game.opponentGameInstanceScale;
+        this.tileSprites[i].scale.y = 0.25 * game.opponentGameInstanceScale;
 
         this.tileSprites[i].position.x =
           initialWindowWidth / 2 +
           (this.playerIndex %
             game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
             game.opponentGameInstanceSettings
-              .opponentGameInstancePositionIncrements.x +
+              .opponentGameInstancePositionIncrements.x *
+            game.opponentGameInstanceScale +
+          game.renderingOffsets.multiplayer.opponents.x +
           this.xPosition +
-          (i % 7) * 16;
+          (i % 7) * 16 * game.opponentGameInstanceScale;
         this.tileSprites[i].position.y =
           Math.floor(
             this.playerIndex /
               game.opponentGameInstanceSettings.opponentGameInstancesPerRow
           ) *
             game.opponentGameInstanceSettings
-              .opponentGameInstancePositionIncrements.y +
+              .opponentGameInstancePositionIncrements.y *
+            game.opponentGameInstanceScale +
+          game.renderingOffsets.multiplayer.opponents.y +
           this.yPosition +
           30 +
-          Math.floor(i / 7) * 16;
+          Math.floor(i / 7) * 16 * game.opponentGameInstanceScale;
       }
 
       for (let i = 0; i < minifiedGameData.enemies.length; i++) {
@@ -75,7 +82,9 @@ class OpponentGameInstance {
             (this.playerIndex %
               game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
               game.opponentGameInstanceSettings
-                .opponentGameInstancePositionIncrements.x +
+                .opponentGameInstancePositionIncrements.x *
+              game.opponentGameInstanceScale +
+            game.renderingOffsets.multiplayer.opponents.x +
             this.xPosition +
             enemy.sPosition * 11.2;
           this.enemySprites[enemy.enemyNumber]["sprite"].position.y =
@@ -84,21 +93,29 @@ class OpponentGameInstance {
                 game.opponentGameInstanceSettings.opponentGameInstancesPerRow
             ) *
               game.opponentGameInstanceSettings
-                .opponentGameInstancePositionIncrements.y +
+                .opponentGameInstancePositionIncrements.y *
+              game.opponentGameInstanceScale +
+            game.renderingOffsets.multiplayer.opponents.y +
             this.yPosition;
-          this.enemySprites[enemy.enemyNumber]["sprite"].scale.x = 0.585;
-          this.enemySprites[enemy.enemyNumber]["sprite"].scale.y = 0.585;
+          this.enemySprites[enemy.enemyNumber]["sprite"].scale.x =
+            0.585 * game.opponentGameInstanceScale;
+          this.enemySprites[enemy.enemyNumber]["sprite"].scale.y =
+            0.585 * game.opponentGameInstanceScale;
 
-          this.enemySprites[enemy.enemyNumber]["sPosition"] = enemy.sPosition;
+          this.enemySprites[enemy.enemyNumber]["sPosition"] =
+            enemy.sPosition * game.opponentGameInstanceScale;
         }
       }
 
+      // FIXME: refer to commit a2aec2f
       this.problemText.position.x =
         initialWindowWidth / 2 +
         (this.playerIndex %
           game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
           game.opponentGameInstanceSettings
-            .opponentGameInstancePositionIncrements.x +
+            .opponentGameInstancePositionIncrements.x *
+          game.opponentGameInstanceScale +
+        game.renderingOffsets.multiplayer.opponents.x +
         this.xPosition;
       this.problemText.position.y =
         Math.floor(
@@ -106,16 +123,20 @@ class OpponentGameInstance {
             game.opponentGameInstanceSettings.opponentGameInstancesPerRow
         ) *
           game.opponentGameInstanceSettings
-            .opponentGameInstancePositionIncrements.y +
+            .opponentGameInstancePositionIncrements.y *
+          game.opponentGameInstanceScale +
+        game.renderingOffsets.multiplayer.opponents.y +
         this.yPosition +
-        10;
+        10 * game.opponentGameInstanceScale;
 
       this.statisticsText.position.x =
         initialWindowWidth / 2 +
         (this.playerIndex %
           game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
           game.opponentGameInstanceSettings
-            .opponentGameInstancePositionIncrements.x +
+            .opponentGameInstancePositionIncrements.x *
+          game.opponentGameInstanceScale +
+        game.renderingOffsets.multiplayer.opponents.x +
         this.xPosition;
       this.statisticsText.position.y =
         Math.floor(
@@ -123,16 +144,20 @@ class OpponentGameInstance {
             game.opponentGameInstanceSettings.opponentGameInstancesPerRow
         ) *
           game.opponentGameInstanceSettings
-            .opponentGameInstancePositionIncrements.y +
+            .opponentGameInstancePositionIncrements.y *
+          game.opponentGameInstanceScale +
+        game.renderingOffsets.multiplayer.opponents.y +
         this.yPosition +
-        145;
+        145 * game.opponentGameInstanceScale;
 
       this.nameText.position.x =
         initialWindowWidth / 2 +
         (this.playerIndex %
           game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
           game.opponentGameInstanceSettings
-            .opponentGameInstancePositionIncrements.x +
+            .opponentGameInstancePositionIncrements.x *
+          game.opponentGameInstanceScale +
+        game.renderingOffsets.multiplayer.opponents.x +
         this.xPosition;
       this.nameText.position.y =
         Math.floor(
@@ -140,15 +165,19 @@ class OpponentGameInstance {
             game.opponentGameInstanceSettings.opponentGameInstancesPerRow
         ) *
           game.opponentGameInstanceSettings
-            .opponentGameInstancePositionIncrements.y +
+            .opponentGameInstancePositionIncrements.y *
+          game.opponentGameInstanceScale +
+        game.renderingOffsets.multiplayer.opponents.y +
         this.yPosition +
-        165;
+        165 * game.opponentGameInstanceScale;
     };
 
     this.setPositions();
   }
 
   update(minifiedGameData) {
+    this.cachedGameData = minifiedGameData;
+
     for (let i = 0; i < 49; i++) {
       this.tileSprites[i].texture = new Tile(
         minifiedGameData.tiles[i][1],
@@ -158,66 +187,7 @@ class OpponentGameInstance {
       ).sprite.texture;
     }
 
-    for (let i = 0; i < minifiedGameData.enemies.length; i++) {
-      let minifiedEnemy = minifiedGameData.enemies[i];
-
-      let enemy = {
-        sPosition: minifiedEnemy[0],
-        enemyNumber: minifiedEnemy[1],
-        minified: true
-      };
-
-      if (!this.enemySprites[enemy.enemyNumber]) {
-        this.enemySprites[enemy.enemyNumber] = {};
-        this.enemySprites[enemy.enemyNumber]["sprite"] = new Enemy(
-          enemy
-        ).enemySprite;
-        this.enemySprites[enemy.enemyNumber]["sprite"].position.x =
-          initialWindowWidth / 2 +
-          (this.playerIndex %
-            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
-            game.opponentGameInstanceSettings
-              .opponentGameInstancePositionIncrements.x +
-          this.xPosition +
-          enemy.sPosition * 11.2;
-        this.enemySprites[enemy.enemyNumber]["sprite"].position.y =
-          Math.floor(
-            this.playerIndex /
-              game.opponentGameInstanceSettings.opponentGameInstancesPerRow
-          ) *
-            game.opponentGameInstanceSettings
-              .opponentGameInstancePositionIncrements.y +
-          this.yPosition;
-        this.enemySprites[enemy.enemyNumber]["sprite"].scale.x = 0.585;
-        this.enemySprites[enemy.enemyNumber]["sprite"].scale.y = 0.585;
-
-        this.enemySprites[enemy.enemyNumber]["sPosition"] = enemy.sPosition;
-      }
-
-      this.enemySprites[enemy.enemyNumber]["sPosition"] = enemy.sPosition;
-      if (enemy.sPosition >= -0.01) {
-        if (!this.enemySprites[enemy.enemyNumber].appeared) {
-          this.container.addChild(
-            this.enemySprites[enemy.enemyNumber]["sprite"]
-          );
-          this.enemySprites[enemy.enemyNumber]["appeared"] = true;
-        } else {
-          this.enemySprites[enemy.enemyNumber]["sprite"].position.x =
-            initialWindowWidth / 2 +
-            (this.playerIndex %
-              game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
-              game.opponentGameInstanceSettings
-                .opponentGameInstancePositionIncrements.x +
-            this.xPosition +
-            this.enemySprites[enemy.enemyNumber]["sPosition"] * 11.2;
-        }
-      } else {
-        this.container.removeChild(
-          this.enemySprites[enemy.enemyNumber]["sprite"]
-        );
-        delete this.enemySprites[enemy.enemyNumber];
-      }
-    }
+    this.updateEnemies(minifiedGameData);
 
     this.problemText.text = minifiedGameData.problem;
     this.baseHealth = minifiedGameData.baseHealth;
@@ -228,6 +198,15 @@ class OpponentGameInstance {
       "/10 " +
       minifiedGameData.enemiesPending;
     this.nameText.text = minifiedGameData.name;
+
+    // scale text
+    this.problemText.scale.x = game.opponentGameInstanceScale;
+    this.problemText.scale.y = game.opponentGameInstanceScale;
+    this.statisticsText.scale.x = game.opponentGameInstanceScale;
+    this.statisticsText.scale.y = game.opponentGameInstanceScale;
+    this.nameText.scale.x = game.opponentGameInstanceScale;
+    this.nameText.scale.y = game.opponentGameInstanceScale;
+
     // this.nameText.style."fill" = minifiedGameData.nameColor;
     changePIXIJSTextStyle(this.nameText, "fill", minifiedGameData.nameColor);
   }
@@ -255,7 +234,8 @@ class OpponentGameInstance {
             game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
             game.opponentGameInstanceSettings
               .opponentGameInstancePositionIncrements.y +
-          this.xPosition +
+          game.renderingOffsets.multiplayer.opponents.x +
+          this.xPosition * game.opponentGameInstanceScale +
           this.enemySprites[i]["sPosition"] * 11.2;
       }
     }
@@ -265,15 +245,126 @@ class OpponentGameInstance {
     this.container.addChild(this.problemText);
   }
 
+  updateEnemies(minifiedGameData, redrawEnemies) {
+    if (redrawEnemies) {
+      // Redraw (or change) enemy positions
+      for (let enemy in this.enemySprites) {
+        this.enemySprites[enemy]["sprite"].position.x =
+          initialWindowWidth / 2 +
+          (this.playerIndex %
+            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+            game.opponentGameInstanceSettings
+              .opponentGameInstancePositionIncrements.x *
+            game.opponentGameInstanceScale +
+          game.renderingOffsets.multiplayer.opponents.x +
+          this.xPosition +
+          enemy.sPosition * 11.2;
+        this.enemySprites[enemy]["sprite"].position.y =
+          Math.floor(
+            this.playerIndex /
+              game.opponentGameInstanceSettings.opponentGameInstancesPerRow
+          ) *
+            game.opponentGameInstanceSettings
+              .opponentGameInstancePositionIncrements.y *
+            game.opponentGameInstanceScale +
+          game.renderingOffsets.multiplayer.opponents.y +
+          this.yPosition;
+        this.enemySprites[enemy]["sprite"].scale.x =
+          0.585 * game.opponentGameInstanceScale;
+        this.enemySprites[enemy]["sprite"].scale.y =
+          0.585 * game.opponentGameInstanceScale;
+      }
+    }
+
+    for (let i = 0; i < minifiedGameData.enemies.length; i++) {
+      let minifiedEnemy = minifiedGameData.enemies[i];
+
+      let enemy = {
+        sPosition: minifiedEnemy[0],
+        enemyNumber: minifiedEnemy[1],
+        minified: true
+      };
+
+      if (!this.enemySprites[enemy.enemyNumber]) {
+        this.enemySprites[enemy.enemyNumber] = {};
+        this.enemySprites[enemy.enemyNumber]["sprite"] = new Enemy(
+          enemy
+        ).enemySprite;
+
+        // this part sets the positions for the opponent's enemies
+        this.enemySprites[enemy.enemyNumber]["sprite"].position.x =
+          initialWindowWidth / 2 +
+          (this.playerIndex %
+            game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+            game.opponentGameInstanceSettings
+              .opponentGameInstancePositionIncrements.x *
+            game.opponentGameInstanceScale +
+          game.renderingOffsets.multiplayer.opponents.x +
+          this.xPosition +
+          enemy.sPosition * 11.2;
+        this.enemySprites[enemy.enemyNumber]["sprite"].position.y =
+          Math.floor(
+            this.playerIndex /
+              game.opponentGameInstanceSettings.opponentGameInstancesPerRow
+          ) *
+            game.opponentGameInstanceSettings
+              .opponentGameInstancePositionIncrements.y *
+            game.opponentGameInstanceScale +
+          game.renderingOffsets.multiplayer.opponents.y +
+          this.yPosition;
+        this.enemySprites[enemy.enemyNumber]["sprite"].scale.x =
+          0.585 * game.opponentGameInstanceScale;
+        this.enemySprites[enemy.enemyNumber]["sprite"].scale.y =
+          0.585 * game.opponentGameInstanceScale;
+
+        this.enemySprites[enemy.enemyNumber]["sPosition"] =
+          enemy.sPosition * game.opponentGameInstanceScale;
+      }
+
+      this.enemySprites[enemy.enemyNumber]["sPosition"] =
+        enemy.sPosition * game.opponentGameInstanceScale;
+      if (enemy.sPosition >= -0.01) {
+        if (!this.enemySprites[enemy.enemyNumber].appeared) {
+          this.container.addChild(
+            this.enemySprites[enemy.enemyNumber]["sprite"]
+          );
+          this.enemySprites[enemy.enemyNumber]["appeared"] = true;
+        } else {
+          this.enemySprites[enemy.enemyNumber]["sprite"].position.x =
+            initialWindowWidth / 2 +
+            (this.playerIndex %
+              game.opponentGameInstanceSettings.opponentGameInstancesPerRow) *
+              game.opponentGameInstanceSettings
+                .opponentGameInstancePositionIncrements.x *
+              game.opponentGameInstanceScale +
+            game.renderingOffsets.multiplayer.opponents.x +
+            this.xPosition +
+            this.enemySprites[enemy.enemyNumber]["sPosition"] * 11.2;
+        }
+      } else {
+        this.container.removeChild(
+          this.enemySprites[enemy.enemyNumber]["sprite"]
+        );
+        delete this.enemySprites[enemy.enemyNumber];
+      }
+    }
+  }
+
   // TODO: Find better function name
-  destroy(keepEnemies) {
+  destroy(keepEnemies, resetEnemies) {
     let enemySpritesToDestroy = Object.keys(this.enemySprites);
     if (!keepEnemies) {
       for (let enemy of enemySpritesToDestroy) {
         this.container.removeChild(this.enemySprites[enemy]["sprite"]);
       }
     }
+    if (resetEnemies) {
+      // for (let enemy of enemySpritesToDestroy) {
+      //   this.enemySprites[enemy]["sprite"].appeared = false;
+      // }
 
+      this.updateEnemies(this.cachedGameData, true);
+    }
     for (let i = 0; i < 49; i++) {
       this.container.removeChild(this.tileSprites[i]);
     }
@@ -283,9 +374,9 @@ class OpponentGameInstance {
     this.container.removeChild(this.problemText);
   }
 
-  rerender(newPlayerIndex, newContainer) {
+  rerender(newPlayerIndex, newContainer, keepEnemies) {
     this.playerIndex = newPlayerIndex;
-    this.destroy(true);
+    this.destroy(keepEnemies, true);
     this.setPositions();
     this.render(newContainer);
   }

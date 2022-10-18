@@ -17,9 +17,19 @@ class Tile {
           : termID
       ]
     );
-    this.sprite.x = initialWindowWidth / 2 + 64 * ((slot % 7) - 4) + 16;
+
+    // TODO: i feel like this is going to break really easily
+
+    this.sprite.x =
+      initialWindowWidth / 2 +
+      64 * ((slot % 7) - 4) +
+      16 +
+      game.renderingOffsets[game.currentGameModePlaying].x;
     this.sprite.y =
-      initialWindowHeight / 2 + 64 * (Math.floor(slot / 7) - 4) + 156;
+      initialWindowHeight / 2 +
+      64 * (Math.floor(slot / 7) - 4) +
+      156 +
+      game.renderingOffsets[game.currentGameModePlaying].y;
     this.sprite.interactive = true;
   }
 }
