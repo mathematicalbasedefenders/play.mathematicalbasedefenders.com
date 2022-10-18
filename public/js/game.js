@@ -709,7 +709,7 @@ window.onload = () => {
 };
 
 async function initializeSplashScreen() {
-  $("#loading-screen").click(() =>
+  $("#loading-screen-container").click(() =>
     $("#loading-screen-container").fadeOut(1000).hide(0)
   );
   $("#loading-screen__text").html(
