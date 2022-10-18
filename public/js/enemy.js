@@ -124,6 +124,13 @@ class Enemy {
       return false;
     }
 
+    if (
+      game.enemyRenderStatus[this.enemyNumber] == null ||
+      game.enemyRenderStatus[other.enemyNumber] == null
+    ) {
+      return false;
+    }
+
     let thisLeft = game.enemyRenderStatus[this.enemyNumber].enemySprite.x;
     let thisRight =
       game.enemyRenderStatus[this.enemyNumber].enemySprite.x +
