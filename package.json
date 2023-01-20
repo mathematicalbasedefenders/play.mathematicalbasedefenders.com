@@ -1,22 +1,23 @@
 {
   "name": "mathematicalbasedefenders",
-  "version": "0.3.0-beta.3",
+  "version": "0.4.0",
   "description": "Fun math game",
   "main": "server.js",
   "scripts": {
-    "test": "jest -i",
-    "start": "node server.js",
-    "checkUndefVarsOnly": "npx eslint --rule 'no-undef: error' --parser-options=ecmaVersion:latest --env node,browser,es2021,commonjs --no-eslintrc ."
+    "test": "jest",
+    "build": "tsc",
+    "copyStaticFiles": "copyfiles --up 1 \"src/**/*\" -e \"**/*.ts\" dist",
+    "start": "npm run build && npm run copyStaticFiles && node ./dist/server.js"
   },
   "author": "mistertfy64",
   "license": "MIT",
   "dependencies": {
-    "@skgdev/socket.io-msgpack-javascript": "^1.1.0",
     "ajv": "^8.11.0",
     "bcrypt": "^5.0.1",
     "bufferutil": "^4.0.6",
     "cheerio": "^1.0.0-rc.10",
     "cookie-parser": "^1.4.6",
+    "copyfiles": "^2.4.1",
     "csurf": "^1.11.0",
     "dompurify": "^2.3.5",
     "dotenv": "^16.0.2",
@@ -29,6 +30,7 @@
     "isomorphic-fetch": "^3.0.0",
     "jsdom": "^19.0.0",
     "lodash": "^4.17.21",
+    "loglevel": "^1.8.1",
     "math-expression-evaluator": "^1.3.8",
     "mongo-sanitize": "^1.1.0",
     "mongoose": "^6.5.1",
@@ -37,10 +39,8 @@
     "object-sizeof": "^1.6.1",
     "pixi.js": "^6.1.2",
     "serve-favicon": "^2.5.0",
-    "socket.io": "^4.5.1",
-    "socket.io-json-parser": "^3.0.0",
-    "socket.io-msgpack-parser": "^3.0.1",
     "string_decoder": "^1.3.0",
+    "typescript": "^4.9.4",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.10.0",
     "xss": "^1.0.10"
   },
