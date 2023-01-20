@@ -17,7 +17,7 @@ let log: { error: Function; warn: Function; info: Function; debug: Function } =
     info: (message: string, disablePrefix?: boolean) => {
       console.info(
         `${
-          disablePrefix || "[" + new Date().toISOString() + " INFO"
+          disablePrefix || "[" + new Date().toISOString() + " INFO]"
         } ${message}`
       );
     },
