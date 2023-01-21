@@ -19,6 +19,10 @@ app.set("views", path.join(__dirname, "server/views"));
 
 const PORT: number = 3000;
 const WEBSOCKET_PORT: number = 5000;
+const LOOP_INTERVAL: number = 1000 / 60;
+
+let currentTime: number;
+let lastUpdateTime: number;
 
 const DATABASE_CONNECTION_URI: string | undefined =
   process.env.DATABASE_CONNECTION_URI;
@@ -41,6 +45,7 @@ uWS
       log.info("Socket connected!");
       global.sockets.push(socket);
       log.info(`There are now ${global.sockets.length} sockets connected.`);
+      socket.subscribe("game");
     },
 
     message: (
@@ -72,6 +77,23 @@ uWS
       log.info(`Failed to listen to WebSockets at port ${WEBSOCKET_PORT}`);
     }
   });
+
+function update(deltaTime: number) {
+  let message: string = JSON.stringify({
+    message: "renderGameData",
+    arguments: [deltaTime, global.sockets.length]
+  });
+  for (let socket of global.sockets) {
+    socket.send(message);
+  }
+}
+
+const loop = setInterval(() => {
+  currentTime = Date.now();
+  let deltaTime: number = currentTime - lastUpdateTime;
+  update(deltaTime);
+  lastUpdateTime = Date.now();
+}, LOOP_INTERVAL);
 
 app.get("/", (request: Request, response: Response) => {
   response.render("pages/index.ejs");

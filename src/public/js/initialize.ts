@@ -23,5 +23,7 @@ document.body.appendChild(app.view);
 let endInitTime: number = Date.now();
 
 console.log(
-  `Initialization completed! ${Math.round(endInitTime - startInitTime)}ms`
+  `Initialization completed! (Took ${Math.round(
+    endInitTime - startInitTime
+  )}ms)`
 );

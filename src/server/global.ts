@@ -1,4 +1,6 @@
-type GameSocket = object & {
+import { WebSocket } from "uWebSockets.js";
+
+type GameSocket = WebSocket & {
   owner?: string;
   ownerID?: string;
   ownerGuestName?: string;
