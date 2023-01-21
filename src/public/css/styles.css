@@ -1,0 +1,10 @@
+@font-face {
+  font-family: "Computer Modern Unicode Serif";
+  src: url("../assets/fonts/computermodernunicode.ttf");
+}
+
+@font-face {
+  font-family: "Computer Modern Math Italic";
+  src: url("../assets/fonts/computermodernmathitalic.ttf");
+}
+
