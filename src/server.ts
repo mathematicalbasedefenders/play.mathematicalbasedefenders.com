@@ -1,4 +1,4 @@
-import { log } from "./server/log";
+import { log } from "./server/core/log";
 import mongoose from "mongoose";
 import path from "path";
 import uWS from "uWebSockets.js";
@@ -7,6 +7,9 @@ require("dotenv").config({ path: "./credentials/.env" });
 // TODO: Combine these lines
 import express from "express";
 import { Request, Response, NextFunction } from "express";
+
+import * as startAction from "./server/game/actions/start";
+import * as global from "./server/global";
 
 const app = express();
 app.use(express.static(path.join(__dirname, "/public")));
@@ -17,21 +20,51 @@ app.set("views", path.join(__dirname, "server/views"));
 const PORT: number = 3000;
 const WEBSOCKET_PORT: number = 5000;
 
-const DATABASE_URI: string | undefined = process.env.DATABASE_CONNECTION_URI;
+const DATABASE_CONNECTION_URI: string | undefined =
+  process.env.DATABASE_CONNECTION_URI;
+
+// mongoose.connect(DATABASE_CONNECTION_URI as string);
+
+mongoose.connection.on("connected", async () => {
+  log.info(`Connected to database!`);
+});
+
+type WebSocketMessage = ArrayBuffer & {
+  action?: string;
+  arguments?: string;
+};
 
 uWS
   .App()
   .ws("/", {
-    open: (socket: unknown, request?: unknown) => {
+    open: (socket: global.GameSocket, request?: unknown) => {
       log.info("Socket connected!");
-      log.debug(typeof socket);
+      global.sockets.push(socket);
+      log.info(`There are now ${global.sockets.length} sockets connected.`);
     },
 
-    message: (socket: unknown, message: ArrayBuffer, isBinary: boolean) => {
-      log.info("Socket messaged!");
-      log.debug(typeof socket);
+    message: (
+      socket: global.GameSocket,
+      message: WebSocketMessage,
+      isBinary: boolean
+    ) => {
+      switch (message.action) {
+        case "start": {
+        }
+      }
+    },
+
+    close: (
+      socket: global.GameSocket,
+      code: unknown,
+      message: WebSocketMessage
+    ) => {
+      log.info("Socket disconnected!");
+      global.deleteSocket(socket);
+      log.info(`There are now ${global.sockets.length} sockets connected.`);
     }
   })
+
   .listen(WEBSOCKET_PORT, (token: string) => {
     if (token) {
       log.info(`Listening to WebSockets at port ${WEBSOCKET_PORT}`);
