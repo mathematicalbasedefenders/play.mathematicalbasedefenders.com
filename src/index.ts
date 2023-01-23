@@ -1,4 +1,4 @@
-import { log } from "./server/core/log";
+import log from "./server/core/log";
 import mongoose from "mongoose";
 import path from "path";
 import uWS from "uWebSockets.js";
@@ -9,7 +9,7 @@ import express from "express";
 import { Request, Response, NextFunction } from "express";
 
 import * as startAction from "./server/game/actions/start";
-import * as global from "./server/global";
+import * as global from "./server/universal";
 
 const app = express();
 app.use(express.static(path.join(__dirname, "/public")));
