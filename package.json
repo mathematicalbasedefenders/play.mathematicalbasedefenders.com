@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "jest",
-    "build": "tsc",
+    "build": "webpack",
     "copyStaticFiles": "copyfiles --up 1 \"src/**/*\" -e \"**/*.ts\" dist",
     "start": "npm run build && npm run copyStaticFiles && node ./dist/index.js"
   },
@@ -13,6 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "ajv": "^8.11.0",
+    "async_hooks": "^1.0.0",
     "bcrypt": "^5.0.1",
     "bufferutil": "^4.0.6",
     "cheerio": "^1.0.0-rc.10",
@@ -53,11 +54,17 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.15",
+    "@types/fontfaceobserver": "^2.1.0",
     "eslint": "^8.24.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.3.0",
     "eslint-plugin-promise": "^6.0.1",
-    "jest": "^29.0.3"
+    "jest": "^29.0.3",
+    "node-polyfill-webpack-plugin": "^2.0.1",
+    "ts-loader": "^9.4.2",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-node-externals": "^3.0.0"
   }
 }

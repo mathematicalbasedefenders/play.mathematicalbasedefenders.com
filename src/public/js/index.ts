@@ -1,4 +1,5 @@
-// @ts-nocheck
+import FontFaceObserver from "fontfaceobserver";
+import { Application, DisplayObject, Text, Container } from "pixi.js";
 
 let startInitTime: number = Date.now();
 
@@ -9,13 +10,13 @@ const mathFont = new FontFaceObserver("Computer Modern Math Italic");
 serifFont.load();
 mathFont.load();
 
-const socket: unknown = new WebSocket(
+const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
     false ? "" : ":5000"
   }`
 );
 
-const app = new PIXI.Application({
+const app = new Application({
   width: window.innerWidth,
   height: window.innerHeight,
   backgroundColor: 0xc0c0c0,
@@ -24,10 +25,10 @@ const app = new PIXI.Application({
   resolution: devicePixelRatio
 });
 
-const container = new PIXI.Container();
+const container = new Container();
 
-const containerItems = {
-  scoreText: new PIXI.Text("0", {
+const containerItems: { [key: string]: DisplayObject } = {
+  scoreText: new Text("0", {
     fontFamily: "Computer Modern Unicode Serif",
     fontSize: 24
   })
@@ -48,3 +49,5 @@ console.log(
     endInitTime - startInitTime
   )}ms)`
 );
+
+export { socket };

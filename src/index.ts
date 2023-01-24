@@ -1,4 +1,4 @@
-import log from "./server/core/log";
+import { log } from "./server/core/log";
 import mongoose from "mongoose";
 import path from "path";
 import uWS from "uWebSockets.js";

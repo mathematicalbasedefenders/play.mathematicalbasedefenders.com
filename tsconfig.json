@@ -1,15 +1,18 @@
 {
   "include": ["src/**/*"],
   "exclude": ["**/*/lib/*.js", "**/ignored/**"],
-  "compilerOptions": {
-    "target": "es2015",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "module": "commonjs",                                /* Specify what module code is generated. */
-    "rootDir": "src",                                      /* Specify the root folder within your source files. */
-    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
+  "compilerOptions": {     
+    "module": "es6",
+    "target": "es5",                                                         
+    "rootDir": "src",                                      
+    "esModuleInterop": true,                             
     "forceConsistentCasingInFileNames": true,            
     "strict": true,       
     "outDir": "dist",                                
     "skipLibCheck": true, 
-    "lib": ["es2021", "dom"],                               
+    "lib": ["es2021", "dom"],   
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true, 
+    "moduleResolution": "node",                         
   }
 }
