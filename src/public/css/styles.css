@@ -8,3 +8,8 @@
   src: url("../assets/fonts/computermodernmathitalic.ttf");
 }
 
+body {
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
