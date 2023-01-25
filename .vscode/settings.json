@@ -19,6 +19,7 @@
     "personalbests",
     "PIXI",
     "pixijs",
+    "playfield",
     "shar",
     "toastr",
     "upsert",

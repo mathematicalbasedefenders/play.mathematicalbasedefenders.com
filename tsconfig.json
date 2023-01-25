@@ -1,8 +1,8 @@
 {
   "include": ["src/**/*"],
-  "exclude": ["**/*/lib/*.js", "**/ignored/**"],
+  "exclude": ["**/*/lib/*.js", "**/ignored/**", "src/public/**/*"],
   "compilerOptions": {     
-    "module": "es6",
+    "module": "CommonJS",
     "target": "es5",                                                         
     "rootDir": "src",                                      
     "esModuleInterop": true,                             
@@ -11,8 +11,6 @@
     "outDir": "dist",                                
     "skipLibCheck": true, 
     "lib": ["es2021", "dom"],   
-    "allowJs": true,
-    "allowSyntheticDefaultImports": true, 
-    "moduleResolution": "node",                         
+    "moduleResolution": "node",    
   }
 }

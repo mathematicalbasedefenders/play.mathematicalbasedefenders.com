@@ -1,6 +1,14 @@
 import FontFaceObserver from "fontfaceobserver";
-import { Application, DisplayObject, Text, Container } from "pixi.js";
-
+import {
+  Application,
+  DisplayObject,
+  Text,
+  Container,
+  Sprite,
+  Texture
+} from "pixi.js";
+import { socket } from "./socket";
+import { renderGameData } from "./game";
 let startInitTime: number = Date.now();
 
 // Fonts
@@ -9,12 +17,6 @@ const mathFont = new FontFaceObserver("Computer Modern Math Italic");
 
 serifFont.load();
 mathFont.load();
-
-const socket: WebSocket = new WebSocket(
-  `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
-    false ? "" : ":5000"
-  }`
-);
 
 const app = new Application({
   width: window.innerWidth,
@@ -31,7 +33,8 @@ const containerItems: { [key: string]: DisplayObject } = {
   scoreText: new Text("0", {
     fontFamily: "Computer Modern Unicode Serif",
     fontSize: 24
-  })
+  }),
+  playFieldBorder: new Sprite(Texture.from("assets/images/playfield.png"))
 };
 
 for (let item in containerItems) {
@@ -50,4 +53,4 @@ console.log(
   )}ms)`
 );
 
-export { socket };
+export { socket, containerItems };

@@ -12,7 +12,7 @@ import * as startAction from "./server/game/actions/start";
 import * as global from "./server/universal";
 
 const app = express();
-app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.static(path.join(__dirname, "/public/")));
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "server/views"));
