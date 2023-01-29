@@ -9,12 +9,12 @@ module.exports = {
       {
         test: /\.ts?$/,
         use: "ts-loader",
-        exclude: [/node_modules/, /uWebSocket/]
+        exclude: [/node_modules/, /uWebSocket/, /adaptive-scale/]
       },
       {
         test: /\.ts?$/,
         use: "ts-loader",
-        exclude: [/node_modules/, /uWebSocket/],
+        exclude: [/node_modules/, /uWebSocket/, /adaptive-scale/],
         include: ["/src/public/js/*"]
       }
     ]
