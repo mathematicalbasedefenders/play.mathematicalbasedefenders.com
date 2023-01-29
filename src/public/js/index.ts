@@ -15,12 +15,22 @@ let startInitTime: number = Date.now();
 const serifFont = new FontFaceObserver("Computer Modern Unicode Serif");
 const mathFont = new FontFaceObserver("Computer Modern Math Italic");
 
+class OptimallyPositionedSprite extends Sprite {
+  optimalXPositionRatio!: number;
+  optimalYPositionRatio!: number;
+}
+
+class OptimallyPositionedText extends Text {
+  optimalXPositionRatio!: number;
+  optimalYPositionRatio!: number;
+}
+
 serifFont.load();
 mathFont.load();
 
 const app = new Application({
-  width: window.innerWidth,
-  height: window.innerHeight,
+  width: window.screen.width,
+  height: window.screen.height,
   backgroundColor: 0xc0c0c0,
   backgroundAlpha: 0,
   resizeTo: window,
@@ -29,13 +39,29 @@ const app = new Application({
 
 const container = new Container();
 
-const containerItems: { [key: string]: DisplayObject } = {
-  scoreText: new Text("0", {
+const containerItems: {
+  [key: string]: OptimallyPositionedSprite | OptimallyPositionedText;
+} = {
+  tester: new OptimallyPositionedSprite(Texture.WHITE),
+
+  scoreText: new OptimallyPositionedText("0", {
     fontFamily: "Computer Modern Unicode Serif",
     fontSize: 24
   }),
-  playFieldBorder: new Sprite(Texture.from("assets/images/playfield.png"))
+  playFieldBorder: new OptimallyPositionedSprite(
+    Texture.from("assets/images/playfield.png")
+  )
 };
+
+function setContainerItemPositions() {
+  containerItems.playFieldBorder.optimalXPositionRatio = 0.33;
+  containerItems.playFieldBorder.optimalYPositionRatio = 0.14583;
+  containerItems.tester.width = 800;
+  containerItems.tester.height = 500;
+  containerItems.tester.tint = 0xff0000;
+}
+
+setContainerItemPositions();
 
 for (let item in containerItems) {
   container.addChild(containerItems[item]);
@@ -53,4 +79,4 @@ console.log(
   )}ms)`
 );
 
-export { socket, containerItems };
+export { socket, containerItems, container };
