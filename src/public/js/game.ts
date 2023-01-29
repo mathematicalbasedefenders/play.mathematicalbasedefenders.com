@@ -1,4 +1,11 @@
-import { stage, stageItems, app } from "./index";
+import {
+  stage,
+  stageItems,
+  app,
+  ExtendedSprite,
+  ExtendedText,
+  socket
+} from "./index";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 
 // TODO: Might change later
@@ -9,6 +16,7 @@ const OPTIMAL_SCREEN_RATIO: number =
 
 function renderGameData(data: { [key: string]: unknown }) {
   // clear screen first
+  (stageItems["scoreText"] as ExtendedText).text = data[0] as string;
 }
 
 function redrawStage() {
@@ -32,12 +40,6 @@ function repositionStageItems() {
 
 window.onresize = () => {
   redrawStage();
-  console.log(
-    stageItems.playFieldBorder.x,
-    stageItems.playFieldBorder.y,
-    stageItems.playFieldBorder.width,
-    stageItems.playFieldBorder.height
-  );
 };
 
 export { renderGameData };

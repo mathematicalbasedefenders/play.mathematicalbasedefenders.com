@@ -9,7 +9,9 @@ import express from "express";
 import { Request, Response, NextFunction } from "express";
 
 import * as startAction from "./server/game/actions/start";
-import * as global from "./server/universal";
+import * as universal from "./server/universal";
+import * as utilities from "./server/core/utilities";
+import { Room } from "./server/core/Room";
 
 const app = express();
 app.use(express.static(path.join(__dirname, "/public/")));
@@ -41,15 +43,20 @@ type WebSocketMessage = ArrayBuffer & {
 uWS
   .App()
   .ws("/", {
-    open: (socket: global.GameSocket, request?: unknown) => {
+    open: (socket: universal.GameSocket, request?: unknown) => {
       log.info("Socket connected!");
-      global.sockets.push(socket);
-      log.info(`There are now ${global.sockets.length} sockets connected.`);
+      socket.connectionID = generateConnectionID(8);
+      universal.sockets.push(socket);
+      log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
+      // create new room, TODO: move this later
+      let room = new Room(socket.connectionID);
+      socket.subscribe(room.id);
+      universal.rooms.push(room);
     },
 
     message: (
-      socket: global.GameSocket,
+      socket: universal.GameSocket,
       message: WebSocketMessage,
       isBinary: boolean
     ) => {
@@ -60,13 +67,13 @@ uWS
     },
 
     close: (
-      socket: global.GameSocket,
+      socket: universal.GameSocket,
       code: unknown,
       message: WebSocketMessage
     ) => {
       log.info("Socket disconnected!");
-      global.deleteSocket(socket);
-      log.info(`There are now ${global.sockets.length} sockets connected.`);
+      universal.deleteSocket(socket);
+      log.info(`There are now ${universal.sockets.length} sockets connected.`);
     }
   })
 
@@ -79,13 +86,42 @@ uWS
   });
 
 function update(deltaTime: number) {
-  let message: string = JSON.stringify({
-    message: "renderGameData",
-    arguments: [deltaTime, global.sockets.length]
-  });
-  for (let socket of global.sockets) {
-    socket.send(message);
+  // for now...
+  // let message: string = JSON.stringify({
+  //   message: "renderGameData",
+  //   arguments: [deltaTime, universal.sockets.length]
+  // });
+  // for (let socket of universal.sockets) {
+  //   socket.send(message);
+  // }
+  for (let room of universal.rooms) {
+    for (let memberSocket of room.memberConnectionIDs) {
+      universal.getSocketFromConnectionID(memberSocket)?.send(
+        JSON.stringify({
+          message: "renderGameData",
+          arguments: [deltaTime, universal.sockets.length]
+        })
+      );
+    }
   }
+}
+
+function generateConnectionID(length: number): string {
+  let pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let current = "";
+  while (
+    current === "" ||
+    utilities.checkIfPropertyWithValueExists(
+      universal.sockets,
+      "connectionID",
+      current
+    )
+  ) {
+    for (let i = 0; i < length; i++) {
+      current += pool[Math.floor(Math.random() * pool.length)];
+    }
+  }
+  return current;
 }
 
 const loop = setInterval(() => {

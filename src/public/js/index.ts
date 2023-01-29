@@ -104,4 +104,4 @@ console.log(
   )}ms)`
 );
 
-export { socket, stageItems, stage, app };
+export { socket, stageItems, stage, app, ExtendedSprite, ExtendedText };
