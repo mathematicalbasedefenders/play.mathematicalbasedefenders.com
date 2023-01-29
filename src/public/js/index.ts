@@ -5,24 +5,50 @@ import {
   Text,
   Container,
   Sprite,
-  Texture
+  Texture,
+  autoDetectRenderer,
+  IPointData
 } from "pixi.js";
 import { socket } from "./socket";
 import { renderGameData } from "./game";
+import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
+
 let startInitTime: number = Date.now();
 
 // Fonts
 const serifFont = new FontFaceObserver("Computer Modern Unicode Serif");
 const mathFont = new FontFaceObserver("Computer Modern Math Italic");
 
-class OptimallyPositionedSprite extends Sprite {
-  optimalXPositionRatio!: number;
-  optimalYPositionRatio!: number;
+class ExtendedSprite extends Sprite {
+  optimalPositionRatio!: {
+    x: number;
+    y: number;
+  };
+  scalingPolicy!: POLICY;
+  postScalingScale!: {
+    x: number;
+    y: number;
+  };
+  scalingAnchor!: {
+    x: number;
+    y: number;
+  };
 }
 
-class OptimallyPositionedText extends Text {
-  optimalXPositionRatio!: number;
-  optimalYPositionRatio!: number;
+class ExtendedText extends Text {
+  optimalPositionRatio!: {
+    x: number;
+    y: number;
+  };
+  scalingPolicy!: POLICY;
+  postScalingScale!: {
+    x: number;
+    y: number;
+  };
+  scalingAnchor!: {
+    x: number;
+    y: number;
+  };
 }
 
 serifFont.load();
@@ -32,43 +58,42 @@ const app = new Application({
   width: window.screen.width,
   height: window.screen.height,
   backgroundColor: 0xc0c0c0,
-  backgroundAlpha: 0,
   resizeTo: window,
+  autoDensity: true,
   resolution: devicePixelRatio
 });
 
-const container = new Container();
+app.renderer.view.style.position = "absolute";
+app.renderer.view.style.display = "block";
 
-const containerItems: {
-  [key: string]: OptimallyPositionedSprite | OptimallyPositionedText;
+const stage = app.stage;
+
+const stageItems: {
+  [key: string]: ExtendedSprite | ExtendedText;
 } = {
-  tester: new OptimallyPositionedSprite(Texture.WHITE),
-
-  scoreText: new OptimallyPositionedText("0", {
+  scoreText: new ExtendedText("0", {
     fontFamily: "Computer Modern Unicode Serif",
     fontSize: 24
   }),
-  playFieldBorder: new OptimallyPositionedSprite(
+  playFieldBorder: new ExtendedSprite(
     Texture.from("assets/images/playfield.png")
   )
 };
 
-function setContainerItemPositions() {
-  containerItems.playFieldBorder.optimalXPositionRatio = 0.33;
-  containerItems.playFieldBorder.optimalYPositionRatio = 0.14583;
-  containerItems.tester.width = 800;
-  containerItems.tester.height = 500;
-  containerItems.tester.tint = 0xff0000;
+function setContainerItemProperties() {
+  stageItems.playFieldBorder.optimalPositionRatio = { x: 0.33, y: 0.14 };
+  stageItems.playFieldBorder.postScalingScale = { x: 0.8, y: 0.8 };
+  stageItems.playFieldBorder.scalingAnchor = { x: 0.5, y: 0.5 };
+  stageItems.playFieldBorder.scalingPolicy = POLICY.FullWidth;
 }
 
-setContainerItemPositions();
+setContainerItemProperties();
 
-for (let item in containerItems) {
-  container.addChild(containerItems[item]);
+for (let item in stageItems) {
+  stage.addChild(stageItems[item]);
 }
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
-app.stage.addChild(container);
 document.body.appendChild(app.view);
 
 let endInitTime: number = Date.now();
@@ -79,4 +104,4 @@ console.log(
   )}ms)`
 );
 
-export { socket, containerItems, container };
+export { socket, stageItems, stage, app };
