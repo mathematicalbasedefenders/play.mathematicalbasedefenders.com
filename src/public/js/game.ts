@@ -78,6 +78,9 @@ class Enemy {
   }
   reposition(sPosition: number) {
     this.sprite.y = 800 - 800 * sPosition;
+    if (sPosition <= 0) {
+      deleteEnemy(this.id);
+    }
   }
 }
 function getEnemyFromCache(id: string) {
