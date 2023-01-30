@@ -16,32 +16,38 @@ class Enemy {
   height?: number;
   xPosition: number;
   sPosition: number;
-
+  id?: string;
   constructor(
     requestedValue: number,
     displayedText: string,
     xPosition: number,
-    sPosition: number
+    sPosition: number,
+    id: string
   ) {
     this.requestedValue = requestedValue;
     this.displayedText = displayedText;
     this.xPosition = xPosition;
     this.sPosition = sPosition;
-
+    this.id = id;
     // e.g.
     this.width = 100;
     this.height = 100;
   }
+
+  move(distance?: number) {
+    this.sPosition -= distance || 0.01;
+  }
 }
 
-function createNew(enemyType: EnemyType) {
+function createNew(enemyType: EnemyType, id: string) {
   // TODO: Change this algorithm (line below)
   let generatedValue: number = Math.round(Math.random() * 200 - 100);
   let enemy: Enemy = new Enemy(
     generatedValue,
     generatedValue.toString(),
     200,
-    1
+    1,
+    id
   );
   switch (enemyType) {
     case EnemyType.NORMAL: {
@@ -59,4 +65,4 @@ function createNew(enemyType: EnemyType) {
 // TODO: this
 function createCustom() {}
 
-export { createNew, Enemy };
+export { createNew, Enemy, EnemyType };

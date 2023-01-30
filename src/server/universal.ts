@@ -1,5 +1,5 @@
 import { WebSocket } from "uWebSockets.js";
-import { Room } from "./core/Room";
+import { SingleplayerGameData, Room } from "./core/Room";
 
 type GameSocket = WebSocket & {
   owner?: string;
@@ -20,4 +20,23 @@ function getSocketFromConnectionID(id: string): GameSocket | undefined {
   return sockets.find((socket) => socket.connectionID === id);
 }
 
-export { GameSocket, sockets, deleteSocket, rooms, getSocketFromConnectionID };
+function getGameDataFromConnectionID(
+  id: string
+): SingleplayerGameData | undefined {
+  for (let room of rooms) {
+    for (let data of room.gameData) {
+      if (data.owner === id) {
+        return data;
+      }
+    }
+  }
+}
+
+export {
+  GameSocket,
+  sockets,
+  deleteSocket,
+  rooms,
+  getSocketFromConnectionID,
+  getGameDataFromConnectionID
+};

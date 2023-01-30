@@ -11,7 +11,7 @@ import { Request, Response, NextFunction } from "express";
 import * as startAction from "./server/game/actions/start";
 import * as universal from "./server/universal";
 import * as utilities from "./server/core/utilities";
-import { Room } from "./server/core/Room";
+import { SingleplayerRoom } from "./server/core/Room";
 
 const app = express();
 app.use(express.static(path.join(__dirname, "/public/")));
@@ -50,7 +50,8 @@ uWS
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
       // create new room, TODO: move this later
-      let room = new Room(socket.connectionID);
+      let room = new SingleplayerRoom(socket.connectionID);
+      room.start();
       socket.subscribe(room.id);
       universal.rooms.push(room);
     },
@@ -86,23 +87,20 @@ uWS
   });
 
 function update(deltaTime: number) {
-  // for now...
-  // let message: string = JSON.stringify({
-  //   message: "renderGameData",
-  //   arguments: [deltaTime, universal.sockets.length]
-  // });
-  // for (let socket of universal.sockets) {
-  //   socket.send(message);
-  // }
   for (let room of universal.rooms) {
-    for (let memberSocket of room.memberConnectionIDs) {
-      universal.getSocketFromConnectionID(memberSocket)?.send(
-        JSON.stringify({
-          message: "renderGameData",
-          arguments: [deltaTime, universal.sockets.length]
-        })
-      );
-    }
+    room.update();
+  }
+
+  for (let socket of universal.sockets) {
+    let gameData: string = JSON.stringify(
+      universal.getGameDataFromConnectionID(socket.connectionID as string)
+    );
+    universal.getSocketFromConnectionID(socket.connectionID as string)?.send(
+      JSON.stringify({
+        message: "renderGameData",
+        arguments: [gameData]
+      })
+    );
   }
 }
 
