@@ -23,7 +23,7 @@ module.exports = {
     extensions: [".tsx", ".ts", ".js"]
   },
   output: {
-    filename: "public/js/bundle.js",
+    filename: "public/js/mathematicalbasedefenders.js",
     path: path.resolve(__dirname, "dist")
   }
 };
