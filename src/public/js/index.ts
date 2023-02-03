@@ -1,14 +1,5 @@
 import FontFaceObserver from "fontfaceobserver";
-import {
-  Application,
-  DisplayObject,
-  Text,
-  Container,
-  Sprite,
-  Texture,
-  autoDetectRenderer,
-  IPointData
-} from "pixi.js";
+import * as PIXI from "pixi.js";
 import { socket } from "./socket";
 import { renderGameData } from "./game";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
@@ -19,7 +10,7 @@ let startInitTime: number = Date.now();
 const serifFont = new FontFaceObserver("Computer Modern Unicode Serif");
 const mathFont = new FontFaceObserver("Computer Modern Math Italic");
 
-class ExtendedSprite extends Sprite {
+class ExtendedSprite extends PIXI.Sprite {
   optimalPositionRatio!: {
     x: number;
     y: number;
@@ -35,7 +26,7 @@ class ExtendedSprite extends Sprite {
   };
 }
 
-class ExtendedText extends Text {
+class ExtendedText extends PIXI.Text {
   optimalPositionRatio!: {
     x: number;
     y: number;
@@ -54,7 +45,7 @@ class ExtendedText extends Text {
 serifFont.load();
 mathFont.load();
 
-const app = new Application({
+const app = new PIXI.Application({
   width: window.screen.width,
   height: window.screen.height,
   backgroundColor: 0xc0c0c0,
@@ -76,7 +67,7 @@ const stageItems: {
     fontSize: 24
   }),
   playFieldBorder: new ExtendedSprite(
-    Texture.from("assets/images/playfield.png")
+    PIXI.Texture.from("assets/images/playfield.png")
   )
 };
 
@@ -104,4 +95,13 @@ console.log(
   )}ms)`
 );
 
-export { socket, stageItems, stage, app, ExtendedSprite, ExtendedText };
+export {
+  socket,
+  stageItems,
+  stage,
+  app,
+  ExtendedSprite,
+  ExtendedText,
+  serifFont,
+  mathFont
+};
