@@ -2,7 +2,7 @@ import { Sprite, Texture } from "pixi.js";
 import { app } from ".";
 
 // file handles all enemy-related stuff
-let enemiesDrawn: Array<string> = [];
+let enemiesCurrentlyDrawn: Array<string> = [];
 let enemyCache: Array<Enemy> = [];
 class Enemy {
   sprite!: Sprite;
@@ -18,7 +18,7 @@ class Enemy {
     this.sprite.y = 800 - 800 * sPosition;
 
     this.id = id;
-    enemiesDrawn.push(id);
+    enemiesCurrentlyDrawn.push(id);
     enemyCache.push(this);
   }
   render() {
@@ -54,7 +54,7 @@ function deleteEnemy(id: string) {
   }
 }
 function rerenderEnemy(id: string, sPosition: number) {
-  if (enemiesDrawn.indexOf(id) > -1) {
+  if (enemiesCurrentlyDrawn.indexOf(id) > -1) {
     // enemy already drawn
     repositionExistingEnemy(id, sPosition);
   } else {
@@ -63,4 +63,9 @@ function rerenderEnemy(id: string, sPosition: number) {
   }
 }
 
-export { Enemy, rerenderEnemy };
+export {
+  Enemy,
+  rerenderEnemy,
+  enemiesCurrentlyDrawn as enemiesDrawn,
+  enemyCache
+};
