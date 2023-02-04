@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { app, mathFont } from ".";
-const ENEMY_SIZE = 100;
-const ENEMY_FONT_SIZE = 16;
+const ENEMY_SIZE = 64;
+const ENEMY_FONT_SIZE = 24;
 // file handles all enemy-related stuff
 let enemiesCurrentlyDrawn: Array<string> = [];
 let enemyCache: Array<Enemy> = [];
@@ -32,6 +32,10 @@ class Enemy {
     this.sprite.height = height;
     // text-related
     this.textShown = new PIXI.Text(text, ENEMY_TEXT_STYLE);
+    this.textShown.x =
+      this.sprite.x + (this.sprite.width - this.textShown.width) / 2;
+    this.textShown.y =
+      this.sprite.y + (this.sprite.height - this.textShown.height) / 2;
     // metadata
     this.id = id;
     // functions
@@ -40,6 +44,7 @@ class Enemy {
   }
   render() {
     app.stage.addChild(this.sprite);
+    app.stage.addChild(this.textShown);
   }
   reposition(sPosition: number) {
     this.sprite.y = 800 - 800 * sPosition;
@@ -67,8 +72,12 @@ function repositionExistingEnemy(id: string, sPosition: number) {
 function deleteEnemy(id: string) {
   let enemy: Enemy | undefined = getEnemyFromCache(id);
   let sprite: PIXI.Sprite | undefined = getEnemyFromCache(id)?.sprite;
+  let text: PIXI.Text | undefined = getEnemyFromCache(id)?.textShown;
   if (sprite) {
     app.stage.removeChild(sprite);
+  }
+  if (text) {
+    app.stage.removeChild(text);
   }
   if (enemy) {
     enemyCache.splice(enemyCache.indexOf(enemy), 1);

@@ -5,10 +5,12 @@
   "main": "server.js",
   "scripts": {
     "test": "jest",
-    "build": "webpack",
+    "build": "webpack --config ./webpack.config.production.js",
+    "build-dev": "webpack --config ./webpack.config.development.js",
     "compile": "tsc",
     "copyStaticFiles": "copyfiles --up 1 \"src/**/*\" -e \"**/*.ts\" dist",
-    "start": "npm run compile && npm run build && npm run copyStaticFiles && node ./dist/index.js"
+    "start": "npm run compile && npm run build && npm run copyStaticFiles && node ./dist/index.js",
+    "start-dev": "npm run compile && npm run build-dev && npm run copyStaticFiles && node ./dist/index.js"
   },
   "author": "mistertfy64",
   "license": "MIT",
