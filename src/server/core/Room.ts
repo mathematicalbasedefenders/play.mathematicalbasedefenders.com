@@ -4,6 +4,31 @@ import * as enemy from "./Enemy";
 import * as _ from "lodash";
 import { log } from "./log";
 
+const NUMBER_ROW_KEYS = [
+  "Digit0",
+  "Digit1",
+  "Digit2",
+  "Digit3",
+  "Digit4",
+  "Digit5",
+  "Digit6",
+  "Digit7",
+  "Digit8",
+  "Digit9"
+];
+const NUMBER_PAD_KEYS = [
+  "Digit0",
+  "Digit1",
+  "Digit2",
+  "Digit3",
+  "Digit4",
+  "Digit5",
+  "Digit6",
+  "Digit7",
+  "Digit8",
+  "Digit9"
+];
+
 const STANDARD_ENEMY_CHANCE: number = 0.5;
 
 interface ClockInterface {
@@ -21,6 +46,7 @@ class GameData {
   combo!: number;
   owner: string;
   clocks!: ClockInterface;
+  currentInput!: string;
   // ...
   constructor(owner: string) {
     this.score = 0;
@@ -151,4 +177,38 @@ function generateEnemyWithChance(
   return null;
 }
 
-export { SingleplayerRoom, Room, GameData, SingleplayerGameData };
+function processKeypressForRoom(connectionID: string, code: string) {
+  let roomToProcess = utilities.findRoomWithConnectionID(connectionID, false);
+  let inputInformation = "";
+  if (!roomToProcess) {
+    return;
+  }
+  let gameDataToProcess = utilities.findGameDataWithConnectionID(
+    connectionID,
+    roomToProcess
+  );
+  if (!gameDataToProcess) {
+    return;
+  }
+  // find the type of room input
+  if (NUMBER_PAD_KEYS.indexOf(code) > -1) {
+    inputInformation = NUMBER_PAD_KEYS.indexOf(code).toString();
+  }
+  // TODO: consider checking inputInformation as well, to save probably less than a millisecond of time
+  if (NUMBER_ROW_KEYS.indexOf(code) > -1) {
+    inputInformation = NUMBER_PAD_KEYS.indexOf(code).toString();
+  }
+  if (!inputInformation || inputInformation === "") {
+    // still unknown.
+    return;
+  }
+  gameDataToProcess.currentInput += inputInformation;
+}
+
+export {
+  SingleplayerRoom,
+  Room,
+  GameData,
+  SingleplayerGameData,
+  processKeypressForRoom
+};

@@ -1,5 +1,5 @@
 import { log } from "./log";
-
+import { processKeypressForRoom } from "./Room";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -34,11 +34,13 @@ function processKeypress(
     log.warn(
       "A keypress event that isn't associated with any socket connectionID has been fired."
     );
+    return;
   }
   if (typeof code !== "string") {
     log.warn("A keypress event that isn't a string has been fired.");
+    return;
   }
-  log.debug(`Socket with connectionID ${connectionID} pressed ${code}`);
+  processKeypressForRoom(connectionID, code);
 }
 
 export { processKeypress };
