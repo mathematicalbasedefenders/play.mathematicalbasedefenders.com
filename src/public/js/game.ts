@@ -19,7 +19,7 @@ const OPTIMAL_SCREEN_RATIO: number =
 // TODO: Change `any` to something else.
 function renderGameData(data: { [key: string]: any }) {
   for (let enemy of data.enemies) {
-    enemies.rerenderEnemy(enemy.id, enemy.sPosition);
+    enemies.rerenderEnemy(enemy.id, enemy.sPosition, enemy.displayedText);
   }
 }
 
