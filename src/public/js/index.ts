@@ -2,7 +2,7 @@ import FontFaceObserver from "fontfaceobserver";
 import * as PIXI from "pixi.js";
 import { socket } from "./socket";
 import { initializeKeypressEventListener } from "./input";
-import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
+import * as AS from "adaptive-scale/lib-esm";
 import { redrawStage } from "./game";
 let startInitTime: number = Date.now();
 
@@ -15,7 +15,7 @@ class ExtendedSprite extends PIXI.Sprite {
     x: number;
     y: number;
   };
-  scalingPolicy!: POLICY;
+  scalingPolicy!: AS.POLICY;
   postScalingScale!: {
     x: number;
     y: number;
@@ -31,7 +31,7 @@ class ExtendedText extends PIXI.Text {
     x: number;
     y: number;
   };
-  scalingPolicy!: POLICY;
+  scalingPolicy!: AS.POLICY;
   postScalingScale!: {
     x: number;
     y: number;
@@ -56,7 +56,6 @@ const app = new PIXI.Application({
 
 app.renderer.view.style.position = "absolute";
 app.renderer.view.style.display = "block";
-app.renderer.plugins.accessibility.destroy();
 
 const stage = app.stage;
 
@@ -72,19 +71,17 @@ const stageItems: {
   ),
   inputText: new ExtendedText("0", {
     fontFamily: "Computer Modern Unicode Serif",
-    fontSize: 36
+    fontSize: 48
   })
 };
 
 function setContainerItemProperties() {
-  stageItems.playFieldBorder.optimalPositionRatio = { x: 0.33, y: 0.14 };
-  stageItems.playFieldBorder.postScalingScale = { x: 0.8, y: 0.8 };
-  stageItems.playFieldBorder.scalingAnchor = { x: 0.5, y: 0.5 };
-  stageItems.playFieldBorder.scalingPolicy = POLICY.FullWidth;
+  stageItems.playFieldBorder.scalingPolicy = AS.POLICY.FullWidth;
   // text
-  stageItems.inputText.x = 960;
-  stageItems.inputText.y = 910;
+  stageItems.inputText.x = 400;
+  stageItems.inputText.y = 835;
   stageItems.inputText.anchor.set(0.5, 0.5);
+  stageItems.playFieldBorder.scalingPolicy = AS.POLICY.FullWidth;
 }
 
 setContainerItemProperties();
@@ -98,7 +95,6 @@ document.body.appendChild(app.view);
 
 // events
 initializeKeypressEventListener();
-
 // initial states
 redrawStage();
 let endInitTime: number = Date.now();

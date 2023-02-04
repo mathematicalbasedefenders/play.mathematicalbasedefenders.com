@@ -61,6 +61,7 @@ class GameData {
         actionTime: 100
       }
     };
+    this.currentInput = "";
   }
 }
 class SingleplayerGameData extends GameData {
