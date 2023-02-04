@@ -9,8 +9,8 @@ import {
 import * as enemies from "./enemies";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 // TODO: Might change later
-const OPTIMAL_SCREEN_WIDTH: number = window.screen.width;
-const OPTIMAL_SCREEN_HEIGHT: number = window.screen.height;
+const OPTIMAL_SCREEN_WIDTH: number = 1920;
+const OPTIMAL_SCREEN_HEIGHT: number = 1080;
 const OPTIMAL_SCREEN_RATIO: number =
   OPTIMAL_SCREEN_WIDTH / OPTIMAL_SCREEN_HEIGHT;
 
