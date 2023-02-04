@@ -8,8 +8,6 @@ import {
 } from "./index";
 import * as enemies from "./enemies";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
-import { Sprite, Texture } from "pixi.js";
-
 // TODO: Might change later
 const OPTIMAL_SCREEN_WIDTH: number = window.screen.width;
 const OPTIMAL_SCREEN_HEIGHT: number = window.screen.height;

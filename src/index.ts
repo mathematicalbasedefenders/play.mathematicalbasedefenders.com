@@ -11,6 +11,7 @@ import { Request, Response, NextFunction } from "express";
 import * as startAction from "./server/game/actions/start";
 import * as universal from "./server/universal";
 import * as utilities from "./server/core/utilities";
+import * as input from "./server/core/input";
 import { SingleplayerRoom } from "./server/core/Room";
 
 const app = express();
@@ -37,7 +38,7 @@ mongoose.connection.on("connected", async () => {
 
 type WebSocketMessage = ArrayBuffer & {
   action?: string;
-  arguments?: string;
+  arguments?: Array<string>;
 };
 
 uWS
@@ -61,8 +62,22 @@ uWS
       message: WebSocketMessage,
       isBinary: boolean
     ) => {
-      switch (message.action) {
+      const buffer = Buffer.from(message);
+      const parsedMessage = JSON.parse(buffer.toString());
+      switch (parsedMessage.action) {
         case "start": {
+          break;
+        }
+        case "keypress": {
+          if (typeof parsedMessage.arguments === "undefined") {
+            log.warn("Arguments of keypress message is undefined");
+            break;
+          }
+          input.processKeypress(
+            socket.connectionID,
+            parsedMessage.arguments[0]
+          );
+          break;
         }
       }
     },

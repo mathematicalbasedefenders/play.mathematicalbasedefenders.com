@@ -1,7 +1,7 @@
 import FontFaceObserver from "fontfaceobserver";
 import * as PIXI from "pixi.js";
 import { socket } from "./socket";
-import { renderGameData } from "./game";
+import { initializeKeypressEventListener } from "./input";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 
 let startInitTime: number = Date.now();
@@ -56,6 +56,7 @@ const app = new PIXI.Application({
 
 app.renderer.view.style.position = "absolute";
 app.renderer.view.style.display = "block";
+app.renderer.plugins.accessibility.destroy();
 
 const stage = app.stage;
 
@@ -86,6 +87,9 @@ for (let item in stageItems) {
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
 document.body.appendChild(app.view);
+
+// events
+initializeKeypressEventListener();
 
 let endInitTime: number = Date.now();
 
