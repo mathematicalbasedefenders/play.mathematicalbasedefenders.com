@@ -7,7 +7,7 @@ let enemiesCurrentlyDrawn: Array<string> = [];
 let enemyCache: Array<Enemy> = [];
 const ENEMY_TEXT_STYLE = new PIXI.TextStyle({
   fontSize: ENEMY_FONT_SIZE,
-  fontFamily: "Computer Modern Math Italic",
+  fontFamily: "Computer Modern Unicode Serif",
   fill: "0xffffff"
 });
 class Enemy {
