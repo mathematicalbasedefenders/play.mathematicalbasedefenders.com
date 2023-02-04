@@ -3,12 +3,12 @@ const path = require("path");
 module.exports = {
   entry: "./src/public/js/index.ts",
   externals: {
-    "PIXI": "pixi.js",
+    "pixi.js": "PIXI",
     "fontfaceobserver": "FontFaceObserver",
-    "adaptive-scale": "adaptive-scale"
+    "AS": "adaptive-scale"
   },
   target: "web",
-  mode: "development",
+  mode: "production",
   module: {
     rules: [
       {

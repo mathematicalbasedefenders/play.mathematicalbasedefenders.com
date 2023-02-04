@@ -3,7 +3,7 @@
   "exclude": ["**/*/lib/*.js", "**/ignored/**", "src/public/**/*"],
   "compilerOptions": {     
     "module": "CommonJS",
-    "target": "es5",                                                         
+    "target": "es6",                                                         
     "rootDir": "src",                                      
     "esModuleInterop": true,                             
     "forceConsistentCasingInFileNames": true,            
