@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import _ from "lodash";
 import { app, mathFont } from ".";
 const ENEMY_SIZE = 64;
 const ENEMY_FONT_SIZE = 24;
@@ -7,8 +8,7 @@ let enemiesCurrentlyDrawn: Array<string> = [];
 let enemyCache: Array<Enemy> = [];
 const ENEMY_TEXT_STYLE = new PIXI.TextStyle({
   fontSize: ENEMY_FONT_SIZE,
-  fontFamily: "Computer Modern Unicode Serif",
-  fill: "0xffffff"
+  fontFamily: "Computer Modern Unicode Serif"
 });
 class Enemy {
   sprite!: PIXI.Sprite;
@@ -25,13 +25,15 @@ class Enemy {
     height: number
   ) {
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
-    this.sprite.tint = 0xff0000;
+    this.sprite.tint = Math.floor(Math.random() * 16777215);
     this.sprite.x = Math.random() * 640;
     this.sprite.y = 800 - 800 * sPosition;
     this.sprite.width = width;
     this.sprite.height = height;
     // text-related
-    this.displayedText = new PIXI.Text(text, ENEMY_TEXT_STYLE);
+    this.displayedText = new PIXI.Text(text, _.clone(ENEMY_TEXT_STYLE));
+    this.displayedText.style.fill =
+      calculateLuminance(this.sprite.tint) > 0.5 ? 0 : 16777215;
     this.displayedText.x =
       this.sprite.x + (this.sprite.width - this.displayedText.width) / 2;
     this.displayedText.y =
@@ -94,7 +96,12 @@ function rerenderEnemy(id: string, sPosition: number, displayedText?: string) {
     }
   }
 }
-
+function calculateLuminance(colorNumber: number) {
+  let r = (colorNumber >> 16) & 255;
+  let g = (colorNumber >> 8) & 255;
+  let b = colorNumber & 255;
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+}
 export {
   Enemy,
   rerenderEnemy,
