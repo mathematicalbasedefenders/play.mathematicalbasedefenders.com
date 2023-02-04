@@ -73,12 +73,18 @@ function createCustom() {}
 
 function createProblem(result: number) {
   let operation = _.sample([
+    "none",
+    "none",
+    "none",
     "addition",
     "subtraction",
     "multiplication",
     "division"
   ]) as string;
   switch (operation) {
+    case "none": {
+      return `${result}`;
+    }
     case "addition": {
       let n1 = Math.floor(Math.random() * result);
       let n2 = result - n1;
