@@ -3,7 +3,7 @@ import * as PIXI from "pixi.js";
 import { socket } from "./socket";
 import { initializeKeypressEventListener } from "./input";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
-
+import { redrawStage } from "./game";
 let startInitTime: number = Date.now();
 
 // Fonts
@@ -69,7 +69,11 @@ const stageItems: {
   }),
   playFieldBorder: new ExtendedSprite(
     PIXI.Texture.from("assets/images/playfield.png")
-  )
+  ),
+  inputText: new ExtendedText("0", {
+    fontFamily: "Computer Modern Unicode Serif",
+    fontSize: 36
+  })
 };
 
 function setContainerItemProperties() {
@@ -77,6 +81,10 @@ function setContainerItemProperties() {
   stageItems.playFieldBorder.postScalingScale = { x: 0.8, y: 0.8 };
   stageItems.playFieldBorder.scalingAnchor = { x: 0.5, y: 0.5 };
   stageItems.playFieldBorder.scalingPolicy = POLICY.FullWidth;
+  // text
+  stageItems.inputText.x = 960;
+  stageItems.inputText.y = 910;
+  stageItems.inputText.anchor.set(0.5, 0.5);
 }
 
 setContainerItemProperties();
@@ -91,6 +99,8 @@ document.body.appendChild(app.view);
 // events
 initializeKeypressEventListener();
 
+// initial states
+redrawStage();
 let endInitTime: number = Date.now();
 
 console.log(

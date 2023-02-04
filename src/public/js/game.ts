@@ -19,6 +19,8 @@ function renderGameData(data: { [key: string]: any }) {
   for (let enemy of data.enemies) {
     enemies.rerenderEnemy(enemy.id, enemy.sPosition, enemy.displayedText);
   }
+  // text
+  (stageItems.inputText as ExtendedText).text = data.currentInput;
 }
 
 function redrawStage() {
@@ -37,6 +39,7 @@ function redrawStage() {
 
 function repositionStageItems() {
   for (let item in stageItems) {
+    3;
   }
 }
 
@@ -44,4 +47,4 @@ window.onresize = () => {
   redrawStage();
 };
 
-export { renderGameData };
+export { renderGameData, redrawStage };
