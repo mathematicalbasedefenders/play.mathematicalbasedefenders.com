@@ -5,7 +5,7 @@ module.exports = {
   externals: {
     "pixi.js": "PIXI",
     "fontfaceobserver": "FontFaceObserver",
-    "AS": "adaptive-scale"
+    "adaptive-scale/lib-esm": "AS"
   },
   target: "web",
   mode: "production",
