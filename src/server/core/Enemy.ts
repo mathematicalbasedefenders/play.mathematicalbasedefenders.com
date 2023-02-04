@@ -8,7 +8,7 @@ enum EnemyType {
 class Enemy {
   attack?: number;
   health?: number;
-  requestedValue: number;
+  requestedValue?: number;
   displayedText: string;
   color?: number;
   speed?: number;

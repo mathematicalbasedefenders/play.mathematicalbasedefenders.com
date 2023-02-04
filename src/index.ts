@@ -13,6 +13,7 @@ import * as universal from "./server/universal";
 import * as utilities from "./server/core/utilities";
 import * as input from "./server/core/input";
 import { SingleplayerRoom } from "./server/core/Room";
+import _ from "lodash";
 
 const app = express();
 app.use(express.static(path.join(__dirname, "/public/")));
@@ -107,15 +108,22 @@ function update(deltaTime: number) {
   }
 
   for (let socket of universal.sockets) {
-    let gameData: string = JSON.stringify(
+    let gameData = _.cloneDeep(
       universal.getGameDataFromConnectionID(socket.connectionID as string)
     );
-    universal.getSocketFromConnectionID(socket.connectionID as string)?.send(
-      JSON.stringify({
-        message: "renderGameData",
-        arguments: [gameData]
-      })
-    );
+    // remove some game data
+    if (gameData) {
+      for (let enemy of gameData.enemies) {
+        delete enemy.requestedValue;
+      }
+      let gameDataToSend: string = JSON.stringify(gameData);
+      universal.getSocketFromConnectionID(socket.connectionID as string)?.send(
+        JSON.stringify({
+          message: "renderGameData",
+          arguments: [gameDataToSend]
+        })
+      );
+    }
   }
 }
 
