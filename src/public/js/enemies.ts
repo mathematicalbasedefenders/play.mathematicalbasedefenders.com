@@ -47,7 +47,7 @@ class Enemy {
     app.stage.addChild(this.displayedText);
   }
   reposition(sPosition: number) {
-    this.sprite.y = 800 - 800 * sPosition;
+    this.sprite.y = 720 - 720 * sPosition;
     this.displayedText.x =
       this.sprite.x + (this.sprite.width - this.displayedText.width) / 2;
     this.displayedText.y =
