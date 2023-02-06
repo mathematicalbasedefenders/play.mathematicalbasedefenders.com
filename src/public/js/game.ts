@@ -16,9 +16,15 @@ const OPTIMAL_SCREEN_RATIO: number =
 
 // TODO: Change `any` to something else.
 function renderGameData(data: { [key: string]: any }) {
+  // erase killed enemies
+  for (let enemyID of Object.values(data.enemiesToErase)) {
+    enemies.deleteEnemy(enemyID as string);
+  }
+
   for (let enemy of data.enemies) {
     enemies.rerenderEnemy(enemy.id, enemy.sPosition, enemy.displayedText);
   }
+
   // text
   // TODO: ???
   (stageItems.inputText as ExtendedText).text = data.currentInput;
