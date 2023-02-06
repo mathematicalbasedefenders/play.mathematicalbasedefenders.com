@@ -10,7 +10,8 @@ const STANDARD_ENEMY_CHANCE: number = 0.5;
 enum InputAction {
   Unknown = 0,
   AddDigit = 1,
-  SendAnswer = 2
+  RemoveDigit = 2,
+  SendAnswer = 3
 }
 interface InputActionInterface {
   action: InputAction;
@@ -32,6 +33,7 @@ class GameData {
   combo!: number;
   owner: string;
   clocks!: ClockInterface;
+  enemiesToErase!: Array<string>;
   currentInput!: string;
   // ...
   constructor(owner: string) {
@@ -41,6 +43,7 @@ class GameData {
     this.baseHealth = 10;
     this.owner = owner;
     this.enemies = [];
+    this.enemiesToErase = [];
     this.clocks = {
       enemySpawn: {
         currentTime: 0,
