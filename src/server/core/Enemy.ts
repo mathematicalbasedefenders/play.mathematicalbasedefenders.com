@@ -106,6 +106,7 @@ function createProblem(result: number) {
       return `${n1} * ${n2}`;
     }
     case "division": {
+      // either 1 or -1 will be included
       let coefficient = _.sample(
         _.filter(getFactorsOf(result), (element) => Math.abs(element) <= 12)
       ) as number;
