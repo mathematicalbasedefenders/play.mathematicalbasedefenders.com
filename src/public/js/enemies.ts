@@ -102,9 +102,4 @@ function calculateLuminance(colorNumber: number) {
   let b = colorNumber & 255;
   return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 }
-export {
-  Enemy,
-  rerenderEnemy,
-  enemiesCurrentlyDrawn as enemiesDrawn,
-  enemyCache
-};
+export { Enemy, rerenderEnemy, enemiesCurrentlyDrawn, enemyCache, deleteEnemy };
