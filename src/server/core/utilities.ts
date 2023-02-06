@@ -1,7 +1,7 @@
 import { connection } from "mongoose";
 import * as universal from "../universal";
 import { log } from "./log";
-import { Room } from "./Room";
+import { Room } from "../game/Room";
 
 function checkIfPropertyWithValueExists(
   dataset: unknown,

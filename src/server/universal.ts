@@ -1,5 +1,5 @@
 import { WebSocket } from "uWebSockets.js";
-import { SingleplayerGameData, Room } from "./core/Room";
+import { SingleplayerGameData, Room } from "./game/Room";
 
 type GameSocket = WebSocket & {
   owner?: string;

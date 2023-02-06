@@ -12,7 +12,7 @@ import * as startAction from "./server/game/actions/start";
 import * as universal from "./server/universal";
 import * as utilities from "./server/core/utilities";
 import * as input from "./server/core/input";
-import { SingleplayerRoom } from "./server/core/Room";
+import { SingleplayerRoom } from "./server/game/Room";
 import _ from "lodash";
 
 const app = express();

@@ -1,5 +1,5 @@
 import { log } from "./log";
-import { processKeypressForRoom } from "./Room";
+import { processKeypressForRoom } from "../game/Room";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
   "Digit0",

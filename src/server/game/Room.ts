@@ -1,8 +1,8 @@
-import * as utilities from "./utilities";
+import * as utilities from "../core/utilities";
 import * as universal from "../universal";
 import * as enemy from "./Enemy";
 import * as _ from "lodash";
-import { log } from "./log";
+import { log } from "../core/log";
 
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -17,17 +17,19 @@ const NUMBER_ROW_KEYS = [
   "Digit9"
 ];
 const NUMBER_PAD_KEYS = [
-  "Digit0",
-  "Digit1",
-  "Digit2",
-  "Digit3",
-  "Digit4",
-  "Digit5",
-  "Digit6",
-  "Digit7",
-  "Digit8",
-  "Digit9"
+  "Numpad0",
+  "Numpad1",
+  "Numpad2",
+  "Numpad3",
+  "Numpad4",
+  "Numpad5",
+  "Numpad6",
+  "Numpad7",
+  "Numpad8",
+  "Numpad9"
 ];
+
+const SEND_KEYS = ["Space", "Enter"];
 
 const STANDARD_ENEMY_CHANCE: number = 0.5;
 
@@ -37,6 +39,17 @@ interface ClockInterface {
     actionTime: number;
   };
 }
+
+enum InputAction {
+  Unknown = 0,
+  AddDigit = 1,
+  SendAnswer = 2
+}
+interface InputActionInterface {
+  action: InputAction;
+  argument: string;
+}
+
 class GameData {
   score!: number;
   enemiesKilled!: number;
@@ -180,7 +193,10 @@ function generateEnemyWithChance(
 
 function processKeypressForRoom(connectionID: string, code: string) {
   let roomToProcess = utilities.findRoomWithConnectionID(connectionID, false);
-  let inputInformation = "";
+  let inputInformation: InputActionInterface = {
+    action: InputAction.Unknown,
+    argument: ""
+  };
   if (!roomToProcess) {
     return;
   }
@@ -191,21 +207,52 @@ function processKeypressForRoom(connectionID: string, code: string) {
   if (!gameDataToProcess) {
     return;
   }
+  // TODO: Refactor this.
   // find the type of room input
+  inputInformation = getInputInformation(code);
+  if (inputInformation.action !== InputAction.Unknown) {
+    processInputInformation(inputInformation, gameDataToProcess);
+  }
+}
+function processInputInformation(
+  inputInformation: InputActionInterface,
+  gameDataToProcess: GameData
+) {
+  switch (inputInformation.action) {
+    case InputAction.AddDigit: {
+      gameDataToProcess.currentInput += inputInformation;
+      break;
+    }
+    case InputAction.SendAnswer: {
+    }
+  }
+}
+
+function getInputInformation(code: string) {
   if (NUMBER_PAD_KEYS.indexOf(code) > -1) {
-    inputInformation = NUMBER_PAD_KEYS.indexOf(code).toString();
+    return {
+      action: InputAction.AddDigit,
+      argument: NUMBER_PAD_KEYS.indexOf(code).toString()
+    };
   }
   // TODO: consider checking inputInformation as well, to save probably less than a millisecond of time
   if (NUMBER_ROW_KEYS.indexOf(code) > -1) {
-    inputInformation = NUMBER_PAD_KEYS.indexOf(code).toString();
+    return {
+      action: InputAction.AddDigit,
+      argument: NUMBER_PAD_KEYS.indexOf(code).toString()
+    };
   }
-  if (!inputInformation || inputInformation === "") {
-    // still unknown.
-    return;
+  if (SEND_KEYS.indexOf(code) > -1) {
+    return {
+      action: InputAction.SendAnswer,
+      argument: "" // no need
+    };
   }
-  gameDataToProcess.currentInput += inputInformation;
+  return {
+    action: InputAction.Unknown,
+    argument: "" // no need
+  };
 }
-
 export {
   SingleplayerRoom,
   Room,

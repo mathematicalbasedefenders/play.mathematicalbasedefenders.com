@@ -1,5 +1,5 @@
-import { Enemy } from "../../core/Enemy";
-import * as enemy from "../../core/Enemy";
+import { Enemy } from "../Enemy";
+import * as enemy from "../Enemy";
 
 enum SingleplayerGameMode {
   EASY = 1,
