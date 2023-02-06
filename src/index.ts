@@ -125,6 +125,16 @@ function update(deltaTime: number) {
       );
     }
   }
+
+  resetOneFrameVariables();
+}
+
+function resetOneFrameVariables() {
+  for (let room of universal.rooms) {
+    for (let gameData of room.gameData) {
+      gameData.enemiesToErase = [];
+    }
+  }
 }
 
 function generateConnectionID(length: number): string {
