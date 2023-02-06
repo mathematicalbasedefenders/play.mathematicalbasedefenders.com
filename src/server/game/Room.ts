@@ -3,42 +3,9 @@ import * as universal from "../universal";
 import * as enemy from "./Enemy";
 import * as _ from "lodash";
 import { log } from "../core/log";
-
-const NUMBER_ROW_KEYS = [
-  "Digit0",
-  "Digit1",
-  "Digit2",
-  "Digit3",
-  "Digit4",
-  "Digit5",
-  "Digit6",
-  "Digit7",
-  "Digit8",
-  "Digit9"
-];
-const NUMBER_PAD_KEYS = [
-  "Numpad0",
-  "Numpad1",
-  "Numpad2",
-  "Numpad3",
-  "Numpad4",
-  "Numpad5",
-  "Numpad6",
-  "Numpad7",
-  "Numpad8",
-  "Numpad9"
-];
-
-const SEND_KEYS = ["Space", "Enter"];
+import * as input from "../core/input";
 
 const STANDARD_ENEMY_CHANCE: number = 0.5;
-
-interface ClockInterface {
-  [key: string]: {
-    currentTime: number;
-    actionTime: number;
-  };
-}
 
 enum InputAction {
   Unknown = 0,
@@ -48,6 +15,12 @@ enum InputAction {
 interface InputActionInterface {
   action: InputAction;
   argument: string;
+}
+interface ClockInterface {
+  [key: string]: {
+    currentTime: number;
+    actionTime: number;
+  };
 }
 
 class GameData {
@@ -209,49 +182,10 @@ function processKeypressForRoom(connectionID: string, code: string) {
   }
   // TODO: Refactor this.
   // find the type of room input
-  inputInformation = getInputInformation(code);
+  inputInformation = input.getInputInformation(code);
   if (inputInformation.action !== InputAction.Unknown) {
-    processInputInformation(inputInformation, gameDataToProcess);
+    input.processInputInformation(inputInformation, gameDataToProcess);
   }
-}
-function processInputInformation(
-  inputInformation: InputActionInterface,
-  gameDataToProcess: GameData
-) {
-  switch (inputInformation.action) {
-    case InputAction.AddDigit: {
-      gameDataToProcess.currentInput += inputInformation;
-      break;
-    }
-    case InputAction.SendAnswer: {
-    }
-  }
-}
-
-function getInputInformation(code: string) {
-  if (NUMBER_PAD_KEYS.indexOf(code) > -1) {
-    return {
-      action: InputAction.AddDigit,
-      argument: NUMBER_PAD_KEYS.indexOf(code).toString()
-    };
-  }
-  // TODO: consider checking inputInformation as well, to save probably less than a millisecond of time
-  if (NUMBER_ROW_KEYS.indexOf(code) > -1) {
-    return {
-      action: InputAction.AddDigit,
-      argument: NUMBER_PAD_KEYS.indexOf(code).toString()
-    };
-  }
-  if (SEND_KEYS.indexOf(code) > -1) {
-    return {
-      action: InputAction.SendAnswer,
-      argument: "" // no need
-    };
-  }
-  return {
-    action: InputAction.Unknown,
-    argument: "" // no need
-  };
 }
 export {
   SingleplayerRoom,

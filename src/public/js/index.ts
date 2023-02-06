@@ -62,13 +62,14 @@ const stage = app.stage;
 const stageItems: {
   [key: string]: ExtendedSprite | ExtendedText;
 } = {
+  playFieldBorder: new ExtendedSprite(
+    PIXI.Texture.from("assets/images/playfield.png")
+  ),
   scoreText: new ExtendedText("0", {
     fontFamily: "Computer Modern Unicode Serif",
     fontSize: 24
   }),
-  playFieldBorder: new ExtendedSprite(
-    PIXI.Texture.from("assets/images/playfield.png")
-  ),
+
   inputText: new ExtendedText("0", {
     fontFamily: "Computer Modern Unicode Serif",
     fontSize: 48
@@ -78,6 +79,8 @@ const stageItems: {
 function setContainerItemProperties() {
   stageItems.playFieldBorder.scalingPolicy = AS.POLICY.FullWidth;
   // text
+  stageItems.scoreText.position.set(850, 835);
+  //
   stageItems.inputText.x = 400;
   stageItems.inputText.y = 835;
   stageItems.inputText.anchor.set(0.5, 0.5);

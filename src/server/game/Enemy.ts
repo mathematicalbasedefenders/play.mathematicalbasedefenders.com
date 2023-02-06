@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { log } from "../core/log";
+import { GameData } from "./Room";
 
 enum EnemyType {
   NORMAL = "1",
@@ -22,7 +23,7 @@ class Enemy {
   height?: number;
   xPosition: number;
   sPosition: number;
-  id?: string;
+  id: string;
   constructor(
     requestedValue: number,
     displayedText: string,
@@ -42,6 +43,28 @@ class Enemy {
 
   move(distance?: number) {
     this.sPosition -= distance || 0.01;
+  }
+
+  check(input: number) {
+    return this.requestedValue === input;
+  }
+
+  calculateScore(coefficient: number) {
+    // TODO: Add combo
+    return (100 + Math.max(0, (this.sPosition - 0.5) * 50)) * coefficient;
+  }
+
+  // TODO: Might need to find a different method for conciseness.
+  kill(gameData: GameData) {
+    gameData.score += this.calculateScore(1);
+    killEnemyWithIDInGameData(this.id, gameData);
+  }
+}
+
+function killEnemyWithIDInGameData(id: string, gameData: GameData) {
+  let index = gameData.enemies.findIndex((element) => element.id === id);
+  if (index) {
+    gameData.enemies.splice(index, 1);
   }
 }
 

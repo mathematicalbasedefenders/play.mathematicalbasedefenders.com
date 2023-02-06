@@ -20,7 +20,9 @@ function renderGameData(data: { [key: string]: any }) {
     enemies.rerenderEnemy(enemy.id, enemy.sPosition, enemy.displayedText);
   }
   // text
+  // TODO: ???
   (stageItems.inputText as ExtendedText).text = data.currentInput;
+  (stageItems.scoreText as ExtendedText).text = data.score;
 }
 
 function redrawStage() {
