@@ -25,10 +25,13 @@ const NUMBER_PAD_KEYS = [
   "Numpad8",
   "Numpad9"
 ];
+const REMOVE_DIGIT_KEYS = ["NumpadAdd", "Backspace"];
+
 enum InputAction {
   Unknown = 0,
   AddDigit = 1,
-  SendAnswer = 2
+  RemoveDigit = 2,
+  SendAnswer = 3
 }
 interface InputActionInterface {
   action: InputAction;
@@ -62,10 +65,17 @@ function processInputInformation(
       gameDataToProcess.currentInput += inputInformation.argument.toString();
       break;
     }
+    case InputAction.RemoveDigit: {
+      gameDataToProcess.currentInput = gameDataToProcess.currentInput.substring(
+        0,
+        gameDataToProcess.currentInput.length - 1
+      );
+    }
     case InputAction.SendAnswer: {
       let enemyKilled = false;
       for (let enemy of gameDataToProcess.enemies) {
         if (enemy.check(parseInt(gameDataToProcess.currentInput))) {
+          gameDataToProcess.enemiesToErase.push(enemy.id);
           enemyKilled = true;
           enemy.kill(gameDataToProcess);
         }
@@ -90,7 +100,13 @@ function getInputInformation(code: string) {
   if (NUMBER_ROW_KEYS.indexOf(code) > -1) {
     return {
       action: InputAction.AddDigit,
-      argument: NUMBER_PAD_KEYS.indexOf(code).toString()
+      argument: NUMBER_ROW_KEYS.indexOf(code).toString()
+    };
+  }
+  if (REMOVE_DIGIT_KEYS.indexOf(code) > -1) {
+    return {
+      action: InputAction.RemoveDigit,
+      argument: ""
     };
   }
   if (SEND_KEYS.indexOf(code) > -1) {
