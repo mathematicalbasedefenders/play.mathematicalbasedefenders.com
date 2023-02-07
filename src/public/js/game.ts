@@ -29,6 +29,9 @@ function renderGameData(data: { [key: string]: any }) {
   // TODO: ???
   stageItems.textSprites.inputText.text = data.currentInput;
   stageItems.textSprites.scoreText.text = data.score;
+  stageItems.textSprites.enemiesText.text = `Enemy Kills: ${
+    data.enemiesKilled
+  } ≈ ${((data.enemiesKilled / data.elapsedTime) * 1000).toFixed(3)}/s`;
 }
 
 function redrawStage() {

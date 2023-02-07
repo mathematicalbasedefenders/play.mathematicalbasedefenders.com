@@ -83,7 +83,12 @@ const stageItems: stageItemsContainer = {
       fontSize: 72,
       fill: "#ffffff"
     }),
-
+    //
+    enemiesText: new ExtendedText("Enemy Kills: 0 ≈ 0.000/s", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 20,
+      fill: "#ffffff"
+    }),
     inputText: new ExtendedText("0", {
       fontFamily: "Computer Modern Unicode Serif",
       fontSize: 48,
@@ -98,7 +103,10 @@ function setContainerItemProperties() {
   stageItems.textSprites.scoreText.position.set(730, 675);
   //
   stageItems.textSprites.scoreLabelText.position.set(730, 655);
-  (stageItems.textSprites.scoreLabelText as ExtendedText).text = "Score";
+  stageItems.textSprites.scoreLabelText.text = "Score";
+  //
+  stageItems.textSprites.enemiesText.text = "Enemy Kills: 0 ≈ 0.000/s";
+  stageItems.textSprites.enemiesText.position.set(730, 745);
   //
   stageItems.textSprites.inputText.x = 400;
   stageItems.textSprites.inputText.y = 835;
