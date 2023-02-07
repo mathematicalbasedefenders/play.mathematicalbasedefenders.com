@@ -42,7 +42,7 @@ class GameData {
     this.score = 0;
     this.enemiesKilled = 0;
     this.enemiesSpawned = 0;
-    this.baseHealth = 10;
+    this.baseHealth = 100;
     this.owner = owner;
     this.enemies = [];
     this.enemiesToErase = [];
@@ -105,6 +105,9 @@ class Room {
       // Move all the enemies down.
       for (let enemy of data.enemies) {
         enemy.move();
+        if (enemy.sPosition <= 0) {
+          enemy.remove(data, 10);
+        }
       }
       // Add enemy if generated.
       if (

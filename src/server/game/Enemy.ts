@@ -57,15 +57,23 @@ class Enemy {
   // TODO: Might need to find a different method for conciseness.
   kill(gameData: GameData) {
     gameData.score += this.calculateScore(1);
-    killEnemyWithIDInGameData(this.id, gameData);
+    removeEnemyWithIDInGameData(this.id, gameData);
+  }
+
+  remove(gameData: GameData, damage?: number) {
+    if (typeof damage === "number") {
+      gameData.baseHealth -= damage;
+    }
+    removeEnemyWithIDInGameData(this.id, gameData);
   }
 }
 
-function killEnemyWithIDInGameData(id: string, gameData: GameData) {
+function removeEnemyWithIDInGameData(id: string, gameData: GameData) {
   let index = gameData.enemies.findIndex((element) => element.id === id);
-  if (index) {
+  if (index > -1) {
     gameData.enemies.splice(index, 1);
   }
+  gameData.enemiesToErase.push(id);
 }
 
 function createNew(enemyType: EnemyType, id: string) {
@@ -84,7 +92,7 @@ function createNew(enemyType: EnemyType, id: string) {
       enemy.health = 1;
       // e.g.
       enemy.color = 0xffffff;
-      enemy.speed = 0.01;
+      enemy.speed = 0.001;
       break;
     }
   }
