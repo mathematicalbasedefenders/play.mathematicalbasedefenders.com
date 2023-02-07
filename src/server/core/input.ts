@@ -78,6 +78,7 @@ function processInputInformation(
         if (enemy.check(parseInt(gameDataToProcess.currentInput))) {
           gameDataToProcess.enemiesToErase.push(enemy.id);
           enemyKilled = true;
+          gameDataToProcess.enemiesKilled += 1;
           enemy.kill(gameDataToProcess);
         }
       }
