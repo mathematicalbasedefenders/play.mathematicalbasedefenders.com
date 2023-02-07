@@ -27,8 +27,8 @@ function renderGameData(data: { [key: string]: any }) {
 
   // text
   // TODO: ???
-  (stageItems.inputText as ExtendedText).text = data.currentInput;
-  (stageItems.scoreText as ExtendedText).text = data.score;
+  stageItems.textSprites.inputText.text = data.currentInput;
+  stageItems.textSprites.scoreText.text = data.score;
 }
 
 function redrawStage() {

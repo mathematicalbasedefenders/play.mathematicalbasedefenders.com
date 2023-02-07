@@ -42,6 +42,8 @@ class ExtendedText extends PIXI.Text {
   };
 }
 
+interface ExtendedSpriteInterface extends ExtendedSprite {}
+
 serifFont.load();
 mathFont.load();
 
@@ -59,40 +61,57 @@ app.renderer.view.style.display = "block";
 
 const stage = app.stage;
 
-const stageItems: {
-  [key: string]: ExtendedSprite | ExtendedText;
-} = {
-  playFieldBorder: new ExtendedSprite(
-    PIXI.Texture.from("assets/images/playfield.png")
-  ),
-  scoreText: new ExtendedText("0", {
-    fontFamily: "Computer Modern Unicode Serif",
-    fontSize: 24,
-    fill: "#ffffff"
-  }),
+type stageItemsContainer = {
+  sprites: { [key: string]: ExtendedSprite };
+  textSprites: { [key: string]: ExtendedText };
+};
 
-  inputText: new ExtendedText("0", {
-    fontFamily: "Computer Modern Unicode Serif",
-    fontSize: 48,
-    fill: "#ffffff"
-  })
+const stageItems: stageItemsContainer = {
+  sprites: {
+    playFieldBorder: new ExtendedSprite(
+      PIXI.Texture.from("assets/images/playfield.png")
+    )
+  },
+  textSprites: {
+    scoreLabelText: new ExtendedText("Score", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 24,
+      fill: "#ffffff"
+    }),
+    scoreText: new ExtendedText("0", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 72,
+      fill: "#ffffff"
+    }),
+
+    inputText: new ExtendedText("0", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 48,
+      fill: "#ffffff"
+    })
+  }
 };
 
 function setContainerItemProperties() {
-  stageItems.playFieldBorder.scalingPolicy = AS.POLICY.FullWidth;
+  stageItems.sprites.playFieldBorder.scalingPolicy = AS.POLICY.FullWidth;
   // text
-  stageItems.scoreText.position.set(850, 835);
+  stageItems.textSprites.scoreText.position.set(730, 675);
   //
-  stageItems.inputText.x = 400;
-  stageItems.inputText.y = 835;
-  stageItems.inputText.anchor.set(0.5, 0.5);
-  stageItems.playFieldBorder.scalingPolicy = AS.POLICY.FullWidth;
+  stageItems.textSprites.scoreLabelText.position.set(730, 655);
+  (stageItems.textSprites.scoreLabelText as ExtendedText).text = "Score";
+  //
+  stageItems.textSprites.inputText.x = 400;
+  stageItems.textSprites.inputText.y = 835;
+  stageItems.textSprites.inputText.anchor.set(0.5, 0.5);
 }
 
 setContainerItemProperties();
 
-for (let item in stageItems) {
-  stage.addChild(stageItems[item]);
+for (let item in stageItems.sprites) {
+  app.stage.addChild(stageItems.sprites[item]);
+}
+for (let item in stageItems.textSprites) {
+  app.stage.addChild(stageItems.textSprites[item]);
 }
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
