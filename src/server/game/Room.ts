@@ -35,6 +35,7 @@ class GameData {
   clocks!: ClockInterface;
   enemiesToErase!: Array<string>;
   currentInput!: string;
+  elapsedTime!: number;
   // ...
   constructor(owner: string) {
     this.score = 0;
@@ -51,6 +52,7 @@ class GameData {
       }
     };
     this.currentInput = "";
+    this.elapsedTime = 0;
   }
 }
 class SingleplayerGameData extends GameData {
@@ -80,6 +82,7 @@ class Room {
   update() {
     let now: number = Date.now();
     let deltaTime: number = now - this.lastUpdateTime;
+
     this.lastUpdateTime = now;
 
     if (!this.playing) {
@@ -89,6 +92,7 @@ class Room {
     // Update for all types of rooms
     for (let i = 0; i < this.gameData.length; i++) {
       for (let clock in this.gameData[i].clocks) {
+        this.gameData[i].elapsedTime += deltaTime;
         this.gameData[i].clocks[clock].currentTime += deltaTime;
       }
     }
