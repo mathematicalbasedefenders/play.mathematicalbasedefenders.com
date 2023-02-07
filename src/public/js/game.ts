@@ -8,6 +8,7 @@ import {
 } from "./index";
 import * as enemies from "./enemies";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
+import { millisecondsToTime } from "./utilities";
 // TODO: Might change later
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -26,12 +27,14 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   // text
-  // TODO: ???
   stageItems.textSprites.inputText.text = data.currentInput;
   stageItems.textSprites.scoreText.text = data.score;
   stageItems.textSprites.enemiesText.text = `Enemy Kills: ${
     data.enemiesKilled
   } ≈ ${((data.enemiesKilled / data.elapsedTime) * 1000).toFixed(3)}/s`;
+  stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(
+    data.elapsedTime
+  );
 }
 
 function redrawStage() {
@@ -50,7 +53,6 @@ function redrawStage() {
 
 function repositionStageItems() {
   for (let item in stageItems) {
-    3;
   }
 }
 
