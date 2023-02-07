@@ -11,7 +11,8 @@ enum InputAction {
   Unknown = 0,
   AddDigit = 1,
   RemoveDigit = 2,
-  SendAnswer = 3
+  SendAnswer = 3,
+  AddSubtractionSign = 4
 }
 interface InputActionInterface {
   action: InputAction;

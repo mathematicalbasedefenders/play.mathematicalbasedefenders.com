@@ -26,12 +26,14 @@ const NUMBER_PAD_KEYS = [
   "Numpad9"
 ];
 const REMOVE_DIGIT_KEYS = ["NumpadAdd", "Backspace"];
+const SUBTRACTION_SIGN_KEYS = ["Minus", "NumpadSubtract"];
 
 enum InputAction {
   Unknown = 0,
   AddDigit = 1,
   RemoveDigit = 2,
-  SendAnswer = 3
+  SendAnswer = 3,
+  AddSubtractionSign = 4
 }
 interface InputActionInterface {
   action: InputAction;
@@ -71,6 +73,9 @@ function processInputInformation(
         gameDataToProcess.currentInput.length - 1
       );
       break;
+    }
+    case InputAction.AddSubtractionSign: {
+      gameDataToProcess.currentInput += "-";
     }
     case InputAction.SendAnswer: {
       let enemyKilled = false;
@@ -114,6 +119,12 @@ function getInputInformation(code: string) {
   if (SEND_KEYS.indexOf(code) > -1) {
     return {
       action: InputAction.SendAnswer,
+      argument: "" // TODO: Optionally put in current game data's current Input
+    };
+  }
+  if (SUBTRACTION_SIGN_KEYS.indexOf(code) > -1) {
+    return {
+      action: InputAction.AddSubtractionSign,
       argument: "" // TODO: Optionally put in current game data's current Input
     };
   }
