@@ -70,6 +70,7 @@ function processInputInformation(
         0,
         gameDataToProcess.currentInput.length - 1
       );
+      break;
     }
     case InputAction.SendAnswer: {
       let enemyKilled = false;
