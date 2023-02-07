@@ -93,6 +93,11 @@ const stageItems: stageItemsContainer = {
       fontFamily: "Computer Modern Unicode Serif",
       fontSize: 48,
       fill: "#ffffff"
+    }),
+    elapsedTimeText: new ExtendedText("0:00.000", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 20,
+      fill: "#ffffff"
     })
   }
 };
@@ -107,6 +112,9 @@ function setContainerItemProperties() {
   //
   stageItems.textSprites.enemiesText.text = "Enemy Kills: 0 ≈ 0.000/s";
   stageItems.textSprites.enemiesText.position.set(730, 745);
+  //
+  stageItems.textSprites.elapsedTimeText.text = "Enemy Kills: 0 ≈ 0.000/s";
+  stageItems.textSprites.elapsedTimeText.position.set(730, 765);
   //
   stageItems.textSprites.inputText.x = 400;
   stageItems.textSprites.inputText.y = 835;
