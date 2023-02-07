@@ -98,6 +98,11 @@ const stageItems: stageItemsContainer = {
       fontFamily: "Computer Modern Unicode Serif",
       fontSize: 20,
       fill: "#ffffff"
+    }),
+    baseHealthText: new ExtendedText("♥️ 100", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 20,
+      fill: "#ffffff"
     })
   }
 };
@@ -105,16 +110,19 @@ const stageItems: stageItemsContainer = {
 function setContainerItemProperties() {
   stageItems.sprites.playFieldBorder.scalingPolicy = AS.POLICY.FullWidth;
   // text
-  stageItems.textSprites.scoreText.position.set(730, 675);
+  stageItems.textSprites.scoreText.position.set(730, 645);
   //
-  stageItems.textSprites.scoreLabelText.position.set(730, 655);
+  stageItems.textSprites.scoreLabelText.position.set(730, 625);
   stageItems.textSprites.scoreLabelText.text = "Score";
   //
   stageItems.textSprites.enemiesText.text = "Enemy Kills: 0 ≈ 0.000/s";
-  stageItems.textSprites.enemiesText.position.set(730, 745);
+  stageItems.textSprites.enemiesText.position.set(730, 715);
   //
-  stageItems.textSprites.elapsedTimeText.text = "Enemy Kills: 0 ≈ 0.000/s";
-  stageItems.textSprites.elapsedTimeText.position.set(730, 765);
+  stageItems.textSprites.elapsedTimeText.text = "0:00.000";
+  stageItems.textSprites.elapsedTimeText.position.set(730, 735);
+  //
+  stageItems.textSprites.baseHealthText.text = "♥️ 100";
+  stageItems.textSprites.baseHealthText.position.set(730, 755);
   //
   stageItems.textSprites.inputText.x = 400;
   stageItems.textSprites.inputText.y = 835;

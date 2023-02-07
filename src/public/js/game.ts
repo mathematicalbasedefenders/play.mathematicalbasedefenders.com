@@ -35,6 +35,7 @@ function renderGameData(data: { [key: string]: any }) {
   stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(
     data.elapsedTime
   );
+  stageItems.textSprites.baseHealthText.text = `♥️ ${data.baseHealth}`;
 }
 
 function redrawStage() {
