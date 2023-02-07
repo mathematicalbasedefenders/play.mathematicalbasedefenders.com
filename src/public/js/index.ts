@@ -48,7 +48,7 @@ mathFont.load();
 const app = new PIXI.Application({
   width: window.screen.width,
   height: window.screen.height,
-  backgroundColor: 0xc0c0c0,
+  backgroundColor: 0x000000,
   resizeTo: window,
   autoDensity: true,
   resolution: devicePixelRatio
@@ -67,12 +67,14 @@ const stageItems: {
   ),
   scoreText: new ExtendedText("0", {
     fontFamily: "Computer Modern Unicode Serif",
-    fontSize: 24
+    fontSize: 24,
+    fill: "#ffffff"
   }),
 
   inputText: new ExtendedText("0", {
     fontFamily: "Computer Modern Unicode Serif",
-    fontSize: 48
+    fontSize: 48,
+    fill: "#ffffff"
   })
 };
 
