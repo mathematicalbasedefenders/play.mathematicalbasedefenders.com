@@ -46,7 +46,6 @@ class Enemy {
   }
 
   check(input: number) {
-    console.log(`${this.requestedValue === input}`, this.requestedValue, input);
     return this.requestedValue === input;
   }
 
