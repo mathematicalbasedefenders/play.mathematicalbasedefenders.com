@@ -17,6 +17,21 @@ const OPTIMAL_SCREEN_RATIO: number =
 
 // TODO: Change `any` to something else.
 function renderGameData(data: { [key: string]: any }) {
+  // html updates go here.
+
+  if (data.commands.updateText) {
+    for (let command in data.commands.updateText) {
+      $(data.commands.updateText[command].selector).text(
+        data.commands.updateText[command].newText
+      );
+    }
+  }
+
+  if (typeof data.commands.changeScreenTo === "string") {
+    changeScreen(data.commands.changeScreenTo);
+    return;
+  }
+
   // erase killed enemies
   for (let enemyID of Object.values(data.enemiesToErase)) {
     enemies.deleteEnemy(enemyID as string);
@@ -64,11 +79,20 @@ function redrawStage() {
   app.stage.height = newPosition.height;
 }
 
-function repositionStageItems() {
-  for (let item in stageItems) {
+function changeScreen(screen?: string) {
+  $("#main-content__game-over-screen-container").hide(0);
+  $("#canvas-container").hide(0);
+  switch (screen) {
+    case "gameOver": {
+      $("#main-content__game-over-screen-container").show(0);
+      break;
+    }
+    case "canvas": {
+      $("#canvas-container").show(0);
+    }
   }
 }
-
+changeScreen("canvas");
 window.onresize = () => {
   redrawStage();
 };

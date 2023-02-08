@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import { log } from "../core/log";
 import * as input from "../core/input";
 
-const STANDARD_ENEMY_CHANCE: number = 0.5;
+const STANDARD_ENEMY_CHANCE: number = 0.05;
 
 enum InputAction {
   Unknown = 0,
@@ -37,6 +37,7 @@ class GameData {
   enemiesToErase!: Array<string>;
   currentInput!: string;
   elapsedTime!: number;
+  commands!: { [key: string]: any };
   // ...
   constructor(owner: string) {
     this.score = 0;
@@ -59,6 +60,7 @@ class GameData {
     this.currentInput = "";
     this.elapsedTime = 0;
     this.combo = -1;
+    this.commands = {};
   }
 }
 class SingleplayerGameData extends GameData {
@@ -114,6 +116,20 @@ class Room {
           enemy.remove(data, 10);
         }
       }
+      if (data.baseHealth <= 0) {
+        // game over here
+        data.commands.updateText = [
+          {
+            selector: "#main-content__game-over-screen__final-score",
+            newText: data.score.toString()
+          }
+        ];
+        data.commands.changeScreenTo = "gameOver";
+        // destroy room somehow
+        this.playing = false;
+      }
+
+      // clocks
       // Add enemy if generated.
       if (
         data.clocks.enemySpawn.currentTime >= data.clocks.enemySpawn.actionTime
