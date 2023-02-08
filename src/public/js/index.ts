@@ -147,7 +147,7 @@ for (let item in stageItems.textSprites) {
 }
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
-document.body.appendChild(app.view);
+document.getElementById("canvas-container")?.appendChild(app.view);
 
 // events
 initializeKeypressEventListener();
