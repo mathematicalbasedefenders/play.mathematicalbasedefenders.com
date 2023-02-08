@@ -80,6 +80,7 @@ function processInputInformation(
     case InputAction.SendAnswer: {
       let enemyKilled = false;
       for (let enemy of gameDataToProcess.enemies) {
+        // TODO: Data validation
         if (enemy.check(parseInt(gameDataToProcess.currentInput))) {
           gameDataToProcess.enemiesToErase.push(enemy.id);
           enemyKilled = true;
