@@ -39,7 +39,7 @@ mongoose.connection.on("connected", async () => {
 
 type WebSocketMessage = ArrayBuffer & {
   action?: string;
-  arguments?: Array<string>;
+  messageArguments?: Array<string>;
 };
 
 uWS
@@ -70,13 +70,13 @@ uWS
           break;
         }
         case "keypress": {
-          if (typeof parsedMessage.arguments === "undefined") {
-            log.warn("Arguments of keypress message is undefined");
+          if (typeof parsedMessage.messageArguments === "undefined") {
+            log.warn("messageArguments of keypress message is undefined");
             break;
           }
           input.processKeypress(
             socket.connectionID,
-            parsedMessage.arguments[0]
+            parsedMessage.messageArguments[0]
           );
           break;
         }
@@ -120,7 +120,7 @@ function update(deltaTime: number) {
       universal.getSocketFromConnectionID(socket.connectionID as string)?.send(
         JSON.stringify({
           message: "renderGameData",
-          arguments: [gameDataToSend]
+          messageArguments: [gameDataToSend]
         })
       );
     }

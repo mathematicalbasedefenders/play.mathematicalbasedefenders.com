@@ -6,7 +6,7 @@ function initializeKeypressEventListener() {
     socket.send(
       JSON.stringify({
         action: "keypress",
-        arguments: [event.code]
+        messageArguments: [event.code]
       })
     );
   });
