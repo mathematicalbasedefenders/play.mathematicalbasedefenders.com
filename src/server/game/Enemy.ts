@@ -46,6 +46,7 @@ class Enemy {
   }
 
   check(input: number) {
+    console.log(`${this.requestedValue === input}`, this.requestedValue, input);
     return this.requestedValue === input;
   }
 
@@ -152,7 +153,7 @@ function createProblem(result: number) {
         _.filter(getFactorsOf(result), (element) => Math.abs(element) <= 12)
       ) as number;
       let n1 = result * coefficient;
-      let n2 = result / coefficient;
+      let n2 = coefficient;
       if (result === 0) {
         n1 = result;
         n2 = _.sample([2, 3, 4, 5, 6, 8, 9, 10, 11]) as number;
