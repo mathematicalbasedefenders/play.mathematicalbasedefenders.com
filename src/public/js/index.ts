@@ -103,6 +103,11 @@ const stageItems: stageItemsContainer = {
       fontFamily: "Computer Modern Unicode Serif",
       fontSize: 20,
       fill: "#ffffff"
+    }),
+    comboText: new ExtendedText("", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 20,
+      fill: "#ffffff"
     })
   }
 };
@@ -123,6 +128,9 @@ function setContainerItemProperties() {
   //
   stageItems.textSprites.baseHealthText.text = "♥️ 100";
   stageItems.textSprites.baseHealthText.position.set(730, 755);
+  //
+  stageItems.textSprites.comboText.text = "";
+  stageItems.textSprites.comboText.position.set(730, 775);
   //
   stageItems.textSprites.inputText.x = 400;
   stageItems.textSprites.inputText.y = 835;

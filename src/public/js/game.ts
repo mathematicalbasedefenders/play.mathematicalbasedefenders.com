@@ -35,6 +35,18 @@ function renderGameData(data: { [key: string]: any }) {
   stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(
     data.elapsedTime
   );
+  if (data.combo > 0) {
+    stageItems.textSprites.comboText.text = `${data.combo} Combo`;
+    stageItems.textSprites.comboText.alpha = Math.max(
+      0,
+      1 -
+        data.clocks.comboResetTime.currentTime /
+          data.clocks.comboResetTime.actionTime
+    );
+  } else {
+    stageItems.textSprites.comboText.text = ``;
+  }
+
   stageItems.textSprites.baseHealthText.text = `♥️ ${data.baseHealth}`;
 }
 
