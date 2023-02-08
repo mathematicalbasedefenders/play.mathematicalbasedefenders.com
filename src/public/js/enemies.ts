@@ -85,6 +85,11 @@ function deleteEnemy(id: string) {
     enemyCache.splice(enemyCache.indexOf(enemy), 1);
   }
 }
+function deleteAllEnemies() {
+  for (let enemy of enemyCache) {
+    deleteEnemy(enemy.id);
+  }
+}
 function rerenderEnemy(id: string, sPosition: number, displayedText?: string) {
   if (enemiesCurrentlyDrawn.indexOf(id) > -1) {
     // enemy already drawn
@@ -102,4 +107,11 @@ function calculateLuminance(colorNumber: number) {
   let b = colorNumber & 255;
   return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 }
-export { Enemy, rerenderEnemy, enemiesCurrentlyDrawn, enemyCache, deleteEnemy };
+export {
+  Enemy,
+  rerenderEnemy,
+  enemiesCurrentlyDrawn,
+  enemyCache,
+  deleteEnemy,
+  deleteAllEnemies
+};
