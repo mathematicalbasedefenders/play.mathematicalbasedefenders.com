@@ -51,11 +51,7 @@ uWS
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
-      // create new room, TODO: move this later
-      let room = new SingleplayerRoom(socket.connectionID);
-      room.start();
-      socket.subscribe(room.id);
-      universal.rooms.push(room);
+      createNewSingleplayerRoom(socket);
     },
 
     message: (
@@ -67,6 +63,7 @@ uWS
       const parsedMessage = JSON.parse(buffer.toString());
       switch (parsedMessage.action) {
         case "start": {
+          createNewSingleplayerRoom(socket);
           break;
         }
         case "keypress": {
@@ -104,7 +101,9 @@ uWS
 
 function update(deltaTime: number) {
   for (let room of universal.rooms) {
-    room.update();
+    if (room) {
+      room.update();
+    }
   }
 
   for (let socket of universal.sockets) {
@@ -126,7 +125,25 @@ function update(deltaTime: number) {
     }
   }
 
+  // delete rooms with zero players
+  let roomsToDelete = _.filter(
+    universal.rooms,
+    (element) =>
+      element.memberConnectionIDs.length +
+        element.spectatorConnectionIDs.length <=
+      0
+  );
+
   resetOneFrameVariables();
+
+  for (let roomToDelete in roomsToDelete) {
+    log.info(`Deleting room ${universal.rooms[roomToDelete].id}`);
+    universal.rooms.splice(
+      universal.rooms.indexOf(universal.rooms[roomToDelete]),
+      1
+    );
+    delete universal.rooms[roomToDelete];
+  }
 }
 
 function resetOneFrameVariables() {
@@ -136,6 +153,13 @@ function resetOneFrameVariables() {
       gameData.commands = {};
     }
   }
+}
+
+function createNewSingleplayerRoom(socket: universal.GameSocket) {
+  let room = new SingleplayerRoom(socket.connectionID as string);
+  room.start();
+  socket.subscribe(room.id);
+  universal.rooms.push(room);
 }
 
 function generateConnectionID(length: number): string {
