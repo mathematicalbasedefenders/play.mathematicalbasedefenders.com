@@ -14,7 +14,10 @@
 </head>
 
 <body>
-  <!-- Contains the drawing area. -->
+  <div id="main-content-container">
+    <%- include("../partials/game-over-screen") %>
+      <div id="canvas-container"></div>
+  </div>
   <span id="stats"></span>
 </body>
 <script src="https://code.jquery.com/jquery-3.6.3.min.js"
