@@ -52,7 +52,7 @@ const app = new PIXI.Application({
   height: window.screen.height,
   backgroundColor: 0x000000,
   resizeTo: window,
-  autoDensity: true,
+  // autoDensity: true,
   resolution: devicePixelRatio
 });
 

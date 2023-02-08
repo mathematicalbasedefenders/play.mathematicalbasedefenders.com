@@ -104,7 +104,7 @@ class Room {
       // FIXME: ???
       // Move all the enemies down.
       for (let enemy of data.enemies) {
-        enemy.move();
+        enemy.move(0.0025);
         if (enemy.sPosition <= 0) {
           enemy.remove(data, 10);
         }
