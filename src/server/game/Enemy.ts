@@ -51,7 +51,9 @@ class Enemy {
 
   calculateScore(coefficient: number) {
     // TODO: Add combo
-    return (100 + Math.max(0, (this.sPosition - 0.5) * 50)) * coefficient;
+    return Math.round(
+      (100 + Math.max(0, (this.sPosition - 0.5) * 50)) * coefficient
+    );
   }
 
   // TODO: Might need to find a different method for conciseness.
