@@ -1,9 +1,9 @@
 import FontFaceObserver from "fontfaceobserver";
 import * as PIXI from "pixi.js";
-import { socket } from "./socket";
+import { socket, sendSocketMessage } from "./socket";
 import { initializeKeypressEventListener } from "./input";
 import * as AS from "adaptive-scale/lib-esm";
-import { redrawStage } from "./game";
+import { changeScreen, redrawStage } from "./game";
 let startInitTime: number = Date.now();
 
 // Fonts
@@ -148,6 +148,11 @@ for (let item in stageItems.textSprites) {
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
 document.getElementById("canvas-container")?.appendChild(app.view);
+// other event listeners
+$("#main-content__game-over-screen__retry-button").on("click", () => {
+  sendSocketMessage("start", "");
+  changeScreen("canvas");
+});
 
 // events
 initializeKeypressEventListener();

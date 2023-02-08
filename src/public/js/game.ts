@@ -82,6 +82,8 @@ function redrawStage() {
 function changeScreen(screen?: string) {
   $("#main-content__game-over-screen-container").hide(0);
   $("#canvas-container").hide(0);
+  // other stuff
+  enemies.deleteAllEnemies();
   switch (screen) {
     case "gameOver": {
       $("#main-content__game-over-screen-container").show(0);
@@ -89,6 +91,7 @@ function changeScreen(screen?: string) {
     }
     case "canvas": {
       $("#canvas-container").show(0);
+      break;
     }
   }
 }
@@ -97,4 +100,4 @@ window.onresize = () => {
   redrawStage();
 };
 
-export { renderGameData, redrawStage };
+export { renderGameData, redrawStage, changeScreen };

@@ -12,12 +12,12 @@ socket.addEventListener("message", (event: any) => {
     }
   }
 });
-function sendMessage(message: string, messageArguments: string) {
+function sendSocketMessage(action: string, messageArguments: any) {
   socket.send(
     JSON.stringify({
-      message: message,
+      action: action,
       messageArguments: messageArguments
     })
   );
 }
-export { socket };
+export { socket, sendSocketMessage };

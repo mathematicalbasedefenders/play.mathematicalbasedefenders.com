@@ -20,16 +20,17 @@ function getSocketFromConnectionID(id: string): GameSocket | undefined {
   return sockets.find((socket) => socket.connectionID === id);
 }
 
-function getGameDataFromConnectionID(
-  id: string
-): SingleplayerGameData | undefined {
+function getGameDataFromConnectionID(id: string): SingleplayerGameData | null {
   for (let room of rooms) {
-    for (let data of room.gameData) {
-      if (data.owner === id) {
-        return data;
+    if (room) {
+      for (let data of room.gameData) {
+        if (data.owner === id) {
+          return data;
+        }
       }
     }
   }
+  return null;
 }
 
 export {

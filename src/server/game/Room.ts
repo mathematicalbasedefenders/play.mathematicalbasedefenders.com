@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import { log } from "../core/log";
 import * as input from "../core/input";
 
-const STANDARD_ENEMY_CHANCE: number = 0.05;
+const STANDARD_ENEMY_CHANCE: number = 0.25;
 
 enum InputAction {
   Unknown = 0,
@@ -83,7 +83,7 @@ class Room {
   constructor(hostConnectionID: string) {
     this.id = generateRoomID(8);
     this.hostConnectionID = hostConnectionID;
-    this.memberConnectionIDs.push(hostConnectionID);
+    this.addMember(hostConnectionID);
     this.lastUpdateTime = Date.now();
   }
 
@@ -117,6 +117,7 @@ class Room {
         }
       }
       if (data.baseHealth <= 0) {
+        let socket = universal.getSocketFromConnectionID(data.owner);
         // game over here
         data.commands.updateText = [
           {
@@ -127,6 +128,11 @@ class Room {
         data.commands.changeScreenTo = "gameOver";
         // destroy room somehow
         this.playing = false;
+
+        if (socket) {
+          socket?.unsubscribe(this.id);
+          this.deleteMember(socket?.connectionID as string);
+        }
       }
 
       // clocks
@@ -162,6 +168,42 @@ class Room {
     }
     this.playing = true;
     log.info(`Room ${this.id} has started play!`);
+  }
+
+  addMember(connectionID: string) {
+    if (
+      this.memberConnectionIDs.indexOf(connectionID) === -1 &&
+      this.spectatorConnectionIDs.indexOf(connectionID) === -1
+    ) {
+      this.memberConnectionIDs.push(connectionID);
+    }
+  }
+
+  addSpectator(connectionID: string) {
+    if (
+      this.spectatorConnectionIDs.indexOf(connectionID) === -1 &&
+      this.memberConnectionIDs.indexOf(connectionID) === -1
+    ) {
+      this.spectatorConnectionIDs.push(connectionID);
+    }
+  }
+
+  deleteMember(connectionID: string) {
+    if (this.memberConnectionIDs.indexOf(connectionID) > -1) {
+      this.memberConnectionIDs.splice(
+        this.memberConnectionIDs.indexOf(connectionID),
+        1
+      );
+    }
+  }
+
+  deleteSpectator(connectionID: string) {
+    if (this.spectatorConnectionIDs.indexOf(connectionID) > -1) {
+      this.spectatorConnectionIDs.splice(
+        this.spectatorConnectionIDs.indexOf(connectionID),
+        1
+      );
+    }
   }
 }
 class SingleplayerRoom extends Room {
