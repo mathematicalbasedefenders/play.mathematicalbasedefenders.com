@@ -84,7 +84,7 @@ function processInputInformation(
           gameDataToProcess.enemiesToErase.push(enemy.id);
           enemyKilled = true;
           gameDataToProcess.enemiesKilled += 1;
-          enemy.kill(gameDataToProcess);
+          enemy.kill(gameDataToProcess, true, true);
         }
       }
       // reset input

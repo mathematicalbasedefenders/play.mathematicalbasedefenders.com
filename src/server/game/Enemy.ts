@@ -49,16 +49,24 @@ class Enemy {
     return this.requestedValue === input;
   }
 
-  calculateScore(coefficient: number) {
-    // TODO: Add combo
+  calculateScore(coefficient: number, currentCombo: number): number {
     return Math.round(
-      (100 + Math.max(0, (this.sPosition - 0.5) * 50)) * coefficient
+      (100 +
+        Math.max(0, (this.sPosition - 0.5) * 50) *
+          Math.max(1, currentCombo * 0.1 + 1)) *
+        coefficient
     );
   }
 
   // TODO: Might need to find a different method for conciseness.
-  kill(gameData: GameData) {
-    gameData.score += this.calculateScore(1);
+  kill(gameData: GameData, giveScore: boolean, giveCombo: boolean) {
+    if (giveScore) {
+      gameData.score += this.calculateScore(1, gameData.combo);
+    }
+    if (giveCombo) {
+      gameData.combo += 1;
+      gameData.clocks.comboResetTime.currentTime = 0;
+    }
     removeEnemyWithIDInGameData(this.id, gameData);
   }
 

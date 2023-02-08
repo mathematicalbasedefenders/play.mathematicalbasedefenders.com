@@ -50,10 +50,15 @@ class GameData {
       enemySpawn: {
         currentTime: 0,
         actionTime: 100
+      },
+      comboResetTime: {
+        currentTime: 0,
+        actionTime: 5000
       }
     };
     this.currentInput = "";
     this.elapsedTime = 0;
+    this.combo = -1;
   }
 }
 class SingleplayerGameData extends GameData {
@@ -118,6 +123,14 @@ class Room {
           this.updateNumber
         );
         data.clocks.enemySpawn.currentTime -= data.clocks.enemySpawn.actionTime;
+      }
+      if (
+        data.clocks.comboResetTime.currentTime >=
+        data.clocks.comboResetTime.actionTime
+      ) {
+        data.combo = -1;
+        data.clocks.comboResetTime.currentTime -=
+          data.clocks.comboResetTime.actionTime;
       }
       if (enemyToAdd) {
         data.enemiesSpawned++;
