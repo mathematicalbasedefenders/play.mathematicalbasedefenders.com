@@ -80,11 +80,17 @@ function redrawStage() {
 }
 
 function changeScreen(screen?: string) {
+  $("#main-content__main-menu-screen-container").hide(0);
   $("#main-content__game-over-screen-container").hide(0);
   $("#canvas-container").hide(0);
   // other stuff
   enemies.deleteAllEnemies();
   switch (screen) {
+    case "mainMenu": {
+      $("#main-content__main-menu-screen-container").show(0);
+      break;
+    }
+
     case "gameOver": {
       $("#main-content__game-over-screen-container").show(0);
       break;
@@ -95,7 +101,7 @@ function changeScreen(screen?: string) {
     }
   }
 }
-changeScreen("canvas");
+changeScreen("mainMenu");
 window.onresize = () => {
   redrawStage();
 };

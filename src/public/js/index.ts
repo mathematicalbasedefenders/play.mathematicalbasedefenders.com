@@ -151,7 +151,7 @@ document.getElementById("canvas-container")?.appendChild(app.view);
 // other event listeners
 $("#main-content__game-over-screen__retry-button").on("click", () => {
   sendSocketMessage("start", "");
-  changeScreen("canvas");
+  changeScreen("mainMenu");
 });
 
 // events
