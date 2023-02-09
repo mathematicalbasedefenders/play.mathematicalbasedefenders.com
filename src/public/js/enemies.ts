@@ -26,8 +26,8 @@ class Enemy {
   ) {
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
     this.sprite.tint = Math.floor(Math.random() * 16777215);
-    this.sprite.x = 100 + Math.random() * (600 - 80);
-    this.sprite.y = 800 - 800 * sPosition;
+    this.sprite.x = 100 + 580 + Math.random() * (600 - 80);
+    this.sprite.y = 720 - 720 * sPosition + 80;
     this.sprite.width = width;
     this.sprite.height = height;
     // text-related
@@ -49,7 +49,7 @@ class Enemy {
     app.stage.addChild(this.displayedText);
   }
   reposition(sPosition: number) {
-    this.sprite.y = 720 - 720 * sPosition;
+    this.sprite.y = 720 - 720 * sPosition + 80;
     this.displayedText.x =
       this.sprite.x + (this.sprite.width - this.displayedText.width) / 2;
     this.displayedText.y =
