@@ -51,7 +51,6 @@ uWS
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
-      createNewSingleplayerRoom(socket);
     },
 
     message: (
@@ -63,8 +62,12 @@ uWS
       const parsedMessage = JSON.parse(buffer.toString());
       switch (parsedMessage.action) {
         case "start": {
-          createNewSingleplayerRoom(socket);
-          break;
+          switch (parsedMessage.messageArguments) {
+            case "singleplayer": {
+              createNewSingleplayerRoom(socket);
+              break;
+            }
+          }
         }
         case "keypress": {
           if (typeof parsedMessage.messageArguments === "undefined") {

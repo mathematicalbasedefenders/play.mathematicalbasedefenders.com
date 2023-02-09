@@ -56,6 +56,8 @@ body {
   font-size: min(48px, 6vw);
   color: #ffffff;
   margin: 0 0 0 4px;
+  text-align: left;
+  font-family: "Computer Modern Unicode Serif";
 }
 .main-menu-screen-button__description {
   font-size: min(16px, 1vw);
@@ -64,6 +66,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: clip;
+  text-align: left;
+  font-family: "Computer Modern Unicode Serif";
 }
 
 #main-menu-screen-button--singleplayer {

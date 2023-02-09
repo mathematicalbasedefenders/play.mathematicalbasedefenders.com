@@ -79,11 +79,14 @@ function redrawStage() {
   app.stage.height = newPosition.height;
 }
 
-function changeScreen(screen?: string) {
+function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
   $("#main-content__main-menu-screen-container").hide(0);
   $("#main-content__game-over-screen-container").hide(0);
   $("#canvas-container").hide(0);
   // other stuff
+  if (alsoRedrawStage) {
+    redrawStage();
+  }
   enemies.deleteAllEnemies();
   switch (screen) {
     case "mainMenu": {
@@ -102,6 +105,7 @@ function changeScreen(screen?: string) {
   }
 }
 changeScreen("mainMenu");
+
 window.onresize = () => {
   redrawStage();
 };

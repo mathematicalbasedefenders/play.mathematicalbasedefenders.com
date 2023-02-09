@@ -149,9 +149,13 @@ for (let item in stageItems.textSprites) {
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
 document.getElementById("canvas-container")?.appendChild(app.view);
 // other event listeners
+$("#main-menu-screen-button--singleplayer").on("click", () => {
+  sendSocketMessage("start", "singleplayer");
+  changeScreen("canvas");
+});
 $("#main-content__game-over-screen__retry-button").on("click", () => {
-  sendSocketMessage("start", "");
-  changeScreen("mainMenu");
+  sendSocketMessage("start", "singleplayer");
+  changeScreen("canvas", true);
 });
 
 // events
