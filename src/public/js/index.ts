@@ -5,54 +5,30 @@ import { initializeKeypressEventListener } from "./input";
 import * as AS from "adaptive-scale/lib-esm";
 import { changeScreen, redrawStage } from "./game";
 let startInitTime: number = Date.now();
+const OPTIMAL_SCREEN_WIDTH: number = 1920;
+const OPTIMAL_SCREEN_HEIGHT: number = 1080;
 
 // Fonts
 const serifFont = new FontFaceObserver("Computer Modern Unicode Serif");
 const mathFont = new FontFaceObserver("Computer Modern Math Italic");
 
 class ExtendedSprite extends PIXI.Sprite {
-  optimalPositionRatio!: {
-    x: number;
-    y: number;
-  };
   scalingPolicy!: AS.POLICY;
-  postScalingScale!: {
-    x: number;
-    y: number;
-  };
-  scalingAnchor!: {
-    x: number;
-    y: number;
-  };
 }
 
 class ExtendedText extends PIXI.Text {
-  optimalPositionRatio!: {
-    x: number;
-    y: number;
-  };
   scalingPolicy!: AS.POLICY;
-  postScalingScale!: {
-    x: number;
-    y: number;
-  };
-  scalingAnchor!: {
-    x: number;
-    y: number;
-  };
 }
-
-interface ExtendedSpriteInterface extends ExtendedSprite {}
 
 serifFont.load();
 mathFont.load();
 
 const app = new PIXI.Application({
-  width: window.screen.width,
-  height: window.screen.height,
+  width: OPTIMAL_SCREEN_WIDTH,
+  height: OPTIMAL_SCREEN_HEIGHT,
   backgroundColor: 0x000000,
   resizeTo: window,
-  // autoDensity: true,
+  autoDensity: true,
   resolution: devicePixelRatio
 });
 
@@ -70,7 +46,8 @@ const stageItems: stageItemsContainer = {
   sprites: {
     playFieldBorder: new ExtendedSprite(
       PIXI.Texture.from("assets/images/playfield.png")
-    )
+    ),
+    originIndicator: new ExtendedSprite(PIXI.Texture.WHITE)
   },
   textSprites: {
     scoreLabelText: new ExtendedText("Score", {
@@ -113,7 +90,6 @@ const stageItems: stageItemsContainer = {
 };
 
 function setContainerItemProperties() {
-  stageItems.sprites.playFieldBorder.scalingPolicy = AS.POLICY.FullWidth;
   // text
   stageItems.textSprites.scoreText.position.set(730, 645);
   //
