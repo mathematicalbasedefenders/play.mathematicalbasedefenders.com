@@ -26,7 +26,7 @@ class Enemy {
   ) {
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
     this.sprite.tint = Math.floor(Math.random() * 16777215);
-    this.sprite.x = Math.random() * 640;
+    this.sprite.x = 100 + Math.random() * (600 - 80);
     this.sprite.y = 800 - 800 * sPosition;
     this.sprite.width = width;
     this.sprite.height = height;
