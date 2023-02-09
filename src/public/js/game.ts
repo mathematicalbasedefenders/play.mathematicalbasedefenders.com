@@ -72,7 +72,6 @@ function redrawStage() {
     policy: POLICY.ShowAll
   };
   let newPosition = getScaledRect(scaleOptions);
-
   app.stage.x = newPosition.x;
   app.stage.y = newPosition.y;
   app.stage.width = newPosition.width;
