@@ -18,6 +18,11 @@ body {
 :root {
   --color-singleplayer: #00a032;
   --color-multiplayer: #00a06b;
+
+  --color-singleplayer-menu-easy: #00851d;
+  --color-singleplayer-menu-standard: #b62a00;
+
+  --color-neutral: #3a3a3a;
 }
 
 #main-content-container {
@@ -82,7 +87,79 @@ body {
   background-position: 0 70%;
 }
 
+#main-menu-screen--settings {
+  background-color: var(--color-neutral);
+  background-position: 0 70%;
+}
+
 .main-menu-screen-button:hover {
+  filter: brightness(1.05);
+  transform: scale(1.05);
+}
+
+/* SINGLEPLAYER MENU SCREEN */
+#main-content__singleplayer-menu-screen-container {
+  background-color: #000000;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#main-content__singleplayer-menu-screen-button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.singleplayer-menu-screen-button {
+  width: 60vw;
+  height: 8vw;
+  border: 2px #ffffff solid;
+  background-repeat: no-repeat;
+  background-size: 35%;
+  transition-duration: 250ms;
+  margin: 16px;
+}
+
+.singleplayer-menu-screen-button__title {
+  font-size: min(48px, 6vw);
+  color: #ffffff;
+  margin: 0 0 0 4px;
+  text-align: left;
+  font-family: "Computer Modern Unicode Serif";
+}
+.singleplayer-menu-screen-button__description {
+  font-size: min(16px, 1vw);
+  color: #ffffff;
+  margin: 0 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  text-align: left;
+  font-family: "Computer Modern Unicode Serif";
+}
+
+#singleplayer-menu-screen-button--easy {
+  background-color: var(--color-singleplayer-menu-easy);
+  background-image: url("../assets/images/easysingleplayerbuttonbackground.png");
+  background-position: 0 70%;
+}
+
+#singleplayer-menu-screen-button--standard {
+  background-color: var(--color-singleplayer-menu-standard);
+  background-image: url("../assets/images/standardsingleplayerbuttonbackground.png");
+  background-position: 0 70%;
+}
+
+#singleplayer-menu-screen-button--back {
+  background-color: var(--color-neutral);
+  background-position: 0 70%;
+}
+
+.singleplayer-menu-screen-button:hover {
   filter: brightness(1.05);
   transform: scale(1.05);
 }

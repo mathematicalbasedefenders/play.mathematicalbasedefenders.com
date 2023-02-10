@@ -132,8 +132,11 @@ for (let item in stageItems.textSprites) {
 document.getElementById("canvas-container")?.appendChild(app.view);
 // other event listeners
 $("#main-menu-screen-button--singleplayer").on("click", () => {
+  changeScreen("singleplayerMenu");
+});
+$("#singleplayer-menu-screen-button--standard").on("click", () => {
   sendSocketMessage("start", "singleplayer");
-  changeScreen("canvas");
+  changeScreen("canvas", true);
 });
 $("#main-content__game-over-screen__retry-button").on("click", () => {
   sendSocketMessage("start", "singleplayer");

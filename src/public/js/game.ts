@@ -80,6 +80,7 @@ function redrawStage() {
 
 function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
   $("#main-content__main-menu-screen-container").hide(0);
+  $("#main-content__singleplayer-menu-screen-container").hide(0);
   $("#main-content__game-over-screen-container").hide(0);
   $("#canvas-container").hide(0);
   // other stuff
@@ -92,7 +93,10 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
       $("#main-content__main-menu-screen-container").show(0);
       break;
     }
-
+    case "singleplayerMenu": {
+      $("#main-content__singleplayer-menu-screen-container").show(0);
+      break;
+    }
     case "gameOver": {
       $("#main-content__game-over-screen-container").show(0);
       break;

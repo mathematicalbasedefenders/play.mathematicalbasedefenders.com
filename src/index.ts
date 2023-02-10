@@ -132,8 +132,8 @@ function update(deltaTime: number) {
   let roomsToDelete = _.filter(
     universal.rooms,
     (element) =>
-      element.memberConnectionIDs.length +
-        element.spectatorConnectionIDs.length <=
+      element?.memberConnectionIDs.length +
+        element?.spectatorConnectionIDs.length <=
       0
   );
 
