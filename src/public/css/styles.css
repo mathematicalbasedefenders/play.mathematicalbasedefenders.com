@@ -54,16 +54,24 @@ body {
   background-color: #000000;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end row3-start] 40px [row3-end];
 }
 
-#main-content__main-menu-screen-button-container {
+#main-content__main-menu-screen {
+  grid-column: column2-start / column2-end;
+  grid-row: row2-start / row2-end;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+}
+#main-content__main-menu-screen-button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .main-menu-screen-button {
@@ -121,9 +129,18 @@ body {
   background-color: #000000;
   width: 100%;
   height: 100%;
+  display: grid;
+  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
+}
+
+#main-content__singleplayer-menu-screen {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  grid-column: column2-start / column2-end;
+  grid-row: row2-start / row2-end;
 }
 
 #main-content__singleplayer-menu-screen-button-container {
@@ -188,17 +205,25 @@ body {
   background-color: #000000;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
 }
 
-#main-content__game-over-screen__stats {
+#main-content__game-over-screen {
   display: flex;
-  align-items: center;
+  grid-row: row2-start / row2-end;
+  grid-column: column2-start / column2-end;
   justify-content: center;
+}
+#main-content__game-over-screen__stats {
   width: 60vw;
   border: 2px #ffffff solid;
+
+  position: absolute;
+
+  display: flex;
+  align-items: center;
 }
 
 #main-content__game-over-screen__stats > div {
