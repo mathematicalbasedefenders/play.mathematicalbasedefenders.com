@@ -134,10 +134,15 @@ document.getElementById("canvas-container")?.appendChild(app.view);
 $("#main-menu-screen-button--singleplayer").on("click", () => {
   changeScreen("singleplayerMenu");
 });
+//
+$("#singleplayer-menu-screen-button--back").on("click", () => {
+  changeScreen("mainMenu");
+});
 $("#singleplayer-menu-screen-button--standard").on("click", () => {
   sendSocketMessage("start", "singleplayer");
   changeScreen("canvas", true);
 });
+//
 $("#main-content__game-over-screen__retry-button").on("click", () => {
   sendSocketMessage("start", "singleplayer");
   changeScreen("canvas", true);
