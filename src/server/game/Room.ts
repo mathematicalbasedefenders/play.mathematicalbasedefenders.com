@@ -75,7 +75,7 @@ class GameData {
         }
       };
       this.enemySpeedCoefficient = 0.25;
-      this.enemySpawnThreshold = 0.025;
+      this.enemySpawnThreshold = 0.05;
     } else {
       this.clocks = {
         enemySpawn: {
@@ -88,7 +88,7 @@ class GameData {
         }
       };
       this.enemySpeedCoefficient = 1;
-      this.enemySpawnThreshold = 0.05;
+      this.enemySpawnThreshold = 0.2;
     }
   }
 }
