@@ -159,22 +159,7 @@ class Room {
         }
       }
       if (data.baseHealth <= 0) {
-        let socket = universal.getSocketFromConnectionID(data.owner);
-        // game over here
-        data.commands.updateText = [
-          {
-            selector: "#main-content__game-over-screen__final-score",
-            newText: data.score.toString()
-          }
-        ];
-        data.commands.changeScreenTo = "gameOver";
-        // destroy room somehow
-        this.playing = false;
-
-        if (socket) {
-          socket?.unsubscribe(this.id);
-          this.deleteMember(socket?.connectionID as string);
-        }
+        this.startGameOverProcess(data);
       }
 
       // clocks
@@ -215,6 +200,51 @@ class Room {
     }
     this.playing = true;
     log.info(`Room ${this.id} has started play!`);
+  }
+
+  startGameOverProcess(data: GameData) {
+    let socket = universal.getSocketFromConnectionID(data.owner);
+    // game over here
+    let gameMode: string = "";
+    switch (data.mode) {
+      case GameMode.EasySingleplayer: {
+        gameMode = "Easy Singleplayer";
+        break;
+      }
+      case GameMode.StandardSingleplayer: {
+        gameMode = "Standard Singleplayer";
+        break;
+      }
+    }
+    data.commands.updateText = [
+      {
+        selector: "#main-content__game-over-screen__stats__score",
+        newText: data.score.toString()
+      },
+      {
+        selector: "#main-content__game-over-screen__stats__game-mode",
+        newText: gameMode
+      },
+      {
+        selector: "#main-content__game-over-screen__stats__enemies",
+        newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
+          (data.enemiesKilled / data.elapsedTime) *
+          1000
+        ).toFixed(3)}/s)`
+      },
+      {
+        selector: "#main-content__game-over-screen__stats__time",
+        newText: data.elapsedTime
+      }
+    ];
+    data.commands.changeScreenTo = "gameOver";
+    // destroy room somehow
+    this.playing = false;
+
+    if (socket) {
+      socket?.unsubscribe(this.id);
+      this.deleteMember(socket?.connectionID as string);
+    }
   }
 
   addMember(connectionID: string) {

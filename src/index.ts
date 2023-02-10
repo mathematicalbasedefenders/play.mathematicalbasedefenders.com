@@ -60,6 +60,18 @@ uWS
     ) => {
       const buffer = Buffer.from(message);
       const parsedMessage = JSON.parse(buffer.toString());
+      // data validation point
+      if (
+        !(
+          typeof parsedMessage.action === "string" &&
+          Array.isArray(parsedMessage.messageArguments)
+        )
+      ) {
+        log.warn(
+          `WebSocket message types doesn't match for socket with Connection ID ${socket.id}`
+        );
+        return;
+      }
       switch (parsedMessage.action) {
         case "start": {
           switch (parsedMessage.messageArguments[0]) {
@@ -76,7 +88,19 @@ uWS
                   );
                   break;
                 }
+                default: {
+                  log.warn(
+                    `Unknown singleplayer game mode: ${parsedMessage.messageArguments[1]}`
+                  );
+                  break;
+                }
               }
+              break;
+            }
+            default: {
+              log.warn(
+                `Unknown game mode: ${parsedMessage.messageArguments[0]}`
+              );
               break;
             }
           }

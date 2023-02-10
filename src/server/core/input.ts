@@ -45,6 +45,7 @@ function processKeypress(
   connectionID: string | undefined,
   code: string | undefined
 ) {
+  // data validation point
   if (typeof connectionID !== "string") {
     log.warn(
       "A keypress event that isn't associated with any socket connectionID has been fired."
