@@ -37,6 +37,10 @@ app.renderer.view.style.display = "block";
 
 const stage = app.stage;
 
+const variables: { [key: string]: any } = {
+  cachedSingleplayerMode: null
+};
+
 type stageItemsContainer = {
   sprites: { [key: string]: ExtendedSprite };
   textSprites: { [key: string]: ExtendedText };
@@ -139,16 +143,21 @@ $("#singleplayer-menu-screen-button--back").on("click", () => {
   changeScreen("mainMenu");
 });
 $("#singleplayer-menu-screen-button--easy").on("click", () => {
+  variables.cachedSingleplayerMode = "easy";
   sendSocketMessage("start", ["singleplayer", "easy"]);
   changeScreen("canvas", true);
 });
 $("#singleplayer-menu-screen-button--standard").on("click", () => {
+  variables.cachedSingleplayerMode = "standard";
   sendSocketMessage("start", ["singleplayer", "standard"]);
   changeScreen("canvas", true);
 });
 //
 $("#main-content__game-over-screen__retry-button").on("click", () => {
-  sendSocketMessage("start", "singleplayer");
+  sendSocketMessage("start", [
+    "singleplayer",
+    variables.cachedSingleplayerMode
+  ]);
   changeScreen("canvas", true);
 });
 
