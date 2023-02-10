@@ -3,6 +3,8 @@ import _ from "lodash";
 import { app, mathFont } from ".";
 const ENEMY_SIZE = 64;
 const ENEMY_FONT_SIZE = 24;
+const DEFAULT_ENEMY_WIDTH = 125;
+const DEFAULT_ENEMY_HEIGHT = 125;
 // file handles all enemy-related stuff
 let enemiesCurrentlyDrawn: Array<string> = [];
 let enemyCache: Array<Enemy> = [];
@@ -17,6 +19,7 @@ class Enemy {
   xPosition!: number;
   yPosition!: number;
   id!: string;
+  text!: string;
   constructor(
     sPosition: number,
     text: string,
@@ -26,12 +29,16 @@ class Enemy {
   ) {
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
     this.sprite.tint = Math.floor(Math.random() * 16777215);
-    this.sprite.x = 100 + 580 + Math.random() * (600 - 80);
-    this.sprite.y = 720 - 720 * sPosition + 80;
-    this.sprite.width = width;
-    this.sprite.height = height;
+    this.sprite.width = width || DEFAULT_ENEMY_WIDTH;
+    this.sprite.height = height || DEFAULT_ENEMY_HEIGHT;
+    this.sprite.x = 100 + 580 + Math.random() * (600 - DEFAULT_ENEMY_WIDTH);
+    this.sprite.y = 720 - 720 * sPosition + DEFAULT_ENEMY_HEIGHT - 40;
+    this.text = text;
     // text-related
-    this.displayedText = new PIXI.Text(text, _.clone(ENEMY_TEXT_STYLE));
+    this.displayedText = new PIXI.Text(
+      beautifyDisplayedText(text),
+      _.clone(ENEMY_TEXT_STYLE)
+    );
     this.displayedText.style.fill =
       calculateLuminance(this.sprite.tint) > 0.5 ? 0 : 16777215;
     this.displayedText.x =
@@ -49,11 +56,16 @@ class Enemy {
     app.stage.addChild(this.displayedText);
   }
   reposition(sPosition: number) {
-    this.sprite.y = 720 - 720 * sPosition + 80;
+    this.sprite.y = 720 - 720 * sPosition + DEFAULT_ENEMY_HEIGHT - 40;
     this.displayedText.x =
       this.sprite.x + (this.sprite.width - this.displayedText.width) / 2;
     this.displayedText.y =
       this.sprite.y + (this.sprite.height - this.displayedText.height) / 2;
+    this.displayedText.style.fontSize = calculateOptimalFontSize(
+      2,
+      this.displayedText.text,
+      this.sprite.width
+    );
     if (sPosition <= 0) {
       deleteEnemy(this.id);
     }
@@ -62,7 +74,23 @@ class Enemy {
 function getEnemyFromCache(id: string) {
   return enemyCache.find((enemy) => enemy.id === id);
 }
-
+function calculateOptimalFontSize(
+  decrement: number,
+  text: string,
+  width: number
+) {
+  let size = ENEMY_FONT_SIZE;
+  let style = _.clone(ENEMY_TEXT_STYLE);
+  while (size > 12) {
+    let textMetrics = PIXI.TextMetrics.measureText(text, style);
+    if (textMetrics.width < width * 0.95) {
+      return size;
+    }
+    style.fontSize = parseInt(style.fontSize as string) - decrement;
+    size -= decrement;
+  }
+  return size;
+}
 function renderNewEnemy(id: string, text: string) {
   let enemy = new Enemy(1, text, id, ENEMY_SIZE, ENEMY_SIZE);
   enemyCache.push(enemy);
@@ -100,6 +128,19 @@ function rerenderEnemy(id: string, sPosition: number, displayedText?: string) {
       renderNewEnemy(id, displayedText);
     }
   }
+}
+function beautifyDisplayedText(
+  text: string,
+  useTimesForMultiplication?: boolean
+) {
+  text = text.replace(/-/g, "\u2212");
+  text = text.replace(/\//g, "\u00f7");
+  if (useTimesForMultiplication) {
+    text = text.replace(/\*/g, "\u00d7");
+  } else {
+    text = text.replace(/\*/g, "\u22c5");
+  }
+  return text;
 }
 function calculateLuminance(colorNumber: number) {
   let r = (colorNumber >> 16) & 255;

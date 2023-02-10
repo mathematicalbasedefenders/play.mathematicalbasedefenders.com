@@ -36,9 +36,6 @@ class Enemy {
     this.xPosition = xPosition;
     this.sPosition = sPosition;
     this.id = id;
-    // e.g.
-    this.width = 100;
-    this.height = 100;
   }
 
   move(distance?: number) {
