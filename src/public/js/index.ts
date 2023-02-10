@@ -138,8 +138,12 @@ $("#main-menu-screen-button--singleplayer").on("click", () => {
 $("#singleplayer-menu-screen-button--back").on("click", () => {
   changeScreen("mainMenu");
 });
+$("#singleplayer-menu-screen-button--easy").on("click", () => {
+  sendSocketMessage("start", ["singleplayer", "easy"]);
+  changeScreen("canvas", true);
+});
 $("#singleplayer-menu-screen-button--standard").on("click", () => {
-  sendSocketMessage("start", "singleplayer");
+  sendSocketMessage("start", ["singleplayer", "standard"]);
   changeScreen("canvas", true);
 });
 //

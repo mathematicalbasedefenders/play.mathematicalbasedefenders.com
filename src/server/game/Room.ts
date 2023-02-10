@@ -14,6 +14,14 @@ enum InputAction {
   SendAnswer = 3,
   AddSubtractionSign = 4
 }
+
+enum GameMode {
+  EasySingleplayer = "easySingleplayer",
+  StandardSingleplayer = "standardSingleplayer",
+  InsaneSingleplayer = "insaneSingleplayer",
+  DefaultMultiplayer = "defaultMultiplayer",
+  CustomMultiplayer = "customMultiplayer"
+}
 interface InputActionInterface {
   action: InputAction;
   argument: string;
@@ -37,9 +45,13 @@ class GameData {
   enemiesToErase!: Array<string>;
   currentInput!: string;
   elapsedTime!: number;
+  enemySpeedCoefficient!: number;
   commands!: { [key: string]: any };
+  mode: string;
+  enemySpawnThreshold!: number;
   // ...
-  constructor(owner: string) {
+  constructor(owner: string, mode: GameMode) {
+    this.mode = mode;
     this.score = 0;
     this.enemiesKilled = 0;
     this.enemiesSpawned = 0;
@@ -47,27 +59,55 @@ class GameData {
     this.owner = owner;
     this.enemies = [];
     this.enemiesToErase = [];
-    this.clocks = {
-      enemySpawn: {
-        currentTime: 0,
-        actionTime: 100
-      },
-      comboResetTime: {
-        currentTime: 0,
-        actionTime: 5000
-      }
-    };
     this.currentInput = "";
     this.elapsedTime = 0;
     this.combo = -1;
     this.commands = {};
+    if (mode === GameMode.EasySingleplayer) {
+      this.clocks = {
+        enemySpawn: {
+          currentTime: 0,
+          actionTime: 250
+        },
+        comboResetTime: {
+          currentTime: 0,
+          actionTime: 10000
+        }
+      };
+      this.enemySpeedCoefficient = 0.25;
+      this.enemySpawnThreshold = 0.025;
+    } else {
+      this.clocks = {
+        enemySpawn: {
+          currentTime: 0,
+          actionTime: 100
+        },
+        comboResetTime: {
+          currentTime: 0,
+          actionTime: 5000
+        }
+      };
+      this.enemySpeedCoefficient = 1;
+      this.enemySpawnThreshold = 0.05;
+    }
   }
 }
 class SingleplayerGameData extends GameData {
   // nothing here yet...
 
-  constructor(owner: string) {
-    super(owner);
+  constructor(owner: string, gameMode: GameMode) {
+    if (
+      !(
+        gameMode === GameMode.EasySingleplayer ||
+        gameMode === GameMode.StandardSingleplayer
+      )
+    ) {
+      log.error(
+        "Non-singleplayer game mode passed as argument in a singleplayer room."
+      );
+      return;
+    }
+    super(owner, gameMode);
   }
 }
 
@@ -80,7 +120,9 @@ class Room {
   playing: boolean = false;
   gameData: Array<GameData> = [];
   lastUpdateTime: number;
-  constructor(hostConnectionID: string) {
+  mode!: GameMode;
+  constructor(hostConnectionID: string, gameMode: GameMode) {
+    this.mode = gameMode;
     this.id = generateRoomID(8);
     this.hostConnectionID = hostConnectionID;
     this.addMember(hostConnectionID);
@@ -111,7 +153,7 @@ class Room {
       // FIXME: ???
       // Move all the enemies down.
       for (let enemy of data.enemies) {
-        enemy.move(0.0025);
+        enemy.move(0.0025 * data.enemySpeedCoefficient);
         if (enemy.sPosition <= 0) {
           enemy.remove(data, 10);
         }
@@ -141,7 +183,7 @@ class Room {
         data.clocks.enemySpawn.currentTime >= data.clocks.enemySpawn.actionTime
       ) {
         enemyToAdd = generateEnemyWithChance(
-          STANDARD_ENEMY_CHANCE,
+          data.enemySpawnThreshold,
           this.updateNumber
         );
         data.clocks.enemySpawn.currentTime -= data.clocks.enemySpawn.actionTime;
@@ -163,8 +205,13 @@ class Room {
   }
 
   start() {
-    for (let member of this.memberConnectionIDs) {
-      this.gameData.push(new SingleplayerGameData(member));
+    if (
+      this.mode === GameMode.EasySingleplayer ||
+      this.mode === GameMode.StandardSingleplayer
+    ) {
+      for (let member of this.memberConnectionIDs) {
+        this.gameData.push(new SingleplayerGameData(member, this.mode));
+      }
     }
     this.playing = true;
     log.info(`Room ${this.id} has started play!`);
@@ -207,8 +254,8 @@ class Room {
   }
 }
 class SingleplayerRoom extends Room {
-  constructor(hostConnectionID: string) {
-    super(hostConnectionID);
+  constructor(hostConnectionID: string, mode: GameMode) {
+    super(hostConnectionID, mode);
   }
 
   update(): void {
@@ -274,5 +321,6 @@ export {
   Room,
   GameData,
   SingleplayerGameData,
-  processKeypressForRoom
+  processKeypressForRoom,
+  GameMode
 };

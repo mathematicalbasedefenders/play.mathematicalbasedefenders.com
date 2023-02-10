@@ -12,7 +12,7 @@ import * as startAction from "./server/game/actions/start";
 import * as universal from "./server/universal";
 import * as utilities from "./server/core/utilities";
 import * as input from "./server/core/input";
-import { SingleplayerRoom } from "./server/game/Room";
+import { GameMode, SingleplayerRoom } from "./server/game/Room";
 import _ from "lodash";
 
 const app = express();
@@ -62,9 +62,21 @@ uWS
       const parsedMessage = JSON.parse(buffer.toString());
       switch (parsedMessage.action) {
         case "start": {
-          switch (parsedMessage.messageArguments) {
+          switch (parsedMessage.messageArguments[0]) {
             case "singleplayer": {
-              createNewSingleplayerRoom(socket);
+              switch (parsedMessage.messageArguments[1]) {
+                case "easy": {
+                  createNewSingleplayerRoom(socket, GameMode.EasySingleplayer);
+                  break;
+                }
+                case "standard": {
+                  createNewSingleplayerRoom(
+                    socket,
+                    GameMode.StandardSingleplayer
+                  );
+                  break;
+                }
+              }
               break;
             }
           }
@@ -158,8 +170,11 @@ function resetOneFrameVariables() {
   }
 }
 
-function createNewSingleplayerRoom(socket: universal.GameSocket) {
-  let room = new SingleplayerRoom(socket.connectionID as string);
+function createNewSingleplayerRoom(
+  socket: universal.GameSocket,
+  gameMode: GameMode
+) {
+  let room = new SingleplayerRoom(socket.connectionID as string, gameMode);
   room.start();
   socket.subscribe(room.id);
   universal.rooms.push(room);
