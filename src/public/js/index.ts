@@ -38,7 +38,10 @@ app.renderer.view.style.display = "block";
 const stage = app.stage;
 
 const variables: { [key: string]: any } = {
-  cachedSingleplayerMode: null
+  cachedSingleplayerMode: null,
+  beautifulScoreCounter: true,
+  // below is for beautifulScoreCounter
+  scoreOnLastUpdate: 0
 };
 
 type stageItemsContainer = {
@@ -181,5 +184,6 @@ export {
   ExtendedSprite,
   ExtendedText,
   serifFont,
-  mathFont
+  mathFont,
+  variables
 };

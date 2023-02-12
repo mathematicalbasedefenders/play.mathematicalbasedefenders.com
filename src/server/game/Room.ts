@@ -234,7 +234,7 @@ class Room {
       },
       {
         selector: "#main-content__game-over-screen__stats__time",
-        newText: data.elapsedTime
+        newText: utilities.millisecondsToTime(data.elapsedTime)
       }
     ];
     data.commands.changeScreenTo = "gameOver";

@@ -228,4 +228,5 @@ body {
 
 #main-content__game-over-screen__stats > div {
   width: 30vw;
+  margin: 0 8px;
 }
