@@ -50,28 +50,27 @@ body {
 }
 
 /* MAIN MENU SCREEN */
+
 #main-content__main-menu-screen-container {
   background-color: #000000;
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
-  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end row3-start] 40px [row3-end];
 }
 
 #main-content__main-menu-screen {
-  grid-column: column2-start / column2-end;
-  grid-row: row2-start / row2-end;
-  display: flex;
+  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end row3-start] 40px [row3-end];
+  display: grid;
   align-items: center;
-  justify-content: center;
   flex-direction: column;
 }
 #main-content__main-menu-screen-button-container {
   display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
+  align-items: center;
+  grid-column: column2-start / column2-end;
+  grid-row: row2-start / row2-end;
 }
 
 .main-menu-screen-button {
@@ -82,6 +81,7 @@ body {
   background-size: 35%;
   transition-duration: 250ms;
   margin: 16px;
+  width: 100%;
 }
 
 .main-menu-screen-button__title {
@@ -130,34 +130,33 @@ body {
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
-  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
 }
 
 #main-content__singleplayer-menu-screen {
-  display: flex;
+  display: grid;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  grid-column: column2-start / column2-end;
-  grid-row: row2-start / row2-end;
+  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
 }
 
 #main-content__singleplayer-menu-screen-button-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  grid-column: column2-start / column2-end;
+  grid-row: row2-start / row2-end;
 }
 
 .singleplayer-menu-screen-button {
-  width: 60vw;
   height: 8vw;
   border: 2px #ffffff solid;
   background-repeat: no-repeat;
   background-size: 35%;
   transition-duration: 250ms;
   margin: 16px;
+  width: 100%;
 }
 
 .singleplayer-menu-screen-button__title {
@@ -205,28 +204,58 @@ body {
   background-color: #000000;
   width: 100%;
   height: 100%;
-  display: grid;
-  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
-  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
 }
 
 #main-content__game-over-screen {
+  display: grid;
+  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] 8vw [row2-end row3-start] 10vw [row3-end row4-start] auto [row4-end];
+}
+#main-content__game-over-screen__stats {
+  border: 2px #ffffff solid;
   display: flex;
   grid-row: row2-start / row2-end;
   grid-column: column2-start / column2-end;
   justify-content: center;
-}
-#main-content__game-over-screen__stats {
-  width: 60vw;
-  border: 2px #ffffff solid;
-
-  position: absolute;
-
-  display: flex;
-  align-items: center;
+  margin-bottom: 16px;
 }
 
 #main-content__game-over-screen__stats > div {
-  width: 30vw;
+  width: 50vw;
   margin: 0 8px;
+}
+
+#main-content__game-over-screen__action-button-container {
+  display: flex;
+  grid-row: row3-start / row3-end;
+  grid-column: column2-start / column2-end;
+  justify-content: space-evenly;
+}
+
+#game-over-screen-button--retry {
+  background-color: var(--color-neutral);
+  background-position: 0 70%;
+}
+
+#game-over-screen-button--back {
+  background-color: var(--color-neutral);
+  background-position: 0 70%;
+}
+
+.game-over-screen-button__title {
+  font-size: min(24px, 3vw);
+  color: #ffffff;
+  margin: 0 0 0 4px;
+  text-align: left;
+  font-family: "Computer Modern Unicode Serif";
+}
+.game-over-screen-button__description {
+  font-size: min(8px, 0.5vw);
+  color: #ffffff;
+  margin: 0 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  text-align: left;
+  font-family: "Computer Modern Unicode Serif";
 }
