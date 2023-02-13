@@ -3,7 +3,11 @@ import * as PIXI from "pixi.js";
 import { socket, sendSocketMessage } from "./socket";
 import { initializeKeypressEventListener } from "./input";
 import * as AS from "adaptive-scale/lib-esm";
-import { changeScreen, redrawStage } from "./game";
+import {
+  changeScreen,
+  changeSettingsSecondaryScreen,
+  redrawStage
+} from "./game";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -137,34 +141,57 @@ for (let item in stageItems.textSprites) {
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
 document.getElementById("canvas-container")?.appendChild(app.view);
-// other event listeners
-$("#main-menu-screen-button--singleplayer").on("click", () => {
-  changeScreen("singleplayerMenu");
-});
-//
-$("#singleplayer-menu-screen-button--back").on("click", () => {
-  changeScreen("mainMenu");
-});
-$("#singleplayer-menu-screen-button--easy").on("click", () => {
-  variables.cachedSingleplayerMode = "easy";
-  sendSocketMessage("start", ["singleplayer", "easy"]);
-  changeScreen("canvas", true);
-});
-$("#singleplayer-menu-screen-button--standard").on("click", () => {
-  variables.cachedSingleplayerMode = "standard";
-  sendSocketMessage("start", ["singleplayer", "standard"]);
-  changeScreen("canvas", true);
-});
-//
-$("#main-content__game-over-screen__retry-button").on("click", () => {
-  sendSocketMessage("start", [
-    "singleplayer",
-    variables.cachedSingleplayerMode
-  ]);
-  changeScreen("canvas", true);
-});
+function initializeEventListeners() {
+  // other event listeners
+  $("#main-menu-screen-button--singleplayer").on("click", () => {
+    changeScreen("singleplayerMenu");
+  });
+  $("#main-menu-screen-button--settings").on("click", () => {
+    changeScreen("settingsMenu");
+  });
+  //
+  $("#singleplayer-menu-screen-button--back").on("click", () => {
+    changeScreen("mainMenu");
+  });
+  $("#singleplayer-menu-screen-button--easy").on("click", () => {
+    variables.cachedSingleplayerMode = "easy";
+    sendSocketMessage("start", ["singleplayer", "easy"]);
+    changeScreen("canvas", true);
+  });
+  $("#singleplayer-menu-screen-button--standard").on("click", () => {
+    variables.cachedSingleplayerMode = "standard";
+    sendSocketMessage("start", ["singleplayer", "standard"]);
+    changeScreen("canvas", true);
+  });
+  //
+  $("#settings-screen__sidebar-item--online").on("click", () => {
+    changeSettingsSecondaryScreen("online");
+  });
+  $("#settings-screen__sidebar-item--audio").on("click", () => {
+    changeSettingsSecondaryScreen("audio");
+  });
+  $("#settings-screen__sidebar-item--video").on("click", () => {
+    changeSettingsSecondaryScreen("video");
+  });
+  //
+  $("#game-over-screen-button--retry").on("click", () => {
+    sendSocketMessage("start", [
+      "singleplayer",
+      variables.cachedSingleplayerMode
+    ]);
+    changeScreen("canvas", true);
+  });
+  $("#game-over-screen-button--back").on("click", () => {
+    changeScreen("mainMenu");
+  });
+  //
+  $("#quick-menu__toggle-button").on("click", () => {
+    $("#quick-menu__content-container").toggle(0);
+  });
+}
 
 // events
+initializeEventListeners();
 initializeKeypressEventListener();
 // initial states
 redrawStage();

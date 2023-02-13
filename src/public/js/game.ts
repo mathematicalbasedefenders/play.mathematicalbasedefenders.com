@@ -99,6 +99,7 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
   $("#main-content__main-menu-screen-container").hide(0);
   $("#main-content__singleplayer-menu-screen-container").hide(0);
   $("#main-content__game-over-screen-container").hide(0);
+  $("#main-content__settings-screen-container").hide(0);
   $("#canvas-container").hide(0);
   // other stuff
   if (alsoRedrawStage) {
@@ -114,6 +115,11 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
       $("#main-content__singleplayer-menu-screen-container").show(0);
       break;
     }
+    case "settingsMenu": {
+      $("#main-content__settings-screen-container").show(0);
+      changeSettingsSecondaryScreen("");
+      break;
+    }
     case "gameOver": {
       $("#main-content__game-over-screen-container").show(0);
       break;
@@ -125,9 +131,20 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
   }
 }
 changeScreen("mainMenu");
+function changeSettingsSecondaryScreen(newScreen: string) {
+  for (let screen of ["online", "audio", "video"]) {
+    $(`#settings-screen__content--${screen}`).hide(0);
+  }
+  $(`#settings-screen__content--${newScreen}`).show(0);
+}
 
 window.onresize = () => {
   redrawStage();
 };
 
-export { renderGameData, redrawStage, changeScreen };
+export {
+  renderGameData,
+  redrawStage,
+  changeScreen,
+  changeSettingsSecondaryScreen
+};
