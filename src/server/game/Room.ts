@@ -141,8 +141,8 @@ class Room {
 
     // Update for all types of rooms
     for (let i = 0; i < this.gameData.length; i++) {
+      this.gameData[i].elapsedTime += deltaTime;
       for (let clock in this.gameData[i].clocks) {
-        this.gameData[i].elapsedTime += deltaTime;
         this.gameData[i].clocks[clock].currentTime += deltaTime;
       }
     }
