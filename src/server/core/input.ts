@@ -65,6 +65,9 @@ function processInputInformation(
 ) {
   switch (inputInformation.action) {
     case InputAction.AddDigit: {
+      if (gameDataToProcess.currentInput.length > 7) {
+        return;
+      }
       gameDataToProcess.currentInput += inputInformation.argument.toString();
       break;
     }
@@ -76,6 +79,9 @@ function processInputInformation(
       break;
     }
     case InputAction.AddSubtractionSign: {
+      if (gameDataToProcess.currentInput.length > 7) {
+        return;
+      }
       gameDataToProcess.currentInput += "-";
     }
     case InputAction.SendAnswer: {
