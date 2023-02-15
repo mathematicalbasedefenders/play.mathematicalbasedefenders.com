@@ -2,6 +2,8 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/mathematicalbasedefenders/play.mathematicalbasedefenders.com/badge)](https://www.codefactor.io/repository/github/mathematicalbasedefenders/play.mathematicalbasedefenders.com)
 <img src="https://img.shields.io/badge/dynamic/json?label=Registered Users on Official Server&query=usersRegistered&url=https%3A%2F%2Fmathematicalbasedefenders.com%2Fapi%2Fmetadata">
 
+**2023-02-15: Work is currently ongoing in the `reversal` branch. It will be merged when the update is finished. For more information, [read my blog post about the Reversal Update.](https://blog.mistertfy64.com/post?id=63cab3a2cbe4d8654596ee23)**
+
 **2022-09-23: Mathematical Base Defenders is now open source\*!**
 
 This is the source code for the `play` subdomain for Mathematical Base Defenders.
