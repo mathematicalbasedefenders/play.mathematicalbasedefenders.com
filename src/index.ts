@@ -13,11 +13,19 @@ import * as universal from "./server/universal";
 import * as utilities from "./server/core/utilities";
 import * as input from "./server/core/input";
 import { GameMode, SingleplayerRoom } from "./server/game/Room";
+
 import _ from "lodash";
+import { authenticate } from "./server/authentication/authenticate";
+const bodyParser = require("body-parser");
+const createDOMPurify = require("dompurify");
+const { JSDOM } = require("jsdom");
+const window = new JSDOM("").window;
+const DOMPurify = createDOMPurify(window);
+const mongoDBSanitize = require("express-mongo-sanitize");
 
 const app = express();
 app.use(express.static(path.join(__dirname, "/public/")));
-
+app.use(bodyParser.urlencoded({ extended: false }));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "server/views"));
 
@@ -31,7 +39,7 @@ let lastUpdateTime: number;
 const DATABASE_CONNECTION_URI: string | undefined =
   process.env.DATABASE_CONNECTION_URI;
 
-// mongoose.connect(DATABASE_CONNECTION_URI as string);
+mongoose.connect(DATABASE_CONNECTION_URI as string);
 
 mongoose.connection.on("connected", async () => {
   log.info(`Connected to database!`);
@@ -47,10 +55,19 @@ uWS
   .ws("/", {
     open: (socket: universal.GameSocket, request?: unknown) => {
       log.info("Socket connected!");
-      socket.connectionID = generateConnectionID(8);
+      socket.connectionID = generateConnectionID(16);
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
+      socket.send(
+        JSON.stringify({
+          message: "changeValueOfInput",
+          messageArguments: [
+            "#settings-screen__content--online__socket-id",
+            socket.connectionID
+          ]
+        })
+      );
     },
 
     message: (
@@ -231,6 +248,29 @@ const loop = setInterval(() => {
 
 app.get("/", (request: Request, response: Response) => {
   response.render("pages/index.ejs");
+});
+
+app.post("/authenticate", async (request: Request, response: Response) => {
+  let username = request.body["username"];
+  let password = request.body["password"];
+  let socketID = request.body["socketID"];
+  // return...
+  let result = await authenticate(username, password, socketID);
+  let socket = universal.getSocketFromConnectionID(socketID);
+  if (!result.good || !socket) {
+    response.send({
+      username: mongoDBSanitize.sanitize(DOMPurify.sanitize(username)),
+      good: false,
+      // TODO: Refactor this
+      reason:
+        result.reason === "All checks passed"
+          ? "Invalid Socket Connection ID"
+          : result.reason
+    });
+    return;
+  }
+  socket.owner = username;
+  socket.ownerConnectionID = result.id;
 });
 
 app.listen(PORT, () => {

@@ -164,6 +164,9 @@ function initializeEventListeners() {
     changeScreen("canvas", true);
   });
   //
+  $("#settings-screen__sidebar-item--back").on("click", () => {
+    changeScreen("mainMenu");
+  });
   $("#settings-screen__sidebar-item--online").on("click", () => {
     changeSettingsSecondaryScreen("online");
   });
@@ -172,6 +175,22 @@ function initializeEventListeners() {
   });
   $("#settings-screen__sidebar-item--video").on("click", () => {
     changeSettingsSecondaryScreen("video");
+  });
+  //
+  $("#settings-screen__content--online__submit").on("click", (event) => {
+    $.ajax({
+      type: "post",
+      url: "/authenticate",
+      data: {
+        username: $("#settings-screen__content--online__username").val(),
+        password: $("#settings-screen__content--online__password").val(),
+        socketID: $("#settings-screen__content--online__socket-id").val()
+      },
+      success: (data) => {
+        console.log(data.toString());
+      }
+    });
+    event.preventDefault();
   });
   //
   $("#game-over-screen-button--retry").on("click", () => {

@@ -10,6 +10,9 @@ socket.addEventListener("message", (event: any) => {
     case "renderGameData": {
       renderGameData(JSON.parse(message.messageArguments[0]));
     }
+    case "changeValueOfInput": {
+      $(message.messageArguments[0]).val(message.messageArguments[1]);
+    }
   }
 });
 function sendSocketMessage(action: string, messageArguments: any) {

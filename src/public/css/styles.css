@@ -27,6 +27,8 @@ body {
 
   --color-text-light: #ffffff;
   --color-text-dark: #000000;
+
+  --transition-duration-short: 250ms;
 }
 
 #main-content-container {
@@ -80,7 +82,7 @@ body {
   border: 1px #ffffff solid;
   background-repeat: no-repeat;
   background-size: 35%;
-  transition-duration: 250ms;
+  transition-duration: var(--transition-duration-short);
   margin: 16px;
   width: 100%;
   overflow: hidden;
@@ -156,7 +158,7 @@ body {
   border: 1px #ffffff solid;
   background-repeat: no-repeat;
   background-size: 35%;
-  transition-duration: 250ms;
+  transition-duration: var(--transition-duration-short);
   margin: 16px;
   width: 100%;
   overflow: hidden;
@@ -245,7 +247,7 @@ body {
   overflow: hidden;
   flex-flow: column wrap;
   border: 1px #ffffff solid;
-  transition-duration: 250ms;
+  transition-duration: var(--transition-duration-short);
 }
 
 .game-over-screen-button:hover {
@@ -311,7 +313,7 @@ body {
   background-color: #000000;
   border-left: 1px solid #ffffff;
   font-family: "Computer Modern Unicode Serif";
-  transition-duration: 250ms;
+  transition-duration: var(--transition-duration-short);
 }
 
 .settings-screen__sidebar-item:hover {
@@ -329,14 +331,44 @@ body {
 #settings-screen__content {
   grid-row: row1-end / row2-start;
   grid-column: column3-start / column3-end;
+  margin-left: 8px;
 }
 
 .settings-screen__content-secondary-screen {
   width: 100%;
   height: 100%;
   color: var(--color-text-light);
+  font-size: 16px;
 }
 
+.settings-screen__content-fieldset {
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  background-color: var(--color-neutral);
+  font-size: 24px;
+}
+
+.settings-screen__content-input--text {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 24px;
+  font-family: "Computer Modern Unicode Serif";
+}
+
+.settings-screen__content-input--button {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 28px;
+  font-family: "Computer Modern Unicode Serif";
+  transition-duration: var(--transition-duration-short);
+}
+
+.settings-screen__content-input--button:hover {
+  filter: brightness(1.05);
+  transform: scale(1.05);
+}
 /* QUICK MENU */
 #main-content__quick-menu-container {
   z-index: 999;
@@ -379,5 +411,6 @@ body {
 #quick-menu__content-button--settings {
   background-color: #3a3abb;
   border: 1px #ffffff solid;
+  font-size: 10px;
   color: var(--color-text-light);
 }
