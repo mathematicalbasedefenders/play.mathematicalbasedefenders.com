@@ -195,7 +195,19 @@ function initializeEventListeners() {
         socketID: $("#settings-screen__content--online__socket-id").val()
       },
       success: (data) => {
-        console.log(data.toString());
+        if (data.good) {
+          $("#settings-screen__content--online__rank").text(data.rank.title);
+          $("#settings-screen__content--online__rank").css(
+            "color",
+            data.rank.color
+          );
+          $("#settings-screen__content--online__authenticated-username").text(
+            data.username
+          );
+          //
+          $(".settings-screen__content--online--unauthenticated").hide(0);
+          $(".settings-screen__content--online--authenticated").show(0);
+        }
       }
     });
     event.preventDefault();
@@ -222,6 +234,8 @@ function initializeEventListeners() {
 initializeEventListeners();
 initializeKeypressEventListener();
 // initial states
+$(".settings-screen__content--online--unauthenticated").show(0);
+$(".settings-screen__content--online--authenticated").hide(0);
 redrawStage();
 let endInitTime: number = Date.now();
 

@@ -254,10 +254,12 @@ app.post("/authenticate", async (request: Request, response: Response) => {
   }
   socket.owner = username;
   socket.ownerConnectionID = result.id;
+  let userData = await User.safeFindByUsername(socket.owner as string);
   response.send({
-    username: mongoDBSanitize.sanitize(DOMPurify.sanitize(username)),
+    username: username,
     good: true,
-    userData: await User.safeFindByUsername(socket.owner as string),
+    userData: userData,
+    rank: utilities.getRank(userData),
     // TODO: Refactor this
     reason: "All checks passed."
   });

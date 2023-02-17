@@ -16,38 +16,52 @@
       <div class="settings-screen__content-secondary-screen" id="settings-screen__content--online">
         <fieldset class="settings-screen__content-fieldset">
           <legend>Account</legend>
-          <form onsubmit="false">
-            <label style="margin:4px 0" for="settings-screen__content--online__username"
-              title="Put the username for your account here.">Username:</label> <input style="margin:4px 0"
-              class="settings-screen__content-input--text" name="settings-screen__content--online__username"
-              id="settings-screen__content--online__username" type="text">
-            <br>
-            <label style="margin:4px 0" for="settings-screen__content--online__password"
-              title="Put the password for your account here.">Password:</label> <input style="margin:4px 0"
-              class="settings-screen__content-input--text" name="settings-screen__content--online__password"
-              id="settings-screen__content--online__password" type="password">
-            <br>
-            <input name="settings-screen__content--online__socket-id" id="settings-screen__content--online__socket-id"
-              type="hidden">
-            <br>
-            <div style="width:100%;text-align:right;"><button style="padding:0px 32px;"
-                id="settings-screen__content--online__submit"
-                class="settings-screen__content-input--button">Login</button></div>
-          </form>
+          <div class="settings-screen__content--online--unauthenticated">
+            <form onsubmit="false">
+              <label style="margin:4px 0" for="settings-screen__content--online__username"
+                title="Put the username for your account here.">Username:</label> <input style="margin:4px 0"
+                class="settings-screen__content-input--text" name="settings-screen__content--online__username"
+                id="settings-screen__content--online__username" type="text">
+              <br>
+              <label style="margin:4px 0" for="settings-screen__content--online__password"
+                title="Put the password for your account here.">Password:</label> <input style="margin:4px 0"
+                class="settings-screen__content-input--text" name="settings-screen__content--online__password"
+                id="settings-screen__content--online__password" type="password">
+              <br>
+              <input name="settings-screen__content--online__socket-id" id="settings-screen__content--online__socket-id"
+                type="hidden">
+              <br>
+              <div style="width:100%;text-align:right;"><button style="padding:0px 32px;"
+                  id="settings-screen__content--online__submit"
+                  class="settings-screen__content-input--button">Login</button></div>
+            </form>
+          </div>
+          <div class="settings-screen__content--online--authenticated">
+            <div style="text-align:center;display:flex;align-items: center;">
+              Logged in as <span id="settings-screen__content--online__rank"></span>&nbsp;<span
+                id="settings-screen__content--online__authenticated-username"></span>
+            </div>
+          </div>
         </fieldset>
         <br>
         <fieldset class="settings-screen__content-fieldset">
           <legend>Account Statistics</legend>
-          <div style="text-align:center;display:flex;align-items: center;">
-            <div>Log in first to see your account statistics.</div>
+          <div class="settings-screen__content--online--unauthenticated">
+            <div style="text-align:center;display:flex;align-items: center;">
+              <div>Log in first to see your account statistics.</div>
+            </div>
           </div>
+          <div class="settings-screen__content--online--authenticated"></div>
         </fieldset>
         <br>
         <fieldset class="settings-screen__content-fieldset">
           <legend>Account Settings</legend>
-          <div style="text-align:center;display:flex;align-items: center;">
-            <div>Log in first to set settings for your accounts.</div>
+          <div class="settings-screen__content--online--unauthenticated">
+            <div style="text-align:center;display:flex;align-items: center;">
+              <div>Log in first to set settings for your accounts.</div>
+            </div>
           </div>
+          <div class="settings-screen__content--online--authenticated"></div>
         </fieldset>
       </div>
       <div class="settings-screen__content-secondary-screen" id="settings-screen__content--video">

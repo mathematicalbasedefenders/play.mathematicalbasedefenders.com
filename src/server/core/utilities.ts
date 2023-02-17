@@ -2,6 +2,16 @@ import { connection } from "mongoose";
 import * as universal from "../universal";
 import { log } from "./log";
 import { Room } from "../game/Room";
+import { User, UserInterface } from "../models/User";
+// Highest comes first
+const RANK_ORDER = [
+  ["Developer", "isDeveloper"],
+  ["Administrator", "isAdministrator"],
+  ["Moderator", "isModerator"],
+  ["Contributor", "isContributor"],
+  ["Tester", "isTester"],
+  ["Donator", "isDonator"]
+];
 
 function checkIfPropertyWithValueExists(
   dataset: unknown,
@@ -66,9 +76,40 @@ function millisecondsToTime(milliseconds: number) {
     .padStart(3, "0");
   return `${m}:${s}.${ms}`;
 }
+
+function getRank(data: User | string) {
+  if (typeof data === "string") {
+    // ...
+    return "";
+  } else {
+    // TODO: Refactor this stupid thing already
+    if (data.membership.isDeveloper) {
+      return { title: "Developer", color: "#ff0000" };
+    }
+    if (data.membership.isAdministrator) {
+      return { title: "Administrator", color: "#da1717" };
+    }
+    if (data.membership.isModerator) {
+      return { title: "Moderator", color: "#ff7f00" };
+    }
+    if (data.membership.isContributor) {
+      return { title: "Contributor", color: "#01acff" };
+    }
+    if (data.membership.isTester) {
+      return { title: "Tester", color: "#5bb1e0" };
+    }
+    if (data.membership.isDonator) {
+      return { title: "Donator", color: "#26e02c" };
+    }
+    // No rank
+    return { title: "", color: "#ffffff" };
+  }
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
   findGameDataWithConnectionID,
-  millisecondsToTime
+  millisecondsToTime,
+  getRank
 };
