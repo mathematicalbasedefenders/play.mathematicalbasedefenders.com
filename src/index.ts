@@ -62,10 +62,10 @@ uWS
       socket.send(
         JSON.stringify({
           message: "changeValueOfInput",
-          messageArguments: [
-            "#settings-screen__content--online__socket-id",
-            socket.connectionID
-          ]
+          messageArguments: {
+            selector: "#settings-screen__content--online__socket-id",
+            value: socket.connectionID
+          }
         })
       );
     },
@@ -175,7 +175,7 @@ function update(deltaTime: number) {
       universal.getSocketFromConnectionID(socket.connectionID as string)?.send(
         JSON.stringify({
           message: "renderGameData",
-          messageArguments: [gameDataToSend]
+          data: gameDataToSend
         })
       );
     }

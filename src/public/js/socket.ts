@@ -8,10 +8,20 @@ socket.addEventListener("message", (event: any) => {
   let message: any = JSON.parse(event.data);
   switch (message.message) {
     case "renderGameData": {
-      renderGameData(JSON.parse(message.messageArguments[0]));
+      renderGameData(JSON.parse(message.data));
+      break;
     }
     case "changeValueOfInput": {
-      $(message.messageArguments[0]).val(message.messageArguments[1]);
+      $(message.selector).val(message.value);
+      break;
+    }
+    case "changeText": {
+      $(message.selector).text(message.value);
+      break;
+    }
+    case "changeCSS": {
+      $(message.selector).css(message.key, message.value);
+      break;
     }
   }
 });
