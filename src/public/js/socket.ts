@@ -25,11 +25,10 @@ socket.addEventListener("message", (event: any) => {
     }
   }
 });
-function sendSocketMessage(action: string, messageArguments: any) {
+function sendSocketMessage(message: any) {
   socket.send(
     JSON.stringify({
-      action: action,
-      messageArguments: messageArguments
+      message
     })
   );
 }

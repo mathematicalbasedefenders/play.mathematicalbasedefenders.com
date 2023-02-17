@@ -46,8 +46,8 @@ mongoose.connection.on("connected", async () => {
 });
 
 type WebSocketMessage = ArrayBuffer & {
-  action?: string;
-  messageArguments?: Array<string>;
+  message?: string;
+  messageArguments?: any;
 };
 
 uWS
@@ -76,24 +76,17 @@ uWS
       isBinary: boolean
     ) => {
       const buffer = Buffer.from(message);
-      const parsedMessage = JSON.parse(buffer.toString());
-      // data validation point
-      if (
-        !(
-          typeof parsedMessage.action === "string" &&
-          Array.isArray(parsedMessage.messageArguments)
-        )
-      ) {
-        log.warn(
-          `WebSocket message types doesn't match for socket with Connection ID ${socket.id}`
-        );
+      const incompleteParsedMessage = JSON.parse(buffer.toString());
+      if (!incompleteParsedMessage) {
         return;
       }
-      switch (parsedMessage.action) {
+      const parsedMessage = incompleteParsedMessage.message;
+      // FIXME: VALIDATE DATA!!!
+      switch (parsedMessage.message) {
         case "start": {
-          switch (parsedMessage.messageArguments[0]) {
+          switch (parsedMessage.mode) {
             case "singleplayer": {
-              switch (parsedMessage.messageArguments[1]) {
+              switch (parsedMessage.modifier) {
                 case "easy": {
                   createNewSingleplayerRoom(socket, GameMode.EasySingleplayer);
                   break;
@@ -107,7 +100,7 @@ uWS
                 }
                 default: {
                   log.warn(
-                    `Unknown singleplayer game mode: ${parsedMessage.messageArguments[1]}`
+                    `Unknown singleplayer game mode: ${parsedMessage.modifier}`
                   );
                   break;
                 }
@@ -115,22 +108,13 @@ uWS
               break;
             }
             default: {
-              log.warn(
-                `Unknown game mode: ${parsedMessage.messageArguments[0]}`
-              );
+              log.warn(`Unknown game mode: ${parsedMessage.mode}`);
               break;
             }
           }
         }
         case "keypress": {
-          if (typeof parsedMessage.messageArguments === "undefined") {
-            log.warn("messageArguments of keypress message is undefined");
-            break;
-          }
-          input.processKeypress(
-            socket.connectionID,
-            parsedMessage.messageArguments[0]
-          );
+          input.processKeypress(socket.connectionID, parsedMessage.keypress);
           break;
         }
       }

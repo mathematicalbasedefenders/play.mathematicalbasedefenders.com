@@ -155,12 +155,20 @@ function initializeEventListeners() {
   });
   $("#singleplayer-menu-screen-button--easy").on("click", () => {
     variables.cachedSingleplayerMode = "easy";
-    sendSocketMessage("start", ["singleplayer", "easy"]);
+    sendSocketMessage({
+      message: "start",
+      mode: "singleplayer",
+      modifier: "easy"
+    });
     changeScreen("canvas", true);
   });
   $("#singleplayer-menu-screen-button--standard").on("click", () => {
     variables.cachedSingleplayerMode = "standard";
-    sendSocketMessage("start", ["singleplayer", "standard"]);
+    sendSocketMessage({
+      message: "start",
+      mode: "singleplayer",
+      modifier: "standard"
+    });
     changeScreen("canvas", true);
   });
   //
@@ -194,10 +202,11 @@ function initializeEventListeners() {
   });
   //
   $("#game-over-screen-button--retry").on("click", () => {
-    sendSocketMessage("start", [
-      "singleplayer",
-      variables.cachedSingleplayerMode
-    ]);
+    sendSocketMessage({
+      message: "start",
+      mode: "singleplayer",
+      modifier: variables.cachedSingleplayerMode
+    });
     changeScreen("canvas", true);
   });
   $("#game-over-screen-button--back").on("click", () => {
