@@ -16,6 +16,7 @@ import { GameMode, SingleplayerRoom } from "./server/game/Room";
 
 import _ from "lodash";
 import { authenticate } from "./server/authentication/authenticate";
+import { User } from "./server/models/User";
 const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -62,10 +63,8 @@ uWS
       socket.send(
         JSON.stringify({
           message: "changeValueOfInput",
-          messageArguments: {
-            selector: "#settings-screen__content--online__socket-id",
-            value: socket.connectionID
-          }
+          selector: "#settings-screen__content--online__socket-id",
+          value: socket.connectionID
         })
       );
     },
@@ -255,6 +254,14 @@ app.post("/authenticate", async (request: Request, response: Response) => {
   }
   socket.owner = username;
   socket.ownerConnectionID = result.id;
+  response.send({
+    username: mongoDBSanitize.sanitize(DOMPurify.sanitize(username)),
+    good: true,
+    userData: await User.safeFindByUsername(socket.owner as string),
+    // TODO: Refactor this
+    reason: "All checks passed."
+  });
+  return;
 });
 
 app.listen(PORT, () => {
