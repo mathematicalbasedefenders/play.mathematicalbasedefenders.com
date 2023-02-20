@@ -253,9 +253,9 @@ app.post("/authenticate", async (request: Request, response: Response) => {
     return;
   }
   socket.loggedIn = true;
-  socket.owner = username;
+  socket.ownerUsername = username;
   socket.ownerUserID = result.id;
-  let userData = await User.safeFindByUsername(socket.owner as string);
+  let userData = await User.safeFindByUsername(socket.ownerUsername as string);
   response.send({
     username: username,
     good: true,

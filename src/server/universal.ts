@@ -2,7 +2,7 @@ import { WebSocket } from "uWebSockets.js";
 import { SingleplayerGameData, Room } from "./game/Room";
 
 type GameSocket = WebSocket & {
-  owner?: string;
+  ownerUsername?: string;
   ownerUserID?: string;
   ownerGuestName?: string;
   connectionID?: string;
