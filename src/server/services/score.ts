@@ -46,10 +46,10 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
         statistics.statistics.personalBestScoreOnEasySingleplayerMode.score
       ) {
         await updatePersonalBest(ownerSocket, data);
+        log.info(
+          `User ${ownerSocket.ownerUsername} has also achieved a new personal best with that score.`
+        );
       }
-      log.info(
-        `User ${ownerSocket.ownerUsername} has also achieved a new personal best with that score.`
-      );
       experiencePointCoefficient = 0.3;
       break;
     }
@@ -59,10 +59,10 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
         statistics.statistics.personalBestScoreOnStandardSingleplayerMode.score
       ) {
         await updatePersonalBest(ownerSocket, data);
+        log.info(
+          `User ${ownerSocket.ownerUsername} has also achieved a new personal best with that score.`
+        );
       }
-      log.info(
-        `User ${ownerSocket.ownerUsername} has also achieved a new personal best with that score.`
-      );
       experiencePointCoefficient = 1;
       break;
     }
