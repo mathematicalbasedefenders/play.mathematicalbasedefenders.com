@@ -33,15 +33,17 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
     `User ${ownerSocket.username} has submitted a score of ${data.score} on a ${gameMode} game.`
   );
 
-  let playerData = await User.safeFindByUserID(
+  // TODO: This makes like 5 database calls, reduce this to one pls
+  const statistics = await User.safeFindByUserID(
     ownerSocket.ownerUserID as string
   );
-  const statistics = playerData.statistics;
   let experiencePointCoefficient = 0;
   switch (data.mode) {
     case GameMode.EasySingleplayer: {
       if (
-        data.score > statistics.personalBestScoreOnEasySingleplayerMode.score
+        // FIXME: WTF???
+        data.score >
+        statistics.statistics.personalBestScoreOnEasySingleplayerMode.score
       ) {
         await updatePersonalBest(ownerSocket, data);
       }
@@ -54,7 +56,7 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
     case GameMode.StandardSingleplayer: {
       if (
         data.score >
-        statistics.personalBestScoreOnStandardSingleplayerMode.score
+        statistics.statistics.personalBestScoreOnStandardSingleplayerMode.score
       ) {
         await updatePersonalBest(ownerSocket, data);
       }
@@ -65,6 +67,17 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
       break;
     }
   }
+  // give experience points
+  let playerData = await User.safeFindByUserID(
+    ownerSocket.ownerUserID as string
+  );
+  // TODO: This is a placeholder, decide on real exp formula
+  playerData.statistics.totalExperiencePoints += Math.round(
+    experiencePointCoefficient * (data.score / 100)
+  );
+  playerData.statistics.gamesPlayed += 1;
+  playerData.save();
+
   // TODO: Leaderboards
 }
 
