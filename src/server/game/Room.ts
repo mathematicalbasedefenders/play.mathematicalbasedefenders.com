@@ -4,6 +4,7 @@ import * as enemy from "./Enemy";
 import * as _ from "lodash";
 import { log } from "../core/log";
 import * as input from "../core/input";
+import { submitSingleplayerGame } from "../services/score";
 
 const STANDARD_ENEMY_CHANCE: number = 0.25;
 
@@ -204,6 +205,7 @@ class Room {
 
   startGameOverProcess(data: GameData) {
     let socket = universal.getSocketFromConnectionID(data.owner);
+
     // game over here
     let gameMode: string = "";
     switch (data.mode) {
@@ -238,9 +240,12 @@ class Room {
       }
     ];
     data.commands.changeScreenTo = "gameOver";
+    // submit score
+    if (socket) {
+      submitSingleplayerGame(data, socket);
+    }
     // destroy room somehow
     this.playing = false;
-
     if (socket) {
       socket?.unsubscribe(this.id);
       this.deleteMember(socket?.connectionID as string);

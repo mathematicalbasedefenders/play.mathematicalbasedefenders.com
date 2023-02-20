@@ -77,7 +77,7 @@ function millisecondsToTime(milliseconds: number) {
   return `${m}:${s}.${ms}`;
 }
 
-function getRank(data: User | string) {
+function getRank(data: UserInterface | string) {
   if (typeof data === "string") {
     // ...
     return "";

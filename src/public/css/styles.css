@@ -369,6 +369,7 @@ body {
   filter: brightness(1.05);
   transform: scale(1.05);
 }
+
 /* QUICK MENU */
 #main-content__quick-menu-container {
   z-index: 999;

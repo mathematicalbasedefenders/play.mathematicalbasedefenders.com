@@ -8,6 +8,7 @@ import {
   changeSettingsSecondaryScreen,
   redrawStage
 } from "./game";
+import { calculateLevel, millisecondsToTime } from "./utilities";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -207,6 +208,44 @@ function initializeEventListeners() {
           //
           $(".settings-screen__content--online--unauthenticated").hide(0);
           $(".settings-screen__content--online--authenticated").show(0);
+          //
+          $("#user-account-stat--username").text(data.username);
+          $("#user-account-stat--rank").text(data.rank.title);
+          $("#user-account-stat--level").text(
+            `${calculateLevel(data.experiencePoints).level.toString()} (${
+              (calculateLevel(data.experiencePoints).progressToNext * 100)
+                .toFixed(3)
+                .toString() || 0
+            }% to next)`
+          );
+          $("#user-account-stat--easy-singleplayer-record").text(
+            isNaN(data.records.easy?.score) ? "N/A" : data.records.easy.score
+          );
+          $("#user-account-stat--standard-singleplayer-record").text(
+            isNaN(data.records.standard?.score)
+              ? "N/A"
+              : data.records.standard.score
+          );
+          $("#user-account-stat--level").attr(
+            "title",
+            `${data.experiencePoints}EXP`
+          );
+          $("#user-account-stat--easy-singleplayer-record").attr(
+            "title",
+            `${millisecondsToTime(data.records.easy.timeInMilliseconds)}, ${
+              data.records.easy.enemiesKilled
+            }/${data.records.easy.enemiesCreated}, ${
+              data.records.easy.scoreSubmissionDateAndTime
+            }`
+          );
+          $("#user-account-stat--standard-singleplayer-record").attr(
+            "title",
+            `${millisecondsToTime(data.records.standard.timeInMilliseconds)}, ${
+              data.records.standard.enemiesKilled
+            }/${data.records.standard.enemiesCreated}, ${
+              data.records.standard.scoreSubmissionDateAndTime
+            }`
+          );
         }
       }
     });

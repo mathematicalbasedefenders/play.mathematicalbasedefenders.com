@@ -3,9 +3,10 @@ import { SingleplayerGameData, Room } from "./game/Room";
 
 type GameSocket = WebSocket & {
   owner?: string;
-  ownerID?: string;
+  ownerUserID?: string;
   ownerGuestName?: string;
   connectionID?: string;
+  loggedIn?: boolean;
 };
 
 let sockets: Array<GameSocket> = [];

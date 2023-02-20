@@ -1,6 +1,6 @@
-import mongoose, { ObjectId } from "mongoose";
+import mongoose, { HydratedDocument, ObjectId } from "mongoose";
 
-type User = {
+interface UserInterface {
   _id: ObjectId;
   username: string;
   usernameInAllLowercase: string;
@@ -43,15 +43,17 @@ type User = {
     isDonator: boolean;
     specialRank: string;
   };
-};
-
-interface UserModel extends mongoose.Model<User> {
-  findByUsername(username: string): Promise<User>;
-  safeFindByUsername(username: string): Promise<User>;
-  safeFindByUserID(userID: string): Promise<User>;
 }
 
-const UserSchema = new mongoose.Schema<User, UserModel>({
+interface UserModel extends mongoose.Model<UserInterface> {
+  findByUsername(username: string): Promise<HydratedDocument<UserInterface>>;
+  safeFindByUsername(
+    username: string
+  ): Promise<HydratedDocument<UserInterface>>;
+  safeFindByUserID(userID: string): Promise<HydratedDocument<UserInterface>>;
+}
+
+const UserSchema = new mongoose.Schema<UserInterface, UserModel>({
   username: String,
   usernameInAllLowercase: String,
   emailAddress: String,
@@ -121,6 +123,10 @@ UserSchema.static("safeFindByUserID", async function (userID: string) {
     .clone();
 });
 
-const User = mongoose.model<User, UserModel>("User", UserSchema, "users");
+const User = mongoose.model<UserInterface, UserModel>(
+  "User",
+  UserSchema,
+  "users"
+);
 
-export { User, User as UserInterface };
+export { User, UserInterface };

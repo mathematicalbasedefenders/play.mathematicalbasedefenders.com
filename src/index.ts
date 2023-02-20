@@ -252,14 +252,21 @@ app.post("/authenticate", async (request: Request, response: Response) => {
     });
     return;
   }
+  socket.loggedIn = true;
   socket.owner = username;
-  socket.ownerConnectionID = result.id;
+  socket.ownerUserID = result.id;
   let userData = await User.safeFindByUsername(socket.owner as string);
   response.send({
     username: username,
     good: true,
     userData: userData,
     rank: utilities.getRank(userData),
+    experiencePoints: userData.statistics.totalExperiencePoints,
+    records: {
+      easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
+      singleplayer:
+        userData.statistics.personalBestScoreOnStandardSingleplayerMode
+    },
     // TODO: Refactor this
     reason: "All checks passed."
   });
