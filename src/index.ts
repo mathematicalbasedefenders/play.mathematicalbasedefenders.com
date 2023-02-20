@@ -187,6 +187,9 @@ function update(deltaTime: number) {
 
 function resetOneFrameVariables() {
   for (let room of universal.rooms) {
+    if (!universal.rooms) {
+      continue;
+    }
     for (let gameData of room?.gameData) {
       gameData.enemiesToErase = [];
       gameData.commands = {};

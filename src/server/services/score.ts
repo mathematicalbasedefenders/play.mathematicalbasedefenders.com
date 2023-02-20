@@ -30,7 +30,7 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
 
   // announce
   log.info(
-    `User ${ownerSocket.username} has submitted a score of ${data.score} on a ${gameMode} game.`
+    `User ${ownerSocket.ownerUsername} has submitted a score of ${data.score} on a ${gameMode} game.`
   );
 
   // TODO: This makes like 5 database calls, reduce this to one pls
@@ -48,7 +48,7 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
         await updatePersonalBest(ownerSocket, data);
       }
       log.info(
-        `User ${ownerSocket.username} has also achieved a new personal best with that score.`
+        `User ${ownerSocket.ownerUsername} has also achieved a new personal best with that score.`
       );
       experiencePointCoefficient = 0.3;
       break;
@@ -61,7 +61,7 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
         await updatePersonalBest(ownerSocket, data);
       }
       log.info(
-        `User ${ownerSocket.username} has also achieved a new personal best with that score.`
+        `User ${ownerSocket.ownerUsername} has also achieved a new personal best with that score.`
       );
       experiencePointCoefficient = 1;
       break;
