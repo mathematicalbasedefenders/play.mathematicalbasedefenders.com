@@ -66,7 +66,7 @@ function validateData(
   socketID: unknown | undefined
 ) {
   // socket is already logged in
-  if (getSocketFromConnectionID(socketID as string)) {
+  if (getSocketFromConnectionID(socketID as string)?.loggedIn) {
     return {
       good: false,
       reason: "User is already logged in."
