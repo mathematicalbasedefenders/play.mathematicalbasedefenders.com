@@ -1,6 +1,6 @@
 import { User } from "../models/User";
 import { log } from "../core/log";
-
+import { getSocketFromConnectionID } from "../universal";
 const bcrypt = require("bcrypt");
 const mongoDBSanitize = require("express-mongo-sanitize");
 
@@ -65,6 +65,13 @@ function validateData(
   password: unknown | undefined,
   socketID: unknown | undefined
 ) {
+  // socket is already logged in
+  if (getSocketFromConnectionID(socketID)) {
+    return {
+      good: false,
+      reason: "User is already logged in."
+    };
+  }
   if (typeof username !== "string" || username === "") {
     return {
       good: false,
