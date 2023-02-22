@@ -267,8 +267,7 @@ app.post("/authenticate", async (request: Request, response: Response) => {
     experiencePoints: userData.statistics.totalExperiencePoints,
     records: {
       easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
-      singleplayer:
-        userData.statistics.personalBestScoreOnStandardSingleplayerMode
+      standard: userData.statistics.personalBestScoreOnStandardSingleplayerMode
     },
     // TODO: Refactor this
     reason: "All checks passed."
