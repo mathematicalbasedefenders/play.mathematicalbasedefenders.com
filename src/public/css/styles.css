@@ -415,3 +415,34 @@ body {
   font-size: 10px;
   color: var(--color-text-light);
 }
+/* TOAST NOTIFICATIONS */
+#main-content__toast-notification-container {
+  z-index: 100;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+}
+
+.main-content__toast-notification {
+  z-index: 100;
+  overflow: hidden;
+}
+
+.toast-notification {
+  background-color: var(--color-neutral);
+  color: var(--color-text-light);
+  border: 2px var(--color-text-light) solid;
+  width: 400px;
+  height: 60px;
+  position: absolute;
+}
+
+.toast-notification__position-2 {
+  top: 2.5%;
+  right: 1%;
+}
+
+.toast-notification__position-8 {
+  bottom: 2.5%;
+  right: 1%;
+}
