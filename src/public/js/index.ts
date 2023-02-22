@@ -9,6 +9,7 @@ import {
   redrawStage
 } from "./game";
 import { calculateLevel, millisecondsToTime } from "./utilities";
+import { ToastNotification, ToastNotificationPosition } from "./notifications";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -245,6 +246,11 @@ function initializeEventListeners() {
             }/${data.records.standard.enemiesCreated}, ${
               data.records.standard.scoreSubmissionDateAndTime
             }`
+          );
+          // toast notification
+          new ToastNotification(
+            `Successfully logged in as ${data.username}`,
+            ToastNotificationPosition.BOTTOM_RIGHT
           );
         }
       }
