@@ -196,6 +196,7 @@ function initializeEventListeners() {
         password: $("#settings-screen__content--online__password").val(),
         socketID: $("#settings-screen__content--online__socket-id").val()
       },
+      // TODO: refactor
       success: (data) => {
         if (data.good) {
           $("#settings-screen__content--online__rank").text(data.rank.title);
@@ -250,6 +251,11 @@ function initializeEventListeners() {
           // toast notification
           new ToastNotification(
             `Successfully logged in as ${data.username}`,
+            ToastNotificationPosition.BOTTOM_RIGHT
+          );
+        } else {
+          new ToastNotification(
+            `Unable to log in as ${data.username} (${data.reason})`,
             ToastNotificationPosition.BOTTOM_RIGHT
           );
         }
