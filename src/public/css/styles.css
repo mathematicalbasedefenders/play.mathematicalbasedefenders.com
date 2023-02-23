@@ -421,6 +421,9 @@ body {
   overflow: hidden;
   width: 100vw;
   height: 100vh;
+  position: absolute;
+  top: 0;
+  pointer-events: none;
 }
 
 .main-content__toast-notification {
@@ -435,14 +438,15 @@ body {
   width: 400px;
   height: 60px;
   position: absolute;
+  margin: 8px;
 }
 
-.toast-notification__position-2 {
+.toast-notification--position-2 {
   top: 2.5%;
   right: 1%;
 }
 
-.toast-notification__position-8 {
+.toast-notification--position-8 {
   bottom: 2.5%;
   right: 1%;
 }
