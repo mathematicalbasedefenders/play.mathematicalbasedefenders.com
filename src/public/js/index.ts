@@ -147,7 +147,6 @@ function initializeEventListeners() {
   // other event listeners
   $("#main-menu-screen-button--singleplayer").on("click", () => {
     changeScreen("singleplayerMenu");
-    new ToastNotification("test", ToastNotificationPosition.BOTTOM_RIGHT);
   });
   $("#main-menu-screen-button--settings").on("click", () => {
     changeScreen("settingsMenu");
