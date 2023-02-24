@@ -130,6 +130,7 @@ UserSchema.static("safeFindByUserID", async function (userID: string) {
 // TODO: This thing isn't DRY lol
 UserSchema.static("getAllEasySingleplayerBestScores", async function () {
   let players: Array<object> = [];
+  let loaded: Array<object> = [];
   let cursor = this.find({})
     .select({
       _id: 1,
@@ -139,12 +140,10 @@ UserSchema.static("getAllEasySingleplayerBestScores", async function () {
     .clone()
     .lean(true)
     .cursor();
-  cursor.on("data", function (player) {
-    players.push(player);
-  });
-  cursor.on("end", function () {
-    return players;
-  });
+  for await (let player of cursor) {
+    loaded.push(player);
+  }
+  return loaded;
 });
 
 UserSchema.static("getAllStandardSingleplayerBestScores", async function () {
