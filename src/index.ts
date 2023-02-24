@@ -17,7 +17,7 @@ import { GameMode, SingleplayerRoom } from "./server/game/Room";
 import _ from "lodash";
 import { authenticate } from "./server/authentication/authenticate";
 import { User } from "./server/models/User";
-import { getScoresOfAllPlayers } from "./server/game/Leaderboards";
+import { getScoresOfAllPlayers } from "./server/services/leaderboards";
 const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");

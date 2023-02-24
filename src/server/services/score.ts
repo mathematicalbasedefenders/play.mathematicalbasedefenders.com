@@ -1,5 +1,5 @@
 import { log } from "../core/log";
-import { getScoresOfAllPlayers } from "../game/Leaderboards";
+import { getScoresOfAllPlayers } from "./leaderboards";
 import { GameData, GameMode } from "../game/Room";
 import { User } from "../models/User";
 import { GameSocket } from "../universal";
