@@ -48,6 +48,7 @@ app.renderer.view.style.display = "block";
 const stage = app.stage;
 
 const variables: { [key: string]: any } = {
+  onScreenKeyboardActivated: false,
   cachedSingleplayerMode: null,
   beautifulScoreCounter: true,
   // below is for beautifulScoreCounter
@@ -203,55 +204,7 @@ function initializeEventListeners() {
       // TODO: refactor
       success: (data) => {
         if (data.good) {
-          $("#settings-screen__content--online__rank").text(data.rank.title);
-          $("#settings-screen__content--online__rank").css(
-            "color",
-            data.rank.color
-          );
-          $("#settings-screen__content--online__authenticated-username").text(
-            data.username
-          );
-          //
-          $(".settings-screen__content--online--unauthenticated").hide(0);
-          $(".settings-screen__content--online--authenticated").show(0);
-          //
-          $("#user-account-stat--username").text(data.username);
-          $("#user-account-stat--rank").text(data.rank.title);
-          $("#user-account-stat--level").text(
-            `${calculateLevel(data.experiencePoints).level.toString()} (${
-              (calculateLevel(data.experiencePoints).progressToNext * 100)
-                .toFixed(3)
-                .toString() || 0
-            }% to next)`
-          );
-          $("#user-account-stat--easy-singleplayer-record").text(
-            isNaN(data.records.easy?.score) ? "N/A" : data.records.easy.score
-          );
-          $("#user-account-stat--standard-singleplayer-record").text(
-            isNaN(data.records.standard?.score)
-              ? "N/A"
-              : data.records.standard.score
-          );
-          $("#user-account-stat--level").attr(
-            "title",
-            `${data.experiencePoints}EXP`
-          );
-          $("#user-account-stat--easy-singleplayer-record").attr(
-            "title",
-            `${millisecondsToTime(data.records.easy.timeInMilliseconds)}, ${
-              data.records.easy.enemiesKilled
-            }/${data.records.easy.enemiesCreated}, ${
-              data.records.easy.scoreSubmissionDateAndTime
-            }`
-          );
-          $("#user-account-stat--standard-singleplayer-record").attr(
-            "title",
-            `${millisecondsToTime(data.records.standard.timeInMilliseconds)}, ${
-              data.records.standard.enemiesKilled
-            }/${data.records.standard.enemiesCreated}, ${
-              data.records.standard.scoreSubmissionDateAndTime
-            }`
-          );
+          updateUserInformationText(data);
           // toast notification
           new ToastNotification(
             `Successfully logged in as ${data.username}`,
@@ -283,6 +236,31 @@ function initializeEventListeners() {
   $("#quick-menu__toggle-button").on("click", () => {
     $("#quick-menu__content-container").toggle(0);
   });
+  //
+  $("#quick-menu__content-button--on-screen-keyboard").on("click", () => {
+    variables.onScreenKeyboardActivated = !variables.onScreenKeyboardActivated;
+  });
+  //
+  $("#on-screen-keyboard-button--decrease-size").on("click", () => {
+    let onScreenKeyboard = $("#on-screen-keyboard");
+    let top = onScreenKeyboard.position().top;
+    let height = onScreenKeyboard.height() as number;
+    console.debug(height);
+    if (height > 90) {
+      onScreenKeyboard.css({ "top": "+=10px" });
+      onScreenKeyboard.height(height - 10);
+    }
+  });
+  $("#on-screen-keyboard-button--increase-size").on("click", () => {
+    let onScreenKeyboard = $("#on-screen-keyboard");
+    let top = onScreenKeyboard.position().top;
+    let height = onScreenKeyboard.height() as number;
+    console.debug(height);
+    if (height < 180) {
+      onScreenKeyboard.css({ "top": "-=10px" });
+      onScreenKeyboard.height(height + 10);
+    }
+  });
 }
 
 // events
@@ -294,6 +272,51 @@ $(".settings-screen__content--online--authenticated").hide(0);
 $("#main-content__modal-notification-container").hide(0);
 redrawStage();
 let endInitTime: number = Date.now();
+
+function updateUserInformationText(data: any) {
+  $("#settings-screen__content--online__rank").text(data.rank.title);
+  $("#settings-screen__content--online__rank").css("color", data.rank.color);
+  $("#settings-screen__content--online__authenticated-username").text(
+    data.username
+  );
+  //
+  $(".settings-screen__content--online--unauthenticated").hide(0);
+  $(".settings-screen__content--online--authenticated").show(0);
+  //
+  $("#user-account-stat--username").text(data.username);
+  $("#user-account-stat--rank").text(data.rank.title);
+  $("#user-account-stat--level").text(
+    `${calculateLevel(data.experiencePoints).level.toString()} (${
+      (calculateLevel(data.experiencePoints).progressToNext * 100)
+        .toFixed(3)
+        .toString() || 0
+    }% to next)`
+  );
+  $("#user-account-stat--easy-singleplayer-record").text(
+    isNaN(data.records.easy?.score) ? "N/A" : data.records.easy.score
+  );
+  $("#user-account-stat--standard-singleplayer-record").text(
+    isNaN(data.records.standard?.score) ? "N/A" : data.records.standard.score
+  );
+  $("#user-account-stat--level").attr("title", `${data.experiencePoints}EXP`);
+  $("#user-account-stat--easy-singleplayer-record").attr(
+    "title",
+    `${millisecondsToTime(data.records.easy.timeInMilliseconds)}, ${
+      data.records.easy.enemiesKilled
+    }/${data.records.easy.enemiesCreated}, ${
+      data.records.easy.scoreSubmissionDateAndTime
+    }`
+  );
+  $("#user-account-stat--standard-singleplayer-record").attr(
+    "title",
+    `${millisecondsToTime(data.records.standard.timeInMilliseconds)}, ${
+      data.records.standard.enemiesKilled
+    }/${data.records.standard.enemiesCreated}, ${
+      data.records.standard.scoreSubmissionDateAndTime
+    }`
+  );
+  //
+}
 
 console.log(
   `Initialization completed! (Took ${Math.round(

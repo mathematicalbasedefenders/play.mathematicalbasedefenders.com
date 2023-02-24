@@ -420,6 +420,9 @@ body {
   border: 1px #ffffff solid;
   color: var(--color-text-light);
 }
+
+/* OTHERS */
+
 /* TOAST NOTIFICATIONS */
 #main-content__toast-notification-container {
   z-index: 100;
@@ -498,4 +501,80 @@ body {
   width: 100%;
   display: flex;
   justify-content: end;
+}
+
+/* ON SCREEN KEYBOARD */
+#on-screen-keyboard-container {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  z-index: 200;
+  top: 0;
+  pointer-events: none;
+  touch-action: none;
+}
+
+#on-screen-keyboard-wrapper {
+  width: 80%;
+  height: 10%;
+}
+
+#on-screen-keyboard {
+  display: flex;
+  flex-direction: column;
+  touch-action: initial;
+  pointer-events: auto;
+  width: 100%;
+  height: 100%;
+  background-color: #bbbbbb;
+  padding: 0 16px 16px 16px;
+  border: 2px solid var(--color-neutral);
+  position: relative;
+}
+
+.on-screen-keyboard-button--regular {
+  width: 7.5%;
+  height: 100%;
+}
+
+.on-screen-keyboard-button--large {
+  width: 30%;
+  height: 100%;
+}
+
+.on-screen-keyboard-button {
+  background-color: var(--color-neutral);
+  color: var(--color-text-light);
+  border: 1px solid var(--color-text-light);
+  font-family: "Computer Modern Unicode Serif";
+  font-size: 3vh;
+}
+
+.on-screen-keyboard-button:hover {
+  background-color: var(--color-dangerous);
+}
+
+#on-screen-keyboard__row-1 {
+  width: 100%;
+  height: 50%;
+  margin-bottom: 4px;
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#on-screen-keyboard__row-2 {
+  width: 100%;
+  height: 50%;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.on-screen-keyboard-button--small {
+  width: 2.5%;
+  height: 100%;
 }
