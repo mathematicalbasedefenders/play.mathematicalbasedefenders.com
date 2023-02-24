@@ -450,3 +450,47 @@ body {
   bottom: 2.5%;
   right: 1%;
 }
+/* MODAL NOTIFICATIONS */
+#main-content__modal-notification-container {
+  z-index: 101;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+  background-color: #000000aa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-notification {
+  width: 40%;
+  height: 50%;
+  background-color: var(--color-neutral);
+  color: var(--color-text-light);
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border: 2px solid var(--color-text-light);
+}
+
+.modal-notification__title {
+  height: 12.5%;
+  width: 100%;
+  font-size: 5vh;
+}
+
+.modal-notification__content {
+  height: 77.5%;
+  width: 100%;
+  font-size: 1.5vh;
+}
+
+.modal-notification__button-container {
+  height: 10%;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+}

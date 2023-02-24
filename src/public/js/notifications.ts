@@ -55,4 +55,68 @@ class ToastNotification {
   }
 }
 
-export { ToastNotification, ToastNotificationPosition };
+enum ModalNotificationButtonStyle {
+  SINGLE = 1,
+  DOUBLE_SELECT = 2
+}
+class ModalNotification {
+  static activeNotifications = 0;
+  static nextID = 0;
+  title = "";
+  id = 0;
+  text = "";
+  buttonStyle!: ModalNotificationButtonStyle;
+  constructor(
+    title: string,
+    text: string,
+    buttonStyle?: ModalNotificationButtonStyle
+  ) {
+    ModalNotification.nextID++;
+    this.id = ModalNotification.nextID;
+    this.title = title;
+    this.text = text;
+    this.buttonStyle = buttonStyle || ModalNotificationButtonStyle.SINGLE;
+    this.render();
+  }
+
+  render() {
+    ModalNotification.activeNotifications++;
+    let buttons = `<button id="modal-notification--${this.id}__close-button">Close</button>`;
+    if (this.buttonStyle === ModalNotificationButtonStyle.DOUBLE_SELECT) {
+      buttons += `&nbsp;&nbsp;<button>OK</button>`;
+    }
+    $("#main-content__modal-notification-container").append(
+      `<div id="modal-notification--${this.id}" class="modal-notification"><div class="modal-notification__title">${this.title}</div><div class="modal-notification__content">${this.text}</div><div class="modal-notification__button-container">${buttons}</div></div>`
+    );
+    $(`#modal-notification--${this.id}__close-button`).on("click", () => {
+      this.close(this.id);
+    });
+    if (ModalNotification.activeNotifications === 1) {
+      $("#main-content__modal-notification-container").show(0);
+      $("#main-content__modal-notification-container").css(
+        "pointer-events",
+        "all"
+      );
+    }
+  }
+
+  close(id: number) {
+    $(`#modal-notification--${id}`).hide(250);
+    // ...
+    ModalNotification.activeNotifications--;
+    if (ModalNotification.activeNotifications <= 0) {
+      $("#main-content__modal-notification-container").hide(0);
+      $("#main-content__modal-notification-container").css(
+        "pointer-events",
+        "none"
+      );
+    }
+  }
+}
+
+export {
+  ToastNotification,
+  ToastNotificationPosition,
+  ModalNotification,
+  ModalNotificationButtonStyle
+};

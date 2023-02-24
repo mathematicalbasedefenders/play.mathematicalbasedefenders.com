@@ -9,7 +9,11 @@ import {
   redrawStage
 } from "./game";
 import { calculateLevel, millisecondsToTime } from "./utilities";
-import { ToastNotification, ToastNotificationPosition } from "./notifications";
+import {
+  ModalNotification,
+  ToastNotification,
+  ToastNotificationPosition
+} from "./notifications";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -287,6 +291,7 @@ initializeKeypressEventListener();
 // initial states
 $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
+$("#main-content__modal-notification-container").hide(0);
 redrawStage();
 let endInitTime: number = Date.now();
 
