@@ -9,6 +9,11 @@ import {
   redrawStage
 } from "./game";
 import { calculateLevel, millisecondsToTime } from "./utilities";
+import {
+  ModalNotification,
+  ToastNotification,
+  ToastNotificationPosition
+} from "./notifications";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -195,6 +200,7 @@ function initializeEventListeners() {
         password: $("#settings-screen__content--online__password").val(),
         socketID: $("#settings-screen__content--online__socket-id").val()
       },
+      // TODO: refactor
       success: (data) => {
         if (data.good) {
           $("#settings-screen__content--online__rank").text(data.rank.title);
@@ -246,6 +252,16 @@ function initializeEventListeners() {
               data.records.standard.scoreSubmissionDateAndTime
             }`
           );
+          // toast notification
+          new ToastNotification(
+            `Successfully logged in as ${data.username}`,
+            ToastNotificationPosition.BOTTOM_RIGHT
+          );
+        } else {
+          new ToastNotification(
+            `Unable to log in as ${data.username} (${data.reason})`,
+            ToastNotificationPosition.BOTTOM_RIGHT
+          );
         }
       }
     });
@@ -275,6 +291,7 @@ initializeKeypressEventListener();
 // initial states
 $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
+$("#main-content__modal-notification-container").hide(0);
 redrawStage();
 let endInitTime: number = Date.now();
 
