@@ -412,7 +412,12 @@ body {
 #quick-menu__content-button--settings {
   background-color: #3a3abb;
   border: 1px #ffffff solid;
-  font-size: 10px;
+  color: var(--color-text-light);
+}
+
+#quick-menu__content-button--on-screen-keyboard {
+  background-color: #17a71e;
+  border: 1px #ffffff solid;
   color: var(--color-text-light);
 }
 /* TOAST NOTIFICATIONS */
