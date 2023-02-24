@@ -17,6 +17,7 @@ import { GameMode, SingleplayerRoom } from "./server/game/Room";
 import _ from "lodash";
 import { authenticate } from "./server/authentication/authenticate";
 import { User } from "./server/models/User";
+import { getScoresOfAllPlayers } from "./server/game/Leaderboards";
 const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -186,8 +187,9 @@ function update(deltaTime: number) {
 }
 
 function resetOneFrameVariables() {
-  for (let room of universal.rooms) {
-    if (!universal.rooms) {
+  let rooms = universal.rooms;
+  for (let room of rooms) {
+    if (!room) {
       continue;
     }
     for (let gameData of room?.gameData) {

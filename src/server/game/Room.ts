@@ -203,10 +203,11 @@ class Room {
     log.info(`Room ${this.id} has started play!`);
   }
 
-  startGameOverProcess(data: GameData) {
+  async startGameOverProcess(data: GameData) {
     let socket = universal.getSocketFromConnectionID(data.owner);
-
+    let messages = "";
     // game over here
+
     let gameMode: string = "";
     switch (data.mode) {
       case GameMode.EasySingleplayer: {
@@ -237,6 +238,10 @@ class Room {
       {
         selector: "#main-content__game-over-screen__stats__time",
         newText: utilities.millisecondsToTime(data.elapsedTime)
+      },
+      {
+        selector: "#main-content__game-over-screen__stats__score-rank",
+        newText: messages
       }
     ];
     data.commands.changeScreenTo = "gameOver";

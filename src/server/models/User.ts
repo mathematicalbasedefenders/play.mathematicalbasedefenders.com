@@ -51,6 +51,8 @@ interface UserModel extends mongoose.Model<UserInterface> {
     username: string
   ): Promise<HydratedDocument<UserInterface>>;
   safeFindByUserID(userID: string): Promise<HydratedDocument<UserInterface>>;
+  getAllEasySingleplayerBestScores(): Promise<Array<object>>;
+  getAllStandardSingleplayerBestScores(): Promise<Array<object>>;
 }
 
 const UserSchema = new mongoose.Schema<UserInterface, UserModel>({
@@ -121,6 +123,46 @@ UserSchema.static("safeFindByUserID", async function (userID: string) {
       hashedPassword: 0
     })
     .clone();
+});
+
+// Leaderboards
+
+// TODO: This thing isn't DRY lol
+UserSchema.static("getAllEasySingleplayerBestScores", async function () {
+  let players: Array<object> = [];
+  let cursor = this.find({})
+    .select({
+      _id: 1,
+      "username": 1,
+      "statistics.personalBestScoreOnEasySingleplayerMode": 1
+    })
+    .clone()
+    .lean(true)
+    .cursor();
+  cursor.on("data", function (player) {
+    players.push(player);
+  });
+  cursor.on("end", function () {
+    return players;
+  });
+});
+
+UserSchema.static("getAllStandardSingleplayerBestScores", async function () {
+  let players: Array<object> = [];
+  let loaded: Array<object> = [];
+  let cursor = this.find({})
+    .select({
+      _id: 1,
+      "username": 1,
+      "statistics.personalBestScoreOnStandardSingleplayerMode": 1
+    })
+    .clone()
+    .lean(true)
+    .cursor();
+  for await (let player of cursor) {
+    loaded.push(player);
+  }
+  return loaded;
 });
 
 const User = mongoose.model<UserInterface, UserModel>(
