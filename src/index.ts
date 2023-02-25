@@ -83,7 +83,7 @@ uWS
       const parsedMessage = incompleteParsedMessage.message;
       // FIXME: VALIDATE DATA!!!
       switch (parsedMessage.message) {
-        case "start": {
+        case "startGame": {
           switch (parsedMessage.mode) {
             case "singleplayer": {
               switch (parsedMessage.modifier) {

@@ -389,7 +389,7 @@ body {
 .quick-menu__content-button {
   width: 48px;
   height: 48px;
-  font-size: 10px;
+  font-size: 18px;
   font-family: "Computer Modern Unicode Serif";
   word-wrap: break-word;
 }
@@ -554,7 +554,8 @@ body {
 }
 
 .on-screen-keyboard-button:hover {
-  background-color: var(--color-dangerous);
+  background-color: var(--color-text-light);
+  color: var(--color-text-dark);
 }
 
 #on-screen-keyboard__row-1 {
@@ -577,4 +578,5 @@ body {
 .on-screen-keyboard-button--small {
   width: 2.5%;
   height: 100%;
+  font-size: 12px;
 }

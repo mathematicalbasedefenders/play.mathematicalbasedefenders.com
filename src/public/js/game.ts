@@ -10,6 +10,7 @@ import * as enemies from "./enemies";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 import { millisecondsToTime } from "./utilities";
 import { variables } from "./index";
+import { ToastNotification, ToastNotificationPosition } from "./notifications";
 // TODO: Might change later
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -96,6 +97,20 @@ function redrawStage() {
 }
 
 function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
+  // check if playing
+  if (
+    typeof variables !== "undefined" &&
+    variables.playing &&
+    screen !== "gameOver" &&
+    screen !== "canvas"
+  ) {
+    new ToastNotification(
+      "Unable to change screen. (Game in progress)",
+      ToastNotificationPosition.BOTTOM_RIGHT
+    );
+    return;
+  }
+
   $("#main-content__main-menu-screen-container").hide(0);
   $("#main-content__singleplayer-menu-screen-container").hide(0);
   $("#main-content__game-over-screen-container").hide(0);
@@ -121,6 +136,7 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
       break;
     }
     case "gameOver": {
+      variables.playing = false;
       $("#main-content__game-over-screen-container").show(0);
       break;
     }
@@ -130,7 +146,7 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
     }
   }
 }
-changeScreen("mainMenu");
+
 function changeSettingsSecondaryScreen(newScreen: string) {
   for (let screen of ["online", "audio", "video"]) {
     $(`#settings-screen__content--${screen}`).hide(0);

@@ -52,7 +52,8 @@ const variables: { [key: string]: any } = {
   cachedSingleplayerMode: null,
   beautifulScoreCounter: true,
   // below is for beautifulScoreCounter
-  scoreOnLastUpdate: 0
+  scoreOnLastUpdate: 0,
+  playing: false
 };
 
 type stageItemsContainer = {
@@ -163,7 +164,7 @@ function initializeEventListeners() {
   $("#singleplayer-menu-screen-button--easy").on("click", () => {
     variables.cachedSingleplayerMode = "easy";
     sendSocketMessage({
-      message: "start",
+      message: "startGame",
       mode: "singleplayer",
       modifier: "easy"
     });
@@ -172,7 +173,7 @@ function initializeEventListeners() {
   $("#singleplayer-menu-screen-button--standard").on("click", () => {
     variables.cachedSingleplayerMode = "standard";
     sendSocketMessage({
-      message: "start",
+      message: "startGame",
       mode: "singleplayer",
       modifier: "standard"
     });
@@ -223,7 +224,7 @@ function initializeEventListeners() {
   //
   $("#game-over-screen-button--retry").on("click", () => {
     sendSocketMessage({
-      message: "start",
+      message: "startGame",
       mode: "singleplayer",
       modifier: variables.cachedSingleplayerMode
     });
@@ -237,8 +238,12 @@ function initializeEventListeners() {
     $("#quick-menu__content-container").toggle(0);
   });
   //
+  $("#quick-menu__content-button--settings").on("click", () => {
+    changeScreen("settingsMenu");
+  });
   $("#quick-menu__content-button--on-screen-keyboard").on("click", () => {
     variables.onScreenKeyboardActivated = !variables.onScreenKeyboardActivated;
+    $("#on-screen-keyboard-container").toggle(0);
   });
   //
   $("#on-screen-keyboard-button--decrease-size").on("click", () => {
@@ -256,7 +261,7 @@ function initializeEventListeners() {
     let top = onScreenKeyboard.position().top;
     let height = onScreenKeyboard.height() as number;
     console.debug(height);
-    if (height < 180) {
+    if (height < 240) {
       onScreenKeyboard.css({ "top": "-=10px" });
       onScreenKeyboard.height(height + 10);
     }
@@ -270,8 +275,8 @@ initializeKeypressEventListener();
 $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
 $("#main-content__modal-notification-container").hide(0);
+$("#on-screen-keyboard-container").hide(0);
 redrawStage();
-let endInitTime: number = Date.now();
 
 function updateUserInformationText(data: any) {
   $("#settings-screen__content--online__rank").text(data.rank.title);
@@ -317,6 +322,8 @@ function updateUserInformationText(data: any) {
   );
   //
 }
+changeScreen("mainMenu");
+let endInitTime: number = Date.now();
 
 console.log(
   `Initialization completed! (Took ${Math.round(

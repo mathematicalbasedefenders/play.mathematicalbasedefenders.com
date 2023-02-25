@@ -1,3 +1,4 @@
+import { variables } from "./index";
 import { renderGameData } from "./game";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
@@ -31,5 +32,9 @@ function sendSocketMessage(message: any) {
       message
     })
   );
+  if (message.message === "startGame") {
+    variables.playing = true;
+  }
 }
+
 export { socket, sendSocketMessage };
