@@ -283,6 +283,12 @@ function initializeEventListeners() {
       });
     });
   }
+  $("#on-screen-keyboard__button-minus").on("click", () => {
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: `Minus`
+    });
+  });
   $(`#on-screen-keyboard__button-send`).on("click", () => {
     sendSocketMessage({
       message: "emulateKeypress",
