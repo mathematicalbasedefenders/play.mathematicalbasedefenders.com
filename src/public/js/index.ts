@@ -283,6 +283,18 @@ function initializeEventListeners() {
       });
     });
   }
+  $(`#on-screen-keyboard__button-send`).on("click", () => {
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: `Space`
+    });
+  });
+  $(`#on-screen-keyboard__button-delete`).on("click", () => {
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: `Backspace`
+    });
+  });
 }
 
 // events
