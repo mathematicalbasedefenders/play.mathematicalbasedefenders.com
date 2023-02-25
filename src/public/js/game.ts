@@ -19,6 +19,10 @@ const OPTIMAL_SCREEN_RATIO: number =
 
 // TODO: Change `any` to something else.
 function renderGameData(data: { [key: string]: any }) {
+  // pre actions go here.
+  if (data.aborted) {
+    variables.playing = false;
+  }
   // html updates go here.
 
   if (data.commands.updateText) {

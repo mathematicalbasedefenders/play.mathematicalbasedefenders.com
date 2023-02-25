@@ -238,6 +238,14 @@ function initializeEventListeners() {
     $("#quick-menu__content-container").toggle(0);
   });
   //
+  $("#quick-menu__content-button--quit").on("click", () => {
+    variables.playing = false;
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: "Escape"
+    });
+    changeScreen("mainMenu");
+  });
   $("#quick-menu__content-button--settings").on("click", () => {
     changeScreen("settingsMenu");
   });
@@ -266,6 +274,15 @@ function initializeEventListeners() {
       onScreenKeyboard.height(height + 10);
     }
   });
+  //
+  for (let i = 0; i <= 9; i++) {
+    $(`#on-screen-keyboard__button-${i}`).on("click", () => {
+      sendSocketMessage({
+        message: "emulateKeypress",
+        emulatedKeypress: `Digit${i}`
+      });
+    });
+  }
 }
 
 // events

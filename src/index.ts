@@ -112,9 +112,22 @@ uWS
               break;
             }
           }
+          break;
         }
+        // case "abortGame": {
+        //   input.emulateKeypress(socket.connectionID, "Escape");
+        //   break;
+        // }
+        // game input
         case "keypress": {
           input.processKeypress(socket.connectionID, parsedMessage.keypress);
+          break;
+        }
+        case "emulateKeypress": {
+          input.emulateKeypress(
+            socket.connectionID,
+            parsedMessage.emulatedKeypress
+          );
           break;
         }
       }
