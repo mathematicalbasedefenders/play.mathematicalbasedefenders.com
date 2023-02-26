@@ -1,3 +1,4 @@
+import { variables } from "./index";
 import { renderGameData } from "./game";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
@@ -25,11 +26,16 @@ socket.addEventListener("message", (event: any) => {
     }
   }
 });
-function sendSocketMessage(message: any) {
+function sendSocketMessage(message: { [key: string]: string }) {
   socket.send(
     JSON.stringify({
       message
     })
   );
+  // Post send client actions
+  if (message.message === "startGame") {
+    variables.playing = true;
+  }
 }
+
 export { socket, sendSocketMessage };

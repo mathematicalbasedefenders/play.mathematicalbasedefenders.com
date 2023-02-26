@@ -48,10 +48,12 @@ app.renderer.view.style.display = "block";
 const stage = app.stage;
 
 const variables: { [key: string]: any } = {
+  onScreenKeyboardActivated: false,
   cachedSingleplayerMode: null,
   beautifulScoreCounter: true,
   // below is for beautifulScoreCounter
-  scoreOnLastUpdate: 0
+  scoreOnLastUpdate: 0,
+  playing: false
 };
 
 type stageItemsContainer = {
@@ -162,7 +164,7 @@ function initializeEventListeners() {
   $("#singleplayer-menu-screen-button--easy").on("click", () => {
     variables.cachedSingleplayerMode = "easy";
     sendSocketMessage({
-      message: "start",
+      message: "startGame",
       mode: "singleplayer",
       modifier: "easy"
     });
@@ -171,7 +173,7 @@ function initializeEventListeners() {
   $("#singleplayer-menu-screen-button--standard").on("click", () => {
     variables.cachedSingleplayerMode = "standard";
     sendSocketMessage({
-      message: "start",
+      message: "startGame",
       mode: "singleplayer",
       modifier: "standard"
     });
@@ -203,55 +205,7 @@ function initializeEventListeners() {
       // TODO: refactor
       success: (data) => {
         if (data.good) {
-          $("#settings-screen__content--online__rank").text(data.rank.title);
-          $("#settings-screen__content--online__rank").css(
-            "color",
-            data.rank.color
-          );
-          $("#settings-screen__content--online__authenticated-username").text(
-            data.username
-          );
-          //
-          $(".settings-screen__content--online--unauthenticated").hide(0);
-          $(".settings-screen__content--online--authenticated").show(0);
-          //
-          $("#user-account-stat--username").text(data.username);
-          $("#user-account-stat--rank").text(data.rank.title);
-          $("#user-account-stat--level").text(
-            `${calculateLevel(data.experiencePoints).level.toString()} (${
-              (calculateLevel(data.experiencePoints).progressToNext * 100)
-                .toFixed(3)
-                .toString() || 0
-            }% to next)`
-          );
-          $("#user-account-stat--easy-singleplayer-record").text(
-            isNaN(data.records.easy?.score) ? "N/A" : data.records.easy.score
-          );
-          $("#user-account-stat--standard-singleplayer-record").text(
-            isNaN(data.records.standard?.score)
-              ? "N/A"
-              : data.records.standard.score
-          );
-          $("#user-account-stat--level").attr(
-            "title",
-            `${data.experiencePoints}EXP`
-          );
-          $("#user-account-stat--easy-singleplayer-record").attr(
-            "title",
-            `${millisecondsToTime(data.records.easy.timeInMilliseconds)}, ${
-              data.records.easy.enemiesKilled
-            }/${data.records.easy.enemiesCreated}, ${
-              data.records.easy.scoreSubmissionDateAndTime
-            }`
-          );
-          $("#user-account-stat--standard-singleplayer-record").attr(
-            "title",
-            `${millisecondsToTime(data.records.standard.timeInMilliseconds)}, ${
-              data.records.standard.enemiesKilled
-            }/${data.records.standard.enemiesCreated}, ${
-              data.records.standard.scoreSubmissionDateAndTime
-            }`
-          );
+          updateUserInformationText(data);
           // toast notification
           new ToastNotification(
             `Successfully logged in as ${data.username}`,
@@ -270,7 +224,7 @@ function initializeEventListeners() {
   //
   $("#game-over-screen-button--retry").on("click", () => {
     sendSocketMessage({
-      message: "start",
+      message: "startGame",
       mode: "singleplayer",
       modifier: variables.cachedSingleplayerMode
     });
@@ -283,6 +237,70 @@ function initializeEventListeners() {
   $("#quick-menu__toggle-button").on("click", () => {
     $("#quick-menu__content-container").toggle(0);
   });
+  //
+  $("#quick-menu__content-button--quit").on("click", () => {
+    variables.playing = false;
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: "Escape"
+    });
+    changeScreen("mainMenu");
+  });
+  $("#quick-menu__content-button--settings").on("click", () => {
+    changeScreen("settingsMenu");
+  });
+  $("#quick-menu__content-button--on-screen-keyboard").on("click", () => {
+    variables.onScreenKeyboardActivated = !variables.onScreenKeyboardActivated;
+    $("#on-screen-keyboard-container").toggle(0);
+  });
+  //
+  $("#on-screen-keyboard-button--decrease-size").on("click", () => {
+    let onScreenKeyboard = $("#on-screen-keyboard");
+    let top = onScreenKeyboard.position().top;
+    let height = onScreenKeyboard.height() as number;
+    console.debug(height);
+    if (height > 90) {
+      onScreenKeyboard.css({ "top": "+=10px" });
+      onScreenKeyboard.height(height - 10);
+    }
+  });
+  $("#on-screen-keyboard-button--increase-size").on("click", () => {
+    let onScreenKeyboard = $("#on-screen-keyboard");
+    let top = onScreenKeyboard.position().top;
+    let height = onScreenKeyboard.height() as number;
+    console.debug(height);
+    if (height < 240) {
+      onScreenKeyboard.css({ "top": "-=10px" });
+      onScreenKeyboard.height(height + 10);
+    }
+  });
+  //
+  for (let i = 0; i <= 9; i++) {
+    $(`#on-screen-keyboard__button-${i}`).on("click", () => {
+      sendSocketMessage({
+        message: "emulateKeypress",
+        emulatedKeypress: `Digit${i}`
+      });
+    });
+  }
+  $("#on-screen-keyboard__button-minus").on("click", () => {
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: `Minus`
+    });
+  });
+  $(`#on-screen-keyboard__button-send`).on("click", () => {
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: `Space`
+    });
+  });
+  $(`#on-screen-keyboard__button-delete`).on("click", () => {
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: `Backspace`
+    });
+  });
 }
 
 // events
@@ -292,7 +310,54 @@ initializeKeypressEventListener();
 $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
 $("#main-content__modal-notification-container").hide(0);
+$("#on-screen-keyboard-container").hide(0);
 redrawStage();
+
+function updateUserInformationText(data: any) {
+  $("#settings-screen__content--online__rank").text(data.rank.title);
+  $("#settings-screen__content--online__rank").css("color", data.rank.color);
+  $("#settings-screen__content--online__authenticated-username").text(
+    data.username
+  );
+  //
+  $(".settings-screen__content--online--unauthenticated").hide(0);
+  $(".settings-screen__content--online--authenticated").show(0);
+  //
+  $("#user-account-stat--username").text(data.username);
+  $("#user-account-stat--rank").text(data.rank.title);
+  $("#user-account-stat--level").text(
+    `${calculateLevel(data.experiencePoints).level.toString()} (${
+      (calculateLevel(data.experiencePoints).progressToNext * 100)
+        .toFixed(3)
+        .toString() || 0
+    }% to next)`
+  );
+  $("#user-account-stat--easy-singleplayer-record").text(
+    isNaN(data.records.easy?.score) ? "N/A" : data.records.easy.score
+  );
+  $("#user-account-stat--standard-singleplayer-record").text(
+    isNaN(data.records.standard?.score) ? "N/A" : data.records.standard.score
+  );
+  $("#user-account-stat--level").attr("title", `${data.experiencePoints}EXP`);
+  $("#user-account-stat--easy-singleplayer-record").attr(
+    "title",
+    `${millisecondsToTime(data.records.easy.timeInMilliseconds)}, ${
+      data.records.easy.enemiesKilled
+    }/${data.records.easy.enemiesCreated}, ${
+      data.records.easy.scoreSubmissionDateAndTime
+    }`
+  );
+  $("#user-account-stat--standard-singleplayer-record").attr(
+    "title",
+    `${millisecondsToTime(data.records.standard.timeInMilliseconds)}, ${
+      data.records.standard.enemiesKilled
+    }/${data.records.standard.enemiesCreated}, ${
+      data.records.standard.scoreSubmissionDateAndTime
+    }`
+  );
+  //
+}
+changeScreen("mainMenu");
 let endInitTime: number = Date.now();
 
 console.log(
