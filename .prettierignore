@@ -3,3 +3,4 @@
 **/.hg
 **/node_modules
 index.ejs
+*.ejs
