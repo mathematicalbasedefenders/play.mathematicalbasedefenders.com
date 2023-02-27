@@ -199,6 +199,12 @@ function initializeEventListeners() {
   $("#settings-screen__sidebar-item--video").on("click", () => {
     changeSettingsSecondaryScreen("video");
   });
+  $("#settings__enemy-color__forced-color-picker").on("input", () => {
+    let value = $("#settings__enemy-color__forced-color-picker")
+      .val()
+      ?.toString();
+    $("#settings__enemy-color__forced-color").text(value || "#ff0000");
+  });
   //
   $("#settings-screen__content--online__submit").on("click", (event) => {
     $.ajax({
