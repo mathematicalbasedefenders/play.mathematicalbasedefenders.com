@@ -14,6 +14,7 @@ import {
   ToastNotification,
   ToastNotificationPosition
 } from "./notifications";
+import { getSettings, loadSettings, setSettings } from "./settings";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -53,7 +54,11 @@ const variables: { [key: string]: any } = {
   beautifulScoreCounter: true,
   // below is for beautifulScoreCounter
   scoreOnLastUpdate: 0,
-  playing: false
+  playing: false,
+  settings: {
+    multiplicationSign: "dot",
+    beautifulScore: false
+  }
 };
 
 type stageItemsContainer = {
@@ -155,6 +160,7 @@ function initializeEventListeners() {
     changeScreen("singleplayerMenu");
   });
   $("#main-menu-screen-button--settings").on("click", () => {
+    getSettings(localStorage.getItem("settings") || "{}");
     changeScreen("settingsMenu");
   });
   //
@@ -181,6 +187,7 @@ function initializeEventListeners() {
   });
   //
   $("#settings-screen__sidebar-item--back").on("click", () => {
+    setSettings();
     changeScreen("mainMenu");
   });
   $("#settings-screen__sidebar-item--online").on("click", () => {
@@ -247,6 +254,7 @@ function initializeEventListeners() {
     changeScreen("mainMenu");
   });
   $("#quick-menu__content-button--settings").on("click", () => {
+    getSettings(localStorage.getItem("settings") || "{}");
     changeScreen("settingsMenu");
   });
   $("#quick-menu__content-button--on-screen-keyboard").on("click", () => {
@@ -358,8 +366,10 @@ function updateUserInformationText(data: any) {
   //
 }
 changeScreen("mainMenu");
-let endInitTime: number = Date.now();
+loadSettings(localStorage.getItem("settings") || "{}");
 
+// ======
+let endInitTime: number = Date.now();
 console.log(
   `Initialization completed! (Took ${Math.round(
     endInitTime - startInitTime
