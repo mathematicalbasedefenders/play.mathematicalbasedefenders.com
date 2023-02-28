@@ -69,7 +69,7 @@ function renderGameData(data: { [key: string]: any }) {
 
   stageItems.textSprites.baseHealthText.text = `♥️ ${data.baseHealth}`;
 
-  if (variables.beautifulScoreCounter) {
+  if (variables.settings.beautifulScore === "on") {
     let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
     if (data.score !== currentDisplayedScore) {
       if (variables.scoreOnLastUpdate !== data.score) {

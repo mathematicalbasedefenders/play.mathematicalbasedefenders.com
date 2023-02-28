@@ -20,8 +20,14 @@ function checkIfPropertyWithValueExists(
 ) {
   if (Array.isArray(dataset)) {
     for (let i = 0; i < dataset.length; i++) {
-      if (dataset[i][targetProperty] === targetValue) {
-        return true;
+      try {
+        if (dataset[i][targetProperty] === targetValue) {
+          return true;
+        }
+        // TODO: this is temporary failsafe
+      } catch (error: any) {
+        log.error(error.stack);
+        return false;
       }
     }
   }

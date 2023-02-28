@@ -36,7 +36,10 @@ class Enemy {
     this.text = text;
     // text-related
     this.displayedText = new PIXI.Text(
-      beautifyDisplayedText(text),
+      beautifyDisplayedText(
+        text,
+        variables.settings.multiplicationSign === "times"
+      ),
       _.clone(ENEMY_TEXT_STYLE)
     );
     this.displayedText.style.fill =
