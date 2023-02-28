@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import _ from "lodash";
-import { app, mathFont } from ".";
+import { app, mathFont, variables } from "./index";
 const ENEMY_SIZE = 64;
 const ENEMY_FONT_SIZE = 24;
 const DEFAULT_ENEMY_WIDTH = 125;
@@ -28,7 +28,7 @@ class Enemy {
     height: number
   ) {
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
-    this.sprite.tint = Math.floor(Math.random() * 16777215);
+    this.sprite.tint = getEnemyColor();
     this.sprite.width = width || DEFAULT_ENEMY_WIDTH;
     this.sprite.height = height || DEFAULT_ENEMY_HEIGHT;
     this.sprite.x = 100 + 580 + Math.random() * (600 - DEFAULT_ENEMY_WIDTH);
@@ -36,7 +36,10 @@ class Enemy {
     this.text = text;
     // text-related
     this.displayedText = new PIXI.Text(
-      beautifyDisplayedText(text),
+      beautifyDisplayedText(
+        text,
+        variables.settings.multiplicationSign === "times"
+      ),
       _.clone(ENEMY_TEXT_STYLE)
     );
     this.displayedText.style.fill =
@@ -147,6 +150,13 @@ function calculateLuminance(colorNumber: number) {
   let g = (colorNumber >> 8) & 255;
   let b = colorNumber & 255;
   return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+}
+function getEnemyColor() {
+  let value = variables.settings.enemyColor;
+  if (!/\#[0-9a-f]{6}/.test(value)) {
+    return Math.floor(Math.random() * 16777216);
+  }
+  return parseInt(value.substring(1), 16);
 }
 export {
   Enemy,

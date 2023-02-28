@@ -48,7 +48,7 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   // text
-  stageItems.textSprites.inputText.text = data.currentInput;
+  stageItems.textSprites.inputText.text = data.currentInput.replace("-", "−");
   stageItems.textSprites.enemiesText.text = `Enemy Kills: ${
     data.enemiesKilled
   } ≈ ${((data.enemiesKilled / data.elapsedTime) * 1000).toFixed(3)}/s`;
@@ -69,7 +69,7 @@ function renderGameData(data: { [key: string]: any }) {
 
   stageItems.textSprites.baseHealthText.text = `♥️ ${data.baseHealth}`;
 
-  if (variables.beautifulScoreCounter) {
+  if (variables.settings.beautifulScore === "on") {
     let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
     if (data.score !== currentDisplayedScore) {
       if (variables.scoreOnLastUpdate !== data.score) {

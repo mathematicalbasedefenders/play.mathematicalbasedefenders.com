@@ -78,7 +78,7 @@
           </div>
         </fieldset>
         <br>
-        <fieldset class="settings-screen__content-fieldset">
+        <!-- <fieldset class="settings-screen__content-fieldset">
           <legend>Account Settings</legend>
           <div class="settings-screen__content--online--unauthenticated">
             <div style="text-align:center;display:flex;align-items: center;">
@@ -94,18 +94,34 @@
             </div>
 
           </div>
-        </fieldset>
+        </fieldset> -->
       </div>
       <div class="settings-screen__content-secondary-screen" id="settings-screen__content--video">
-        <fieldset class="settings-screen__content-fieldset">
+        <fieldset title="Whether to use the times symbol (×) or middle dot (•) for the multiplication sign." class="settings-screen__content-fieldset">
           <legend>Multiplication Sign</legend>
-          <input type="radio" id="times" name="multiplication-sign" value="times">
-          <label for="times">Times</label><br>
-          <input type="radio" id="middle-dot" name="multiplication-sign" value="middle-dot">
-          <label for="middle-dot">Middle Dot</label><br>
+          <input type="radio" id="settings-multiplcation-sign__times" name="settings__multiplication-sign" value="times">
+          <label for="settings-multiplcation-sign__times">Times</label><br>
+          <input type="radio" id="settings-multiplcation-sign__middle-dot" name="settings__multiplication-sign" value="middle-dot">
+          <label for="settings-multiplcation-sign__middle-dot">Middle Dot</label><br>
+        </fieldset>
+        <br>
+        <fieldset title="Whether to display the effect of your score display gradually rising." class="settings-screen__content-fieldset">
+          <legend>Beautiful Score Display</legend>
+          <input type="radio" id="settings-beautiful-score-display__on" name="settings__beautiful-score-display" value="on">
+          <label for="settings-beautiful-score-display__on">On</label><br>
+          <input type="radio" id="settings-beautiful-score-display__off" name="settings__beautiful-score-display" value="off">
+          <label for="settings-beautiful-score-display__off">Off</label><br>
+        </fieldset>
+        <br>
+        <fieldset title="What color to use for every enemy that spawns." class="settings-screen__content-fieldset">
+          <legend>Enemy Color</legend>
+          <input type="radio" id="settings-enemy-color__random-for-each" name="settings__enemy-color" value="randomForEach">
+          <label for="settings-enemy-color__random-for-each">Random for Each</label><br>
+          <input type="radio" id="settings-enemy-color__set-color" name="settings__enemy-color" value="setColor">
+          <label for="settings-enemy-color__set-color">Set Color: <span class="text--monospace" id="settings__enemy-color__forced-color"></span></label>&nbsp;<input id="settings__enemy-color__forced-color-picker" name="forced-color" type="color" value="#ff0000">
         </fieldset>
       </div>
-      <div class="settings-screen__content-secondary-screen" id="settings-screen__content--audio">audio</div>
+      <div class="settings-screen__content-secondary-screen" id="settings-screen__content--audio"></div>
     </div>
   </div>
 </div>

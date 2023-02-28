@@ -52,6 +52,9 @@ body {
   color: var(--color-text-light);
 }
 
+.text--monospace {
+  font-family: "JetBrains Mono", monospace;
+}
 /* MAIN MENU SCREEN */
 
 #main-content__main-menu-screen-container {
