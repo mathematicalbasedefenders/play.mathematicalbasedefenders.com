@@ -372,7 +372,21 @@ function updateUserInformationText(data: any) {
   );
   // ===
   // === USER MENU ===
+  $("#main-content__user-menu-small-display__rank").text(data.rank.title);
+  $("#main-content__user-menu-small-display__rank").css(
+    "color",
+    data.rank.color
+  );
+  $("#main-content__user-menu-small-display__username").text(data.username);
+  $("#main-content__user-menu-small-display__level").text(
+    `Level ${calculateLevel(data.experiencePoints).level.toString()}`
+  );
 }
+
+function updateGuestInformationText(data: any) {
+  $("#main-content__user-menu-small-display__username").text(data.guestName);
+}
+
 changeScreen("mainMenu");
 loadSettings(localStorage.getItem("settings") || "{}");
 
@@ -393,5 +407,6 @@ export {
   ExtendedText,
   serifFont,
   mathFont,
-  variables
+  variables,
+  updateGuestInformationText
 };
