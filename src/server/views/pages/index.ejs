@@ -14,22 +14,23 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
 </head>
 
 <body>
   <div id="main-content-container">
     <%- include("../partials/main-menu-screen") %>
-      <%- include("../partials/singleplayer-menu-screen") %>
-        <%- include("../partials/settings-menu-screen") %>
-          <%- include("../partials/game-over-screen") %>
-            <%- include("../partials/quick-menu") %>
-
-              <div id="canvas-container"></div>
+    <%- include("../partials/singleplayer-menu-screen") %>
+    <%- include("../partials/settings-menu-screen") %>
+    <%- include("../partials/game-over-screen") %>
+    <%- include("../partials/quick-menu") %>
+    <%- include("../partials/user-menu") %>
+    <div id="canvas-container"></div>
 
   </div>
   <%- include("../partials/on-screen-keyboard") %>
-    <%- include("../partials/toast-notification") %>
-      <%- include("../partials/modal-notification") %>
+  <%- include("../partials/toast-notification") %>
+  <%- include("../partials/modal-notification") %>
 
 </body>
 <script src="https://code.jquery.com/jquery-3.6.3.min.js"

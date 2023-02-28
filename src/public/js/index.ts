@@ -328,6 +328,7 @@ $("#on-screen-keyboard-container").hide(0);
 redrawStage();
 
 function updateUserInformationText(data: any) {
+  // === SETTINGS SCREEN ===
   $("#settings-screen__content--online__rank").text(data.rank.title);
   $("#settings-screen__content--online__rank").css("color", data.rank.color);
   $("#settings-screen__content--online__authenticated-username").text(
@@ -369,7 +370,8 @@ function updateUserInformationText(data: any) {
       data.records.standard.scoreSubmissionDateAndTime
     }`
   );
-  //
+  // ===
+  // === USER MENU ===
 }
 changeScreen("mainMenu");
 loadSettings(localStorage.getItem("settings") || "{}");
