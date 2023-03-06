@@ -13,7 +13,7 @@
     "start-dev": "npm run compile && npm run build-dev && npm run copyStaticFiles && node ./dist/index.js"
   },
   "author": "mistertfy64",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@types/dompurify": "^2.4.0",
     "@types/jsdom": "^21.1.0",
