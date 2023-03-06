@@ -18,14 +18,46 @@ import _ from "lodash";
 import { authenticate } from "./server/authentication/authenticate";
 import { User } from "./server/models/User";
 import { getScoresOfAllPlayers } from "./server/services/leaderboards";
+import { crossOriginEmbedderPolicy } from "helmet";
 const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
 const mongoDBSanitize = require("express-mongo-sanitize");
-
+const helmet = require("helmet");
+import rateLimit from "express-rate-limit";
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 const app = express();
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        "script-src": [
+          "'self'",
+          "code.jquery.com",
+          "cdnjs.cloudflare.com",
+          "cdn.jsdelivr.net",
+          "pixijs.download",
+          "'unsafe-eval'"
+        ],
+        "style-src": ["'unsafe-inline'", "*"],
+        "connect-src": [
+          "ws://localhost:5000",
+          "wss://play.mathematicalbasedefenders.com:5000",
+          "'self'"
+        ]
+      }
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+  })
+);
 app.use(express.static(path.join(__dirname, "/public/")));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.set("view engine", "ejs");
@@ -274,48 +306,55 @@ const loop = setInterval(() => {
   lastUpdateTime = Date.now();
 }, LOOP_INTERVAL);
 
-app.get("/", (request: Request, response: Response) => {
+app.get("/", limiter, (request: Request, response: Response) => {
   response.render("pages/index.ejs");
 });
 
-app.post("/authenticate", async (request: Request, response: Response) => {
-  let username = request.body["username"];
-  let password = request.body["password"];
-  let socketID = request.body["socketID"];
-  // return...
-  let result = await authenticate(username, password, socketID);
-  let socket = universal.getSocketFromConnectionID(socketID);
-  if (!result.good || !socket) {
+app.post(
+  "/authenticate",
+  limiter,
+  async (request: Request, response: Response) => {
+    let username = request.body["username"];
+    let password = request.body["password"];
+    let socketID = request.body["socketID"];
+    // return...
+    let result = await authenticate(username, password, socketID);
+    let socket = universal.getSocketFromConnectionID(socketID);
+    if (!result.good || !socket) {
+      response.send({
+        username: mongoDBSanitize.sanitize(DOMPurify.sanitize(username)),
+        good: false,
+        // TODO: Refactor this
+        reason:
+          result.reason === "All checks passed"
+            ? "Invalid Socket Connection ID"
+            : result.reason
+      });
+      return;
+    }
+    socket.loggedIn = true;
+    socket.ownerUsername = username;
+    socket.ownerUserID = result.id;
+    let userData = await User.safeFindByUsername(
+      socket.ownerUsername as string
+    );
     response.send({
-      username: mongoDBSanitize.sanitize(DOMPurify.sanitize(username)),
-      good: false,
+      username: username,
+      good: true,
+      userData: userData,
+      rank: utilities.getRank(userData),
+      experiencePoints: userData.statistics.totalExperiencePoints,
+      records: {
+        easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
+        standard:
+          userData.statistics.personalBestScoreOnStandardSingleplayerMode
+      },
       // TODO: Refactor this
-      reason:
-        result.reason === "All checks passed"
-          ? "Invalid Socket Connection ID"
-          : result.reason
+      reason: "All checks passed."
     });
     return;
   }
-  socket.loggedIn = true;
-  socket.ownerUsername = username;
-  socket.ownerUserID = result.id;
-  let userData = await User.safeFindByUsername(socket.ownerUsername as string);
-  response.send({
-    username: username,
-    good: true,
-    userData: userData,
-    rank: utilities.getRank(userData),
-    experiencePoints: userData.statistics.totalExperiencePoints,
-    records: {
-      easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
-      standard: userData.statistics.personalBestScoreOnStandardSingleplayerMode
-    },
-    // TODO: Refactor this
-    reason: "All checks passed."
-  });
-  return;
-});
+);
 
 app.listen(PORT, () => {
   log.info(`Game listening at port ${PORT}`);
