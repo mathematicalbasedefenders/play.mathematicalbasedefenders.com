@@ -1,4 +1,4 @@
-import { variables } from "./index";
+import { updateGuestInformationText, variables } from "./index";
 import { renderGameData } from "./game";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
@@ -15,6 +15,9 @@ socket.addEventListener("message", (event: any) => {
     case "changeValueOfInput": {
       $(message.selector).val(message.value);
       break;
+    }
+    case "updateGuestInformationText": {
+      updateGuestInformationText(message.data);
     }
     case "changeText": {
       $(message.selector).text(message.value);

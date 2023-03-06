@@ -104,7 +104,6 @@ function setSettings() {
     }
 
     // normal cases
-    console.log(entry.htmlName);
     let value = $(`input[name="${entry.htmlName}"]:checked`).val();
     if (typeof value !== "undefined") {
       variables.settings[entry.storageStringKey] = value;
