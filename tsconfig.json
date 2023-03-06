@@ -1,0 +1,16 @@
+{
+  "include": ["src/**/*"],
+  "exclude": ["**/*/lib/*.js", "**/ignored/**", "src/public/**/*"],
+  "compilerOptions": {     
+    "module": "CommonJS",
+    "target": "es6",                                                         
+    "rootDir": "src",                                      
+    "esModuleInterop": true,                             
+    "forceConsistentCasingInFileNames": true,            
+    "strict": true,       
+    "outDir": "dist",                                
+    "skipLibCheck": true, 
+    "lib": ["es2021", "dom"],   
+    "moduleResolution": "node",    
+  }
+}
