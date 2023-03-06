@@ -17,6 +17,7 @@ import { GameMode, SingleplayerRoom } from "./server/game/Room";
 import _ from "lodash";
 import { authenticate } from "./server/authentication/authenticate";
 import { User } from "./server/models/User";
+import { getScoresOfAllPlayers } from "./server/services/leaderboards";
 const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -57,6 +58,7 @@ uWS
     open: (socket: universal.GameSocket, request?: unknown) => {
       log.info("Socket connected!");
       socket.connectionID = generateConnectionID(16);
+      socket.ownerGuestName = `Guest ${generateGuestID(8)}`;
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
@@ -65,6 +67,14 @@ uWS
           message: "changeValueOfInput",
           selector: "#settings-screen__content--online__socket-id",
           value: socket.connectionID
+        })
+      );
+      socket.send(
+        JSON.stringify({
+          message: "updateGuestInformationText",
+          data: {
+            guestName: socket.ownerGuestName
+          }
         })
       );
     },
@@ -82,7 +92,7 @@ uWS
       const parsedMessage = incompleteParsedMessage.message;
       // FIXME: VALIDATE DATA!!!
       switch (parsedMessage.message) {
-        case "start": {
+        case "startGame": {
           switch (parsedMessage.mode) {
             case "singleplayer": {
               switch (parsedMessage.modifier) {
@@ -111,9 +121,22 @@ uWS
               break;
             }
           }
+          break;
         }
+        // case "abortGame": {
+        //   input.emulateKeypress(socket.connectionID, "Escape");
+        //   break;
+        // }
+        // game input
         case "keypress": {
           input.processKeypress(socket.connectionID, parsedMessage.keypress);
+          break;
+        }
+        case "emulateKeypress": {
+          input.emulateKeypress(
+            socket.connectionID,
+            parsedMessage.emulatedKeypress
+          );
           break;
         }
       }
@@ -186,8 +209,9 @@ function update(deltaTime: number) {
 }
 
 function resetOneFrameVariables() {
-  for (let room of universal.rooms) {
-    if (!universal.rooms) {
+  let rooms = universal.rooms;
+  for (let room of rooms) {
+    if (!room) {
       continue;
     }
     for (let gameData of room?.gameData) {
@@ -215,6 +239,24 @@ function generateConnectionID(length: number): string {
     utilities.checkIfPropertyWithValueExists(
       universal.sockets,
       "connectionID",
+      current
+    )
+  ) {
+    for (let i = 0; i < length; i++) {
+      current += pool[Math.floor(Math.random() * pool.length)];
+    }
+  }
+  return current;
+}
+
+function generateGuestID(length: number) {
+  let pool = "0123456789";
+  let current = "";
+  while (
+    current === "" ||
+    utilities.checkIfPropertyWithValueExists(
+      universal.sockets,
+      "ownerGuestID",
       current
     )
   ) {
@@ -267,8 +309,7 @@ app.post("/authenticate", async (request: Request, response: Response) => {
     experiencePoints: userData.statistics.totalExperiencePoints,
     records: {
       easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
-      singleplayer:
-        userData.statistics.personalBestScoreOnStandardSingleplayerMode
+      standard: userData.statistics.personalBestScoreOnStandardSingleplayerMode
     },
     // TODO: Refactor this
     reason: "All checks passed."

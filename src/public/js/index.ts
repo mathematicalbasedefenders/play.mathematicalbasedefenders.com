@@ -9,6 +9,12 @@ import {
   redrawStage
 } from "./game";
 import { calculateLevel, millisecondsToTime } from "./utilities";
+import {
+  ModalNotification,
+  ToastNotification,
+  ToastNotificationPosition
+} from "./notifications";
+import { getSettings, loadSettings, setSettings } from "./settings";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -43,10 +49,16 @@ app.renderer.view.style.display = "block";
 const stage = app.stage;
 
 const variables: { [key: string]: any } = {
+  onScreenKeyboardActivated: false,
   cachedSingleplayerMode: null,
   beautifulScoreCounter: true,
   // below is for beautifulScoreCounter
-  scoreOnLastUpdate: 0
+  scoreOnLastUpdate: 0,
+  playing: false,
+  settings: {
+    multiplicationSign: "dot",
+    beautifulScore: false
+  }
 };
 
 type stageItemsContainer = {
@@ -148,6 +160,7 @@ function initializeEventListeners() {
     changeScreen("singleplayerMenu");
   });
   $("#main-menu-screen-button--settings").on("click", () => {
+    getSettings(localStorage.getItem("settings") || "{}");
     changeScreen("settingsMenu");
   });
   //
@@ -157,7 +170,7 @@ function initializeEventListeners() {
   $("#singleplayer-menu-screen-button--easy").on("click", () => {
     variables.cachedSingleplayerMode = "easy";
     sendSocketMessage({
-      message: "start",
+      message: "startGame",
       mode: "singleplayer",
       modifier: "easy"
     });
@@ -166,7 +179,7 @@ function initializeEventListeners() {
   $("#singleplayer-menu-screen-button--standard").on("click", () => {
     variables.cachedSingleplayerMode = "standard";
     sendSocketMessage({
-      message: "start",
+      message: "startGame",
       mode: "singleplayer",
       modifier: "standard"
     });
@@ -174,6 +187,7 @@ function initializeEventListeners() {
   });
   //
   $("#settings-screen__sidebar-item--back").on("click", () => {
+    setSettings();
     changeScreen("mainMenu");
   });
   $("#settings-screen__sidebar-item--online").on("click", () => {
@@ -185,6 +199,12 @@ function initializeEventListeners() {
   $("#settings-screen__sidebar-item--video").on("click", () => {
     changeSettingsSecondaryScreen("video");
   });
+  $("#settings__enemy-color__forced-color-picker").on("input", () => {
+    let value = $("#settings__enemy-color__forced-color-picker")
+      .val()
+      ?.toString();
+    $("#settings__enemy-color__forced-color").text(value || "#ff0000");
+  });
   //
   $("#settings-screen__content--online__submit").on("click", (event) => {
     $.ajax({
@@ -195,56 +215,19 @@ function initializeEventListeners() {
         password: $("#settings-screen__content--online__password").val(),
         socketID: $("#settings-screen__content--online__socket-id").val()
       },
+      // TODO: refactor
       success: (data) => {
         if (data.good) {
-          $("#settings-screen__content--online__rank").text(data.rank.title);
-          $("#settings-screen__content--online__rank").css(
-            "color",
-            data.rank.color
+          updateUserInformationText(data);
+          // toast notification
+          new ToastNotification(
+            `Successfully logged in as ${data.username}`,
+            ToastNotificationPosition.BOTTOM_RIGHT
           );
-          $("#settings-screen__content--online__authenticated-username").text(
-            data.username
-          );
-          //
-          $(".settings-screen__content--online--unauthenticated").hide(0);
-          $(".settings-screen__content--online--authenticated").show(0);
-          //
-          $("#user-account-stat--username").text(data.username);
-          $("#user-account-stat--rank").text(data.rank.title);
-          $("#user-account-stat--level").text(
-            `${calculateLevel(data.experiencePoints).level.toString()} (${
-              (calculateLevel(data.experiencePoints).progressToNext * 100)
-                .toFixed(3)
-                .toString() || 0
-            }% to next)`
-          );
-          $("#user-account-stat--easy-singleplayer-record").text(
-            isNaN(data.records.easy?.score) ? "N/A" : data.records.easy.score
-          );
-          $("#user-account-stat--standard-singleplayer-record").text(
-            isNaN(data.records.standard?.score)
-              ? "N/A"
-              : data.records.standard.score
-          );
-          $("#user-account-stat--level").attr(
-            "title",
-            `${data.experiencePoints}EXP`
-          );
-          $("#user-account-stat--easy-singleplayer-record").attr(
-            "title",
-            `${millisecondsToTime(data.records.easy.timeInMilliseconds)}, ${
-              data.records.easy.enemiesKilled
-            }/${data.records.easy.enemiesCreated}, ${
-              data.records.easy.scoreSubmissionDateAndTime
-            }`
-          );
-          $("#user-account-stat--standard-singleplayer-record").attr(
-            "title",
-            `${millisecondsToTime(data.records.standard.timeInMilliseconds)}, ${
-              data.records.standard.enemiesKilled
-            }/${data.records.standard.enemiesCreated}, ${
-              data.records.standard.scoreSubmissionDateAndTime
-            }`
+        } else {
+          new ToastNotification(
+            `Unable to log in as ${data.username} (${data.reason})`,
+            ToastNotificationPosition.BOTTOM_RIGHT
           );
         }
       }
@@ -254,7 +237,7 @@ function initializeEventListeners() {
   //
   $("#game-over-screen-button--retry").on("click", () => {
     sendSocketMessage({
-      message: "start",
+      message: "startGame",
       mode: "singleplayer",
       modifier: variables.cachedSingleplayerMode
     });
@@ -267,6 +250,71 @@ function initializeEventListeners() {
   $("#quick-menu__toggle-button").on("click", () => {
     $("#quick-menu__content-container").toggle(0);
   });
+  //
+  $("#quick-menu__content-button--quit").on("click", () => {
+    variables.playing = false;
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: "Escape"
+    });
+    changeScreen("mainMenu");
+  });
+  $("#quick-menu__content-button--settings").on("click", () => {
+    getSettings(localStorage.getItem("settings") || "{}");
+    changeScreen("settingsMenu");
+  });
+  $("#quick-menu__content-button--on-screen-keyboard").on("click", () => {
+    variables.onScreenKeyboardActivated = !variables.onScreenKeyboardActivated;
+    $("#on-screen-keyboard-container").toggle(0);
+  });
+  //
+  $("#on-screen-keyboard-button--decrease-size").on("click", () => {
+    let onScreenKeyboard = $("#on-screen-keyboard");
+    let top = onScreenKeyboard.position().top;
+    let height = onScreenKeyboard.height() as number;
+    console.debug(height);
+    if (height > 90) {
+      onScreenKeyboard.css({ "top": "+=10px" });
+      onScreenKeyboard.height(height - 10);
+    }
+  });
+  $("#on-screen-keyboard-button--increase-size").on("click", () => {
+    let onScreenKeyboard = $("#on-screen-keyboard");
+    let top = onScreenKeyboard.position().top;
+    let height = onScreenKeyboard.height() as number;
+    console.debug(height);
+    if (height < 240) {
+      onScreenKeyboard.css({ "top": "-=10px" });
+      onScreenKeyboard.height(height + 10);
+    }
+  });
+  //
+  for (let i = 0; i <= 9; i++) {
+    $(`#on-screen-keyboard__button-${i}`).on("click", () => {
+      sendSocketMessage({
+        message: "emulateKeypress",
+        emulatedKeypress: `Digit${i}`
+      });
+    });
+  }
+  $("#on-screen-keyboard__button-minus").on("click", () => {
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: `Minus`
+    });
+  });
+  $(`#on-screen-keyboard__button-send`).on("click", () => {
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: `Space`
+    });
+  });
+  $(`#on-screen-keyboard__button-delete`).on("click", () => {
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: `Backspace`
+    });
+  });
 }
 
 // events
@@ -275,9 +323,76 @@ initializeKeypressEventListener();
 // initial states
 $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
+$("#main-content__modal-notification-container").hide(0);
+$("#on-screen-keyboard-container").hide(0);
 redrawStage();
-let endInitTime: number = Date.now();
 
+function updateUserInformationText(data: any) {
+  // === SETTINGS SCREEN ===
+  $("#settings-screen__content--online__rank").text(data.rank.title);
+  $("#settings-screen__content--online__rank").css("color", data.rank.color);
+  $("#settings-screen__content--online__authenticated-username").text(
+    data.username
+  );
+  //
+  $(".settings-screen__content--online--unauthenticated").hide(0);
+  $(".settings-screen__content--online--authenticated").show(0);
+  //
+  $("#user-account-stat--username").text(data.username);
+  $("#user-account-stat--rank").text(data.rank.title);
+  $("#user-account-stat--level").text(
+    `${calculateLevel(data.experiencePoints).level.toString()} (${
+      (calculateLevel(data.experiencePoints).progressToNext * 100)
+        .toFixed(3)
+        .toString() || 0
+    }% to next)`
+  );
+  $("#user-account-stat--easy-singleplayer-record").text(
+    isNaN(data.records.easy?.score) ? "N/A" : data.records.easy.score
+  );
+  $("#user-account-stat--standard-singleplayer-record").text(
+    isNaN(data.records.standard?.score) ? "N/A" : data.records.standard.score
+  );
+  $("#user-account-stat--level").attr("title", `${data.experiencePoints}EXP`);
+  $("#user-account-stat--easy-singleplayer-record").attr(
+    "title",
+    `${millisecondsToTime(data.records.easy.timeInMilliseconds)}, ${
+      data.records.easy.enemiesKilled
+    }/${data.records.easy.enemiesCreated}, ${
+      data.records.easy.scoreSubmissionDateAndTime
+    }`
+  );
+  $("#user-account-stat--standard-singleplayer-record").attr(
+    "title",
+    `${millisecondsToTime(data.records.standard.timeInMilliseconds)}, ${
+      data.records.standard.enemiesKilled
+    }/${data.records.standard.enemiesCreated}, ${
+      data.records.standard.scoreSubmissionDateAndTime
+    }`
+  );
+  // ===
+  // === USER MENU ===
+  $("#main-content__user-menu-small-display__rank").text(data.rank.title);
+  $("#main-content__user-menu-small-display__rank").css(
+    "color",
+    data.rank.color
+  );
+  $("#main-content__user-menu-small-display__username").text(data.username);
+  $("#main-content__user-menu-small-display__level").text(
+    `Level ${calculateLevel(data.experiencePoints).level.toString()}`
+  );
+}
+
+function updateGuestInformationText(data: any) {
+  $("#main-content__user-menu-small-display__username").text(data.guestName);
+  $("#main-content__user-menu-small-display__level").text(`Level 0`);
+}
+
+changeScreen("mainMenu");
+loadSettings(localStorage.getItem("settings") || "{}");
+
+// ======
+let endInitTime: number = Date.now();
 console.log(
   `Initialization completed! (Took ${Math.round(
     endInitTime - startInitTime
@@ -293,5 +408,6 @@ export {
   ExtendedText,
   serifFont,
   mathFont,
-  variables
+  variables,
+  updateGuestInformationText
 };

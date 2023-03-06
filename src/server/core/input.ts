@@ -27,19 +27,38 @@ const NUMBER_PAD_KEYS = [
 ];
 const REMOVE_DIGIT_KEYS = ["NumpadAdd", "Backspace"];
 const SUBTRACTION_SIGN_KEYS = ["Minus", "NumpadSubtract"];
-
+const ABORT_KEYS = ["Escape"];
 enum InputAction {
   Unknown = 0,
-  AddDigit = 1,
-  RemoveDigit = 2,
-  SendAnswer = 3,
-  AddSubtractionSign = 4
+  AddDigit = "G1",
+  RemoveDigit = "G2",
+  SendAnswer = "G3",
+  AddSubtractionSign = "G4",
+  AbortGame = "M1"
 }
 interface InputActionInterface {
   action: InputAction;
   argument: string;
 }
 const SEND_KEYS = ["Space", "Enter"];
+
+function emulateKeypress(
+  connectionID: string | undefined,
+  code: string | undefined
+) {
+  log.info(`Keypress ${code} emulated on Socket ID ${connectionID}`);
+  if (typeof connectionID !== "string") {
+    log.warn(
+      "An emulated keypress event that isn't associated with any socket connectionID has been fired."
+    );
+    return;
+  }
+  if (typeof code !== "string") {
+    log.warn("An emulated keypress event that isn't a string has been fired.");
+    return;
+  }
+  processKeypress(connectionID, code);
+}
 
 function processKeypress(
   connectionID: string | undefined,
@@ -101,6 +120,10 @@ function processInputInformation(
       }
       break;
     }
+    case InputAction.AbortGame: {
+      gameDataToProcess.aborted = true;
+      break;
+    }
   }
 }
 
@@ -136,10 +159,22 @@ function getInputInformation(code: string) {
       argument: "" // TODO: Optionally put in current game data's current Input
     };
   }
+  if (ABORT_KEYS.indexOf(code) > -1) {
+    return {
+      action: InputAction.AbortGame,
+      argument: ""
+    };
+  }
   return {
     action: InputAction.Unknown,
     argument: "" // no need
   };
 }
 
-export { processKeypress, getInputInformation, processInputInformation };
+export {
+  processKeypress,
+  getInputInformation,
+  processInputInformation,
+  emulateKeypress,
+  InputAction
+};

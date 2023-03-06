@@ -5,16 +5,9 @@ import * as _ from "lodash";
 import { log } from "../core/log";
 import * as input from "../core/input";
 import { submitSingleplayerGame } from "../services/score";
+import { InputAction } from "../core/input";
 
 const STANDARD_ENEMY_CHANCE: number = 0.25;
-
-enum InputAction {
-  Unknown = 0,
-  AddDigit = 1,
-  RemoveDigit = 2,
-  SendAnswer = 3,
-  AddSubtractionSign = 4
-}
 
 enum GameMode {
   EasySingleplayer = "easySingleplayer",
@@ -50,6 +43,7 @@ class GameData {
   commands!: { [key: string]: any };
   mode: string;
   enemySpawnThreshold!: number;
+  aborted: boolean;
   // ...
   constructor(owner: string, mode: GameMode) {
     this.mode = mode;
@@ -64,6 +58,7 @@ class GameData {
     this.elapsedTime = 0;
     this.combo = -1;
     this.commands = {};
+    this.aborted = false;
     if (mode === GameMode.EasySingleplayer) {
       this.clocks = {
         enemySpawn: {
@@ -203,10 +198,11 @@ class Room {
     log.info(`Room ${this.id} has started play!`);
   }
 
-  startGameOverProcess(data: GameData) {
+  async startGameOverProcess(data: GameData) {
     let socket = universal.getSocketFromConnectionID(data.owner);
-
+    let messages = "";
     // game over here
+
     let gameMode: string = "";
     switch (data.mode) {
       case GameMode.EasySingleplayer: {
@@ -237,6 +233,10 @@ class Room {
       {
         selector: "#main-content__game-over-screen__stats__time",
         newText: utilities.millisecondsToTime(data.elapsedTime)
+      },
+      {
+        selector: "#main-content__game-over-screen__stats__score-rank",
+        newText: messages
       }
     ];
     data.commands.changeScreenTo = "gameOver";
@@ -296,6 +296,20 @@ class SingleplayerRoom extends Room {
   update(): void {
     // Update for all types of rooms
     super.update();
+    let data = this.gameData[0];
+    if (data.aborted) {
+      this.abort(data);
+    }
+  }
+
+  abort(data: GameData) {
+    let socket = universal.getSocketFromConnectionID(data.owner);
+    data.commands.changeScreenTo = "mainMenu";
+    this.playing = false;
+    if (socket) {
+      socket?.unsubscribe(this.id);
+      this.deleteMember(socket?.connectionID as string);
+    }
   }
 }
 
