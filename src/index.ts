@@ -58,6 +58,7 @@ uWS
     open: (socket: universal.GameSocket, request?: unknown) => {
       log.info("Socket connected!");
       socket.connectionID = generateConnectionID(16);
+      socket.ownerGuestName = `Guest ${generateGuestID(8)}`;
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
@@ -66,6 +67,14 @@ uWS
           message: "changeValueOfInput",
           selector: "#settings-screen__content--online__socket-id",
           value: socket.connectionID
+        })
+      );
+      socket.send(
+        JSON.stringify({
+          message: "updateGuestInformationText",
+          data: {
+            guestName: socket.ownerGuestName
+          }
         })
       );
     },
@@ -230,6 +239,24 @@ function generateConnectionID(length: number): string {
     utilities.checkIfPropertyWithValueExists(
       universal.sockets,
       "connectionID",
+      current
+    )
+  ) {
+    for (let i = 0; i < length; i++) {
+      current += pool[Math.floor(Math.random() * pool.length)];
+    }
+  }
+  return current;
+}
+
+function generateGuestID(length: number) {
+  let pool = "0123456789";
+  let current = "";
+  while (
+    current === "" ||
+    utilities.checkIfPropertyWithValueExists(
+      universal.sockets,
+      "ownerGuestID",
       current
     )
   ) {

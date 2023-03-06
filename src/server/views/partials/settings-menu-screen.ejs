@@ -1,15 +1,11 @@
 <div id="main-content__settings-screen-container">
   <div id="main-content__settings-screen">
     <div id="settings-screen__sidebar">
-      <button class="settings-screen__sidebar-item" title="Go back to the main menu."
-        id="settings-screen__sidebar-item--back">Back</button>
+      <button class="settings-screen__sidebar-item" title="Go back to the main menu." id="settings-screen__sidebar-item--back">Back</button>
       <br>
-      <button class="settings-screen__sidebar-item" title="Change how you represent yourself in the game."
-        id="settings-screen__sidebar-item--online">Online</button>
-      <button class="settings-screen__sidebar-item" title="Change how the game looks."
-        id="settings-screen__sidebar-item--video">Video</button>
-      <button class="settings-screen__sidebar-item" title="Change how the game sounds."
-        id="settings-screen__sidebar-item--audio">Audio</button>
+      <button class="settings-screen__sidebar-item" title="Change how you represent yourself in the game." id="settings-screen__sidebar-item--online">Online</button>
+      <button class="settings-screen__sidebar-item" title="Change how the game looks." id="settings-screen__sidebar-item--video">Video</button>
+      <button class="settings-screen__sidebar-item" title="Change how the game sounds." id="settings-screen__sidebar-item--audio">Audio</button>
 
     </div>
     <div id="settings-screen__content">
@@ -18,28 +14,18 @@
           <legend>Account</legend>
           <div class="settings-screen__content--online--unauthenticated">
             <form onsubmit="false">
-              <label style="margin:4px 0" for="settings-screen__content--online__username"
-                title="Put the username for your account here.">Username:</label> <input style="margin:4px 0"
-                class="settings-screen__content-input--text" name="settings-screen__content--online__username"
-                id="settings-screen__content--online__username" type="text">
+              <label style="margin:4px 0" for="settings-screen__content--online__username" title="Put the username for your account here.">Username:</label> <input style="margin:4px 0" class="settings-screen__content-input--text" name="settings-screen__content--online__username" id="settings-screen__content--online__username" type="text">
               <br>
-              <label style="margin:4px 0" for="settings-screen__content--online__password"
-                title="Put the password for your account here.">Password:</label> <input style="margin:4px 0"
-                class="settings-screen__content-input--text" name="settings-screen__content--online__password"
-                id="settings-screen__content--online__password" type="password">
+              <label style="margin:4px 0" for="settings-screen__content--online__password" title="Put the password for your account here.">Password:</label> <input style="margin:4px 0" class="settings-screen__content-input--text" name="settings-screen__content--online__password" id="settings-screen__content--online__password" type="password">
               <br>
-              <input name="settings-screen__content--online__socket-id" id="settings-screen__content--online__socket-id"
-                type="hidden">
+              <input name="settings-screen__content--online__socket-id" id="settings-screen__content--online__socket-id" type="hidden">
               <br>
-              <div style="width:100%;text-align:right;"><button style="padding:0px 32px;"
-                  id="settings-screen__content--online__submit"
-                  class="settings-screen__content-input--button">Login</button></div>
+              <div style="width:100%;text-align:right;"><button style="padding:0px 32px;" id="settings-screen__content--online__submit" class="settings-screen__content-input--button">Login</button></div>
             </form>
           </div>
           <div class="settings-screen__content--online--authenticated">
             <div style="text-align:center;display:flex;align-items: center;">
-              Logged in as&nbsp;<span id="settings-screen__content--online__rank"></span>&nbsp;<span
-                id="settings-screen__content--online__authenticated-username"></span>
+              Logged in as&nbsp;<span id="settings-screen__content--online__rank"></span>&nbsp;<span id="settings-screen__content--online__authenticated-username"></span>
             </div>
           </div>
         </fieldset>
@@ -70,7 +56,7 @@
                     Easy S. Player PB: <span id="user-account-stat--easy-singleplayer-record"></span>
                   </div>
                   <div class="settings-screen__content--account-stat-entry">
-                    Standard S. Player PB: <span id="user-account-stat--singleplayer-singleplayer-record"></span>
+                    Standard S. Player PB: <span id="user-account-stat--standard-singleplayer-record"></span>
                   </div>
                 </div>
               </div>
