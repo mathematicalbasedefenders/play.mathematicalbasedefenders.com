@@ -7,6 +7,14 @@ const socket: WebSocket = new WebSocket(
 );
 socket.addEventListener("message", (event: any) => {
   let message: any = JSON.parse(event.data);
+  if (
+    event.origin !== "wss://play.mathematicalbasedefenders.com:5000" &&
+    event.origin !== "wss://play.mathematicalbasedefenders.com" &&
+    event.origin !== "ws://localhost:5000"
+  ) {
+    console.error(`Unknown socket message origin: ${event.origin}`);
+    return;
+  }
   switch (message.message) {
     case "renderGameData": {
       renderGameData(JSON.parse(message.data));
