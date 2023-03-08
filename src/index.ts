@@ -19,6 +19,7 @@ import { authenticate } from "./server/authentication/authenticate";
 import { User } from "./server/models/User";
 import { getScoresOfAllPlayers } from "./server/services/leaderboards";
 import { crossOriginEmbedderPolicy } from "helmet";
+const favicon = require("serve-favicon");
 const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -58,6 +59,7 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
+app.use(favicon(path.join(__dirname, "/public/assets/images/favicon.ico")));
 app.use(express.static(path.join(__dirname, "/public/")));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.set("view engine", "ejs");
