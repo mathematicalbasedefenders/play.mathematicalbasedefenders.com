@@ -600,3 +600,22 @@ body {
 #main-content__user-menu-small-display {
   width: 200px;
 }
+
+/* VERSION NUMBER */
+#version-number-container {
+  z-index: 101;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  background-color: #00000000;
+  color: #ffffff;
+  left: 0;
+  top: 0;
+}
+
+#version-number {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
