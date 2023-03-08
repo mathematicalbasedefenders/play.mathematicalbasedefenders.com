@@ -2,7 +2,9 @@ import { updateGuestInformationText, variables } from "./index";
 import { renderGameData } from "./game";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
-    false ? "" : ":5000"
+    window.origin === "https://play.mathematicalbasedefenders.com"
+      ? ""
+      : ":5000"
   }`
 );
 socket.addEventListener("message", (event: any) => {
