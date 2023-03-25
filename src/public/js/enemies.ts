@@ -6,13 +6,14 @@ const ENEMY_FONT_SIZE = 24;
 const DEFAULT_ENEMY_WIDTH = 125;
 const DEFAULT_ENEMY_HEIGHT = 125;
 // file handles all enemy-related stuff
-let enemiesCurrentlyDrawn: Array<string> = [];
-let enemyCache: Array<Enemy> = [];
+
 const ENEMY_TEXT_STYLE = new PIXI.TextStyle({
   fontSize: ENEMY_FONT_SIZE,
   fontFamily: "Computer Modern Unicode Serif"
 });
 class Enemy {
+  static enemiesCurrentlyDrawn: Array<string> = [];
+  static enemyCache: Array<Enemy> = [];
   sprite!: PIXI.Sprite;
   displayedText!: PIXI.Text;
   sPosition!: number;
@@ -51,8 +52,8 @@ class Enemy {
     // metadata
     this.id = id;
     // functions
-    enemiesCurrentlyDrawn.push(id);
-    enemyCache.push(this);
+    Enemy.enemiesCurrentlyDrawn.push(id);
+    Enemy.enemyCache.push(this);
   }
   render() {
     app.stage.addChild(this.sprite);
@@ -75,7 +76,7 @@ class Enemy {
   }
 }
 function getEnemyFromCache(id: string) {
-  return enemyCache.find((enemy) => enemy.id === id);
+  return Enemy.enemyCache.find((enemy) => enemy.id === id);
 }
 function calculateOptimalFontSize(
   decrement: number,
@@ -96,7 +97,7 @@ function calculateOptimalFontSize(
 }
 function renderNewEnemy(id: string, text: string) {
   let enemy = new Enemy(1, text, id, ENEMY_SIZE, ENEMY_SIZE);
-  enemyCache.push(enemy);
+  Enemy.enemyCache.push(enemy);
   getEnemyFromCache(id)?.render();
 }
 function repositionExistingEnemy(id: string, sPosition: number) {
@@ -113,16 +114,16 @@ function deleteEnemy(id: string) {
     app.stage.removeChild(text);
   }
   if (enemy) {
-    enemyCache.splice(enemyCache.indexOf(enemy), 1);
+    Enemy.enemyCache.splice(Enemy.enemyCache.indexOf(enemy), 1);
   }
 }
 function deleteAllEnemies() {
-  for (let enemy of enemyCache) {
+  for (let enemy of Enemy.enemyCache) {
     deleteEnemy(enemy.id);
   }
 }
 function rerenderEnemy(id: string, sPosition: number, displayedText?: string) {
-  if (enemiesCurrentlyDrawn.indexOf(id) > -1) {
+  if (Enemy.enemiesCurrentlyDrawn.indexOf(id) > -1) {
     // enemy already drawn
     repositionExistingEnemy(id, sPosition);
   } else {
@@ -158,11 +159,4 @@ function getEnemyColor() {
   }
   return parseInt(value.substring(1), 16);
 }
-export {
-  Enemy,
-  rerenderEnemy,
-  enemiesCurrentlyDrawn,
-  enemyCache,
-  deleteEnemy,
-  deleteAllEnemies
-};
+export { Enemy, rerenderEnemy, deleteEnemy, deleteAllEnemies };
