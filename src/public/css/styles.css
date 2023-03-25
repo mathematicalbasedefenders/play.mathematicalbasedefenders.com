@@ -13,6 +13,7 @@ body {
   overflow-x: hidden;
   overflow-y: hidden;
   font-family: "Computer Modern Unicode Serif";
+  font-variant-ligatures: none;
 }
 
 :root {
@@ -317,6 +318,7 @@ body {
   border-left: 1px solid #ffffff;
   font-family: "Computer Modern Unicode Serif";
   transition-duration: var(--transition-duration-short);
+  border-top: none;
 }
 
 .settings-screen__sidebar-item:hover {
@@ -598,7 +600,7 @@ body {
 }
 
 #main-content__user-menu-small-display {
-  width: 200px;
+  width: 320px;
 }
 
 /* VERSION NUMBER */

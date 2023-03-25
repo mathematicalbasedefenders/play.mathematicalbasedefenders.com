@@ -17,6 +17,8 @@ socket.addEventListener("message", (event: any) => {
     console.error(`Unknown socket message origin: ${event.origin}`);
     return;
   }
+  // update origin
+  $("#current-domain").text(window.location.origin);
   switch (message.message) {
     case "renderGameData": {
       renderGameData(JSON.parse(message.data));
