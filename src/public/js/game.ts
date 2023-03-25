@@ -117,6 +117,7 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
 
   $("#main-content__main-menu-screen-container").hide(0);
   $("#main-content__singleplayer-menu-screen-container").hide(0);
+  $("#main-content__multiplayer-menu-screen-container").hide(0);
   $("#main-content__game-over-screen-container").hide(0);
   $("#main-content__settings-screen-container").hide(0);
   $("#canvas-container").hide(0);
@@ -132,6 +133,10 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
     }
     case "singleplayerMenu": {
       $("#main-content__singleplayer-menu-screen-container").show(0);
+      break;
+    }
+    case "multiplayerMenu": {
+      $("#main-content__multiplayer-menu-screen-container").show(0);
       break;
     }
     case "settingsMenu": {

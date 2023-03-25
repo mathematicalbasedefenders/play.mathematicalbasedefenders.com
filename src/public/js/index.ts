@@ -159,6 +159,9 @@ function initializeEventListeners() {
   $("#main-menu-screen-button--singleplayer").on("click", () => {
     changeScreen("singleplayerMenu");
   });
+  $("#main-menu-screen-button--multiplayer").on("click", () => {
+    changeScreen("multiplayerMenu");
+  });
   $("#main-menu-screen-button--settings").on("click", () => {
     getSettings(localStorage.getItem("settings") || "{}");
     changeScreen("settingsMenu");
@@ -184,6 +187,10 @@ function initializeEventListeners() {
       modifier: "standard"
     });
     changeScreen("canvas", true);
+  });
+  //
+  $("#multiplayer-menu-screen-button--back").on("click", () => {
+    changeScreen("mainMenu");
   });
   //
   $("#settings-screen__sidebar-item--back").on("click", () => {
