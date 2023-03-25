@@ -233,12 +233,18 @@ function update(deltaTime: number) {
   resetOneFrameVariables();
 
   for (let roomToDelete in roomsToDelete) {
-    log.info(`Deleting room ${universal.rooms[roomToDelete].id}`);
-    universal.rooms.splice(
-      universal.rooms.indexOf(universal.rooms[roomToDelete]),
-      1
-    );
-    delete universal.rooms[roomToDelete];
+    try {
+      log.info(`Deleting room ${universal.rooms[roomToDelete].id}`);
+      universal.rooms.splice(
+        universal.rooms.indexOf(universal.rooms[roomToDelete]),
+        1
+      );
+      delete universal.rooms[roomToDelete];
+    } catch (error) {
+      log.warn(
+        `The server tried to delete a room, but the room was of type undefined or null.`
+      );
+    }
   }
 }
 
