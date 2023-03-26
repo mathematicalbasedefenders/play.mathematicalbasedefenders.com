@@ -7,7 +7,9 @@ import * as input from "../core/input";
 import { submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
 
-const STANDARD_ENEMY_CHANCE: number = 0.25;
+const NO_HOST_ID = "(no host)";
+// TODO: Change design
+let defaultMultiplayerRoomID: string | null = null;
 
 enum GameMode {
   EasySingleplayer = "easySingleplayer",
@@ -117,12 +119,33 @@ class Room {
   gameData: Array<GameData> = [];
   lastUpdateTime: number;
   mode!: GameMode;
-  constructor(hostConnectionID: string, gameMode: GameMode) {
+  constructor(hostConnectionID: string, gameMode: GameMode, noHost?: boolean) {
     this.mode = gameMode;
     this.id = generateRoomID(8);
-    this.hostConnectionID = hostConnectionID;
+    if (noHost) {
+      // should only be used for default multiplayer
+      this.hostConnectionID = NO_HOST_ID;
+    } else {
+      this.hostConnectionID = hostConnectionID;
+    }
+
     this.addMember(hostConnectionID);
     this.lastUpdateTime = Date.now();
+
+    // special for default multiplayer
+    // check if default multiplayer room already exists
+    if (gameMode === GameMode.DefaultMultiplayer && defaultMultiplayerRoomID) {
+      log.warn(`There may only be one Default Multiplayer room at at time.`);
+      log.warn(
+        `A Default Multiplayer room with ID ${defaultMultiplayerRoomID} already exists.`
+      );
+      this.destroy();
+      return;
+    } else if (gameMode === GameMode.DefaultMultiplayer) {
+      defaultMultiplayerRoomID = this.id;
+    }
+
+    log.info(`Created ${gameMode} room with ID ${this.id}`);
   }
 
   update() {
@@ -258,6 +281,9 @@ class Room {
       this.spectatorConnectionIDs.indexOf(connectionID) === -1
     ) {
       this.memberConnectionIDs.push(connectionID);
+      log.info(
+        `Added socket with connection ID ${connectionID} as a member to room ${this.id}`
+      );
     }
   }
 
@@ -267,6 +293,9 @@ class Room {
       this.memberConnectionIDs.indexOf(connectionID) === -1
     ) {
       this.spectatorConnectionIDs.push(connectionID);
+      log.info(
+        `Added socket with connection ID ${connectionID} as a spectator to room ${this.id}`
+      );
     }
   }
 
@@ -275,6 +304,9 @@ class Room {
       this.memberConnectionIDs.splice(
         this.memberConnectionIDs.indexOf(connectionID),
         1
+      );
+      log.info(
+        `Deleted socket with connection ID ${connectionID} (member) from room ${this.id}`
       );
     }
   }
@@ -285,6 +317,21 @@ class Room {
         this.spectatorConnectionIDs.indexOf(connectionID),
         1
       );
+      log.info(
+        `Deleted socket with connection ID ${connectionID} (spectator) from room ${this.id}`
+      );
+    }
+  }
+
+  // delete all players, then destroy room
+  destroy() {
+    let members = _.clone(this.memberConnectionIDs);
+    let spectators = _.clone(this.spectatorConnectionIDs);
+    for (let spectator of spectators) {
+      this.deleteMember(spectator);
+    }
+    for (let member of members) {
+      this.deleteMember(member);
     }
   }
 }
@@ -296,6 +343,7 @@ class SingleplayerRoom extends Room {
   update(): void {
     // Update for all types of rooms
     super.update();
+    // Then update for all singleplayer rooms
     let data = this.gameData[0];
     if (data.aborted) {
       this.abort(data);
@@ -310,6 +358,18 @@ class SingleplayerRoom extends Room {
       socket?.unsubscribe(this.id);
       this.deleteMember(socket?.connectionID as string);
     }
+  }
+}
+
+class MultiplayerRoom extends Room {
+  constructor(hostConnectionID: string, mode: GameMode, noHost: boolean) {
+    super(hostConnectionID, mode, noHost);
+  }
+
+  update(): void {
+    // Update for all types of rooms
+    super.update();
+    // Then update specifically for multiplayer rooms
   }
 }
 
@@ -367,9 +427,11 @@ function processKeypressForRoom(connectionID: string, code: string) {
 }
 export {
   SingleplayerRoom,
+  MultiplayerRoom,
   Room,
   GameData,
   SingleplayerGameData,
   processKeypressForRoom,
-  GameMode
+  GameMode,
+  defaultMultiplayerRoomID
 };

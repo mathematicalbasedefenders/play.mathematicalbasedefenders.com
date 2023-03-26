@@ -12,7 +12,12 @@ import * as startAction from "./server/game/actions/start";
 import * as universal from "./server/universal";
 import * as utilities from "./server/core/utilities";
 import * as input from "./server/core/input";
-import { GameMode, SingleplayerRoom } from "./server/game/Room";
+import {
+  defaultMultiplayerRoomID,
+  GameMode,
+  SingleplayerRoom,
+  MultiplayerRoom
+} from "./server/game/Room";
 
 import _ from "lodash";
 import { authenticate } from "./server/authentication/authenticate";
@@ -161,6 +166,17 @@ uWS
         //   input.emulateKeypress(socket.connectionID, "Escape");
         //   break;
         // }
+        case "joinMultiplayerRoom": {
+          switch (parsedMessage.room) {
+            case "default": {
+              joinMultiplayerRoom(socket, "default");
+              break;
+            }
+            default: {
+              log.warn(`Unknown multiplayer room: ${parsedMessage.room}`);
+            }
+          }
+        }
         // game input
         case "keypress": {
           input.processKeypress(socket.connectionID, parsedMessage.keypress);
@@ -263,6 +279,31 @@ function createNewSingleplayerRoom(
   room.start();
   socket.subscribe(room.id);
   universal.rooms.push(room);
+}
+
+function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
+  // or create one if said one doesn't exist
+  if (roomID === "default") {
+    let room;
+    if (
+      !defaultMultiplayerRoomID ||
+      typeof defaultMultiplayerRoomID !== "string"
+    ) {
+      room = new MultiplayerRoom(
+        socket.connectionID as string,
+        GameMode.DefaultMultiplayer,
+        true
+      );
+      universal.rooms.push(room);
+    } else {
+      room = universal.rooms.find(
+        (room) => room.id === defaultMultiplayerRoomID
+      );
+      room?.addMember(socket.connectionID as string);
+    }
+    // FIXME: may cause problems later
+    socket.subscribe(defaultMultiplayerRoomID as string);
+  }
 }
 
 function generateConnectionID(length: number): string {

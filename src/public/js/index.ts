@@ -190,6 +190,10 @@ function initializeEventListeners() {
   });
   //
   $("#multiplayer-menu-screen-button--default").on("click", () => {
+    sendSocketMessage({
+      message: "joinMultiplayerRoom",
+      room: "default"
+    });
     changeScreen("multiplayerIntermission");
   });
   $("#multiplayer-menu-screen-button--back").on("click", () => {
