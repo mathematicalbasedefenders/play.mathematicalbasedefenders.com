@@ -12,7 +12,7 @@ import * as startAction from "./server/game/actions/start";
 import * as universal from "./server/universal";
 import * as utilities from "./server/core/utilities";
 import * as input from "./server/core/input";
-import { GameMode, SingleplayerRoom } from "./server/game/Room";
+import { GameMode, Room, SingleplayerRoom } from "./server/game/Room";
 
 import _ from "lodash";
 import { authenticate } from "./server/authentication/authenticate";
@@ -222,30 +222,36 @@ function update(deltaTime: number) {
   }
 
   // delete rooms with zero players
-  let roomsToDelete = _.filter(
-    universal.rooms,
-    (element) =>
+  // additionally, delete rooms which are empty JSON objects.
+  // let roomsToDelete = _.filter(
+  //   universal.rooms,
+  //   (element) =>
+  //     !(
+  //       element?.memberConnectionIDs.length +
+  //         element?.spectatorConnectionIDs.length <=
+  //         0 ||
+  //       typeof element === "undefined" ||
+  //       Object.keys(element).length === 0
+  //     )
+  // );
+  let livingRoomCondition = (element: Room) =>
+    !(
       element?.memberConnectionIDs.length +
         element?.spectatorConnectionIDs.length <=
-      0
-  );
-
+        0 ||
+      typeof element === "undefined" ||
+      Object.keys(element).length === 0
+    );
+  utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
   resetOneFrameVariables();
 
-  for (let roomToDelete in roomsToDelete) {
-    try {
-      log.info(`Deleting room ${universal.rooms[roomToDelete].id}`);
-      universal.rooms.splice(
-        universal.rooms.indexOf(universal.rooms[roomToDelete]),
-        1
-      );
-      delete universal.rooms[roomToDelete];
-    } catch (error) {
-      log.warn(
-        `The server tried to delete a room, but the room was of type undefined or null.`
-      );
-    }
-  }
+  // // delete rooms
+  // for (let roomToDelete in roomsToDelete) {
+  //   log.info(`Deleting room ${universal.rooms[roomToDelete]?.id}`);
+  //   delete universal.rooms[roomToDelete];
+  // }
+
+  console.log(universal.rooms);
 }
 
 function resetOneFrameVariables() {
