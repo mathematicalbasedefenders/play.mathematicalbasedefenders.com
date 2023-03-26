@@ -8,7 +8,7 @@
 
 **2022-09-23: Mathematical Base Defenders is now open source\*!**
 
-This is the source code for the `play` subdomain for Mathematical Base Defenders.
+This is the source code for the `play` subdomain for the official version of Mathematical Base Defenders.
 
 ### Usage on Other Servers
 
