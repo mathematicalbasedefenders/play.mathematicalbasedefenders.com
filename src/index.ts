@@ -250,8 +250,6 @@ function update(deltaTime: number) {
   //   log.info(`Deleting room ${universal.rooms[roomToDelete]?.id}`);
   //   delete universal.rooms[roomToDelete];
   // }
-
-  console.log(universal.rooms);
 }
 
 function resetOneFrameVariables() {
