@@ -189,6 +189,9 @@ function initializeEventListeners() {
     changeScreen("canvas", true);
   });
   //
+  $("#multiplayer-menu-screen-button--default").on("click", () => {
+    changeScreen("multiplayerIntermission");
+  });
   $("#multiplayer-menu-screen-button--back").on("click", () => {
     changeScreen("mainMenu");
   });
