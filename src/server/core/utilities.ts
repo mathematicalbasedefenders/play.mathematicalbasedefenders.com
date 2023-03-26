@@ -112,10 +112,17 @@ function getRank(data: UserInterface | string) {
   }
 }
 
+// adapted from https://stackoverflow.com/a/56294043/11855065
+function mutatedArrayFilter(array: Array<unknown>, callback: Function) {
+  for (let i = array.length - 1; i >= 0; i -= 1) {
+    if (!callback(array[i])) array.splice(i, 1);
+  }
+}
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
   findGameDataWithConnectionID,
   millisecondsToTime,
-  getRank
+  getRank,
+  mutatedArrayFilter
 };
