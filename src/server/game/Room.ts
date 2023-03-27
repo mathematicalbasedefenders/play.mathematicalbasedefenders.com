@@ -362,14 +362,61 @@ class SingleplayerRoom extends Room {
 }
 
 class MultiplayerRoom extends Room {
+  nextGameStartTime!: Date | null;
   constructor(hostConnectionID: string, mode: GameMode, noHost: boolean) {
     super(hostConnectionID, mode, noHost);
+    this.nextGameStartTime = null;
   }
 
   update(): void {
     // Update for all types of rooms
     super.update();
+
     // Then update specifically for multiplayer rooms
+
+    if (!this.playing) {
+      // Check if there is at least 2 players - if so, start intermission countdown
+      if (
+        this.nextGameStartTime == null &&
+        this.memberConnectionIDs.length >= 2
+      ) {
+        this.nextGameStartTime = new Date(Date.now() + 1000 * 30);
+      }
+      // Check if there is less than 2 players - if so, stop intermission countdown
+      if (
+        this.nextGameStartTime instanceof Date &&
+        this.memberConnectionIDs.length < 2
+      ) {
+        this.nextGameStartTime = null;
+      }
+      // Start game
+      if (this.nextGameStartTime != null) {
+        if (new Date() >= this.nextGameStartTime) {
+          this.start();
+        }
+      }
+      // Update Text
+      for (let connectionID of this.memberConnectionIDs) {
+        let socket = universal.getSocketFromConnectionID(connectionID);
+        if (socket) {
+          if (this.nextGameStartTime) {
+            let timeLeft = Math.abs(
+              Date.now() - this.nextGameStartTime?.getTime()
+            );
+            socket.send(
+              JSON.stringify({
+                message: "changeText",
+                selector:
+                  "#main-content__multiplayer-intermission-screen-container__game-status-message",
+                value: `Next game starting in ${(timeLeft / 1000).toFixed(
+                  3
+                )} seconds.`
+              })
+            );
+          }
+        }
+      }
+    }
   }
 }
 
