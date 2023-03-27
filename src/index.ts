@@ -16,7 +16,8 @@ import {
   defaultMultiplayerRoomID,
   GameMode,
   SingleplayerRoom,
-  MultiplayerRoom
+  MultiplayerRoom,
+  Room
 } from "./server/game/Room";
 
 import _ from "lodash";
@@ -238,24 +239,34 @@ function update(deltaTime: number) {
   }
 
   // delete rooms with zero players
-  let roomsToDelete = _.filter(
-    universal.rooms,
-    (element) =>
+  // additionally, delete rooms which are empty JSON objects.
+  // let roomsToDelete = _.filter(
+  //   universal.rooms,
+  //   (element) =>
+  //     !(
+  //       element?.memberConnectionIDs.length +
+  //         element?.spectatorConnectionIDs.length <=
+  //         0 ||
+  //       typeof element === "undefined" ||
+  //       Object.keys(element).length === 0
+  //     )
+  // );
+  let livingRoomCondition = (element: Room) =>
+    !(
       element?.memberConnectionIDs.length +
         element?.spectatorConnectionIDs.length <=
-      0
-  );
-
+        0 ||
+      typeof element === "undefined" ||
+      Object.keys(element).length === 0
+    );
+  utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
   resetOneFrameVariables();
 
-  for (let roomToDelete in roomsToDelete) {
-    log.info(`Deleting room ${universal.rooms[roomToDelete].id}`);
-    universal.rooms.splice(
-      universal.rooms.indexOf(universal.rooms[roomToDelete]),
-      1
-    );
-    delete universal.rooms[roomToDelete];
-  }
+  // // delete rooms
+  // for (let roomToDelete in roomsToDelete) {
+  //   log.info(`Deleting room ${universal.rooms[roomToDelete]?.id}`);
+  //   delete universal.rooms[roomToDelete];
+  // }
 }
 
 function resetOneFrameVariables() {

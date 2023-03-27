@@ -13,6 +13,16 @@ let sockets: Array<GameSocket> = [];
 let rooms: Array<Room> = [];
 
 function deleteSocket(socketToClose: GameSocket) {
+  // update room that socket is in
+  if (typeof socketToClose.connectionID === "string") {
+    let roomThatSocketWasIn: any = rooms.find(
+      (room) =>
+        room.memberConnectionIDs.indexOf(socketToClose.connectionID as string) >
+        -1
+    );
+    roomThatSocketWasIn?.deleteMember(socketToClose.connectionID);
+  }
+  // delete the socket
   let socketToDeleteIndex: number = sockets.indexOf(socketToClose);
   sockets.splice(socketToDeleteIndex, 1);
 }
