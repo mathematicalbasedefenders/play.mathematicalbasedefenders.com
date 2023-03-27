@@ -109,6 +109,25 @@ class SingleplayerGameData extends GameData {
   }
 }
 
+class MultiplayerGameData extends GameData {
+  // nothing here yet...
+
+  constructor(owner: string, gameMode: GameMode) {
+    if (
+      !(
+        gameMode === GameMode.DefaultMultiplayer ||
+        gameMode === GameMode.CustomMultiplayer
+      )
+    ) {
+      log.error(
+        "Non-multiplayer game mode passed as argument in a multiplayer room."
+      );
+      return;
+    }
+    super(owner, gameMode);
+  }
+}
+
 class Room {
   id: string;
   hostConnectionID: string;
@@ -215,6 +234,13 @@ class Room {
     ) {
       for (let member of this.memberConnectionIDs) {
         this.gameData.push(new SingleplayerGameData(member, this.mode));
+      }
+    } else if (
+      this.mode === GameMode.DefaultMultiplayer ||
+      this.mode === GameMode.CustomMultiplayer
+    ) {
+      for (let member of this.memberConnectionIDs) {
+        this.gameData.push(new MultiplayerGameData(member, this.mode));
       }
     }
     this.playing = true;
@@ -390,9 +416,21 @@ class MultiplayerRoom extends Room {
         this.nextGameStartTime = null;
       }
       // Start game
+      // TODO: Refactor this
       if (this.nextGameStartTime != null) {
         if (new Date() >= this.nextGameStartTime) {
           this.start();
+          for (let connectionID of this.memberConnectionIDs) {
+            let socket = universal.getSocketFromConnectionID(connectionID);
+            if (socket) {
+              socket.send(
+                JSON.stringify({
+                  message: "changeScreen",
+                  newScreen: "canvas"
+                })
+              );
+            }
+          }
         }
       }
       // Update Text
@@ -416,6 +454,7 @@ class MultiplayerRoom extends Room {
           }
         }
       }
+    } else {
     }
   }
 }

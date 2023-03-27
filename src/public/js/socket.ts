@@ -1,5 +1,5 @@
 import { updateGuestInformationText, variables } from "./index";
-import { renderGameData } from "./game";
+import { changeScreen, renderGameData } from "./game";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
     window.location.origin === "https://play.mathematicalbasedefenders.com"
@@ -37,6 +37,10 @@ socket.addEventListener("message", (event: any) => {
     }
     case "changeCSS": {
       $(message.selector).css(message.key, message.value);
+      break;
+    }
+    case "changeScreen": {
+      changeScreen(message.newScreen, true);
       break;
     }
   }
