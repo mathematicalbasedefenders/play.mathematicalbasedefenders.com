@@ -144,11 +144,11 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
       break;
     }
     case "multiplayerIntermission": {
-      $("#main-content__multiplayer-menu-screen-container").show(0);
+      $("#main-content__multiplayer-intermission-screen-container").show(0);
       break;
     }
     case "settingsMenu": {
-      $("#main-content__multiplayer-intermission-screen-container").show(0);
+      $("#main-content__settings-screen-container").show(0);
       changeSettingsSecondaryScreen("");
       break;
     }
