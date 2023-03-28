@@ -110,6 +110,11 @@ const stageItems: stageItemsContainer = {
       fontFamily: "Computer Modern Unicode Serif",
       fontSize: 20,
       fill: "#ffffff"
+    }),
+    enemiesReceivedStockText: new ExtendedText("0", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 48,
+      fill: "#ffffff"
     })
   }
 };
@@ -141,6 +146,9 @@ function setContainerItemProperties() {
   //
   stageItems.textSprites.inputText.position.set(964, 915);
   stageItems.textSprites.inputText.anchor.set(0.5, 0.5);
+  //
+  stageItems.textSprites.enemiesReceivedStockText.text = "";
+  stageItems.textSprites.enemiesReceivedStockText.position.set(1294, 525);
 }
 
 setContainerItemProperties();

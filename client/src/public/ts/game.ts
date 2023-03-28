@@ -76,6 +76,14 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   stageItems.textSprites.baseHealthText.text = `♥️ ${data.baseHealth}`;
+  // text: multiplayer
+  if (typeof data.receivedEnemiesStock === "number") {
+    // implies multiplayer game
+    stageItems.textSprites.enemiesReceivedStockText.text =
+      data.receivedEnemiesStock;
+  } else {
+    stageItems.textSprites.enemiesReceivedStockText.text = "";
+  }
 
   if (variables.settings.beautifulScore === "on") {
     let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
