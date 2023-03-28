@@ -262,17 +262,6 @@ function update(deltaTime: number) {
 
   // delete rooms with zero players
   // additionally, delete rooms which are empty JSON objects.
-  // let roomsToDelete = _.filter(
-  //   universal.rooms,
-  //   (element) =>
-  //     !(
-  //       element?.memberConnectionIDs.length +
-  //         element?.spectatorConnectionIDs.length <=
-  //         0 ||
-  //       typeof element === "undefined" ||
-  //       Object.keys(element).length === 0
-  //     )
-  // );
   let livingRoomCondition = (element: Room) =>
     !(
       element?.memberConnectionIDs.length +
@@ -281,14 +270,14 @@ function update(deltaTime: number) {
       typeof element === "undefined" ||
       Object.keys(element).length === 0
     );
+  let oldRooms = _.clone(universal.rooms).map((element) => element.id);
   utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
   resetOneFrameVariables();
-
-  // // delete rooms
-  // for (let roomToDelete in roomsToDelete) {
-  //   log.info(`Deleting room ${universal.rooms[roomToDelete]?.id}`);
-  //   delete universal.rooms[roomToDelete];
-  // }
+  let newRooms = _.clone(universal.rooms).map((element) => element.id);
+  let deletedRooms = oldRooms.filter((element) => !newRooms.includes(element));
+  for (let room of deletedRooms) {
+    log.info(`Deleted room with ID ${room}`);
+  }
 }
 
 function resetOneFrameVariables() {
