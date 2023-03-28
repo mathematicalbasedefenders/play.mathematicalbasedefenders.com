@@ -17,7 +17,8 @@ import {
   GameMode,
   SingleplayerRoom,
   MultiplayerRoom,
-  Room
+  Room,
+  leaveMultiplayerRoom
 } from "./game/Room";
 
 import _ from "lodash";
@@ -179,6 +180,12 @@ uWS
               log.warn(`Unknown multiplayer room: ${parsedMessage.room}`);
             }
           }
+          break;
+        }
+        case "leaveMultiplayerRoom": {
+          // attempt to
+          leaveMultiplayerRoom(socket);
+          break;
         }
         // game input
         case "keypress": {

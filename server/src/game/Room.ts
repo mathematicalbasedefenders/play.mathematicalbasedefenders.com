@@ -654,8 +654,29 @@ function processKeypressForRoom(connectionID: string, code: string) {
   // TODO: Refactor this.
   // find the type of room input
   inputInformation = input.getInputInformation(code);
+  console.log(inputInformation);
   if (inputInformation.action !== InputAction.Unknown) {
     input.processInputInformation(inputInformation, gameDataToProcess);
+  }
+}
+
+// This just attempts to leave.
+function leaveMultiplayerRoom(socket: universal.GameSocket) {
+  // TODO: Implement for spectators when spectators are implemented.
+  let room = universal.rooms.find(
+    (element) =>
+      element.memberConnectionIDs.indexOf(socket.connectionID as string) > -1
+  );
+  if (room instanceof MultiplayerRoom) {
+    if (room.playing) {
+      let gameData = utilities.findGameDataWithConnectionID(
+        socket.connectionID as string
+      );
+      if (gameData) {
+        room.abort(gameData);
+      }
+    }
+    room.deleteMember(socket.connectionID as string);
   }
 }
 export {
@@ -666,5 +687,6 @@ export {
   SingleplayerGameData,
   processKeypressForRoom,
   GameMode,
-  defaultMultiplayerRoomID
+  defaultMultiplayerRoomID,
+  leaveMultiplayerRoom
 };

@@ -1,5 +1,10 @@
 import { log } from "./log";
-import { GameData, processKeypressForRoom } from "../game/Room";
+import * as universal from "../universal";
+import {
+  GameData,
+  leaveMultiplayerRoom,
+  processKeypressForRoom
+} from "../game/Room";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -57,6 +62,7 @@ function emulateKeypress(
     log.warn("An emulated keypress event that isn't a string has been fired.");
     return;
   }
+  // TODO: What if player isn't in a room? (e.g. Multiplayer Room Intermission)
   processKeypress(connectionID, code);
 }
 
@@ -76,6 +82,15 @@ function processKeypress(
     return;
   }
   processKeypressForRoom(connectionID, code);
+  // non-room interactions
+  if (code === "Escape") {
+    let socket = universal.sockets.find(
+      (socket) => socket.connectionID === connectionID
+    );
+    if (socket) {
+      leaveMultiplayerRoom(socket);
+    }
+  }
 }
 
 function processInputInformation(
@@ -122,6 +137,7 @@ function processInputInformation(
     }
     case InputAction.AbortGame: {
       gameDataToProcess.aborted = true;
+      // this just attempts to leave a room.
       break;
     }
   }
