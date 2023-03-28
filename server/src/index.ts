@@ -1,29 +1,29 @@
-import { log } from "./server/core/log";
+import { log } from "./core/log";
 import mongoose from "mongoose";
 import path from "path";
 import uWS from "uWebSockets.js";
-require("dotenv").config({ path: "./credentials/.env" });
+require("dotenv").config({ path: "../credentials/.env" });
 
 // TODO: Combine these lines
 import express from "express";
 import { Request, Response, NextFunction } from "express";
 
-import * as startAction from "./server/game/actions/start";
-import * as universal from "./server/universal";
-import * as utilities from "./server/core/utilities";
-import * as input from "./server/core/input";
+import * as startAction from "./game/actions/start";
+import * as universal from "./universal";
+import * as utilities from "./core/utilities";
+import * as input from "./core/input";
 import {
   defaultMultiplayerRoomID,
   GameMode,
   SingleplayerRoom,
   MultiplayerRoom,
   Room
-} from "./server/game/Room";
+} from "./game/Room";
 
 import _ from "lodash";
-import { authenticate } from "./server/authentication/authenticate";
-import { User } from "./server/models/User";
-import { getScoresOfAllPlayers } from "./server/services/leaderboards";
+import { authenticate } from "./authentication/authenticate";
+import { User } from "./models/User";
+import { getScoresOfAllPlayers } from "./services/leaderboards";
 import { crossOriginEmbedderPolicy } from "helmet";
 const favicon = require("serve-favicon");
 const bodyParser = require("body-parser");
@@ -55,6 +55,8 @@ app.use(
         ],
         "style-src": ["'unsafe-inline'", "*"],
         "connect-src": [
+          "ws://localhost:3000",
+          "wss://play.mathematicalbasedefenders.com:3000",
           "ws://localhost:5000",
           "wss://play.mathematicalbasedefenders.com:5000",
           "'self'"
@@ -65,13 +67,13 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
-app.use(favicon(path.join(__dirname, "/public/assets/images/favicon.ico")));
-app.use(express.static(path.join(__dirname, "/public/")));
+// app.use(favicon(path.join(__dirname, "/public/assets/images/favicon.ico")));
+// app.use(express.static(path.join(__dirname, "/public/")));
 app.use(bodyParser.urlencoded({ extended: false }));
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "server/views"));
+// app.set("view engine", "ejs");
+// app.set("views", path.join(__dirname, "server/views"));
 
-const PORT: number = 3000;
+const PORT: number = 4000;
 const WEBSOCKET_PORT: number = 5000;
 const LOOP_INTERVAL: number = 1000 / 60;
 
@@ -411,7 +413,7 @@ app.post(
 );
 
 app.listen(PORT, () => {
-  log.info(`Game listening at port ${PORT}`);
+  log.info(`Server listening at port ${PORT}`);
   if (process.env.credentialSetUsed === "TESTING") {
     log.warn("Using testing credentials.");
   }

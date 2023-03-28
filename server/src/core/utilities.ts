@@ -1,4 +1,3 @@
-import { connection } from "mongoose";
 import * as universal from "../universal";
 import { log } from "./log";
 import { Room } from "../game/Room";
