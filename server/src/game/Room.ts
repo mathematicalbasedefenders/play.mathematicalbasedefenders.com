@@ -404,10 +404,6 @@ class MultiplayerRoom extends Room {
       enemySpawn: {
         currentTime: 0,
         actionTime: 100
-      },
-      comboResetTime: {
-        currentTime: 0,
-        actionTime: 5000
       }
     };
   }
