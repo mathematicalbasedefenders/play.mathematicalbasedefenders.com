@@ -18,7 +18,8 @@ import {
   SingleplayerRoom,
   MultiplayerRoom,
   Room,
-  leaveMultiplayerRoom
+  leaveMultiplayerRoom,
+  resetDefaultMultiplayerRoomID
 } from "./game/Room";
 
 import _ from "lodash";
@@ -277,6 +278,9 @@ function update(deltaTime: number) {
   let deletedRooms = oldRooms.filter((element) => !newRooms.includes(element));
   for (let room of deletedRooms) {
     log.info(`Deleted room with ID ${room}`);
+    if (room === defaultMultiplayerRoomID) {
+      resetDefaultMultiplayerRoomID(room);
+    }
   }
 }
 

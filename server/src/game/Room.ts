@@ -678,6 +678,11 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
     room.deleteMember(socket.connectionID as string);
   }
 }
+
+function resetDefaultMultiplayerRoomID(room: string) {
+  defaultMultiplayerRoomID = null;
+  log.info(`Reset default multiplayer room ID from ${room} to null.`);
+}
 export {
   SingleplayerRoom,
   MultiplayerRoom,
@@ -687,5 +692,6 @@ export {
   processKeypressForRoom,
   GameMode,
   defaultMultiplayerRoomID,
-  leaveMultiplayerRoom
+  leaveMultiplayerRoom,
+  resetDefaultMultiplayerRoomID
 };

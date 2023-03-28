@@ -221,7 +221,6 @@ function initializeEventListeners() {
   });
   //
   $("#settings-screen__content--online__submit").on("click", (event) => {
-    console.log("hit");
     // FIXME: possibly unsafe
     sendSocketMessage({
       message: "authenticate",
