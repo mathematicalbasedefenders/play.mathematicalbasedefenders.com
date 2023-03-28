@@ -185,45 +185,6 @@ class Room {
       }
     }
 
-    let enemyToAdd: enemy.Enemy | null = null;
-
-    for (let data of this.gameData) {
-      // FIXME: ???
-      // Move all the enemies down.
-      for (let enemy of data.enemies) {
-        enemy.move(0.0025 * data.enemySpeedCoefficient);
-        if (enemy.sPosition <= 0) {
-          enemy.remove(data, 10);
-        }
-      }
-      if (data.baseHealth <= 0) {
-        this.startGameOverProcess(data);
-      }
-
-      // clocks
-      // Add enemy if generated.
-      if (
-        data.clocks.enemySpawn.currentTime >= data.clocks.enemySpawn.actionTime
-      ) {
-        enemyToAdd = generateEnemyWithChance(
-          data.enemySpawnThreshold,
-          this.updateNumber
-        );
-        data.clocks.enemySpawn.currentTime -= data.clocks.enemySpawn.actionTime;
-      }
-      if (
-        data.clocks.comboResetTime.currentTime >=
-        data.clocks.comboResetTime.actionTime
-      ) {
-        data.combo = -1;
-        data.clocks.comboResetTime.currentTime -=
-          data.clocks.comboResetTime.actionTime;
-      }
-      if (enemyToAdd) {
-        data.enemiesSpawned++;
-        data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
-      }
-    }
     this.updateNumber++;
   }
 
@@ -247,6 +208,7 @@ class Room {
     log.info(`Room ${this.id} has started play!`);
   }
 
+  // TODO: Move this to singleplayer room
   async startGameOverProcess(data: GameData) {
     let socket = universal.getSocketFromConnectionID(data.owner);
     let messages = "";
@@ -263,41 +225,47 @@ class Room {
         break;
       }
     }
-    data.commands.updateText = [
-      {
-        selector: "#main-content__game-over-screen__stats__score",
-        newText: data.score.toString()
-      },
-      {
-        selector: "#main-content__game-over-screen__stats__game-mode",
-        newText: gameMode
-      },
-      {
-        selector: "#main-content__game-over-screen__stats__enemies",
-        newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
-          (data.enemiesKilled / data.elapsedTime) *
-          1000
-        ).toFixed(3)}/s)`
-      },
-      {
-        selector: "#main-content__game-over-screen__stats__time",
-        newText: utilities.millisecondsToTime(data.elapsedTime)
-      },
-      {
-        selector: "#main-content__game-over-screen__stats__score-rank",
-        newText: messages
+
+    if (
+      data.mode === GameMode.EasySingleplayer ||
+      data.mode === GameMode.StandardSingleplayer
+    ) {
+      data.commands.updateText = [
+        {
+          selector: "#main-content__game-over-screen__stats__score",
+          newText: data.score.toString()
+        },
+        {
+          selector: "#main-content__game-over-screen__stats__game-mode",
+          newText: gameMode
+        },
+        {
+          selector: "#main-content__game-over-screen__stats__enemies",
+          newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
+            (data.enemiesKilled / data.elapsedTime) *
+            1000
+          ).toFixed(3)}/s)`
+        },
+        {
+          selector: "#main-content__game-over-screen__stats__time",
+          newText: utilities.millisecondsToTime(data.elapsedTime)
+        },
+        {
+          selector: "#main-content__game-over-screen__stats__score-rank",
+          newText: messages
+        }
+      ];
+      data.commands.changeScreenTo = "gameOver";
+      // submit score
+      if (socket) {
+        submitSingleplayerGame(data, socket);
       }
-    ];
-    data.commands.changeScreenTo = "gameOver";
-    // submit score
-    if (socket) {
-      submitSingleplayerGame(data, socket);
-    }
-    // destroy room somehow
-    this.playing = false;
-    if (socket) {
-      socket?.unsubscribe(this.id);
-      this.deleteMember(socket?.connectionID as string);
+      // destroy room somehow
+      this.playing = false;
+      if (socket) {
+        socket?.unsubscribe(this.id);
+        this.deleteMember(socket?.connectionID as string);
+      }
     }
   }
 
@@ -373,6 +341,45 @@ class SingleplayerRoom extends Room {
     let data = this.gameData[0];
     if (data.aborted) {
       this.abort(data);
+    }
+    let enemyToAdd: enemy.Enemy | null = null;
+
+    for (let data of this.gameData) {
+      // FIXME: ???
+      // Move all the enemies down.
+      for (let enemy of data.enemies) {
+        enemy.move(0.0025 * data.enemySpeedCoefficient);
+        if (enemy.sPosition <= 0) {
+          enemy.remove(data, 10);
+        }
+      }
+      if (data.baseHealth <= 0) {
+        this.startGameOverProcess(data);
+      }
+
+      // clocks
+      // Add enemy if generated.
+      if (
+        data.clocks.enemySpawn.currentTime >= data.clocks.enemySpawn.actionTime
+      ) {
+        enemyToAdd = generateEnemyWithChance(
+          data.enemySpawnThreshold,
+          this.updateNumber
+        );
+        data.clocks.enemySpawn.currentTime -= data.clocks.enemySpawn.actionTime;
+      }
+      if (
+        data.clocks.comboResetTime.currentTime >=
+        data.clocks.comboResetTime.actionTime
+      ) {
+        data.combo = -1;
+        data.clocks.comboResetTime.currentTime -=
+          data.clocks.comboResetTime.actionTime;
+      }
+      if (enemyToAdd) {
+        data.enemiesSpawned++;
+        data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
+      }
     }
   }
 
@@ -455,6 +462,9 @@ class MultiplayerRoom extends Room {
         }
       }
     } else {
+      // playing
+      for (let data of this.gameData) {
+      }
     }
   }
 }
