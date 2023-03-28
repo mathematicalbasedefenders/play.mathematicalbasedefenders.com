@@ -504,7 +504,8 @@ class MultiplayerRoom extends Room {
           }
         }
         if (data.baseHealth <= 0) {
-          this.startGameOverProcess(data);
+          // player is eliminated.
+          this.eliminateSocketID(data.owner);
         }
 
         // clocks
@@ -520,6 +521,33 @@ class MultiplayerRoom extends Room {
           data.enemiesSpawned++;
           data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
         }
+      }
+    }
+  }
+
+  eliminateSocketID(connectionID: string) {
+    let socket = universal.getSocketFromConnectionID(connectionID);
+    if (typeof socket === "undefined") {
+      log.warn(
+        `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
+      );
+      return;
+    }
+    // eliminate the socket
+    let gameDataIndex = this.gameData.findIndex(
+      (element) => element.owner === connectionID
+    );
+    this.gameData.splice(gameDataIndex, 1);
+    this.checkIfGameFinished(this.gameData);
+  }
+
+  checkIfGameFinished(gameDataArray: Array<GameData>) {
+    if (gameDataArray.length <= 1) {
+      // game finished
+      // Default Multiplayer for now since there's only 1 multiplayer room at a given time.
+      log.info(`Default Multiplayer Room has finished playing.`);
+      if (gameDataArray.length === 1) {
+        log.info(`The winner is socket ID ${gameDataArray[0].owner}`);
       }
     }
   }
