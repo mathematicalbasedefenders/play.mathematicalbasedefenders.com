@@ -500,6 +500,10 @@ class MultiplayerRoom extends Room {
 
       // specific to each player
       for (let data of this.gameData) {
+        if (data.aborted) {
+          this.abort(data);
+        }
+
         for (let enemy of data.enemies) {
           enemy.move(0.0025 * data.enemySpeedCoefficient);
           if (enemy.sPosition <= 0) {
@@ -541,6 +545,9 @@ class MultiplayerRoom extends Room {
       (element) => element.owner === connectionID
     );
     this.gameData.splice(gameDataIndex, 1);
+    log.info(
+      `Socket ID ${connectionID} has been eliminated from the Default Multiplayer Room`
+    );
     this.checkIfGameFinished(this.gameData);
   }
 
@@ -556,6 +563,18 @@ class MultiplayerRoom extends Room {
       // bring everyone to intermission screen
       this.stopPlay();
       this.summonEveryoneToIntermission();
+    }
+  }
+
+  // force quit - NOT send to intermission screen
+  abort(data: GameData) {
+    data.baseHealth = -99999;
+    let socket = universal.getSocketFromConnectionID(data.owner);
+    data.commands.changeScreenTo = "mainMenu";
+    log.info(`Socket ID ${data.owner} has quit the Default Multiplayer Room`);
+    if (socket) {
+      socket?.unsubscribe(this.id);
+      this.deleteMember(socket?.connectionID as string);
     }
   }
 
