@@ -1,5 +1,10 @@
 import { WebSocket } from "uWebSockets.js";
-import { SingleplayerGameData, Room } from "./game/Room";
+import {
+  SingleplayerGameData,
+  Room,
+  SingleplayerRoom,
+  MultiplayerRoom
+} from "./game/Room";
 
 type GameSocket = WebSocket & {
   ownerUsername?: string;
@@ -10,7 +15,7 @@ type GameSocket = WebSocket & {
 };
 
 let sockets: Array<GameSocket> = [];
-let rooms: Array<Room> = [];
+let rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
 
 function deleteSocket(socketToClose: GameSocket) {
   // update room that socket is in

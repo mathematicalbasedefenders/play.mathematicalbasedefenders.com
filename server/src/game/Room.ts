@@ -73,7 +73,7 @@ class GameData {
         }
       };
       this.enemySpeedCoefficient = 0.25;
-      this.enemySpawnThreshold = 0.05;
+      this.enemySpawnThreshold = 0.025;
     } else {
       this.clocks = {
         enemySpawn: {
@@ -86,7 +86,7 @@ class GameData {
         }
       };
       this.enemySpeedCoefficient = 1;
-      this.enemySpawnThreshold = 0.2;
+      this.enemySpawnThreshold = 0.05;
     }
   }
 }
@@ -167,17 +167,11 @@ class Room {
     log.info(`Created ${gameMode} room with ID ${this.id}`);
   }
 
-  update() {
-    let now: number = Date.now();
-    let deltaTime: number = now - this.lastUpdateTime;
-
-    this.lastUpdateTime = now;
-
+  update(deltaTime: number) {
     if (!this.playing) {
       return;
     }
 
-    // Update for all types of rooms
     for (let i = 0; i < this.gameData.length; i++) {
       this.gameData[i].elapsedTime += deltaTime;
       for (let clock in this.gameData[i].clocks) {
@@ -336,7 +330,10 @@ class SingleplayerRoom extends Room {
 
   update(): void {
     // Update for all types of rooms
-    super.update();
+    let now: number = Date.now();
+    let deltaTime: number = now - this.lastUpdateTime;
+    super.update(deltaTime);
+    this.lastUpdateTime = now;
     // Then update for all singleplayer rooms
     let data = this.gameData[0];
     if (data.aborted) {
@@ -396,14 +393,31 @@ class SingleplayerRoom extends Room {
 
 class MultiplayerRoom extends Room {
   nextGameStartTime!: Date | null;
+  globalEnemySpawnThreshold: number;
+  globalClock: ClockInterface;
+
   constructor(hostConnectionID: string, mode: GameMode, noHost: boolean) {
     super(hostConnectionID, mode, noHost);
     this.nextGameStartTime = null;
+    this.globalEnemySpawnThreshold = 0.05;
+    this.globalClock = {
+      enemySpawn: {
+        currentTime: 0,
+        actionTime: 100
+      },
+      comboResetTime: {
+        currentTime: 0,
+        actionTime: 5000
+      }
+    };
   }
 
   update(): void {
     // Update for all types of rooms
-    super.update();
+    let now: number = Date.now();
+    let deltaTime: number = now - this.lastUpdateTime;
+    super.update(deltaTime);
+    this.lastUpdateTime = now;
 
     // Then update specifically for multiplayer rooms
 
@@ -463,7 +477,53 @@ class MultiplayerRoom extends Room {
       }
     } else {
       // playing
+
+      // all players
+
+      // global - applies to all players
+      let enemyToAdd = null;
+
+      // global clocks
+      this.globalClock.enemySpawn.currentTime += deltaTime;
+      // Add enemy if generated.
+
+      if (
+        this.globalClock.enemySpawn.currentTime >=
+        this.globalClock.enemySpawn.actionTime
+      ) {
+        enemyToAdd = generateEnemyWithChance(
+          this.globalEnemySpawnThreshold,
+          this.updateNumber
+        );
+        this.globalClock.enemySpawn.currentTime -=
+          this.globalClock.enemySpawn.actionTime;
+      }
+
+      // specific to each player
       for (let data of this.gameData) {
+        for (let enemy of data.enemies) {
+          enemy.move(0.0025 * data.enemySpeedCoefficient);
+          if (enemy.sPosition <= 0) {
+            enemy.remove(data, 10);
+          }
+        }
+        if (data.baseHealth <= 0) {
+          this.startGameOverProcess(data);
+        }
+
+        // clocks
+        if (
+          data.clocks.comboResetTime.currentTime >=
+          data.clocks.comboResetTime.actionTime
+        ) {
+          data.combo = -1;
+          data.clocks.comboResetTime.currentTime -=
+            data.clocks.comboResetTime.actionTime;
+        }
+        if (enemyToAdd) {
+          data.enemiesSpawned++;
+          data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
+        }
       }
     }
   }
