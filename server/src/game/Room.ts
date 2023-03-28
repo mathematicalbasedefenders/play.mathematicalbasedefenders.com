@@ -8,6 +8,7 @@ import { submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
 
 const NO_HOST_ID = "(no host)";
+const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 // TODO: Change design
 let defaultMultiplayerRoomID: string | null = null;
 
@@ -423,7 +424,9 @@ class MultiplayerRoom extends Room {
         this.nextGameStartTime == null &&
         this.memberConnectionIDs.length >= 2
       ) {
-        this.nextGameStartTime = new Date(Date.now() + 1000 * 10);
+        this.nextGameStartTime = new Date(
+          Date.now() + DEFAULT_MULTIPLAYER_INTERMISSION_TIME
+        );
       }
       // Check if there is less than 2 players - if so, stop intermission countdown
       if (
@@ -549,6 +552,37 @@ class MultiplayerRoom extends Room {
       if (gameDataArray.length === 1) {
         log.info(`The winner is socket ID ${gameDataArray[0].owner}`);
       }
+      // stop everyone from playing
+      // bring everyone to intermission screen
+      this.stopPlay();
+      this.summonEveryoneToIntermission();
+    }
+  }
+
+  stopPlay() {
+    this.playing = false;
+    this.nextGameStartTime = new Date(
+      Date.now() + DEFAULT_MULTIPLAYER_INTERMISSION_TIME
+    );
+    log.info(`Room ${this.id} has stopped play.`);
+  }
+
+  summonEveryoneToIntermission() {
+    // TODO: Add spectators once they get implemented
+    for (let connectionID of this.memberConnectionIDs) {
+      let socket = universal.getSocketFromConnectionID(connectionID);
+      if (typeof socket === "undefined") {
+        log.warn(
+          `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
+        );
+        continue;
+      }
+      socket.send(
+        JSON.stringify({
+          message: "changeScreen",
+          newScreen: "multiplayerIntermission"
+        })
+      );
     }
   }
 }
