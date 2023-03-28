@@ -221,30 +221,19 @@ function initializeEventListeners() {
   });
   //
   $("#settings-screen__content--online__submit").on("click", (event) => {
-    $.ajax({
-      type: "post",
-      url: "/authenticate",
-      data: {
-        username: $("#settings-screen__content--online__username").val(),
-        password: $("#settings-screen__content--online__password").val(),
-        socketID: $("#settings-screen__content--online__socket-id").val()
-      },
-      // TODO: refactor
-      success: (data) => {
-        if (data.good) {
-          updateUserInformationText(data);
-          // toast notification
-          new ToastNotification(
-            `Successfully logged in as ${data.username}`,
-            ToastNotificationPosition.BOTTOM_RIGHT
-          );
-        } else {
-          new ToastNotification(
-            `Unable to log in as ${data.username} (${data.reason})`,
-            ToastNotificationPosition.BOTTOM_RIGHT
-          );
-        }
-      }
+    console.log("hit");
+    // FIXME: possibly unsafe
+    sendSocketMessage({
+      message: "authenticate",
+      username: $("#settings-screen__content--online__username")
+        .val()
+        ?.toString() as string,
+      password: $("#settings-screen__content--online__password")
+        .val()
+        ?.toString() as string,
+      socketID: $("#settings-screen__content--online__socket-id")
+        .val()
+        ?.toString() as string
     });
     event.preventDefault();
   });
@@ -423,5 +412,6 @@ export {
   serifFont,
   mathFont,
   variables,
-  updateGuestInformationText
+  updateGuestInformationText,
+  updateUserInformationText
 };

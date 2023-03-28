@@ -55,8 +55,8 @@ app.use(
         ],
         "style-src": ["'unsafe-inline'", "*"],
         "connect-src": [
-          "ws://localhost:3000",
-          "wss://play.mathematicalbasedefenders.com:3000",
+          "http://localhost:3000",
+          "https://play.mathematicalbasedefenders.com:3000",
           "ws://localhost:5000",
           "wss://play.mathematicalbasedefenders.com:5000",
           "'self'"
@@ -191,6 +191,19 @@ uWS
             parsedMessage.emulatedKeypress
           );
           break;
+        }
+        case "authenticate": {
+          attemptAuthentication(
+            parsedMessage.username,
+            parsedMessage.password,
+            parsedMessage.socketID
+          );
+          break;
+        }
+        default: {
+          console.warn(
+            `Unknown action from socket with connectionID ${socket.connectionID}: ${parsedMessage.message}`
+          );
         }
       }
     },
@@ -366,51 +379,65 @@ app.get("/", limiter, (request: Request, response: Response) => {
   response.render("pages/index.ejs");
 });
 
-app.post(
-  "/authenticate",
-  limiter,
-  async (request: Request, response: Response) => {
-    let username = request.body["username"];
-    let password = request.body["password"];
-    let socketID = request.body["socketID"];
-    // return...
-    let result = await authenticate(username, password, socketID);
-    let socket = universal.getSocketFromConnectionID(socketID);
-    if (!result.good || !socket) {
-      response.send({
-        username: mongoDBSanitize.sanitize(DOMPurify.sanitize(username)),
-        good: false,
+// app.post(
+//   "/authenticate",
+//   limiter,
+async function attemptAuthentication(
+  username: string,
+  password: string,
+  socketID: string
+) {
+  let sanitizedUsername = mongoDBSanitize.sanitize(
+    DOMPurify.sanitize(username)
+  );
+  log.info(`Authentication request requested for account ${sanitizedUsername}`);
+  let result = await authenticate(username, password, socketID);
+  let socket = universal.getSocketFromConnectionID(socketID);
+  if (!result.good || !socket) {
+    let reason =
+      result.reason === "All checks passed"
+        ? "Invalid Socket Connection ID"
+        : result.reason;
+    socket?.send(
+      JSON.stringify({
+        message: "createToastNotification",
         // TODO: Refactor this
-        reason:
-          result.reason === "All checks passed"
-            ? "Invalid Socket Connection ID"
-            : result.reason
-      });
-      return;
-    }
-    socket.loggedIn = true;
-    socket.ownerUsername = username;
-    socket.ownerUserID = result.id;
-    let userData = await User.safeFindByUsername(
-      socket.ownerUsername as string
+        text: `Failed to log in as ${username} (${result.reason})`
+      })
     );
-    response.send({
-      username: username,
-      good: true,
-      userData: userData,
-      rank: utilities.getRank(userData),
-      experiencePoints: userData.statistics.totalExperiencePoints,
-      records: {
-        easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
-        standard:
-          userData.statistics.personalBestScoreOnStandardSingleplayerMode
-      },
-      // TODO: Refactor this
-      reason: "All checks passed."
-    });
     return;
   }
-);
+  socket.loggedIn = true;
+  socket.ownerUsername = username;
+  socket.ownerUserID = result.id;
+  let userData = await User.safeFindByUsername(socket.ownerUsername as string);
+  socket.send(
+    JSON.stringify({
+      message: "createToastNotification",
+      text: `Successfully logged in as ${username}`
+    })
+  );
+  socket.send(
+    JSON.stringify({
+      message: "updateUserInformationText",
+      data: {
+        username: username,
+        good: true,
+        userData: userData,
+        rank: utilities.getRank(userData),
+        experiencePoints: userData.statistics.totalExperiencePoints,
+        records: {
+          easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
+          standard:
+            userData.statistics.personalBestScoreOnStandardSingleplayerMode
+        },
+        // TODO: Refactor this
+        reason: "All checks passed."
+      }
+    })
+  );
+  return;
+}
 
 app.listen(PORT, () => {
   log.info(`Server listening at port ${PORT}`);

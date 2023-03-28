@@ -1,5 +1,10 @@
-import { updateGuestInformationText, variables } from "./index";
+import {
+  updateGuestInformationText,
+  updateUserInformationText,
+  variables
+} from "./index";
 import { changeScreen, renderGameData } from "./game";
+import { ToastNotification } from "./notifications";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
     window.location.origin === "https://play.mathematicalbasedefenders.com"
@@ -41,6 +46,14 @@ socket.addEventListener("message", (event: any) => {
     }
     case "changeScreen": {
       changeScreen(message.newScreen, true);
+      break;
+    }
+    case "createToastNotification": {
+      new ToastNotification(message.text, message.position);
+      break;
+    }
+    case "updateUserInformationText": {
+      updateUserInformationText(message.data);
       break;
     }
   }

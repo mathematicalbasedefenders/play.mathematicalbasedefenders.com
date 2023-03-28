@@ -27,8 +27,8 @@ app.use(
         ],
         "style-src": ["'unsafe-inline'", "*"],
         "connect-src": [
-          "ws://localhost:3000",
-          "wss://play.mathematicalbasedefenders.com:3000",
+          "http://localhost:4000",
+          "https://play.mathematicalbasedefenders.com:4000",
           "ws://localhost:5000",
           "wss://play.mathematicalbasedefenders.com:5000",
           "'self'"

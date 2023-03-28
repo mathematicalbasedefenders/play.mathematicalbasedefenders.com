@@ -16,11 +16,11 @@ class ToastNotification {
 
   constructor(
     text: string,
-    position: ToastNotificationPosition,
+    position?: ToastNotificationPosition,
     lifespan?: number
   ) {
     this.text = text;
-    this.position = position;
+    this.position = position || ToastNotificationPosition.BOTTOM_RIGHT;
     this.id = ToastNotification.nextID;
     ToastNotification.nextID++;
     this.lifespan = lifespan || 5000;

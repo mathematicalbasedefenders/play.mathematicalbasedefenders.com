@@ -14,7 +14,7 @@
     "client-start-dev": "cd client && npm run compile && npm run build-dev && npm run copyStaticFiles && node ./dist/index.js",
     "server-start": "cd server && npm run compile && npm run copyStaticFiles && node ./dist/index.js",
     "server-start-dev": "cd server && npm run compile && npm run copyStaticFiles && node ./dist/index.js",
-    "start-dev": "concurrently --kill-others \"npm run client-start-dev\" \"&& npm run server-start-dev\"",
+    "start-dev": "concurrently --kill-others \"npm run client-start-dev\" \"npm run server-start-dev\"",
     "start": "concurrently --kill-others \"npm run server-start\" \"npm run client-start\""
   },
   "author": "mistertfy64",
