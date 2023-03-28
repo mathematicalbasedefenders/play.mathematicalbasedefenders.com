@@ -73,7 +73,7 @@ class GameData {
         }
       };
       this.enemySpeedCoefficient = 0.25;
-      this.enemySpawnThreshold = 0.025;
+      this.enemySpawnThreshold = 0.05;
     } else {
       this.clocks = {
         enemySpawn: {
@@ -86,7 +86,7 @@ class GameData {
         }
       };
       this.enemySpeedCoefficient = 1;
-      this.enemySpawnThreshold = 0.05;
+      this.enemySpawnThreshold = 0.1;
     }
   }
 }
@@ -399,7 +399,7 @@ class MultiplayerRoom extends Room {
   constructor(hostConnectionID: string, mode: GameMode, noHost: boolean) {
     super(hostConnectionID, mode, noHost);
     this.nextGameStartTime = null;
-    this.globalEnemySpawnThreshold = 0.05;
+    this.globalEnemySpawnThreshold = 0.1;
     this.globalClock = {
       enemySpawn: {
         currentTime: 0,
