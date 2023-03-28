@@ -44,7 +44,12 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   for (let enemy of data.enemies) {
-    enemies.rerenderEnemy(enemy.id, enemy.sPosition, enemy.displayedText);
+    enemies.rerenderEnemy(
+      enemy.id,
+      enemy.sPosition,
+      enemy.displayedText,
+      enemy.xPosition
+    );
   }
 
   // text

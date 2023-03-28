@@ -89,7 +89,7 @@ function createNew(enemyType: EnemyType, id: string) {
   let enemy: Enemy = new Enemy(
     generatedValue,
     createProblem(generatedValue),
-    200,
+    Math.random(),
     1,
     id
   );

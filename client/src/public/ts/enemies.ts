@@ -26,13 +26,15 @@ class Enemy {
     text: string,
     id: string,
     width: number,
-    height: number
+    height: number,
+    xPosition?: number
   ) {
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
     this.sprite.tint = getEnemyColor();
     this.sprite.width = width || DEFAULT_ENEMY_WIDTH;
     this.sprite.height = height || DEFAULT_ENEMY_HEIGHT;
-    this.sprite.x = 100 + 580 + Math.random() * (600 - DEFAULT_ENEMY_WIDTH);
+    this.sprite.x =
+      100 + 580 + (xPosition || Math.random()) * (600 - DEFAULT_ENEMY_WIDTH);
     this.sprite.y = 720 - 720 * sPosition + DEFAULT_ENEMY_HEIGHT - 40;
     this.text = text;
     // text-related
@@ -95,8 +97,8 @@ function calculateOptimalFontSize(
   }
   return size;
 }
-function renderNewEnemy(id: string, text: string) {
-  let enemy = new Enemy(1, text, id, ENEMY_SIZE, ENEMY_SIZE);
+function renderNewEnemy(id: string, text: string, xPosition?: number) {
+  let enemy = new Enemy(1, text, id, ENEMY_SIZE, ENEMY_SIZE, xPosition);
   Enemy.enemyCache.push(enemy);
   getEnemyFromCache(id)?.render();
 }
@@ -122,14 +124,19 @@ function deleteAllEnemies() {
     deleteEnemy(enemy.id);
   }
 }
-function rerenderEnemy(id: string, sPosition: number, displayedText?: string) {
+function rerenderEnemy(
+  id: string,
+  sPosition: number,
+  displayedText?: string,
+  xPosition?: number
+) {
   if (Enemy.enemiesCurrentlyDrawn.indexOf(id) > -1) {
     // enemy already drawn
     repositionExistingEnemy(id, sPosition);
   } else {
     // enemy wasn't drawn yet
     if (typeof displayedText === "string") {
-      renderNewEnemy(id, displayedText);
+      renderNewEnemy(id, displayedText, xPosition);
     }
   }
 }
