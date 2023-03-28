@@ -47,7 +47,11 @@ class GameData {
   mode: string;
   enemySpawnThreshold!: number;
   aborted: boolean;
+  enemiesSent!: number;
+  enemiesSentStock!: number;
   // ...
+  receivedEnemiesStock!: number;
+  receivedEnemiesToSpawn!: number;
   constructor(owner: string, mode: GameMode) {
     this.mode = mode;
     this.score = 0;
@@ -62,6 +66,8 @@ class GameData {
     this.combo = -1;
     this.commands = {};
     this.aborted = false;
+    this.enemiesSent = 0;
+    this.enemiesSentStock = 0;
     if (mode === GameMode.EasySingleplayer) {
       this.clocks = {
         enemySpawn: {
@@ -111,8 +117,6 @@ class SingleplayerGameData extends GameData {
 }
 
 class MultiplayerGameData extends GameData {
-  // nothing here yet...
-
   constructor(owner: string, gameMode: GameMode) {
     if (
       !(
@@ -126,6 +130,8 @@ class MultiplayerGameData extends GameData {
       return;
     }
     super(owner, gameMode);
+    this.receivedEnemiesStock = 0;
+    this.receivedEnemiesToSpawn = 0;
   }
 }
 
@@ -500,6 +506,10 @@ class MultiplayerRoom extends Room {
 
       // specific to each player
       for (let data of this.gameData) {
+        let opponentGameData = this.gameData.filter(
+          (element) => element.owner !== data.owner
+        );
+
         if (data.aborted) {
           this.abort(data);
         }
@@ -524,9 +534,26 @@ class MultiplayerRoom extends Room {
           data.clocks.comboResetTime.currentTime -=
             data.clocks.comboResetTime.actionTime;
         }
+
+        // generated enemy
         if (enemyToAdd) {
           data.enemiesSpawned++;
           data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
+        }
+
+        // received enemy
+        if (data.receivedEnemiesToSpawn > 0) {
+          data.receivedEnemiesToSpawn--;
+          data.enemiesSpawned++;
+          data.enemies.push(enemy.createNewReceived(`R${data.enemiesSpawned}`));
+        }
+
+        if (data.enemiesSentStock > 0) {
+          data.enemiesSentStock--;
+          let targetedOpponentGameData = _.sample(opponentGameData);
+          if (targetedOpponentGameData) {
+            targetedOpponentGameData.receivedEnemiesStock += 1;
+          }
         }
       }
     }
@@ -693,5 +720,6 @@ export {
   GameMode,
   defaultMultiplayerRoomID,
   leaveMultiplayerRoom,
-  resetDefaultMultiplayerRoomID
+  resetDefaultMultiplayerRoomID,
+  MultiplayerGameData
 };

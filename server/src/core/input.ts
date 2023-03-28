@@ -3,7 +3,9 @@ import * as universal from "../universal";
 import {
   GameData,
   leaveMultiplayerRoom,
-  processKeypressForRoom
+  MultiplayerGameData,
+  processKeypressForRoom,
+  SingleplayerGameData
 } from "../game/Room";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
@@ -138,6 +140,13 @@ function processInputInformation(
       // reset input
       if (enemyKilled) {
         gameDataToProcess.currentInput = "";
+      } else {
+        if (gameDataToProcess instanceof MultiplayerGameData) {
+          // incorrect answers with enemies in stock - add from stock to to spawn
+          gameDataToProcess.receivedEnemiesToSpawn +=
+            gameDataToProcess.receivedEnemiesStock;
+          gameDataToProcess.receivedEnemiesStock = 0;
+        }
       }
       break;
     }

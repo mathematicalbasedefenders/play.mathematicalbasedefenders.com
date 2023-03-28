@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { log } from "../core/log";
-import { GameData } from "./Room";
+import { GameData, SingleplayerGameData, MultiplayerGameData } from "./Room";
 
 enum EnemyType {
   NORMAL = "1",
@@ -55,9 +55,22 @@ class Enemy {
     );
   }
 
+  calculateSent(coefficient: number, combo: number) {
+    // every 3 combo starting at 0 (2, 5, 8, ...): +1
+    // every 0.1 sPosition from 0.6 (0.6, 0.7, 0.8, ...): +1
+    let comboSent = Math.floor((combo + 1) / 3);
+    let sPositionSent = Math.floor((this.sPosition - 0.5) / 0.1);
+    return (comboSent + sPositionSent) * coefficient;
+  }
+
   // TODO: Might need to find a different method for conciseness.
   kill(gameData: GameData, giveScore: boolean, giveCombo: boolean) {
     if (giveScore) {
+      if (gameData instanceof MultiplayerGameData) {
+        let attack = this.calculateSent(1, gameData.combo);
+        gameData.enemiesSent += attack;
+        gameData.enemiesSentStock += attack;
+      }
       gameData.score += this.calculateScore(1, gameData.combo);
     }
     if (giveCombo) {
@@ -104,6 +117,10 @@ function createNew(enemyType: EnemyType, id: string) {
     }
   }
   return enemy;
+}
+
+function createNewReceived(id: string) {
+  return createNew(EnemyType.NORMAL, id);
 }
 
 // TODO: this
@@ -181,4 +198,4 @@ function getFactorsOf(number: number): Array<number> {
   return factors;
 }
 
-export { createNew, Enemy, EnemyType };
+export { createNew, createNewReceived, Enemy, EnemyType };
