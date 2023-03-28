@@ -654,7 +654,6 @@ function processKeypressForRoom(connectionID: string, code: string) {
   // TODO: Refactor this.
   // find the type of room input
   inputInformation = input.getInputInformation(code);
-  console.log(inputInformation);
   if (inputInformation.action !== InputAction.Unknown) {
     input.processInputInformation(inputInformation, gameDataToProcess);
   }
