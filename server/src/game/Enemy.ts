@@ -69,7 +69,16 @@ class Enemy {
       if (gameData instanceof MultiplayerGameData) {
         let attack = this.calculateSent(1, gameData.combo);
         gameData.enemiesSent += attack;
-        gameData.enemiesSentStock += attack;
+        // gameData.enemiesSentStock += attack;
+        while (attack > 0) {
+          if (gameData.receivedEnemiesStock > 0) {
+            gameData.receivedEnemiesStock -= 1;
+          } else {
+            // no received enemies in stock
+            gameData.enemiesSentStock += 1;
+          }
+          attack -= 1;
+        }
       }
       gameData.score += this.calculateScore(1, gameData.combo);
     }
