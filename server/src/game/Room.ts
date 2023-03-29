@@ -402,7 +402,7 @@ class MultiplayerRoom extends Room {
   nextGameStartTime!: Date | null;
   globalEnemySpawnThreshold: number;
   globalClock: ClockInterface;
-
+  playersAtStart!: number;
   constructor(hostConnectionID: string, mode: GameMode, noHost: boolean) {
     super(hostConnectionID, mode, noHost);
     this.nextGameStartTime = null;
@@ -446,6 +446,7 @@ class MultiplayerRoom extends Room {
       if (this.nextGameStartTime != null) {
         if (new Date() >= this.nextGameStartTime) {
           this.start();
+          this.playersAtStart = this.memberConnectionIDs.length;
           for (let connectionID of this.memberConnectionIDs) {
             let socket = universal.getSocketFromConnectionID(connectionID);
             if (socket) {
@@ -477,14 +478,37 @@ class MultiplayerRoom extends Room {
                 )} seconds.`
               })
             );
+          } else if (this.memberConnectionIDs.length < 2) {
+            socket.send(
+              JSON.stringify({
+                message: "changeText",
+                selector:
+                  "#main-content__multiplayer-intermission-screen-container__game-status-message",
+                value: `Waiting for at least 2 players.`
+              })
+            );
           }
         }
       }
     } else {
       // playing
+      // update text first
+      // Update Text
+      for (let connectionID of this.memberConnectionIDs) {
+        let socket = universal.getSocketFromConnectionID(connectionID);
+        if (socket) {
+          socket.send(
+            JSON.stringify({
+              message: "changeText",
+              selector:
+                "#main-content__multiplayer-intermission-screen-container__game-status-message",
+              value: `Current game in progress. (Remaining: ${this.gameData.length}/${this.playersAtStart})`
+            })
+          );
+        }
+      }
 
       // all players
-
       // global - applies to all players
       let enemyToAdd = null;
 
