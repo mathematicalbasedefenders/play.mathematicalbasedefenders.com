@@ -19,7 +19,8 @@ import {
   MultiplayerRoom,
   Room,
   leaveMultiplayerRoom,
-  resetDefaultMultiplayerRoomID
+  resetDefaultMultiplayerRoomID,
+  getOpponentInformation
 } from "./game/Room";
 
 import _ from "lodash";
@@ -242,14 +243,20 @@ function update(deltaTime: number) {
     }
   }
 
+  // data is sent here.
   for (let socket of universal.sockets) {
     let gameData = _.cloneDeep(
       universal.getGameDataFromConnectionID(socket.connectionID as string)
     );
-    // remove some game data
     if (gameData) {
+      // remove some game data
       for (let enemy of gameData.enemies) {
         delete enemy.requestedValue;
+      }
+      // add some game data (extra information)
+      // such as for multiplayer
+      if (gameData.mode.indexOf("Multiplayer") > -1) {
+        gameData.opponentGameData = getOpponentInformation(gameData, true);
       }
       let gameDataToSend: string = JSON.stringify(gameData);
       universal.getSocketFromConnectionID(socket.connectionID as string)?.send(

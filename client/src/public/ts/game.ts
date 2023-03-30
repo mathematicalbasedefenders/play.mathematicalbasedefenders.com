@@ -11,6 +11,7 @@ import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 import { millisecondsToTime } from "./utilities";
 import { variables } from "./index";
 import { ToastNotification, ToastNotificationPosition } from "./notifications";
+import { Opponent } from "./opponent";
 // TODO: Might change later
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -50,6 +51,24 @@ function renderGameData(data: { [key: string]: any }) {
       enemy.displayedText,
       enemy.xPosition
     );
+  }
+
+  // multiplayer
+  if (data.mode.indexOf("Multiplayer") > -1) {
+    // multiplayer
+    for (let opponentData of data.opponentGameData) {
+      // check if there is already an opponent game instance rendered with said data
+      let renderedInstance = Opponent.instances?.find(
+        (element) => element.boundTo === opponentData.owner
+      );
+      if (typeof renderedInstance === "undefined") {
+        let newInstance = new Opponent();
+        newInstance.bind(opponentData.owner);
+        newInstance.render();
+      } else {
+        renderedInstance.update(opponentData);
+      }
+    }
   }
 
   // text

@@ -1,13 +1,43 @@
 import { app, ExtendedSprite, ExtendedText } from ".";
-
+import * as PIXI from "pixi.js";
+import { getEnemyColor } from "./enemies";
 class Opponent {
+  boundTo!: string;
   stageItems!: {
     sprites: { [key: string]: ExtendedSprite };
     textSprites: { [key: string]: ExtendedText };
   };
-  static instances: Array<Opponent>;
+  static instances: Array<Opponent> = [];
   constructor() {
+    this.stageItems = {
+      sprites: {
+        playFieldBorder: new ExtendedSprite(
+          PIXI.Texture.from("assets/images/playfield.png")
+        )
+      },
+      textSprites: {
+        "statistics": new ExtendedText("", {
+          fontFamily: "Computer Modern Unicode Serif",
+          fontSize: 20,
+          fill: "#ffffff"
+        }),
+        "input": new ExtendedText("", {
+          fontFamily: "Computer Modern Unicode Serif",
+          fontSize: 20,
+          fill: "#ffffff"
+        }),
+        "name": new ExtendedText("", {
+          fontFamily: "Computer Modern Unicode Serif",
+          fontSize: 20,
+          fill: "#ffffff"
+        })
+      }
+    };
+    this.stageItems.sprites.playFieldBorder.scale.set(0.3, 0.3);
     Opponent.instances.push(this);
+  }
+  bind(connectionID: string) {
+    this.boundTo = connectionID;
   }
   render() {
     for (let item in this.stageItems.sprites) {
@@ -17,8 +47,33 @@ class Opponent {
       app.stage.addChild(this.stageItems.textSprites[item]);
     }
   }
-  update() {
-    // with what?
+  update(data: any) {
+    // sprites
+    // text sprites
+    this.stageItems.textSprites.statistics.text = `${
+      data.baseHealth
+    } ${Math.min(data.combo, 0)} ${Math.min(data.receivedEnemiesStock, 0)}`;
+    this.stageItems.textSprites.input.text = `${data.currentInput}`;
+    this.stageItems.textSprites.name.text = `${data.ownerName}`;
+    for (let enemy of data.enemies) {
+      this.updateEnemy(enemy.id, data);
+    }
+  }
+  updateEnemy(id: string, data: any) {
+    if (Object.keys(this.stageItems.sprites).indexOf(`enemy${id}`) === -1) {
+      // create enemy
+      // TODO: temporary.
+      this.stageItems.sprites[`enemy${id}`] = new ExtendedSprite(
+        PIXI.Texture.WHITE
+      );
+      this.stageItems.sprites[`enemy${id}`].tint = getEnemyColor();
+      app.stage.addChild(this.stageItems.sprites[`enemy${id}`]);
+    }
+    let enemyData = data.enemies.find((element: any) => element.id === id);
+    if (enemyData) {
+      this.stageItems.sprites[`enemy${id}`].position.y =
+        720 - 720 * enemyData.sPosition + 100 - 40;
+    }
   }
   destroyAndRender() {
     this.destroy();

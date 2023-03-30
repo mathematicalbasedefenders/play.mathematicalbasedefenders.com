@@ -6,9 +6,16 @@ import { log } from "../core/log";
 import * as input from "../core/input";
 import { submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
+import { findRoomWithConnectionID } from "../core/utilities";
 
 const NO_HOST_ID = "(no host)";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
+const MINIFIED_GAME_DATA_KEYS = [
+  "baseHealth",
+  "combo",
+  "currentInput",
+  "receivedEnemiesStock"
+];
 // TODO: Change design
 let defaultMultiplayerRoomID: string | null = null;
 
@@ -49,6 +56,8 @@ class GameData {
   aborted: boolean;
   enemiesSent!: number;
   enemiesSentStock!: number;
+  opponentGameData!: Array<GameData>;
+  ownerName!: string;
   // ...
   receivedEnemiesStock!: number;
   receivedEnemiesToSpawn!: number;
@@ -59,6 +68,7 @@ class GameData {
     this.enemiesSpawned = 0;
     this.baseHealth = 100;
     this.owner = owner;
+    this.ownerName = universal.getSocketFromConnectionID(owner)?.id || "???";
     this.enemies = [];
     this.enemiesToErase = [];
     this.currentInput = "";
@@ -730,6 +740,43 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
   }
 }
 
+function getOpponentInformation(gameData: GameData, minifyData: boolean) {
+  let currentRoom: SingleplayerRoom | MultiplayerRoom | null =
+    findRoomWithConnectionID(gameData.owner);
+  if (typeof currentRoom === "undefined" || currentRoom == null) {
+    log.warn(`Room for owner ${gameData.owner} of game data not found.`);
+    return [];
+  }
+  let opponentGameData = currentRoom.gameData.filter(
+    (element) => element.owner !== gameData.owner
+  );
+  // add metadata
+  // ...
+  // minify data
+  if (minifyData) {
+    let minifiedOpponentData = [];
+    for (let singleGameData of opponentGameData) {
+      let minifiedGameData: { [key: string]: any } = {};
+      // let allowedKeys = Object.keys(singleGameData).filter((key) =>
+      //   MINIFIED_GAME_DATA_KEYS.includes(key)
+      // );
+      // for (let key of allowedKeys) {
+      //   minifiedGameData[key] = singleGameData[key];
+      // }
+      minifiedGameData.baseHealth = singleGameData.baseHealth;
+      minifiedGameData.combo = singleGameData.combo;
+      minifiedGameData.currentInput = singleGameData.currentInput;
+      minifiedGameData.receivedEnemiesStock =
+        singleGameData.receivedEnemiesStock;
+      minifiedGameData.owner = singleGameData.owner;
+      minifiedGameData.ownerName = singleGameData.ownerName;
+      minifiedGameData.enemies = singleGameData.enemies;
+      minifiedOpponentData.push(minifiedGameData);
+    }
+  }
+  return opponentGameData;
+}
+
 function resetDefaultMultiplayerRoomID(room: string) {
   defaultMultiplayerRoomID = null;
   log.info(`Reset default multiplayer room ID from ${room} to null.`);
@@ -745,5 +792,6 @@ export {
   defaultMultiplayerRoomID,
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
-  MultiplayerGameData
+  MultiplayerGameData,
+  getOpponentInformation
 };
