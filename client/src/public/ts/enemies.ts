@@ -166,4 +166,12 @@ function getEnemyColor() {
   }
   return parseInt(value.substring(1), 16);
 }
-export { Enemy, rerenderEnemy, deleteEnemy, deleteAllEnemies, getEnemyColor };
+export {
+  Enemy,
+  rerenderEnemy,
+  deleteEnemy,
+  deleteAllEnemies,
+  getEnemyColor,
+  DEFAULT_ENEMY_HEIGHT,
+  DEFAULT_ENEMY_WIDTH
+};

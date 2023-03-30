@@ -1,12 +1,17 @@
 import { app, ExtendedSprite, ExtendedText } from ".";
 import * as PIXI from "pixi.js";
-import { getEnemyColor } from "./enemies";
+import {
+  DEFAULT_ENEMY_HEIGHT,
+  DEFAULT_ENEMY_WIDTH,
+  getEnemyColor
+} from "./enemies";
 class Opponent {
   boundTo!: string;
   stageItems!: {
     sprites: { [key: string]: ExtendedSprite };
     textSprites: { [key: string]: ExtendedText };
   };
+  static globalScale = 0.3;
   static instances: Array<Opponent> = [];
   constructor() {
     this.stageItems = {
@@ -33,7 +38,10 @@ class Opponent {
         })
       }
     };
-    this.stageItems.sprites.playFieldBorder.scale.set(0.3, 0.3);
+    this.stageItems.sprites.playFieldBorder.scale.set(
+      Opponent.globalScale,
+      Opponent.globalScale
+    );
     Opponent.instances.push(this);
   }
   bind(connectionID: string) {
@@ -66,13 +74,17 @@ class Opponent {
       this.stageItems.sprites[`enemy${id}`] = new ExtendedSprite(
         PIXI.Texture.WHITE
       );
+      this.stageItems.sprites[`enemy${id}`].width =
+        DEFAULT_ENEMY_WIDTH * Opponent.globalScale;
+      this.stageItems.sprites[`enemy${id}`].height =
+        DEFAULT_ENEMY_HEIGHT * Opponent.globalScale;
       this.stageItems.sprites[`enemy${id}`].tint = getEnemyColor();
       app.stage.addChild(this.stageItems.sprites[`enemy${id}`]);
     }
     let enemyData = data.enemies.find((element: any) => element.id === id);
     if (enemyData) {
       this.stageItems.sprites[`enemy${id}`].position.y =
-        720 - 720 * enemyData.sPosition + 100 - 40;
+        (720 - 720 * enemyData.sPosition + 100 - 40) * Opponent.globalScale;
     }
   }
   destroyAndRender() {
