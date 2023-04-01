@@ -771,6 +771,7 @@ function getOpponentInformation(gameData: GameData, minifyData: boolean) {
       minifiedGameData.owner = singleGameData.owner;
       minifiedGameData.ownerName = singleGameData.ownerName;
       minifiedGameData.enemies = singleGameData.enemies;
+      minifiedGameData.enemiesToErase = singleGameData.enemiesToErase;
       minifiedOpponentData.push(minifiedGameData);
     }
   }

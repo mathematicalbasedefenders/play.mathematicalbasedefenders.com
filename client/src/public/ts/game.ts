@@ -161,6 +161,10 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
   if (alsoRedrawStage) {
     redrawStage();
   }
+  // TODO: temporary
+  for (let opponent of Opponent.instances) {
+    opponent.destroyAllInstances();
+  }
   enemies.deleteAllEnemies();
   switch (screen) {
     case "mainMenu": {

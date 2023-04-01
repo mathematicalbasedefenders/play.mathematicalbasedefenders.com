@@ -5,7 +5,6 @@ import {
   DEFAULT_ENEMY_WIDTH,
   getEnemyColor
 } from "./enemies";
-
 // TODO: find better way
 const OPPONENT_INSTANCE_OFFSETS: { [key: string]: any } = {
   "sprites": {
@@ -48,7 +47,7 @@ class Opponent {
   constructor() {
     this.stageItems = {
       sprites: {
-        playFieldBorder: new ExtendedSprite(
+        "playFieldBorder": new ExtendedSprite(
           PIXI.Texture.from("assets/images/playfield.png")
         )
       },
@@ -100,24 +99,44 @@ class Opponent {
     for (let enemy of data.enemies) {
       this.updateEnemy(enemy.id, data);
     }
+    let enemyToDeleteMatches = data.enemiesToErase;
+    for (let enemyID of enemyToDeleteMatches) {
+      let enemyToDelete = this.stageItems.sprites[`enemy${enemyID}`];
+      if (enemyToDelete) {
+        app.stage.removeChild(enemyToDelete);
+      }
+    }
   }
   reposition(xPosition: number, yPosition: number) {
     this.xPositionOffset = xPosition;
     this.yPositionOffset = yPosition;
     for (let sprite in this.stageItems.sprites) {
-      this.stageItems.sprites[sprite] =
-        OPPONENT_INSTANCE_OFFSETS["sprites"][sprite].x + xPosition;
-      this.stageItems.sprites[sprite] =
-        OPPONENT_INSTANCE_OFFSETS["sprites"][sprite].y + yPosition;
+      if (sprite.indexOf("enemy") > -1) {
+        // this.stageItems.sprites[sprite].x =
+        //   OPPONENT_INSTANCE_OFFSETS["enemies"].x + xPosition;
+        // this.stageItems.sprites[sprite].y =
+        //   OPPONENT_INSTANCE_OFFSETS["enemies"].y + yPosition;
+        continue;
+      }
+
+      if (this.stageItems.sprites[sprite]) {
+        this.stageItems.sprites[sprite].x =
+          OPPONENT_INSTANCE_OFFSETS["sprites"][sprite].x + xPosition;
+        this.stageItems.sprites[sprite].y =
+          OPPONENT_INSTANCE_OFFSETS["sprites"][sprite].y + yPosition;
+      }
     }
     for (let sprite in this.stageItems.textSprites) {
-      this.stageItems.textSprites[sprite] =
-        OPPONENT_INSTANCE_OFFSETS["textSprites"][sprite].x + xPosition;
-      this.stageItems.textSprites[sprite] =
-        OPPONENT_INSTANCE_OFFSETS["textSprites"][sprite].y + yPosition;
+      if (this.stageItems.textSprites[sprite]) {
+        this.stageItems.textSprites[sprite].x =
+          OPPONENT_INSTANCE_OFFSETS["textSprites"][sprite].x + xPosition;
+        this.stageItems.textSprites[sprite].y =
+          OPPONENT_INSTANCE_OFFSETS["textSprites"][sprite].y + yPosition;
+      }
     }
   }
   updateEnemy(id: string, data: any) {
+    // create enemy if none exists
     if (Object.keys(this.stageItems.sprites).indexOf(`enemy${id}`) === -1) {
       // create enemy
       // TODO: temporary.
@@ -125,24 +144,32 @@ class Opponent {
         PIXI.Texture.WHITE
       );
       this.stageItems.sprites[`enemy${id}`].width =
-        DEFAULT_ENEMY_WIDTH * Opponent.globalScale;
+        DEFAULT_ENEMY_WIDTH * (DEFAULT_ENEMY_WIDTH / Math.min(640, 800));
       this.stageItems.sprites[`enemy${id}`].height =
-        DEFAULT_ENEMY_HEIGHT * Opponent.globalScale;
+        DEFAULT_ENEMY_HEIGHT * (DEFAULT_ENEMY_HEIGHT / Math.min(800, 640));
       this.stageItems.sprites[`enemy${id}`].tint = getEnemyColor();
       app.stage.addChild(this.stageItems.sprites[`enemy${id}`]);
     }
     let enemyData = data.enemies.find((element: any) => element.id === id);
     if (enemyData) {
+      let enemyRealPosition =
+        enemyData.xPosition *
+        (this.stageItems.sprites["playFieldBorder"].width -
+          this.stageItems.sprites[`enemy${id}`].width);
+
       this.stageItems.sprites[`enemy${id}`].position.x =
-        enemyData.xPosition * this.stageItems.sprites.playFieldBorder.width;
+        this.stageItems.sprites["playFieldBorder"].position.x +
+        enemyRealPosition;
+
       this.stageItems.sprites[`enemy${id}`].position.y =
-        (720 - 720 * enemyData.sPosition + 100 - 40) * Opponent.globalScale +
+        (720 - 720 * enemyData.sPosition + 100 - 40 - DEFAULT_ENEMY_HEIGHT) *
+          Opponent.globalScale +
         this.yPositionOffset;
     }
   }
   destroyAndRender() {
     this.destroy();
-    this.reposition(0, 0);
+    // this.reposition(0, 0);
     this.render();
   }
   // this method destroys all the sprites
@@ -151,8 +178,14 @@ class Opponent {
       app.stage.removeChild(this.stageItems.sprites[item]);
     }
     for (let item in this.stageItems.textSprites) {
-      app.stage.removeChild(this.stageItems.sprites[item]);
+      app.stage.removeChild(this.stageItems.textSprites[item]);
     }
+  }
+  destroyAllInstances() {
+    for (let instance of Opponent.instances) {
+      instance.destroy();
+    }
+    Opponent.instances = [];
   }
   // TODO: add method for destroying the instance.
   // for now just delete (e.g. splice) it from the static variable instances
