@@ -65,6 +65,7 @@ function renderGameData(data: { [key: string]: any }) {
         let newInstance = new Opponent();
         newInstance.bind(opponentData.owner);
         newInstance.render();
+        //
       } else {
         renderedInstance.update(opponentData);
       }

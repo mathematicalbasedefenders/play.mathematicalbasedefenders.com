@@ -58,6 +58,17 @@ const variables: { [key: string]: any } = {
   settings: {
     multiplicationSign: "dot",
     beautifulScore: false
+  },
+  enemyInstancesPerColumn: 2,
+  enemyInstancePositions: {
+    x: {
+      initial: 120,
+      increment: 200
+    },
+    y: {
+      initial: 160,
+      increment: 336
+    }
   }
 };
 

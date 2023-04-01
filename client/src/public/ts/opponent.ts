@@ -1,4 +1,4 @@
-import { app, ExtendedSprite, ExtendedText } from ".";
+import { app, ExtendedSprite, ExtendedText, stageItems, variables } from ".";
 import * as PIXI from "pixi.js";
 import {
   DEFAULT_ENEMY_HEIGHT,
@@ -16,15 +16,15 @@ const OPPONENT_INSTANCE_OFFSETS: { [key: string]: any } = {
   "textSprites": {
     "statistics": {
       x: 0,
-      y: 300
+      y: 240 + 16
     },
     "input": {
       x: 0,
-      y: 330
+      y: 240 + 40
     },
     "name": {
       x: 0,
-      y: 360
+      y: 240 + 64
     }
   },
   // depends on enemies position
@@ -42,6 +42,7 @@ class Opponent {
   };
   xPositionOffset: number;
   yPositionOffset: number;
+  instanceNumber: number;
   static globalScale = 0.3;
   static instances: Array<Opponent> = [];
   constructor() {
@@ -73,6 +74,7 @@ class Opponent {
       Opponent.globalScale,
       Opponent.globalScale
     );
+    this.instanceNumber = Opponent.instances.length;
     this.xPositionOffset = 0;
     this.yPositionOffset = 0;
     Opponent.instances.push(this);
@@ -87,6 +89,19 @@ class Opponent {
     for (let item in this.stageItems.textSprites) {
       app.stage.addChild(this.stageItems.textSprites[item]);
     }
+    let xPosition =
+      stageItems.sprites["playFieldBorder"].position.x +
+      stageItems.sprites["playFieldBorder"].width +
+      variables.enemyInstancePositions.x.initial +
+      variables.enemyInstancePositions.x.increment *
+        Math.floor(
+          this.getInstanceNumberPosition() / variables.enemyInstancesPerColumn
+        );
+    let yPosition =
+      variables.enemyInstancePositions.y.initial +
+      variables.enemyInstancePositions.y.increment *
+        (this.getInstanceNumberPosition() % variables.enemyInstancesPerColumn);
+    this.reposition(xPosition, yPosition);
   }
   update(data: any) {
     // sprites
@@ -186,6 +201,18 @@ class Opponent {
       instance.destroy();
     }
     Opponent.instances = [];
+  }
+  getInstanceNumberPosition() {
+    // sort all instances, then find index
+    // lowest index comes first, then higher
+    // made to fill in "blank spaces"
+    // TODO: might need caching so this doesn't get called every update
+    let sorted = Opponent.instances.sort(
+      (a, b) => a.instanceNumber - b.instanceNumber
+    );
+    return sorted.findIndex(
+      (element) => element.instanceNumber === this.instanceNumber
+    );
   }
   // TODO: add method for destroying the instance.
   // for now just delete (e.g. splice) it from the static variable instances
