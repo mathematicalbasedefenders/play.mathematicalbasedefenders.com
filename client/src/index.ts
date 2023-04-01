@@ -49,7 +49,7 @@ app.get("/", limiter, (request: Request, response: Response) => {
   response.render("pages/index.ejs");
 });
 app.listen(PORT, () => {
-  log.info(`Server listening at port ${PORT}`);
+  log.info(`Client app listening at port ${PORT}`);
   if (process.env.credentialSetUsed === "TESTING") {
     log.warn("Using testing credentials.");
   }
