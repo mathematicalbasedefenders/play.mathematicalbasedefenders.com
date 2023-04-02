@@ -112,6 +112,7 @@ function renderGameData(data: { [key: string]: any }) {
     stageItems.textSprites.comboText.text = ``;
   }
 
+  // text
   stageItems.textSprites.baseHealthText.text = `♡ ${data.baseHealth}`;
   // text: multiplayer
   if (typeof data.receivedEnemiesStock === "number") {
@@ -122,6 +123,7 @@ function renderGameData(data: { [key: string]: any }) {
     stageItems.textSprites.enemiesReceivedStockText.text = "";
   }
 
+  // beautiful score setting
   if (variables.settings.beautifulScore === "on") {
     let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
     if (data.score !== currentDisplayedScore) {
@@ -137,6 +139,15 @@ function renderGameData(data: { [key: string]: any }) {
     }
   } else {
     stageItems.textSprites.scoreText.text = data.score;
+  }
+
+  // multiplayer
+  if (data.mode.indexOf("Multiplayer") > -1) {
+    if (data.aborted) {
+      changeScreen("mainMenu");
+    } else if (data.baseHealth <= 0) {
+      changeScreen("multiplayerIntermission");
+    }
   }
 }
 

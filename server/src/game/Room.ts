@@ -559,6 +559,15 @@ class MultiplayerRoom extends Room {
         }
         if (data.baseHealth <= 0) {
           // player is eliminated.
+          let socket = universal.getSocketFromConnectionID(data.owner);
+          if (socket && !data.aborted) {
+            socket.send(
+              JSON.stringify({
+                message: "changeScreen",
+                newScreen: "multiplayerIntermission"
+              })
+            );
+          }
           this.eliminateSocketID(data.owner);
         }
 
@@ -600,14 +609,28 @@ class MultiplayerRoom extends Room {
     let socket = universal.getSocketFromConnectionID(connectionID);
     if (typeof socket === "undefined") {
       log.warn(
-        `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
+        `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
       );
+      let gameDataIndex = this.gameData.findIndex(
+        (element) => element.owner === connectionID
+      );
+      if (gameDataIndex === -1) {
+        log.warn(
+          `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
+        );
+      }
       return;
     }
     // eliminate the socket
     let gameDataIndex = this.gameData.findIndex(
       (element) => element.owner === connectionID
     );
+    if (gameDataIndex === -1) {
+      log.warn(
+        `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
+      );
+      return;
+    }
     this.gameData.splice(gameDataIndex, 1);
     log.info(
       `Socket ID ${connectionID} has been eliminated from the Default Multiplayer Room`
@@ -648,6 +671,9 @@ class MultiplayerRoom extends Room {
       Date.now() + DEFAULT_MULTIPLAYER_INTERMISSION_TIME
     );
     this.connectionIDsThisRound = [];
+    this.gameData = [];
+    // send everyone to intermission
+
     log.info(`Room ${this.id} has stopped play.`);
   }
 
@@ -742,6 +768,7 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
     }
     room.deleteMember(socket.connectionID as string);
   }
+  socket.unsubscribe(defaultMultiplayerRoomID as string);
 }
 
 function getOpponentInformation(
