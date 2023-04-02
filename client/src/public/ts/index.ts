@@ -63,7 +63,7 @@ const variables: { [key: string]: any } = {
   enemyInstancePositions: {
     x: {
       initial: 120,
-      increment: 200
+      increment: 240
     },
     y: {
       initial: 160,
