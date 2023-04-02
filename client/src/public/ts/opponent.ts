@@ -78,9 +78,9 @@ class Opponent {
   update(data: any) {
     // sprites
     // text sprites
-    this.stageItems.textSprites.statistics.text = `${
+    this.stageItems.textSprites.statistics.text = `♡${
       data.baseHealth
-    } ${Math.max(data.combo, 0)} ${Math.min(data.receivedEnemiesStock, 0)}`;
+    } ${Math.max(data.combo, 0)}C ${Math.min(data.receivedEnemiesStock, 0)}ST`;
     this.stageItems.textSprites.input.text = `${data.currentInput}`;
     this.stageItems.textSprites.name.text = `${data.ownerName}`;
     for (let enemy of data.enemies) {
