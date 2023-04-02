@@ -94,6 +94,19 @@ class Opponent {
       }
     }
   }
+  autoReposition() {
+    let position = this.getInstanceNumberPosition();
+    this.reposition(
+      stageItems.sprites["playFieldBorder"].position.x +
+        stageItems.sprites["playFieldBorder"].width +
+        variables.enemyInstancePositions.x.initial +
+        variables.enemyInstancePositions.x.increment *
+          Math.floor(position / variables.enemyInstancesPerColumn),
+      variables.enemyInstancePositions.y.initial +
+        variables.enemyInstancePositions.y.increment *
+          Math.floor(position % variables.enemyInstancesPerColumn)
+    );
+  }
   reposition(xPosition: number, yPosition: number) {
     this.xPositionOffset = xPosition;
     this.yPositionOffset = yPosition;

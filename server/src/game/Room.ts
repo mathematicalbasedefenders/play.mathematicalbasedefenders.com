@@ -66,7 +66,7 @@ class GameData {
     this.score = 0;
     this.enemiesKilled = 0;
     this.enemiesSpawned = 0;
-    this.baseHealth = 100;
+    this.baseHealth = Math.floor(Math.random() * 250); // TODO: CHANGE BACK!!!
     this.owner = owner;
     this.ownerName = universal.getNameFromConnectionID(owner) || "???";
     this.enemies = [];
@@ -78,6 +78,7 @@ class GameData {
     this.aborted = false;
     this.enemiesSent = 0;
     this.enemiesSentStock = 0;
+
     if (mode === GameMode.EasySingleplayer) {
       this.clocks = {
         enemySpawn: {
@@ -155,6 +156,7 @@ class Room {
   gameData: Array<GameData> = [];
   lastUpdateTime: number;
   mode!: GameMode;
+  connectionIDsThisRound: Array<string> = [];
   constructor(hostConnectionID: string, gameMode: GameMode, noHost?: boolean) {
     this.mode = gameMode;
     this.id = generateRoomID(8);
@@ -164,7 +166,7 @@ class Room {
     } else {
       this.hostConnectionID = hostConnectionID;
     }
-
+    this.connectionIDsThisRound = [];
     this.addMember(hostConnectionID);
     this.lastUpdateTime = Date.now();
 
@@ -199,7 +201,7 @@ class Room {
     this.updateNumber++;
   }
 
-  start() {
+  startPlay() {
     if (
       this.mode === GameMode.EasySingleplayer ||
       this.mode === GameMode.StandardSingleplayer
@@ -215,6 +217,7 @@ class Room {
         this.gameData.push(new MultiplayerGameData(member, this.mode));
       }
     }
+    this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
     this.playing = true;
     log.info(`Room ${this.id} has started play!`);
   }
@@ -455,7 +458,7 @@ class MultiplayerRoom extends Room {
       // TODO: Refactor this
       if (this.nextGameStartTime != null) {
         if (new Date() >= this.nextGameStartTime) {
-          this.start();
+          this.startPlay();
           this.playersAtStart = this.memberConnectionIDs.length;
           for (let connectionID of this.memberConnectionIDs) {
             let socket = universal.getSocketFromConnectionID(connectionID);
@@ -644,6 +647,7 @@ class MultiplayerRoom extends Room {
     this.nextGameStartTime = new Date(
       Date.now() + DEFAULT_MULTIPLAYER_INTERMISSION_TIME
     );
+    this.connectionIDsThisRound = [];
     log.info(`Room ${this.id} has stopped play.`);
   }
 
@@ -740,9 +744,14 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
   }
 }
 
-function getOpponentInformation(gameData: GameData, minifyData: boolean) {
+function getOpponentInformation(
+  gameData: GameData,
+  room: Room,
+  minifyData: boolean
+): any {
   let currentRoom: SingleplayerRoom | MultiplayerRoom | null =
     findRoomWithConnectionID(gameData.owner);
+  let aliveConnectionIDs: Array<string> = [];
   if (typeof currentRoom === "undefined" || currentRoom == null) {
     log.warn(`Room for owner ${gameData.owner} of game data not found.`);
     return [];
@@ -754,7 +763,8 @@ function getOpponentInformation(gameData: GameData, minifyData: boolean) {
   // ...
   // minify data
   if (minifyData) {
-    let minifiedOpponentData = [];
+    let minifiedOpponentGameData = [];
+
     for (let singleGameData of opponentGameData) {
       let minifiedGameData: { [key: string]: any } = {};
       // let allowedKeys = Object.keys(singleGameData).filter((key) =>
@@ -772,8 +782,22 @@ function getOpponentInformation(gameData: GameData, minifyData: boolean) {
       minifiedGameData.ownerName = singleGameData.ownerName;
       minifiedGameData.enemies = singleGameData.enemies;
       minifiedGameData.enemiesToErase = singleGameData.enemiesToErase;
-      minifiedOpponentData.push(minifiedGameData);
+      minifiedOpponentGameData.push(minifiedGameData);
+      aliveConnectionIDs.push(singleGameData.owner);
     }
+    // 0 base health players
+    let eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
+      (element) =>
+        aliveConnectionIDs.indexOf(element) === -1 && element !== gameData.owner
+    );
+    // console.log(eliminatedConnectionIDs);
+    for (let eliminated of eliminatedConnectionIDs) {
+      let minifiedGameData: { [key: string]: any } = {};
+      minifiedGameData.owner = eliminated;
+      minifiedGameData.baseHealth = -99999;
+      minifiedOpponentGameData.push(minifiedGameData);
+    }
+    return minifiedOpponentGameData;
   }
   return opponentGameData;
 }

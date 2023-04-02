@@ -50,9 +50,12 @@ function findGameDataWithConnectionID(connectionID: string, room?: Room) {
 }
 
 function findRoomWithConnectionID(
-  connectionID: string,
+  connectionID: string | undefined,
   countSpectatorsToo?: boolean
 ) {
+  if (typeof connectionID === "undefined") {
+    return null;
+  }
   for (let room in universal.rooms) {
     if (countSpectatorsToo) {
       if (

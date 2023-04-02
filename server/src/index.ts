@@ -256,7 +256,14 @@ function update(deltaTime: number) {
       // add some game data (extra information)
       // such as for multiplayer
       if (gameData.mode.indexOf("Multiplayer") > -1) {
-        gameData.opponentGameData = getOpponentInformation(gameData, true);
+        let room = utilities.findRoomWithConnectionID(socket.connectionID);
+        if (room) {
+          gameData.opponentGameData = getOpponentInformation(
+            gameData,
+            room,
+            true
+          );
+        }
       }
       let gameDataToSend: string = JSON.stringify(gameData);
       universal.getSocketFromConnectionID(socket.connectionID as string)?.send(
@@ -309,7 +316,7 @@ function createNewSingleplayerRoom(
   gameMode: GameMode
 ) {
   let room = new SingleplayerRoom(socket.connectionID as string, gameMode);
-  room.start();
+  room.startPlay();
   socket.subscribe(room.id);
   universal.rooms.push(room);
 }

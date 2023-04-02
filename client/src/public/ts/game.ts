@@ -67,7 +67,24 @@ function renderGameData(data: { [key: string]: any }) {
         newInstance.render();
         //
       } else {
-        renderedInstance.update(opponentData);
+        if (opponentData.baseHealth > 0) {
+          renderedInstance.update(opponentData);
+        }
+      }
+    }
+    for (let opponentData of data.opponentGameData) {
+      if (opponentData.baseHealth <= 0) {
+        let renderedInstance = Opponent.instances?.find(
+          (element) => element.boundTo === opponentData.owner
+        );
+        let index = Opponent.instances.findIndex(
+          (element) => element.boundTo === opponentData.owner
+        );
+        renderedInstance?.destroy();
+        Opponent.instances.splice(index, 1);
+        for (let instance of Opponent.instances) {
+          instance.autoReposition();
+        }
       }
     }
   }
