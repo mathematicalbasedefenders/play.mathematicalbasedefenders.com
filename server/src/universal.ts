@@ -36,6 +36,18 @@ function getSocketFromConnectionID(id: string): GameSocket | undefined {
   return sockets.find((socket) => socket.connectionID === id);
 }
 
+function getNameFromConnectionID(id: string): string | undefined {
+  let socket = getSocketFromConnectionID(id);
+  if (typeof socket === "undefined") {
+    return "???";
+  }
+  if (socket.loggedIn) {
+    return socket.ownerUsername;
+  } else {
+    return socket.ownerGuestName;
+  }
+}
+
 function getGameDataFromConnectionID(id: string): SingleplayerGameData | null {
   for (let room of rooms) {
     if (room) {
@@ -55,5 +67,6 @@ export {
   deleteSocket,
   rooms,
   getSocketFromConnectionID,
-  getGameDataFromConnectionID
+  getGameDataFromConnectionID,
+  getNameFromConnectionID
 };

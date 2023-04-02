@@ -5,34 +5,6 @@ import {
   DEFAULT_ENEMY_WIDTH,
   getEnemyColor
 } from "./enemies";
-// TODO: find better way
-const OPPONENT_INSTANCE_OFFSETS: { [key: string]: any } = {
-  "sprites": {
-    "playFieldBorder": {
-      x: 0,
-      y: 0
-    }
-  },
-  "textSprites": {
-    "statistics": {
-      x: 0,
-      y: 240 + 16
-    },
-    "input": {
-      x: 0,
-      y: 240 + 40
-    },
-    "name": {
-      x: 0,
-      y: 240 + 64
-    }
-  },
-  // depends on enemies position
-  "enemies": {
-    x: 0,
-    y: 0
-  }
-};
 
 class Opponent {
   boundTo!: string;
@@ -108,7 +80,7 @@ class Opponent {
     // text sprites
     this.stageItems.textSprites.statistics.text = `${
       data.baseHealth
-    } ${Math.min(data.combo, 0)} ${Math.min(data.receivedEnemiesStock, 0)}`;
+    } ${Math.max(data.combo, 0)} ${Math.min(data.receivedEnemiesStock, 0)}`;
     this.stageItems.textSprites.input.text = `${data.currentInput}`;
     this.stageItems.textSprites.name.text = `${data.ownerName}`;
     for (let enemy of data.enemies) {
@@ -125,29 +97,31 @@ class Opponent {
   reposition(xPosition: number, yPosition: number) {
     this.xPositionOffset = xPosition;
     this.yPositionOffset = yPosition;
+    let instanceOffsets = this.getPositions();
     for (let sprite in this.stageItems.sprites) {
       if (sprite.indexOf("enemy") > -1) {
-        // this.stageItems.sprites[sprite].x =
-        //   OPPONENT_INSTANCE_OFFSETS["enemies"].x + xPosition;
-        // this.stageItems.sprites[sprite].y =
-        //   OPPONENT_INSTANCE_OFFSETS["enemies"].y + yPosition;
         continue;
       }
 
       if (this.stageItems.sprites[sprite]) {
         this.stageItems.sprites[sprite].x =
-          OPPONENT_INSTANCE_OFFSETS["sprites"][sprite].x + xPosition;
+          instanceOffsets["sprites"][sprite].x + xPosition;
         this.stageItems.sprites[sprite].y =
-          OPPONENT_INSTANCE_OFFSETS["sprites"][sprite].y + yPosition;
+          instanceOffsets["sprites"][sprite].y + yPosition;
       }
     }
     for (let sprite in this.stageItems.textSprites) {
       if (this.stageItems.textSprites[sprite]) {
         this.stageItems.textSprites[sprite].x =
-          OPPONENT_INSTANCE_OFFSETS["textSprites"][sprite].x + xPosition;
+          instanceOffsets["textSprites"][sprite].x + xPosition;
         this.stageItems.textSprites[sprite].y =
-          OPPONENT_INSTANCE_OFFSETS["textSprites"][sprite].y + yPosition;
+          instanceOffsets["textSprites"][sprite].y + yPosition;
       }
+    }
+
+    let centered = ["statistics", "input", "name"];
+    for (let element of centered) {
+      this.stageItems.textSprites[element].anchor.set(0.5, 0.5);
     }
   }
   updateEnemy(id: string, data: any) {
@@ -213,6 +187,36 @@ class Opponent {
     return sorted.findIndex(
       (element) => element.instanceNumber === this.instanceNumber
     );
+  }
+  getPositions() {
+    let data: { [key: string]: any } = {
+      "sprites": {
+        "playFieldBorder": {
+          x: 0,
+          y: 0
+        }
+      },
+      "textSprites": {
+        "statistics": {
+          x: this.stageItems.sprites["playFieldBorder"].width / 2,
+          y: 240 + 16
+        },
+        "input": {
+          x: this.stageItems.sprites["playFieldBorder"].width / 2,
+          y: 240 + 40
+        },
+        "name": {
+          x: this.stageItems.sprites["playFieldBorder"].width / 2,
+          y: 240 + 64
+        }
+      },
+      // depends on enemies position
+      "enemies": {
+        x: 0,
+        y: 0
+      }
+    };
+    return data;
   }
   // TODO: add method for destroying the instance.
   // for now just delete (e.g. splice) it from the static variable instances

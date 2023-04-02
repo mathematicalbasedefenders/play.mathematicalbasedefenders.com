@@ -68,7 +68,7 @@ class GameData {
     this.enemiesSpawned = 0;
     this.baseHealth = 100;
     this.owner = owner;
-    this.ownerName = universal.getSocketFromConnectionID(owner)?.id || "???";
+    this.ownerName = universal.getNameFromConnectionID(owner) || "???";
     this.enemies = [];
     this.enemiesToErase = [];
     this.currentInput = "";
