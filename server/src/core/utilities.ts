@@ -49,6 +49,16 @@ function findGameDataWithConnectionID(connectionID: string, room?: Room) {
   return null;
 }
 
+function generateRankingText(rankingData: Array<any>) {
+  let reversed = rankingData.reverse();
+  let result = "";
+  for (let record of reversed) {
+    result += `#${record.placement} ${record.name} ${record.time}ms ${record.sent}S/${record.received}R`;
+    result += `<br>`;
+  }
+  return result;
+}
+
 function findRoomWithConnectionID(
   connectionID: string | undefined,
   countSpectatorsToo?: boolean
@@ -126,5 +136,6 @@ export {
   findGameDataWithConnectionID,
   millisecondsToTime,
   getRank,
+  generateRankingText,
   mutatedArrayFilter
 };
