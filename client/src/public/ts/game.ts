@@ -114,6 +114,7 @@ function renderGameData(data: { [key: string]: any }) {
 
   // text
   stageItems.textSprites.baseHealthText.text = `♡ ${data.baseHealth}`;
+  stageItems.textSprites.nameText.text = data.ownerName;
   // text: multiplayer
   if (typeof data.receivedEnemiesStock === "number") {
     // implies multiplayer game

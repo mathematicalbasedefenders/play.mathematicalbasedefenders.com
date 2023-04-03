@@ -126,6 +126,11 @@ const stageItems: stageItemsContainer = {
       fontFamily: "Computer Modern Unicode Serif",
       fontSize: 48,
       fill: "#ffffff"
+    }),
+    nameText: new ExtendedText("Score", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 36,
+      fill: "#ffffff"
     })
   }
 };
@@ -160,6 +165,10 @@ function setContainerItemProperties() {
   //
   stageItems.textSprites.enemiesReceivedStockText.text = "";
   stageItems.textSprites.enemiesReceivedStockText.position.set(1294, 525);
+  //
+  stageItems.textSprites.nameText.text = "";
+  stageItems.textSprites.nameText.position.set(964, 983);
+  stageItems.textSprites.nameText.anchor.set(0.5, 0.5);
 }
 
 setContainerItemProperties();
