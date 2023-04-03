@@ -68,7 +68,8 @@ class Enemy {
     if (giveScore) {
       if (gameData instanceof MultiplayerGameData) {
         let attack = this.calculateSent(1, gameData.combo);
-        gameData.enemiesSent += attack;
+        gameData.totalEnemiesSent += attack;
+        gameData.attackScore += attack;
         // gameData.enemiesSentStock += attack;
         while (attack > 0) {
           if (gameData.receivedEnemiesStock > 0) {
