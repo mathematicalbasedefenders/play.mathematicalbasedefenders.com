@@ -91,12 +91,12 @@ function processKeypress(
     );
     if (socket) {
       leaveMultiplayerRoom(socket);
-      socket.send(
-        JSON.stringify({
-          message: "changeScreen",
-          newScreen: "mainMenu"
-        })
-      );
+      // socket.send(
+      //   JSON.stringify({
+      //     message: "changeScreen",
+      //     newScreen: "mainMenu"
+      //   })
+      // );
     }
   }
 }

@@ -66,7 +66,7 @@ class GameData {
     this.score = 0;
     this.enemiesKilled = 0;
     this.enemiesSpawned = 0;
-    this.baseHealth = Math.floor(Math.random() * 250); // TODO: CHANGE BACK!!!
+    this.baseHealth = 100;
     this.owner = owner;
     this.ownerName = universal.getNameFromConnectionID(owner) || "???";
     this.enemies = [];
@@ -767,8 +767,8 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
       }
     }
     room.deleteMember(socket.connectionID as string);
+    socket.unsubscribe(defaultMultiplayerRoomID as string);
   }
-  socket.unsubscribe(defaultMultiplayerRoomID as string);
 }
 
 function getOpponentInformation(
