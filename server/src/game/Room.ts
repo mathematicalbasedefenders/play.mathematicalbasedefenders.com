@@ -68,7 +68,7 @@ class GameData {
     this.score = 0;
     this.enemiesKilled = 0;
     this.enemiesSpawned = 0;
-    this.baseHealth = 1000 * Math.random(); // FIXME: CHANGE BACK!!!
+    this.baseHealth = 100;
     this.owner = owner;
     this.ownerName = universal.getNameFromConnectionID(owner) || "???";
     this.enemies = [];
