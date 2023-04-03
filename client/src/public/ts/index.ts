@@ -129,7 +129,7 @@ const stageItems: stageItemsContainer = {
     }),
     nameText: new ExtendedText("Score", {
       fontFamily: "Computer Modern Unicode Serif",
-      fontSize: 36,
+      fontSize: 20,
       fill: "#ffffff"
     })
   }
