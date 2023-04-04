@@ -56,6 +56,8 @@ function renderGameData(data: { [key: string]: any }) {
   // multiplayer
   if (data.mode.indexOf("Multiplayer") > -1) {
     // multiplayer
+    stageItems.textSprites.scoreLabelText.text = "Attack Score";
+    data.score = data.attackScore;
     for (let opponentData of data.opponentGameData) {
       // check if there is already an opponent game instance rendered with said data
       let renderedInstance = Opponent.instances?.find(
@@ -87,6 +89,8 @@ function renderGameData(data: { [key: string]: any }) {
         }
       }
     }
+  } else {
+    stageItems.textSprites.scoreLabelText.text = "Score";
   }
 
   // text
