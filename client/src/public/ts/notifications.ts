@@ -27,7 +27,6 @@ class ToastNotification {
     this.age = 0;
     this.render();
     ToastNotification.notifications.push(this);
-    console.log(ToastNotification.notifications);
   }
 
   render() {
