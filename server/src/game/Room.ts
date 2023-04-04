@@ -441,6 +441,9 @@ class MultiplayerRoom extends Room {
     this.lastUpdateTime = now;
 
     // other global stuff
+    let playerListText = utilities.generatePlayerListText(
+      this.memberConnectionIDs
+    );
     for (let connectionID of this.memberConnectionIDs) {
       let socket = universal.getSocketFromConnectionID(connectionID);
       if (socket) {
@@ -451,6 +454,15 @@ class MultiplayerRoom extends Room {
               "#main-content__multiplayer-intermission-screen-container__game-status-ranking",
 
             value: utilities.generateRankingText(_.clone(this.ranking))
+          })
+        );
+        socket.send(
+          JSON.stringify({
+            message: "changeHTML",
+            selector:
+              "#main-content__multiplayer-intermission-screen-container__player-list",
+
+            value: playerListText
           })
         );
       }

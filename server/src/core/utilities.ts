@@ -130,6 +130,16 @@ function mutatedArrayFilter(array: Array<unknown>, callback: Function) {
     if (!callback(array[i])) array.splice(i, 1);
   }
 }
+
+function generatePlayerListText(connections: Array<string>) {
+  let text = "";
+  for (let connection of connections) {
+    text += universal.getNameFromConnectionID(connection);
+    text += "<br>";
+  }
+  return text;
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -137,5 +147,6 @@ export {
   millisecondsToTime,
   getRank,
   generateRankingText,
-  mutatedArrayFilter
+  mutatedArrayFilter,
+  generatePlayerListText
 };
