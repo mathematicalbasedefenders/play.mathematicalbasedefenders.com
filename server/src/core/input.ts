@@ -55,7 +55,11 @@ function emulateKeypress(
   connectionID: string | undefined,
   code: string | undefined
 ) {
-  log.info(`Keypress ${code} emulated on Socket ID ${connectionID}`);
+  log.info(
+    `Keypress ${code} emulated on Socket ID ${connectionID} (${universal.getNameFromConnectionID(
+      connectionID || ""
+    )})`
+  );
   if (typeof connectionID !== "string") {
     log.warn(
       "An emulated keypress event that isn't associated with any socket connectionID has been fired."
