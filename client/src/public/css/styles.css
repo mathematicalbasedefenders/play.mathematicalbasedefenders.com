@@ -323,6 +323,7 @@ body {
 #main-content__multiplayer-intermission-screen-container__chat__messages {
   height: 90%;
   width: 100%;
+  overflow-x: hidden;
 }
 
 #main-content__multiplayer-intermission-screen-container__chat__entry {
