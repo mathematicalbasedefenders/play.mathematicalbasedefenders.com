@@ -1,12 +1,14 @@
 import { log } from "./log";
 import * as universal from "../universal";
 import {
+  defaultMultiplayerRoomID,
   GameData,
   leaveMultiplayerRoom,
   MultiplayerGameData,
   processKeypressForRoom,
   SingleplayerGameData
 } from "../game/Room";
+import { findRoomWithConnectionID } from "./utilities";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -91,12 +93,12 @@ function processKeypress(
     );
     if (socket) {
       leaveMultiplayerRoom(socket);
-      // socket.send(
-      //   JSON.stringify({
-      //     message: "changeScreen",
-      //     newScreen: "mainMenu"
-      //   })
-      // );
+      socket.send(
+        JSON.stringify({
+          message: "changeScreen",
+          newScreen: "mainMenu"
+        })
+      );
     }
   }
 }

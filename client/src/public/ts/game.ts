@@ -167,18 +167,18 @@ function redrawStage() {
 
 function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
   // check if playing
-  if (
-    typeof variables !== "undefined" &&
-    variables.playing &&
-    screen !== "gameOver" &&
-    screen !== "canvas"
-  ) {
-    new ToastNotification(
-      "Unable to change screen. (Game in progress)",
-      ToastNotificationPosition.BOTTOM_RIGHT
-    );
-    return;
-  }
+  // if (
+  //   typeof variables !== "undefined" &&
+  //   variables.playing &&
+  //   screen !== "gameOver" &&
+  //   screen !== "canvas"
+  // ) {
+  //   new ToastNotification(
+  //     "Unable to change screen. (Game in progress)",
+  //     ToastNotificationPosition.BOTTOM_RIGHT
+  //   );
+  //   return;
+  // }
 
   $("#main-content__main-menu-screen-container").hide(0);
   $("#main-content__singleplayer-menu-screen-container").hide(0);

@@ -407,8 +407,8 @@ class SingleplayerRoom extends Room {
 
   abort(data: GameData) {
     let socket = universal.getSocketFromConnectionID(data.owner);
-    data.commands.changeScreenTo = "mainMenu";
     this.playing = false;
+    data.commands.changeScreenTo = "mainMenu";
     if (socket) {
       socket?.unsubscribe(this.id);
       this.deleteMember(socket?.connectionID as string);
