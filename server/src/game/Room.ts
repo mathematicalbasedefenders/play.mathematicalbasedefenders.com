@@ -16,6 +16,11 @@ const MINIFIED_GAME_DATA_KEYS = [
   "currentInput",
   "receivedEnemiesStock"
 ];
+//
+const createDOMPurify = require("dompurify");
+const { JSDOM } = require("jsdom");
+const window = new JSDOM("").window;
+const DOMPurify = createDOMPurify(window);
 // TODO: Change design
 let defaultMultiplayerRoomID: string | null = null;
 
@@ -59,6 +64,7 @@ class GameData {
   enemiesSentStock!: number;
   opponentGameData!: Array<GameData>;
   ownerName!: string;
+
   // ...
   attackScore!: number;
   receivedEnemiesStock!: number;
@@ -82,6 +88,7 @@ class GameData {
     this.totalEnemiesReceived = 0;
     this.enemiesSentStock = 0;
     this.attackScore = 0;
+
     if (mode === GameMode.EasySingleplayer) {
       this.clocks = {
         enemySpawn: {
@@ -161,6 +168,7 @@ class Room {
   mode!: GameMode;
   connectionIDsThisRound: Array<string> = [];
   ranking: Array<any> = [];
+  chatMessages: Array<unknown> = [];
   constructor(hostConnectionID: string, gameMode: GameMode, noHost?: boolean) {
     this.mode = gameMode;
     this.id = generateRoomID(8);
@@ -225,6 +233,27 @@ class Room {
     this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
     this.playing = true;
     log.info(`Room ${this.id} has started play!`);
+  }
+  addChatMessage(message: string, sender: string) {
+    let sanitizedMessage = DOMPurify.sanitize(message);
+    this.chatMessages.push({
+      message: sanitizedMessage,
+      sender: sender
+    });
+    // send to all sockets
+    for (let connectionID of this.memberConnectionIDs) {
+      let socket = universal.getSocketFromConnectionID(connectionID);
+      if (socket) {
+        socket.send(
+          JSON.stringify({
+            message: "appendHTML",
+            selector:
+              "#main-content__multiplayer-intermission-screen-container__chat__messages",
+            value: `<div>${sender}: ${message}</div>`
+          })
+        );
+      }
+    }
   }
 
   // TODO: Move this to singleplayer room
@@ -295,7 +324,9 @@ class Room {
     ) {
       this.memberConnectionIDs.push(connectionID);
       log.info(
-        `Added socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(connectionID)}) as a member to room ${this.id}`
+        `Added socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
+          connectionID
+        )}) as a member to room ${this.id}`
       );
     }
   }
@@ -307,7 +338,9 @@ class Room {
     ) {
       this.spectatorConnectionIDs.push(connectionID);
       log.info(
-        `Added socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(connectionID)}) as a spectator to room ${this.id}`
+        `Added socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
+          connectionID
+        )}) as a spectator to room ${this.id}`
       );
     }
   }
@@ -319,7 +352,9 @@ class Room {
         1
       );
       log.info(
-        `Deleted socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(connectionID)}) (member) from room ${this.id}`
+        `Deleted socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
+          connectionID
+        )}) (member) from room ${this.id}`
       );
     }
   }
@@ -331,7 +366,9 @@ class Room {
         1
       );
       log.info(
-        `Deleted socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(connectionID)}) (spectator) from room ${this.id}`
+        `Deleted socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
+          connectionID
+        )}) (spectator) from room ${this.id}`
       );
     }
   }
@@ -675,7 +712,9 @@ class MultiplayerRoom extends Room {
     }
     this.gameData.splice(gameDataIndex, 1);
     log.info(
-      `Socket ID ${connectionID} (${universal.getNameFromConnectionID(connectionID)}) has been eliminated from the Default Multiplayer Room`
+      `Socket ID ${connectionID} (${universal.getNameFromConnectionID(
+        connectionID
+      )}) has been eliminated from the Default Multiplayer Room`
     );
     // add to ranking
     this.checkIfGameFinished(this.gameData);
@@ -688,7 +727,11 @@ class MultiplayerRoom extends Room {
       log.info(`Default Multiplayer Room has finished playing.`);
       if (gameDataArray.length === 1) {
         let winnerGameData = gameDataArray[0];
-        log.info(`The winner is socket ID ${winnerGameData.owner} (${universal.getNameFromConnectionID(winnerGameData.owner)})`);
+        log.info(
+          `The winner is socket ID ${
+            winnerGameData.owner
+          } (${universal.getNameFromConnectionID(winnerGameData.owner)})`
+        );
         this.ranking.push({
           placement: this.gameData.length,
           name:
@@ -710,7 +753,11 @@ class MultiplayerRoom extends Room {
     data.baseHealth = -99999;
     let socket = universal.getSocketFromConnectionID(data.owner);
     data.commands.changeScreenTo = "mainMenu";
-    log.info(`Socket ID ${data.owner} (${universal.getNameFromConnectionID(data.owner)}) has quit the Default Multiplayer Room`);
+    log.info(
+      `Socket ID ${data.owner} (${universal.getNameFromConnectionID(
+        data.owner
+      )}) has quit the Default Multiplayer Room`
+    );
     if (socket) {
       socket?.unsubscribe(this.id);
       this.deleteMember(socket?.connectionID as string);

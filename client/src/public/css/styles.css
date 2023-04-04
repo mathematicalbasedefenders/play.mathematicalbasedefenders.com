@@ -320,6 +320,16 @@ body {
   display: block;
 }
 
+#main-content__multiplayer-intermission-screen-container__chat__messages {
+  height: 90%;
+  width: 100%;
+}
+
+#main-content__multiplayer-intermission-screen-container__chat__entry {
+  height: 10%;
+  width: 100%;
+}
+
 /* GAME OVER SCREEN */
 #main-content__game-over-screen-container {
   background-color: #000000;

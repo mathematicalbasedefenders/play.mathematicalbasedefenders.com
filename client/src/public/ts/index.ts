@@ -345,6 +345,13 @@ function initializeEventListeners() {
       emulatedKeypress: `Backspace`
     });
   });
+  $(`#message-send-button`).on("click", () => {
+    sendSocketMessage({
+      message: "sendChatMessage",
+      scope: "room",
+      chatMessage: $("#chat-message").val()?.toString() || ""
+    });
+  });
 }
 
 // events

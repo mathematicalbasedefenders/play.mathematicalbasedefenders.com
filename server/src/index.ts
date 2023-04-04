@@ -37,6 +37,7 @@ const DOMPurify = createDOMPurify(window);
 const mongoDBSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 import rateLimit from "express-rate-limit";
+import { attemptToSendChatMessage } from "./core/chat";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -209,10 +210,19 @@ uWS
           );
           break;
         }
+        case "sendChatMessage": {
+          attemptToSendChatMessage(
+            parsedMessage.scope,
+            parsedMessage.chatMessage,
+            socket.connectionID || ""
+          );
+          break;
+        }
         default: {
           console.warn(
             `Unknown action from socket with connectionID ${socket.connectionID}: ${parsedMessage.message}`
           );
+          break;
         }
       }
     },

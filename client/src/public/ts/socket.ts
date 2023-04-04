@@ -48,6 +48,10 @@ socket.addEventListener("message", (event: any) => {
       $(message.selector).html(message.value);
       break;
     }
+    case "appendHTML": {
+      $(message.selector).append(message.value);
+      break;
+    }
     case "changeScreen": {
       changeScreen(message.newScreen, true);
       break;
