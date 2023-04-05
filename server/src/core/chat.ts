@@ -64,7 +64,7 @@ function validateMessage(scope: string, message: string, connectionID: string) {
     );
     return false;
   }
-  let notEmpty = message === "";
+  let notEmpty = message !== "";
   let notJustBlank = message.replace(/\s/g, "").length > 0;
   let notTooLong = message.length <= 256;
   let notDangerous = DOMPurify.sanitize(message) === message;
