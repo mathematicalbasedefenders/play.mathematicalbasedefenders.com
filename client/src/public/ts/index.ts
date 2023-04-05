@@ -351,6 +351,7 @@ function initializeEventListeners() {
       scope: "room",
       chatMessage: $("#chat-message").val()?.toString() || ""
     });
+    $("#chat-message").val("");
   });
 }
 
