@@ -300,7 +300,7 @@ body {
 
 #main-content__multiplayer-intermission-screen-container__right {
   grid-column: column3-start / column3-end;
-  grid-row: row2-start / row3-end;
+  grid-row: row2-start / row2-end;
 }
 
 #main-content__multiplayer-intermission-screen-container__player-list {
@@ -316,21 +316,37 @@ body {
   border: 2px solid #ffffff;
   padding: 4px;
   width: 95%;
-  height: 500px;
+  height: calc(100% + 32px);
   display: block;
 }
 
 #main-content__multiplayer-intermission-screen-container__chat__messages {
-  height: 90%;
+  height: 95%;
   width: 100%;
   overflow-x: hidden;
 }
 
 #main-content__multiplayer-intermission-screen-container__chat__entry {
-  height: 10%;
+  height: 5%;
   width: 100%;
 }
 
+#chat-message {
+  width: calc(100% - 86px);
+  background-color: #000000;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  font-family: "Computer Modern Unicode Serif";
+  margin: 0 2px;
+}
+
+#message-send-button {
+  width: 70px;
+  background-color: #000000;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  font-family: "Computer Modern Unicode Serif";
+}
 /* GAME OVER SCREEN */
 #main-content__game-over-screen-container {
   background-color: #000000;
