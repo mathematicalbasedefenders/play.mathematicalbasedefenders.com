@@ -435,6 +435,7 @@ async function attemptAuthentication(
   socket.ownerUsername = username;
   socket.ownerUserID = result.id;
   let userData = await User.safeFindByUsername(socket.ownerUsername as string);
+  socket.playerRank = utilities.getRank(userData);
   socket.send(
     JSON.stringify({
       message: "createToastNotification",

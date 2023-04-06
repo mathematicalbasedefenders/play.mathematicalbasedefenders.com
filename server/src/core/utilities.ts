@@ -95,33 +95,35 @@ function millisecondsToTime(milliseconds: number) {
   return `${m}:${s}.${ms}`;
 }
 
-function getRank(data: UserInterface | string) {
+function getRank(data: UserInterface | string | undefined) {
+  if (typeof data === "undefined") {
+    return { title: "", color: "#ffffff" };
+  }
   if (typeof data === "string") {
     // ...
     return "";
-  } else {
-    // TODO: Refactor this stupid thing already
-    if (data.membership.isDeveloper) {
-      return { title: "Developer", color: "#ff0000" };
-    }
-    if (data.membership.isAdministrator) {
-      return { title: "Administrator", color: "#da1717" };
-    }
-    if (data.membership.isModerator) {
-      return { title: "Moderator", color: "#ff7f00" };
-    }
-    if (data.membership.isContributor) {
-      return { title: "Contributor", color: "#01acff" };
-    }
-    if (data.membership.isTester) {
-      return { title: "Tester", color: "#5bb1e0" };
-    }
-    if (data.membership.isDonator) {
-      return { title: "Donator", color: "#26e02c" };
-    }
-    // No rank
-    return { title: "", color: "#ffffff" };
   }
+  // TODO: Refactor this stupid thing already
+  if (data.membership.isDeveloper) {
+    return { title: "Developer", color: "#ff0000" };
+  }
+  if (data.membership.isAdministrator) {
+    return { title: "Administrator", color: "#da1717" };
+  }
+  if (data.membership.isModerator) {
+    return { title: "Moderator", color: "#ff7f00" };
+  }
+  if (data.membership.isContributor) {
+    return { title: "Contributor", color: "#01acff" };
+  }
+  if (data.membership.isTester) {
+    return { title: "Tester", color: "#5bb1e0" };
+  }
+  if (data.membership.isDonator) {
+    return { title: "Donator", color: "#26e02c" };
+  }
+  // No rank
+  return { title: "", color: "#ffffff" };
 }
 
 // adapted from https://stackoverflow.com/a/56294043/11855065
@@ -134,7 +136,10 @@ function mutatedArrayFilter(array: Array<unknown>, callback: Function) {
 function generatePlayerListText(connections: Array<string>) {
   let text = "";
   for (let connection of connections) {
-    text += universal.getNameFromConnectionID(connection);
+    let socket = universal.getSocketFromConnectionID(connection);
+    let color = socket?.playerRank?.color || "#ffffff";
+    let name = universal.getNameFromConnectionID(connection);
+    text += `<span style="color:${color};">${name}</span>`;
     text += "<br>";
   }
   return text;
