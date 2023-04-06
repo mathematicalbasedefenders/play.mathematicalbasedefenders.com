@@ -58,8 +58,8 @@ class Enemy {
   calculateSent(coefficient: number, combo: number) {
     // every 3 combo starting at 0 (2, 5, 8, ...): +1
     // every 0.1 sPosition from 0.6 (0.6, 0.7, 0.8, ...): +1
-    let comboSent = Math.floor((combo + 1) / 3);
-    let sPositionSent = Math.floor((this.sPosition - 0.5) / 0.1);
+    let comboSent = Math.max(0, Math.floor((combo + 1) / 3));
+    let sPositionSent = Math.max(0, Math.floor((this.sPosition - 0.5) / 0.1));
     return (comboSent + sPositionSent) * coefficient;
   }
 
