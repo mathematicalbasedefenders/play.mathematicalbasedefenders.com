@@ -36,6 +36,10 @@ function getSocketFromConnectionID(id: string): GameSocket | undefined {
   return sockets.find((socket) => socket.connectionID === id);
 }
 
+function getSocketsFromUserID(id: string): Array<GameSocket> | undefined {
+  return sockets.filter((socket) => socket.ownerUserID === id);
+}
+
 function getNameFromConnectionID(id: string): string | undefined {
   let socket = getSocketFromConnectionID(id);
   if (typeof socket === "undefined") {
@@ -68,5 +72,6 @@ export {
   rooms,
   getSocketFromConnectionID,
   getGameDataFromConnectionID,
-  getNameFromConnectionID
+  getNameFromConnectionID,
+  getSocketsFromUserID
 };

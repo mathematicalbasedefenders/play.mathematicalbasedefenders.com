@@ -1,6 +1,10 @@
 import { User } from "../models/User";
 import { log } from "../core/log";
-import { getSocketFromConnectionID } from "../universal";
+import {
+  deleteSocket,
+  getSocketFromConnectionID,
+  getSocketsFromUserID
+} from "../universal";
 const bcrypt = require("bcrypt");
 const mongoDBSanitize = require("express-mongo-sanitize");
 
@@ -53,6 +57,21 @@ async function authenticate(
   log.info(
     `User ${username} has successfully logged in. (Socket ID: ${socketID})`
   );
+  // log out sockets that were already logged in
+  let duplicateSockets = getSocketsFromUserID(id);
+  for (let duplicateSocket of duplicateSockets || []) {
+    duplicateSocket.send(
+      JSON.stringify({
+        message: "createToastNotification",
+        // TODO: Refactor this
+        text: `Disconnected due to your account being logged in from another location. If this wasn't you, consider changing your password.`
+      })
+    );
+    deleteSocket(duplicateSocket);
+    log.warn(
+      `Disconnected socket ${duplicateSocket.connectionID} because a new socket logged in with the same credentials. (${username})`
+    );
+  }
   return {
     good: true,
     reason: "All checks passed",
