@@ -73,15 +73,9 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
     }
   }
   // give experience points
-  let playerData = await User.safeFindByUserID(
-    ownerSocket.ownerUserID as string
-  );
-  // TODO: This is a placeholder, decide on real exp formula
-  playerData.statistics.totalExperiencePoints += Math.round(
-    experiencePointCoefficient * (data.score / 100)
-  );
-  playerData.statistics.gamesPlayed += 1;
-  playerData.save();
+  let earned = Math.round(experiencePointCoefficient * (data.score / 100));
+  User.giveExperiencePointsToUserID(ownerSocket.ownerUserID as string, earned);
+  User.addGamesPlayedToUserID(ownerSocket.ownerUserID as string, 1);
 
   // TODO: Leaderboards
   let playerRecords = await getScoresOfAllPlayers(data.mode);
