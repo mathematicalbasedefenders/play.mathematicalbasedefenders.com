@@ -7,6 +7,7 @@ import * as input from "../core/input";
 import { submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
 import { findRoomWithConnectionID } from "../core/utilities";
+import { User } from "../models/User";
 
 const NO_HOST_ID = "(no host)";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
@@ -538,6 +539,10 @@ class MultiplayerRoom extends Room {
                   newScreen: "canvas"
                 })
               );
+              // add games played
+              let connectionID = socket.ownerUserID as string;
+              User.addGamesPlayedToUserID(connectionID, 1);
+              User.addMultiplayerGamesPlayedToUserID(connectionID, 1);
             }
           }
         }
@@ -732,6 +737,7 @@ class MultiplayerRoom extends Room {
             winnerGameData.owner
           } (${universal.getNameFromConnectionID(winnerGameData.owner)})`
         );
+        User.addMultiplayerGamesWonToUserID(winnerGameData.owner as string, 1);
         this.ranking.push({
           placement: this.gameData.length,
           name:
