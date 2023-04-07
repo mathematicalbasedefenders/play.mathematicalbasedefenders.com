@@ -106,6 +106,14 @@
           <input type="radio" id="settings-enemy-color__set-color" name="settings__enemy-color" value="setColor">
           <label for="settings-enemy-color__set-color">Set Color: <span class="text--monospace" id="settings__enemy-color__forced-color"></span></label>&nbsp;<input id="settings__enemy-color__forced-color-picker" name="forced-color" type="color" value="#ff0000">
         </fieldset>
+        <br>
+        <fieldset title="What the enemies' width/height ratio should be. This is to prevent text being too small when playing at smaller resolutions." class="settings-screen__content-fieldset">
+          <legend>Enemy Width:Height Ratio</legend>
+          <input type="radio" id="settings-enemy-size__single-width" name="settings__enemy-size-ratio" value="1">
+          <label for="settings-enemy-size__single-width">1:1</label><br>
+          <input type="radio" id="settings-enemy-size__double-width" name="settings__enemy-size-ratio" value="2">
+          <label for="settings-enemy-size__double-width">2:1</label><br>
+        </fieldset>
       </div>
       <div class="settings-screen__content-secondary-screen" id="settings-screen__content--audio"></div>
     </div>

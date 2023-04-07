@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import _ from "lodash";
 import { app, mathFont, variables } from "./index";
+import { getSettings } from "./settings";
 const ENEMY_SIZE = 64;
 const ENEMY_FONT_SIZE = 24;
 const DEFAULT_ENEMY_WIDTH = 125;
@@ -31,7 +32,9 @@ class Enemy {
   ) {
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
     this.sprite.tint = getEnemyColor();
-    this.sprite.width = width || DEFAULT_ENEMY_WIDTH;
+    this.sprite.width =
+      (width || DEFAULT_ENEMY_WIDTH) *
+      parseInt(variables.settings.enemyWidthCoefficient || 1);
     this.sprite.height = height || DEFAULT_ENEMY_HEIGHT;
     this.sprite.x =
       100 + 580 + (xPosition || Math.random()) * (600 - DEFAULT_ENEMY_WIDTH);
