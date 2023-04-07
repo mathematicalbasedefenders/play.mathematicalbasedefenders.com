@@ -743,10 +743,7 @@ class MultiplayerRoom extends Room {
           winnerGameData.owner
         )?.ownerUserID;
         if (typeof userID === "string") {
-          User.addMultiplayerGamesWonToUserID(
-            winnerGameData.owner as string,
-            1
-          );
+          User.addMultiplayerGamesWonToUserID(userID as string, 1);
         }
 
         this.ranking.push({
