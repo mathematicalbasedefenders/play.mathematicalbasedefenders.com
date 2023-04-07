@@ -73,6 +73,8 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
     }
   }
   // give experience points
+
+  // guest users already ignored - no need to actually check for data
   let earned = Math.round(experiencePointCoefficient * (data.score / 100));
   User.giveExperiencePointsToUserID(ownerSocket.ownerUserID as string, earned);
   User.addGamesPlayedToUserID(ownerSocket.ownerUserID as string, 1);
