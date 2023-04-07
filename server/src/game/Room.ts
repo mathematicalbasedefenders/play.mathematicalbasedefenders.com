@@ -540,9 +540,11 @@ class MultiplayerRoom extends Room {
                 })
               );
               // add games played
-              let connectionID = socket.ownerUserID as string;
-              User.addGamesPlayedToUserID(connectionID, 1);
-              User.addMultiplayerGamesPlayedToUserID(connectionID, 1);
+              let userID = socket.ownerUserID;
+              if (typeof userID === "string") {
+                User.addGamesPlayedToUserID(userID, 1);
+                User.addMultiplayerGamesPlayedToUserID(userID, 1);
+              }
             }
           }
         }
@@ -737,7 +739,16 @@ class MultiplayerRoom extends Room {
             winnerGameData.owner
           } (${universal.getNameFromConnectionID(winnerGameData.owner)})`
         );
-        User.addMultiplayerGamesWonToUserID(winnerGameData.owner as string, 1);
+        let userID = universal.getSocketFromConnectionID(
+          winnerGameData.owner
+        )?.ownerUserID;
+        if (typeof userID === "string") {
+          User.addMultiplayerGamesWonToUserID(
+            winnerGameData.owner as string,
+            1
+          );
+        }
+
         this.ranking.push({
           placement: this.gameData.length,
           name:
