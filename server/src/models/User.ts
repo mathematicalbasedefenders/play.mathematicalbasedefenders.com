@@ -53,6 +53,10 @@ interface UserModel extends mongoose.Model<UserInterface> {
   safeFindByUserID(userID: string): Promise<HydratedDocument<UserInterface>>;
   getAllEasySingleplayerBestScores(): Promise<Array<object>>;
   getAllStandardSingleplayerBestScores(): Promise<Array<object>>;
+  addMultiplayerGamesWonToUserID(id: string, amount: number): void;
+  addMultiplayerGamesPlayedToUserID(id: string, amount: number): void;
+  addGamesPlayedToUserID(id: string, amount: number): void;
+  giveExperiencePointsToUserID(id: string, amount: number): void;
 }
 
 const UserSchema = new mongoose.Schema<UserInterface, UserModel>({
@@ -163,6 +167,43 @@ UserSchema.static("getAllStandardSingleplayerBestScores", async function () {
   }
   return loaded;
 });
+
+UserSchema.static(
+  "giveExperiencePointsToUserID",
+  async function (id: string, amount: number) {
+    // give experience points
+    let playerData = await User.safeFindByUserID(id);
+    playerData.statistics.totalExperiencePoints += Math.round(amount);
+    playerData.save();
+  }
+);
+
+UserSchema.static(
+  "addGamesPlayedToUserID",
+  async function (id: string, amount: number) {
+    let playerData = await User.safeFindByUserID(id);
+    playerData.statistics.gamesPlayed += amount;
+    playerData.save();
+  }
+);
+
+UserSchema.static(
+  "addMultiplayerGamesPlayedToUserID",
+  async function (id: string, amount: number) {
+    let playerData = await User.safeFindByUserID(id);
+    playerData.statistics.multiplayer.gamesPlayed += amount;
+    playerData.save();
+  }
+);
+
+UserSchema.static(
+  "addMultiplayerGamesWonToUserID",
+  async function (id: string, amount: number) {
+    let playerData = await User.safeFindByUserID(id);
+    playerData.statistics.multiplayer.gamesWon += amount;
+    playerData.save();
+  }
+);
 
 const User = mongoose.model<UserInterface, UserModel>(
   "User",
