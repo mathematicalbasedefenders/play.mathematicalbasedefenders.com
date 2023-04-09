@@ -1,0 +1,15 @@
+{
+  "name": "mathematicalbasedefenders",
+  "version": "0.4.0-rc.3",
+  "private": "true",
+  "description": "Fun math game",
+  "main": "server.js",
+  "scripts": {
+    "build": "webpack --config ./webpack.config.production.js",
+    "build-dev": "webpack --config ./webpack.config.development.js",
+    "compile": "tsc",
+    "copyStaticFiles": "copyfiles --up 1 \"src/**/*\" -e \"**/*.ts\" dist",
+    "start": "npm run compile && npm run build && npm run copyStaticFiles && node ./dist/index.js",
+    "start-dev": "npm run compile && npm run build-dev && npm run copyStaticFiles && node ./dist/index.js"
+  }
+}
