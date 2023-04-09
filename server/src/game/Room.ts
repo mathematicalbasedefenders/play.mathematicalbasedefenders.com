@@ -96,6 +96,10 @@ class GameData {
           currentTime: 0,
           actionTime: 250
         },
+        forcedEnemySpawn: {
+          currentTime: 0,
+          actionTime: 7500
+        },
         comboResetTime: {
           currentTime: 0,
           actionTime: 10000
@@ -108,6 +112,10 @@ class GameData {
         enemySpawn: {
           currentTime: 0,
           actionTime: 100
+        },
+        forcedEnemySpawn: {
+          currentTime: 0,
+          actionTime: 2500
         },
         comboResetTime: {
           currentTime: 0,
@@ -418,9 +426,22 @@ class SingleplayerRoom extends Room {
       }
 
       // clocks
+      // Add enemy if forced time up
+      if (
+        data.clocks.forcedEnemySpawn.currentTime >=
+        data.clocks.forcedEnemySpawn.actionTime
+      ) {
+        enemyToAdd = generateEnemyWithChance(1, this.updateNumber);
+        data.clocks.forcedEnemySpawn.currentTime -=
+          data.clocks.forcedEnemySpawn.actionTime;
+        // reset time
+        data.clocks.forcedEnemySpawn.currentTime = 0;
+      }
       // Add enemy if generated.
       if (
-        data.clocks.enemySpawn.currentTime >= data.clocks.enemySpawn.actionTime
+        data.clocks.enemySpawn.currentTime >=
+          data.clocks.enemySpawn.actionTime &&
+        enemyToAdd == null
       ) {
         enemyToAdd = generateEnemyWithChance(
           data.enemySpawnThreshold,
@@ -428,6 +449,7 @@ class SingleplayerRoom extends Room {
         );
         data.clocks.enemySpawn.currentTime -= data.clocks.enemySpawn.actionTime;
       }
+      // combo time
       if (
         data.clocks.comboResetTime.currentTime >=
         data.clocks.comboResetTime.actionTime
@@ -437,6 +459,8 @@ class SingleplayerRoom extends Room {
           data.clocks.comboResetTime.actionTime;
       }
       if (enemyToAdd) {
+        // reset forced enemy spawn
+        data.clocks.forcedEnemySpawn.currentTime = 0;
         data.enemiesSpawned++;
         data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
       }
@@ -467,6 +491,10 @@ class MultiplayerRoom extends Room {
       enemySpawn: {
         currentTime: 0,
         actionTime: 100
+      },
+      forcedEnemySpawn: {
+        currentTime: 0,
+        actionTime: 2500
       }
     };
   }
@@ -604,11 +632,25 @@ class MultiplayerRoom extends Room {
 
       // global clocks
       this.globalClock.enemySpawn.currentTime += deltaTime;
-      // Add enemy if generated.
+      this.globalClock.forcedEnemySpawn.currentTime += deltaTime;
 
+      // Add enemy if forced time up
+      if (
+        this.globalClock.forcedEnemySpawn.currentTime >=
+        this.globalClock.forcedEnemySpawn.actionTime
+      ) {
+        enemyToAdd = generateEnemyWithChance(1, this.updateNumber);
+        this.globalClock.forcedEnemySpawn.currentTime -=
+          this.globalClock.forcedEnemySpawn.actionTime;
+        // reset time
+        this.globalClock.forcedEnemySpawn.currentTime = 0;
+      }
+
+      // Add enemy if generated.
       if (
         this.globalClock.enemySpawn.currentTime >=
-        this.globalClock.enemySpawn.actionTime
+          this.globalClock.enemySpawn.actionTime &&
+        enemyToAdd == null
       ) {
         enemyToAdd = generateEnemyWithChance(
           this.globalEnemySpawnThreshold,
@@ -661,6 +703,8 @@ class MultiplayerRoom extends Room {
 
         // generated enemy
         if (enemyToAdd) {
+          // reset forced enemy time
+          this.globalClock.forcedEnemySpawn.currentTime = 0;
           data.enemiesSpawned++;
           data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
         }
