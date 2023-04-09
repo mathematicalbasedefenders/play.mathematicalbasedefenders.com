@@ -368,7 +368,11 @@ body {
   grid-column: column2-start / column2-end;
   margin-bottom: 16px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+  height: max(max-content, 320px);
+  /* justify-content: space-between; */
 }
 
 #main-content__game-over-screen__stats > span {
