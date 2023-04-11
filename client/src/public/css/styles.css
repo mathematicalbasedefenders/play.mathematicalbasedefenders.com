@@ -22,6 +22,7 @@ body {
 
   --color-singleplayer-menu-easy: #00851d;
   --color-singleplayer-menu-standard: #b62a00;
+  --color-singleplayer-menu-custom: #9802b6;
 
   --color-multiplayer-menu-default: #3867e9;
   --color-multiplayer-menu-custom: #7b25ec;
@@ -198,6 +199,12 @@ body {
 #singleplayer-menu-screen-button--standard {
   background-color: var(--color-singleplayer-menu-standard);
   background-image: url("../assets/images/standardsingleplayerbuttonbackground.png");
+  background-position: 0 70%;
+}
+
+#singleplayer-menu-screen-button--custom {
+  background-color: var(--color-singleplayer-menu-custom);
+  /* background-image: url("../assets/images/standardsingleplayerbuttonbackground.png"); */
   background-position: 0 70%;
 }
 
