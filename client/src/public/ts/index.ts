@@ -216,9 +216,16 @@ function initializeEventListeners() {
     });
     changeScreen("canvas", true);
   });
+  //
   $("#singleplayer-menu-screen-button--custom").on("click", () => {
     changeScreen("customSingleplayerIntermission");
   });
+  $("#custom-singleplayer-intermission-screen-container__back-button").on(
+    "click",
+    () => {
+      changeScreen("mainMenu");
+    }
+  );
   //
   $("#multiplayer-menu-screen-button--default").on("click", () => {
     sendSocketMessage({
