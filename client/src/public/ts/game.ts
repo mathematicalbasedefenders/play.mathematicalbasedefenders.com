@@ -248,6 +248,19 @@ function changeSettingsSecondaryScreen(newScreen: string) {
   $(`#settings-screen__content--${newScreen}`).show(0);
 }
 
+function createCustomSingleplayerGameObject() {
+  // TODO: funny hack lol, make cleaner
+  let bp = "custom-singleplayer-game__";
+  return {
+    baseHealth: $(`${bp}starting-base-health`).val(),
+    comboTime: $(`${bp}combo-time`).val(),
+    enemySpeedCoefficient: $(`${bp}enemy-speed-coefficient`).val(),
+    enemySpawnTime: $(`${bp}enemy-spawn-time`).val(),
+    enemySpawnChance: $(`${bp}enemy-spawn-chance`).val(),
+    forcedEnemySpawnTime: $(`${bp}forced-enemy-spawn-time`).val()
+  };
+}
+
 window.onresize = () => {
   redrawStage();
 };
@@ -256,5 +269,6 @@ export {
   renderGameData,
   redrawStage,
   changeScreen,
-  changeSettingsSecondaryScreen
+  changeSettingsSecondaryScreen,
+  createCustomSingleplayerGameObject
 };
