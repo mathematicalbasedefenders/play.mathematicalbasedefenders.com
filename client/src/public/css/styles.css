@@ -262,6 +262,9 @@ body {
   width: 100%;
   height: 100vh;
 }
+#main-content__custom-singleplayer-intermission-screen-container__options {
+  font-size: 24px;
+}
 
 .custom-singleplayer-game-input--text {
   background-color: #181818;
