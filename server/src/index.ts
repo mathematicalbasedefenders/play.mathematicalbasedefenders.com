@@ -38,6 +38,7 @@ const mongoDBSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 import rateLimit from "express-rate-limit";
 import { attemptToSendChatMessage } from "./core/chat";
+import { validateCustomGameSettings } from "./core/utilities";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -150,6 +151,22 @@ uWS
                   createNewSingleplayerRoom(
                     socket,
                     GameMode.StandardSingleplayer
+                  );
+                  break;
+                }
+                case "custom": {
+                  if (
+                    !validateCustomGameSettings(
+                      parsedMessage.mode,
+                      parsedMessage.settings
+                    ).success
+                  ) {
+                    return;
+                  }
+                  createNewSingleplayerRoom(
+                    socket,
+                    GameMode.CustomSingleplayer,
+                    parsedMessage.settings
                   );
                   break;
                 }
@@ -323,7 +340,8 @@ function resetOneFrameVariables() {
 
 function createNewSingleplayerRoom(
   socket: universal.GameSocket,
-  gameMode: GameMode
+  gameMode: GameMode,
+  settings?: { [key: string]: string }
 ) {
   let room = new SingleplayerRoom(socket.connectionID as string, gameMode);
   room.startPlay();
