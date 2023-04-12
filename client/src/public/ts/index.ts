@@ -226,6 +226,10 @@ function initializeEventListeners() {
       changeScreen("mainMenu");
     }
   );
+  $("#custom-singleplayer-intermission-screen-container__start-button").on(
+    "click",
+    () => {}
+  );
   //
   $("#multiplayer-menu-screen-button--default").on("click", () => {
     sendSocketMessage({
