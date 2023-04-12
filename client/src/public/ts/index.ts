@@ -228,7 +228,15 @@ function initializeEventListeners() {
   );
   $("#custom-singleplayer-intermission-screen-container__start-button").on(
     "click",
-    () => {}
+    () => {
+      sendSocketMessage({
+        message: "startGame",
+        mode: "singleplayer",
+        modifier: "custom",
+        settings: JSON.stringify({})
+      });
+      changeScreen("canvas", true);
+    }
   );
   //
   $("#multiplayer-menu-screen-button--default").on("click", () => {
