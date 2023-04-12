@@ -30,7 +30,8 @@ enum GameMode {
   StandardSingleplayer = "standardSingleplayer",
   InsaneSingleplayer = "insaneSingleplayer",
   DefaultMultiplayer = "defaultMultiplayer",
-  CustomMultiplayer = "customMultiplayer"
+  CustomMultiplayer = "customMultiplayer",
+  CustomSingleplayer = "customSingleplayer"
 }
 interface InputActionInterface {
   action: InputAction;
