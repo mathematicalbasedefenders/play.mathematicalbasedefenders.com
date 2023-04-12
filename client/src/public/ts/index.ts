@@ -6,6 +6,7 @@ import * as AS from "adaptive-scale/lib-esm";
 import {
   changeScreen,
   changeSettingsSecondaryScreen,
+  createCustomSingleplayerGameObject,
   redrawStage
 } from "./game";
 import { calculateLevel, millisecondsToTime } from "./utilities";
@@ -233,7 +234,7 @@ function initializeEventListeners() {
         message: "startGame",
         mode: "singleplayer",
         modifier: "custom",
-        settings: JSON.stringify({})
+        settings: JSON.stringify(createCustomSingleplayerGameObject())
       });
       changeScreen("canvas", true);
     }

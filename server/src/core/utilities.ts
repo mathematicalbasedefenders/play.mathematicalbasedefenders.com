@@ -12,6 +12,8 @@ const RANK_ORDER = [
   ["Donator", "isDonator"]
 ];
 
+const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES = {};
+
 function checkIfPropertyWithValueExists(
   dataset: unknown,
   targetProperty: string,
