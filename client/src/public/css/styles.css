@@ -264,6 +264,7 @@ body {
 }
 #main-content__custom-singleplayer-intermission-screen-container__options {
   font-size: 24px;
+  padding: 8px;
 }
 
 .custom-singleplayer-game-input--text {
