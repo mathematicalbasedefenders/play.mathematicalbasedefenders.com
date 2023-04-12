@@ -145,6 +145,21 @@ function generatePlayerListText(connections: Array<string>) {
   return text;
 }
 
+function validateCustomGameSettings(
+  mode: string,
+  settings: { [key: string]: string }
+) {
+  if (mode !== "singleplayer") {
+    return {
+      success: false,
+      reason: `Unknown mode: ${mode}`
+    };
+  }
+  return {
+    success: true
+  };
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -153,5 +168,6 @@ export {
   getRank,
   generateRankingText,
   mutatedArrayFilter,
-  generatePlayerListText
+  generatePlayerListText,
+  validateCustomGameSettings
 };
