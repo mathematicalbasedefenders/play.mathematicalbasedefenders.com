@@ -322,7 +322,8 @@ class Room {
 
     if (
       data.mode === GameMode.EasySingleplayer ||
-      data.mode === GameMode.StandardSingleplayer
+      data.mode === GameMode.StandardSingleplayer ||
+      data.mode === GameMode.CustomSingleplayer
     ) {
       data.commands.updateText = [
         {
