@@ -108,9 +108,7 @@ function renderGameData(data: { [key: string]: any }) {
     stageItems.textSprites.comboText.text = `${data.combo} Combo`;
     stageItems.textSprites.comboText.alpha = Math.max(
       0,
-      1 -
-        data.clocks.comboResetTime.currentTime /
-          data.clocks.comboResetTime.actionTime
+      1 - data.clocks.comboReset.currentTime / data.clocks.comboReset.actionTime
     );
   } else {
     stageItems.textSprites.comboText.text = ``;
@@ -250,8 +248,8 @@ function changeSettingsSecondaryScreen(newScreen: string) {
 
 function createCustomSingleplayerGameObject() {
   // TODO: funny hack lol, make cleaner
-  let bp = "custom-singleplayer-game__";
-  return {
+  let bp = "#custom-singleplayer-game__";
+  let toReturn = {
     baseHealth: $(`${bp}starting-base-health`).val(),
     comboTime: $(`${bp}combo-time`).val(),
     enemySpeedCoefficient: $(`${bp}enemy-speed-coefficient`).val(),
@@ -259,6 +257,8 @@ function createCustomSingleplayerGameObject() {
     enemySpawnChance: $(`${bp}enemy-spawn-chance`).val(),
     forcedEnemySpawnTime: $(`${bp}forced-enemy-spawn-time`).val()
   };
+  console.log(toReturn);
+  return toReturn;
 }
 
 window.onresize = () => {

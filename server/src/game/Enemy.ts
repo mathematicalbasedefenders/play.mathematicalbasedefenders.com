@@ -85,7 +85,7 @@ class Enemy {
     }
     if (giveCombo) {
       gameData.combo += 1;
-      gameData.clocks.comboResetTime.currentTime = 0;
+      gameData.clocks.comboReset.currentTime = 0;
     }
     removeEnemyWithIDInGameData(this.id, gameData);
   }

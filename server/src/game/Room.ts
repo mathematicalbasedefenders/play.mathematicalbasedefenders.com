@@ -101,7 +101,7 @@ class GameData {
           currentTime: 0,
           actionTime: 7500
         },
-        comboResetTime: {
+        comboReset: {
           currentTime: 0,
           actionTime: 10000
         }
@@ -118,7 +118,7 @@ class GameData {
           currentTime: 0,
           actionTime: 2500
         },
-        comboResetTime: {
+        comboReset: {
           currentTime: 0,
           actionTime: 5000
         }
@@ -144,6 +144,29 @@ class SingleplayerGameData extends GameData {
       return;
     }
     super(owner, gameMode);
+  }
+}
+
+class CustomSingleplayerGameData extends GameData {
+  constructor(
+    owner: string,
+    gameMode: GameMode,
+    settings: { [key: string]: any }
+  ) {
+    if (!(gameMode === GameMode.CustomSingleplayer)) {
+      log.error(
+        "Non-custom singleplayer game mode passed in a custom s.p. room."
+      );
+      return;
+    }
+    super(owner, gameMode);
+    // This assumes that data has already been validated.
+    this.baseHealth = settings.baseHealth;
+    this.clocks.comboReset.actionTime = settings.comboTime;
+    this.enemySpeedCoefficient = settings.enemySpeedCoefficient;
+    this.clocks.enemySpawn.actionTime = settings.enemySpawnTime;
+    this.enemySpawnThreshold = settings.enemySpawnThreshold;
+    this.clocks.forcedEnemySpawn.actionTime = settings.forcedEnemySpawnTime;
   }
 }
 
@@ -179,6 +202,9 @@ class Room {
   connectionIDsThisRound: Array<string> = [];
   ranking: Array<any> = [];
   chatMessages: Array<unknown> = [];
+  // custom room exclusive
+  customSettings!: { [key: string]: any };
+  // constructor below
   constructor(hostConnectionID: string, gameMode: GameMode, noHost?: boolean) {
     this.mode = gameMode;
     this.id = generateRoomID(8);
@@ -231,6 +257,12 @@ class Room {
       for (let member of this.memberConnectionIDs) {
         this.gameData.push(new SingleplayerGameData(member, this.mode));
       }
+    } else if (this.mode === GameMode.CustomSingleplayer) {
+      for (let member of this.memberConnectionIDs) {
+        this.gameData.push(
+          new CustomSingleplayerGameData(member, this.mode, this.customSettings)
+        );
+      }
     } else if (
       this.mode === GameMode.DefaultMultiplayer ||
       this.mode === GameMode.CustomMultiplayer
@@ -280,6 +312,10 @@ class Room {
       }
       case GameMode.StandardSingleplayer: {
         gameMode = "Standard Singleplayer";
+        break;
+      }
+      case GameMode.CustomSingleplayer: {
+        gameMode = "Custom Singleplayer";
         break;
       }
     }
@@ -396,8 +432,14 @@ class Room {
   }
 }
 class SingleplayerRoom extends Room {
-  constructor(hostConnectionID: string, mode: GameMode) {
+  constructor(hostConnectionID: string, mode: GameMode, settings?: any) {
     super(hostConnectionID, mode);
+    // custom settings
+    if (typeof settings !== "undefined") {
+      // log.info("Custom mode selected: ", settings);
+      // FIXME: This assumes that data already has been validated.
+      setCustomRules(this, settings);
+    }
   }
 
   update(): void {
@@ -452,12 +494,10 @@ class SingleplayerRoom extends Room {
       }
       // combo time
       if (
-        data.clocks.comboResetTime.currentTime >=
-        data.clocks.comboResetTime.actionTime
+        data.clocks.comboReset.currentTime >= data.clocks.comboReset.actionTime
       ) {
         data.combo = -1;
-        data.clocks.comboResetTime.currentTime -=
-          data.clocks.comboResetTime.actionTime;
+        data.clocks.comboReset.currentTime -= data.clocks.comboReset.actionTime;
       }
       if (enemyToAdd) {
         // reset forced enemy spawn
@@ -694,12 +734,12 @@ class MultiplayerRoom extends Room {
 
         // clocks
         if (
-          data.clocks.comboResetTime.currentTime >=
-          data.clocks.comboResetTime.actionTime
+          data.clocks.comboReset.currentTime >=
+          data.clocks.comboReset.actionTime
         ) {
           data.combo = -1;
-          data.clocks.comboResetTime.currentTime -=
-            data.clocks.comboResetTime.actionTime;
+          data.clocks.comboReset.currentTime -=
+            data.clocks.comboReset.actionTime;
         }
 
         // generated enemy
@@ -991,6 +1031,23 @@ function resetDefaultMultiplayerRoomID(room: string) {
   defaultMultiplayerRoomID = null;
   log.info(`Reset default multiplayer room ID from ${room} to null.`);
 }
+
+function setCustomRules(room: Room, settings: { [key: string]: any }) {
+  room.customSettings = {};
+  room.customSettings.baseHealth = parseFloat(settings.baseHealth);
+  room.customSettings.comboTime = parseFloat(settings.comboTime);
+  room.customSettings.enemySpeedCoefficient = parseFloat(
+    settings.enemySpeedCoefficient
+  );
+  room.customSettings.enemySpawnTime = parseFloat(settings.enemySpawnTime);
+  room.customSettings.enemySpawnThreshold = parseFloat(
+    settings.enemySpawnThreshold
+  );
+  room.customSettings.forcedEnemySpawnTime = parseFloat(
+    settings.forcedEnemySpawnTime
+  );
+}
+
 export {
   SingleplayerRoom,
   MultiplayerRoom,

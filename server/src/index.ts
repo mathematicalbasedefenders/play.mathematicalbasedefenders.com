@@ -158,7 +158,7 @@ uWS
                   if (
                     !validateCustomGameSettings(
                       parsedMessage.mode,
-                      parsedMessage.settings
+                      JSON.parse(parsedMessage.settings)
                     ).success
                   ) {
                     return;
@@ -166,7 +166,7 @@ uWS
                   createNewSingleplayerRoom(
                     socket,
                     GameMode.CustomSingleplayer,
-                    parsedMessage.settings
+                    JSON.parse(parsedMessage.settings)
                   );
                   break;
                 }
@@ -343,7 +343,11 @@ function createNewSingleplayerRoom(
   gameMode: GameMode,
   settings?: { [key: string]: string }
 ) {
-  let room = new SingleplayerRoom(socket.connectionID as string, gameMode);
+  let room = new SingleplayerRoom(
+    socket.connectionID as string,
+    gameMode,
+    settings
+  );
   room.startPlay();
   socket.subscribe(room.id);
   universal.rooms.push(room);
