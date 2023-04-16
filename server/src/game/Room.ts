@@ -1041,7 +1041,7 @@ function setCustomRules(room: Room, settings: { [key: string]: any }) {
   );
   room.customSettings.enemySpawnTime = parseFloat(settings.enemySpawnTime);
   room.customSettings.enemySpawnThreshold = parseFloat(
-    settings.enemySpawnThreshold
+    settings.enemySpawnChance
   );
   room.customSettings.forcedEnemySpawnTime = parseFloat(
     settings.forcedEnemySpawnTime
