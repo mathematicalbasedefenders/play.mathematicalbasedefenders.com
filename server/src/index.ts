@@ -155,12 +155,20 @@ uWS
                   break;
                 }
                 case "custom": {
-                  if (
-                    !validateCustomGameSettings(
-                      parsedMessage.mode,
-                      JSON.parse(parsedMessage.settings)
-                    ).success
-                  ) {
+                  let validationResult = validateCustomGameSettings(
+                    parsedMessage.mode,
+                    JSON.parse(parsedMessage.settings)
+                  );
+                  if (!validationResult.success) {
+                    // send error message
+                    socket.send(
+                      JSON.stringify({
+                        message: "changeText",
+                        selector:
+                          "#main-content__custom-singleplayer-intermission-screen-container__errors",
+                        value: validationResult.reason
+                      })
+                    );
                     return;
                   }
                   createNewSingleplayerRoom(
@@ -168,6 +176,10 @@ uWS
                     GameMode.CustomSingleplayer,
                     JSON.parse(parsedMessage.settings)
                   );
+                  JSON.stringify({
+                    message: "changeScreen",
+                    newScreen: "canvas"
+                  });
                   break;
                 }
                 default: {
