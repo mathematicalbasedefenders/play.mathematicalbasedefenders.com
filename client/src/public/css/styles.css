@@ -60,6 +60,33 @@ body {
 .text--monospace {
   font-family: "JetBrains Mono", monospace;
 }
+
+.option-button--small {
+  color: var(--color-text-light);
+  font-size: 32px;
+  text-align: left;
+  margin: 4px;
+  background-color: #000000;
+  font-family: "Computer Modern Unicode Serif";
+  transition-duration: var(--transition-duration-short);
+  border-top: none;
+}
+
+.option-button--left-bordered {
+  border-left: 1px solid #ffffff;
+  border-right: none;
+}
+
+.option-button--right-bordered {
+  border-right: 1px solid #ffffff;
+  border-left: none;
+}
+
+.option-button--small:hover {
+  background-color: rgb(255, 255, 255, 0.75);
+  color: var(--color-text-dark);
+  border-left: 1px solid #ffffff;
+}
 /* MAIN MENU SCREEN */
 
 #main-content__main-menu-screen-container {
@@ -218,6 +245,56 @@ body {
   transform: scale(1.05);
 }
 
+/* SINGLEPLAYER INTERMISSION SCREEN */
+#main-content__custom-singleplayer-intermission-screen-container {
+  background-color: #000000;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: [column1-start] 300px [column1-end column2-start] auto [column2-end column3-start] 300px [column3-end];
+  grid-template-rows: [row1-start] 100px [row1-end row2-start] 50vh [row2-end row3-start] auto [row3-end];
+}
+
+#main-content__custom-singleplayer-intermission-screen-container__left {
+  grid-row: column1-start / column1-end;
+}
+
+#main-content__custom-singleplayer-intermission-screen-container__center {
+  grid-row: column2-start / column2-end;
+}
+
+#main-content__custom-singleplayer-intermission-screen-container__right {
+  grid-row: column3-start / column3-end;
+  display: contents;
+  text-align: right;
+}
+
+#main-content__custom-singleplayer-intermission-screen-container__options-container {
+  width: 100%;
+  height: 100vh;
+}
+#main-content__custom-singleplayer-intermission-screen-container__options {
+  font-size: 24px;
+  padding: 8px;
+}
+
+.custom-singleplayer-game-input--text {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 24px;
+  font-family: "Computer Modern Unicode Serif";
+}
+
+#main-content__custom-singleplayer-intermission-screen-container__options {
+  margin: 32px 0;
+  border: 2px solid #ffffff;
+  overflow-y: scroll;
+  height: 90%;
+  background-color: var(--color-neutral);
+  color: var(--color-text-light);
+}
+
 /* MULTIPLAYER ROOM */
 #main-content__multiplayer-menu-screen-container {
   background-color: #000000;
@@ -303,6 +380,10 @@ body {
 #main-content__multiplayer-intermission-screen-container__left {
   grid-column: column1-start / column3-end;
   grid-row: row1-start / row1-end;
+}
+
+#main-content__multiplayer-intermission-screen-container__center {
+  grid-row: row2-start / row2-end;
 }
 
 #main-content__multiplayer-intermission-screen-container__right {

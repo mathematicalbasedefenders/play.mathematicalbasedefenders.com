@@ -108,9 +108,7 @@ function renderGameData(data: { [key: string]: any }) {
     stageItems.textSprites.comboText.text = `${data.combo} Combo`;
     stageItems.textSprites.comboText.alpha = Math.max(
       0,
-      1 -
-        data.clocks.comboResetTime.currentTime /
-          data.clocks.comboResetTime.actionTime
+      1 - data.clocks.comboReset.currentTime / data.clocks.comboReset.actionTime
     );
   } else {
     stageItems.textSprites.comboText.text = ``;
@@ -186,6 +184,7 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
 
   $("#main-content__main-menu-screen-container").hide(0);
   $("#main-content__singleplayer-menu-screen-container").hide(0);
+  $("#main-content__custom-singleplayer-intermission-screen-container").hide(0);
   $("#main-content__multiplayer-menu-screen-container").hide(0);
   $("#main-content__multiplayer-intermission-screen-container").hide(0);
   $("#main-content__game-over-screen-container").hide(0);
@@ -207,6 +206,12 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
     }
     case "singleplayerMenu": {
       $("#main-content__singleplayer-menu-screen-container").show(0);
+      break;
+    }
+    case "customSingleplayerIntermission": {
+      $(
+        "#main-content__custom-singleplayer-intermission-screen-container"
+      ).show(0);
       break;
     }
     case "multiplayerMenu": {
@@ -241,6 +246,20 @@ function changeSettingsSecondaryScreen(newScreen: string) {
   $(`#settings-screen__content--${newScreen}`).show(0);
 }
 
+function createCustomSingleplayerGameObject() {
+  // TODO: funny hack lol, make cleaner
+  let bp = "#custom-singleplayer-game__";
+  let toReturn = {
+    baseHealth: $(`${bp}starting-base-health`).val(),
+    comboTime: $(`${bp}combo-time`).val(),
+    enemySpeedCoefficient: $(`${bp}enemy-speed-coefficient`).val(),
+    enemySpawnTime: $(`${bp}enemy-spawn-time`).val(),
+    enemySpawnChance: $(`${bp}enemy-spawn-chance`).val(),
+    forcedEnemySpawnTime: $(`${bp}forced-enemy-spawn-time`).val()
+  };
+  return toReturn;
+}
+
 window.onresize = () => {
   redrawStage();
 };
@@ -249,5 +268,6 @@ export {
   renderGameData,
   redrawStage,
   changeScreen,
-  changeSettingsSecondaryScreen
+  changeSettingsSecondaryScreen,
+  createCustomSingleplayerGameObject
 };
