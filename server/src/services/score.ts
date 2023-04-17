@@ -21,6 +21,13 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
       dataKey = "standard";
       break;
     }
+    default: {
+      // unknown mode - ignore score
+      log.info(
+        `A score on ${data.mode} mode has been submitted, which is not easy or standard, therefore ignoring.`
+      );
+      return;
+    }
   }
   if (!ownerSocket.loggedIn) {
     // guest user - ignore score

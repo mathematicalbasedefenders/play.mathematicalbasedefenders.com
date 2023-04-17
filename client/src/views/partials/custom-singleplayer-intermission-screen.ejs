@@ -1,0 +1,31 @@
+<div id="main-content__custom-singleplayer-intermission-screen-container">
+  <div style="grid-row: row1-start / row3-end" id="main-content__custom-singleplayer-intermission-screen-container__left">
+    <!-- <span class="text--light">Custom Singleplayer Intermission Screen</span> -->
+    <button style="margin-left: 80px;margin-top:40px;" class="option-button--left-bordered option-button--small" title="Go back to the main menu." id="custom-singleplayer-intermission-screen-container__back-button">Back</button>
+    <br>
+  </div>
+  <div style="grid-row: row1-start / row3-end" id="main-content__custom-singleplayer-intermission-screen-container__center">
+    <div id="main-content__custom-singleplayer-intermission-screen-container__options-container">
+      <div id="main-content__custom-singleplayer-intermission-screen-container__options">
+        <br>
+        <label style="margin:4px 0" for="custom-singleplayer-game__starting-base-health" title="The health that you will start with.">Starting Base Health:</label> <input style="margin:4px 0" class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__starting-base-health" id="custom-singleplayer-game__starting-base-health" type="number" value="100">
+        <br><label style="margin:4px 0" for="custom-singleplayer-game__combo-time" title="The time a combo lasts (milliseconds).">Combo Time:</label> <input style="margin:4px 0" class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__combo-time" id="custom-singleplayer-game__combo-time" type="number" value="5000">
+        <br><br>
+        <label style="margin:4px 0" for="custom-singleplayer-game__enemy-speed-coefficient" title="The multiplier to apply to every enemy's speed`.">Enemy Speed Coefficient:</label> <input style="margin:4px 0" class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__enemy-speed-coefficient" id="custom-singleplayer-game__enemy-speed-coefficient" type="number" value="1">
+        <br><br>
+        <label style="margin:4px 0" for="custom-singleplayer-game__enemy-spawn-time" title="The interval of time to pass before an enemy has a chance to spawn.">Enemy Spawn Interval:</label> <input style="margin:4px 0" class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__enemy-spawn-time" id="custom-singleplayer-game__enemy-spawn-time" type="number" value="100">
+        <br><label style="margin:4px 0" for="custom-singleplayer-game__enemy-spawn-chance" title="The chance of an enemy spawning every interval of time.">Enemy Spawn Chance:</label> <input style="margin:4px 0" class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__enemy-spawn-chance" id="custom-singleplayer-game__enemy-spawn-chance" type="number" value="0.1">
+        <br><br>
+        <label style="margin:4px 0" for="custom-singleplayer-game__forced-enemy-spawn-time" title="The time to wait before forcibly spawning an enemy after the last enemy has been spawned.">Forced Enemy Spawn Time:</label> <input style="margin:4px 0" class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__forced-enemy-spawn-time" id="custom-singleplayer-game__forced-enemy-spawn-time" type="number" value="2500">
+        <br><br>
+        <span id="main-content__custom-singleplayer-intermission-screen-container__errors"></span>
+      </div>
+    </div>
+  </div>
+  <div id="main-content__custom-singleplayer-intermission-screen-container__right">
+    <div style="grid-row: row3-start / row3-end; margin-right: 80px">
+      <button class="option-button--right-bordered option-button--small" id="custom-singleplayer-intermission-screen-container__start-button" title="Start the custom singleplayer game">Start</button>
+    </div>
+  </div>
+
+</div>

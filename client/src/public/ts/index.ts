@@ -6,6 +6,7 @@ import * as AS from "adaptive-scale/lib-esm";
 import {
   changeScreen,
   changeSettingsSecondaryScreen,
+  createCustomSingleplayerGameObject,
   redrawStage
 } from "./game";
 import { calculateLevel, millisecondsToTime } from "./utilities";
@@ -217,6 +218,30 @@ function initializeEventListeners() {
     changeScreen("canvas", true);
   });
   //
+  $("#singleplayer-menu-screen-button--custom").on("click", () => {
+    changeScreen("customSingleplayerIntermission");
+  });
+  $("#custom-singleplayer-intermission-screen-container__back-button").on(
+    "click",
+    () => {
+      changeScreen("mainMenu");
+    }
+  );
+  $("#custom-singleplayer-intermission-screen-container__start-button").on(
+    "click",
+    // FIXME: Clicking this doesn't reset the text fields, so it is a hack. Make it more stable
+    () => {
+      variables.cachedSingleplayerMode = "custom";
+      sendSocketMessage({
+        message: "startGame",
+        mode: "singleplayer",
+        modifier: "custom",
+        settings: JSON.stringify(createCustomSingleplayerGameObject())
+      });
+      // changeScreen("canvas", true);
+    }
+  );
+  //
   $("#multiplayer-menu-screen-button--default").on("click", () => {
     sendSocketMessage({
       message: "joinMultiplayerRoom",
@@ -266,11 +291,20 @@ function initializeEventListeners() {
   });
   //
   $("#game-over-screen-button--retry").on("click", () => {
-    sendSocketMessage({
-      message: "startGame",
-      mode: "singleplayer",
-      modifier: variables.cachedSingleplayerMode
-    });
+    if (variables.cachedSingleplayerMode === "custom") {
+      sendSocketMessage({
+        message: "startGame",
+        mode: "singleplayer",
+        modifier: "custom",
+        settings: JSON.stringify(createCustomSingleplayerGameObject())
+      });
+    } else {
+      sendSocketMessage({
+        message: "startGame",
+        mode: "singleplayer",
+        modifier: variables.cachedSingleplayerMode
+      });
+    }
     changeScreen("canvas", true);
   });
   $("#game-over-screen-button--back").on("click", () => {

@@ -38,6 +38,7 @@ const mongoDBSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 import rateLimit from "express-rate-limit";
 import { attemptToSendChatMessage } from "./core/chat";
+import { validateCustomGameSettings } from "./core/utilities";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -153,6 +154,44 @@ uWS
                   );
                   break;
                 }
+                case "custom": {
+                  let validationResult = validateCustomGameSettings(
+                    parsedMessage.mode,
+                    JSON.parse(parsedMessage.settings)
+                  );
+                  if (!validationResult.success) {
+                    // send error message
+                    socket.send(
+                      JSON.stringify({
+                        message: "changeText",
+                        selector:
+                          "#main-content__custom-singleplayer-intermission-screen-container__errors",
+                        value: validationResult.reason
+                      })
+                    );
+                    return;
+                  }
+                  createNewSingleplayerRoom(
+                    socket,
+                    GameMode.CustomSingleplayer,
+                    JSON.parse(parsedMessage.settings)
+                  );
+                  socket.send(
+                    JSON.stringify({
+                      message: "changeText",
+                      selector:
+                        "#main-content__custom-singleplayer-intermission-screen-container__errors",
+                      value: ""
+                    })
+                  );
+                  socket.send(
+                    JSON.stringify({
+                      message: "changeScreen",
+                      newScreen: "canvas"
+                    })
+                  );
+                  break;
+                }
                 default: {
                   log.warn(
                     `Unknown singleplayer game mode: ${parsedMessage.modifier}`
@@ -240,7 +279,7 @@ uWS
 
   .listen(WEBSOCKET_PORT, (token: string) => {
     if (token) {
-      log.info(`Listening to WebSockets at port ${WEBSOCKET_PORT}`);
+      log.info(`Server listening to WebSockets at port ${WEBSOCKET_PORT}`);
     } else {
       log.info(`Failed to listen to WebSockets at port ${WEBSOCKET_PORT}`);
     }
@@ -323,9 +362,14 @@ function resetOneFrameVariables() {
 
 function createNewSingleplayerRoom(
   socket: universal.GameSocket,
-  gameMode: GameMode
+  gameMode: GameMode,
+  settings?: { [key: string]: string }
 ) {
-  let room = new SingleplayerRoom(socket.connectionID as string, gameMode);
+  let room = new SingleplayerRoom(
+    socket.connectionID as string,
+    gameMode,
+    settings
+  );
   room.startPlay();
   socket.subscribe(room.id);
   universal.rooms.push(room);
