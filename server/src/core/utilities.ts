@@ -2,6 +2,7 @@ import * as universal from "../universal";
 import { log } from "./log";
 import { Room } from "../game/Room";
 import { User, UserInterface } from "../models/User";
+import _ from "lodash";
 // Highest comes first
 const RANK_ORDER = [
   ["Developer", "isDeveloper"],
@@ -12,7 +13,38 @@ const RANK_ORDER = [
   ["Donator", "isDonator"]
 ];
 
-const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES = {};
+const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
+  baseHealth: {
+    type: "number",
+    minimum: 1,
+    maximum: 10000 * 10
+  },
+  comboTime: {
+    type: "number",
+    minimum: 0,
+    maximum: 60 * 60 * 1000
+  },
+  enemySpeedCoefficient: {
+    type: "number",
+    minimum: 1,
+    maximum: 50
+  },
+  enemySpawnTime: {
+    type: "number",
+    minimum: 0,
+    maximum: 60 * 1000
+  },
+  enemySpawnChance: {
+    type: "number",
+    minimum: 0,
+    maximum: 1
+  },
+  forcedEnemySpawnTime: {
+    type: "number",
+    minimum: 0,
+    maximum: 60 * 1000
+  }
+};
 
 function checkIfPropertyWithValueExists(
   dataset: unknown,
@@ -157,8 +189,52 @@ function validateCustomGameSettings(
       reason: `Unknown mode: ${mode}`
     };
   }
+  let ok = true;
+  let errors = [];
+  for (let key in settings) {
+    let restriction = SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES[key];
+    // FIXME: as any unsafe
+    let parsedValue = !isNaN(settings[key] as any)
+      ? parseFloat(settings[key])
+      : settings[key];
+    if (typeof parsedValue !== restriction.type) {
+      errors.push(
+        `Wrong type in ${key}: got ${typeof parsedValue}, but expected ${
+          restriction.type
+        }`
+      );
+      ok = false;
+      continue;
+    }
+    // check numbers
+    if (restriction.type === "number") {
+      if (
+        !(
+          parsedValue >= restriction.minimum &&
+          parsedValue <= restriction.maximum
+        )
+      ) {
+        errors.push(
+          `Value too high or too low: got ${parsedValue}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
+        );
+        ok = false;
+        continue;
+      }
+    }
+  }
+  if (!ok) {
+    log.warn(
+      `Unable to start custom singleplayer game for a socket: ${errors.join(
+        " "
+      )}`
+    );
+    return {
+      success: false,
+      reason: `Error: ${errors.join(" ")}`
+    };
+  }
   return {
-    success: true
+    success: ok
   };
 }
 
