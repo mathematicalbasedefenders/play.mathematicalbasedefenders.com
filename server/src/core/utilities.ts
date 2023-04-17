@@ -215,7 +215,7 @@ function validateCustomGameSettings(
         )
       ) {
         errors.push(
-          `Value too high or too low: got ${parsedValue}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
+          `Value too high or too low in ${key}: got ${parsedValue}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
         );
         ok = false;
         continue;
