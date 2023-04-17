@@ -257,7 +257,6 @@ function createCustomSingleplayerGameObject() {
     enemySpawnChance: $(`${bp}enemy-spawn-chance`).val(),
     forcedEnemySpawnTime: $(`${bp}forced-enemy-spawn-time`).val()
   };
-  console.log(toReturn);
   return toReturn;
 }
 
