@@ -257,7 +257,7 @@ uWS
 
   .listen(WEBSOCKET_PORT, (token: string) => {
     if (token) {
-      log.info(`Listening to WebSockets at port ${WEBSOCKET_PORT}`);
+      log.info(`Server listening to WebSockets at port ${WEBSOCKET_PORT}`);
     } else {
       log.info(`Failed to listen to WebSockets at port ${WEBSOCKET_PORT}`);
     }
