@@ -229,7 +229,9 @@ function initializeEventListeners() {
   );
   $("#custom-singleplayer-intermission-screen-container__start-button").on(
     "click",
+    // FIXME: Clicking this doesn't reset the text fields, so it is a hack. Make it more stable
     () => {
+      variables.cachedSingleplayerMode = "custom";
       sendSocketMessage({
         message: "startGame",
         mode: "singleplayer",
@@ -289,11 +291,20 @@ function initializeEventListeners() {
   });
   //
   $("#game-over-screen-button--retry").on("click", () => {
-    sendSocketMessage({
-      message: "startGame",
-      mode: "singleplayer",
-      modifier: variables.cachedSingleplayerMode
-    });
+    if (variables.cachedSingleplayerMode === "custom") {
+      sendSocketMessage({
+        message: "startGame",
+        mode: "singleplayer",
+        modifier: "custom",
+        settings: JSON.stringify(createCustomSingleplayerGameObject())
+      });
+    } else {
+      sendSocketMessage({
+        message: "startGame",
+        mode: "singleplayer",
+        modifier: variables.cachedSingleplayerMode
+      });
+    }
     changeScreen("canvas", true);
   });
   $("#game-over-screen-button--back").on("click", () => {
