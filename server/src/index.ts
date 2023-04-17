@@ -176,10 +176,20 @@ uWS
                     GameMode.CustomSingleplayer,
                     JSON.parse(parsedMessage.settings)
                   );
-                  JSON.stringify({
-                    message: "changeScreen",
-                    newScreen: "canvas"
-                  });
+                  socket.send(
+                    JSON.stringify({
+                      message: "changeText",
+                      selector:
+                        "#main-content__custom-singleplayer-intermission-screen-container__errors",
+                      value: ""
+                    })
+                  );
+                  socket.send(
+                    JSON.stringify({
+                      message: "changeScreen",
+                      newScreen: "canvas"
+                    })
+                  );
                   break;
                 }
                 default: {
