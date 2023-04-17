@@ -236,7 +236,7 @@ function initializeEventListeners() {
         modifier: "custom",
         settings: JSON.stringify(createCustomSingleplayerGameObject())
       });
-      changeScreen("canvas", true);
+      // changeScreen("canvas", true);
     }
   );
   //
