@@ -72,11 +72,8 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
-// app.use(favicon(path.join(__dirname, "/public/assets/images/favicon.ico")));
-// app.use(express.static(path.join(__dirname, "/public/")));
+
 app.use(bodyParser.urlencoded({ extended: false }));
-// app.set("view engine", "ejs");
-// app.set("views", path.join(__dirname, "server/views"));
 
 const PORT: number = 4000;
 const WEBSOCKET_PORT: number = 5000;
