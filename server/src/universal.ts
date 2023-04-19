@@ -17,6 +17,10 @@ type GameSocket = WebSocket & {
 let sockets: Array<GameSocket> = [];
 let rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
 
+const STATUS = {
+  databaseAvailable: false
+};
+
 function deleteSocket(socketToClose: GameSocket) {
   // update room that socket is in
   if (typeof socketToClose.connectionID === "string") {
@@ -73,5 +77,6 @@ export {
   getSocketFromConnectionID,
   getGameDataFromConnectionID,
   getNameFromConnectionID,
-  getSocketsFromUserID
+  getSocketsFromUserID,
+  STATUS
 };

@@ -612,8 +612,14 @@ class MultiplayerRoom extends Room {
               // add games played
               let userID = socket.ownerUserID;
               if (typeof userID === "string") {
-                User.addGamesPlayedToUserID(userID, 1);
-                User.addMultiplayerGamesPlayedToUserID(userID, 1);
+                if (!universal.STATUS.databaseAvailable) {
+                  log.warn(
+                    "Database is not available. Not running database operation."
+                  );
+                } else {
+                  User.addGamesPlayedToUserID(userID, 1);
+                  User.addMultiplayerGamesPlayedToUserID(userID, 1);
+                }
               }
             }
           }
@@ -829,7 +835,13 @@ class MultiplayerRoom extends Room {
           winnerGameData.owner
         )?.ownerUserID;
         if (typeof userID === "string") {
-          User.addMultiplayerGamesWonToUserID(userID as string, 1);
+          if (!universal.STATUS.databaseAvailable) {
+            log.warn(
+              "Database is not available. Not running database operation."
+            );
+          } else {
+            User.addMultiplayerGamesWonToUserID(userID as string, 1);
+          }
         }
 
         this.ranking.push({
