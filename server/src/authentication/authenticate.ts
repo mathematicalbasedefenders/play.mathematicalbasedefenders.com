@@ -1,10 +1,6 @@
 import { User } from "../models/User";
 import { log } from "../core/log";
-import {
-  deleteSocket,
-  getSocketFromConnectionID,
-  getSocketsFromUserID
-} from "../universal";
+import * as universal from "../universal";
 const bcrypt = require("bcrypt");
 const mongoDBSanitize = require("express-mongo-sanitize");
 
@@ -18,6 +14,15 @@ async function authenticate(
   password: unknown | undefined,
   socketID: unknown | undefined
 ) {
+  // check if database is available
+  if (!universal.STATUS.databaseAvailable) {
+    log.warn("Database is not available. Ignoring log-in request.");
+    return {
+      good: false,
+      reason:
+        "Database is not available. This is usually on the server-side. Please contact the server's administrator if this persists."
+    };
+  }
   // validate data
   let dataValidationResult = validateData(username, password, socketID);
   if (!(dataValidationResult.good === true)) {
@@ -58,7 +63,7 @@ async function authenticate(
     `User ${username} has successfully logged in. (Socket ID: ${socketID})`
   );
   // log out sockets that were already logged in
-  let duplicateSockets = getSocketsFromUserID(id);
+  let duplicateSockets = universal.getSocketsFromUserID(id);
   for (let duplicateSocket of duplicateSockets || []) {
     duplicateSocket.send(
       JSON.stringify({
@@ -67,7 +72,7 @@ async function authenticate(
         text: `Disconnected due to your account being logged in from another location. If this wasn't you, consider changing your password.`
       })
     );
-    deleteSocket(duplicateSocket);
+    universal.deleteSocket(duplicateSocket);
     log.warn(
       `Disconnected socket ${duplicateSocket.connectionID} because a new socket logged in with the same credentials. (${username})`
     );
@@ -85,7 +90,7 @@ function validateData(
   socketID: unknown | undefined
 ) {
   // socket is already logged in
-  if (getSocketFromConnectionID(socketID as string)?.loggedIn) {
+  if (universal.getSocketFromConnectionID(socketID as string)?.loggedIn) {
     return {
       good: false,
       reason: "User is already logged in."

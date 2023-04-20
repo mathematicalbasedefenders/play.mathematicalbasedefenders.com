@@ -1,5 +1,6 @@
 import { log } from "./core/log";
 import mongoose from "mongoose";
+import fs from "fs";
 import path from "path";
 import uWS from "uWebSockets.js";
 require("dotenv").config({ path: "../credentials/.env" });
@@ -8,7 +9,6 @@ require("dotenv").config({ path: "../credentials/.env" });
 import express from "express";
 import { Request, Response, NextFunction } from "express";
 
-import * as startAction from "./game/actions/start";
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
 import * as input from "./core/input";
@@ -26,9 +26,6 @@ import {
 import _ from "lodash";
 import { authenticate } from "./authentication/authenticate";
 import { User } from "./models/User";
-import { getScoresOfAllPlayers } from "./services/leaderboards";
-import { crossOriginEmbedderPolicy } from "helmet";
-const favicon = require("serve-favicon");
 const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -72,12 +69,19 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
-// app.use(favicon(path.join(__dirname, "/public/assets/images/favicon.ico")));
-// app.use(express.static(path.join(__dirname, "/public/")));
-app.use(bodyParser.urlencoded({ extended: false }));
-// app.set("view engine", "ejs");
-// app.set("views", path.join(__dirname, "server/views"));
 
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// get configuration
+// TODO: Consider moving to universal.ts
+let configurationLocation = path.join(
+  __dirname,
+  "..",
+  "mbd-server-configuration.json"
+);
+const CONFIGURATION = JSON.parse(
+  fs.readFileSync(configurationLocation, "utf-8")
+);
 const PORT: number = 4000;
 const WEBSOCKET_PORT: number = 5000;
 const LOOP_INTERVAL: number = 1000 / 60;
@@ -88,10 +92,13 @@ let lastUpdateTime: number;
 const DATABASE_CONNECTION_URI: string | undefined =
   process.env.DATABASE_CONNECTION_URI;
 
-mongoose.connect(DATABASE_CONNECTION_URI as string);
+if (CONFIGURATION.useDatabase) {
+  mongoose.connect(DATABASE_CONNECTION_URI as string);
+}
 
 mongoose.connection.on("connected", async () => {
-  log.info(`Connected to database!`);
+  universal.STATUS.databaseAvailable = true;
+  log.info(`Connected to database! Database is now available.`);
 });
 
 type WebSocketMessage = ArrayBuffer & {
@@ -462,10 +469,9 @@ async function attemptAuthentication(
   let result = await authenticate(username, password, socketID);
   let socket = universal.getSocketFromConnectionID(socketID);
   if (!result.good || !socket) {
-    let reason =
-      result.reason === "All checks passed"
-        ? "Invalid Socket Connection ID"
-        : result.reason;
+    result.reason === "All checks passed"
+      ? "Invalid Socket Connection ID"
+      : result.reason;
     socket?.send(
       JSON.stringify({
         message: "createToastNotification",
@@ -510,6 +516,7 @@ async function attemptAuthentication(
 
 app.listen(PORT, () => {
   log.info(`Server listening at port ${PORT}`);
+  log.info(`Server is using configuration ${JSON.stringify(CONFIGURATION)}`);
   if (process.env.credentialSetUsed === "TESTING") {
     log.warn("Using testing credentials.");
   }
