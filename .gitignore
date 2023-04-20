@@ -518,3 +518,4 @@ credentials/
 # other stuff
 .VSCodeCounter
 ignored/
+**/mbd-server-configuration.json
