@@ -306,9 +306,7 @@ function update(deltaTime: number) {
     );
     if (gameData) {
       // remove some game data
-      for (let enemy of gameData.enemies) {
-        delete enemy.requestedValue;
-      }
+      minifySelfGameData(gameData);
       // add some game data (extra information)
       // such as for multiplayer
       if (gameData.mode.indexOf("Multiplayer") > -1) {
@@ -352,6 +350,16 @@ function update(deltaTime: number) {
       resetDefaultMultiplayerRoomID(room);
     }
   }
+}
+
+// TODO: Move these functions somewhere else.
+function minifySelfGameData(gameData: { [key: string]: any }) {
+  delete gameData.clocks.enemySpawn;
+  delete gameData.clocks.forcedEnemySpawn;
+  delete gameData.enemySpawnThreshold;
+  delete gameData.enemySpeedCoefficient;
+  delete gameData.totalEnemiesReceived;
+  delete gameData.totalEnemiesSent;
 }
 
 function resetOneFrameVariables() {
