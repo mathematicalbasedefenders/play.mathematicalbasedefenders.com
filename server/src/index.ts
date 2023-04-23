@@ -20,7 +20,7 @@ import {
   Room,
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
-  getOpponentInformation
+  getMinifiedOpponentInformation
 } from "./game/Room";
 
 import _ from "lodash";
@@ -314,7 +314,7 @@ function update(deltaTime: number) {
       if (gameData.mode.indexOf("Multiplayer") > -1) {
         let room = utilities.findRoomWithConnectionID(socket.connectionID);
         if (room) {
-          gameData.opponentGameData = getOpponentInformation(
+          gameData.opponentGameData = getMinifiedOpponentInformation(
             gameData,
             room,
             true

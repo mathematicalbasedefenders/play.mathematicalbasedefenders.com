@@ -982,7 +982,7 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
   }
 }
 
-function getOpponentInformation(
+function getMinifiedOpponentInformation(
   gameData: GameData,
   room: Room,
   minifyData: boolean
@@ -1073,5 +1073,5 @@ export {
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
   MultiplayerGameData,
-  getOpponentInformation
+  getMinifiedOpponentInformation
 };
