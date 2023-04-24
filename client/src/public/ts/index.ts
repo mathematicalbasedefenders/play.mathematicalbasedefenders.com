@@ -10,11 +10,7 @@ import {
   redrawStage
 } from "./game";
 import { calculateLevel, millisecondsToTime } from "./utilities";
-import {
-  ModalNotification,
-  ToastNotification,
-  ToastNotificationPosition
-} from "./notifications";
+import { render } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -459,6 +455,10 @@ function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__username").text(data.guestName);
   $("#main-content__user-menu-small-display__level").text(`Level 0`);
 }
+
+app.ticker.add((delta) => {
+  render(delta);
+});
 
 changeScreen("mainMenu");
 loadSettings(localStorage.getItem("settings") || "{}");
