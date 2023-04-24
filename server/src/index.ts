@@ -84,7 +84,7 @@ const CONFIGURATION = JSON.parse(
 );
 const PORT: number = 4000;
 const WEBSOCKET_PORT: number = 5000;
-const DESIRED_UPDATES_PER_SECOND: number = 60;
+const DESIRED_UPDATES_PER_SECOND: number = 10;
 const LOOP_INTERVAL: number = 1000 / DESIRED_UPDATES_PER_SECOND;
 
 let currentTime: number;

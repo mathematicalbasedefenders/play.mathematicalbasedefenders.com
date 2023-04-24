@@ -460,7 +460,7 @@ class SingleplayerRoom extends Room {
       // FIXME: ???
       // Move all the enemies down.
       for (let enemy of data.enemies) {
-        enemy.move(0.0025 * data.enemySpeedCoefficient);
+        enemy.move(0.1 * data.enemySpeedCoefficient * (deltaTime / 1000));
         if (enemy.sPosition <= 0) {
           enemy.remove(data, 10);
         }
@@ -719,7 +719,7 @@ class MultiplayerRoom extends Room {
         }
 
         for (let enemy of data.enemies) {
-          enemy.move(0.0025 * data.enemySpeedCoefficient);
+          enemy.move(0.1 * data.enemySpeedCoefficient * (deltaTime / 1000));
           if (enemy.sPosition <= 0) {
             enemy.remove(data, 10);
           }
