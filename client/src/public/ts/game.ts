@@ -194,11 +194,14 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
   if (alsoRedrawStage) {
     redrawStage();
   }
+  // reset stuff
   // TODO: temporary
   for (let opponent of Opponent.instances) {
     opponent.destroyAllInstances();
   }
   enemies.deleteAllEnemies();
+  enemies.Enemy.enemiesCurrentlyDrawn = []; // TODO: Consider moving this to specific screens only.
+  // actually change screen
   switch (screen) {
     case "mainMenu": {
       $("#main-content__main-menu-screen-container").show(0);
