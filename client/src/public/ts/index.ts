@@ -72,7 +72,9 @@ const variables: { [key: string]: any } = {
     baseHealth: 0
   },
   currentGameClientSide: {
-    enemiesKilled: 0
+    enemiesKilled: 0,
+    comboTime: 0,
+    timeSinceLastEnemyKill: 60 * 1000 + 1
   }
 };
 

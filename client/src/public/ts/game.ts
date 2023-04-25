@@ -131,6 +131,12 @@ function renderGameData(data: { [key: string]: any }) {
     stageItems.textSprites.enemiesReceivedStockText.text = "";
   }
 
+  // update values
+  variables.currentGameClientSide.enemiesKilled = data.enemiesKilled;
+  variables.currentGameClientSide.comboTime = data.clocks.comboReset.actionTime;
+  variables.currentGameClientSide.timeSinceLastEnemyKill =
+    data.clocks.comboReset.currentTime;
+
   // beautiful score setting
   if (variables.settings.beautifulScore === "on") {
     let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
@@ -157,9 +163,6 @@ function renderGameData(data: { [key: string]: any }) {
       changeScreen("multiplayerIntermission");
     }
   }
-
-  // update values
-  variables.currentGameClientSide.enemiesKilled = data.enemiesKilled;
 }
 
 function redrawStage() {

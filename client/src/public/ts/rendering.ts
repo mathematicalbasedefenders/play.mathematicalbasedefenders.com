@@ -4,6 +4,7 @@ import { millisecondsToTime } from "./utilities";
 
 function render(elapsedMilliseconds: number) {
   variables.clientSideRendering.totalElapsedMilliseconds += elapsedMilliseconds;
+  variables.clientSideRendering.timeSinceLastEnemyKill += elapsedMilliseconds;
   // enemies
   let enemiesCurrentlyDrawn = Enemy.enemiesCurrentlyDrawn;
   for (let enemyID of enemiesCurrentlyDrawn) {
@@ -27,6 +28,13 @@ function render(elapsedMilliseconds: number) {
       variables.clientSideRendering.totalElapsedMilliseconds) *
     1000
   ).toFixed(3)}/s`;
+  // combo text fading
+  stageItems.textSprites.comboText.alpha = Math.max(
+    0,
+    1 -
+      variables.currentGameClientSide.timeSinceLastEnemyKill /
+        variables.currentGameClientSide.comboTime
+  );
 }
 
 function resetClientSideRendering() {
