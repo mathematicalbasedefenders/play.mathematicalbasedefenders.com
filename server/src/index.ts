@@ -84,11 +84,16 @@ const CONFIGURATION = JSON.parse(
 );
 const PORT: number = 4000;
 const WEBSOCKET_PORT: number = 5000;
-const DESIRED_UPDATES_PER_SECOND: number = 60;
-const LOOP_INTERVAL: number = 1000 / DESIRED_UPDATES_PER_SECOND;
+const DESIRED_SYNCHRONIZATIONS_PER_SECOND: number = 5;
+const DESIRED_SERVER_UPDATES_PER_SECOND: number = 60;
+const UPDATE_INTERVAL: number = 1000 / DESIRED_SERVER_UPDATES_PER_SECOND;
+const SYNCHRONIZATION_INTERVAL: number =
+  1000 / DESIRED_SYNCHRONIZATIONS_PER_SECOND;
+let initialized = false;
 
-let currentTime: number;
-let lastUpdateTime: number;
+let currentTime: number = Date.now();
+let lastUpdateTime: number = Date.now();
+let sendDataDeltaTime: number;
 
 const DATABASE_CONNECTION_URI: string | undefined =
   process.env.DATABASE_CONNECTION_URI;
@@ -300,7 +305,39 @@ function update(deltaTime: number) {
     }
   }
 
-  // data is sent here.
+  // DATA IS SENT HERE. <---
+  synchronizeDataWithClients(deltaTime);
+
+  // delete rooms with zero players
+  // additionally, delete rooms which are empty JSON objects.
+  let livingRoomCondition = (element: Room) =>
+    !(
+      element?.memberConnectionIDs.length +
+        element?.spectatorConnectionIDs.length <=
+        0 ||
+      typeof element === "undefined" ||
+      Object.keys(element).length === 0
+    );
+  let oldRooms = _.clone(universal.rooms).map((element) => element.id);
+  utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
+
+  let newRooms = _.clone(universal.rooms).map((element) => element.id);
+  let deletedRooms = oldRooms.filter((element) => !newRooms.includes(element));
+  for (let room of deletedRooms) {
+    log.info(`Deleted room with ID ${room}`);
+    if (room === defaultMultiplayerRoomID) {
+      resetDefaultMultiplayerRoomID(room);
+    }
+  }
+}
+
+// TODO: Move these functions somewhere else.
+function synchronizeDataWithClients(deltaTime: number) {
+  sendDataDeltaTime += deltaTime;
+  if (sendDataDeltaTime < SYNCHRONIZATION_INTERVAL) {
+    return;
+  }
+  sendDataDeltaTime -= SYNCHRONIZATION_INTERVAL;
   for (let socket of universal.sockets) {
     let gameData = _.cloneDeep(
       universal.getGameDataFromConnectionID(socket.connectionID as string)
@@ -329,31 +366,9 @@ function update(deltaTime: number) {
       );
     }
   }
-
-  // delete rooms with zero players
-  // additionally, delete rooms which are empty JSON objects.
-  let livingRoomCondition = (element: Room) =>
-    !(
-      element?.memberConnectionIDs.length +
-        element?.spectatorConnectionIDs.length <=
-        0 ||
-      typeof element === "undefined" ||
-      Object.keys(element).length === 0
-    );
-  let oldRooms = _.clone(universal.rooms).map((element) => element.id);
-  utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
   resetOneFrameVariables();
-  let newRooms = _.clone(universal.rooms).map((element) => element.id);
-  let deletedRooms = oldRooms.filter((element) => !newRooms.includes(element));
-  for (let room of deletedRooms) {
-    log.info(`Deleted room with ID ${room}`);
-    if (room === defaultMultiplayerRoomID) {
-      resetDefaultMultiplayerRoomID(room);
-    }
-  }
 }
 
-// TODO: Move these functions somewhere else.
 function minifySelfGameData(gameData: { [key: string]: any }) {
   // delete unnecessary keys
   delete gameData.clocks.enemySpawn;
@@ -466,11 +481,15 @@ function generateGuestID(length: number) {
 }
 
 const loop = setInterval(() => {
+  if (!initialized) {
+    initialize();
+    initialized = true;
+  }
   currentTime = Date.now();
   let deltaTime: number = currentTime - lastUpdateTime;
   update(deltaTime);
   lastUpdateTime = Date.now();
-}, LOOP_INTERVAL);
+}, UPDATE_INTERVAL);
 
 app.get("/", limiter, (request: Request, response: Response) => {
   response.render("pages/index.ejs");
@@ -534,6 +553,10 @@ async function attemptAuthentication(
     })
   );
   return;
+}
+
+function initialize() {
+  sendDataDeltaTime = 0;
 }
 
 app.listen(PORT, () => {
