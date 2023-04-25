@@ -68,7 +68,8 @@ const variables: { [key: string]: any } = {
     }
   },
   clientSideRendering: {
-    totalElapsedMilliseconds: 0
+    totalElapsedMilliseconds: 0,
+    baseHealth: 0
   }
 };
 

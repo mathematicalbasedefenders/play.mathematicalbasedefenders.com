@@ -24,6 +24,7 @@ class Enemy {
   text!: string;
   creationTime: number;
   speed: number;
+  attackedBase: boolean;
   constructor(
     sPosition: number,
     text: string,
@@ -61,6 +62,7 @@ class Enemy {
     // internal-related
     this.speed = speed;
     this.sPosition = sPosition;
+    this.attackedBase = false;
     // metadata
     this.id = id;
     this.creationTime = Date.now();
@@ -86,6 +88,10 @@ class Enemy {
     this.sPosition = sPosition;
     if (sPosition <= 0) {
       deleteEnemy(this.id);
+      if (!this.attackedBase) {
+        variables.clientSideRendering.baseHealth -= 10;
+        this.attackedBase = true;
+      }
     }
   }
 }

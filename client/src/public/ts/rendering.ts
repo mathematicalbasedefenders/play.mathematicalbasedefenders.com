@@ -17,10 +17,13 @@ function render(elapsedMilliseconds: number) {
   stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(
     variables.clientSideRendering.totalElapsedMilliseconds
   );
+  // base health
+  stageItems.textSprites.baseHealthText.text = `♥️ ${variables.clientSideRendering.baseHealth}`;
 }
 
 function resetClientSideRendering() {
   variables.clientSideRendering.totalElapsedMilliseconds = 0;
+  variables.clientSideRendering.baseHealth = 100;
 }
 
 export { render, resetClientSideRendering };
