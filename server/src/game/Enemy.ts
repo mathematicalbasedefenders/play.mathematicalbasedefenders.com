@@ -125,7 +125,7 @@ function createNew(enemyType: EnemyType, id: string, speed: number) {
       enemy.health = 1;
       // e.g.
       enemy.color = 0xffffff;
-      enemy.speed = 0.1;
+      // enemy.speed = 0.1;
       break;
     }
   }
