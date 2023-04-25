@@ -366,7 +366,6 @@ function minifySelfGameData(gameData: { [key: string]: any }) {
   for (let enemy in gameData.enemies) {
     // delete unnecessary keys
     delete gameData.enemies[enemy].requestedValue;
-    delete gameData.enemies[enemy].speed;
     // round off values
     gameData.enemies[enemy].xPosition = parseFloat(
       gameData.enemies[enemy].xPosition.toFixed(3)

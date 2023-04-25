@@ -475,7 +475,11 @@ class SingleplayerRoom extends Room {
         data.clocks.forcedEnemySpawn.currentTime >=
         data.clocks.forcedEnemySpawn.actionTime
       ) {
-        enemyToAdd = generateEnemyWithChance(1, this.updateNumber);
+        enemyToAdd = generateEnemyWithChance(
+          1,
+          this.updateNumber,
+          0.1 * data.enemySpeedCoefficient
+        );
         data.clocks.forcedEnemySpawn.currentTime -=
           data.clocks.forcedEnemySpawn.actionTime;
         // reset time
@@ -489,7 +493,8 @@ class SingleplayerRoom extends Room {
       ) {
         enemyToAdd = generateEnemyWithChance(
           data.enemySpawnThreshold,
-          this.updateNumber
+          this.updateNumber,
+          0.1 * data.enemySpeedCoefficient
         );
         data.clocks.enemySpawn.currentTime -= data.clocks.enemySpawn.actionTime;
       }
@@ -687,7 +692,11 @@ class MultiplayerRoom extends Room {
         this.globalClock.forcedEnemySpawn.currentTime >=
         this.globalClock.forcedEnemySpawn.actionTime
       ) {
-        enemyToAdd = generateEnemyWithChance(1, this.updateNumber);
+        enemyToAdd = generateEnemyWithChance(
+          1,
+          this.updateNumber,
+          0.1 //TODO: custom multiplayer will mess this up
+        );
         this.globalClock.forcedEnemySpawn.currentTime -=
           this.globalClock.forcedEnemySpawn.actionTime;
         // reset time
@@ -702,7 +711,8 @@ class MultiplayerRoom extends Room {
       ) {
         enemyToAdd = generateEnemyWithChance(
           this.globalEnemySpawnThreshold,
-          this.updateNumber
+          this.updateNumber,
+          0.1 //TODO: custom multiplayer will mess this up
         );
         this.globalClock.enemySpawn.currentTime -=
           this.globalClock.enemySpawn.actionTime;
@@ -761,7 +771,12 @@ class MultiplayerRoom extends Room {
         if (data.receivedEnemiesToSpawn > 0) {
           data.receivedEnemiesToSpawn--;
           data.enemiesSpawned++;
-          data.enemies.push(enemy.createNewReceived(`R${data.enemiesSpawned}`));
+          data.enemies.push(
+            enemy.createNewReceived(
+              `R${data.enemiesSpawned}`,
+              0.1 * data.enemySpeedCoefficient
+            )
+          );
         }
 
         if (data.enemiesSentStock > 0) {
@@ -928,11 +943,12 @@ function generateRoomID(length: number): string {
 
 function generateEnemyWithChance(
   threshold: number,
-  updateNumber: number
+  updateNumber: number,
+  speed: number
 ): enemy.Enemy | null {
   let roll: number = Math.random();
   if (roll < threshold) {
-    return enemy.createNew(enemy.EnemyType.NORMAL, `G${updateNumber}`);
+    return enemy.createNew(enemy.EnemyType.NORMAL, `G${updateNumber}`, speed);
   }
   return null;
 }

@@ -456,8 +456,8 @@ function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__level").text(`Level 0`);
 }
 
-app.ticker.add((delta) => {
-  render(delta);
+app.ticker.add((deltaTime) => {
+  render(deltaTime);
 });
 
 changeScreen("mainMenu");

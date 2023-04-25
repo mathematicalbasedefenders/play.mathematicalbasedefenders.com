@@ -48,6 +48,7 @@ function renderGameData(data: { [key: string]: any }) {
     enemies.rerenderEnemy(
       enemy.id,
       enemy.sPosition,
+      enemy.speed,
       enemy.displayedText,
       enemy.xPosition
     );
