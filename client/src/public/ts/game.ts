@@ -29,15 +29,18 @@ function renderGameData(data: { [key: string]: any }) {
 
   if (data.commands.updateText) {
     for (let command in data.commands.updateText) {
-      $(data.commands.updateText[command].selector).text(
-        data.commands.updateText[command].newText
+      $(data.commands.updateText[command].value.selector).text(
+        data.commands.updateText[command].value.newText
       );
     }
   }
 
-  if (typeof data.commands.changeScreenTo === "string") {
-    changeScreen(data.commands.changeScreenTo);
-    return;
+  for (let command in data.commands.changeScreenTo) {
+    console.log(data.commands.changeScreenTo[command]);
+    if (typeof data.commands.changeScreenTo[command]?.value === "string") {
+      changeScreen(data.commands.changeScreenTo[command].value);
+      return;
+    }
   }
 
   // erase killed enemies

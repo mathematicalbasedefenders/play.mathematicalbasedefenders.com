@@ -36,6 +36,7 @@ const helmet = require("helmet");
 import rateLimit from "express-rate-limit";
 import { attemptToSendChatMessage } from "./core/chat";
 import { validateCustomGameSettings } from "./core/utilities";
+import { synchronizeDataWithSocket } from "./universal";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -245,6 +246,7 @@ uWS
         // game input
         case "keypress": {
           input.processKeypress(socket.connectionID, parsedMessage.keypress);
+          synchronizeDataWithSocket(socket);
           break;
         }
         case "emulateKeypress": {
@@ -306,7 +308,7 @@ function update(deltaTime: number) {
   }
 
   // DATA IS SENT HERE. <---
-  synchronizeDataWithClients(deltaTime);
+  synchronizeDataWithSockets(deltaTime);
 
   // delete rooms with zero players
   // additionally, delete rooms which are empty JSON objects.
@@ -332,62 +334,14 @@ function update(deltaTime: number) {
 }
 
 // TODO: Move these functions somewhere else.
-function synchronizeDataWithClients(deltaTime: number) {
+function synchronizeDataWithSockets(deltaTime: number) {
   sendDataDeltaTime += deltaTime;
   if (sendDataDeltaTime < SYNCHRONIZATION_INTERVAL) {
     return;
   }
   sendDataDeltaTime -= SYNCHRONIZATION_INTERVAL;
   for (let socket of universal.sockets) {
-    let gameData = _.cloneDeep(
-      universal.getGameDataFromConnectionID(socket.connectionID as string)
-    );
-    if (gameData) {
-      // remove some game data
-      minifySelfGameData(gameData);
-      // add some game data (extra information)
-      // such as for multiplayer
-      if (gameData.mode.indexOf("Multiplayer") > -1) {
-        let room = utilities.findRoomWithConnectionID(socket.connectionID);
-        if (room) {
-          gameData.opponentGameData = getMinifiedOpponentInformation(
-            gameData,
-            room,
-            true
-          );
-        }
-      }
-      let gameDataToSend: string = JSON.stringify(gameData);
-      universal.getSocketFromConnectionID(socket.connectionID as string)?.send(
-        JSON.stringify({
-          message: "renderGameData",
-          data: gameDataToSend
-        })
-      );
-    }
-  }
-  resetOneFrameVariables();
-}
-
-function minifySelfGameData(gameData: { [key: string]: any }) {
-  // delete unnecessary keys
-  delete gameData.clocks.enemySpawn;
-  delete gameData.clocks.forcedEnemySpawn;
-  delete gameData.enemySpawnThreshold;
-  delete gameData.enemySpeedCoefficient;
-  delete gameData.totalEnemiesReceived;
-  delete gameData.totalEnemiesSent;
-  // minify enemies
-  for (let enemy in gameData.enemies) {
-    // delete unnecessary keys
-    delete gameData.enemies[enemy].requestedValue;
-    // round off values
-    gameData.enemies[enemy].xPosition = parseFloat(
-      gameData.enemies[enemy].xPosition.toFixed(3)
-    );
-    gameData.enemies[enemy].sPosition = parseFloat(
-      gameData.enemies[enemy].sPosition.toFixed(3)
-    );
+    synchronizeDataWithSocket(socket);
   }
 }
 
@@ -399,7 +353,7 @@ function resetOneFrameVariables() {
     }
     for (let gameData of room?.gameData) {
       gameData.enemiesToErase = [];
-      gameData.commands = {};
+      // gameData.commands = {};
     }
   }
 }

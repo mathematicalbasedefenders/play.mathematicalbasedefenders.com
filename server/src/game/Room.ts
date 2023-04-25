@@ -8,7 +8,7 @@ import { submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
 import { findRoomWithConnectionID } from "../core/utilities";
 import { User } from "../models/User";
-
+import { synchronizeDataWithSocket } from "../universal";
 const NO_HOST_ID = "(no host)";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const MINIFIED_GAME_DATA_KEYS = [
@@ -327,30 +327,48 @@ class Room {
     ) {
       data.commands.updateText = [
         {
-          selector: "#main-content__game-over-screen__stats__score",
-          newText: data.score.toString()
+          value: {
+            selector: "#main-content__game-over-screen__stats__score",
+            newText: data.score.toString()
+          },
+          age: 0
         },
         {
-          selector: "#main-content__game-over-screen__stats__game-mode",
-          newText: gameMode
+          value: {
+            selector: "#main-content__game-over-screen__stats__game-mode",
+            newText: gameMode
+          },
+          age: 0
         },
         {
-          selector: "#main-content__game-over-screen__stats__enemies",
-          newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
-            (data.enemiesKilled / data.elapsedTime) *
-            1000
-          ).toFixed(3)}/s)`
+          value: {
+            selector: "#main-content__game-over-screen__stats__enemies",
+            newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
+              (data.enemiesKilled / data.elapsedTime) *
+              1000
+            ).toFixed(3)}/s)`
+          },
+          age: 0
         },
         {
-          selector: "#main-content__game-over-screen__stats__time",
-          newText: utilities.millisecondsToTime(data.elapsedTime)
+          value: {
+            selector: "#main-content__game-over-screen__stats__time",
+            newText: utilities.millisecondsToTime(data.elapsedTime)
+          },
+          age: 0
         },
         {
-          selector: "#main-content__game-over-screen__stats__score-rank",
-          newText: messages
+          value: {
+            selector: "#main-content__game-over-screen__stats__score-rank",
+            newText: messages
+          },
+          age: 0
         }
       ];
-      data.commands.changeScreenTo = "gameOver";
+      data.commands.changeScreenTo = [{ value: "gameOver", age: 0 }];
+      if (socket) {
+        synchronizeDataWithSocket(socket);
+      }
       // submit score
       if (socket) {
         submitSingleplayerGame(data, socket);
@@ -517,7 +535,7 @@ class SingleplayerRoom extends Room {
   abort(data: GameData) {
     let socket = universal.getSocketFromConnectionID(data.owner);
     this.playing = false;
-    data.commands.changeScreenTo = "mainMenu";
+    data.commands.changeScreenTo = [{ value: "mainMenu", age: 0 }];
     if (socket) {
       socket?.unsubscribe(this.id);
       this.deleteMember(socket?.connectionID as string);
@@ -879,7 +897,7 @@ class MultiplayerRoom extends Room {
   abort(data: GameData) {
     data.baseHealth = -99999;
     let socket = universal.getSocketFromConnectionID(data.owner);
-    data.commands.changeScreenTo = "mainMenu";
+    data.commands.changeScreenTo = [{ value: "mainMenu", age: 0 }];
     log.info(
       `Socket ID ${data.owner} (${universal.getNameFromConnectionID(
         data.owner
