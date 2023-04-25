@@ -67,7 +67,9 @@ const variables: { [key: string]: any } = {
       increment: 336
     }
   },
-  totalElapsedMilliseconds: 0
+  clientSideRendering: {
+    totalElapsedMilliseconds: 0
+  }
 };
 
 type stageItemsContainer = {

@@ -3,7 +3,7 @@ import { Enemy, getEnemyFromCache } from "./enemies";
 import { millisecondsToTime } from "./utilities";
 
 function render(elapsedMilliseconds: number) {
-  variables.totalElapsedMilliseconds += elapsedMilliseconds;
+  variables.clientSideRendering.totalElapsedMilliseconds += elapsedMilliseconds;
   // enemies
   let enemiesCurrentlyDrawn = Enemy.enemiesCurrentlyDrawn;
   for (let enemyID of enemiesCurrentlyDrawn) {
@@ -15,12 +15,12 @@ function render(elapsedMilliseconds: number) {
   }
   // time elapsed
   stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(
-    variables.totalElapsedMilliseconds
+    variables.clientSideRendering.totalElapsedMilliseconds
   );
 }
 
 function resetClientSideRendering() {
-  variables.totalElapsedMilliseconds = 0;
+  variables.clientSideRendering.totalElapsedMilliseconds = 0;
 }
 
 export { render, resetClientSideRendering };
