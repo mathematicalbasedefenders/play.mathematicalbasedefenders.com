@@ -19,11 +19,20 @@ function render(elapsedMilliseconds: number) {
   );
   // base health
   stageItems.textSprites.baseHealthText.text = `♥️ ${variables.clientSideRendering.baseHealth}`;
+  // enemies killed (per second)
+  stageItems.textSprites.enemiesText.text = `Enemy Kills: ${
+    variables.currentGameClientSide.enemiesKilled
+  } ≈ ${(
+    (variables.currentGameClientSide.enemiesKilled /
+      variables.clientSideRendering.totalElapsedMilliseconds) *
+    1000
+  ).toFixed(3)}/s`;
 }
 
 function resetClientSideRendering() {
   variables.clientSideRendering.totalElapsedMilliseconds = 0;
   variables.clientSideRendering.baseHealth = 100;
+  variables.currentGameClientSide.enemiesKilled = 0;
 }
 
 export { render, resetClientSideRendering };

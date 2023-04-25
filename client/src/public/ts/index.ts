@@ -70,6 +70,9 @@ const variables: { [key: string]: any } = {
   clientSideRendering: {
     totalElapsedMilliseconds: 0,
     baseHealth: 0
+  },
+  currentGameClientSide: {
+    enemiesKilled: 0
   }
 };
 

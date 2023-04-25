@@ -25,6 +25,7 @@ class Enemy {
   creationTime: number;
   speed: number;
   attackedBase: boolean;
+  addedKill: boolean;
   constructor(
     sPosition: number,
     text: string,
@@ -63,6 +64,7 @@ class Enemy {
     this.speed = speed;
     this.sPosition = sPosition;
     this.attackedBase = false;
+    this.addedKill = false;
     // metadata
     this.id = id;
     this.creationTime = Date.now();
@@ -128,7 +130,7 @@ function renderNewEnemy(
 function repositionExistingEnemy(id: string, sPosition: number) {
   getEnemyFromCache(id)?.reposition(sPosition);
 }
-function deleteEnemy(id: string) {
+function deleteEnemy(id: string, addClientSideKill?: boolean) {
   let enemy: Enemy | undefined = getEnemyFromCache(id);
   let sprite: PIXI.Sprite | undefined = getEnemyFromCache(id)?.sprite;
   let text: PIXI.Text | undefined = getEnemyFromCache(id)?.textSprite;

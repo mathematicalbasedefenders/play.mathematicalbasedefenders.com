@@ -157,6 +157,9 @@ function renderGameData(data: { [key: string]: any }) {
       changeScreen("multiplayerIntermission");
     }
   }
+
+  // update values
+  variables.currentGameClientSide.enemiesKilled = data.enemiesKilled;
 }
 
 function redrawStage() {
