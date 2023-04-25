@@ -1,6 +1,9 @@
+import { stageItems, variables } from ".";
 import { Enemy, getEnemyFromCache } from "./enemies";
+import { millisecondsToTime } from "./utilities";
 
-function render(deltaTime: number) {
+function render(elapsedMilliseconds: number) {
+  variables.totalElapsedMilliseconds += elapsedMilliseconds;
   // enemies
   let enemiesCurrentlyDrawn = Enemy.enemiesCurrentlyDrawn;
   for (let enemyID of enemiesCurrentlyDrawn) {
@@ -10,5 +13,14 @@ function render(deltaTime: number) {
       enemy.reposition(1 - enemy.speed * (age / 1000));
     }
   }
+  // time elapsed
+  stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(
+    variables.totalElapsedMilliseconds
+  );
 }
-export { render };
+
+function resetClientSideRendering() {
+  variables.totalElapsedMilliseconds = 0;
+}
+
+export { render, resetClientSideRendering };

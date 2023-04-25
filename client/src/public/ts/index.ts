@@ -66,7 +66,8 @@ const variables: { [key: string]: any } = {
       initial: 160,
       increment: 336
     }
-  }
+  },
+  totalElapsedMilliseconds: 0
 };
 
 type stageItemsContainer = {
@@ -202,7 +203,7 @@ function initializeEventListeners() {
       mode: "singleplayer",
       modifier: "easy"
     });
-    changeScreen("canvas", true);
+    changeScreen("canvas", true, true);
   });
   $("#singleplayer-menu-screen-button--standard").on("click", () => {
     variables.cachedSingleplayerMode = "standard";
@@ -211,7 +212,7 @@ function initializeEventListeners() {
       mode: "singleplayer",
       modifier: "standard"
     });
-    changeScreen("canvas", true);
+    changeScreen("canvas", true, true);
   });
   //
   $("#singleplayer-menu-screen-button--custom").on("click", () => {
@@ -234,7 +235,7 @@ function initializeEventListeners() {
         modifier: "custom",
         settings: JSON.stringify(createCustomSingleplayerGameObject())
       });
-      // changeScreen("canvas", true);
+      // changeScreen("canvas", true, true);
     }
   );
   //
@@ -301,7 +302,7 @@ function initializeEventListeners() {
         modifier: variables.cachedSingleplayerMode
       });
     }
-    changeScreen("canvas", true);
+    changeScreen("canvas", true, true);
   });
   $("#game-over-screen-button--back").on("click", () => {
     changeScreen("mainMenu");
@@ -457,7 +458,7 @@ function updateGuestInformationText(data: any) {
 }
 
 app.ticker.add((deltaTime) => {
-  render(deltaTime);
+  render(app.ticker.elapsedMS);
 });
 
 changeScreen("mainMenu");
