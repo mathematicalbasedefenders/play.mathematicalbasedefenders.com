@@ -29,12 +29,14 @@ class Enemy {
     displayedText: string,
     xPosition: number,
     sPosition: number,
+    speed: number,
     id: string
   ) {
     this.requestedValue = requestedValue;
     this.displayedText = displayedText;
     this.xPosition = xPosition;
     this.sPosition = sPosition;
+    this.speed = speed;
     this.id = id;
   }
 
@@ -106,7 +108,7 @@ function removeEnemyWithIDInGameData(id: string, gameData: GameData) {
   gameData.enemiesToErase.push(id);
 }
 
-function createNew(enemyType: EnemyType, id: string) {
+function createNew(enemyType: EnemyType, id: string, speed: number) {
   // TODO: Change this algorithm (line below)
   let generatedValue: number = Math.round(Math.random() * 200 - 100);
   let enemy: Enemy = new Enemy(
@@ -114,6 +116,7 @@ function createNew(enemyType: EnemyType, id: string) {
     createProblem(generatedValue),
     Math.random(),
     1,
+    speed || 0.1,
     id
   );
   switch (enemyType) {
@@ -122,15 +125,15 @@ function createNew(enemyType: EnemyType, id: string) {
       enemy.health = 1;
       // e.g.
       enemy.color = 0xffffff;
-      enemy.speed = 0.001;
+      enemy.speed = 0.1;
       break;
     }
   }
   return enemy;
 }
 
-function createNewReceived(id: string) {
-  return createNew(EnemyType.NORMAL, id);
+function createNewReceived(id: string, speed: number) {
+  return createNew(EnemyType.NORMAL, id, speed || 0.1);
 }
 
 // TODO: this

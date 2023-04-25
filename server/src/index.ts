@@ -84,7 +84,7 @@ const CONFIGURATION = JSON.parse(
 );
 const PORT: number = 4000;
 const WEBSOCKET_PORT: number = 5000;
-const DESIRED_UPDATES_PER_SECOND: number = 60;
+const DESIRED_UPDATES_PER_SECOND: number = 10;
 const LOOP_INTERVAL: number = 1000 / DESIRED_UPDATES_PER_SECOND;
 
 let currentTime: number;
@@ -366,7 +366,6 @@ function minifySelfGameData(gameData: { [key: string]: any }) {
   for (let enemy in gameData.enemies) {
     // delete unnecessary keys
     delete gameData.enemies[enemy].requestedValue;
-    delete gameData.enemies[enemy].speed;
     // round off values
     gameData.enemies[enemy].xPosition = parseFloat(
       gameData.enemies[enemy].xPosition.toFixed(3)
