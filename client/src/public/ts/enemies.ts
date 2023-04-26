@@ -91,7 +91,7 @@ class Enemy {
     if (sPosition <= 0) {
       deleteEnemy(this.id);
       if (!this.attackedBase) {
-        variables.clientSideRendering.baseHealth -= 10;
+        variables.currentGameClientSide.baseHealth -= 10;
         this.attackedBase = true;
       }
     }

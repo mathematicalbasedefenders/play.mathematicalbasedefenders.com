@@ -19,7 +19,7 @@ function render(elapsedMilliseconds: number) {
     variables.clientSideRendering.totalElapsedMilliseconds
   );
   // base health
-  stageItems.textSprites.baseHealthText.text = `♥️ ${variables.clientSideRendering.baseHealth}`;
+  stageItems.textSprites.baseHealthText.text = `♥️ ${variables.currentGameClientSide.baseHealth}`;
   // enemies killed (per second)
   stageItems.textSprites.enemiesText.text = `Enemy Kills: ${
     variables.currentGameClientSide.enemiesKilled
@@ -39,8 +39,14 @@ function render(elapsedMilliseconds: number) {
 
 function resetClientSideRendering() {
   variables.clientSideRendering.totalElapsedMilliseconds = 0;
-  variables.clientSideRendering.baseHealth = 100;
+  variables.currentGameClientSide.baseHealth = 100;
   variables.currentGameClientSide.enemiesKilled = 0;
 }
 
-export { render, resetClientSideRendering };
+function setClientSideRendering(data: { [key: string]: any }) {
+  for (let key in data) {
+    variables.currentGameClientSide[key] = data[key];
+  }
+}
+
+export { render, resetClientSideRendering, setClientSideRendering };

@@ -12,7 +12,7 @@ import { millisecondsToTime } from "./utilities";
 import { variables } from "./index";
 import { ToastNotification, ToastNotificationPosition } from "./notifications";
 import { Opponent } from "./opponent";
-import { resetClientSideRendering } from "./rendering";
+import { resetClientSideRendering, setClientSideRendering } from "./rendering";
 // TODO: Might change later
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -181,7 +181,8 @@ function redrawStage() {
 function changeScreen(
   screen: string,
   alsoRedrawStage?: boolean,
-  alsoResetStage?: boolean
+  alsoResetStage?: boolean,
+  newData?: { [key: string]: any }
 ) {
   // check if playing
   // if (
@@ -211,6 +212,9 @@ function changeScreen(
   }
   if (alsoResetStage) {
     resetClientSideRendering();
+  }
+  if (newData) {
+    setClientSideRendering(newData);
   }
   // reset stuff
   // TODO: temporary
