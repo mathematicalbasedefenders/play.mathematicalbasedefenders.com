@@ -43,9 +43,10 @@ function resetClientSideRendering() {
   variables.currentGameClientSide.enemiesKilled = 0;
 }
 
+// TODO: Change this to a loop w/ allowed values
 function setClientSideRendering(data: { [key: string]: any }) {
-  for (let key in data) {
-    variables.currentGameClientSide[key] = data[key];
+  if (data.baseHealth) {
+    variables.currentGameClientSide.baseHealth = data.baseHealth;
   }
 }
 
