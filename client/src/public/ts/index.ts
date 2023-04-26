@@ -67,11 +67,9 @@ const variables: { [key: string]: any } = {
       increment: 336
     }
   },
-  clientSideRendering: {
-    totalElapsedMilliseconds: 0,
-    baseHealth: 0
-  },
   currentGameClientSide: {
+    totalElapsedMilliseconds: 0,
+    baseHealth: 0,
     enemiesKilled: 0,
     comboTime: 0,
     timeSinceLastEnemyKill: 60 * 1000 + 1

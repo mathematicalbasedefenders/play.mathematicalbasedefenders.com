@@ -3,8 +3,9 @@ import { Enemy, getEnemyFromCache } from "./enemies";
 import { millisecondsToTime } from "./utilities";
 
 function render(elapsedMilliseconds: number) {
-  variables.clientSideRendering.totalElapsedMilliseconds += elapsedMilliseconds;
-  variables.clientSideRendering.timeSinceLastEnemyKill += elapsedMilliseconds;
+  variables.currentGameClientSide.totalElapsedMilliseconds +=
+    elapsedMilliseconds;
+  variables.currentGameClientSide.timeSinceLastEnemyKill += elapsedMilliseconds;
   // enemies
   let enemiesCurrentlyDrawn = Enemy.enemiesCurrentlyDrawn;
   for (let enemyID of enemiesCurrentlyDrawn) {
@@ -16,7 +17,7 @@ function render(elapsedMilliseconds: number) {
   }
   // time elapsed
   stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(
-    variables.clientSideRendering.totalElapsedMilliseconds
+    variables.currentGameClientSide.totalElapsedMilliseconds
   );
   // base health
   stageItems.textSprites.baseHealthText.text = `♥️ ${variables.currentGameClientSide.baseHealth}`;
@@ -25,7 +26,7 @@ function render(elapsedMilliseconds: number) {
     variables.currentGameClientSide.enemiesKilled
   } ≈ ${(
     (variables.currentGameClientSide.enemiesKilled /
-      variables.clientSideRendering.totalElapsedMilliseconds) *
+      variables.currentGameClientSide.totalElapsedMilliseconds) *
     1000
   ).toFixed(3)}/s`;
   // combo text fading
@@ -38,7 +39,7 @@ function render(elapsedMilliseconds: number) {
 }
 
 function resetClientSideRendering() {
-  variables.clientSideRendering.totalElapsedMilliseconds = 0;
+  variables.currentGameClientSide.totalElapsedMilliseconds = 0;
   variables.currentGameClientSide.baseHealth = 100;
   variables.currentGameClientSide.enemiesKilled = 0;
 }
