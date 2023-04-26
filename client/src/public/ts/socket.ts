@@ -53,7 +53,7 @@ socket.addEventListener("message", (event: any) => {
       break;
     }
     case "changeScreen": {
-      changeScreen(message.newScreen, true);
+      changeScreen(message.newScreen, true, true);
       break;
     }
     case "createToastNotification": {
