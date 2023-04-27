@@ -36,7 +36,6 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   for (let command in data.commands.changeScreenTo) {
-    console.log(data.commands.changeScreenTo[command]);
     if (typeof data.commands.changeScreenTo[command]?.value === "string") {
       changeScreen(data.commands.changeScreenTo[command].value);
       return;
@@ -136,6 +135,7 @@ function renderGameData(data: { [key: string]: any }) {
   variables.currentGameClientSide.comboTime = data.clocks.comboReset.actionTime;
   variables.currentGameClientSide.timeSinceLastEnemyKill =
     data.clocks.comboReset.currentTime;
+  variables.currentGameClientSide.baseHealth = data.baseHealth;
 
   // beautiful score setting
   if (variables.settings.beautifulScore === "on") {

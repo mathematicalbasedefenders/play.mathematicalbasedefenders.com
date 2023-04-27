@@ -47,7 +47,7 @@ function resetClientSideRendering() {
 // TODO: Change this to a loop w/ allowed values
 function setClientSideRendering(data: { [key: string]: any }) {
   if (data.baseHealth) {
-    variables.currentGameClientSide.baseHealth = data.baseHealth;
+    variables.currentGameClientSide.baseHealth = parseFloat(data.baseHealth);
   }
 }
 
