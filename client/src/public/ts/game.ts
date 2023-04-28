@@ -12,6 +12,7 @@ import { millisecondsToTime } from "./utilities";
 import { variables } from "./index";
 import { ToastNotification, ToastNotificationPosition } from "./notifications";
 import { Opponent } from "./opponent";
+import { resetClientSideRendering, setClientSideRendering } from "./rendering";
 // TODO: Might change later
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -28,15 +29,17 @@ function renderGameData(data: { [key: string]: any }) {
 
   if (data.commands.updateText) {
     for (let command in data.commands.updateText) {
-      $(data.commands.updateText[command].selector).text(
-        data.commands.updateText[command].newText
+      $(data.commands.updateText[command].value.selector).text(
+        data.commands.updateText[command].value.newText
       );
     }
   }
 
-  if (typeof data.commands.changeScreenTo === "string") {
-    changeScreen(data.commands.changeScreenTo);
-    return;
+  for (let command in data.commands.changeScreenTo) {
+    if (typeof data.commands.changeScreenTo[command]?.value === "string") {
+      changeScreen(data.commands.changeScreenTo[command].value);
+      return;
+    }
   }
 
   // erase killed enemies
@@ -127,23 +130,30 @@ function renderGameData(data: { [key: string]: any }) {
     stageItems.textSprites.enemiesReceivedStockText.text = "";
   }
 
+  // update values
+  variables.currentGameClientSide.enemiesKilled = data.enemiesKilled;
+  variables.currentGameClientSide.comboTime = data.clocks.comboReset.actionTime;
+  variables.currentGameClientSide.timeSinceLastEnemyKill =
+    data.clocks.comboReset.currentTime;
+  variables.currentGameClientSide.baseHealth = data.baseHealth;
+
   // beautiful score setting
-  if (variables.settings.beautifulScore === "on") {
-    let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
-    if (data.score !== currentDisplayedScore) {
-      if (variables.scoreOnLastUpdate !== data.score) {
-        variables.scoreOnLastUpdate = data.score;
-      }
-      let difference = variables.scoreOnLastUpdate - currentDisplayedScore;
-      stageItems.textSprites.scoreText.text =
-        currentDisplayedScore + Math.round(difference / 60);
-      if (data.score < currentDisplayedScore * 1.1) {
-        stageItems.textSprites.scoreText.text = data.score;
-      }
-    }
-  } else {
-    stageItems.textSprites.scoreText.text = data.score;
-  }
+  // if (variables.settings.beautifulScore === "on") {
+  //   let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
+  //   if (data.score !== currentDisplayedScore) {
+  //     if (variables.scoreOnLastUpdate !== data.score) {
+  //       variables.scoreOnLastUpdate = data.score;
+  //     }
+  //     let difference = variables.scoreOnLastUpdate - currentDisplayedScore;
+  //     stageItems.textSprites.scoreText.text =
+  //       currentDisplayedScore + Math.round(difference / 60);
+  //     if (data.score < currentDisplayedScore * 1.1) {
+  //       stageItems.textSprites.scoreText.text = data.score;
+  //     }
+  //   }
+  // } else {
+  stageItems.textSprites.scoreText.text = data.score;
+  // }
 
   // multiplayer
   if (data.mode.indexOf("Multiplayer") > -1) {
@@ -168,7 +178,12 @@ function redrawStage() {
   app.stage.height = newPosition.height;
 }
 
-function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
+function changeScreen(
+  screen: string,
+  alsoRedrawStage?: boolean,
+  alsoResetStage?: boolean,
+  newData?: { [key: string]: any }
+) {
   // check if playing
   // if (
   //   typeof variables !== "undefined" &&
@@ -194,6 +209,12 @@ function changeScreen(screen?: string, alsoRedrawStage?: boolean) {
   // other stuff
   if (alsoRedrawStage) {
     redrawStage();
+  }
+  if (alsoResetStage) {
+    resetClientSideRendering();
+  }
+  if (newData) {
+    setClientSideRendering(newData);
   }
   // reset stuff
   // TODO: temporary
