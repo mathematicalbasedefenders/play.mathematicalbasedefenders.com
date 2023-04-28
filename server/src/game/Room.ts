@@ -106,7 +106,7 @@ class GameData {
           actionTime: 10000
         }
       };
-      this.enemySpeedCoefficient = 0.25;
+      this.enemySpeedCoefficient = 0.5;
       this.enemySpawnThreshold = 0.05;
     } else {
       this.clocks = {
