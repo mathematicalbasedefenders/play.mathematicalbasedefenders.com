@@ -8,7 +8,7 @@ import { submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
 import { findRoomWithConnectionID } from "../core/utilities";
 import { User } from "../models/User";
-
+import { synchronizeDataWithSocket } from "../universal";
 const NO_HOST_ID = "(no host)";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const MINIFIED_GAME_DATA_KEYS = [
@@ -106,7 +106,7 @@ class GameData {
           actionTime: 10000
         }
       };
-      this.enemySpeedCoefficient = 0.25;
+      this.enemySpeedCoefficient = 0.5;
       this.enemySpawnThreshold = 0.05;
     } else {
       this.clocks = {
@@ -327,30 +327,48 @@ class Room {
     ) {
       data.commands.updateText = [
         {
-          selector: "#main-content__game-over-screen__stats__score",
-          newText: data.score.toString()
+          value: {
+            selector: "#main-content__game-over-screen__stats__score",
+            newText: data.score.toString()
+          },
+          age: 0
         },
         {
-          selector: "#main-content__game-over-screen__stats__game-mode",
-          newText: gameMode
+          value: {
+            selector: "#main-content__game-over-screen__stats__game-mode",
+            newText: gameMode
+          },
+          age: 0
         },
         {
-          selector: "#main-content__game-over-screen__stats__enemies",
-          newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
-            (data.enemiesKilled / data.elapsedTime) *
-            1000
-          ).toFixed(3)}/s)`
+          value: {
+            selector: "#main-content__game-over-screen__stats__enemies",
+            newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
+              (data.enemiesKilled / data.elapsedTime) *
+              1000
+            ).toFixed(3)}/s)`
+          },
+          age: 0
         },
         {
-          selector: "#main-content__game-over-screen__stats__time",
-          newText: utilities.millisecondsToTime(data.elapsedTime)
+          value: {
+            selector: "#main-content__game-over-screen__stats__time",
+            newText: utilities.millisecondsToTime(data.elapsedTime)
+          },
+          age: 0
         },
         {
-          selector: "#main-content__game-over-screen__stats__score-rank",
-          newText: messages
+          value: {
+            selector: "#main-content__game-over-screen__stats__score-rank",
+            newText: messages
+          },
+          age: 0
         }
       ];
-      data.commands.changeScreenTo = "gameOver";
+      data.commands.changeScreenTo = [{ value: "gameOver", age: 0 }];
+      if (socket) {
+        synchronizeDataWithSocket(socket);
+      }
       // submit score
       if (socket) {
         submitSingleplayerGame(data, socket);
@@ -460,7 +478,7 @@ class SingleplayerRoom extends Room {
       // FIXME: ???
       // Move all the enemies down.
       for (let enemy of data.enemies) {
-        enemy.move(0.0025 * data.enemySpeedCoefficient);
+        enemy.move(0.1 * data.enemySpeedCoefficient * (deltaTime / 1000));
         if (enemy.sPosition <= 0) {
           enemy.remove(data, 10);
         }
@@ -475,7 +493,11 @@ class SingleplayerRoom extends Room {
         data.clocks.forcedEnemySpawn.currentTime >=
         data.clocks.forcedEnemySpawn.actionTime
       ) {
-        enemyToAdd = generateEnemyWithChance(1, this.updateNumber);
+        enemyToAdd = generateEnemyWithChance(
+          1,
+          this.updateNumber,
+          0.1 * data.enemySpeedCoefficient
+        );
         data.clocks.forcedEnemySpawn.currentTime -=
           data.clocks.forcedEnemySpawn.actionTime;
         // reset time
@@ -489,7 +511,8 @@ class SingleplayerRoom extends Room {
       ) {
         enemyToAdd = generateEnemyWithChance(
           data.enemySpawnThreshold,
-          this.updateNumber
+          this.updateNumber,
+          0.1 * data.enemySpeedCoefficient
         );
         data.clocks.enemySpawn.currentTime -= data.clocks.enemySpawn.actionTime;
       }
@@ -512,7 +535,7 @@ class SingleplayerRoom extends Room {
   abort(data: GameData) {
     let socket = universal.getSocketFromConnectionID(data.owner);
     this.playing = false;
-    data.commands.changeScreenTo = "mainMenu";
+    data.commands.changeScreenTo = [{ value: "mainMenu", age: 0 }];
     if (socket) {
       socket?.unsubscribe(this.id);
       this.deleteMember(socket?.connectionID as string);
@@ -612,8 +635,14 @@ class MultiplayerRoom extends Room {
               // add games played
               let userID = socket.ownerUserID;
               if (typeof userID === "string") {
-                User.addGamesPlayedToUserID(userID, 1);
-                User.addMultiplayerGamesPlayedToUserID(userID, 1);
+                if (!universal.STATUS.databaseAvailable) {
+                  log.warn(
+                    "Database is not available. Not running database operation."
+                  );
+                } else {
+                  User.addGamesPlayedToUserID(userID, 1);
+                  User.addMultiplayerGamesPlayedToUserID(userID, 1);
+                }
               }
             }
           }
@@ -681,7 +710,11 @@ class MultiplayerRoom extends Room {
         this.globalClock.forcedEnemySpawn.currentTime >=
         this.globalClock.forcedEnemySpawn.actionTime
       ) {
-        enemyToAdd = generateEnemyWithChance(1, this.updateNumber);
+        enemyToAdd = generateEnemyWithChance(
+          1,
+          this.updateNumber,
+          0.1 //TODO: custom multiplayer will mess this up
+        );
         this.globalClock.forcedEnemySpawn.currentTime -=
           this.globalClock.forcedEnemySpawn.actionTime;
         // reset time
@@ -696,7 +729,8 @@ class MultiplayerRoom extends Room {
       ) {
         enemyToAdd = generateEnemyWithChance(
           this.globalEnemySpawnThreshold,
-          this.updateNumber
+          this.updateNumber,
+          0.1 //TODO: custom multiplayer will mess this up
         );
         this.globalClock.enemySpawn.currentTime -=
           this.globalClock.enemySpawn.actionTime;
@@ -713,7 +747,7 @@ class MultiplayerRoom extends Room {
         }
 
         for (let enemy of data.enemies) {
-          enemy.move(0.0025 * data.enemySpeedCoefficient);
+          enemy.move(0.1 * data.enemySpeedCoefficient * (deltaTime / 1000));
           if (enemy.sPosition <= 0) {
             enemy.remove(data, 10);
           }
@@ -755,7 +789,12 @@ class MultiplayerRoom extends Room {
         if (data.receivedEnemiesToSpawn > 0) {
           data.receivedEnemiesToSpawn--;
           data.enemiesSpawned++;
-          data.enemies.push(enemy.createNewReceived(`R${data.enemiesSpawned}`));
+          data.enemies.push(
+            enemy.createNewReceived(
+              `R${data.enemiesSpawned}`,
+              0.1 * data.enemySpeedCoefficient
+            )
+          );
         }
 
         if (data.enemiesSentStock > 0) {
@@ -829,7 +868,13 @@ class MultiplayerRoom extends Room {
           winnerGameData.owner
         )?.ownerUserID;
         if (typeof userID === "string") {
-          User.addMultiplayerGamesWonToUserID(userID as string, 1);
+          if (!universal.STATUS.databaseAvailable) {
+            log.warn(
+              "Database is not available. Not running database operation."
+            );
+          } else {
+            User.addMultiplayerGamesWonToUserID(userID as string, 1);
+          }
         }
 
         this.ranking.push({
@@ -852,7 +897,7 @@ class MultiplayerRoom extends Room {
   abort(data: GameData) {
     data.baseHealth = -99999;
     let socket = universal.getSocketFromConnectionID(data.owner);
-    data.commands.changeScreenTo = "mainMenu";
+    data.commands.changeScreenTo = [{ value: "mainMenu", age: 0 }];
     log.info(
       `Socket ID ${data.owner} (${universal.getNameFromConnectionID(
         data.owner
@@ -916,11 +961,12 @@ function generateRoomID(length: number): string {
 
 function generateEnemyWithChance(
   threshold: number,
-  updateNumber: number
+  updateNumber: number,
+  speed: number
 ): enemy.Enemy | null {
   let roll: number = Math.random();
   if (roll < threshold) {
-    return enemy.createNew(enemy.EnemyType.NORMAL, `G${updateNumber}`);
+    return enemy.createNew(enemy.EnemyType.NORMAL, `G${updateNumber}`, speed);
   }
   return null;
 }
@@ -970,7 +1016,7 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
   }
 }
 
-function getOpponentInformation(
+function getMinifiedOpponentInformation(
   gameData: GameData,
   room: Room,
   minifyData: boolean
@@ -1061,5 +1107,5 @@ export {
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
   MultiplayerGameData,
-  getOpponentInformation
+  getMinifiedOpponentInformation
 };

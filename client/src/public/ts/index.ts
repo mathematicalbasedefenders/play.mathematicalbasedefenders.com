@@ -10,11 +10,7 @@ import {
   redrawStage
 } from "./game";
 import { calculateLevel, millisecondsToTime } from "./utilities";
-import {
-  ModalNotification,
-  ToastNotification,
-  ToastNotificationPosition
-} from "./notifications";
+import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -70,6 +66,13 @@ const variables: { [key: string]: any } = {
       initial: 160,
       increment: 336
     }
+  },
+  currentGameClientSide: {
+    totalElapsedMilliseconds: 0,
+    baseHealth: 0,
+    enemiesKilled: 0,
+    comboTime: 0,
+    timeSinceLastEnemyKill: 60 * 1000 + 1
   }
 };
 
@@ -206,7 +209,7 @@ function initializeEventListeners() {
       mode: "singleplayer",
       modifier: "easy"
     });
-    changeScreen("canvas", true);
+    changeScreen("canvas", true, true);
   });
   $("#singleplayer-menu-screen-button--standard").on("click", () => {
     variables.cachedSingleplayerMode = "standard";
@@ -215,7 +218,7 @@ function initializeEventListeners() {
       mode: "singleplayer",
       modifier: "standard"
     });
-    changeScreen("canvas", true);
+    changeScreen("canvas", true, true);
   });
   //
   $("#singleplayer-menu-screen-button--custom").on("click", () => {
@@ -232,13 +235,14 @@ function initializeEventListeners() {
     // FIXME: Clicking this doesn't reset the text fields, so it is a hack. Make it more stable
     () => {
       variables.cachedSingleplayerMode = "custom";
+      let settings = JSON.stringify(createCustomSingleplayerGameObject());
       sendSocketMessage({
         message: "startGame",
         mode: "singleplayer",
         modifier: "custom",
-        settings: JSON.stringify(createCustomSingleplayerGameObject())
+        settings: settings
       });
-      // changeScreen("canvas", true);
+      setClientSideRendering(JSON.parse(settings));
     }
   );
   //
@@ -291,21 +295,23 @@ function initializeEventListeners() {
   });
   //
   $("#game-over-screen-button--retry").on("click", () => {
+    let settings = JSON.stringify(createCustomSingleplayerGameObject());
     if (variables.cachedSingleplayerMode === "custom") {
       sendSocketMessage({
         message: "startGame",
         mode: "singleplayer",
         modifier: "custom",
-        settings: JSON.stringify(createCustomSingleplayerGameObject())
+        settings: settings
       });
+      changeScreen("canvas", true, true, JSON.parse(settings));
     } else {
       sendSocketMessage({
         message: "startGame",
         mode: "singleplayer",
         modifier: variables.cachedSingleplayerMode
       });
+      changeScreen("canvas", true, true);
     }
-    changeScreen("canvas", true);
   });
   $("#game-over-screen-button--back").on("click", () => {
     changeScreen("mainMenu");
@@ -459,6 +465,10 @@ function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__username").text(data.guestName);
   $("#main-content__user-menu-small-display__level").text(`Level 0`);
 }
+
+app.ticker.add((deltaTime) => {
+  render(app.ticker.elapsedMS);
+});
 
 changeScreen("mainMenu");
 loadSettings(localStorage.getItem("settings") || "{}");

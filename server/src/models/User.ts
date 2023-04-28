@@ -1,5 +1,4 @@
 import mongoose, { HydratedDocument, ObjectId } from "mongoose";
-
 interface UserInterface {
   _id: ObjectId;
   username: string;

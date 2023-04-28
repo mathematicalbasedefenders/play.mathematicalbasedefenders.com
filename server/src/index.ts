@@ -1,5 +1,6 @@
 import { log } from "./core/log";
 import mongoose from "mongoose";
+import fs from "fs";
 import path from "path";
 import uWS from "uWebSockets.js";
 require("dotenv").config({ path: "../credentials/.env" });
@@ -8,7 +9,6 @@ require("dotenv").config({ path: "../credentials/.env" });
 import express from "express";
 import { Request, Response, NextFunction } from "express";
 
-import * as startAction from "./game/actions/start";
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
 import * as input from "./core/input";
@@ -20,15 +20,12 @@ import {
   Room,
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
-  getOpponentInformation
+  getMinifiedOpponentInformation
 } from "./game/Room";
 
 import _ from "lodash";
 import { authenticate } from "./authentication/authenticate";
 import { User } from "./models/User";
-import { getScoresOfAllPlayers } from "./services/leaderboards";
-import { crossOriginEmbedderPolicy } from "helmet";
-const favicon = require("serve-favicon");
 const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -39,6 +36,7 @@ const helmet = require("helmet");
 import rateLimit from "express-rate-limit";
 import { attemptToSendChatMessage } from "./core/chat";
 import { validateCustomGameSettings } from "./core/utilities";
+import { synchronizeDataWithSocket } from "./universal";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -72,26 +70,42 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
-// app.use(favicon(path.join(__dirname, "/public/assets/images/favicon.ico")));
-// app.use(express.static(path.join(__dirname, "/public/")));
-app.use(bodyParser.urlencoded({ extended: false }));
-// app.set("view engine", "ejs");
-// app.set("views", path.join(__dirname, "server/views"));
 
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// get configuration
+// TODO: Consider moving to universal.ts
+let configurationLocation = path.join(
+  __dirname,
+  "..",
+  "mbd-server-configuration.json"
+);
+const CONFIGURATION = JSON.parse(
+  fs.readFileSync(configurationLocation, "utf-8")
+);
 const PORT: number = 4000;
 const WEBSOCKET_PORT: number = 5000;
-const LOOP_INTERVAL: number = 1000 / 60;
+const DESIRED_SYNCHRONIZATIONS_PER_SECOND: number = 5;
+const DESIRED_SERVER_UPDATES_PER_SECOND: number = 60;
+const UPDATE_INTERVAL: number = 1000 / DESIRED_SERVER_UPDATES_PER_SECOND;
+const SYNCHRONIZATION_INTERVAL: number =
+  1000 / DESIRED_SYNCHRONIZATIONS_PER_SECOND;
+let initialized = false;
 
-let currentTime: number;
-let lastUpdateTime: number;
+let currentTime: number = Date.now();
+let lastUpdateTime: number = Date.now();
+let sendDataDeltaTime: number;
 
 const DATABASE_CONNECTION_URI: string | undefined =
   process.env.DATABASE_CONNECTION_URI;
 
-mongoose.connect(DATABASE_CONNECTION_URI as string);
+if (CONFIGURATION.useDatabase) {
+  mongoose.connect(DATABASE_CONNECTION_URI as string);
+}
 
 mongoose.connection.on("connected", async () => {
-  log.info(`Connected to database!`);
+  universal.STATUS.databaseAvailable = true;
+  log.info(`Connected to database! Database is now available.`);
 });
 
 type WebSocketMessage = ArrayBuffer & {
@@ -232,6 +246,7 @@ uWS
         // game input
         case "keypress": {
           input.processKeypress(socket.connectionID, parsedMessage.keypress);
+          synchronizeDataWithSocket(socket);
           break;
         }
         case "emulateKeypress": {
@@ -292,37 +307,8 @@ function update(deltaTime: number) {
     }
   }
 
-  // data is sent here.
-  for (let socket of universal.sockets) {
-    let gameData = _.cloneDeep(
-      universal.getGameDataFromConnectionID(socket.connectionID as string)
-    );
-    if (gameData) {
-      // remove some game data
-      for (let enemy of gameData.enemies) {
-        delete enemy.requestedValue;
-      }
-      // add some game data (extra information)
-      // such as for multiplayer
-      if (gameData.mode.indexOf("Multiplayer") > -1) {
-        let room = utilities.findRoomWithConnectionID(socket.connectionID);
-        if (room) {
-          gameData.opponentGameData = getOpponentInformation(
-            gameData,
-            room,
-            true
-          );
-        }
-      }
-      let gameDataToSend: string = JSON.stringify(gameData);
-      universal.getSocketFromConnectionID(socket.connectionID as string)?.send(
-        JSON.stringify({
-          message: "renderGameData",
-          data: gameDataToSend
-        })
-      );
-    }
-  }
+  // DATA IS SENT HERE. <---
+  synchronizeDataWithSockets(deltaTime);
 
   // delete rooms with zero players
   // additionally, delete rooms which are empty JSON objects.
@@ -336,7 +322,7 @@ function update(deltaTime: number) {
     );
   let oldRooms = _.clone(universal.rooms).map((element) => element.id);
   utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
-  resetOneFrameVariables();
+
   let newRooms = _.clone(universal.rooms).map((element) => element.id);
   let deletedRooms = oldRooms.filter((element) => !newRooms.includes(element));
   for (let room of deletedRooms) {
@@ -344,6 +330,18 @@ function update(deltaTime: number) {
     if (room === defaultMultiplayerRoomID) {
       resetDefaultMultiplayerRoomID(room);
     }
+  }
+}
+
+// TODO: Move these functions somewhere else.
+function synchronizeDataWithSockets(deltaTime: number) {
+  sendDataDeltaTime += deltaTime;
+  if (sendDataDeltaTime < SYNCHRONIZATION_INTERVAL) {
+    return;
+  }
+  sendDataDeltaTime -= SYNCHRONIZATION_INTERVAL;
+  for (let socket of universal.sockets) {
+    synchronizeDataWithSocket(socket);
   }
 }
 
@@ -355,7 +353,7 @@ function resetOneFrameVariables() {
     }
     for (let gameData of room?.gameData) {
       gameData.enemiesToErase = [];
-      gameData.commands = {};
+      // gameData.commands = {};
     }
   }
 }
@@ -437,11 +435,15 @@ function generateGuestID(length: number) {
 }
 
 const loop = setInterval(() => {
+  if (!initialized) {
+    initialize();
+    initialized = true;
+  }
   currentTime = Date.now();
   let deltaTime: number = currentTime - lastUpdateTime;
   update(deltaTime);
   lastUpdateTime = Date.now();
-}, LOOP_INTERVAL);
+}, UPDATE_INTERVAL);
 
 app.get("/", limiter, (request: Request, response: Response) => {
   response.render("pages/index.ejs");
@@ -462,10 +464,9 @@ async function attemptAuthentication(
   let result = await authenticate(username, password, socketID);
   let socket = universal.getSocketFromConnectionID(socketID);
   if (!result.good || !socket) {
-    let reason =
-      result.reason === "All checks passed"
-        ? "Invalid Socket Connection ID"
-        : result.reason;
+    result.reason === "All checks passed"
+      ? "Invalid Socket Connection ID"
+      : result.reason;
     socket?.send(
       JSON.stringify({
         message: "createToastNotification",
@@ -508,8 +509,13 @@ async function attemptAuthentication(
   return;
 }
 
+function initialize() {
+  sendDataDeltaTime = 0;
+}
+
 app.listen(PORT, () => {
   log.info(`Server listening at port ${PORT}`);
+  log.info(`Server is using configuration ${JSON.stringify(CONFIGURATION)}`);
   if (process.env.credentialSetUsed === "TESTING") {
     log.warn("Using testing credentials.");
   }

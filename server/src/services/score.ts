@@ -2,10 +2,12 @@ import { log } from "../core/log";
 import { getScoresOfAllPlayers } from "./leaderboards";
 import { GameData, GameMode } from "../game/Room";
 import { User } from "../models/User";
-import { GameSocket } from "../universal";
-
+import * as universal from "../universal";
 // TODO: make this DRY
-async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
+async function submitSingleplayerGame(
+  data: GameData,
+  ownerSocket: universal.GameSocket
+) {
   let wordedGameMode: string = "";
   let dataKey: string = "";
   // TODO: Make this JSON for more options in the future.
@@ -28,6 +30,18 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
       );
       return;
     }
+  }
+  // check for database availability.
+  if (!universal.STATUS.databaseAvailable) {
+    log.warn("Database not available. Ignoring score.");
+    ownerSocket.send(
+      JSON.stringify({
+        message: "changeText",
+        selector: "#main-content__game-over-screen__stats__score-rank",
+        value: "Score not saved. (No database)"
+      })
+    );
+    return;
   }
   if (!ownerSocket.loggedIn) {
     // guest user - ignore score
@@ -110,7 +124,7 @@ async function submitSingleplayerGame(data: GameData, ownerSocket: GameSocket) {
 }
 
 async function updatePersonalBest(
-  owner: GameSocket | string,
+  owner: universal.GameSocket | string,
   newData: GameData
 ) {
   if (typeof owner === "string") {
