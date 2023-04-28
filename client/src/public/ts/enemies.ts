@@ -16,20 +16,26 @@ class Enemy {
   static enemiesCurrentlyDrawn: Array<string> = [];
   static enemyCache: Array<Enemy> = [];
   sprite!: PIXI.Sprite;
-  displayedText!: PIXI.Text;
+  textSprite!: PIXI.Text;
   sPosition!: number;
   xPosition!: number;
   yPosition!: number;
   id!: string;
   text!: string;
+  creationTime: number;
+  speed: number;
+  attackedBase: boolean;
+  addedKill: boolean;
   constructor(
     sPosition: number,
     text: string,
     id: string,
     width: number,
     height: number,
+    speed: number,
     xPosition?: number
   ) {
+    // sprite-related
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
     this.sprite.tint = getEnemyColor();
     this.sprite.width =
@@ -41,42 +47,53 @@ class Enemy {
     this.sprite.y = 720 - 720 * sPosition + DEFAULT_ENEMY_HEIGHT - 40;
     this.text = text;
     // text-related
-    this.displayedText = new PIXI.Text(
+    this.textSprite = new PIXI.Text(
       beautifyDisplayedText(
         text,
         variables.settings.multiplicationSign === "times"
       ),
       _.clone(ENEMY_TEXT_STYLE)
     );
-    this.displayedText.style.fill =
+    this.textSprite.style.fill =
       calculateLuminance(this.sprite.tint) > 0.5 ? 0 : 16777215;
-    this.displayedText.x =
-      this.sprite.x + (this.sprite.width - this.displayedText.width) / 2;
-    this.displayedText.y =
-      this.sprite.y + (this.sprite.height - this.displayedText.height) / 2;
+    this.textSprite.x =
+      this.sprite.x + (this.sprite.width - this.textSprite.width) / 2;
+    this.textSprite.y =
+      this.sprite.y + (this.sprite.height - this.textSprite.height) / 2;
+    // internal-related
+    this.speed = speed;
+    this.sPosition = sPosition;
+    this.attackedBase = false;
+    this.addedKill = false;
     // metadata
     this.id = id;
+    this.creationTime = Date.now();
     // functions
     Enemy.enemiesCurrentlyDrawn.push(id);
     Enemy.enemyCache.push(this);
   }
   render() {
     app.stage.addChild(this.sprite);
-    app.stage.addChild(this.displayedText);
+    app.stage.addChild(this.textSprite);
   }
   reposition(sPosition: number) {
     this.sprite.y = 720 - 720 * sPosition + DEFAULT_ENEMY_HEIGHT - 40;
-    this.displayedText.x =
-      this.sprite.x + (this.sprite.width - this.displayedText.width) / 2;
-    this.displayedText.y =
-      this.sprite.y + (this.sprite.height - this.displayedText.height) / 2;
-    this.displayedText.style.fontSize = calculateOptimalFontSize(
+    this.textSprite.x =
+      this.sprite.x + (this.sprite.width - this.textSprite.width) / 2;
+    this.textSprite.y =
+      this.sprite.y + (this.sprite.height - this.textSprite.height) / 2;
+    this.textSprite.style.fontSize = calculateOptimalFontSize(
       2,
-      this.displayedText.text,
+      this.textSprite.text,
       this.sprite.width
     );
+    this.sPosition = sPosition;
     if (sPosition <= 0) {
       deleteEnemy(this.id);
+      if (!this.attackedBase) {
+        variables.currentGameClientSide.baseHealth -= 10;
+        this.attackedBase = true;
+      }
     }
   }
 }
@@ -100,18 +117,23 @@ function calculateOptimalFontSize(
   }
   return size;
 }
-function renderNewEnemy(id: string, text: string, xPosition?: number) {
-  let enemy = new Enemy(1, text, id, ENEMY_SIZE, ENEMY_SIZE, xPosition);
+function renderNewEnemy(
+  id: string,
+  text: string,
+  speed: number,
+  xPosition?: number
+) {
+  let enemy = new Enemy(1, text, id, ENEMY_SIZE, ENEMY_SIZE, speed, xPosition);
   Enemy.enemyCache.push(enemy);
   getEnemyFromCache(id)?.render();
 }
 function repositionExistingEnemy(id: string, sPosition: number) {
   getEnemyFromCache(id)?.reposition(sPosition);
 }
-function deleteEnemy(id: string) {
+function deleteEnemy(id: string, addClientSideKill?: boolean) {
   let enemy: Enemy | undefined = getEnemyFromCache(id);
   let sprite: PIXI.Sprite | undefined = getEnemyFromCache(id)?.sprite;
-  let text: PIXI.Text | undefined = getEnemyFromCache(id)?.displayedText;
+  let text: PIXI.Text | undefined = getEnemyFromCache(id)?.textSprite;
   if (sprite) {
     app.stage.removeChild(sprite);
   }
@@ -130,6 +152,7 @@ function deleteAllEnemies() {
 function rerenderEnemy(
   id: string,
   sPosition: number,
+  speed: number,
   displayedText?: string,
   xPosition?: number
 ) {
@@ -139,7 +162,7 @@ function rerenderEnemy(
   } else {
     // enemy wasn't drawn yet
     if (typeof displayedText === "string") {
-      renderNewEnemy(id, displayedText, xPosition);
+      renderNewEnemy(id, displayedText, speed, xPosition);
     }
   }
 }
@@ -175,6 +198,7 @@ export {
   deleteEnemy,
   deleteAllEnemies,
   getEnemyColor,
+  getEnemyFromCache,
   DEFAULT_ENEMY_HEIGHT,
   DEFAULT_ENEMY_WIDTH
 };

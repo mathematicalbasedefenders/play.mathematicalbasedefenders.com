@@ -3,8 +3,11 @@ import {
   SingleplayerGameData,
   Room,
   SingleplayerRoom,
-  MultiplayerRoom
+  MultiplayerRoom,
+  getMinifiedOpponentInformation
 } from "./game/Room";
+import _ from "lodash";
+import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
 
 type GameSocket = WebSocket & {
   ownerUsername?: string;
@@ -69,6 +72,52 @@ function getGameDataFromConnectionID(id: string): SingleplayerGameData | null {
   return null;
 }
 
+function synchronizeDataWithSocket(socket: GameSocket) {
+  let gameDataOfOwner = _.cloneDeep(
+    getGameDataFromConnectionID(socket.connectionID as string)
+  );
+  if (gameDataOfOwner) {
+    // remove some game data
+    minifySelfGameData(gameDataOfOwner);
+    // add some game data (extra information)
+    // such as for multiplayer
+    if (gameDataOfOwner.mode.indexOf("Multiplayer") > -1) {
+      let room = findRoomWithConnectionID(socket.connectionID);
+      if (room) {
+        gameDataOfOwner.opponentGameData = getMinifiedOpponentInformation(
+          gameDataOfOwner,
+          room,
+          true
+        );
+      }
+    }
+    let gameDataToSend: string = JSON.stringify(gameDataOfOwner);
+    getSocketFromConnectionID(socket.connectionID as string)?.send(
+      JSON.stringify({
+        message: "renderGameData",
+        data: gameDataToSend
+      })
+    );
+    // other commands
+    for (let commandType in gameDataOfOwner.commands) {
+      // TODO: imperfect
+      for (let command in gameDataOfOwner.commands[commandType]) {
+        if (
+          typeof gameDataOfOwner.commands[commandType][command].age ===
+          "undefined"
+        ) {
+          gameDataOfOwner.commands[commandType][command].age = 0;
+        } else {
+          gameDataOfOwner.commands[commandType][command].age += 1;
+          if (gameDataOfOwner.commands[commandType][command].age >= 3) {
+            delete gameDataOfOwner.commands[commandType][command];
+          }
+        }
+      }
+    }
+  }
+}
+
 export {
   GameSocket,
   sockets,
@@ -78,5 +127,6 @@ export {
   getGameDataFromConnectionID,
   getNameFromConnectionID,
   getSocketsFromUserID,
-  STATUS
+  STATUS,
+  synchronizeDataWithSocket
 };

@@ -238,6 +238,28 @@ function validateCustomGameSettings(
   };
 }
 
+function minifySelfGameData(gameData: { [key: string]: any }) {
+  // delete unnecessary keys
+  delete gameData.clocks.enemySpawn;
+  delete gameData.clocks.forcedEnemySpawn;
+  delete gameData.enemySpawnThreshold;
+  delete gameData.enemySpeedCoefficient;
+  delete gameData.totalEnemiesReceived;
+  delete gameData.totalEnemiesSent;
+  // minify enemies
+  for (let enemy in gameData.enemies) {
+    // delete unnecessary keys
+    delete gameData.enemies[enemy].requestedValue;
+    // round off values
+    gameData.enemies[enemy].xPosition = parseFloat(
+      gameData.enemies[enemy].xPosition.toFixed(3)
+    );
+    gameData.enemies[enemy].sPosition = parseFloat(
+      gameData.enemies[enemy].sPosition.toFixed(3)
+    );
+  }
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -247,5 +269,6 @@ export {
   generateRankingText,
   mutatedArrayFilter,
   generatePlayerListText,
-  validateCustomGameSettings
+  validateCustomGameSettings,
+  minifySelfGameData
 };

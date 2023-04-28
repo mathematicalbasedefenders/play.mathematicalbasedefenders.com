@@ -20,7 +20,7 @@ import {
   Room,
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
-  getOpponentInformation
+  getMinifiedOpponentInformation
 } from "./game/Room";
 
 import _ from "lodash";
@@ -36,6 +36,7 @@ const helmet = require("helmet");
 import rateLimit from "express-rate-limit";
 import { attemptToSendChatMessage } from "./core/chat";
 import { validateCustomGameSettings } from "./core/utilities";
+import { synchronizeDataWithSocket } from "./universal";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -84,10 +85,16 @@ const CONFIGURATION = JSON.parse(
 );
 const PORT: number = 4000;
 const WEBSOCKET_PORT: number = 5000;
-const LOOP_INTERVAL: number = 1000 / 60;
+const DESIRED_SYNCHRONIZATIONS_PER_SECOND: number = 5;
+const DESIRED_SERVER_UPDATES_PER_SECOND: number = 60;
+const UPDATE_INTERVAL: number = 1000 / DESIRED_SERVER_UPDATES_PER_SECOND;
+const SYNCHRONIZATION_INTERVAL: number =
+  1000 / DESIRED_SYNCHRONIZATIONS_PER_SECOND;
+let initialized = false;
 
-let currentTime: number;
-let lastUpdateTime: number;
+let currentTime: number = Date.now();
+let lastUpdateTime: number = Date.now();
+let sendDataDeltaTime: number;
 
 const DATABASE_CONNECTION_URI: string | undefined =
   process.env.DATABASE_CONNECTION_URI;
@@ -239,6 +246,7 @@ uWS
         // game input
         case "keypress": {
           input.processKeypress(socket.connectionID, parsedMessage.keypress);
+          synchronizeDataWithSocket(socket);
           break;
         }
         case "emulateKeypress": {
@@ -299,37 +307,8 @@ function update(deltaTime: number) {
     }
   }
 
-  // data is sent here.
-  for (let socket of universal.sockets) {
-    let gameData = _.cloneDeep(
-      universal.getGameDataFromConnectionID(socket.connectionID as string)
-    );
-    if (gameData) {
-      // remove some game data
-      for (let enemy of gameData.enemies) {
-        delete enemy.requestedValue;
-      }
-      // add some game data (extra information)
-      // such as for multiplayer
-      if (gameData.mode.indexOf("Multiplayer") > -1) {
-        let room = utilities.findRoomWithConnectionID(socket.connectionID);
-        if (room) {
-          gameData.opponentGameData = getOpponentInformation(
-            gameData,
-            room,
-            true
-          );
-        }
-      }
-      let gameDataToSend: string = JSON.stringify(gameData);
-      universal.getSocketFromConnectionID(socket.connectionID as string)?.send(
-        JSON.stringify({
-          message: "renderGameData",
-          data: gameDataToSend
-        })
-      );
-    }
-  }
+  // DATA IS SENT HERE. <---
+  synchronizeDataWithSockets(deltaTime);
 
   // delete rooms with zero players
   // additionally, delete rooms which are empty JSON objects.
@@ -343,7 +322,7 @@ function update(deltaTime: number) {
     );
   let oldRooms = _.clone(universal.rooms).map((element) => element.id);
   utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
-  resetOneFrameVariables();
+
   let newRooms = _.clone(universal.rooms).map((element) => element.id);
   let deletedRooms = oldRooms.filter((element) => !newRooms.includes(element));
   for (let room of deletedRooms) {
@@ -351,6 +330,18 @@ function update(deltaTime: number) {
     if (room === defaultMultiplayerRoomID) {
       resetDefaultMultiplayerRoomID(room);
     }
+  }
+}
+
+// TODO: Move these functions somewhere else.
+function synchronizeDataWithSockets(deltaTime: number) {
+  sendDataDeltaTime += deltaTime;
+  if (sendDataDeltaTime < SYNCHRONIZATION_INTERVAL) {
+    return;
+  }
+  sendDataDeltaTime -= SYNCHRONIZATION_INTERVAL;
+  for (let socket of universal.sockets) {
+    synchronizeDataWithSocket(socket);
   }
 }
 
@@ -362,7 +353,7 @@ function resetOneFrameVariables() {
     }
     for (let gameData of room?.gameData) {
       gameData.enemiesToErase = [];
-      gameData.commands = {};
+      // gameData.commands = {};
     }
   }
 }
@@ -444,11 +435,15 @@ function generateGuestID(length: number) {
 }
 
 const loop = setInterval(() => {
+  if (!initialized) {
+    initialize();
+    initialized = true;
+  }
   currentTime = Date.now();
   let deltaTime: number = currentTime - lastUpdateTime;
   update(deltaTime);
   lastUpdateTime = Date.now();
-}, LOOP_INTERVAL);
+}, UPDATE_INTERVAL);
 
 app.get("/", limiter, (request: Request, response: Response) => {
   response.render("pages/index.ejs");
@@ -512,6 +507,10 @@ async function attemptAuthentication(
     })
   );
   return;
+}
+
+function initialize() {
+  sendDataDeltaTime = 0;
 }
 
 app.listen(PORT, () => {
