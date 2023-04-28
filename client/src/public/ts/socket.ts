@@ -12,6 +12,10 @@ const socket: WebSocket = new WebSocket(
       : ":5000"
   }`
 );
+socket.addEventListener("close", (event: any) => {
+  alert("Lost connection to server.");
+  location.reload();
+});
 socket.addEventListener("message", (event: any) => {
   let message: any = JSON.parse(event.data);
   if (
