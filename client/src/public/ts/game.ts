@@ -138,22 +138,22 @@ function renderGameData(data: { [key: string]: any }) {
   variables.currentGameClientSide.baseHealth = data.baseHealth;
 
   // beautiful score setting
-  if (variables.settings.beautifulScore === "on") {
-    let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
-    if (data.score !== currentDisplayedScore) {
-      if (variables.scoreOnLastUpdate !== data.score) {
-        variables.scoreOnLastUpdate = data.score;
-      }
-      let difference = variables.scoreOnLastUpdate - currentDisplayedScore;
-      stageItems.textSprites.scoreText.text =
-        currentDisplayedScore + Math.round(difference / 60);
-      if (data.score < currentDisplayedScore * 1.1) {
-        stageItems.textSprites.scoreText.text = data.score;
-      }
-    }
-  } else {
-    stageItems.textSprites.scoreText.text = data.score;
-  }
+  // if (variables.settings.beautifulScore === "on") {
+  //   let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
+  //   if (data.score !== currentDisplayedScore) {
+  //     if (variables.scoreOnLastUpdate !== data.score) {
+  //       variables.scoreOnLastUpdate = data.score;
+  //     }
+  //     let difference = variables.scoreOnLastUpdate - currentDisplayedScore;
+  //     stageItems.textSprites.scoreText.text =
+  //       currentDisplayedScore + Math.round(difference / 60);
+  //     if (data.score < currentDisplayedScore * 1.1) {
+  //       stageItems.textSprites.scoreText.text = data.score;
+  //     }
+  //   }
+  // } else {
+  stageItems.textSprites.scoreText.text = data.score;
+  // }
 
   // multiplayer
   if (data.mode.indexOf("Multiplayer") > -1) {
