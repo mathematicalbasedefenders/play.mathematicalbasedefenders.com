@@ -1,6 +1,6 @@
 {
   "include": ["server/src/**/*", "client/src/**/*", "server/tsconfig.json", "client/tsconfig.json"],
-  "exclude": ["**/*/lib/*.js", "**/ignored/**", "client/**/*"],
+  "exclude": ["**/*/lib/*.js", "**/ignored/**", "client/**/*","__tests__/**/*"],
   "compilerOptions": {     
     "module": "CommonJS",
     "target": "es6",                                                                                              
