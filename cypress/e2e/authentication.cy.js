@@ -11,7 +11,7 @@ describe("authentication", () => {
     cy.get("#user-account-stat--username").should("have.text", "mistertfy64water");
   });
 
-  it("should allow logging users in w/ incorrect credentials", () => {
+  it("should not allow logging users in w/ incorrect credentials", () => {
     cy.visit("http://localhost:3000");
     cy.get("#main-menu-screen-button--settings").click();
     cy.get("#settings-screen__sidebar-item--online").click();
@@ -23,7 +23,7 @@ describe("authentication", () => {
     cy.get("#user-account-stat--username").should("not.have.text", "mistertfy64water");
   });
 
-  it("should allow logging users in w/ invalid credentials", () => {
+  it("should not allow logging users in w/ invalid credentials", () => {
     cy.visit("http://localhost:3000");
     cy.get("#main-menu-screen-button--settings").click();
     cy.get("#settings-screen__sidebar-item--online").click();
