@@ -519,3 +519,5 @@ credentials/
 .VSCodeCounter
 ignored/
 mbd-server-configuration.json
+cypress/screenshots
+cypress/videos

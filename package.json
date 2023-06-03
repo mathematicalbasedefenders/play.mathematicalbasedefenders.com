@@ -5,7 +5,8 @@
   "description": "Fun math game",
   "main": "server.js",
   "scripts": {
-    "test": "jest",
+    "test-jest": "jest",
+    "test-cypress": "cypress run",
     "build": "webpack --config ./webpack.config.production.js",
     "build-dev": "webpack --config ./webpack.config.development.js",
     "compile": "tsc",
@@ -18,7 +19,7 @@
     "start": "concurrently --kill-others \"npm run server-start\" \"npm run client-start\""
   },
   "author": "mistertfy64",
-  "license": "GPL-3.0-or-later",
+  "license": "AGPL-3.0-or-later",
   "dependencies": {
     "@types/dompurify": "^2.4.0",
     "@types/jsdom": "^21.1.0",
@@ -74,6 +75,7 @@
     "@types/lodash": "^4.14.191",
     "concurrently": "^7.6.0",
     "copy-webpack-plugin": "^11.0.0",
+    "cypress": "^12.13.0",
     "eslint": "^8.24.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
