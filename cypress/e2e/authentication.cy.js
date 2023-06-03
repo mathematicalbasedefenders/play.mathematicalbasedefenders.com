@@ -1,5 +1,5 @@
 describe("authentication", () => {
-  it("should allow logging users in", () => {
+  it("should allow logging users in w/ correct credentials", () => {
     cy.visit("http://localhost:3000");
     cy.get("#main-menu-screen-button--settings").click();
     cy.get("#settings-screen__sidebar-item--online").click();
