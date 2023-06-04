@@ -13,6 +13,9 @@ import { variables } from "./index";
 import { ToastNotification, ToastNotificationPosition } from "./notifications";
 import { Opponent } from "./opponent";
 import { resetClientSideRendering, setClientSideRendering } from "./rendering";
+import { SlidingText } from "./sliding-text";
+import { BezierCurve } from "./bezier";
+import * as PIXI from "pixi.js";
 // TODO: Might change later
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -44,7 +47,22 @@ function renderGameData(data: { [key: string]: any }) {
 
   // erase killed enemies
   for (let enemyID of Object.values(data.enemiesToErase)) {
+    const enemyToDelete = enemies.getEnemyFromCache(enemyID as string);
+    const positionOfKill = enemyToDelete?.textSprite.position;
     enemies.deleteEnemy(enemyID as string);
+    if (typeof positionOfKill !== "undefined") {
+      const x = positionOfKill.x;
+      const y = positionOfKill.y;
+      const bezier = new BezierCurve(1000, [x, y], [x, y + 100]);
+      const slidingText = new SlidingText(
+        "killed",
+        new PIXI.TextStyle({ fill: `#ffffff` }),
+        bezier,
+        bezier,
+        1000
+      );
+      slidingText.render();
+    }
   }
 
   for (let enemy of data.enemies) {

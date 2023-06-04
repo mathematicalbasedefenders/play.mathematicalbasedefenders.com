@@ -200,5 +200,6 @@ export {
   getEnemyColor,
   getEnemyFromCache,
   DEFAULT_ENEMY_HEIGHT,
-  DEFAULT_ENEMY_WIDTH
+  DEFAULT_ENEMY_WIDTH,
+  ENEMY_TEXT_STYLE
 };
