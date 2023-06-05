@@ -48,6 +48,7 @@ function renderGameData(data: { [key: string]: any }) {
   // erase killed enemies
   for (let enemyID of Object.values(data.enemiesToErase)) {
     const enemyToDelete = enemies.getEnemyFromCache(enemyID as string);
+    const textToDisplay = enemyToDelete?.createKilledText();
     const positionOfKill = enemyToDelete?.textSprite.position;
     enemies.deleteEnemy(enemyID as string);
     if (typeof positionOfKill !== "undefined") {
@@ -68,8 +69,11 @@ function renderGameData(data: { [key: string]: any }) {
         [x, y - 0.1]
       );
       const slidingText = new SlidingText(
-        "killed",
-        new PIXI.TextStyle({ fill: `#ffffff` }),
+        `+${textToDisplay}`,
+        new PIXI.TextStyle({
+          fontFamily: "Computer Modern Unicode Serif",
+          fill: `#ffffff`
+        }),
         slideBezier,
         fadeBezier,
         1000
@@ -91,6 +95,7 @@ function renderGameData(data: { [key: string]: any }) {
   // multiplayer
   if (data.mode.indexOf("Multiplayer") > -1) {
     // multiplayer
+    variables.currentGameMode = "multiplayer";
     stageItems.textSprites.scoreLabelText.text = "Attack Score";
     data.score = data.attackScore;
     for (let opponentData of data.opponentGameData) {
@@ -139,6 +144,9 @@ function renderGameData(data: { [key: string]: any }) {
   stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(
     data.elapsedTime
   );
+
+  // combo
+  variables.currentGameClientSide.currentCombo = data.combo;
   if (data.combo > 0) {
     stageItems.textSprites.comboText.text = `${data.combo} Combo`;
     stageItems.textSprites.comboText.alpha = Math.max(
