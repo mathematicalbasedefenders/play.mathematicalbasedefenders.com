@@ -53,12 +53,25 @@ function renderGameData(data: { [key: string]: any }) {
     if (typeof positionOfKill !== "undefined") {
       const x = positionOfKill.x;
       const y = positionOfKill.y;
-      const bezier = new BezierCurve(1000, [x, y], [x, y + 100]);
+      const slideBezier = new BezierCurve(
+        1000,
+        [x, y],
+        [x, y - 50],
+        [x, y - 75],
+        [x, y - 100]
+      );
+      const fadeBezier = new BezierCurve(
+        1000,
+        [x, y],
+        [x + 1, y],
+        [x + 0.75, y - 1],
+        [x, y - 0.1]
+      );
       const slidingText = new SlidingText(
         "killed",
         new PIXI.TextStyle({ fill: `#ffffff` }),
-        bezier,
-        bezier,
+        slideBezier,
+        fadeBezier,
         1000
       );
       slidingText.render();

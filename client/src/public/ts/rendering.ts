@@ -47,11 +47,16 @@ function render(elapsedMilliseconds: number) {
       slidingText.duration,
       slidingText.timeSinceFirstRender
     );
+    const opacity = slidingText.fadeBezier.calculatePoint(
+      slidingText.duration,
+      slidingText.timeSinceFirstRender
+    ).y;
     slidingText.textSprite.x = point.x;
     slidingText.textSprite.y = point.y;
-    // if (slidingText.duration < slidingText.timeSinceFirstRender) {
-    //   delete slidingText;
-    // }
+    slidingText.textSprite.alpha = opacity;
+    if (slidingText.duration < slidingText.timeSinceFirstRender) {
+      slidingText.delete();
+    }
   }
 }
 

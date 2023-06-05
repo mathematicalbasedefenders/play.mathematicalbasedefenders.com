@@ -32,5 +32,10 @@ class SlidingText {
     this.rendering = true;
     this.timeSinceFirstRender = 0;
   }
+  delete() {
+    app.stage.removeChild(this.textSprite);
+    this.rendering = false;
+    SlidingText.slidingTexts.splice(SlidingText.slidingTexts.indexOf(this), 1);
+  }
 }
 export { SlidingText };
