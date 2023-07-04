@@ -49,6 +49,7 @@ const variables: { [key: string]: any } = {
   onScreenKeyboardActivated: false,
   cachedSingleplayerMode: null,
   beautifulScoreCounter: true,
+  currentGameMode: null,
   // below is for beautifulScoreCounter
   scoreOnLastUpdate: 0,
   playing: false,
@@ -72,6 +73,7 @@ const variables: { [key: string]: any } = {
     baseHealth: 0,
     enemiesKilled: 0,
     comboTime: 0,
+    currentCombo: 0,
     timeSinceLastEnemyKill: 60 * 1000 + 1
   }
 };
@@ -204,6 +206,7 @@ function initializeEventListeners() {
   });
   $("#singleplayer-menu-screen-button--easy").on("click", () => {
     variables.cachedSingleplayerMode = "easy";
+    variables.currentGameMode = "singleplayer";
     sendSocketMessage({
       message: "startGame",
       mode: "singleplayer",
@@ -213,6 +216,7 @@ function initializeEventListeners() {
   });
   $("#singleplayer-menu-screen-button--standard").on("click", () => {
     variables.cachedSingleplayerMode = "standard";
+    variables.currentGameMode = "singleplayer";
     sendSocketMessage({
       message: "startGame",
       mode: "singleplayer",

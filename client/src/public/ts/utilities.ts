@@ -22,4 +22,16 @@ function calculateLevel(experiencePoints: number) {
   };
 }
 
-export { millisecondsToTime, calculateLevel };
+function nCr(n: number, r: number) {
+  return factorial(n) / (factorial(n - r) * factorial(r));
+}
+
+function factorial(n: number) {
+  let result = 1;
+  for (let i = 1; i <= n; i++) {
+    result *= i;
+  }
+  return result;
+}
+
+export { millisecondsToTime, calculateLevel, nCr };
