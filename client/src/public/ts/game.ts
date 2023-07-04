@@ -50,11 +50,10 @@ function renderGameData(data: { [key: string]: any }) {
     const enemyToDelete = enemies.getEnemyFromCache(enemyID as string);
     const textToDisplay = enemyToDelete?.createKilledText();
     const positionOfKill = enemyToDelete?.textSprite.position;
+    const positionOfDeletion =
+      (enemyToDelete?.sPosition || -1) - (enemyToDelete?.speed || 0.1);
     enemies.deleteEnemy(enemyID as string);
-    if (
-      data.enemiesToErase.sPosition > 0.01 &&
-      typeof positionOfKill !== "undefined"
-    ) {
+    if (positionOfDeletion > 0.01 && typeof positionOfKill !== "undefined") {
       const x = positionOfKill.x;
       const y = positionOfKill.y;
       const slideBezier = new BezierCurve(
