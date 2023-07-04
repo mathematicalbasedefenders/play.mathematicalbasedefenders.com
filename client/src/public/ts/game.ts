@@ -51,7 +51,10 @@ function renderGameData(data: { [key: string]: any }) {
     const textToDisplay = enemyToDelete?.createKilledText();
     const positionOfKill = enemyToDelete?.textSprite.position;
     enemies.deleteEnemy(enemyID as string);
-    if (typeof positionOfKill !== "undefined") {
+    if (
+      data.enemiesToErase.sPosition > 0.01 &&
+      typeof positionOfKill !== "undefined"
+    ) {
       const x = positionOfKill.x;
       const y = positionOfKill.y;
       const slideBezier = new BezierCurve(
