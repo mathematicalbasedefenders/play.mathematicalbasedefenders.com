@@ -478,12 +478,14 @@ changeScreen("mainMenu");
 loadSettings(localStorage.getItem("settings") || "{}");
 
 // ======
-let endInitTime: number = Date.now();
-console.log(
-  `Initialization completed! (Took ${Math.round(
-    endInitTime - startInitTime
-  )}ms)`
-);
+window.addEventListener("load", function () {
+  let endInitTime: number = Date.now();
+  console.log(
+    `Initialization completed! (Took ${Math.round(
+      endInitTime - startInitTime
+    )}ms)`
+  );
+});
 
 export {
   socket,
