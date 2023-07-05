@@ -87,7 +87,7 @@ body {
   color: var(--color-text-dark);
   border-left: 1px solid #ffffff;
 }
-/* MAIN MENU SCREEN */
+/* SECTION: MAIN MENU SCREEN */
 
 #main-content__main-menu-screen-container {
   background-color: #000000;
@@ -164,7 +164,7 @@ body {
   transform: scale(1.05);
 }
 
-/* SINGLEPLAYER MENU SCREEN */
+/* SECTION: SINGLEPLAYER MENU SCREEN */
 #main-content__singleplayer-menu-screen-container {
   background-color: #000000;
   width: 100%;
@@ -231,7 +231,7 @@ body {
 
 #singleplayer-menu-screen-button--custom {
   background-color: var(--color-singleplayer-menu-custom);
-  /* background-image: url("../assets/images/standardsingleplayerbuttonbackground.png"); */
+  /* SECTION: background-image: url("../assets/images/standardsingleplayerbuttonbackground.png"); */
   background-position: 0 70%;
 }
 
@@ -245,7 +245,7 @@ body {
   transform: scale(1.05);
 }
 
-/* SINGLEPLAYER INTERMISSION SCREEN */
+/* SECTION: SINGLEPLAYER INTERMISSION SCREEN */
 #main-content__custom-singleplayer-intermission-screen-container {
   background-color: #000000;
   width: 100%;
@@ -295,7 +295,7 @@ body {
   color: var(--color-text-light);
 }
 
-/* MULTIPLAYER ROOM */
+/* SECTION: MULTIPLAYER ROOM */
 #main-content__multiplayer-menu-screen-container {
   background-color: #000000;
   width: 100%;
@@ -367,7 +367,7 @@ body {
   filter: brightness(1.05);
   transform: scale(1.05);
 }
-/* MULTIPLAYER INTERMISSION */
+/* SECTION: MULTIPLAYER INTERMISSION */
 #main-content__multiplayer-intermission-screen-container {
   background-color: #000000;
   width: 100%;
@@ -435,7 +435,7 @@ body {
   color: #ffffff;
   font-family: "Computer Modern Unicode Serif";
 }
-/* GAME OVER SCREEN */
+/* SECTION: GAME OVER SCREEN */
 #main-content__game-over-screen-container {
   background-color: #000000;
   width: 100%;
@@ -461,7 +461,7 @@ body {
   justify-items: center;
   height: 100%;
   overflow: hidden;
-  /* justify-content: space-between; */
+  /* SECTION: justify-content: space-between; */
 }
 
 #main-content__game-over-screen__stats > span {
@@ -519,7 +519,7 @@ body {
   font-family: "Computer Modern Unicode Serif";
 }
 
-/* SETTINGS SCREEN */
+/* SECTION: SETTINGS SCREEN */
 #main-content__settings-screen-container {
   background-color: #000000;
   width: 100%;
@@ -607,7 +607,7 @@ body {
   transform: scale(1.05);
 }
 
-/* QUICK MENU */
+/* SECTION: QUICK MENU */
 #main-content__quick-menu-container {
   z-index: 999;
   position: absolute;
@@ -658,9 +658,9 @@ body {
   color: var(--color-text-light);
 }
 
-/* OTHERS */
+/* SECTION: OTHERS */
 
-/* TOAST NOTIFICATIONS */
+/* SECTION: TOAST NOTIFICATIONS */
 #main-content__toast-notification-container {
   z-index: 100;
   overflow: hidden;
@@ -695,7 +695,7 @@ body {
   bottom: 2.5%;
   right: 1%;
 }
-/* MODAL NOTIFICATIONS */
+/* SECTION: MODAL NOTIFICATIONS */
 #main-content__modal-notification-container {
   z-index: 101;
   overflow: hidden;
@@ -740,7 +740,7 @@ body {
   justify-content: end;
 }
 
-/* ON SCREEN KEYBOARD */
+/* SECTION: ON SCREEN KEYBOARD */
 #on-screen-keyboard-container {
   display: flex;
   justify-content: center;
@@ -817,7 +817,7 @@ body {
   height: 100%;
   font-size: 12px;
 }
-/* USER INFO */
+/* SECTION: USER INFO */
 #main-content__user-menu-small-display {
   background-color: var(--color-neutral);
   color: var(--color-text-light);
@@ -835,7 +835,7 @@ body {
   width: 320px;
 }
 
-/* VERSION NUMBER */
+/* SECTION: VERSION NUMBER */
 #version-number-container {
   z-index: 101;
   overflow: hidden;
@@ -852,4 +852,21 @@ body {
   position: absolute;
   right: 0;
   bottom: 0;
+}
+
+/* SECTION: SPLASH SCREEN */
+#splash-screen {
+  z-index: 1999;
+  background-color: #000000;
+  color: #ffffff;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  text-align: center;
+  flex-direction: column;
+  position: fixed;
+  cursor: pointer;
 }
