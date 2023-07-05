@@ -12,6 +12,7 @@ import {
 import { calculateLevel, millisecondsToTime } from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
+import { PopupNotification } from "./notifications";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -485,6 +486,7 @@ window.addEventListener("load", function () {
       endInitTime - startInitTime
     )}ms)`
   );
+  new PopupNotification("hello!", "????", 1);
 });
 
 export {
