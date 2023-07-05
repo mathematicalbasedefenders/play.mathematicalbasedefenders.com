@@ -22,4 +22,12 @@ function calculateLevel(experiencePoints: number) {
   };
 }
 
-export { millisecondsToTime, calculateLevel };
+function removeSplashScreen(delay: number) {
+  $("#splash-screen")
+    .delay(delay)
+    .fadeOut(1000, () => {
+      $("#splash-screen").hide();
+    });
+}
+
+export { millisecondsToTime, calculateLevel, removeSplashScreen };
