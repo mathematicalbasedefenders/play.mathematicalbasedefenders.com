@@ -22,12 +22,18 @@ function calculateLevel(experiencePoints: number) {
   };
 }
 
-function removeSplashScreen(delay: number) {
-  $("#splash-screen")
-    .delay(delay)
-    .fadeOut(1000, () => {
-      $("#splash-screen").hide();
-    });
+
+
+function nCr(n: number, r: number) {
+  return factorial(n) / (factorial(n - r) * factorial(r));
 }
 
-export { millisecondsToTime, calculateLevel, removeSplashScreen };
+function factorial(n: number) {
+  let result = 1;
+  for (let i = 1; i <= n; i++) {
+    result *= i;
+  }
+  return result;
+}
+
+
