@@ -9,11 +9,7 @@ import {
   createCustomSingleplayerGameObject,
   redrawStage
 } from "./game";
-import {
-  calculateLevel,
-  millisecondsToTime,
-  removeSplashScreen
-} from "./utilities";
+import { calculateLevel, millisecondsToTime } from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
 let startInitTime: number = Date.now();
@@ -401,7 +397,6 @@ function initializeEventListeners() {
     });
     $("#chat-message").val("");
   });
-  //
 }
 
 // events
@@ -412,7 +407,6 @@ $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
 $("#main-content__modal-notification-container").hide(0);
 $("#on-screen-keyboard-container").hide(0);
-
 redrawStage();
 
 function updateUserInformationText(data: any) {
@@ -483,16 +477,14 @@ app.ticker.add((deltaTime) => {
 changeScreen("mainMenu");
 loadSettings(localStorage.getItem("settings") || "{}");
 
-// ====== FINISHED INITIALIZATION ============
-window.addEventListener("load", function () {
-  removeSplashScreen(2000);
-  let endInitTime: number = Date.now();
-  console.log(
-    `Initialization completed! (Took ${Math.round(
-      endInitTime - startInitTime
-    )}ms)`
-  );
-});
+// ======
+let endInitTime: number = Date.now();
+console.log(
+  `Initialization completed! (Took ${Math.round(
+    endInitTime - startInitTime
+  )}ms)`
+);
+
 export {
   socket,
   stageItems,

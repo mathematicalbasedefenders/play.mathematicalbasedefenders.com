@@ -22,8 +22,6 @@ function calculateLevel(experiencePoints: number) {
   };
 }
 
-
-
 function nCr(n: number, r: number) {
   return factorial(n) / (factorial(n - r) * factorial(r));
 }
@@ -36,4 +34,4 @@ function factorial(n: number) {
   return result;
 }
 
-
+export { millisecondsToTime, calculateLevel, nCr };
