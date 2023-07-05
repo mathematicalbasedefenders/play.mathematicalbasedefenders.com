@@ -54,45 +54,45 @@ class ToastNotification {
   }
 }
 
-enum ModalNotificationButtonStyle {
+enum PopupNotificationButtonStyle {
   SINGLE = 1,
   DOUBLE_SELECT = 2
 }
-class ModalNotification {
+class PopupNotification {
   static activeNotifications = 0;
   static nextID = 0;
   title = "";
   id = 0;
   text = "";
-  buttonStyle!: ModalNotificationButtonStyle;
+  buttonStyle!: PopupNotificationButtonStyle;
   constructor(
     title: string,
     text: string,
-    buttonStyle?: ModalNotificationButtonStyle
+    buttonStyle?: PopupNotificationButtonStyle
   ) {
-    ModalNotification.nextID++;
-    this.id = ModalNotification.nextID;
+    PopupNotification.nextID++;
+    this.id = PopupNotification.nextID;
     this.title = title;
     this.text = text;
-    this.buttonStyle = buttonStyle || ModalNotificationButtonStyle.SINGLE;
+    this.buttonStyle = buttonStyle || PopupNotificationButtonStyle.SINGLE;
     this.render();
   }
 
   render() {
-    ModalNotification.activeNotifications++;
-    let buttons = `<button id="modal-notification--${this.id}__close-button">Close</button>`;
-    if (this.buttonStyle === ModalNotificationButtonStyle.DOUBLE_SELECT) {
+    PopupNotification.activeNotifications++;
+    let buttons = `<button id="popup-notification--${this.id}__close-button">Close</button>`;
+    if (this.buttonStyle === PopupNotificationButtonStyle.DOUBLE_SELECT) {
       buttons += `&nbsp;&nbsp;<button>OK</button>`;
     }
-    $("#main-content__modal-notification-container").append(
-      `<div id="modal-notification--${this.id}" class="modal-notification"><div class="modal-notification__title">${this.title}</div><div class="modal-notification__content">${this.text}</div><div class="modal-notification__button-container">${buttons}</div></div>`
+    $("#main-content__popup-notification-container").append(
+      `<div id="popup-notification--${this.id}" class="popup-notification"><div class="popup-notification__title">${this.title}</div><div class="popup-notification__content">${this.text}</div><div class="popup-notification__button-container">${buttons}</div></div>`
     );
-    $(`#modal-notification--${this.id}__close-button`).on("click", () => {
+    $(`#popup-notification--${this.id}__close-button`).on("click", () => {
       this.close(this.id);
     });
-    if (ModalNotification.activeNotifications === 1) {
-      $("#main-content__modal-notification-container").show(0);
-      $("#main-content__modal-notification-container").css(
+    if (PopupNotification.activeNotifications === 1) {
+      $("#main-content__popup-notification-container").show(0);
+      $("#main-content__popup-notification-container").css(
         "pointer-events",
         "all"
       );
@@ -100,12 +100,12 @@ class ModalNotification {
   }
 
   close(id: number) {
-    $(`#modal-notification--${id}`).hide(250);
+    $(`#popup-notification--${id}`).hide(250);
     // ...
-    ModalNotification.activeNotifications--;
-    if (ModalNotification.activeNotifications <= 0) {
-      $("#main-content__modal-notification-container").hide(0);
-      $("#main-content__modal-notification-container").css(
+    PopupNotification.activeNotifications--;
+    if (PopupNotification.activeNotifications <= 0) {
+      $("#main-content__popup-notification-container").hide(0);
+      $("#main-content__popup-notification-container").css(
         "pointer-events",
         "none"
       );
@@ -116,6 +116,6 @@ class ModalNotification {
 export {
   ToastNotification,
   ToastNotificationPosition,
-  ModalNotification,
-  ModalNotificationButtonStyle
+  PopupNotification,
+  PopupNotificationButtonStyle
 };

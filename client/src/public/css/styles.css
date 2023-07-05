@@ -695,8 +695,8 @@ body {
   bottom: 2.5%;
   right: 1%;
 }
-/* MODAL NOTIFICATIONS */
-#main-content__modal-notification-container {
+/* POPUP NOTIFICATIONS */
+#main-content__popup-notification-container {
   z-index: 101;
   overflow: hidden;
   width: 100vw;
@@ -710,7 +710,7 @@ body {
   align-items: center;
 }
 
-.modal-notification {
+.popup-notification {
   width: 40%;
   height: 50%;
   background-color: var(--color-neutral);
@@ -721,19 +721,19 @@ body {
   border: 2px solid var(--color-text-light);
 }
 
-.modal-notification__title {
+.popup-notification__title {
   height: 12.5%;
   width: 100%;
   font-size: 5vh;
 }
 
-.modal-notification__content {
+.popup-notification__content {
   height: 77.5%;
   width: 100%;
   font-size: 1.5vh;
 }
 
-.modal-notification__button-container {
+.popup-notification__button-container {
   height: 10%;
   width: 100%;
   display: flex;

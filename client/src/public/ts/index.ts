@@ -405,7 +405,7 @@ initializeKeypressEventListener();
 // initial states
 $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
-$("#main-content__modal-notification-container").hide(0);
+$("#main-content__popup-notification-container").hide(0);
 $("#on-screen-keyboard-container").hide(0);
 redrawStage();
 
