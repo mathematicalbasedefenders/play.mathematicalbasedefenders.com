@@ -78,6 +78,7 @@ class PopupNotification {
     this.render();
   }
 
+  // TODO: wtf is this
   render() {
     PopupNotification.activeNotifications++;
     let buttons = `<button id="popup-notification--${this.id}__close-button">Close</button>`;
