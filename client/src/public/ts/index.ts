@@ -494,7 +494,7 @@ window.addEventListener("load", function () {
     <ul>
     <li>Mathematical Base Defenders is currently in its testing stage, therefore: 
     <ul>
-    <li>Game content is subject to change.</li>
+    <li>Game content is incomplete and subject to change.</li>
     <li>Current product is NOT indicative of final product.</li>
     <li>There will be lots of bugs and performance issues.</li>
     </ul>
