@@ -740,6 +740,20 @@ body {
   justify-content: end;
 }
 
+.popup-notification__button-container button {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 28px;
+  font-family: "Computer Modern Unicode Serif";
+  transition-duration: var(--transition-duration-short);
+}
+
+.popup-notification__button-container button:hover {
+  filter: brightness(1.05);
+  transform: scale(1.05);
+}
+
 /* ON SCREEN KEYBOARD */
 #on-screen-keyboard-container {
   display: flex;
