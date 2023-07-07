@@ -486,7 +486,26 @@ window.addEventListener("load", function () {
       endInitTime - startInitTime
     )}ms)`
   );
-  new PopupNotification("hello!", "????", 1);
+  new PopupNotification(
+    "Hello!",
+    `<p style="font-size:20px">Thank you for trying out Mathematical Base Defenders! 
+    <br>
+    A couple of things to note:
+    <ul>
+    <li>Mathematical Base Defenders is currently in its testing stage, therefore: 
+    <ul>
+    <li>Game content is subject to change.</li>
+    <li>Current product is NOT indicative of final product.</li>
+    <li>There will be lots of bugs and performance issues.</li>
+    </ul>
+    </li>
+    <li>This game is best played with a keyboard. However, if you don't have one, there is a "virtual" on-screen keyboard available. These might be slow on tablets and phones.</li>
+    <li>To log in to your user account, go to <code>Settings</code>, then <code>Online</code>.</li>
+    <li>To request a feature, report a bug or contribute, please do so in the game's communication channels. (<a href="https://github.com/mathematicalbasedefenders">GitHub Organization</a>, <a href="https://discord.gg/pDTZvrTXm9">Discord Server</a>)</li>
+    </ul>
+    Thank you for playing!</p>`,
+    1
+  );
 });
 
 export {
