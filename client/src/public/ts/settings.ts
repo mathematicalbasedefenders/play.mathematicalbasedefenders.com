@@ -20,6 +20,11 @@ const SETTINGS_KEYS = [
     storageStringKey: "enemyWidthCoefficient",
     htmlName: "settings__enemy-size-ratio",
     defaultValue: "1"
+  },
+  {
+    storageStringKey: "displayScore",
+    htmlName: "settings__score-display",
+    defaultValue: "on"
   }
 ];
 
