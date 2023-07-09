@@ -86,7 +86,7 @@ class PopupNotification {
       buttons += `&nbsp;&nbsp;<button>OK</button>`;
     }
     $("#main-content__popup-notification-container").append(
-      `<div id="popup-notification--${this.id}" class="popup-notification"><div class="popup-notification__title">${this.title}</div><div class="popup-notification__content">${this.text}</div><div class="popup-notification__button-container">${buttons}</div></div>`
+      `<dialog id="popup-notification--${this.id}" class="popup-notification"><div class="popup-notification__title">${this.title}</div><div class="popup-notification__content">${this.text}</div><div class="popup-notification__button-container">${buttons}</div></dialog>`
     );
     $(`#popup-notification--${this.id}__close-button`).on("click", () => {
       this.close(this.id);

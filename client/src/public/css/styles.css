@@ -712,7 +712,7 @@ body {
 
 .popup-notification {
   width: 40%;
-  height: 50%;
+  height: fit-content;
   background-color: var(--color-neutral);
   color: var(--color-text-light);
   display: flex;
