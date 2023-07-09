@@ -53,7 +53,11 @@ function renderGameData(data: { [key: string]: any }) {
     const positionOfDeletion =
       (enemyToDelete?.sPosition || -1) - (enemyToDelete?.speed || 0.1);
     enemies.deleteEnemy(enemyID as string);
-    if (positionOfDeletion > 0.01 && typeof positionOfKill !== "undefined") {
+    if (
+      variables.settings.displayScore === "on" &&
+      positionOfDeletion > 0.01 &&
+      typeof positionOfKill !== "undefined"
+    ) {
       const x = positionOfKill.x;
       const y = positionOfKill.y;
       const slideBezier = new BezierCurve(
