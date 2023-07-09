@@ -730,7 +730,7 @@ body {
 .popup-notification__content {
   height: 77.5%;
   width: 100%;
-  font-size: 1.5vh;
+  font-size: 2vh;
 }
 
 .popup-notification__button-container {
