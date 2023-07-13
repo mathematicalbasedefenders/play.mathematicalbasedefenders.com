@@ -8,14 +8,15 @@ const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
-
+// TODO: Consider moving this to services folder
 async function authenticate(
   username: unknown | undefined,
   password: unknown | undefined,
-  socketID: unknown | undefined
+  socketID: unknown | undefined,
+  bypassDatabase?: boolean
 ) {
-  // check if database is available
-  if (!universal.STATUS.databaseAvailable) {
+  // check if database is available, or if it is bypassed
+  if (!bypassDatabase && !universal.STATUS.databaseAvailable) {
     log.warn("Database is not available. Ignoring log-in request.");
     return {
       good: false,

@@ -1,5 +1,6 @@
 import { stageItems, variables } from ".";
 import { Enemy, getEnemyFromCache } from "./enemies";
+import { SlidingText } from "./sliding-text";
 import { millisecondsToTime } from "./utilities";
 
 function render(elapsedMilliseconds: number) {
@@ -36,6 +37,27 @@ function render(elapsedMilliseconds: number) {
       variables.currentGameClientSide.timeSinceLastEnemyKill /
         variables.currentGameClientSide.comboTime
   );
+  // sliding text
+  const slidingTexts = SlidingText.slidingTexts.filter(
+    (element) => element.rendering
+  );
+  for (const slidingText of slidingTexts) {
+    slidingText.timeSinceFirstRender += elapsedMilliseconds;
+    const point = slidingText.slideBezier.calculatePoint(
+      slidingText.duration,
+      slidingText.timeSinceFirstRender
+    );
+    const opacity = slidingText.fadeBezier.calculatePoint(
+      slidingText.duration,
+      slidingText.timeSinceFirstRender
+    ).y;
+    slidingText.textSprite.x = point.x;
+    slidingText.textSprite.y = point.y;
+    slidingText.textSprite.alpha = opacity;
+    if (slidingText.duration < slidingText.timeSinceFirstRender) {
+      slidingText.delete();
+    }
+  }
 }
 
 function resetClientSideRendering() {

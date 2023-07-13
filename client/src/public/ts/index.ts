@@ -12,6 +12,7 @@ import {
 import { calculateLevel, millisecondsToTime } from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
+import { PopupNotification } from "./notifications";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -49,6 +50,7 @@ const variables: { [key: string]: any } = {
   onScreenKeyboardActivated: false,
   cachedSingleplayerMode: null,
   beautifulScoreCounter: true,
+  currentGameMode: null,
   // below is for beautifulScoreCounter
   scoreOnLastUpdate: 0,
   playing: false,
@@ -72,6 +74,7 @@ const variables: { [key: string]: any } = {
     baseHealth: 0,
     enemiesKilled: 0,
     comboTime: 0,
+    currentCombo: 0,
     timeSinceLastEnemyKill: 60 * 1000 + 1
   }
 };
@@ -204,6 +207,7 @@ function initializeEventListeners() {
   });
   $("#singleplayer-menu-screen-button--easy").on("click", () => {
     variables.cachedSingleplayerMode = "easy";
+    variables.currentGameMode = "singleplayer";
     sendSocketMessage({
       message: "startGame",
       mode: "singleplayer",
@@ -213,6 +217,7 @@ function initializeEventListeners() {
   });
   $("#singleplayer-menu-screen-button--standard").on("click", () => {
     variables.cachedSingleplayerMode = "standard";
+    variables.currentGameMode = "singleplayer";
     sendSocketMessage({
       message: "startGame",
       mode: "singleplayer",
@@ -401,7 +406,7 @@ initializeKeypressEventListener();
 // initial states
 $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
-$("#main-content__modal-notification-container").hide(0);
+$("#main-content__popup-notification-container").hide(0);
 $("#on-screen-keyboard-container").hide(0);
 redrawStage();
 
@@ -474,12 +479,34 @@ changeScreen("mainMenu");
 loadSettings(localStorage.getItem("settings") || "{}");
 
 // ======
-let endInitTime: number = Date.now();
-console.log(
-  `Initialization completed! (Took ${Math.round(
-    endInitTime - startInitTime
-  )}ms)`
-);
+window.addEventListener("load", function () {
+  let endInitTime: number = Date.now();
+  console.log(
+    `Initialization completed! (Took ${Math.round(
+      endInitTime - startInitTime
+    )}ms)`
+  );
+  new PopupNotification(
+    "Hello!",
+    `<p style="font-size:20px">Thank you for trying out Mathematical Base Defenders! 
+    <br>
+    A couple of things to note:
+    <ul>
+    <li>Mathematical Base Defenders is currently in its testing stage, therefore: 
+    <ul>
+    <li>Game content is incomplete and subject to change.</li>
+    <li>Current product is NOT indicative of final product.</li>
+    <li>There will be lots of bugs and performance issues.</li>
+    </ul>
+    </li>
+    <li>This game is best played with a keyboard. However, if you don't have one, there is a "virtual" on-screen keyboard available. These might be slow on tablets and phones.</li>
+    <li>To log in to your user account, go to <code>Settings</code>, then <code>Online</code>.</li>
+    <li>To request a feature, report a bug or to contribute, please do so in the game's communication channels available on the accompanying website.</li>
+    </ul>
+    Thank you for playing!</p>`,
+    1
+  );
+});
 
 export {
   socket,

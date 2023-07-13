@@ -13,6 +13,9 @@ import { variables } from "./index";
 import { ToastNotification, ToastNotificationPosition } from "./notifications";
 import { Opponent } from "./opponent";
 import { resetClientSideRendering, setClientSideRendering } from "./rendering";
+import { SlidingText } from "./sliding-text";
+import { BezierCurve } from "./bezier";
+import * as PIXI from "pixi.js";
 // TODO: Might change later
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -44,7 +47,45 @@ function renderGameData(data: { [key: string]: any }) {
 
   // erase killed enemies
   for (let enemyID of Object.values(data.enemiesToErase)) {
+    const enemyToDelete = enemies.getEnemyFromCache(enemyID as string);
+    const textToDisplay = enemyToDelete?.createKilledText();
+    const positionOfKill = enemyToDelete?.textSprite.position;
+    const positionOfDeletion =
+      (enemyToDelete?.sPosition || -1) - (enemyToDelete?.speed || 0.1);
     enemies.deleteEnemy(enemyID as string);
+    if (
+      variables.settings.displayScore === "on" &&
+      positionOfDeletion > 0.01 &&
+      typeof positionOfKill !== "undefined"
+    ) {
+      const x = positionOfKill.x;
+      const y = positionOfKill.y;
+      const slideBezier = new BezierCurve(
+        1000,
+        [x, y],
+        [x, y - 50],
+        [x, y - 75],
+        [x, y - 100]
+      );
+      const fadeBezier = new BezierCurve(
+        1000,
+        [x, y],
+        [x + 1, y],
+        [x + 0.75, y - 1],
+        [x, y - 0.1]
+      );
+      const slidingText = new SlidingText(
+        `+${textToDisplay}`,
+        new PIXI.TextStyle({
+          fontFamily: "Computer Modern Unicode Serif",
+          fill: `#ffffff`
+        }),
+        slideBezier,
+        fadeBezier,
+        1000
+      );
+      slidingText.render();
+    }
   }
 
   for (let enemy of data.enemies) {
@@ -60,6 +101,7 @@ function renderGameData(data: { [key: string]: any }) {
   // multiplayer
   if (data.mode.indexOf("Multiplayer") > -1) {
     // multiplayer
+    variables.currentGameMode = "multiplayer";
     stageItems.textSprites.scoreLabelText.text = "Attack Score";
     data.score = data.attackScore;
     for (let opponentData of data.opponentGameData) {
@@ -108,6 +150,9 @@ function renderGameData(data: { [key: string]: any }) {
   stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(
     data.elapsedTime
   );
+
+  // combo
+  variables.currentGameClientSide.currentCombo = data.combo;
   if (data.combo > 0) {
     stageItems.textSprites.comboText.text = `${data.combo} Combo`;
     stageItems.textSprites.comboText.alpha = Math.max(

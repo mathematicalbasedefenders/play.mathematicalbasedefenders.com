@@ -2,5 +2,13 @@
   "trailingComma": "none",
   "tabWidth": 2,
   "printWidth": 80,
-  "quoteProps": "preserve"
+  "quoteProps": "preserve",
+  "overrides": [
+    {
+      "files": "cypress/e2e/**/*",
+      "options": {
+        "printWidth": 160
+      }
+    }
+  ]
 }
