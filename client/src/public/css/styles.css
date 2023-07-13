@@ -551,6 +551,8 @@ body {
   font-family: "Computer Modern Unicode Serif";
   transition-duration: var(--transition-duration-short);
   border-top: none;
+  border-right: none;
+  border-bottom: none;
 }
 
 .settings-screen__sidebar-item:hover {
