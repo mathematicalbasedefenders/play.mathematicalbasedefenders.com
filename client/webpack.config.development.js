@@ -7,7 +7,8 @@ module.exports = {
     "fontfaceobserver": "FontFaceObserver",
     "adaptive-scale/lib-esm": "AS",
     "jquery": "jQuery",
-    "lodash": "_"
+    "lodash": "_",
+    "howler": ""
   },
   target: "web",
   mode: "development",
