@@ -8,7 +8,7 @@ module.exports = {
     "adaptive-scale/lib-esm": "AS",
     "jquery": "jQuery",
     "lodash": "_",
-    "howler": ""
+    "howler": "howler"
   },
   target: "web",
   mode: "development",
