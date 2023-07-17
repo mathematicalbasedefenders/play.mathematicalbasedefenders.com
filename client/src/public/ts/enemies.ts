@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import _ from "lodash";
 import { app, mathFont, variables } from "./index";
-import { getSettings } from "./settings";
+import { playSound } from "./sounds";
 const ENEMY_SIZE = 64;
 const ENEMY_FONT_SIZE = 24;
 const DEFAULT_ENEMY_WIDTH = 125;
@@ -91,6 +91,7 @@ class Enemy {
     if (sPosition <= 0) {
       deleteEnemy(this.id);
       if (!this.attackedBase) {
+        playSound("assets/sounds/damaged.mp3", true);
         variables.currentGameClientSide.baseHealth -= 10;
         this.attackedBase = true;
       }

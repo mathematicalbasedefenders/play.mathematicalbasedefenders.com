@@ -10,12 +10,13 @@ import * as enemies from "./enemies";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 import { millisecondsToTime } from "./utilities";
 import { variables } from "./index";
-import { ToastNotification, ToastNotificationPosition } from "./notifications";
 import { Opponent } from "./opponent";
 import { resetClientSideRendering, setClientSideRendering } from "./rendering";
 import { SlidingText } from "./sliding-text";
 import { BezierCurve } from "./bezier";
 import * as PIXI from "pixi.js";
+import { playSound } from "./sounds";
+import { getSettings } from "./settings";
 // TODO: Might change later
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -52,7 +53,7 @@ function renderGameData(data: { [key: string]: any }) {
     const positionOfKill = enemyToDelete?.textSprite.position;
     const positionOfDeletion =
       (enemyToDelete?.sPosition || -1) - (enemyToDelete?.speed || 0.1);
-    enemies.deleteEnemy(enemyID as string);
+    // only for killed enemies AND score display on
     if (
       variables.settings.displayScore === "on" &&
       positionOfDeletion > 0.01 &&
@@ -86,6 +87,18 @@ function renderGameData(data: { [key: string]: any }) {
       );
       slidingText.render();
     }
+    // only for enemies who hasn't had their sound played yet
+    if (
+      typeof enemyToDelete !== "undefined" &&
+      !enemyToDelete?.addedKill &&
+      !enemyToDelete?.attackedBase
+    ) {
+      // only for killed enemies
+      if (positionOfDeletion > 0.01 && typeof positionOfKill !== "undefined") {
+        playSound("assets/sounds/attack.mp3", true);
+      }
+    }
+    enemies.deleteEnemy(enemyID as string);
   }
 
   for (let enemy of data.enemies) {
@@ -229,19 +242,8 @@ function changeScreen(
   alsoResetStage?: boolean,
   newData?: { [key: string]: any }
 ) {
-  // check if playing
-  // if (
-  //   typeof variables !== "undefined" &&
-  //   variables.playing &&
-  //   screen !== "gameOver" &&
-  //   screen !== "canvas"
-  // ) {
-  //   new ToastNotification(
-  //     "Unable to change screen. (Game in progress)",
-  //     ToastNotificationPosition.BOTTOM_RIGHT
-  //   );
-  //   return;
-  // }
+  // set settings
+  getSettings(localStorage.getItem("settings") || "{}");
 
   $("#main-content__main-menu-screen-container").hide(0);
   $("#main-content__singleplayer-menu-screen-container").hide(0);
