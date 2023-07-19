@@ -518,6 +518,6 @@ credentials/
 # other stuff
 .VSCodeCounter
 ignored/
-server/mbd-server-configuration.json
+mbd-server-configuration.json
 cypress/screenshots
 cypress/videos
