@@ -8,8 +8,8 @@ function render(elapsedMilliseconds: number) {
     elapsedMilliseconds;
   variables.currentGameClientSide.timeSinceLastEnemyKill += elapsedMilliseconds;
   // enemies
-  let enemiesCurrentlyDrawn = Enemy.enemiesCurrentlyDrawn;
-  for (let enemyID of enemiesCurrentlyDrawn) {
+  let enemiesDrawn = Enemy.enemiesDrawn;
+  for (let enemyID of enemiesDrawn) {
     let enemy = getEnemyFromCache(enemyID);
     if (typeof enemy !== "undefined") {
       let age = Date.now() - enemy.creationTime;

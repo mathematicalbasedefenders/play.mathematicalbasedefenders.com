@@ -3,7 +3,7 @@ import * as PIXI from "pixi.js";
 import {
   DEFAULT_ENEMY_HEIGHT,
   DEFAULT_ENEMY_WIDTH,
-  getEnemyColor
+  getSetEnemyColor
 } from "./enemies";
 
 class Opponent {
@@ -149,7 +149,7 @@ class Opponent {
         DEFAULT_ENEMY_WIDTH * (DEFAULT_ENEMY_WIDTH / Math.min(640, 800));
       this.stageItems.sprites[`enemy${id}`].height =
         DEFAULT_ENEMY_HEIGHT * (DEFAULT_ENEMY_HEIGHT / Math.min(800, 640));
-      this.stageItems.sprites[`enemy${id}`].tint = getEnemyColor();
+      this.stageItems.sprites[`enemy${id}`].tint = getSetEnemyColor();
       app.stage.addChild(this.stageItems.sprites[`enemy${id}`]);
     }
     let enemyData = data.enemies.find((element: any) => element.id === id);

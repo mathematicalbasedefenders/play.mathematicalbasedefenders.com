@@ -49,7 +49,7 @@ function renderGameData(data: { [key: string]: any }) {
   // erase killed enemies
   for (let enemyID of Object.values(data.enemiesToErase)) {
     const enemyToDelete = enemies.getEnemyFromCache(enemyID as string);
-    const textToDisplay = enemyToDelete?.createKilledText();
+    const textToDisplay = enemyToDelete?.getText();
     const positionOfKill = enemyToDelete?.textSprite.position;
     const positionOfDeletion =
       (enemyToDelete?.sPosition || -1) - (enemyToDelete?.speed || 0.1);
@@ -102,13 +102,7 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   for (let enemy of data.enemies) {
-    enemies.rerenderEnemy(
-      enemy.id,
-      enemy.sPosition,
-      enemy.speed,
-      enemy.displayedText,
-      enemy.xPosition
-    );
+    enemies.rerenderEnemy(enemy);
   }
 
   // multiplayer
@@ -269,7 +263,7 @@ function changeScreen(
     opponent.destroyAllInstances();
   }
   enemies.deleteAllEnemies();
-  enemies.Enemy.enemiesCurrentlyDrawn = []; // TODO: Consider moving this to specific screens only.
+  enemies.Enemy.enemiesDrawn = []; // TODO: Consider moving this to specific screens only.
   // actually change screen
   switch (screen) {
     case "mainMenu": {
