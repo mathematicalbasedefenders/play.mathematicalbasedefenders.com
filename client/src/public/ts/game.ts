@@ -306,6 +306,8 @@ function changeScreen(
     }
     case "canvas": {
       $("#canvas-container").show(0);
+      // TODO: move this somewhere else
+      variables.playing = true;
       break;
     }
   }
