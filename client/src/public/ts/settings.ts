@@ -25,6 +25,11 @@ const SETTINGS_KEYS = [
     storageStringKey: "displayScore",
     htmlName: "settings__score-display",
     defaultValue: "on"
+  },
+  {
+    storageStringKey: "sound",
+    htmlName: "settings__sound",
+    defaultValue: "on"
   }
 ];
 
