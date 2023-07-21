@@ -2,7 +2,7 @@ import { Howl } from "howler";
 import { variables } from ".";
 
 function playSound(path: string, check: boolean) {
-  if (checkSoundPlayingEligibility(check)) {
+  if (!checkSoundPlayingEligibility(check)) {
     return;
   }
   const sound = new Howl({
@@ -18,10 +18,10 @@ function playSound(path: string, check: boolean) {
  */
 function checkSoundPlayingEligibility(checkType: boolean) {
   if (checkType === false) {
-    return false;
+    return true;
   }
   if (checkType === true) {
-    return !(variables.playing && variables.settings.sound === "on");
+    return variables.playing && variables.settings.sound === "on";
   }
 }
 
