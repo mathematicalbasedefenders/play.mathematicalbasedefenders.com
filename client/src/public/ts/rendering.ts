@@ -44,11 +44,9 @@ function render(elapsedMilliseconds: number) {
   for (const slidingText of slidingTexts) {
     slidingText.timeSinceFirstRender += elapsedMilliseconds;
     const point = slidingText.slideBezier.calculatePoint(
-      slidingText.duration,
       slidingText.timeSinceFirstRender
     );
     const opacity = slidingText.fadeBezier.calculatePoint(
-      slidingText.duration,
       slidingText.timeSinceFirstRender
     ).y;
     slidingText.textSprite.x = point.x;
