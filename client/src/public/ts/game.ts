@@ -1,11 +1,4 @@
-import {
-  stage,
-  stageItems,
-  app,
-  ExtendedSprite,
-  ExtendedText,
-  socket
-} from "./index";
+import { stageItems, app } from "./index";
 import * as enemies from "./enemies";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 import { millisecondsToTime } from "./utilities";
@@ -17,7 +10,7 @@ import { BezierCurve } from "./bezier";
 import * as PIXI from "pixi.js";
 import { playSound } from "./sounds";
 import { getSettings } from "./settings";
-// TODO: Might change later
+
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
 const OPTIMAL_SCREEN_RATIO: number =
