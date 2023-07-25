@@ -4,7 +4,7 @@ import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 import { millisecondsToTime } from "./utilities";
 import { variables } from "./index";
 import { Opponent } from "./opponent";
-import { resetClientSideRendering, setClientSideRendering } from "./rendering";
+import { resetClientSideVariables, setClientSideRendering } from "./rendering";
 import { SlidingText } from "./sliding-text";
 import { BezierCurve } from "./bezier";
 import * as PIXI from "pixi.js";
@@ -245,7 +245,7 @@ function changeScreen(
     redrawStage();
   }
   if (alsoResetStage) {
-    resetClientSideRendering();
+    resetClientSideVariables();
   }
   if (newData) {
     setClientSideRendering(newData);
