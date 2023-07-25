@@ -1,6 +1,12 @@
 import { Howl } from "howler";
 import { variables } from ".";
 
+/**
+ * Plays a sound, if it should.
+ * @param {string} path The path to the sound.
+ * @param {boolean} check Whether to check if the game should play sound.
+ * @returns
+ */
 function playSound(path: string, check: boolean) {
   if (!checkSoundPlayingEligibility(check)) {
     return;
@@ -14,7 +20,7 @@ function playSound(path: string, check: boolean) {
 
 /**
  * Checks if the game should play sound.
- * @param checkType true for full check, `"playing"` for only playing, and false for no check
+ * @param {boolean} checkType true for full check, `"playing"` for only playing, and false for no check
  */
 function checkSoundPlayingEligibility(checkType: boolean) {
   if (checkType === false) {
