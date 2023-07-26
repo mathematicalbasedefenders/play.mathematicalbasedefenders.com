@@ -158,14 +158,11 @@ uWS
             case "singleplayer": {
               switch (parsedMessage.modifier) {
                 case "easy": {
-                  createNewSingleplayerRoom(socket, GameMode.EasySingleplayer);
+                  createSingleplayerRoom(socket, GameMode.EasySingleplayer);
                   break;
                 }
                 case "standard": {
-                  createNewSingleplayerRoom(
-                    socket,
-                    GameMode.StandardSingleplayer
-                  );
+                  createSingleplayerRoom(socket, GameMode.StandardSingleplayer);
                   break;
                 }
                 case "custom": {
@@ -185,7 +182,7 @@ uWS
                     );
                     return;
                   }
-                  createNewSingleplayerRoom(
+                  createSingleplayerRoom(
                     socket,
                     GameMode.CustomSingleplayer,
                     JSON.parse(parsedMessage.settings)
@@ -358,18 +355,18 @@ function resetOneFrameVariables() {
   }
 }
 
-function createNewSingleplayerRoom(
-  socket: universal.GameSocket,
+function createSingleplayerRoom(
+  caller: universal.GameSocket,
   gameMode: GameMode,
   settings?: { [key: string]: string }
 ) {
   let room = new SingleplayerRoom(
-    socket.connectionID as string,
+    caller.connectionID as string,
     gameMode,
     settings
   );
   room.startPlay();
-  socket.subscribe(room.id);
+  caller.subscribe(room.id);
   universal.rooms.push(room);
 }
 

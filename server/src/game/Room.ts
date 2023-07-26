@@ -208,6 +208,7 @@ class Room {
   // custom room exclusive
   customSettings!: { [key: string]: any };
   // constructor below
+
   constructor(hostConnectionID: string, gameMode: GameMode, noHost?: boolean) {
     this.mode = gameMode;
     this.id = generateRoomID(8);
