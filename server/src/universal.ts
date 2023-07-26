@@ -24,10 +24,14 @@ const STATUS = {
   databaseAvailable: false
 };
 
+/**
+ * Removes the socket from memory.
+ * @param {GameSocket} socketToClose The socket to remove.
+ */
 function deleteSocket(socketToClose: GameSocket) {
   // update room that socket is in
   if (typeof socketToClose.connectionID === "string") {
-    let roomThatSocketWasIn: any = rooms.find(
+    const roomThatSocketWasIn: any = rooms.find(
       (room) =>
         room.memberConnectionIDs.indexOf(socketToClose.connectionID as string) >
         -1
@@ -35,15 +39,25 @@ function deleteSocket(socketToClose: GameSocket) {
     roomThatSocketWasIn?.deleteMember(socketToClose.connectionID);
   }
   // delete the socket
-  let socketToDeleteIndex: number = sockets.indexOf(socketToClose);
+  const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
   sockets.splice(socketToDeleteIndex, 1);
 }
 
-function getSocketFromConnectionID(id: string): GameSocket | undefined {
+/**
+ * Attempts to find the socket with the ID `id`.
+ * @param {string} id The ID of the socket to find.
+ * @returns The `GameSocket` if such ID exists, `undefined` otherwise.
+ */
+function getSocketFromConnectionID(id: string) {
   return sockets.find((socket) => socket.connectionID === id);
 }
 
-function getSocketsFromUserID(id: string): Array<GameSocket> | undefined {
+/**
+ * Attempts to find the socket with the ID `id`.
+ * @param {string} id The ID of the socket to find.
+ * @returns The `GameSocket` if such ID exists, `undefined` otherwise.
+ */
+function getSocketsFromUserID(id: string) {
   return sockets.filter((socket) => socket.ownerUserID === id);
 }
 

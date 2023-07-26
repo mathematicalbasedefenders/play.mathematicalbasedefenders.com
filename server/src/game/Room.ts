@@ -219,7 +219,7 @@ class Room {
       this.hostConnectionID = hostConnectionID;
     }
     this.connectionIDsThisRound = [];
-    this.addMember(hostConnectionID);
+    // this.addMember(hostConnectionID);
     this.lastUpdateTime = Date.now();
 
     // special for default multiplayer
@@ -253,33 +253,6 @@ class Room {
     this.updateNumber++;
   }
 
-  startPlay() {
-    if (
-      this.mode === GameMode.EasySingleplayer ||
-      this.mode === GameMode.StandardSingleplayer
-    ) {
-      for (let member of this.memberConnectionIDs) {
-        this.gameData.push(new SingleplayerGameData(member, this.mode));
-      }
-    } else if (this.mode === GameMode.CustomSingleplayer) {
-      for (let member of this.memberConnectionIDs) {
-        this.gameData.push(
-          new CustomSingleplayerGameData(member, this.mode, this.customSettings)
-        );
-      }
-    } else if (
-      this.mode === GameMode.DefaultMultiplayer ||
-      this.mode === GameMode.CustomMultiplayer
-    ) {
-      for (let member of this.memberConnectionIDs) {
-        this.gameData.push(new MultiplayerGameData(member, this.mode));
-      }
-    }
-    this.ranking = [];
-    this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
-    this.playing = true;
-    log.info(`Room ${this.id} has started play!`);
-  }
   addChatMessage(message: string, sender: string) {
     let sanitizedMessage = DOMPurify.sanitize(message);
     this.chatMessages.push({
@@ -302,7 +275,127 @@ class Room {
     }
   }
 
-  // TODO: Move this to singleplayer room
+  /**
+   * Adds the socket to this `Room` instance as a member.
+   * @param {universal.GameSocket} caller The socket to add to the room (also the socket who called this function)
+   */
+  addMember(caller: universal.GameSocket) {
+    const connectionID = caller.connectionID as string;
+    if (
+      this.memberConnectionIDs.indexOf(connectionID) === -1 &&
+      this.spectatorConnectionIDs.indexOf(connectionID) === -1
+    ) {
+      this.memberConnectionIDs.push(connectionID);
+      log.info(
+        `Added socket with ID ${connectionID} as a member to room ${this.id}`
+      );
+      caller.subscribe(this.id);
+    }
+  }
+
+  /**
+   * Adds the socket to this `Room` instance as a spectator.
+   * This hasn't been fully implemented yet.
+   * @param {universal.GameSocket} caller The socket to add to the room (also the socket who called this function)
+   */
+  addSpectator(caller: universal.GameSocket) {
+    const connectionID = caller.connectionID as string;
+    if (
+      this.spectatorConnectionIDs.indexOf(connectionID) === -1 &&
+      this.memberConnectionIDs.indexOf(connectionID) === -1
+    ) {
+      this.spectatorConnectionIDs.push(connectionID);
+      log.info(
+        `Added socket with ID ${connectionID} as a spectator to room ${this.id}`
+      );
+    }
+  }
+
+  /**
+   * Deletes the socket from this `Room` instance.
+   * This requires that the socket is a member (and not a spectator),
+   * @param {universal.GameSocket} caller The socket to delete from the room (also the socket who called this function)
+   */
+  deleteMember(caller: universal.GameSocket) {
+    const connectionID = caller.connectionID as string;
+    if (this.memberConnectionIDs.indexOf(connectionID) > -1) {
+      this.memberConnectionIDs.splice(
+        this.memberConnectionIDs.indexOf(connectionID),
+        1
+      );
+      log.info(
+        `Deleted socket with ID ${connectionID} (member) from room ${this.id}`
+      );
+    }
+  }
+
+  /**
+   * Deletes the socket from this `Room` instance.
+   * This requires that the socket is a spectator (and not a member),
+   * @param {universal.GameSocket} caller The socket to delete from the room (also the socket who called this function)
+   */
+  deleteSpectator(caller: universal.GameSocket) {
+    const connectionID = caller.connectionID as string;
+    if (this.spectatorConnectionIDs.indexOf(connectionID) > -1) {
+      this.spectatorConnectionIDs.splice(
+        this.spectatorConnectionIDs.indexOf(connectionID),
+        1
+      );
+      log.info(
+        `Deleted socket with ID ${connectionID} (spectator) from room ${this.id}`
+      );
+    }
+  }
+
+  /**
+   * Remove all of the room's players, then deletes the room.
+   */
+  destroy() {
+    let members = _.clone(this.memberConnectionIDs);
+    let spectators = _.clone(this.spectatorConnectionIDs);
+    for (let spectator of spectators) {
+      const socket = universal.getSocketFromConnectionID(spectator);
+      if (socket) {
+        this.deleteMember(socket);
+      }
+    }
+    for (let member of members) {
+      const socket = universal.getSocketFromConnectionID(member);
+      if (socket) {
+        this.deleteMember(socket);
+      }
+    }
+  }
+}
+class SingleplayerRoom extends Room {
+  constructor(hostConnectionID: string, mode: GameMode, settings?: any) {
+    super(hostConnectionID, mode);
+    // custom settings
+    if (typeof settings !== "undefined") {
+      // log.info("Custom mode selected: ", settings);
+      // FIXME: This assumes that data already has been validated.
+      setCustomRules(this, settings);
+    }
+  }
+
+  startPlay() {
+    if (
+      this.mode === GameMode.EasySingleplayer ||
+      this.mode === GameMode.StandardSingleplayer
+    ) {
+      for (let member of this.memberConnectionIDs) {
+        this.gameData.push(new SingleplayerGameData(member, this.mode));
+      }
+    } else if (this.mode === GameMode.CustomSingleplayer) {
+      for (let member of this.memberConnectionIDs) {
+        this.gameData.push(
+          new CustomSingleplayerGameData(member, this.mode, this.customSettings)
+        );
+      }
+      log.info(`Room ${this.id} has started play!`);
+    }
+  }
+
   async startGameOverProcess(data: GameData) {
     let socket = universal.getSocketFromConnectionID(data.owner);
     let messages = "";
@@ -324,144 +417,59 @@ class Room {
       }
     }
 
-    if (
-      data.mode === GameMode.EasySingleplayer ||
-      data.mode === GameMode.StandardSingleplayer ||
-      data.mode === GameMode.CustomSingleplayer
-    ) {
-      data.commands.updateText = [
-        {
-          value: {
-            selector: "#main-content__game-over-screen__stats__score",
-            newText: data.score.toString()
-          },
-          age: 0
+    data.commands.updateText = [
+      {
+        value: {
+          selector: "#main-content__game-over-screen__stats__score",
+          newText: data.score.toString()
         },
-        {
-          value: {
-            selector: "#main-content__game-over-screen__stats__game-mode",
-            newText: gameMode
-          },
-          age: 0
+        age: 0
+      },
+      {
+        value: {
+          selector: "#main-content__game-over-screen__stats__game-mode",
+          newText: gameMode
         },
-        {
-          value: {
-            selector: "#main-content__game-over-screen__stats__enemies",
-            newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
-              (data.enemiesKilled / data.elapsedTime) *
-              1000
-            ).toFixed(3)}/s)`
-          },
-          age: 0
+        age: 0
+      },
+      {
+        value: {
+          selector: "#main-content__game-over-screen__stats__enemies",
+          newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
+            (data.enemiesKilled / data.elapsedTime) *
+            1000
+          ).toFixed(3)}/s)`
         },
-        {
-          value: {
-            selector: "#main-content__game-over-screen__stats__time",
-            newText: utilities.millisecondsToTime(data.elapsedTime)
-          },
-          age: 0
+        age: 0
+      },
+      {
+        value: {
+          selector: "#main-content__game-over-screen__stats__time",
+          newText: utilities.millisecondsToTime(data.elapsedTime)
         },
-        {
-          value: {
-            selector: "#main-content__game-over-screen__stats__score-rank",
-            newText: messages
-          },
-          age: 0
-        }
-      ];
-      data.commands.changeScreenTo = [{ value: "gameOver", age: 0 }];
-      if (socket) {
-        synchronizeDataWithSocket(socket);
+        age: 0
+      },
+      {
+        value: {
+          selector: "#main-content__game-over-screen__stats__score-rank",
+          newText: messages
+        },
+        age: 0
       }
-      // submit score
-      if (socket) {
-        submitSingleplayerGame(data, socket);
-      }
-      // destroy room somehow
-      this.playing = false;
-      if (socket) {
-        socket?.unsubscribe(this.id);
-        this.deleteMember(socket?.connectionID as string);
-      }
+    ];
+    data.commands.changeScreenTo = [{ value: "gameOver", age: 0 }];
+    if (socket) {
+      synchronizeDataWithSocket(socket);
     }
-  }
-
-  addMember(connectionID: string) {
-    if (
-      this.memberConnectionIDs.indexOf(connectionID) === -1 &&
-      this.spectatorConnectionIDs.indexOf(connectionID) === -1
-    ) {
-      this.memberConnectionIDs.push(connectionID);
-      log.info(
-        `Added socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
-          connectionID
-        )}) as a member to room ${this.id}`
-      );
+    // submit score
+    if (socket) {
+      submitSingleplayerGame(data, socket);
     }
-  }
-
-  addSpectator(connectionID: string) {
-    if (
-      this.spectatorConnectionIDs.indexOf(connectionID) === -1 &&
-      this.memberConnectionIDs.indexOf(connectionID) === -1
-    ) {
-      this.spectatorConnectionIDs.push(connectionID);
-      log.info(
-        `Added socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
-          connectionID
-        )}) as a spectator to room ${this.id}`
-      );
-    }
-  }
-
-  deleteMember(connectionID: string) {
-    if (this.memberConnectionIDs.indexOf(connectionID) > -1) {
-      this.memberConnectionIDs.splice(
-        this.memberConnectionIDs.indexOf(connectionID),
-        1
-      );
-      log.info(
-        `Deleted socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
-          connectionID
-        )}) (member) from room ${this.id}`
-      );
-    }
-  }
-
-  deleteSpectator(connectionID: string) {
-    if (this.spectatorConnectionIDs.indexOf(connectionID) > -1) {
-      this.spectatorConnectionIDs.splice(
-        this.spectatorConnectionIDs.indexOf(connectionID),
-        1
-      );
-      log.info(
-        `Deleted socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
-          connectionID
-        )}) (spectator) from room ${this.id}`
-      );
-    }
-  }
-
-  // delete all players, then destroy room
-  destroy() {
-    let members = _.clone(this.memberConnectionIDs);
-    let spectators = _.clone(this.spectatorConnectionIDs);
-    for (let spectator of spectators) {
-      this.deleteMember(spectator);
-    }
-    for (let member of members) {
-      this.deleteMember(member);
-    }
-  }
-}
-class SingleplayerRoom extends Room {
-  constructor(hostConnectionID: string, mode: GameMode, settings?: any) {
-    super(hostConnectionID, mode);
-    // custom settings
-    if (typeof settings !== "undefined") {
-      // log.info("Custom mode selected: ", settings);
-      // FIXME: This assumes that data already has been validated.
-      setCustomRules(this, settings);
+    // destroy room somehow
+    this.playing = false;
+    if (socket) {
+      socket?.unsubscribe(this.id);
+      this.deleteMember(socket);
     }
   }
 
@@ -542,7 +550,7 @@ class SingleplayerRoom extends Room {
     data.commands.changeScreenTo = [{ value: "mainMenu", age: 0 }];
     if (socket) {
       socket?.unsubscribe(this.id);
-      this.deleteMember(socket?.connectionID as string);
+      this.deleteMember(socket);
     }
   }
 }
@@ -566,6 +574,16 @@ class MultiplayerRoom extends Room {
         actionTime: 2500
       }
     };
+  }
+
+  startPlay() {
+    for (let member of this.memberConnectionIDs) {
+      this.gameData.push(new MultiplayerGameData(member, this.mode));
+    }
+    this.ranking = [];
+    this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
+    this.playing = true;
+    log.info(`Room ${this.id} has started play!`);
   }
 
   update() {
@@ -909,7 +927,7 @@ class MultiplayerRoom extends Room {
     );
     if (socket) {
       socket?.unsubscribe(this.id);
-      this.deleteMember(socket?.connectionID as string);
+      this.deleteMember(socket);
     }
   }
 
@@ -1015,7 +1033,7 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
         room.abort(gameData);
       }
     }
-    room.deleteMember(socket.connectionID as string);
+    room.deleteMember(socket);
     socket.unsubscribe(defaultMultiplayerRoomID as string);
   }
 }

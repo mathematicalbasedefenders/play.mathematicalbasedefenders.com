@@ -355,6 +355,13 @@ function resetOneFrameVariables() {
   }
 }
 
+/**
+ * Creates a new singleplayer room.
+ * @param {universal.GameSocket} caller The socket that called the function
+ * @param {GameMode} gameMode The singleplayer game mode.
+ * @param {settings} settings The `settings` for the singleplayer game mode, if it's custom.
+ * @returns The newly-created room object.
+ */
 function createSingleplayerRoom(
   caller: universal.GameSocket,
   gameMode: GameMode,
@@ -365,9 +372,9 @@ function createSingleplayerRoom(
     gameMode,
     settings
   );
-  room.startPlay();
-  caller.subscribe(room.id);
+
   universal.rooms.push(room);
+  return room;
 }
 
 function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
@@ -388,7 +395,7 @@ function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
       room = universal.rooms.find(
         (room) => room.id === defaultMultiplayerRoomID
       );
-      room?.addMember(socket.connectionID as string);
+      room?.addMember(socket);
     }
     // FIXME: may cause problems later
     socket.subscribe(defaultMultiplayerRoomID as string);
