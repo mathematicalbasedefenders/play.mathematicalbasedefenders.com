@@ -20,7 +20,7 @@ import {
   Room,
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
-  getMinifiedOpponentInformation
+  getOpponentInformation
 } from "./game/Room";
 
 import _ from "lodash";

@@ -44,6 +44,9 @@ interface ClockInterface {
   };
 }
 
+/**
+ * Base class for `GameData`.
+ */
 class GameData {
   score!: number;
   enemiesKilled!: number;
@@ -564,7 +567,7 @@ class MultiplayerRoom extends Room {
     };
   }
 
-  update(): void {
+  update() {
     // Update for all types of rooms
     let now: number = Date.now();
     let deltaTime: number = now - this.lastUpdateTime;
@@ -1016,7 +1019,7 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
   }
 }
 
-function getMinifiedOpponentInformation(
+function getOpponentInformation(
   gameData: GameData,
   room: Room,
   minifyData: boolean
@@ -1074,11 +1077,20 @@ function getMinifiedOpponentInformation(
   return opponentGameData;
 }
 
+/**
+ * Resets the Default Multiplayer Room's ID.
+ * @param {room} room ???
+ */
 function resetDefaultMultiplayerRoomID(room: string) {
   defaultMultiplayerRoomID = null;
   log.info(`Reset default multiplayer room ID from ${room} to null.`);
 }
 
+/**
+ * Sets the custom rules to a room.
+ * @param {Room} room The room to set settings to.
+ * @param {any} settings The settings to set the room to.
+ */
 function setCustomRules(room: Room, settings: { [key: string]: any }) {
   room.customSettings = {};
   room.customSettings.baseHealth = parseFloat(settings.baseHealth);
@@ -1107,5 +1119,5 @@ export {
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
   MultiplayerGameData,
-  getMinifiedOpponentInformation
+  getOpponentInformation
 };

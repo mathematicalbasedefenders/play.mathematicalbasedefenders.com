@@ -4,7 +4,7 @@ import {
   Room,
   SingleplayerRoom,
   MultiplayerRoom,
-  getMinifiedOpponentInformation
+  getOpponentInformation
 } from "./game/Room";
 import _ from "lodash";
 import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
@@ -84,7 +84,7 @@ function synchronizeDataWithSocket(socket: GameSocket) {
     if (gameDataOfOwner.mode.indexOf("Multiplayer") > -1) {
       let room = findRoomWithConnectionID(socket.connectionID);
       if (room) {
-        gameDataOfOwner.opponentGameData = getMinifiedOpponentInformation(
+        gameDataOfOwner.opponentGameData = getOpponentInformation(
           gameDataOfOwner,
           room,
           true
