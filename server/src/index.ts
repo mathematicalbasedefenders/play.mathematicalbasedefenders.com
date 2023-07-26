@@ -367,11 +367,7 @@ function createSingleplayerRoom(
   gameMode: GameMode,
   settings?: { [key: string]: string }
 ) {
-  let room = new SingleplayerRoom(
-    caller.connectionID as string,
-    gameMode,
-    settings
-  );
+  let room = new SingleplayerRoom(caller, gameMode, settings);
 
   universal.rooms.push(room);
   return room;
@@ -385,11 +381,7 @@ function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
       !defaultMultiplayerRoomID ||
       typeof defaultMultiplayerRoomID !== "string"
     ) {
-      room = new MultiplayerRoom(
-        socket.connectionID as string,
-        GameMode.DefaultMultiplayer,
-        true
-      );
+      room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer, true);
       universal.rooms.push(room);
     } else {
       room = universal.rooms.find(

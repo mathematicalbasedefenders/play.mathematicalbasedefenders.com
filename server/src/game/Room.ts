@@ -194,7 +194,7 @@ class MultiplayerGameData extends GameData {
 
 class Room {
   id: string;
-  hostConnectionID: string;
+  host: universal.GameSocket | null;
   memberConnectionIDs: Array<string> = [];
   spectatorConnectionIDs: Array<string> = [];
   updateNumber: number = 0;
@@ -209,17 +209,21 @@ class Room {
   customSettings!: { [key: string]: any };
   // constructor below
 
-  constructor(hostConnectionID: string, gameMode: GameMode, noHost?: boolean) {
+  constructor(
+    host: universal.GameSocket,
+    gameMode: GameMode,
+    noHost?: boolean
+  ) {
     this.mode = gameMode;
     this.id = generateRoomID(8);
     if (noHost) {
       // should only be used for default multiplayer
-      this.hostConnectionID = NO_HOST_ID;
+      this.host = null;
     } else {
-      this.hostConnectionID = hostConnectionID;
+      this.host = host;
     }
     this.connectionIDsThisRound = [];
-    // this.addMember(hostConnectionID);
+    // this.addMember(host);
     this.lastUpdateTime = Date.now();
 
     // special for default multiplayer
@@ -368,8 +372,8 @@ class Room {
   }
 }
 class SingleplayerRoom extends Room {
-  constructor(hostConnectionID: string, mode: GameMode, settings?: any) {
-    super(hostConnectionID, mode);
+  constructor(host: universal.GameSocket, mode: GameMode, settings?: any) {
+    super(host, mode);
     // custom settings
     if (typeof settings !== "undefined") {
       // log.info("Custom mode selected: ", settings);
@@ -560,8 +564,8 @@ class MultiplayerRoom extends Room {
   globalEnemySpawnThreshold: number;
   globalClock: ClockInterface;
   playersAtStart!: number;
-  constructor(hostConnectionID: string, mode: GameMode, noHost: boolean) {
-    super(hostConnectionID, mode, noHost);
+  constructor(host: universal.GameSocket, mode: GameMode, noHost: boolean) {
+    super(host, mode, noHost);
     this.nextGameStartTime = null;
     this.globalEnemySpawnThreshold = 0.1;
     this.globalClock = {
