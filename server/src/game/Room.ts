@@ -247,9 +247,9 @@ class SingleplayerRoom extends Room {
           );
         }
       }
-      this.updating = true;
-      log.info(`Room ${this.id} has started play!`);
     }
+    this.updating = true;
+    log.info(`Room ${this.id} has started play!`);
   }
 
   async startGameOverProcess(data: GameData) {
