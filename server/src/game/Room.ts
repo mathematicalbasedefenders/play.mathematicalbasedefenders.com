@@ -347,7 +347,6 @@ class SingleplayerRoom extends Room {
      * Then call the `update` method made for Singleplayer rooms.
      */
     let data = this.gameData[0];
-    console.log(data);
     if (data.aborted) {
       this.abort(data);
     }
