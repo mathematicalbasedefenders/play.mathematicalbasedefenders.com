@@ -99,7 +99,7 @@ function synchronizeDataWithSocket(socket: GameSocket) {
       let room = findRoomWithConnectionID(socket.connectionID);
       if (room) {
         gameDataOfOwner.opponentGameData = getOpponentsInformation(
-          gameDataOfOwner,
+          socket,
           room,
           true
         );

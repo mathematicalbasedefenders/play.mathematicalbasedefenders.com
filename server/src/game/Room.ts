@@ -848,15 +848,6 @@ class MultiplayerRoom extends Room {
       log.warn(
         `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
       );
-      // let gameDataIndex = this.gameData.findIndex(
-      //   (element) => element.owner === connectionID
-      // );
-      // if (gameDataIndex === -1) {
-      //   log.warn(
-      //     `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
-      //   );
-      // }
-      // return;
     }
     // eliminate the socket
     let gameDataIndex = this.gameData.findIndex(
@@ -1042,20 +1033,27 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
   }
 }
 
+/**
+ *
+ * @param {universal.GameSocket} socket The socket that called the function. Will be used so function doesn't return self's data.
+ * @param {Room} room The room the socket is in. TODO: Make it so that the room is inferred from the socket automatically.
+ * @param {boolean} minifyData Whether to "minify" the data. This should be `true` if the data is expected to be sent to the client.
+ * @returns
+ */
 function getOpponentsInformation(
-  gameData: GameData,
+  socket: universal.GameSocket,
   room: Room,
   minifyData: boolean
 ): any {
   let currentRoom: SingleplayerRoom | MultiplayerRoom | null =
-    findRoomWithConnectionID(gameData.owner);
+    findRoomWithConnectionID(socket.connectionID);
   let aliveConnectionIDs: Array<string> = [];
   if (typeof currentRoom === "undefined" || currentRoom == null) {
-    log.warn(`Room for owner ${gameData.owner} of game data not found.`);
+    log.warn(`Room for owner ${socket.connectionID} of game data not found.`);
     return [];
   }
   let opponentGameData = currentRoom.gameData.filter(
-    (element) => element.owner !== gameData.owner
+    (element) => element.owner !== socket.connectionID
   );
   // add metadata
   // ...
@@ -1086,7 +1084,8 @@ function getOpponentsInformation(
     // 0 base health players
     let eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
       (element) =>
-        aliveConnectionIDs.indexOf(element) === -1 && element !== gameData.owner
+        aliveConnectionIDs.indexOf(element) === -1 &&
+        element !== socket.connectionID
     );
     // console.log(eliminatedConnectionIDs);
     for (let eliminated of eliminatedConnectionIDs) {
