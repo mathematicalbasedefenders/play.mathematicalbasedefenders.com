@@ -1,6 +1,10 @@
 import _ from "lodash";
 import { log } from "../core/log";
-import { GameData, SingleplayerGameData, MultiplayerGameData } from "./Room";
+import {
+  GameData,
+  SingleplayerGameData,
+  MultiplayerGameData
+} from "./GameData";
 
 enum EnemyType {
   NORMAL = "1",

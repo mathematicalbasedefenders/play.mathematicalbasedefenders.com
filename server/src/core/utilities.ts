@@ -76,7 +76,7 @@ function findGameDataWithConnectionID(connectionID: string, room?: Room) {
     return null;
   }
   for (let gameData of room.gameData) {
-    if (gameData.owner === connectionID) {
+    if (gameData.ownerConnectionID === connectionID) {
       return gameData;
     }
   }

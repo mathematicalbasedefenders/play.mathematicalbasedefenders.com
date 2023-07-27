@@ -1,11 +1,10 @@
 import { WebSocket } from "uWebSockets.js";
 import {
-  SingleplayerGameData,
-  Room,
   SingleplayerRoom,
   MultiplayerRoom,
   getOpponentsInformation
 } from "./game/Room";
+import { SingleplayerGameData } from "./game/GameData";
 import _ from "lodash";
 import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
 
@@ -73,11 +72,16 @@ function getNameFromConnectionID(id: string): string | undefined {
   }
 }
 
+/**
+ * Attempts to find the game data tied to the ID `id`.
+ * @param {string} id The ID of the socket to find the game data of.
+ * @returns The `GameData` if such ID exists, `null` otherwise.
+ */
 function getGameDataFromConnectionID(id: string): SingleplayerGameData | null {
   for (let room of rooms) {
     if (room) {
       for (let data of room.gameData) {
-        if (data.owner === id) {
+        if (data.ownerConnectionID === id) {
           return data;
         }
       }
@@ -86,45 +90,50 @@ function getGameDataFromConnectionID(id: string): SingleplayerGameData | null {
   return null;
 }
 
+/**
+ * Synchronizes the data of the socket from the server-side to the client-side.
+ * @param {GameSocket} socket The socket to sync data with.
+ */
 function synchronizeDataWithSocket(socket: GameSocket) {
-  let gameDataOfOwner = _.cloneDeep(
-    getGameDataFromConnectionID(socket.connectionID as string)
+  const socketGameData = getGameDataFromConnectionID(
+    socket.connectionID as string
   );
-  if (gameDataOfOwner) {
+  const clonedSocketGameData = _.cloneDeep(socketGameData);
+  if (clonedSocketGameData) {
     // remove some game data
-    minifySelfGameData(gameDataOfOwner);
+    minifySelfGameData(clonedSocketGameData);
     // add some game data (extra information)
     // such as for multiplayer
-    if (gameDataOfOwner.mode.indexOf("Multiplayer") > -1) {
+    if (clonedSocketGameData.mode.indexOf("Multiplayer") > -1) {
       let room = findRoomWithConnectionID(socket.connectionID);
       if (room) {
-        gameDataOfOwner.opponentGameData = getOpponentsInformation(
+        clonedSocketGameData.opponentGameData = getOpponentsInformation(
           socket,
           room,
           true
         );
       }
     }
-    let gameDataToSend: string = JSON.stringify(gameDataOfOwner);
-    getSocketFromConnectionID(socket.connectionID as string)?.send(
+    let gameDataToSend = JSON.stringify(clonedSocketGameData);
+    socket.send(
       JSON.stringify({
         message: "renderGameData",
         data: gameDataToSend
       })
     );
     // other commands
-    for (let commandType in gameDataOfOwner.commands) {
+    for (let commandType in clonedSocketGameData.commands) {
       // TODO: imperfect
-      for (let command in gameDataOfOwner.commands[commandType]) {
+      for (let command in clonedSocketGameData.commands[commandType]) {
         if (
-          typeof gameDataOfOwner.commands[commandType][command].age ===
+          typeof clonedSocketGameData.commands[commandType][command].age ===
           "undefined"
         ) {
-          gameDataOfOwner.commands[commandType][command].age = 0;
+          clonedSocketGameData.commands[commandType][command].age = 0;
         } else {
-          gameDataOfOwner.commands[commandType][command].age += 1;
-          if (gameDataOfOwner.commands[commandType][command].age >= 3) {
-            delete gameDataOfOwner.commands[commandType][command];
+          clonedSocketGameData.commands[commandType][command].age += 1;
+          if (clonedSocketGameData.commands[commandType][command].age >= 3) {
+            delete clonedSocketGameData.commands[commandType][command];
           }
         }
       }

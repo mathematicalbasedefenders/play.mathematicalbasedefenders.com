@@ -1,6 +1,6 @@
 import { log } from "../core/log";
 import { getScoresOfAllPlayers } from "./leaderboards";
-import { GameData, GameMode } from "../game/Room";
+import { GameData, GameMode } from "../game/GameData";
 import { User } from "../models/User";
 import * as universal from "../universal";
 // TODO: make this DRY

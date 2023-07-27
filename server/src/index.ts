@@ -158,11 +158,21 @@ uWS
             case "singleplayer": {
               switch (parsedMessage.modifier) {
                 case "easy": {
-                  createSingleplayerRoom(socket, GameMode.EasySingleplayer);
+                  const room = createSingleplayerRoom(
+                    socket,
+                    GameMode.EasySingleplayer
+                  );
+                  room.addMember(socket);
+                  room.startPlay();
                   break;
                 }
                 case "standard": {
-                  createSingleplayerRoom(socket, GameMode.StandardSingleplayer);
+                  const room = createSingleplayerRoom(
+                    socket,
+                    GameMode.StandardSingleplayer
+                  );
+                  room.addMember(socket);
+                  room.startPlay();
                   break;
                 }
                 case "custom": {
@@ -182,11 +192,12 @@ uWS
                     );
                     return;
                   }
-                  createSingleplayerRoom(
+                  const room = createSingleplayerRoom(
                     socket,
                     GameMode.CustomSingleplayer,
                     JSON.parse(parsedMessage.settings)
                   );
+                  room.startPlay();
                   socket.send(
                     JSON.stringify({
                       message: "changeText",
