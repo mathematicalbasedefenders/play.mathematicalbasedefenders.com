@@ -197,6 +197,7 @@ uWS
                     GameMode.CustomSingleplayer,
                     JSON.parse(parsedMessage.settings)
                   );
+                  room.addMember(socket);
                   room.startPlay();
                   socket.send(
                     JSON.stringify({
