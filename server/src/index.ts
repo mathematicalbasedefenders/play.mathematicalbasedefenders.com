@@ -118,8 +118,8 @@ uWS
   .ws("/", {
     open: (socket: universal.GameSocket, request?: unknown) => {
       log.info("Socket connected!");
-      socket.connectionID = generateConnectionID(16);
-      socket.ownerGuestName = `Guest ${generateGuestID(8)}`;
+      socket.connectionID = utilities.generateConnectionID(16);
+      socket.ownerGuestName = `Guest ${utilities.generateGuestID(8)}`;
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
@@ -404,42 +404,6 @@ function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
     // FIXME: may cause problems later
     socket.subscribe(defaultMultiplayerRoomID as string);
   }
-}
-
-function generateConnectionID(length: number): string {
-  let pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let current = "";
-  while (
-    current === "" ||
-    utilities.checkIfPropertyWithValueExists(
-      universal.sockets,
-      "connectionID",
-      current
-    )
-  ) {
-    for (let i = 0; i < length; i++) {
-      current += pool[Math.floor(Math.random() * pool.length)];
-    }
-  }
-  return current;
-}
-
-function generateGuestID(length: number) {
-  let pool = "0123456789";
-  let current = "";
-  while (
-    current === "" ||
-    utilities.checkIfPropertyWithValueExists(
-      universal.sockets,
-      "ownerGuestID",
-      current
-    )
-  ) {
-    for (let i = 0; i < length; i++) {
-      current += pool[Math.floor(Math.random() * pool.length)];
-    }
-  }
-  return current;
 }
 
 const loop = setInterval(() => {
