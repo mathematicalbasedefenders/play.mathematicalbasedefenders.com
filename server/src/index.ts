@@ -7,7 +7,7 @@ require("dotenv").config({ path: "../credentials/.env" });
 
 // TODO: Combine these lines
 import express from "express";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
@@ -19,8 +19,7 @@ import {
   MultiplayerRoom,
   Room,
   leaveMultiplayerRoom,
-  resetDefaultMultiplayerRoomID,
-  getOpponentsInformation
+  resetDefaultMultiplayerRoomID
 } from "./game/Room";
 
 import _ from "lodash";
@@ -116,7 +115,7 @@ type WebSocketMessage = ArrayBuffer & {
 uWS
   .App()
   .ws("/", {
-    open: (socket: universal.GameSocket, request?: unknown) => {
+    open: (socket: universal.GameSocket) => {
       log.info("Socket connected!");
       socket.connectionID = utilities.generateConnectionID(16);
       socket.ownerGuestName = `Guest ${utilities.generateGuestID(8)}`;
@@ -295,7 +294,7 @@ uWS
       code: unknown,
       message: WebSocketMessage
     ) => {
-      log.info("Socket disconnected!");
+      log.info(`Socket disconnected! (${code} ${message})`);
       universal.deleteSocket(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
     }
@@ -354,15 +353,21 @@ function synchronizeDataWithSockets(deltaTime: number) {
   }
 }
 
+/**
+ * Resets all "one-frame" variables.
+ * I forgot what this actually does -mistertfy64 2023-07-28
+ */
 function resetOneFrameVariables() {
   let rooms = universal.rooms;
   for (let room of rooms) {
     if (!room) {
       continue;
     }
-    for (let gameData of room?.gameData) {
-      gameData.enemiesToErase = [];
-      // gameData.commands = {};
+    if (room.gameData) {
+      for (let gameData of room.gameData) {
+        gameData.enemiesToErase = [];
+        // gameData.commands = {};
+      }
     }
   }
 }
