@@ -6,6 +6,10 @@ import {
   MultiplayerGameData
 } from "./GameData";
 
+enum EnemyType {
+  NORMAL
+}
+
 const MINIMUM_GENERABLE_NUMBER = -100;
 const POSSIBLE_FACTORS = [2, 3, 4, 5, 6, 8, 9, 10, 11];
 
