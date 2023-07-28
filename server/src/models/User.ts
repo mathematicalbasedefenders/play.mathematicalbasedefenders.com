@@ -171,7 +171,7 @@ UserSchema.static(
   "giveExperiencePointsToUserID",
   async function (userID: string, amount: number) {
     // give experience points
-    let playerData = await User.safeFindByUserID(id);
+    let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.totalExperiencePoints += Math.round(amount);
     playerData.save();
   }
@@ -180,7 +180,7 @@ UserSchema.static(
 UserSchema.static(
   "addGamesPlayedToUserID",
   async function (userID: string, amount: number) {
-    let playerData = await User.safeFindByUserID(id);
+    let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.gamesPlayed += amount;
     playerData.save();
   }
@@ -189,7 +189,7 @@ UserSchema.static(
 UserSchema.static(
   "addMultiplayerGamesPlayedToUserID",
   async function (userID: string, amount: number) {
-    let playerData = await User.safeFindByUserID(id);
+    let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.multiplayer.gamesPlayed += amount;
     playerData.save();
   }
@@ -198,7 +198,7 @@ UserSchema.static(
 UserSchema.static(
   "addMultiplayerGamesWonToUserID",
   async function (userID: string, amount: number) {
-    let playerData = await User.safeFindByUserID(id);
+    let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.multiplayer.gamesWon += amount;
     playerData.save();
   }
