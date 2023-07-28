@@ -2,12 +2,14 @@ import { log } from "./log";
 import * as universal from "../universal";
 import {
   defaultMultiplayerRoomID,
-  GameData,
   leaveMultiplayerRoom,
-  MultiplayerGameData,
-  processKeypressForRoom,
-  SingleplayerGameData
+  processKeypressForRoom
 } from "../game/Room";
+import {
+  GameData,
+  MultiplayerGameData,
+  SingleplayerGameData
+} from "../game/GameData";
 import { findRoomWithConnectionID } from "./utilities";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
@@ -131,6 +133,7 @@ function processInputInformation(
         return;
       }
       gameDataToProcess.currentInput += "-";
+      break;
     }
     case InputAction.SendAnswer: {
       let enemyKilled = false;

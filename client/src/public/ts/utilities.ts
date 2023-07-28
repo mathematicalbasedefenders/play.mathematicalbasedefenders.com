@@ -1,3 +1,8 @@
+/**
+ * Formats the milliseconds.
+ * @param {number} milliseconds The milliseconds.
+ * @returns {string} The formatted string, in `m:s.ms` format.
+ */
 function millisecondsToTime(milliseconds: number) {
   let m = Math.floor(milliseconds / 60000);
   let s = Math.floor((milliseconds % 60000) / 1000)
@@ -9,6 +14,11 @@ function millisecondsToTime(milliseconds: number) {
   return `${m}:${s}.${ms}`;
 }
 
+/**
+ * Calculates the level according to `experiencePoints`.
+ * @param {number} experiencePoints The experience points.
+ * @returns {object} An object with the keys `level`, which is the level, and `progressToNext`, which is an integer in the range [0,1).
+ */
 function calculateLevel(experiencePoints: number) {
   let level = 0;
   let stock = experiencePoints;
@@ -22,10 +32,22 @@ function calculateLevel(experiencePoints: number) {
   };
 }
 
+/**
+ * Calculates n Choose r.
+ * @param {number} n n
+ * @param {number} r r
+ * @returns
+ */
 function nCr(n: number, r: number) {
   return factorial(n) / (factorial(n - r) * factorial(r));
 }
 
+/**
+ * Calculates n!
+ * If n mod 1 != 0, decimal part is ignored.
+ * @param {number} n The number to calculate the factorial of.
+ * @returns The result.
+ */
 function factorial(n: number) {
   let result = 1;
   for (let i = 1; i <= n; i++) {

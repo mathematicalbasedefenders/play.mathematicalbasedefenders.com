@@ -18,5 +18,8 @@
     "ecmaVersion": "latest"
   },
   "rules": {
+  },
+  "globals":{
+    "$":"readonly"
   }
 }

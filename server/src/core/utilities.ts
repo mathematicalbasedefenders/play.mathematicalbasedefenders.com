@@ -76,7 +76,7 @@ function findGameDataWithConnectionID(connectionID: string, room?: Room) {
     return null;
   }
   for (let gameData of room.gameData) {
-    if (gameData.owner === connectionID) {
+    if (gameData.ownerConnectionID === connectionID) {
       return gameData;
     }
   }
@@ -260,6 +260,34 @@ function minifySelfGameData(gameData: { [key: string]: any }) {
   }
 }
 
+function generateConnectionID(length: number) {
+  let pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let current = "";
+  while (
+    current === "" ||
+    checkIfPropertyWithValueExists(universal.sockets, "connectionID", current)
+  ) {
+    for (let i = 0; i < length; i++) {
+      current += pool[Math.floor(Math.random() * pool.length)];
+    }
+  }
+  return current;
+}
+
+function generateGuestID(length: number) {
+  let pool = "0123456789";
+  let current = "";
+  while (
+    current === "" ||
+    checkIfPropertyWithValueExists(universal.sockets, "ownerGuestID", current)
+  ) {
+    for (let i = 0; i < length; i++) {
+      current += pool[Math.floor(Math.random() * pool.length)];
+    }
+  }
+  return current;
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -270,5 +298,7 @@ export {
   mutatedArrayFilter,
   generatePlayerListText,
   validateCustomGameSettings,
-  minifySelfGameData
+  minifySelfGameData,
+  generateConnectionID,
+  generateGuestID
 };

@@ -1,23 +1,16 @@
-import {
-  stage,
-  stageItems,
-  app,
-  ExtendedSprite,
-  ExtendedText,
-  socket
-} from "./index";
+import { stageItems, app } from "./index";
 import * as enemies from "./enemies";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 import { millisecondsToTime } from "./utilities";
 import { variables } from "./index";
 import { Opponent } from "./opponent";
-import { resetClientSideRendering, setClientSideRendering } from "./rendering";
+import { resetClientSideVariables, setClientSideRendering } from "./rendering";
 import { SlidingText } from "./sliding-text";
 import { BezierCurve } from "./bezier";
 import * as PIXI from "pixi.js";
 import { playSound } from "./sounds";
 import { getSettings } from "./settings";
-// TODO: Might change later
+
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
 const OPTIMAL_SCREEN_RATIO: number =
@@ -49,7 +42,7 @@ function renderGameData(data: { [key: string]: any }) {
   // erase killed enemies
   for (let enemyID of Object.values(data.enemiesToErase)) {
     const enemyToDelete = enemies.getEnemyFromCache(enemyID as string);
-    const textToDisplay = enemyToDelete?.createKilledText();
+    const textToDisplay = enemyToDelete?.getText();
     const positionOfKill = enemyToDelete?.textSprite.position;
     const positionOfDeletion =
       (enemyToDelete?.sPosition || -1) - (enemyToDelete?.speed || 0.1);
@@ -102,13 +95,7 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   for (let enemy of data.enemies) {
-    enemies.rerenderEnemy(
-      enemy.id,
-      enemy.sPosition,
-      enemy.speed,
-      enemy.displayedText,
-      enemy.xPosition
-    );
+    enemies.rerenderEnemy(enemy);
   }
 
   // multiplayer
@@ -258,7 +245,7 @@ function changeScreen(
     redrawStage();
   }
   if (alsoResetStage) {
-    resetClientSideRendering();
+    resetClientSideVariables();
   }
   if (newData) {
     setClientSideRendering(newData);
@@ -269,7 +256,7 @@ function changeScreen(
     opponent.destroyAllInstances();
   }
   enemies.deleteAllEnemies();
-  enemies.Enemy.enemiesCurrentlyDrawn = []; // TODO: Consider moving this to specific screens only.
+  enemies.Enemy.enemiesDrawn = []; // TODO: Consider moving this to specific screens only.
   // actually change screen
   switch (screen) {
     case "mainMenu": {

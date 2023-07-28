@@ -7,7 +7,7 @@ require("dotenv").config({ path: "../credentials/.env" });
 
 // TODO: Combine these lines
 import express from "express";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
@@ -19,8 +19,7 @@ import {
   MultiplayerRoom,
   Room,
   leaveMultiplayerRoom,
-  resetDefaultMultiplayerRoomID,
-  getMinifiedOpponentInformation
+  resetDefaultMultiplayerRoomID
 } from "./game/Room";
 
 import _ from "lodash";
@@ -116,10 +115,10 @@ type WebSocketMessage = ArrayBuffer & {
 uWS
   .App()
   .ws("/", {
-    open: (socket: universal.GameSocket, request?: unknown) => {
+    open: (socket: universal.GameSocket) => {
       log.info("Socket connected!");
-      socket.connectionID = generateConnectionID(16);
-      socket.ownerGuestName = `Guest ${generateGuestID(8)}`;
+      socket.connectionID = utilities.generateConnectionID(16);
+      socket.ownerGuestName = `Guest ${utilities.generateGuestID(8)}`;
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
@@ -158,14 +157,21 @@ uWS
             case "singleplayer": {
               switch (parsedMessage.modifier) {
                 case "easy": {
-                  createNewSingleplayerRoom(socket, GameMode.EasySingleplayer);
+                  const room = createSingleplayerRoom(
+                    socket,
+                    GameMode.EasySingleplayer
+                  );
+                  room.addMember(socket);
+                  room.startPlay();
                   break;
                 }
                 case "standard": {
-                  createNewSingleplayerRoom(
+                  const room = createSingleplayerRoom(
                     socket,
                     GameMode.StandardSingleplayer
                   );
+                  room.addMember(socket);
+                  room.startPlay();
                   break;
                 }
                 case "custom": {
@@ -185,11 +191,13 @@ uWS
                     );
                     return;
                   }
-                  createNewSingleplayerRoom(
+                  const room = createSingleplayerRoom(
                     socket,
                     GameMode.CustomSingleplayer,
                     JSON.parse(parsedMessage.settings)
                   );
+                  room.addMember(socket);
+                  room.startPlay();
                   socket.send(
                     JSON.stringify({
                       message: "changeText",
@@ -286,7 +294,7 @@ uWS
       code: unknown,
       message: WebSocketMessage
     ) => {
-      log.info("Socket disconnected!");
+      log.info(`Socket disconnected! (${code} ${message})`);
       universal.deleteSocket(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
     }
@@ -345,32 +353,41 @@ function synchronizeDataWithSockets(deltaTime: number) {
   }
 }
 
+/**
+ * Resets all "one-frame" variables.
+ * I forgot what this actually does -mistertfy64 2023-07-28
+ */
 function resetOneFrameVariables() {
   let rooms = universal.rooms;
   for (let room of rooms) {
     if (!room) {
       continue;
     }
-    for (let gameData of room?.gameData) {
-      gameData.enemiesToErase = [];
-      // gameData.commands = {};
+    if (room.gameData) {
+      for (let gameData of room.gameData) {
+        gameData.enemiesToErase = [];
+        // gameData.commands = {};
+      }
     }
   }
 }
 
-function createNewSingleplayerRoom(
-  socket: universal.GameSocket,
+/**
+ * Creates a new singleplayer room.
+ * @param {universal.GameSocket} caller The socket that called the function
+ * @param {GameMode} gameMode The singleplayer game mode.
+ * @param {settings} settings The `settings` for the singleplayer game mode, if it's custom.
+ * @returns The newly-created room object.
+ */
+function createSingleplayerRoom(
+  caller: universal.GameSocket,
   gameMode: GameMode,
   settings?: { [key: string]: string }
 ) {
-  let room = new SingleplayerRoom(
-    socket.connectionID as string,
-    gameMode,
-    settings
-  );
-  room.startPlay();
-  socket.subscribe(room.id);
+  let room = new SingleplayerRoom(caller, gameMode, settings);
+
   universal.rooms.push(room);
+  return room;
 }
 
 function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
@@ -381,57 +398,17 @@ function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
       !defaultMultiplayerRoomID ||
       typeof defaultMultiplayerRoomID !== "string"
     ) {
-      room = new MultiplayerRoom(
-        socket.connectionID as string,
-        GameMode.DefaultMultiplayer,
-        true
-      );
+      room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer, true);
       universal.rooms.push(room);
     } else {
       room = universal.rooms.find(
         (room) => room.id === defaultMultiplayerRoomID
       );
-      room?.addMember(socket.connectionID as string);
+      room?.addMember(socket);
     }
     // FIXME: may cause problems later
     socket.subscribe(defaultMultiplayerRoomID as string);
   }
-}
-
-function generateConnectionID(length: number): string {
-  let pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let current = "";
-  while (
-    current === "" ||
-    utilities.checkIfPropertyWithValueExists(
-      universal.sockets,
-      "connectionID",
-      current
-    )
-  ) {
-    for (let i = 0; i < length; i++) {
-      current += pool[Math.floor(Math.random() * pool.length)];
-    }
-  }
-  return current;
-}
-
-function generateGuestID(length: number) {
-  let pool = "0123456789";
-  let current = "";
-  while (
-    current === "" ||
-    utilities.checkIfPropertyWithValueExists(
-      universal.sockets,
-      "ownerGuestID",
-      current
-    )
-  ) {
-    for (let i = 0; i < length; i++) {
-      current += pool[Math.floor(Math.random() * pool.length)];
-    }
-  }
-  return current;
 }
 
 const loop = setInterval(() => {
