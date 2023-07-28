@@ -6,15 +6,8 @@ import {
   MultiplayerGameData
 } from "./GameData";
 
-enum EnemyType {
-  NORMAL = "1",
-  TANK = "2t",
-  FIGHTER = "2f",
-  SPEEDSTER = "2s"
-}
-
 const MINIMUM_GENERABLE_NUMBER = -100;
-const MAXIMUM_GENERABLE_NUMBER = 100;
+const POSSIBLE_FACTORS = [2, 3, 4, 5, 6, 8, 9, 10, 11];
 
 class Enemy {
   attack?: number;
@@ -52,13 +45,17 @@ class Enemy {
     return this.requestedValue === input;
   }
 
-  calculateScore(coefficient: number, currentCombo: number): number {
-    return Math.round(
-      (100 +
-        Math.max(0, (this.sPosition - 0.5) * 50) *
-          Math.max(1, currentCombo * 0.1 + 1)) *
-        coefficient
+  calculateScore(coefficient: number, combo: number): number {
+    const base = 100;
+    const comboBonus = 0.1;
+    const sPositionThreshold = 0.5;
+    const sPositionBonus = 50;
+    const sPositionScore = Math.max(
+      0,
+      (this.sPosition - sPositionThreshold) * sPositionBonus
     );
+    const comboScore = Math.max(1, combo * comboBonus + 1);
+    return Math.round((base + sPositionScore * comboScore) * coefficient);
   }
 
   calculateSent(coefficient: number, combo: number) {
@@ -140,9 +137,6 @@ function createNewReceived(id: string, speed: number) {
   return createNew(EnemyType.NORMAL, id, speed || 0.1);
 }
 
-// TODO: this
-function createCustom() {}
-
 function createProblem(result: number) {
   let operation = _.sample([
     "none",
@@ -173,7 +167,7 @@ function createProblem(result: number) {
       if (result === 0) {
         // TODO: Make it so that either n1, n2, or both is set to 0
         n1 = result;
-        n2 = _.sample([2, 3, 4, 5, 6, 8, 9, 10, 11]) as number;
+        n2 = _.sample(POSSIBLE_FACTORS) as number;
       }
       return `${n1} * ${n2}`;
     }
@@ -186,7 +180,7 @@ function createProblem(result: number) {
       let n2 = coefficient;
       if (result === 0) {
         n1 = result;
-        n2 = _.sample([2, 3, 4, 5, 6, 8, 9, 10, 11]) as number;
+        n2 = _.sample(POSSIBLE_FACTORS) as number;
       }
       return `${n1} / ${n2}`;
     }
