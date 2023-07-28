@@ -133,6 +133,7 @@ function processInputInformation(
         return;
       }
       gameDataToProcess.currentInput += "-";
+      break;
     }
     case InputAction.SendAnswer: {
       let enemyKilled = false;
