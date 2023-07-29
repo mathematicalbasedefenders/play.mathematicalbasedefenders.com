@@ -32,6 +32,11 @@ app.use(
           "ws://localhost:5000",
           "wss://play.mathematicalbasedefenders.com:5000",
           "'self'"
+        ],
+        "form-action": [
+          "'self'",
+          "http://localhost:4000/authenticate",
+          "https://play.mathematicalbasedefenders.com:4000/authenticate"
         ]
       }
     },

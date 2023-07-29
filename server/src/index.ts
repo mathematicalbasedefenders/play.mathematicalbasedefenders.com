@@ -25,6 +25,7 @@ import {
 import _ from "lodash";
 import { authenticate } from "./authentication/authenticate";
 import { User } from "./models/User";
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -43,6 +44,14 @@ const limiter = rateLimit({
   legacyHeaders: false
 });
 const app = express();
+const corsOptions = {
+  origin: [
+    "http://localhost:3000",
+    "https://mathematicalbasedefenders.com",
+    "https://mathematicalbasedefenders.com:3000"
+  ]
+};
+app.use(cors(corsOptions));
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -69,9 +78,7 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
-
-app.use(bodyParser.urlencoded({ extended: false }));
-
+const jsonParser = bodyParser.json();
 // get configuration
 // TODO: Consider moving to universal.ts
 let configurationLocation = path.join(
@@ -302,7 +309,7 @@ uWS
 
   .listen(WEBSOCKET_PORT, (token: string) => {
     if (token) {
-      log.info(`Server listening to WebSockets at port ${WEBSOCKET_PORT}`);
+      log.info(`WebSockets Server listening at port ${WEBSOCKET_PORT}`);
     } else {
       log.info(`Failed to listen to WebSockets at port ${WEBSOCKET_PORT}`);
     }
@@ -451,7 +458,7 @@ async function attemptAuthentication(
         text: `Failed to log in as ${username} (${result.reason})`
       })
     );
-    return;
+    return false;
   }
   socket.loggedIn = true;
   socket.ownerUsername = username;
@@ -483,12 +490,24 @@ async function attemptAuthentication(
       }
     })
   );
-  return;
+  return true;
 }
 
 function initialize() {
   sendDataDeltaTime = 0;
 }
+
+app.post(
+  "/authenticate",
+  jsonParser,
+  async (request: Request, response: Response) => {
+    const username = request.body["username"];
+    const password = request.body["password"];
+    const socketID = request.body["socketID"];
+    const result = await attemptAuthentication(username, password, socketID);
+    response.json({ success: result });
+  }
+);
 
 app.listen(PORT, () => {
   log.info(`Server listening at port ${PORT}`);
