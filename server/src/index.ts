@@ -237,10 +237,6 @@ uWS
           }
           break;
         }
-        // case "abortGame": {
-        //   input.emulateKeypress(socket.connectionID, "Escape");
-        //   break;
-        // }
         case "joinMultiplayerRoom": {
           switch (parsedMessage.room) {
             case "default": {
@@ -260,15 +256,12 @@ uWS
         }
         // game input
         case "keypress": {
-          input.processKeypress(socket.connectionID, parsedMessage.keypress);
+          input.processKeypress(socket, parsedMessage.keypress);
           synchronizeDataWithSocket(socket);
           break;
         }
         case "emulateKeypress": {
-          input.emulateKeypress(
-            socket.connectionID,
-            parsedMessage.emulatedKeypress
-          );
+          input.emulateKeypress(socket, parsedMessage.emulatedKeypress);
           break;
         }
         case "authenticate": {
@@ -283,7 +276,7 @@ uWS
           attemptToSendChatMessage(
             parsedMessage.scope,
             parsedMessage.chatMessage,
-            socket.connectionID || ""
+            socket || ""
           );
           break;
         }

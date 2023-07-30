@@ -54,9 +54,14 @@ interface InputActionInterface {
 const SEND_KEYS = ["Space", "Enter"];
 
 function emulateKeypress(
-  connectionID: string | undefined,
+  socket: universal.GameSocket,
   code: string | undefined
 ) {
+  const connectionID = socket.connectionID;
+  if (!connectionID) {
+    log.warn(`Socket has no ID.`);
+    return;
+  }
   log.info(
     `Keypress ${code} emulated on Socket ID ${connectionID} (${universal.getNameFromConnectionID(
       connectionID || ""
@@ -73,13 +78,18 @@ function emulateKeypress(
     return;
   }
   // TODO: What if player isn't in a room? (e.g. Multiplayer Room Intermission)
-  processKeypress(connectionID, code);
+  processKeypress(socket, code);
 }
 
 function processKeypress(
-  connectionID: string | undefined,
+  socket: universal.GameSocket,
   code: string | undefined
 ) {
+  const connectionID = socket.connectionID;
+  if (!connectionID) {
+    log.warn(`Socket has no ID.`);
+    return;
+  }
   // data validation point
   if (typeof connectionID !== "string") {
     log.warn(
