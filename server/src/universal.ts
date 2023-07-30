@@ -35,7 +35,7 @@ function deleteSocket(socketToClose: GameSocket) {
         room.memberConnectionIDs.indexOf(socketToClose.connectionID as string) >
         -1
     );
-    roomThatSocketWasIn?.deleteMember(socketToClose.connectionID);
+    roomThatSocketWasIn?.deleteMember(socketToClose);
   }
   // delete the socket
   const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
