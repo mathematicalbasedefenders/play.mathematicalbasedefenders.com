@@ -475,14 +475,19 @@ function updateUserInformationText(data: any) {
     data.rank.color
   );
   $("#main-content__user-menu-small-display__username").text(data.username);
+  let level = calculateLevel(data.experiencePoints);
   $("#main-content__user-menu-small-display__level").text(
-    `Level ${calculateLevel(data.experiencePoints).level.toString()}`
+    `Level ${level.level} (${((level.progressToNext || 0) * 100).toFixed(
+      3
+    )}% to next)`
   );
 }
 
 function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__username").text(data.guestName);
-  $("#main-content__user-menu-small-display__level").text(`Level 0`);
+  $("#main-content__user-menu-small-display__level").text(
+    `Level 0 (Signed Out)`
+  );
 }
 
 app.ticker.add((deltaTime) => {
