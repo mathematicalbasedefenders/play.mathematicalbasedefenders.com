@@ -33,6 +33,10 @@ interface InputActionInterface {
   argument: string;
 }
 
+/**
+ * Creates a `Room`.
+ * A `Room` will only "start to function" when it is in `universal.rooms`.
+ */
 class Room {
   id: string;
   host: universal.GameSocket | null;
