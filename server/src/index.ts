@@ -406,6 +406,7 @@ function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
       typeof defaultMultiplayerRoomID !== "string"
     ) {
       room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer, true);
+      room?.addMember(socket);
       universal.rooms.push(room);
     } else {
       room = universal.rooms.find(
