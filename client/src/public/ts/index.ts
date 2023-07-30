@@ -282,19 +282,29 @@ function initializeEventListeners() {
     $("#settings__enemy-color__forced-color").text(value || "#ff0000");
   });
   //
-  $("#settings-screen__content--online__submit").on("click", (event) => {
+  $("#settings-screen__content--online__submit").on("click", async (event) => {
     // FIXME: possibly unsafe
-    sendSocketMessage({
-      message: "authenticate",
-      username: $("#settings-screen__content--online__username")
-        .val()
-        ?.toString() as string,
-      password: $("#settings-screen__content--online__password")
-        .val()
-        ?.toString() as string,
-      socketID: $("#settings-screen__content--online__socket-id")
-        .val()
-        ?.toString() as string
+    // sendSocketMessage({
+    //   message: "authenticate",
+    //   username: $("#settings-screen__content--online__username")
+    //     .val()
+    //     ?.toString() as string,
+    //   password: $("#settings-screen__content--online__password")
+    //     .val()
+    //     ?.toString() as string,
+    //   socketID: $("#settings-screen__content--online__socket-id")
+    //     .val()
+    //     ?.toString() as string
+    // });
+    const url = `${location.protocol}//${location.hostname}:4000/authenticate`;
+    const result = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        username: $("#settings-screen__content--online__username").val(),
+        password: $("#settings-screen__content--online__password").val(),
+        socketID: $("#settings-screen__content--online__socket-id").val()
+      }),
+      headers: { "Content-Type": "application/json" }
     });
     event.preventDefault();
   });
@@ -408,6 +418,10 @@ $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
 $("#main-content__popup-notification-container").hide(0);
 $("#on-screen-keyboard-container").hide(0);
+// $("#settings-screen__content--online__login-form").attr(
+//   "action",
+//   `${location.protocol}//${location.hostname}:4000/authenticate`
+// );
 redrawStage();
 
 function updateUserInformationText(data: any) {
