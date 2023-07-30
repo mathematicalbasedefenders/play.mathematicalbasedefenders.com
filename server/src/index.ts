@@ -460,7 +460,7 @@ async function attemptAuthentication(
   const userData = await User.safeFindByUsername(
     socket.ownerUsername as string
   );
-  updateSocketUserInformation(socket);
+  utilities.updateSocketUserInformation(socket);
   socket.playerRank = utilities.getRank(userData);
   socket.send(
     JSON.stringify({
@@ -470,36 +470,6 @@ async function attemptAuthentication(
   );
 
   return true;
-}
-
-/**
- * TODO: Move this to somewhere else.
- * Updates the client-side on-screen data for the socket with said socket's info.
- * @param {GameSocket} socket The socket to get data from and to update to
- */
-async function updateSocketUserInformation(socket: universal.GameSocket) {
-  const userData = await User.safeFindByUsername(
-    socket.ownerUsername as string
-  );
-  socket.send(
-    JSON.stringify({
-      message: "updateUserInformationText",
-      data: {
-        username: socket.ownerUsername,
-        good: true,
-        userData: userData,
-        rank: utilities.getRank(userData),
-        experiencePoints: userData.statistics.totalExperiencePoints,
-        records: {
-          easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
-          standard:
-            userData.statistics.personalBestScoreOnStandardSingleplayerMode
-        },
-        // TODO: Refactor this
-        reason: "All checks passed."
-      }
-    })
-  );
 }
 
 function initialize() {
