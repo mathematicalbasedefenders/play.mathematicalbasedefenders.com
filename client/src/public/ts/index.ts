@@ -306,7 +306,6 @@ function initializeEventListeners() {
       }),
       headers: { "Content-Type": "application/json" }
     });
-    console.log(result);
     event.preventDefault();
   });
   //
