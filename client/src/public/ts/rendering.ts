@@ -4,7 +4,8 @@ import { SlidingText } from "./sliding-text";
 import { millisecondsToTime } from "./utilities";
 
 /**
- * Renders the game data.
+ * Renders the game data according to cached data from client-side.
+ * This should be overwritten by server data.
  */
 function render(elapsedMilliseconds: number) {
   /**
@@ -51,6 +52,9 @@ function render(elapsedMilliseconds: number) {
         variables.currentGameClientSide.timeSinceLastEnemyKill /
           variables.currentGameClientSide.comboTime
     );
+    // input
+    stageItems.textSprites.inputText.text =
+      variables.currentGameClientSide.currentInput.replaceAll("-", "−");
   }
 
   /**
