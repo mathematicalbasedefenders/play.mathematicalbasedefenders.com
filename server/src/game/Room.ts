@@ -708,6 +708,11 @@ class MultiplayerRoom extends Room {
 
   eliminateSocketID(connectionID: string, gameData: GameData) {
     let socket = universal.getSocketFromConnectionID(connectionID);
+    if (typeof socket === "undefined") {
+      log.warn(
+        `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
+      );
+    }
     this.ranking.push({
       placement: this.gameData.length,
       name: universal.getNameFromConnectionID(connectionID) || "???",
@@ -715,11 +720,6 @@ class MultiplayerRoom extends Room {
       sent: gameData.totalEnemiesSent,
       received: gameData.totalEnemiesReceived
     });
-    if (typeof socket === "undefined") {
-      log.warn(
-        `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
-      );
-    }
     // eliminate the socket
     let gameDataIndex = this.gameData.findIndex(
       (element) => element.ownerConnectionID === connectionID
