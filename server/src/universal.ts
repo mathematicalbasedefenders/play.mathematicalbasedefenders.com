@@ -2,7 +2,8 @@ import { WebSocket } from "uWebSockets.js";
 import {
   SingleplayerRoom,
   MultiplayerRoom,
-  getOpponentsInformation
+  getOpponentsInformation,
+  Room
 } from "./game/Room";
 import { SingleplayerGameData } from "./game/GameData";
 import _ from "lodash";
@@ -30,12 +31,20 @@ const STATUS = {
 function deleteSocket(socketToClose: GameSocket) {
   // update room that socket is in
   if (typeof socketToClose.connectionID === "string") {
-    const roomThatSocketWasIn: any = rooms.find(
+    const connectionID = socketToClose.connectionID;
+    const room = rooms.find(
       (room) =>
         room.memberConnectionIDs.indexOf(socketToClose.connectionID as string) >
         -1
     );
-    roomThatSocketWasIn?.deleteMember(socketToClose);
+    if (room) {
+      room.deleteMember(socketToClose);
+      // If room that socket is in is a multiplayer room, eliminate it too.
+      if (room instanceof MultiplayerRoom) {
+        const gameData = getGameDataFromConnectionID(connectionID);
+        room.eliminateSocketID(connectionID, gameData ?? {});
+      }
+    }
   }
   // delete the socket
   const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
