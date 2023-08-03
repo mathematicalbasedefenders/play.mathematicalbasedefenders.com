@@ -724,13 +724,9 @@ class MultiplayerRoom extends Room {
     let gameDataIndex = this.gameData.findIndex(
       (element) => element.ownerConnectionID === connectionID
     );
-    if (gameDataIndex === -1) {
-      log.warn(
-        `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
-      );
-      return;
+    if (gameDataIndex > -1) {
+      this.gameData.splice(gameDataIndex, 1);
     }
-    this.gameData.splice(gameDataIndex, 1);
     log.info(
       `Socket ID ${connectionID} (${universal.getNameFromConnectionID(
         connectionID
