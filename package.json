@@ -80,7 +80,7 @@
     "@types/lodash": "^4.14.195",
     "concurrently": "^8.2.0",
     "copy-webpack-plugin": "^11.0.0",
-    "cypress": "^12.17.1",
+    "cypress": "^13.1.0",
     "eslint": "^8.45.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.27.5",
