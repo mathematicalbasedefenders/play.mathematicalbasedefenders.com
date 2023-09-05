@@ -17,6 +17,7 @@
   "parserOptions": {
     "ecmaVersion": "latest"
   },
-  "rules": {
+  "globals":{
+    "$":"readonly"
   }
 }
