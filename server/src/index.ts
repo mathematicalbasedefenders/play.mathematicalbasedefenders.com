@@ -21,7 +21,6 @@ import {
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID
 } from "./game/Room";
-
 import _ from "lodash";
 import { authenticate } from "./authentication/authenticate";
 import { User } from "./models/User";
@@ -237,10 +236,6 @@ uWS
           }
           break;
         }
-        // case "abortGame": {
-        //   input.emulateKeypress(socket.connectionID, "Escape");
-        //   break;
-        // }
         case "joinMultiplayerRoom": {
           switch (parsedMessage.room) {
             case "default": {
@@ -260,15 +255,12 @@ uWS
         }
         // game input
         case "keypress": {
-          input.processKeypress(socket.connectionID, parsedMessage.keypress);
+          input.processKeypress(socket, parsedMessage.keypress);
           synchronizeDataWithSocket(socket);
           break;
         }
         case "emulateKeypress": {
-          input.emulateKeypress(
-            socket.connectionID,
-            parsedMessage.emulatedKeypress
-          );
+          input.emulateKeypress(socket, parsedMessage.emulatedKeypress);
           break;
         }
         case "authenticate": {
@@ -283,7 +275,7 @@ uWS
           attemptToSendChatMessage(
             parsedMessage.scope,
             parsedMessage.chatMessage,
-            socket.connectionID || ""
+            socket || ""
           );
           break;
         }
@@ -464,7 +456,10 @@ async function attemptAuthentication(
   socket.loggedIn = true;
   socket.ownerUsername = username;
   socket.ownerUserID = result.id;
-  let userData = await User.safeFindByUsername(socket.ownerUsername as string);
+  const userData = await User.safeFindByUsername(
+    socket.ownerUsername as string
+  );
+  utilities.updateSocketUserInformation(socket);
   socket.playerRank = utilities.getRank(userData);
   socket.send(
     JSON.stringify({
@@ -472,25 +467,7 @@ async function attemptAuthentication(
       text: `Successfully logged in as ${username}`
     })
   );
-  socket.send(
-    JSON.stringify({
-      message: "updateUserInformationText",
-      data: {
-        username: username,
-        good: true,
-        userData: userData,
-        rank: utilities.getRank(userData),
-        experiencePoints: userData.statistics.totalExperiencePoints,
-        records: {
-          easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
-          standard:
-            userData.statistics.personalBestScoreOnStandardSingleplayerMode
-        },
-        // TODO: Refactor this
-        reason: "All checks passed."
-      }
-    })
-  );
+
   return true;
 }
 

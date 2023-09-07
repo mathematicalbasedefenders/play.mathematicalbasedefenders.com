@@ -10,8 +10,13 @@ const DOMPurify = createDOMPurify(window);
 function attemptToSendChatMessage(
   scope: string,
   message: string,
-  connectionID: string
+  socket: universal.GameSocket
 ) {
+  const connectionID = socket.connectionID;
+  if (!connectionID) {
+    log.warn(`Socket has no ID.`);
+    return;
+  }
   switch (scope) {
     case "room": {
       if (!validateMessage(scope, message, connectionID)) {

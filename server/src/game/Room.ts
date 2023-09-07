@@ -706,31 +706,38 @@ class MultiplayerRoom extends Room {
     }
   }
 
-  eliminateSocketID(connectionID: string, gameData: GameData) {
+  eliminateSocketID(connectionID: string, gameData: GameData | object) {
     let socket = universal.getSocketFromConnectionID(connectionID);
-    this.ranking.push({
-      placement: this.gameData.length,
-      name: universal.getNameFromConnectionID(connectionID) || "???",
-      time: gameData.elapsedTime,
-      sent: gameData.totalEnemiesSent,
-      received: gameData.totalEnemiesReceived
-    });
     if (typeof socket === "undefined") {
       log.warn(
         `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
       );
     }
+    const place = this.gameData.length;
+    if (gameData instanceof GameData) {
+      this.ranking.push({
+        placement: place,
+        name: universal.getNameFromConnectionID(connectionID) || "???",
+        time: gameData.elapsedTime,
+        sent: gameData.totalEnemiesSent,
+        received: gameData.totalEnemiesReceived
+      });
+    } else {
+      this.ranking.push({
+        placement: place,
+        name: universal.getNameFromConnectionID(connectionID) || "???",
+        time: "???",
+        sent: "???",
+        received: "???"
+      });
+    }
     // eliminate the socket
     let gameDataIndex = this.gameData.findIndex(
       (element) => element.ownerConnectionID === connectionID
     );
-    if (gameDataIndex === -1) {
-      log.warn(
-        `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
-      );
-      return;
+    if (gameDataIndex > -1) {
+      this.gameData.splice(gameDataIndex, 1);
     }
-    this.gameData.splice(gameDataIndex, 1);
     log.info(
       `Socket ID ${connectionID} (${universal.getNameFromConnectionID(
         connectionID
@@ -819,7 +826,7 @@ class MultiplayerRoom extends Room {
       let socket = universal.getSocketFromConnectionID(connectionID);
       if (typeof socket === "undefined") {
         log.warn(
-          `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
+          `Socket ID ${connectionID} not found while summoning it to lobby, therefore skipping process.`
         );
         continue;
       }

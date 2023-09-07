@@ -2,6 +2,7 @@ import { log } from "../core/log";
 import { getScoresOfAllPlayers } from "./leaderboards";
 import { GameData, GameMode } from "../game/GameData";
 import { User } from "../models/User";
+import { updateSocketUserInformation } from "../core/utilities";
 import * as universal from "../universal";
 // TODO: make this DRY
 async function submitSingleplayerGame(
@@ -121,6 +122,9 @@ async function submitSingleplayerGame(
       value: rankMessage
     })
   );
+
+  // update data on screen
+  updateSocketUserInformation(ownerSocket);
 }
 
 async function updatePersonalBest(

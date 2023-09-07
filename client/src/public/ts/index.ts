@@ -70,6 +70,7 @@ const variables: { [key: string]: any } = {
     }
   },
   currentGameClientSide: {
+    currentInput: "",
     totalElapsedMilliseconds: 0,
     baseHealth: 0,
     enemiesKilled: 0,
@@ -418,10 +419,9 @@ $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
 $("#main-content__popup-notification-container").hide(0);
 $("#on-screen-keyboard-container").hide(0);
-// $("#settings-screen__content--online__login-form").attr(
-//   "action",
-//   `${location.protocol}//${location.hostname}:4000/authenticate`
-// );
+$("#settings-screen__content--online__login-form").on("submit", (event) => {
+  event?.preventDefault();
+});
 redrawStage();
 
 function updateUserInformationText(data: any) {
@@ -475,14 +475,19 @@ function updateUserInformationText(data: any) {
     data.rank.color
   );
   $("#main-content__user-menu-small-display__username").text(data.username);
+  let level = calculateLevel(data.experiencePoints);
   $("#main-content__user-menu-small-display__level").text(
-    `Level ${calculateLevel(data.experiencePoints).level.toString()}`
+    `Level ${level.level} (${((level.progressToNext || 0) * 100).toFixed(
+      3
+    )}% to next)`
   );
 }
 
 function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__username").text(data.guestName);
-  $("#main-content__user-menu-small-display__level").text(`Level 0`);
+  $("#main-content__user-menu-small-display__level").text(
+    `Level 0 (Signed Out)`
+  );
 }
 
 app.ticker.add((deltaTime) => {

@@ -181,6 +181,7 @@ function renderGameData(data: { [key: string]: any }) {
   variables.currentGameClientSide.timeSinceLastEnemyKill =
     data.clocks.comboReset.currentTime;
   variables.currentGameClientSide.baseHealth = data.baseHealth;
+  variables.currentGameClientSide.currentInput = data.currentInput;
 
   // beautiful score setting
   // if (variables.settings.beautifulScore === "on") {

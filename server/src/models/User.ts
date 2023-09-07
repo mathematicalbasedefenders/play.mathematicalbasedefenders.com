@@ -113,6 +113,7 @@ UserSchema.static("findByUsername", async function (username: string) {
 UserSchema.static("safeFindByUsername", async function (username: string) {
   return this.findOne({ username: username })
     .select({
+      email: 0,
       emailAddress: 0,
       hashedPassword: 0
     })
