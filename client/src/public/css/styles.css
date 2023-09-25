@@ -88,6 +88,7 @@ code {
   color: var(--color-text-dark);
   border-left: 1px solid #ffffff;
 }
+
 /* MAIN MENU SCREEN */
 
 #main-content__main-menu-screen-container {
@@ -98,31 +99,61 @@ code {
 }
 
 #main-content__main-menu-screen {
-  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
-  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end row3-start] 40px [row3-end];
+  grid-template-columns: [column1-start] 5% [column1-end column2-start] 45% [column2-end column3-start] 45% [column3-end column4-start] 5% [column4-end];
+  grid-template-rows: [row1-start] 10% [row1-end row2-start] 80% [row2-end row3-start] 10% [row3-end];
   display: grid;
-  align-items: center;
-  flex-direction: column;
+  /* align-items: center;
+  flex-direction: column; */
 }
+
 #main-content__main-menu-screen-button-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  grid-column: column2-start / column2-end;
+  grid-column: column3-start / column3-end;
   grid-row: row2-start / row2-end;
 }
 
+#main-content__main-menu-screen__logo-container {
+  grid-column: column2-start / column2-end;
+  grid-row: row2-start / row2-end;
+  user-select: none;
+}
+
+@media only screen and (max-width: 1200px) {
+  #main-content__main-menu-screen {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main-menu-screen-button {
+    margin: 16px;
+    width: 90% !important;
+  }
+}
+
 .main-menu-screen-button {
-  width: 60vw;
-  height: 8vw;
+  /* width: 60vw;
+  height: 8vw; */
   border: 1px #ffffff solid;
   background-repeat: no-repeat;
-  background-size: 35%;
   transition-duration: var(--transition-duration-short);
   margin: 16px;
   width: 100%;
   overflow: hidden;
   flex-flow: column wrap;
+}
+
+#main-menu-screen-button--singleplayer {
+  height: 60%;
+}
+
+#main-menu-screen-button--multiplayer {
+  height: 30%;
+}
+
+#main-menu-screen-button--settings {
+  height: 10%;
 }
 
 .main-menu-screen-button__title {
