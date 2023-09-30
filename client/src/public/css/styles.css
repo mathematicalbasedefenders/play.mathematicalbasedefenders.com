@@ -129,6 +129,11 @@ code {
   .main-menu-screen-button {
     margin: 16px;
     width: 90% !important;
+    height: 50% !important;
+  }
+
+  #main-content__main-menu-screen__logo {
+    opacity: 0;
   }
 }
 
