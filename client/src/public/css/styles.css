@@ -698,6 +698,32 @@ code {
   color: var(--color-text-light);
 }
 
+/* STATUS TRAY */
+#status-tray-container {
+  background: #00000044;
+  z-index: 99;
+  width: 100vw;
+  height: 100vh;
+  display: none; /* original value */
+  position: absolute;
+  top: 0;
+}
+
+#status-tray {
+  width: max(15%, 240px);
+  height: 100%;
+  background-color: var(--color-neutral);
+  border: 1px solid #ffffff;
+}
+
+#status-tray-text-container {
+  width: 80%;
+  margin: auto;
+  height: 90%;
+  font-size: 100%;
+  color: var(--color-text-light);
+}
+
 /* OTHERS */
 
 /* TOAST NOTIFICATIONS */
