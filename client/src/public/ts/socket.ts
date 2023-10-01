@@ -65,7 +65,6 @@ socket.addEventListener("message", (event: any) => {
       break;
     }
     case "updateUserInformationText": {
-      console.log(message.data);
       updateUserInformationText(message.data);
       break;
     }
