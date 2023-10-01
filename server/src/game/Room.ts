@@ -10,7 +10,7 @@ import { findRoomWithConnectionID } from "../core/utilities";
 import { User } from "../models/User";
 import {
   getSocketFromConnectionID,
-  synchronizeDataWithSocket
+  synchronizeGameDataWithSocket
 } from "../universal";
 import {
   GameData,
@@ -319,7 +319,7 @@ class SingleplayerRoom extends Room {
     ];
     data.commands.changeScreenTo = [{ value: "gameOver", age: 0 }];
     if (socket) {
-      synchronizeDataWithSocket(socket);
+      synchronizeGameDataWithSocket(socket);
     }
     // submit score
     if (socket) {
