@@ -220,6 +220,15 @@ code {
   #main-content__singleplayer-menu-screen {
     display: flex;
     flex-direction: column;
+    align-items: center;
+  }
+
+  #main-content__singleplayer-menu-screen-button-container__middle-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
   }
 
   .singleplayer-menu-screen-button {
