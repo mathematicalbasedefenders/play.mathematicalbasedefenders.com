@@ -100,10 +100,24 @@ function getGameDataFromConnectionID(id: string): SingleplayerGameData | null {
 }
 
 /**
- * Synchronizes the data of the socket from the server-side to the client-side.
+ * Synchronizes the game data of the server from the server-side to the client-side.
  * @param {GameSocket} socket The socket to sync data with.
  */
-function synchronizeDataWithSocket(socket: GameSocket) {
+function synchronizeMetadataWithSocket(socket: GameSocket, deltaTime: number) {
+  const metadataToSend = getServerMetadata(deltaTime);
+  socket.send(
+    JSON.stringify({
+      message: "updateServerMetadata",
+      data: metadataToSend
+    })
+  );
+}
+
+/**
+ * Synchronizes the game data of the socket from the server-side to the client-side.
+ * @param {GameSocket} socket The socket to sync data with.
+ */
+function synchronizeGameDataWithSocket(socket: GameSocket) {
   const socketGameData = getGameDataFromConnectionID(
     socket.connectionID as string
   );
@@ -150,6 +164,29 @@ function synchronizeDataWithSocket(socket: GameSocket) {
   }
 }
 
+/**
+ * Gets the server's metadata.
+ */
+function getServerMetadata(deltaTime: number) {
+  const online = sockets.length;
+  const onlineRegistered = sockets.filter((e) => e.loggedIn).length;
+  const onlineGuests = online - onlineRegistered;
+  const roomsTotal = rooms.length;
+  // TODO: Change this when custom singleplayer comes
+  const roomsMulti =
+    rooms.filter((e) => e.mode === "defaultMultiplayer").length || 0;
+  const roomsSingle = roomsTotal - roomsMulti;
+  return {
+    onlineTotal: online,
+    onlineRegistered: onlineRegistered,
+    onlineGuests: onlineGuests,
+    roomsTotal: roomsTotal,
+    roomsMulti: roomsMulti,
+    roomsSingle: roomsSingle,
+    lastUpdated: deltaTime
+  };
+}
+
 export {
   GameSocket,
   sockets,
@@ -160,5 +197,6 @@ export {
   getNameFromConnectionID,
   getSocketsFromUserID,
   STATUS,
-  synchronizeDataWithSocket
+  synchronizeGameDataWithSocket,
+  synchronizeMetadataWithSocket
 };
