@@ -221,6 +221,14 @@ code {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+  }
+
+  #main-content__singleplayer-menu-screen-button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
   }
 
   #main-content__singleplayer-menu-screen-button-container__middle-row {
