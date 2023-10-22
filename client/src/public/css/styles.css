@@ -276,7 +276,7 @@ code {
   background-image: url("../assets/images/easysingleplayerbuttonbackground.png");
   background-position: 0 120%;
   background-size: 110%;
-  width: 45%;
+  width: 48%;
 }
 
 #singleplayer-menu-screen-button--standard {
@@ -291,7 +291,7 @@ code {
   background-color: var(--color-singleplayer-menu-custom);
   /* background-image: url("../assets/images/standardsingleplayerbuttonbackground.png"); */
   background-position: 0 70%;
-  width: 45%;
+  width: 48%;
 }
 
 #singleplayer-menu-screen-button--back {
