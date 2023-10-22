@@ -210,19 +210,36 @@ code {
 }
 
 #main-content__singleplayer-menu-screen {
+  grid-template-columns: [column1-start] 5% [column1-end column2-start] 45% [column2-end column3-start] 45% [column3-end column4-start] 5% [column4-end];
+  grid-template-rows: [row1-start] 10% [row1-end row2-start] 80% [row2-end row3-start] 10% [row3-end];
   display: grid;
-  flex-direction: column;
-  align-items: center;
-  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
-  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end row3-start] 40px [row3-end];
+}
+
+@media only screen and (max-width: 1200px) {
+  #main-content__singleplayer-menu-screen {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .singleplayer-menu-screen-button {
+    margin: 16px;
+    width: 90% !important;
+    height: 50% !important;
+  }
 }
 
 #main-content__singleplayer-menu-screen-button-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  grid-column: column2-start / column2-end;
+  grid-column: column3-start / column3-end;
   grid-row: row2-start / row2-end;
+}
+
+#main-content__singleplayer-menu-screen-button-container__middle-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .singleplayer-menu-screen-button {
@@ -231,7 +248,7 @@ code {
   background-repeat: no-repeat;
   background-size: 35%;
   transition-duration: var(--transition-duration-short);
-  margin: 16px;
+  margin: 16px 0;
   width: 100%;
   overflow: hidden;
   flex-flow: column wrap;
@@ -257,24 +274,30 @@ code {
 #singleplayer-menu-screen-button--easy {
   background-color: var(--color-singleplayer-menu-easy);
   background-image: url("../assets/images/easysingleplayerbuttonbackground.png");
-  background-position: 0 70%;
+  background-position: 0 120%;
+  background-size: 110%;
+  width: 45%;
 }
 
 #singleplayer-menu-screen-button--standard {
   background-color: var(--color-singleplayer-menu-standard);
   background-image: url("../assets/images/standardsingleplayerbuttonbackground.png");
-  background-position: 0 70%;
+  background-position: 0 120%;
+  background-size: 110%;
+  height: 60%;
 }
 
 #singleplayer-menu-screen-button--custom {
   background-color: var(--color-singleplayer-menu-custom);
   /* background-image: url("../assets/images/standardsingleplayerbuttonbackground.png"); */
   background-position: 0 70%;
+  width: 45%;
 }
 
 #singleplayer-menu-screen-button--back {
   background-color: var(--color-neutral);
   background-position: 0 70%;
+  height: 10%;
 }
 
 .singleplayer-menu-screen-button:hover {
@@ -902,6 +925,11 @@ code {
   background-color: var(--color-neutral);
   color: var(--color-text-light);
   border: 1px solid var(--color-text-light);
+  opacity: 0.5;
+}
+
+#main-content__user-menu-small-display:hover {
+  opacity: 1;
 }
 
 #main-content__user-menu-container {
