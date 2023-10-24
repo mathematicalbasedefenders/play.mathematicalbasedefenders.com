@@ -385,16 +385,17 @@ code {
   display: grid;
   flex-direction: column;
   align-items: center;
-  grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
-  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end row3-start] 40px [row3-end];
+  grid-template-columns: [column1-start] 5% [column1-end column2-start] 45% [column2-end column3-start] 45% [column3-end column4-start] 5% [column4-end];
+  grid-template-rows: [row1-start] 10% [row1-end row2-start] 80% [row2-end row3-start] 10% [row3-end];
 }
 
 #main-content__multiplayer-menu-screen-button-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  grid-column: column2-start / column2-end;
+  grid-column: column3-start / column3-end;
   grid-row: row2-start / row2-end;
+  height: 100%;
 }
 
 .multiplayer-menu-screen-button {
@@ -429,16 +430,19 @@ code {
 #multiplayer-menu-screen-button--default {
   background-color: var(--color-multiplayer-menu-default);
   background-position: 0 70%;
+  height: 60%;
 }
 
 #multiplayer-menu-screen-button--custom {
   background-color: var(--color-multiplayer-menu-custom);
   background-position: 0 70%;
+  height: 30%;
 }
 
 #multiplayer-menu-screen-button--back {
   background-color: var(--color-neutral);
   background-position: 0 70%;
+  height: 10%;
 }
 
 .multiplayer-menu-screen-button:hover {
