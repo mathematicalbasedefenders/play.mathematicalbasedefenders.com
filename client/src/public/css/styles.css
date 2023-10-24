@@ -37,6 +37,7 @@ body {
   --transition-duration-short: 250ms;
 }
 
+/* GLOBAL */
 #main-content-container {
   width: 100vw;
   height: 100vh;
@@ -88,6 +89,16 @@ code {
   background-color: rgb(255, 255, 255, 0.75);
   color: var(--color-text-dark);
   border-left: 1px solid #ffffff;
+}
+
+.button__strikethrough-bar {
+  rotate: 330deg;
+  background-color: #ff0000;
+  color: var(--color-text-light);
+  font-size: 24px;
+  font-family: "Computer Modern Unicode Serif";
+  width: 750px;
+  padding: 16px;
 }
 
 /* MAIN MENU SCREEN */
