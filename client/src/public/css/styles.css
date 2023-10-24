@@ -183,7 +183,7 @@ code {
 #main-menu-screen-button--singleplayer {
   background-color: var(--color-singleplayer);
   background-image: url("../assets/images/singleplayerbuttonbackground.png");
-  background-position: 0 70%;
+  background-position: 0 130%;
 }
 
 #main-menu-screen-button--multiplayer {
