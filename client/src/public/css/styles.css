@@ -868,7 +868,7 @@ code {
 }
 
 .popup-notification {
-  width: 40%;
+  width: min(720px, 80%);
   height: fit-content;
   background-color: var(--color-neutral);
   color: var(--color-text-light);
