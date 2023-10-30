@@ -308,6 +308,13 @@ function changeSettingsSecondaryScreen(newScreen: string) {
   $(`#settings-screen__content--${newScreen}`).show(0);
 }
 
+function changeCustomSingleplayerSecondaryScreen(newScreen: string) {
+  for (let screen of ["global", "enemies", "base"]) {
+    $(`#custom-singleplayer-intermission-screen__content--${screen}`).hide(0);
+  }
+  $(`#custom-singleplayer-intermission-screen__content--${newScreen}`).show(0);
+}
+
 function createCustomSingleplayerGameObject() {
   // TODO: funny hack lol, make cleaner
   let bp = "#custom-singleplayer-game__";
@@ -331,5 +338,6 @@ export {
   redrawStage,
   changeScreen,
   changeSettingsSecondaryScreen,
-  createCustomSingleplayerGameObject
+  createCustomSingleplayerGameObject,
+  changeCustomSingleplayerSecondaryScreen
 };
