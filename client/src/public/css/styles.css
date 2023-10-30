@@ -64,10 +64,6 @@ code {
   font-family: "JetBrains Mono", monospace;
 }
 
-label {
-  margin: 4px 0;
-}
-
 .option-button--small {
   color: var(--color-text-light);
   font-size: 32px;
@@ -342,7 +338,7 @@ label {
   transform: scale(1.05);
 }
 
-/* SINGLEPLAYER INTERMISSION SCREEN */
+/* (CUSTOM) SINGLEPLAYER INTERMISSION SCREEN */
 #main-content__custom-singleplayer-intermission-screen-container {
   display: grid;
   grid-template-columns: [column1-start] 80px [column1-end column2-start] 120px [column2-end column3-start] auto [column3-end column4-start] 80px [column4-end];
@@ -357,9 +353,14 @@ label {
   grid-row: row2-start / row2-end;
 }
 
+#main-content__custom-singleplayer-intermission-screen-container__sidebar.option-button--left-bordered {
+  width: 100%;
+}
+
 #main-content__custom-singleplayer-intermission-screen-container__content {
   grid-column: column3-start / column3-end;
   grid-row: row2-start / row2-end;
+  margin-left: 48px;
 }
 
 .custom-singleplayer__content-fieldset {
@@ -368,12 +369,30 @@ label {
   background-color: var(--color-neutral);
   font-size: 24px;
 }
+
+.custom-singleplayer__content-fieldset label,
+.custom-singleplayer__content-fieldset input {
+  margin: 4px 0;
+}
+
 .custom-singleplayer__content-input--text {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 24px;
   font-family: "Computer Modern Unicode Serif";
+}
+.custom-singleplayer__content-input--button {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 28px;
+  font-family: "Computer Modern Unicode Serif";
+  transition-duration: var(--transition-duration-short);
+}
+.custom-singleplayer__content-input--button:hover {
+  filter: brightness(1.05);
+  transform: scale(1.05);
 }
 
 #main-content__custom-singleplayer-intermission-screen-container__options-container {
@@ -735,6 +754,11 @@ label {
   border: 1px solid #ffffff;
   background-color: var(--color-neutral);
   font-size: 24px;
+}
+
+.settings-screen__content-fieldset label,
+.settings-screen__content-fieldset input {
+  margin: 4px 0;
 }
 
 .settings-screen__content-input--text {
