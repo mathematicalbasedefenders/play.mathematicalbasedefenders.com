@@ -349,25 +349,37 @@ label {
   grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
   height: 100%;
   width: 100%;
+  background-color: #000000;
 }
 
-#main-content__custom-singleplayer-intermission-screen-container__left {
-  grid-row: column1-start / column1-end;
+#main-content__custom-singleplayer-intermission-screen-container__sidebar {
+  grid-column: column2-start / column2-end;
+  grid-row: row2-start / row2-end;
 }
 
-#main-content__custom-singleplayer-intermission-screen-container__center {
-  grid-row: column2-start / column2-end;
+#main-content__custom-singleplayer-intermission-screen-container__content {
+  grid-column: column3-start / column3-end;
+  grid-row: row2-start / row2-end;
 }
 
-#main-content__custom-singleplayer-intermission-screen-container__right {
-  grid-row: column3-start / column3-end;
-  display: contents;
-  text-align: right;
+.custom-singleplayer__content-fieldset {
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  background-color: var(--color-neutral);
+  font-size: 24px;
+}
+.custom-singleplayer__content-input--text {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 24px;
+  font-family: "Computer Modern Unicode Serif";
 }
 
 #main-content__custom-singleplayer-intermission-screen-container__options-container {
   width: 100%;
   height: 100vh;
+  color: var(--color-neutral);
 }
 #main-content__custom-singleplayer-intermission-screen-container__options {
   font-size: 24px;
@@ -389,6 +401,12 @@ label {
   height: 90%;
   background-color: var(--color-neutral);
   color: var(--color-text-light);
+}
+
+#main-content__custom-singleplayer-intermission-screen-container__left
+  .option-button--left-bordered {
+  margin-left: 80px;
+  margin-top: 40px;
 }
 
 /* MULTIPLAYER MENU */
