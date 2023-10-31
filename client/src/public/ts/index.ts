@@ -4,6 +4,7 @@ import { socket, sendSocketMessage } from "./socket";
 import { initializeKeypressEventListener } from "./input";
 import * as AS from "adaptive-scale/lib-esm";
 import {
+  changeCustomSingleplayerSecondaryScreen,
   changeScreen,
   changeSettingsSecondaryScreen,
   createCustomSingleplayerGameObject,
@@ -276,6 +277,7 @@ function initializeEventListeners() {
   $("#settings-screen__sidebar-item--video").on("click", () => {
     changeSettingsSecondaryScreen("video");
   });
+  //
   $("#settings__enemy-color__forced-color-picker").on("input", () => {
     let value = $("#settings__enemy-color__forced-color-picker")
       .val()
@@ -283,20 +285,27 @@ function initializeEventListeners() {
     $("#settings__enemy-color__forced-color").text(value || "#ff0000");
   });
   //
+  $("#custom-singleplayer-intermission-screen-container__global-button").on(
+    "click",
+    () => {
+      changeCustomSingleplayerSecondaryScreen("global");
+    }
+  );
+  $("#custom-singleplayer-intermission-screen-container__enemies-button").on(
+    "click",
+    () => {
+      changeCustomSingleplayerSecondaryScreen("enemies");
+    }
+  );
+  $("#custom-singleplayer-intermission-screen-container__base-button").on(
+    "click",
+    () => {
+      changeCustomSingleplayerSecondaryScreen("base");
+    }
+  );
+  //
   $("#settings-screen__content--online__submit").on("click", async (event) => {
     // FIXME: possibly unsafe
-    // sendSocketMessage({
-    //   message: "authenticate",
-    //   username: $("#settings-screen__content--online__username")
-    //     .val()
-    //     ?.toString() as string,
-    //   password: $("#settings-screen__content--online__password")
-    //     .val()
-    //     ?.toString() as string,
-    //   socketID: $("#settings-screen__content--online__socket-id")
-    //     .val()
-    //     ?.toString() as string
-    // });
     const url = `${location.protocol}//${location.hostname}:4000/authenticate`;
     const result = await fetch(url, {
       method: "POST",
@@ -418,6 +427,7 @@ initializeKeypressEventListener();
 $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
 $("#main-content__popup-notification-container").hide(0);
+changeCustomSingleplayerSecondaryScreen("");
 $("#on-screen-keyboard-container").hide(0);
 $("#settings-screen__content--online__login-form").on("submit", (event) => {
   event?.preventDefault();
