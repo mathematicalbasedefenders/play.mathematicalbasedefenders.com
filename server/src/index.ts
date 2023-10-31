@@ -35,7 +35,7 @@ const helmet = require("helmet");
 import rateLimit from "express-rate-limit";
 import { attemptToSendChatMessage } from "./core/chat";
 import { validateCustomGameSettings } from "./core/utilities";
-import { synchronizeDataWithSocket } from "./universal";
+import { synchronizeGameDataWithSocket } from "./universal";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -256,7 +256,7 @@ uWS
         // game input
         case "keypress": {
           input.processKeypress(socket, parsedMessage.keypress);
-          synchronizeDataWithSocket(socket);
+          synchronizeGameDataWithSocket(socket);
           break;
         }
         case "emulateKeypress": {
@@ -315,7 +315,7 @@ function update(deltaTime: number) {
   }
 
   // DATA IS SENT HERE. <---
-  synchronizeDataWithSockets(deltaTime);
+  synchronizeGameDataWithSockets(deltaTime);
 
   // delete rooms with zero players
   // additionally, delete rooms which are empty JSON objects.
@@ -341,14 +341,15 @@ function update(deltaTime: number) {
 }
 
 // TODO: Move these functions somewhere else.
-function synchronizeDataWithSockets(deltaTime: number) {
+function synchronizeGameDataWithSockets(deltaTime: number) {
   sendDataDeltaTime += deltaTime;
   if (sendDataDeltaTime < SYNCHRONIZATION_INTERVAL) {
     return;
   }
   sendDataDeltaTime -= SYNCHRONIZATION_INTERVAL;
   for (let socket of universal.sockets) {
-    synchronizeDataWithSocket(socket);
+    synchronizeGameDataWithSocket(socket);
+    universal.synchronizeMetadataWithSocket(socket, deltaTime);
   }
 }
 

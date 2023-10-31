@@ -3,6 +3,7 @@ import {
   updateUserInformationText,
   variables
 } from "./index";
+import { updateStatusTrayText } from "./status-tray";
 import { changeScreen, renderGameData } from "./game";
 import { ToastNotification } from "./notifications";
 const socket: WebSocket = new WebSocket(
@@ -65,8 +66,12 @@ socket.addEventListener("message", (event: any) => {
       break;
     }
     case "updateUserInformationText": {
-      console.log(message.data);
       updateUserInformationText(message.data);
+      break;
+    }
+    case "updateServerMetadata": {
+      // currently only one
+      updateStatusTrayText(message.data);
       break;
     }
   }

@@ -29,6 +29,7 @@ const SUBTRACTION_SIGN_KEYS = ["Minus", "NumpadSubtract"];
 // events
 function initializeKeypressEventListener() {
   window.addEventListener("keydown", (event) => {
+    // main client-side events start
     sendSocketMessage({
       message: "keypress",
       keypress: event.code
@@ -50,6 +51,12 @@ function initializeKeypressEventListener() {
       const newLength = variables.currentGameClientSide.currentInput.length - 1;
       variables.currentGameClientSide.currentInput =
         variables.currentGameClientSide.currentInput.substring(0, newLength);
+    }
+    // main client-side events end
+    // other client-side events start
+    if (event.code === "Tab") {
+      event.preventDefault();
+      $("#status-tray-container").toggle(0);
     }
   });
 }
