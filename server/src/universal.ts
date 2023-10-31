@@ -5,7 +5,7 @@ import {
   getOpponentsInformation,
   Room
 } from "./game/Room";
-import { SingleplayerGameData } from "./game/GameData";
+import { GameData, SingleplayerGameData } from "./game/GameData";
 import _ from "lodash";
 import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
 
@@ -86,7 +86,7 @@ function getNameFromConnectionID(id: string): string | undefined {
  * @param {string} id The ID of the socket to find the game data of.
  * @returns The `GameData` if such ID exists, `null` otherwise.
  */
-function getGameDataFromConnectionID(id: string): SingleplayerGameData | null {
+function getGameDataFromConnectionID(id: string): GameData | null {
   for (let room of rooms) {
     if (room) {
       for (let data of room.gameData) {
