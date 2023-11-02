@@ -140,6 +140,16 @@ const stageItems: stageItemsContainer = {
       fontFamily: "Computer Modern Unicode Serif",
       fontSize: 20,
       fill: "#ffffff"
+    }),
+    levelText: new ExtendedText("Level", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 28,
+      fill: "#ffffff"
+    }),
+    levelDetailsText: new ExtendedText("Level", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 20,
+      fill: "#ffffff"
     })
   }
 };
@@ -178,6 +188,13 @@ function setContainerItemProperties() {
   stageItems.textSprites.nameText.text = "";
   stageItems.textSprites.nameText.position.set(964, 983);
   stageItems.textSprites.nameText.anchor.set(0.5, 0.5);
+  //
+  stageItems.textSprites.levelText.text = "Level 1";
+  stageItems.textSprites.levelText.position.set(1294, 615);
+  //
+  stageItems.textSprites.levelDetailsText.text =
+    "+♥: ?/s, ↓: ×1.00, ■: 5% every 1000ms";
+  stageItems.textSprites.levelDetailsText.position.set(1294, 645);
 }
 
 setContainerItemProperties();

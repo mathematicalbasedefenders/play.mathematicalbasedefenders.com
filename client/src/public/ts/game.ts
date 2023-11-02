@@ -164,7 +164,7 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   // text
-  stageItems.textSprites.baseHealthText.text = `♡ ${data.baseHealth}`;
+  stageItems.textSprites.baseHealthText.text = `♥ ${data.baseHealth}`;
   stageItems.textSprites.nameText.text = data.ownerName;
   // text: multiplayer
   if (typeof data.receivedEnemiesStock === "number") {
@@ -201,7 +201,20 @@ function renderGameData(data: { [key: string]: any }) {
   stageItems.textSprites.scoreText.text = data.score;
   // }
 
-  // multiplayer
+  // level
+  stageItems.textSprites.levelText.text = `Level ${
+    data.level
+  }, Score: ×${Math.max(1, 1 + 0.1 * (data.level - 1)).toFixed(3)}, To next: ${
+    data.enemiesToNextLevel
+  }`;
+  // level details
+  stageItems.textSprites.levelDetailsText.text = `+♥: ${data.baseHealthRegeneration.toFixed(
+    3
+  )}/s, ■↓: ×${data.enemySpeedCoefficient}, +■: ${(
+    data.enemySpawnThreshold * 100
+  ).toFixed(3)}% every ${data.clocks.enemySpawn.actionTime.toFixed(3)}ms`;
+
+  // multiplayer intermission
   if (data.mode.indexOf("Multiplayer") > -1) {
     if (data.aborted) {
       changeScreen("mainMenu");
