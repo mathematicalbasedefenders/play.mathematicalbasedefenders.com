@@ -411,6 +411,16 @@ class SingleplayerRoom extends Room {
         data.enemiesSpawned++;
         data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
       }
+      // base health regeneration
+      if (
+        data.clocks.regenerateBaseHealth.currentTime >=
+        data.clocks.regenerateBaseHealth.actionTime
+      ) {
+        data.baseHealth = Math.min(
+          data.baseHealth + data.baseHealthRegeneration,
+          data.maximumBaseHealth
+        );
+      }
     }
   }
 
