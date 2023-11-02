@@ -36,7 +36,9 @@ function render(elapsedMilliseconds: number) {
       variables.currentGameClientSide.totalElapsedMilliseconds
     );
     // base health
-    stageItems.textSprites.baseHealthText.text = `♥️ ${variables.currentGameClientSide.baseHealth}`;
+    stageItems.textSprites.baseHealthText.text = `♥️ ${variables.currentGameClientSide.baseHealth.toFixed(
+      3
+    )}`;
     // enemies killed (per second)
     stageItems.textSprites.enemiesText.text = `Enemy Kills: ${
       variables.currentGameClientSide.enemiesKilled
