@@ -424,7 +424,7 @@ class SingleplayerRoom extends Room {
         data.baseHealth = Math.min(
           data.baseHealth + data.baseHealthRegeneration,
           data.maximumBaseHealth
-        ).toFixed(3);
+        );
         data.clocks.regenerateBaseHealth.currentTime -=
           data.clocks.regenerateBaseHealth.actionTime;
       }
