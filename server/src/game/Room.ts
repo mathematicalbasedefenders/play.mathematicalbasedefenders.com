@@ -412,14 +412,21 @@ class SingleplayerRoom extends Room {
         data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
       }
       // base health regeneration
+      /* 
+      TODO: This function may give players a second chance
+      when their base health is <= 0
+      */
       if (
         data.clocks.regenerateBaseHealth.currentTime >=
-        data.clocks.regenerateBaseHealth.actionTime
+          data.clocks.regenerateBaseHealth.actionTime &&
+        data.baseHealth > 0
       ) {
         data.baseHealth = Math.min(
           data.baseHealth + data.baseHealthRegeneration,
           data.maximumBaseHealth
         );
+        data.clocks.regenerateBaseHealth.currentTime -=
+          data.clocks.regenerateBaseHealth.actionTime;
       }
     }
   }
