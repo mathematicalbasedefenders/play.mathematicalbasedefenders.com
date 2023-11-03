@@ -41,6 +41,12 @@ const SETTINGS_KEYS = [
     htmlName: "settings__sound",
     defaultValue: "on",
     settingsType: SettingsType.Radio
+  },
+  {
+    storageStringKey: "displayLevel",
+    htmlName: "settings__level-display",
+    defaultValue: "high",
+    SettingsType: SettingsType.Radio
   }
 ];
 

@@ -201,18 +201,35 @@ function renderGameData(data: { [key: string]: any }) {
   stageItems.textSprites.scoreText.text = data.score;
   // }
 
-  // level
-  stageItems.textSprites.levelText.text = `Level ${
-    data.level
-  }, Score: ×${Math.max(1, 1 + 0.1 * (data.level - 1)).toFixed(3)}, To next: ${
-    data.enemiesToNextLevel
-  }`;
-  // level details
-  stageItems.textSprites.levelDetailsText.text = `+♥: ${data.baseHealthRegeneration.toFixed(
-    3
-  )}/s, ■↓: ×${data.enemySpeedCoefficient}, +■: ${(
-    data.enemySpawnThreshold * 100
-  ).toFixed(3)}% every ${data.clocks.enemySpawn.actionTime.toFixed(3)}ms`;
+  // level (low)
+  switch (variables.settings.displayLevel) {
+    case "low": {
+      stageItems.textSprites.levelText.text = `Level ${data.level}`;
+      stageItems.textSprites.levelDetailsText.text = "";
+      break;
+    }
+    case "medium": {
+      const lm1 = data.level - 1;
+      const scoreMultiplier = Math.max(1, 1 + 0.1 * lm1).toFixed(3);
+      const toNext = data.enemiesToNextLevel;
+      stageItems.textSprites.levelText.text = `Level ${data.level}: Score ×${scoreMultiplier}, To Next: ${toNext}`;
+      stageItems.textSprites.levelDetailsText.text = "";
+      break;
+    }
+    case "high":
+    default: {
+      const lm1 = data.level - 1;
+      const scoreMultiplier = Math.max(1, 1 + 0.1 * lm1).toFixed(3);
+      const toNext = data.enemiesToNextLevel;
+      const baseHeal = data.baseHealthRegeneration.toFixed(3);
+      const enemySpeed = data.enemySpeedCoefficient.toFixed(3);
+      const enemyChance = (data.enemySpawnThreshold * 100).toFixed(3);
+      const enemyTime = data.clocks.enemySpawn.actionTime.toFixed(3);
+      stageItems.textSprites.levelText.text = `Level ${data.level}: Score ×${scoreMultiplier}, To Next: ${toNext}`;
+      stageItems.textSprites.levelDetailsText.text = `+♥: ${baseHeal}/s, ■↓: ×${enemySpeed}, +■: ${enemyChance}% every ${enemyTime}ms`;
+      break;
+    }
+  }
 
   // multiplayer intermission
   if (data.mode.indexOf("Multiplayer") > -1) {
