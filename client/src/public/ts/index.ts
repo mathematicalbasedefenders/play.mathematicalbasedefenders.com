@@ -77,7 +77,8 @@ const variables: { [key: string]: any } = {
     enemiesKilled: 0,
     comboTime: 0,
     currentCombo: 0,
-    timeSinceLastEnemyKill: 60 * 1000 + 1
+    timeSinceLastEnemyKill: 60 * 1000 + 1,
+    level: 0
   }
 };
 
