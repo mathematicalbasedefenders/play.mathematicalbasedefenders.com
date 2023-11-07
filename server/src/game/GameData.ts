@@ -155,6 +155,15 @@ class SingleplayerGameData extends GameData {
       this.clocks.enemySpawn.actionTime *= 0.9875;
       switch (this.mode) {
         case GameMode.EasySingleplayer: {
+          // faster enemies
+          this.enemySpeedCoefficient += 0.025;
+          // lower base health regeneration
+          if (this.baseHealthRegeneration >= 0.2) {
+            this.baseHealthRegeneration -= 0.05;
+          }
+          if (this.baseHealthRegeneration < 0.2) {
+            this.baseHealthRegeneration = 0.2;
+          }
           break;
         }
         case GameMode.StandardSingleplayer: {
