@@ -73,6 +73,7 @@ code {
   font-family: "Computer Modern Unicode Serif";
   transition-duration: var(--transition-duration-short);
   border-top: none;
+  width: 100%;
 }
 
 .option-button--left-bordered {
