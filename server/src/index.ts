@@ -506,6 +506,10 @@ async function attemptAuthentication(
       }
     })
   );
+  // Also add missing keys
+  if (socket.ownerUserID) {
+    User.addMissingKeys(socket.ownerUserID);
+  }
   return;
 }
 

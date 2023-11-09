@@ -1,4 +1,6 @@
 import mongoose, { HydratedDocument, ObjectId } from "mongoose";
+import _ from "lodash";
+import { log } from "../core/log";
 interface UserInterface {
   _id: ObjectId;
   username: string;
@@ -50,12 +52,14 @@ interface UserModel extends mongoose.Model<UserInterface> {
     username: string
   ): Promise<HydratedDocument<UserInterface>>;
   safeFindByUserID(userID: string): Promise<HydratedDocument<UserInterface>>;
+  safeLeanedFindByUserID(userID: string): Promise<object>;
   getAllEasySingleplayerBestScores(): Promise<Array<object>>;
   getAllStandardSingleplayerBestScores(): Promise<Array<object>>;
   addMultiplayerGamesWonToUserID(id: string, amount: number): void;
   addMultiplayerGamesPlayedToUserID(id: string, amount: number): void;
   addGamesPlayedToUserID(id: string, amount: number): void;
   giveExperiencePointsToUserID(id: string, amount: number): void;
+  addMissingKeys(id: string): void;
 }
 
 const UserSchema = new mongoose.Schema<UserInterface, UserModel>({
@@ -126,6 +130,16 @@ UserSchema.static("safeFindByUserID", async function (userID: string) {
       hashedPassword: 0
     })
     .clone();
+});
+
+UserSchema.static("safeLeanedFindByUserID", async function (userID: string) {
+  return this.findOne({ _id: userID })
+    .select({
+      emailAddress: 0,
+      hashedPassword: 0
+    })
+    .clone()
+    .lean(true);
 });
 
 // Leaderboards
@@ -203,6 +217,30 @@ UserSchema.static(
     playerData.save();
   }
 );
+
+UserSchema.static("addMissingKeys", async function (id: string) {
+  let playerData = await User.safeFindByUserID(id);
+  let playerDataKeys: any = _.cloneDeep(await User.safeLeanedFindByUserID(id));
+  let keysAdded = 0;
+  const properties = Object.keys(UserSchema.paths);
+  for (const property of properties) {
+    // debug
+    // add everything that aren't personal bests
+    const statKey = property.startsWith("statistics");
+    const nonPBKey = !(property.indexOf("personalBest") > -1);
+    if (
+      statKey &&
+      nonPBKey &&
+      (_.get(playerDataKeys, property) === null ||
+        _.get(playerDataKeys, property) === undefined)
+    ) {
+      keysAdded++;
+      await User.updateOne({ _id: id }, { [property]: 0 });
+    }
+  }
+  playerData.save();
+  log.info(`Added ${keysAdded} keys to User ID ${id}.`);
+});
 
 const User = mongoose.model<UserInterface, UserModel>(
   "User",
