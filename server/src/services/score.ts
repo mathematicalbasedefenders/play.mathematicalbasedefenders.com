@@ -67,7 +67,8 @@ async function submitSingleplayerGame(
       if (
         // FIXME: WTF???
         data.score >
-        statistics.statistics.personalBestScoreOnEasySingleplayerMode.score
+        (statistics.statistics.personalBestScoreOnEasySingleplayerMode.score ||
+          -1)
       ) {
         await updatePersonalBest(ownerSocket, data);
         log.info(
@@ -81,7 +82,8 @@ async function submitSingleplayerGame(
     case GameMode.StandardSingleplayer: {
       if (
         data.score >
-        statistics.statistics.personalBestScoreOnStandardSingleplayerMode.score
+        (statistics.statistics.personalBestScoreOnStandardSingleplayerMode
+          .score || -1)
       ) {
         await updatePersonalBest(ownerSocket, data);
         log.info(
