@@ -3,12 +3,9 @@ import { getScoresOfAllPlayers } from "./leaderboards";
 import { GameData, GameMode } from "../game/GameData";
 import { User } from "../models/User";
 import { updateSocketUserInformation } from "../core/utilities";
-import * as universal from "../universal";
+import { GameSocket, STATUS } from "../universal";
 // TODO: make this DRY
-async function submitSingleplayerGame(
-  data: GameData,
-  ownerSocket: universal.GameSocket
-) {
+async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
   let wordedGameMode: string = "";
   let dataKey: string = "";
   // TODO: Make this JSON for more options in the future.
@@ -26,146 +23,137 @@ async function submitSingleplayerGame(
     }
     default: {
       // unknown mode - ignore score
-      log.info(
-        `A score on ${data.mode} mode has been submitted, which is not easy or standard, therefore ignoring.`
-      );
+      log.info(`Ignoring score submission on ${data.mode} Singleplayer mode.`);
       return;
     }
   }
   // check for database availability.
-  if (!universal.STATUS.databaseAvailable) {
+  if (!STATUS.databaseAvailable) {
     log.warn("Database not available. Ignoring score.");
-    ownerSocket.send(
-      JSON.stringify({
-        message: "changeText",
-        selector: "#main-content__game-over-screen__stats__score-rank",
-        value: "Score not saved. (No database)"
-      })
-    );
+    sendDataToUser(owner, "Score not saved. (No database)");
     return;
   }
-  if (!ownerSocket.loggedIn) {
+  if (!owner.loggedIn) {
     // guest user - ignore score
-    log.info(
-      `A guest user has submitted a score of ${data.score} on a ${wordedGameMode} game.`
-    );
+    log.info(`Ignoring guest score of ${data.score} on ${data.mode} mode`);
     return;
   }
-  // submit score
 
   // announce
   log.info(
-    `User ${ownerSocket.ownerUsername} has submitted a score of ${data.score} on a ${wordedGameMode} game.`
+    `${owner.ownerUsername} submitted a score of ${data.score} on ${wordedGameMode}`
   );
 
   // TODO: This makes like 5 database calls, reduce this to one pls
-  const statistics = await User.safeFindByUserID(
-    ownerSocket.ownerUserID as string
-  );
-  let experiencePointCoefficient = 0;
+  const statistics = await User.safeFindByUserID(owner.ownerUserID as string);
   switch (data.mode) {
     case GameMode.EasySingleplayer: {
-      if (
-        // FIXME: WTF???
-        data.score >
-        statistics.statistics.personalBestScoreOnEasySingleplayerMode.score
-      ) {
-        await updatePersonalBest(ownerSocket, data);
-        log.info(
-          `User ${ownerSocket.ownerUsername} has also achieved a new personal best on Easy Singleplayer with that score.`
-        );
+      const key = "personalBestScoreOnEasySingleplayerMode";
+      if (data.score > statistics.statistics[key].score) {
+        await updatePersonalBest(owner, data);
+        log.info(`New Easy Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
       }
-      experiencePointCoefficient = 0.3;
       break;
     }
     case GameMode.StandardSingleplayer: {
-      if (
-        data.score >
-        statistics.statistics.personalBestScoreOnStandardSingleplayerMode.score
-      ) {
-        await updatePersonalBest(ownerSocket, data);
-        log.info(
-          `User ${ownerSocket.ownerUsername} has also achieved a new personal best on Standard Singleplayer with that score.`
-        );
+      const key = "personalBestScoreOnStandardSingleplayerMode";
+      if (data.score > statistics.statistics[key].score) {
+        await updatePersonalBest(owner, data);
+        log.info(`New Standard Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
       }
-      experiencePointCoefficient = 1;
       break;
     }
   }
-  // give experience points
 
+  // give statistics
   // guest users already ignored - no need to actually check for data
-  let earned = Math.round(experiencePointCoefficient * (data.score / 100));
-  User.giveExperiencePointsToUserID(ownerSocket.ownerUserID as string, earned);
-  User.addGamesPlayedToUserID(ownerSocket.ownerUserID as string, 1);
-
-  // TODO: Leaderboards
-  let playerRecords = await getScoresOfAllPlayers(data.mode);
-  let globalRank = playerRecords.findIndex(
-    (element) => element._id.toString() === ownerSocket.ownerUserID
-  );
-
-  if (globalRank > -1) {
-    rankMessage += `Global Rank #${globalRank + 1}`;
-    log.info(
-      `User ${ownerSocket.ownerUsername} has also placed #${
-        globalRank + 1
-      } on the ${wordedGameMode} with that score.`
-    );
+  await addToStatistics(owner, data);
+  // announce leaderboard rank
+  const rank = await getLeaderboardsRank(owner, data);
+  if (rank > -1) {
+    rankMessage += `Global Rank #${rank}`;
   }
-  ownerSocket.send(
-    JSON.stringify({
-      message: "changeText",
-      selector: "#main-content__game-over-screen__stats__score-rank",
-      value: rankMessage
-    })
-  );
-
   // update data on screen
-  updateSocketUserInformation(ownerSocket);
+  await updateSocketUserInformation(owner);
+  // send data to user
+  await sendDataToUser(owner, rankMessage);
 }
 
-async function updatePersonalBest(
-  owner: universal.GameSocket | string,
-  newData: GameData
-) {
-  if (typeof owner === "string") {
-    // TODO: change to socket
-    return;
+/**
+ * Gives EXP and GamesPlayed according to Score to the owner of the GameData.
+ * @param {GameSocket} owner The socket of the GameData's owner.
+ * @param {GameData} data The GameData of which the score was submitted.
+ */
+async function addToStatistics(owner: GameSocket, data: GameData) {
+  const expCoefficient = data.mode === GameMode.EasySingleplayer ? 0.3 : 1;
+  const earned = Math.round(expCoefficient * (data.score / 100));
+  User.giveExperiencePointsToUserID(owner.ownerUserID as string, earned);
+  User.addGamesPlayedToUserID(owner.ownerUserID as string, 1);
+}
+
+/**
+ * Announces the owner's rank on the leaderboards to the owner of the score and the logs.
+ * Leaderboard ranks are announced if the player made top 100, regardless if the score was a new PB.
+ * @param {GameSocket} owner The socket of the GameData's owner.
+ * @param {GameData} data The GameData of which the new personal best was acquired.
+ * @returns -1 if not in Top 100 of game mode, rank number otherwise.
+ */
+async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
+  const records = await getScoresOfAllPlayers(data.mode);
+  const globalRank = records.findIndex((r) => r._id === owner.ownerUserID);
+  if (globalRank > -1) {
+    log.info(`${owner.ownerUsername} got #${globalRank + 1} on ${data.mode}.`);
   }
+  return globalRank + 1;
+}
+
+/**
+ * Updates the personal best of a registered user.
+ * Note that this does not check if the score is actually higher than the previous score.
+ * There should be an if statement to check if it's okay to update the score.
+ * @param {GameSocket} owner The socket of the GameData's owner.
+ * @param {GameData} newData The GameData of which the new personal best was acquired.
+ */
+async function updatePersonalBest(owner: GameSocket, newData: GameData) {
   let playerData = await User.safeFindByUserID(owner.ownerUserID as string);
   switch (newData.mode) {
     case GameMode.EasySingleplayer: {
-      playerData.statistics.personalBestScoreOnEasySingleplayerMode.score =
-        newData.score;
-      playerData.statistics.personalBestScoreOnEasySingleplayerMode.timeInMilliseconds =
-        newData.elapsedTime;
-      playerData.statistics.personalBestScoreOnEasySingleplayerMode.scoreSubmissionDateAndTime =
-        new Date();
-      playerData.statistics.personalBestScoreOnEasySingleplayerMode.enemiesCreated =
-        newData.enemiesSpawned;
-      playerData.statistics.personalBestScoreOnEasySingleplayerMode.enemiesKilled =
-        newData.enemiesKilled;
+      const key = "personalBestScoreOnEasySingleplayerMode";
+      playerData.statistics[key].score = newData.score;
+      playerData.statistics[key].timeInMilliseconds = newData.elapsedTime;
+      playerData.statistics[key].scoreSubmissionDateAndTime = new Date();
+      playerData.statistics[key].enemiesCreated = newData.enemiesSpawned;
+      playerData.statistics[key].enemiesKilled = newData.enemiesKilled;
       break;
     }
     case GameMode.StandardSingleplayer: {
-      playerData.statistics.personalBestScoreOnStandardSingleplayerMode.score =
-        newData.score;
-      playerData.statistics.personalBestScoreOnStandardSingleplayerMode.timeInMilliseconds =
-        newData.elapsedTime;
-      playerData.statistics.personalBestScoreOnStandardSingleplayerMode.scoreSubmissionDateAndTime =
-        new Date();
-      playerData.statistics.personalBestScoreOnStandardSingleplayerMode.enemiesCreated =
-        newData.enemiesSpawned;
-      playerData.statistics.personalBestScoreOnStandardSingleplayerMode.enemiesKilled =
-        newData.enemiesKilled;
-
+      const key = "personalBestScoreOnStandardSingleplayerMode";
+      playerData.statistics[key].score = newData.score;
+      playerData.statistics[key].timeInMilliseconds = newData.elapsedTime;
+      playerData.statistics[key].scoreSubmissionDateAndTime = new Date();
+      playerData.statistics[key].enemiesCreated = newData.enemiesSpawned;
+      playerData.statistics[key].enemiesKilled = newData.enemiesKilled;
       break;
     }
   }
   await playerData.save();
+}
+
+/**
+ * Sends a message containing leaderboard rank info to the owner's socket.
+ * @param {GameSocket} owner The socket to send the message to.
+ * @param {string} message The message to send to the user.
+ */
+async function sendDataToUser(owner: GameSocket, message: string) {
+  owner.send(
+    JSON.stringify({
+      message: "changeText",
+      selector: "#main-content__game-over-screen__stats__score-rank",
+      value: message
+    })
+  );
 }
 
 export { submitSingleplayerGame };
