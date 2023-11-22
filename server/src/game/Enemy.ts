@@ -6,12 +6,17 @@ import {
   MultiplayerGameData
 } from "./GameData";
 
-enum EnemyType {
-  NORMAL
-}
-
 const MINIMUM_GENERABLE_NUMBER = -100;
 const POSSIBLE_FACTORS = [2, 3, 4, 5, 6, 8, 9, 10, 11];
+
+interface EnemyAttributes {
+  attack?: number;
+  health?: number;
+  color?: number;
+  speed?: number;
+  width?: number;
+  height?: number;
+}
 
 class Enemy {
   attack?: number;
@@ -103,6 +108,13 @@ class Enemy {
     }
     removeEnemyWithIDInGameData(this.id, gameData);
   }
+
+  attackBase(gameData: GameData, damage?: number) {
+    if (typeof damage === "number") {
+      gameData.baseHealth -= damage;
+    }
+    removeEnemyWithIDInGameData(this.id, gameData);
+  }
 }
 
 function removeEnemyWithIDInGameData(id: string, gameData: GameData) {
@@ -113,7 +125,7 @@ function removeEnemyWithIDInGameData(id: string, gameData: GameData) {
   gameData.enemiesToErase.push(id);
 }
 
-function createNew(enemyType: EnemyType, id: string, speed: number) {
+function createNewEnemy(id: string, attributes?: EnemyAttributes) {
   // TODO: Change this algorithm (line below)
   let generatedValue: number = Math.round(Math.random() * 200 - 100);
   let enemy: Enemy = new Enemy(
@@ -121,24 +133,14 @@ function createNew(enemyType: EnemyType, id: string, speed: number) {
     createProblem(generatedValue),
     Math.random(),
     1,
-    speed || 0.1,
+    attributes?.speed || 0.1,
     id
   );
-  switch (enemyType) {
-    case EnemyType.NORMAL: {
-      enemy.attack = 1;
-      enemy.health = 1;
-      // e.g.
-      enemy.color = 0xffffff;
-      // enemy.speed = 0.1;
-      break;
-    }
-  }
   return enemy;
 }
 
-function createNewReceived(id: string, speed: number) {
-  return createNew(EnemyType.NORMAL, id, speed || 0.1);
+function createNewReceivedEnemy(id: string, attributes?: EnemyAttributes) {
+  return createNewEnemy(id, attributes);
 }
 
 function createProblem(result: number) {
@@ -213,4 +215,4 @@ function getFactorsOf(number: number): Array<number> {
   return factors;
 }
 
-export { createNew, createNewReceived, Enemy, EnemyType };
+export { createNewEnemy, createNewReceivedEnemy, Enemy, EnemyAttributes };
