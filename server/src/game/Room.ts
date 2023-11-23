@@ -496,7 +496,7 @@ class MultiplayerRoom extends Room {
             "#main-content__multiplayer-intermission-screen-container__game-status-message";
           if (this.nextGameStartTime) {
             let timeLeft = Date.now() - this.nextGameStartTime.getTime();
-            timeLeft = Math.abs(timeLeft);
+            timeLeft = Math.abs(timeLeft / 1000);
             const value = `Game starting in ${timeLeft.toFixed(3)} seconds.`;
             changeClientSideText(socket, selector, value);
           } else if (this.memberConnectionIDs.length < 2) {
