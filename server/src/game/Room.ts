@@ -21,12 +21,19 @@ import {
   ClockInterface
 } from "./GameData";
 import { updateSingleplayerRoomData } from "./actions/update";
+import {
+  changeClientSideHTML,
+  changeClientSideText
+} from "./actions/send-html";
+import {
+  checkGlobalMultiplayerRoomClocks,
+  checkPlayerMultiplayerRoomClocks
+} from "./actions/clocks";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
-// TODO: Change design
 let defaultMultiplayerRoomID: string | null = null;
 
 interface InputActionInterface {
@@ -376,6 +383,7 @@ class MultiplayerRoom extends Room {
   globalEnemySpawnThreshold: number;
   globalClock: ClockInterface;
   playersAtStart!: number;
+  globalEnemyToAdd!: enemy.Enemy | null;
   constructor(host: universal.GameSocket, mode: GameMode, noHost: boolean) {
     super(host, mode, noHost);
     this.nextGameStartTime = null;
@@ -413,30 +421,21 @@ class MultiplayerRoom extends Room {
     this.lastUpdateTime = now;
 
     // other global stuff
-    let playerListText = utilities.generatePlayerListText(
-      this.memberConnectionIDs
-    );
     for (let connectionID of this.memberConnectionIDs) {
-      let socket = universal.getSocketFromConnectionID(connectionID);
+      const socket = universal.getSocketFromConnectionID(connectionID);
       if (socket) {
-        socket.send(
-          JSON.stringify({
-            message: "changeHTML",
-            selector:
-              "#main-content__multiplayer-intermission-screen-container__game-status-ranking",
-
-            value: utilities.generateRankingText(_.clone(this.ranking))
-          })
+        const rankingSelector =
+          "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
+        const rankingText = utilities.generateRankingText(
+          _.clone(this.ranking)
         );
-        socket.send(
-          JSON.stringify({
-            message: "changeHTML",
-            selector:
-              "#main-content__multiplayer-intermission-screen-container__player-list",
-
-            value: playerListText
-          })
+        const playersSelector =
+          "#main-content__multiplayer-intermission-screen-container__player-list";
+        const playersText = utilities.generatePlayerListText(
+          this.memberConnectionIDs
         );
+        changeClientSideHTML(socket, rankingSelector, rankingText);
+        changeClientSideHTML(socket, playersSelector, playersText);
       }
     }
 
@@ -491,91 +490,38 @@ class MultiplayerRoom extends Room {
       }
       // Update Text
       for (let connectionID of this.memberConnectionIDs) {
-        let socket = universal.getSocketFromConnectionID(connectionID);
+        const socket = universal.getSocketFromConnectionID(connectionID);
         if (socket) {
+          const selector =
+            "#main-content__multiplayer-intermission-screen-container__game-status-message";
           if (this.nextGameStartTime) {
-            let timeLeft = Math.abs(
-              Date.now() - this.nextGameStartTime?.getTime()
-            );
-            socket.send(
-              JSON.stringify({
-                message: "changeText",
-                selector:
-                  "#main-content__multiplayer-intermission-screen-container__game-status-message",
-                value: `Next game starting in ${(timeLeft / 1000).toFixed(
-                  3
-                )} seconds.`
-              })
-            );
+            let timeLeft = Date.now() - this.nextGameStartTime.getTime();
+            timeLeft = Math.abs(timeLeft);
+            const value = `Game starting in ${timeLeft.toFixed(3)} seconds.`;
+            changeClientSideText(socket, selector, value);
           } else if (this.memberConnectionIDs.length < 2) {
-            socket.send(
-              JSON.stringify({
-                message: "changeText",
-                selector:
-                  "#main-content__multiplayer-intermission-screen-container__game-status-message",
-                value: `Waiting for at least 2 players.`
-              })
-            );
+            const value = `Waiting for at least 2 players.`;
+            changeClientSideText(socket, selector, value);
           }
         }
       }
     } else {
       // playing
-      // update text first
-      // Update Text
       for (let connectionID of this.memberConnectionIDs) {
-        let socket = universal.getSocketFromConnectionID(connectionID);
+        const socket = universal.getSocketFromConnectionID(connectionID);
         if (socket) {
-          socket.send(
-            JSON.stringify({
-              message: "changeText",
-              selector:
-                "#main-content__multiplayer-intermission-screen-container__game-status-message",
-              value: `Current game in progress. (Remaining: ${this.gameData.length}/${this.playersAtStart})`
-            })
-          );
-          //
+          const selector =
+            "#main-content__multiplayer-intermission-screen-container__game-status-message";
+          const value = `Current game in progress. (Remaining: ${this.gameData.length}/${this.playersAtStart})`;
+          changeClientSideText(socket, selector, value);
         }
       }
 
-      // all players
       // global - applies to all players
-      let enemyToAdd = null;
-
       // global clocks
       this.globalClock.enemySpawn.currentTime += deltaTime;
       this.globalClock.forcedEnemySpawn.currentTime += deltaTime;
-
-      // Add enemy if forced time up
-      if (
-        this.globalClock.forcedEnemySpawn.currentTime >=
-        this.globalClock.forcedEnemySpawn.actionTime
-      ) {
-        enemyToAdd = generateEnemyWithChance(
-          1,
-          this.updateNumber,
-          0.1 //TODO: custom multiplayer will mess this up
-        );
-        this.globalClock.forcedEnemySpawn.currentTime -=
-          this.globalClock.forcedEnemySpawn.actionTime;
-        // reset time
-        this.globalClock.forcedEnemySpawn.currentTime = 0;
-      }
-
-      // Add enemy if generated.
-      if (
-        this.globalClock.enemySpawn.currentTime >=
-          this.globalClock.enemySpawn.actionTime &&
-        enemyToAdd == null
-      ) {
-        enemyToAdd = generateEnemyWithChance(
-          this.globalEnemySpawnThreshold,
-          this.updateNumber,
-          0.1 //TODO: custom multiplayer will mess this up
-        );
-        this.globalClock.enemySpawn.currentTime -=
-          this.globalClock.enemySpawn.actionTime;
-      }
+      checkGlobalMultiplayerRoomClocks(this);
 
       // specific to each player
       for (let data of this.gameData) {
@@ -611,31 +557,23 @@ class MultiplayerRoom extends Room {
         }
 
         // clocks
-        if (
-          data.clocks.comboReset.currentTime >=
-          data.clocks.comboReset.actionTime
-        ) {
-          data.combo = -1;
-          data.clocks.comboReset.currentTime -=
-            data.clocks.comboReset.actionTime;
-        }
+        checkPlayerMultiplayerRoomClocks(data, this);
 
         // generated enemy
-        if (enemyToAdd) {
-          // reset forced enemy time
-          this.globalClock.forcedEnemySpawn.currentTime = 0;
+        if (this.globalEnemyToAdd) {
           data.enemiesSpawned++;
-          data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
+          data.enemies.push(_.clone(this.globalEnemyToAdd as enemy.Enemy));
         }
 
         // received enemy
         if (data.receivedEnemiesToSpawn > 0) {
           data.receivedEnemiesToSpawn--;
           data.enemiesSpawned++;
+          const attributes = {
+            speed: 0.1 * data.enemySpeedCoefficient
+          };
           data.enemies.push(
-            enemy.createNewReceivedEnemy(`R${data.enemiesSpawned}`, {
-              speed: 0.1 * data.enemySpeedCoefficient
-            })
+            enemy.createNewReceivedEnemy(`R${data.enemiesSpawned}`, attributes)
           );
         }
 
@@ -803,25 +741,6 @@ function generateRoomID(length: number): string {
   return current;
 }
 
-/**
- * Deprecated. Use a separate `if` statement and call `enemy.createNew` instead instead.
- * @param threshold
- * @param updateNumber
- * @param speed
- * @returns
- */
-function generateEnemyWithChance(
-  threshold: number,
-  updateNumber: number,
-  speed: number
-): enemy.Enemy | null {
-  let roll: number = Math.random();
-  if (roll < threshold) {
-    return enemy.createNewEnemy(`G${updateNumber}`);
-  }
-  return null;
-}
-
 function processKeypressForRoom(connectionID: string, code: string) {
   let roomToProcess = utilities.findRoomWithConnectionID(connectionID, false);
   let inputInformation: InputActionInterface = {
@@ -889,20 +808,10 @@ function getOpponentsInformation(
   let opponentGameData = currentRoom.gameData.filter(
     (element) => element.ownerConnectionID !== socket.connectionID
   );
-  // add metadata
-  // ...
-  // minify data
   if (minifyData) {
     let minifiedOpponentGameData = [];
-
     for (let singleGameData of opponentGameData) {
       let minifiedGameData: { [key: string]: any } = {};
-      // let allowedKeys = Object.keys(singleGameData).filter((key) =>
-      //   MINIFIED_GAME_DATA_KEYS.includes(key)
-      // );
-      // for (let key of allowedKeys) {
-      //   minifiedGameData[key] = singleGameData[key];
-      // }
       minifiedGameData.baseHealth = singleGameData.baseHealth;
       minifiedGameData.combo = singleGameData.combo;
       minifiedGameData.currentInput = singleGameData.currentInput;
