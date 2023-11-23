@@ -240,10 +240,6 @@ function validateCustomGameSettings(
 
 function minifySelfGameData(gameData: { [key: string]: any }) {
   // delete unnecessary keys
-  delete gameData.clocks.enemySpawn;
-  delete gameData.clocks.forcedEnemySpawn;
-  delete gameData.enemySpawnThreshold;
-  delete gameData.enemySpeedCoefficient;
   delete gameData.totalEnemiesReceived;
   delete gameData.totalEnemiesSent;
   // minify enemies

@@ -141,7 +141,7 @@ class Enemy {
    * @param {number} combo The current combo.
    * @returns The score to add.
    */
-  calculateScore(coefficient: number, combo: number) {
+  calculateScore(coefficient: number, combo: number, level: number) {
     const base = 100;
     const comboBonus = 0.1;
     const sPositionThreshold = 0.5;
@@ -151,7 +151,10 @@ class Enemy {
       (this.sPosition - sPositionThreshold) * sPositionBonus
     );
     const comboScore = Math.max(1, combo * comboBonus + 1);
-    return Math.round((base + sPositionScore * comboScore) * coefficient);
+    const levelCoefficient = Math.max(1, 1 + 0.1 * (level - 1));
+    return Math.round(
+      (base + sPositionScore * comboScore) * levelCoefficient * coefficient
+    );
   }
 
   /**
@@ -188,7 +191,11 @@ class Enemy {
         variables.currentGameClientSide.currentCombo
       );
     }
-    return this.calculateScore(1, variables.currentGameClientSide.currentCombo);
+    return this.calculateScore(
+      1,
+      variables.currentGameClientSide.currentCombo,
+      variables.currentGameClientSide.level
+    );
   }
 }
 

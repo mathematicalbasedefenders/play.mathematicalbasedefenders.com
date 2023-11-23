@@ -7,6 +7,7 @@ import {
 } from "../game/Room";
 import {
   GameData,
+  GameMode,
   MultiplayerGameData,
   SingleplayerGameData
 } from "../game/GameData";
@@ -163,6 +164,12 @@ function processInputInformation(
           gameDataToProcess.enemiesToErase.push(enemy.id);
           enemyKilled = true;
           gameDataToProcess.enemiesKilled += 1;
+          if (gameDataToProcess instanceof SingleplayerGameData) {
+            gameDataToProcess.enemiesToNextLevel -= 1;
+            if (gameDataToProcess.enemiesToNextLevel <= 0) {
+              gameDataToProcess.increaseLevel(1);
+            }
+          }
           enemy.kill(gameDataToProcess, true, true);
         }
       }

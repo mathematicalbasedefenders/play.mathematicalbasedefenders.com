@@ -54,9 +54,10 @@ class Enemy {
     return this.requestedValue === input;
   }
 
-  calculateScore(coefficient: number, combo: number): number {
+  calculateScore(coefficient: number, combo: number, level: number): number {
     const base = 100;
     const comboBonus = 0.1;
+    const levelBonus = Math.max(1, 1 + 0.1 * (level - 1));
     const sPositionThreshold = 0.5;
     const sPositionBonus = 50;
     const sPositionScore = Math.max(
@@ -64,7 +65,9 @@ class Enemy {
       (this.sPosition - sPositionThreshold) * sPositionBonus
     );
     const comboScore = Math.max(1, combo * comboBonus + 1);
-    return Math.round((base + sPositionScore * comboScore) * coefficient);
+    return Math.round(
+      (base + sPositionScore * comboScore) * levelBonus * coefficient
+    );
   }
 
   calculateSent(coefficient: number, combo: number) {
@@ -93,7 +96,11 @@ class Enemy {
           attack -= 1;
         }
       }
-      gameData.score += this.calculateScore(1, gameData.combo);
+      gameData.score += this.calculateScore(
+        1,
+        gameData.combo,
+        gameData.level || 1
+      );
     }
     if (giveCombo) {
       gameData.combo += 1;

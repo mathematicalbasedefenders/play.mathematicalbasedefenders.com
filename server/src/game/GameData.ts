@@ -47,6 +47,11 @@ class GameData {
   opponentGameData!: Array<GameData>;
   ownerName!: string;
   owner: universal.GameSocket;
+  // ... (0.4.0)
+  level: number;
+  enemiesToNextLevel: number;
+  baseHealthRegeneration: number;
+  maximumBaseHealth: number;
   // ...
   attackScore!: number;
   receivedEnemiesStock!: number;
@@ -72,40 +77,52 @@ class GameData {
     this.totalEnemiesReceived = 0;
     this.enemiesSentStock = 0;
     this.attackScore = 0;
-
+    this.level = 1;
+    this.enemiesToNextLevel = 10;
+    this.baseHealthRegeneration = 2;
+    this.maximumBaseHealth = 100;
+    // per mode
     if (mode === GameMode.EasySingleplayer) {
       this.clocks = {
         enemySpawn: {
           currentTime: 0,
-          actionTime: 250
+          actionTime: 250 // *0.9875 every level
         },
         forcedEnemySpawn: {
           currentTime: 0,
-          actionTime: 7500
+          actionTime: 7500 // always 2500ms before comboReset actionTime
         },
         comboReset: {
           currentTime: 0,
           actionTime: 10000
+        },
+        regenerateBaseHealth: {
+          currentTime: 0,
+          actionTime: 1000
         }
       };
-      this.enemySpeedCoefficient = 0.5;
+      this.enemySpeedCoefficient = 0.5; // no change
       this.enemySpawnThreshold = 0.05;
     } else {
       this.clocks = {
         enemySpawn: {
           currentTime: 0,
-          actionTime: 100
+          actionTime: 100 // *0.9875 every level
         },
         forcedEnemySpawn: {
           currentTime: 0,
-          actionTime: 2500
+          actionTime: 2500 // always 2500ms before comboReset actionTime
         },
         comboReset: {
           currentTime: 0,
           actionTime: 5000
+        },
+        regenerateBaseHealth: {
+          currentTime: 0,
+          actionTime: 1000
         }
       };
-      this.enemySpeedCoefficient = 1;
+      this.enemySpeedCoefficient = 1; // +0.05 every level
       this.enemySpawnThreshold = 0.1;
     }
   }
@@ -126,6 +143,44 @@ class SingleplayerGameData extends GameData {
       return;
     }
     super(owner, gameMode);
+  }
+
+  increaseLevel(amount: number) {
+    if (this.mode === GameMode.CustomSingleplayer) {
+      log.warn("Levels don't exist in Custom Singleplayer.");
+      return;
+    }
+    for (let i = 0; i < amount; i++) {
+      this.level++;
+      this.clocks.enemySpawn.actionTime *= 0.9875;
+      switch (this.mode) {
+        case GameMode.EasySingleplayer: {
+          // faster enemies
+          this.enemySpeedCoefficient += 0.025;
+          // lower base health regeneration
+          if (this.baseHealthRegeneration >= 0.2) {
+            this.baseHealthRegeneration -= 0.05;
+          }
+          if (this.baseHealthRegeneration < 0.2) {
+            this.baseHealthRegeneration = 0.2;
+          }
+          break;
+        }
+        case GameMode.StandardSingleplayer: {
+          // faster enemies
+          this.enemySpeedCoefficient += 0.05;
+          // lower base health regeneration
+          if (this.baseHealthRegeneration >= 0.1) {
+            this.baseHealthRegeneration -= 0.1;
+          }
+          if (this.baseHealthRegeneration < 0.1) {
+            this.baseHealthRegeneration = 0.1;
+          }
+          break;
+        }
+      }
+    }
+    this.enemiesToNextLevel = 10;
   }
 }
 

@@ -164,7 +164,7 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   // text
-  stageItems.textSprites.baseHealthText.text = `♡ ${data.baseHealth}`;
+  stageItems.textSprites.baseHealthText.text = `♥ ${data.baseHealth}`;
   stageItems.textSprites.nameText.text = data.ownerName;
   // text: multiplayer
   if (typeof data.receivedEnemiesStock === "number") {
@@ -182,7 +182,7 @@ function renderGameData(data: { [key: string]: any }) {
     data.clocks.comboReset.currentTime;
   variables.currentGameClientSide.baseHealth = data.baseHealth;
   variables.currentGameClientSide.currentInput = data.currentInput;
-
+  variables.currentGameClientSide.level = data.level;
   // beautiful score setting
   // if (variables.settings.beautifulScore === "on") {
   //   let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
@@ -201,7 +201,45 @@ function renderGameData(data: { [key: string]: any }) {
   stageItems.textSprites.scoreText.text = data.score;
   // }
 
-  // multiplayer
+  // level display for singleplayer
+  if (
+    data.mode.indexOf("Singleplayer") > -1 &&
+    data.mode.indexOf("custom") == -1
+  ) {
+    switch (variables.settings.displayLevel) {
+      case "low": {
+        stageItems.textSprites.levelText.text = `Level ${data.level}`;
+        stageItems.textSprites.levelDetailsText.text = "";
+        break;
+      }
+      case "medium": {
+        const lm1 = data.level - 1;
+        const scoreMultiplier = Math.max(1, 1 + 0.1 * lm1).toFixed(3);
+        const toNext = data.enemiesToNextLevel;
+        stageItems.textSprites.levelText.text = `Level ${data.level}: Score ×${scoreMultiplier}, To Next: ${toNext}`;
+        stageItems.textSprites.levelDetailsText.text = "";
+        break;
+      }
+      case "high":
+      default: {
+        const lm1 = data.level - 1;
+        const scoreMultiplier = Math.max(1, 1 + 0.1 * lm1).toFixed(3);
+        const toNext = data.enemiesToNextLevel;
+        const baseHeal = data.baseHealthRegeneration.toFixed(3);
+        const enemySpeed = data.enemySpeedCoefficient.toFixed(3);
+        const enemyChance = (data.enemySpawnThreshold * 100).toFixed(3);
+        const enemyTime = data.clocks.enemySpawn.actionTime.toFixed(3);
+        stageItems.textSprites.levelText.text = `Level ${data.level}: Score ×${scoreMultiplier}, To Next: ${toNext}`;
+        stageItems.textSprites.levelDetailsText.text = `+♥: ${baseHeal}/s, ■↓: ×${enemySpeed}, +■: ${enemyChance}% every ${enemyTime}ms`;
+        break;
+      }
+    }
+  } else {
+    stageItems.textSprites.levelText.text = "";
+    stageItems.textSprites.levelDetailsText.text = "";
+  }
+
+  // multiplayer intermission
   if (data.mode.indexOf("Multiplayer") > -1) {
     if (data.aborted) {
       changeScreen("mainMenu");

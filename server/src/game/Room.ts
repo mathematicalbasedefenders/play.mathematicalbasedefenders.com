@@ -364,6 +364,7 @@ class SingleplayerRoom extends Room {
     if (data.aborted) {
       this.abort(data);
     }
+
     updateSingleplayerRoomData(this, deltaTime);
   }
 
