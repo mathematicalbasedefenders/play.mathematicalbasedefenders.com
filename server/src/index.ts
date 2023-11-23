@@ -4,11 +4,7 @@ import fs from "fs";
 import path from "path";
 import uWS from "uWebSockets.js";
 require("dotenv").config({ path: "../credentials/.env" });
-
-// TODO: Combine these lines
-import express from "express";
-import { Request, Response } from "express";
-
+import express, { Request, Response } from "express";
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
 import * as input from "./core/input";
@@ -79,8 +75,7 @@ app.use(
 );
 const jsonParser = bodyParser.json();
 // get configuration
-// TODO: Consider moving to universal.ts
-let configurationLocation = path.join(
+const configurationLocation = path.join(
   __dirname,
   "..",
   "mbd-server-configuration.json"

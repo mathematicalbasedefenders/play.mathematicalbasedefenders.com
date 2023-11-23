@@ -54,19 +54,24 @@ interface InputActionInterface {
 }
 const SEND_KEYS = ["Space", "Enter"];
 
+/**
+ * Emulates a keypress for a player as if the player pressed the key themselves.
+ * Note that it will also log that the press is emulated.
+ * @param {universal.GameSocket} socket
+ * @param {string} code
+ */
 function emulateKeypress(
   socket: universal.GameSocket,
   code: string | undefined
 ) {
   const connectionID = socket.connectionID;
+  const playerName = universal.getNameFromConnectionID(connectionID || "");
   if (!connectionID) {
     log.warn(`Socket has no ID.`);
     return;
   }
   log.info(
-    `Keypress ${code} emulated on Socket ID ${connectionID} (${universal.getNameFromConnectionID(
-      connectionID || ""
-    )})`
+    `Keypress ${code} emulated on Socket ID ${connectionID} (${playerName})`
   );
   if (typeof connectionID !== "string") {
     log.warn(
@@ -120,6 +125,11 @@ function processKeypress(
   }
 }
 
+/**
+ * Processes an input for a room.
+ * @param {InputActionInterface} inputInformation The input info
+ * @param {GameData} gameDataToProcess The game data to process on
+ */
 function processInputInformation(
   inputInformation: InputActionInterface,
   gameDataToProcess: GameData
@@ -184,6 +194,11 @@ function processInputInformation(
   }
 }
 
+/**
+ * Gets Keyboard input information
+ * @param {string} code The key.code of the pressed key
+ * @returns {object} An object detailing what action and argument to pass to the next function.
+ */
 function getInputInformation(code: string) {
   if (NUMBER_PAD_KEYS.indexOf(code) > -1) {
     return {

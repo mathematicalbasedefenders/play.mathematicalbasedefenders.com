@@ -2,7 +2,12 @@ import { log } from "../core/log";
 import { GameMode } from "../game/Room";
 import { User } from "../models/User";
 
-// TODO: Improve typing
+/**
+ * Gets the top 100 scores of a specified Singleplayer game mode.
+ * Note that the real leaderboards where users can see is on the accompanying website
+ * @param {GameMode | string} gameMode The game mode to get scores of.
+ * @returns The scores of the top 100 players
+ */
 async function getScoresOfAllPlayers(gameMode: GameMode | string) {
   let startTime = Date.now();
   let key = "";
