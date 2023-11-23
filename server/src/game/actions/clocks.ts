@@ -13,6 +13,7 @@ import { Room, MultiplayerRoom } from "../Room";
 function checkSingleplayerRoomClocks(data: GameData, room: Room) {
   checkEnemyTimeClocks(data, room);
   checkComboTimeClock(data);
+  checkBaseHealthRegenerationClock(data);
 }
 
 function checkPlayerMultiplayerRoomClocks(
@@ -94,6 +95,24 @@ function checkComboTimeClock(data: GameData) {
   if (comboResetClock.currentTime >= comboResetClock.actionTime) {
     data.combo = -1;
     comboResetClock.currentTime -= comboResetClock.actionTime;
+  }
+}
+
+/**
+ * Checks the clock for base health regeneration time.
+ * Should work for both Singleplayer and Multiplayer rooms.
+ */
+function checkBaseHealthRegenerationClock(data: GameData) {
+  const baseHealthHealClock = data.clocks.regenerateBaseHealth;
+  if (
+    baseHealthHealClock.currentTime >= baseHealthHealClock.actionTime &&
+    data.baseHealth > 0
+  ) {
+    data.baseHealth = Math.min(
+      data.baseHealth + data.baseHealthRegeneration,
+      data.maximumBaseHealth
+    );
+    baseHealthHealClock.currentTime -= baseHealthHealClock.actionTime;
   }
 }
 
