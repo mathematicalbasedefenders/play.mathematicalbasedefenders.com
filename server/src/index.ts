@@ -5,9 +5,7 @@ import path from "path";
 import uWS from "uWebSockets.js";
 require("dotenv").config({ path: "../credentials/.env" });
 
-// TODO: Combine these lines
-import express from "express";
-import { Request, Response } from "express";
+import express, { Request, Response } from "express";
 
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
