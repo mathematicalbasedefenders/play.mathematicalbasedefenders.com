@@ -16,7 +16,7 @@ Because this is open-source, you are free to use it on your own servers/domains.
 
 However, please note that while this only covers the `play` subdomain, meaning if you want to have accounts on your own servers, you might have to hardcode it.
 
-Note: As of 2022-09-23, this source code has been exclusively made for Mathematical Base Defenders's official server. So if you are planning to use this in your own server (or domain), it might not work (You can still run it on localhost). This will be fixed sometime later.
+Note: As of 2022-09-23, this source code has been exclusively made for Mathematical Base Defenders's official server (e.g. hardcoded strings that only work with the official server). So if you are planning to use this in your own server (or domain), it might not work (You can still run it on localhost, this doesn't mean you can't run it on a different domain, you can, you just have to find the hardcoded strings). This will be fixed sometime later.
 
 Finally, please note that if the Game Master decides to do something stupid (e.g. host an 2x exp event), it will only be on the official server. Likewise, if you want to host your own event, it will only be on your server.
 

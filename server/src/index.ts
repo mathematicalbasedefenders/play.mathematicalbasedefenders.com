@@ -463,8 +463,30 @@ async function attemptAuthentication(
       text: `Successfully logged in as ${username}`
     })
   );
-
-  return true;
+  socket.send(
+    JSON.stringify({
+      message: "updateUserInformationText",
+      data: {
+        username: username,
+        good: true,
+        userData: userData,
+        rank: utilities.getRank(userData),
+        experiencePoints: userData.statistics.totalExperiencePoints,
+        records: {
+          easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
+          standard:
+            userData.statistics.personalBestScoreOnStandardSingleplayerMode
+        },
+        // TODO: Refactor this
+        reason: "All checks passed."
+      }
+    })
+  );
+  // Also add missing keys
+  if (socket.ownerUserID) {
+    User.addMissingKeys(socket.ownerUserID);
+  }
+  return;
 }
 
 function initialize() {

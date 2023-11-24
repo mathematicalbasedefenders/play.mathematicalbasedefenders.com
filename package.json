@@ -28,6 +28,7 @@
   "dependencies": {
     "@types/dompurify": "^3.0.2",
     "@types/jsdom": "^21.1.1",
+    "@cypress/request": "^3.0.1",
     "adaptive-scale": "^1.0.0",
     "ajv": "^8.12.0",
     "async_hooks": "^1.0.0",

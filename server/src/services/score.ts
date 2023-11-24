@@ -49,7 +49,7 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
   switch (data.mode) {
     case GameMode.EasySingleplayer: {
       const key = "personalBestScoreOnEasySingleplayerMode";
-      if (data.score > statistics.statistics[key].score) {
+      if (data.score > (statistics.statistics[key].score|| -1)) {
         await updatePersonalBest(owner, data);
         log.info(`New Easy Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
@@ -58,7 +58,7 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
     }
     case GameMode.StandardSingleplayer: {
       const key = "personalBestScoreOnStandardSingleplayerMode";
-      if (data.score > statistics.statistics[key].score) {
+      if (data.score > (statistics.statistics[key].score || -1)) {
         await updatePersonalBest(owner, data);
         log.info(`New Standard Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
