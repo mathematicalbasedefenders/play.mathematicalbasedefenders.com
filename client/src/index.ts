@@ -32,6 +32,11 @@ app.use(
           "ws://localhost:5000",
           "wss://play.mathematicalbasedefenders.com:5000",
           "'self'"
+        ],
+        "form-action": [
+          "'self'",
+          "http://localhost:4000/authenticate",
+          "https://play.mathematicalbasedefenders.com:4000/authenticate"
         ]
       }
     },
@@ -48,6 +53,11 @@ app.set("views", path.join(__dirname, "views"));
 app.get("/", limiter, (request: Request, response: Response) => {
   response.render("pages/index.ejs");
 });
+
+app.get("*", limiter, (request: Request, response: Response) => {
+  response.render("pages/404.ejs");
+});
+
 app.listen(PORT, () => {
   log.info(`Client app listening at port ${PORT}`);
   if (process.env.credentialSetUsed === "TESTING") {

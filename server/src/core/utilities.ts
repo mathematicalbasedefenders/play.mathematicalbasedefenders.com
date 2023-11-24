@@ -76,7 +76,7 @@ function findGameDataWithConnectionID(connectionID: string, room?: Room) {
     return null;
   }
   for (let gameData of room.gameData) {
-    if (gameData.owner === connectionID) {
+    if (gameData.ownerConnectionID === connectionID) {
       return gameData;
     }
   }
@@ -240,10 +240,6 @@ function validateCustomGameSettings(
 
 function minifySelfGameData(gameData: { [key: string]: any }) {
   // delete unnecessary keys
-  delete gameData.clocks.enemySpawn;
-  delete gameData.clocks.forcedEnemySpawn;
-  delete gameData.enemySpawnThreshold;
-  delete gameData.enemySpeedCoefficient;
   delete gameData.totalEnemiesReceived;
   delete gameData.totalEnemiesSent;
   // minify enemies
@@ -260,6 +256,64 @@ function minifySelfGameData(gameData: { [key: string]: any }) {
   }
 }
 
+function generateConnectionID(length: number) {
+  let pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let current = "";
+  while (
+    current === "" ||
+    checkIfPropertyWithValueExists(universal.sockets, "connectionID", current)
+  ) {
+    for (let i = 0; i < length; i++) {
+      current += pool[Math.floor(Math.random() * pool.length)];
+    }
+  }
+  return current;
+}
+
+function generateGuestID(length: number) {
+  let pool = "0123456789";
+  let current = "";
+  while (
+    current === "" ||
+    checkIfPropertyWithValueExists(universal.sockets, "ownerGuestID", current)
+  ) {
+    for (let i = 0; i < length; i++) {
+      current += pool[Math.floor(Math.random() * pool.length)];
+    }
+  }
+  return current;
+}
+
+/**
+ * TODO: Move this to somewhere else.
+ * Updates the client-side on-screen data for the socket with said socket's info.
+ * @param {GameSocket} socket The socket to get data from and to update to
+ */
+async function updateSocketUserInformation(socket: universal.GameSocket) {
+  const userData = await User.safeFindByUsername(
+    socket.ownerUsername as string
+  );
+  socket.send(
+    JSON.stringify({
+      message: "updateUserInformationText",
+      data: {
+        username: socket.ownerUsername,
+        good: true,
+        userData: userData,
+        rank: getRank(userData),
+        experiencePoints: userData.statistics.totalExperiencePoints,
+        records: {
+          easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
+          standard:
+            userData.statistics.personalBestScoreOnStandardSingleplayerMode
+        },
+        // TODO: Refactor this
+        reason: "All checks passed."
+      }
+    })
+  );
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -270,5 +324,8 @@ export {
   mutatedArrayFilter,
   generatePlayerListText,
   validateCustomGameSettings,
-  minifySelfGameData
+  minifySelfGameData,
+  generateConnectionID,
+  generateGuestID,
+  updateSocketUserInformation
 };

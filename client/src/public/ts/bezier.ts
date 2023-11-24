@@ -1,17 +1,32 @@
 import { nCr } from "./utilities";
 
+/**
+ * This represents a Bezier curve.
+ * This is currently used for sliding text.
+ */
 class BezierCurve {
   duration!: number;
   points!: Array<Array<number>>;
+
+  /**
+   * Creates a new bezier curve. These will be updated on every render.
+   * @param {number} duration The duration of the curve.
+   * @param {Array<Array<number>>} points The points of the curve.
+   */
   constructor(duration: number, ...points: Array<Array<number>>) {
     this.duration = duration;
     this.points = points;
   }
 
-  calculatePoint(duration: number, timeElapsed: number) {
+  /**
+   * Calculates the point for a bezier curve.
+   * @param {number} timeElapsed The time elapsed.
+   * @returns An object with keys x and y, for the points in the curve.
+   */
+  calculatePoint(timeElapsed: number) {
     const curve = this;
     const terms = curve.points.length;
-    const time = timeElapsed / duration;
+    const time = timeElapsed / curve.duration;
     let x = 0,
       y = 0;
     for (let i = 0; i < terms; i++) {

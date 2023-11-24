@@ -4,6 +4,7 @@ import { socket, sendSocketMessage } from "./socket";
 import { initializeKeypressEventListener } from "./input";
 import * as AS from "adaptive-scale/lib-esm";
 import {
+  changeCustomSingleplayerSecondaryScreen,
   changeScreen,
   changeSettingsSecondaryScreen,
   createCustomSingleplayerGameObject,
@@ -70,12 +71,14 @@ const variables: { [key: string]: any } = {
     }
   },
   currentGameClientSide: {
+    currentInput: "",
     totalElapsedMilliseconds: 0,
     baseHealth: 0,
     enemiesKilled: 0,
     comboTime: 0,
     currentCombo: 0,
-    timeSinceLastEnemyKill: 60 * 1000 + 1
+    timeSinceLastEnemyKill: 60 * 1000 + 1,
+    level: 0
   }
 };
 
@@ -138,6 +141,16 @@ const stageItems: stageItemsContainer = {
       fontFamily: "Computer Modern Unicode Serif",
       fontSize: 20,
       fill: "#ffffff"
+    }),
+    levelText: new ExtendedText("Level", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 28,
+      fill: "#ffffff"
+    }),
+    levelDetailsText: new ExtendedText("Level", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 20,
+      fill: "#ffffff"
     })
   }
 };
@@ -176,6 +189,13 @@ function setContainerItemProperties() {
   stageItems.textSprites.nameText.text = "";
   stageItems.textSprites.nameText.position.set(964, 983);
   stageItems.textSprites.nameText.anchor.set(0.5, 0.5);
+  //
+  stageItems.textSprites.levelText.text = "Level 1";
+  stageItems.textSprites.levelText.position.set(1294, 615);
+  //
+  stageItems.textSprites.levelDetailsText.text =
+    "+♥: ?/s, ↓: ×1.00, ■: 5% every 1000ms";
+  stageItems.textSprites.levelDetailsText.position.set(1294, 645);
 }
 
 setContainerItemProperties();
@@ -275,6 +295,7 @@ function initializeEventListeners() {
   $("#settings-screen__sidebar-item--video").on("click", () => {
     changeSettingsSecondaryScreen("video");
   });
+  //
   $("#settings__enemy-color__forced-color-picker").on("input", () => {
     let value = $("#settings__enemy-color__forced-color-picker")
       .val()
@@ -282,19 +303,36 @@ function initializeEventListeners() {
     $("#settings__enemy-color__forced-color").text(value || "#ff0000");
   });
   //
-  $("#settings-screen__content--online__submit").on("click", (event) => {
+  $("#custom-singleplayer-intermission-screen-container__global-button").on(
+    "click",
+    () => {
+      changeCustomSingleplayerSecondaryScreen("global");
+    }
+  );
+  $("#custom-singleplayer-intermission-screen-container__enemies-button").on(
+    "click",
+    () => {
+      changeCustomSingleplayerSecondaryScreen("enemies");
+    }
+  );
+  $("#custom-singleplayer-intermission-screen-container__base-button").on(
+    "click",
+    () => {
+      changeCustomSingleplayerSecondaryScreen("base");
+    }
+  );
+  //
+  $("#settings-screen__content--online__submit").on("click", async (event) => {
     // FIXME: possibly unsafe
-    sendSocketMessage({
-      message: "authenticate",
-      username: $("#settings-screen__content--online__username")
-        .val()
-        ?.toString() as string,
-      password: $("#settings-screen__content--online__password")
-        .val()
-        ?.toString() as string,
-      socketID: $("#settings-screen__content--online__socket-id")
-        .val()
-        ?.toString() as string
+    const url = `${location.protocol}//${location.hostname}:4000/authenticate`;
+    const result = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        username: $("#settings-screen__content--online__username").val(),
+        password: $("#settings-screen__content--online__password").val(),
+        socketID: $("#settings-screen__content--online__socket-id").val()
+      }),
+      headers: { "Content-Type": "application/json" }
     });
     event.preventDefault();
   });
@@ -407,7 +445,11 @@ initializeKeypressEventListener();
 $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
 $("#main-content__popup-notification-container").hide(0);
+changeCustomSingleplayerSecondaryScreen("");
 $("#on-screen-keyboard-container").hide(0);
+$("#settings-screen__content--online__login-form").on("submit", (event) => {
+  event?.preventDefault();
+});
 redrawStage();
 
 function updateUserInformationText(data: any) {
@@ -461,14 +503,19 @@ function updateUserInformationText(data: any) {
     data.rank.color
   );
   $("#main-content__user-menu-small-display__username").text(data.username);
+  let level = calculateLevel(data.experiencePoints);
   $("#main-content__user-menu-small-display__level").text(
-    `Level ${calculateLevel(data.experiencePoints).level.toString()}`
+    `Level ${level.level} (${((level.progressToNext || 0) * 100).toFixed(
+      3
+    )}% to next)`
   );
 }
 
 function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__username").text(data.guestName);
-  $("#main-content__user-menu-small-display__level").text(`Level 0`);
+  $("#main-content__user-menu-small-display__level").text(
+    `Level 0 (Signed Out)`
+  );
 }
 
 app.ticker.add((deltaTime) => {
@@ -501,6 +548,7 @@ window.addEventListener("load", function () {
     </li>
     <li>This game is best played with a keyboard. However, if you don't have one, there is a "virtual" on-screen keyboard available. These might be slow on tablets and phones.</li>
     <li>To log in to your user account, go to <code>Settings</code>, then <code>Online</code>.</li>
+    <li>To register for an account, go to the accompanying website <a class="text--link" href="https://mathematicalbasedefenders.com">here</a>.</li>
     <li>To request a feature, report a bug or to contribute, please do so in the game's communication channels available on the accompanying website.</li>
     </ul>
     Thank you for playing!</p>`,

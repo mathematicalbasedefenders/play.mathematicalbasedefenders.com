@@ -4,11 +4,7 @@ import fs from "fs";
 import path from "path";
 import uWS from "uWebSockets.js";
 require("dotenv").config({ path: "../credentials/.env" });
-
-// TODO: Combine these lines
-import express from "express";
-import { Request, Response, NextFunction } from "express";
-
+import express, { Request, Response } from "express";
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
 import * as input from "./core/input";
@@ -19,13 +15,12 @@ import {
   MultiplayerRoom,
   Room,
   leaveMultiplayerRoom,
-  resetDefaultMultiplayerRoomID,
-  getMinifiedOpponentInformation
+  resetDefaultMultiplayerRoomID
 } from "./game/Room";
-
 import _ from "lodash";
 import { authenticate } from "./authentication/authenticate";
 import { User } from "./models/User";
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -36,7 +31,7 @@ const helmet = require("helmet");
 import rateLimit from "express-rate-limit";
 import { attemptToSendChatMessage } from "./core/chat";
 import { validateCustomGameSettings } from "./core/utilities";
-import { synchronizeDataWithSocket } from "./universal";
+import { synchronizeGameDataWithSocket } from "./universal";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -44,6 +39,14 @@ const limiter = rateLimit({
   legacyHeaders: false
 });
 const app = express();
+const corsOptions = {
+  origin: [
+    "http://localhost:3000",
+    "https://mathematicalbasedefenders.com",
+    "https://mathematicalbasedefenders.com:3000"
+  ]
+};
+app.use(cors(corsOptions));
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -70,12 +73,9 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
-
-app.use(bodyParser.urlencoded({ extended: false }));
-
+const jsonParser = bodyParser.json();
 // get configuration
-// TODO: Consider moving to universal.ts
-let configurationLocation = path.join(
+const configurationLocation = path.join(
   __dirname,
   "..",
   "mbd-server-configuration.json"
@@ -116,10 +116,10 @@ type WebSocketMessage = ArrayBuffer & {
 uWS
   .App()
   .ws("/", {
-    open: (socket: universal.GameSocket, request?: unknown) => {
+    open: (socket: universal.GameSocket) => {
       log.info("Socket connected!");
-      socket.connectionID = generateConnectionID(16);
-      socket.ownerGuestName = `Guest ${generateGuestID(8)}`;
+      socket.connectionID = utilities.generateConnectionID(16);
+      socket.ownerGuestName = `Guest ${utilities.generateGuestID(8)}`;
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
@@ -158,14 +158,21 @@ uWS
             case "singleplayer": {
               switch (parsedMessage.modifier) {
                 case "easy": {
-                  createNewSingleplayerRoom(socket, GameMode.EasySingleplayer);
+                  const room = createSingleplayerRoom(
+                    socket,
+                    GameMode.EasySingleplayer
+                  );
+                  room.addMember(socket);
+                  room.startPlay();
                   break;
                 }
                 case "standard": {
-                  createNewSingleplayerRoom(
+                  const room = createSingleplayerRoom(
                     socket,
                     GameMode.StandardSingleplayer
                   );
+                  room.addMember(socket);
+                  room.startPlay();
                   break;
                 }
                 case "custom": {
@@ -185,11 +192,13 @@ uWS
                     );
                     return;
                   }
-                  createNewSingleplayerRoom(
+                  const room = createSingleplayerRoom(
                     socket,
                     GameMode.CustomSingleplayer,
                     JSON.parse(parsedMessage.settings)
                   );
+                  room.addMember(socket);
+                  room.startPlay();
                   socket.send(
                     JSON.stringify({
                       message: "changeText",
@@ -222,10 +231,6 @@ uWS
           }
           break;
         }
-        // case "abortGame": {
-        //   input.emulateKeypress(socket.connectionID, "Escape");
-        //   break;
-        // }
         case "joinMultiplayerRoom": {
           switch (parsedMessage.room) {
             case "default": {
@@ -245,15 +250,12 @@ uWS
         }
         // game input
         case "keypress": {
-          input.processKeypress(socket.connectionID, parsedMessage.keypress);
-          synchronizeDataWithSocket(socket);
+          input.processKeypress(socket, parsedMessage.keypress);
+          synchronizeGameDataWithSocket(socket);
           break;
         }
         case "emulateKeypress": {
-          input.emulateKeypress(
-            socket.connectionID,
-            parsedMessage.emulatedKeypress
-          );
+          input.emulateKeypress(socket, parsedMessage.emulatedKeypress);
           break;
         }
         case "authenticate": {
@@ -268,7 +270,7 @@ uWS
           attemptToSendChatMessage(
             parsedMessage.scope,
             parsedMessage.chatMessage,
-            socket.connectionID || ""
+            socket || ""
           );
           break;
         }
@@ -286,7 +288,7 @@ uWS
       code: unknown,
       message: WebSocketMessage
     ) => {
-      log.info("Socket disconnected!");
+      log.info(`Socket disconnected! (${code} ${message})`);
       universal.deleteSocket(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
     }
@@ -294,7 +296,7 @@ uWS
 
   .listen(WEBSOCKET_PORT, (token: string) => {
     if (token) {
-      log.info(`Server listening to WebSockets at port ${WEBSOCKET_PORT}`);
+      log.info(`WebSockets Server listening at port ${WEBSOCKET_PORT}`);
     } else {
       log.info(`Failed to listen to WebSockets at port ${WEBSOCKET_PORT}`);
     }
@@ -308,7 +310,7 @@ function update(deltaTime: number) {
   }
 
   // DATA IS SENT HERE. <---
-  synchronizeDataWithSockets(deltaTime);
+  synchronizeGameDataWithSockets(deltaTime);
 
   // delete rooms with zero players
   // additionally, delete rooms which are empty JSON objects.
@@ -334,43 +336,53 @@ function update(deltaTime: number) {
 }
 
 // TODO: Move these functions somewhere else.
-function synchronizeDataWithSockets(deltaTime: number) {
+function synchronizeGameDataWithSockets(deltaTime: number) {
   sendDataDeltaTime += deltaTime;
   if (sendDataDeltaTime < SYNCHRONIZATION_INTERVAL) {
     return;
   }
   sendDataDeltaTime -= SYNCHRONIZATION_INTERVAL;
   for (let socket of universal.sockets) {
-    synchronizeDataWithSocket(socket);
+    synchronizeGameDataWithSocket(socket);
+    universal.synchronizeMetadataWithSocket(socket, deltaTime);
   }
 }
 
+/**
+ * Resets all "one-frame" variables.
+ * I forgot what this actually does -mistertfy64 2023-07-28
+ */
 function resetOneFrameVariables() {
   let rooms = universal.rooms;
   for (let room of rooms) {
     if (!room) {
       continue;
     }
-    for (let gameData of room?.gameData) {
-      gameData.enemiesToErase = [];
-      // gameData.commands = {};
+    if (room.gameData) {
+      for (let gameData of room.gameData) {
+        gameData.enemiesToErase = [];
+        // gameData.commands = {};
+      }
     }
   }
 }
 
-function createNewSingleplayerRoom(
-  socket: universal.GameSocket,
+/**
+ * Creates a new singleplayer room.
+ * @param {universal.GameSocket} caller The socket that called the function
+ * @param {GameMode} gameMode The singleplayer game mode.
+ * @param {settings} settings The `settings` for the singleplayer game mode, if it's custom.
+ * @returns The newly-created room object.
+ */
+function createSingleplayerRoom(
+  caller: universal.GameSocket,
   gameMode: GameMode,
   settings?: { [key: string]: string }
 ) {
-  let room = new SingleplayerRoom(
-    socket.connectionID as string,
-    gameMode,
-    settings
-  );
-  room.startPlay();
-  socket.subscribe(room.id);
+  let room = new SingleplayerRoom(caller, gameMode, settings);
+
   universal.rooms.push(room);
+  return room;
 }
 
 function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
@@ -381,57 +393,18 @@ function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
       !defaultMultiplayerRoomID ||
       typeof defaultMultiplayerRoomID !== "string"
     ) {
-      room = new MultiplayerRoom(
-        socket.connectionID as string,
-        GameMode.DefaultMultiplayer,
-        true
-      );
+      room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer, true);
+      room?.addMember(socket);
       universal.rooms.push(room);
     } else {
       room = universal.rooms.find(
         (room) => room.id === defaultMultiplayerRoomID
       );
-      room?.addMember(socket.connectionID as string);
+      room?.addMember(socket);
     }
     // FIXME: may cause problems later
     socket.subscribe(defaultMultiplayerRoomID as string);
   }
-}
-
-function generateConnectionID(length: number): string {
-  let pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let current = "";
-  while (
-    current === "" ||
-    utilities.checkIfPropertyWithValueExists(
-      universal.sockets,
-      "connectionID",
-      current
-    )
-  ) {
-    for (let i = 0; i < length; i++) {
-      current += pool[Math.floor(Math.random() * pool.length)];
-    }
-  }
-  return current;
-}
-
-function generateGuestID(length: number) {
-  let pool = "0123456789";
-  let current = "";
-  while (
-    current === "" ||
-    utilities.checkIfPropertyWithValueExists(
-      universal.sockets,
-      "ownerGuestID",
-      current
-    )
-  ) {
-    for (let i = 0; i < length; i++) {
-      current += pool[Math.floor(Math.random() * pool.length)];
-    }
-  }
-  return current;
 }
 
 const loop = setInterval(() => {
@@ -474,12 +447,15 @@ async function attemptAuthentication(
         text: `Failed to log in as ${username} (${result.reason})`
       })
     );
-    return;
+    return false;
   }
   socket.loggedIn = true;
   socket.ownerUsername = username;
   socket.ownerUserID = result.id;
-  let userData = await User.safeFindByUsername(socket.ownerUsername as string);
+  const userData = await User.safeFindByUsername(
+    socket.ownerUsername as string
+  );
+  utilities.updateSocketUserInformation(socket);
   socket.playerRank = utilities.getRank(userData);
   socket.send(
     JSON.stringify({
@@ -516,6 +492,18 @@ async function attemptAuthentication(
 function initialize() {
   sendDataDeltaTime = 0;
 }
+
+app.post(
+  "/authenticate",
+  jsonParser,
+  async (request: Request, response: Response) => {
+    const username = request.body["username"];
+    const password = request.body["password"];
+    const socketID = request.body["socketID"];
+    const result = await attemptAuthentication(username, password, socketID);
+    response.json({ success: result });
+  }
+);
 
 app.listen(PORT, () => {
   log.info(`Server listening at port ${PORT}`);

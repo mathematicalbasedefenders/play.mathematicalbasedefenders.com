@@ -7,72 +7,76 @@ const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
+
+/**
+ * Attempts to send a chat message to a room.
+ * @param {string} scope the scope/visibility of the message
+ * @param {string} message the message
+ * @param {universal.GameSocket} socket the socket of the message sender.
+ */
 function attemptToSendChatMessage(
   scope: string,
   message: string,
-  connectionID: string
+  socket: universal.GameSocket
 ) {
+  const connectionID = socket.connectionID;
+  if (!connectionID) {
+    log.warn(`Socket has no ID.`);
+    return;
+  }
+  const playerName = universal.getNameFromConnectionID(connectionID);
   switch (scope) {
     case "room": {
-      if (!validateMessage(scope, message, connectionID)) {
-        log.warn(
-          `Message validation failed for Socket ID ${connectionID} (${universal.getNameFromConnectionID(
-            connectionID
-          )})`
-        );
+      if (!validateMessage(message, connectionID)) {
+        log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
         return;
       }
+
       let room = findRoomWithConnectionID(connectionID, true) as Room;
-      room.addChatMessage(
-        message,
-        universal.getNameFromConnectionID(connectionID) || ""
-      );
+      room.addChatMessage(message, playerName || "");
       log.info(
-        `Socket ID ${connectionID} (${universal.getNameFromConnectionID(
-          connectionID
-        )}) sent message ${DOMPurify.sanitize(message)} to Room ID ${room.id}`
+        `Socket ID ${connectionID} (${playerName}) sent message ${message} to Room ID ${room.id}`
       );
       break;
     }
     default: {
       log.warn(
-        `Unknown chat message scope: ${scope} from Socket ID ${connectionID} (${universal.getNameFromConnectionID(
-          connectionID
-        )})`
+        `Unknown chat message scope: ${scope} from Socket ID ${connectionID} (${playerName})`
       );
       break;
     }
   }
 }
 
-function validateMessage(scope: string, message: string, connectionID: string) {
-  let roomID = findRoomWithConnectionID(connectionID, true)?.id;
+/**
+ * Validates a chat message whether its safe or the room it is meant to be send to exists.
+ * @param {string} message The message to validate.
+ * @param {string} connectionID The connectionID socket of the sender.
+ * @returns `true` if the message passed validation, false if not.
+ */
+function validateMessage(message: string, connectionID: string) {
+  const roomID = findRoomWithConnectionID(connectionID, true)?.id;
+  const playerName = universal.getNameFromConnectionID(connectionID);
   if (typeof roomID === "undefined") {
     log.warn(
-      `No room found for Socket ID ${connectionID} (${universal.getNameFromConnectionID(
-        connectionID
-      )}) when attempting to send a chat message, therefore discarding message.`
+      `Room Undefined found for Socket ID ${connectionID} (${playerName}) when validating chat message.`
     );
     return false;
   }
   let roomIndex = universal.rooms.findIndex((element) => element.id === roomID);
   if (roomIndex === -1) {
     log.warn(
-      `Room doesn't exist for Socket ID ${connectionID} (${universal.getNameFromConnectionID(
-        connectionID
-      )}) when attempting to send a chat message, therefore discarding message.`
+      `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
     );
     return false;
   }
-  let notEmpty = message !== "";
-  let notJustBlank = message.replace(/\s/g, "").length > 0;
-  let notTooLong = message.length <= 256;
-  let notDangerous = DOMPurify.sanitize(message) === message;
+  const notEmpty = message !== "";
+  const notJustBlank = message.replace(/\s/g, "").length > 0;
+  const notTooLong = message.length <= 256;
+  const notDangerous = DOMPurify.sanitize(message) === message;
   if (!(notEmpty && notJustBlank && notTooLong && notDangerous)) {
     log.warn(
-      `Socket ID ${connectionID} (${universal.getNameFromConnectionID(
-        connectionID
-      )}) sent an invalid message when attempting to send a chat message, therefore discarding message.`
+      `Chat message of Socket ID ${connectionID} (${playerName}) failed validation.`
     );
     return false;
   }

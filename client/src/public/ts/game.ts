@@ -1,22 +1,16 @@
-import {
-  stage,
-  stageItems,
-  app,
-  ExtendedSprite,
-  ExtendedText,
-  socket
-} from "./index";
+import { stageItems, app } from "./index";
 import * as enemies from "./enemies";
 import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 import { millisecondsToTime } from "./utilities";
 import { variables } from "./index";
-import { ToastNotification, ToastNotificationPosition } from "./notifications";
 import { Opponent } from "./opponent";
-import { resetClientSideRendering, setClientSideRendering } from "./rendering";
+import { resetClientSideVariables, setClientSideRendering } from "./rendering";
 import { SlidingText } from "./sliding-text";
 import { BezierCurve } from "./bezier";
 import * as PIXI from "pixi.js";
-// TODO: Might change later
+import { playSound } from "./sounds";
+import { getSettings } from "./settings";
+
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
 const OPTIMAL_SCREEN_RATIO: number =
@@ -48,11 +42,11 @@ function renderGameData(data: { [key: string]: any }) {
   // erase killed enemies
   for (let enemyID of Object.values(data.enemiesToErase)) {
     const enemyToDelete = enemies.getEnemyFromCache(enemyID as string);
-    const textToDisplay = enemyToDelete?.createKilledText();
+    const textToDisplay = enemyToDelete?.getText();
     const positionOfKill = enemyToDelete?.textSprite.position;
     const positionOfDeletion =
       (enemyToDelete?.sPosition || -1) - (enemyToDelete?.speed || 0.1);
-    enemies.deleteEnemy(enemyID as string);
+    // only for killed enemies AND score display on
     if (
       variables.settings.displayScore === "on" &&
       positionOfDeletion > 0.01 &&
@@ -86,16 +80,22 @@ function renderGameData(data: { [key: string]: any }) {
       );
       slidingText.render();
     }
+    // only for enemies who hasn't had their sound played yet
+    if (
+      typeof enemyToDelete !== "undefined" &&
+      !enemyToDelete?.addedKill &&
+      !enemyToDelete?.attackedBase
+    ) {
+      // only for killed enemies
+      if (positionOfDeletion > 0.01 && typeof positionOfKill !== "undefined") {
+        playSound("assets/sounds/attack.mp3", true);
+      }
+    }
+    enemies.deleteEnemy(enemyID as string);
   }
 
   for (let enemy of data.enemies) {
-    enemies.rerenderEnemy(
-      enemy.id,
-      enemy.sPosition,
-      enemy.speed,
-      enemy.displayedText,
-      enemy.xPosition
-    );
+    enemies.rerenderEnemy(enemy);
   }
 
   // multiplayer
@@ -164,7 +164,7 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   // text
-  stageItems.textSprites.baseHealthText.text = `♡ ${data.baseHealth}`;
+  stageItems.textSprites.baseHealthText.text = `♥ ${data.baseHealth}`;
   stageItems.textSprites.nameText.text = data.ownerName;
   // text: multiplayer
   if (typeof data.receivedEnemiesStock === "number") {
@@ -181,7 +181,8 @@ function renderGameData(data: { [key: string]: any }) {
   variables.currentGameClientSide.timeSinceLastEnemyKill =
     data.clocks.comboReset.currentTime;
   variables.currentGameClientSide.baseHealth = data.baseHealth;
-
+  variables.currentGameClientSide.currentInput = data.currentInput;
+  variables.currentGameClientSide.level = data.level;
   // beautiful score setting
   // if (variables.settings.beautifulScore === "on") {
   //   let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
@@ -200,7 +201,45 @@ function renderGameData(data: { [key: string]: any }) {
   stageItems.textSprites.scoreText.text = data.score;
   // }
 
-  // multiplayer
+  // level display for singleplayer
+  if (
+    data.mode.indexOf("Singleplayer") > -1 &&
+    data.mode.indexOf("custom") == -1
+  ) {
+    switch (variables.settings.displayLevel) {
+      case "low": {
+        stageItems.textSprites.levelText.text = `Level ${data.level}`;
+        stageItems.textSprites.levelDetailsText.text = "";
+        break;
+      }
+      case "medium": {
+        const lm1 = data.level - 1;
+        const scoreMultiplier = Math.max(1, 1 + 0.1 * lm1).toFixed(3);
+        const toNext = data.enemiesToNextLevel;
+        stageItems.textSprites.levelText.text = `Level ${data.level}: Score ×${scoreMultiplier}, To Next: ${toNext}`;
+        stageItems.textSprites.levelDetailsText.text = "";
+        break;
+      }
+      case "high":
+      default: {
+        const lm1 = data.level - 1;
+        const scoreMultiplier = Math.max(1, 1 + 0.1 * lm1).toFixed(3);
+        const toNext = data.enemiesToNextLevel;
+        const baseHeal = data.baseHealthRegeneration.toFixed(3);
+        const enemySpeed = data.enemySpeedCoefficient.toFixed(3);
+        const enemyChance = (data.enemySpawnThreshold * 100).toFixed(3);
+        const enemyTime = data.clocks.enemySpawn.actionTime.toFixed(3);
+        stageItems.textSprites.levelText.text = `Level ${data.level}: Score ×${scoreMultiplier}, To Next: ${toNext}`;
+        stageItems.textSprites.levelDetailsText.text = `+♥: ${baseHeal}/s, ■↓: ×${enemySpeed}, +■: ${enemyChance}% every ${enemyTime}ms`;
+        break;
+      }
+    }
+  } else {
+    stageItems.textSprites.levelText.text = "";
+    stageItems.textSprites.levelDetailsText.text = "";
+  }
+
+  // multiplayer intermission
   if (data.mode.indexOf("Multiplayer") > -1) {
     if (data.aborted) {
       changeScreen("mainMenu");
@@ -229,19 +268,8 @@ function changeScreen(
   alsoResetStage?: boolean,
   newData?: { [key: string]: any }
 ) {
-  // check if playing
-  // if (
-  //   typeof variables !== "undefined" &&
-  //   variables.playing &&
-  //   screen !== "gameOver" &&
-  //   screen !== "canvas"
-  // ) {
-  //   new ToastNotification(
-  //     "Unable to change screen. (Game in progress)",
-  //     ToastNotificationPosition.BOTTOM_RIGHT
-  //   );
-  //   return;
-  // }
+  // set settings
+  getSettings(localStorage.getItem("settings") || "{}");
 
   $("#main-content__main-menu-screen-container").hide(0);
   $("#main-content__singleplayer-menu-screen-container").hide(0);
@@ -256,7 +284,7 @@ function changeScreen(
     redrawStage();
   }
   if (alsoResetStage) {
-    resetClientSideRendering();
+    resetClientSideVariables();
   }
   if (newData) {
     setClientSideRendering(newData);
@@ -267,7 +295,7 @@ function changeScreen(
     opponent.destroyAllInstances();
   }
   enemies.deleteAllEnemies();
-  enemies.Enemy.enemiesCurrentlyDrawn = []; // TODO: Consider moving this to specific screens only.
+  enemies.Enemy.enemiesDrawn = []; // TODO: Consider moving this to specific screens only.
   // actually change screen
   switch (screen) {
     case "mainMenu": {
@@ -304,6 +332,8 @@ function changeScreen(
     }
     case "canvas": {
       $("#canvas-container").show(0);
+      // TODO: move this somewhere else
+      variables.playing = true;
       break;
     }
   }
@@ -314,6 +344,13 @@ function changeSettingsSecondaryScreen(newScreen: string) {
     $(`#settings-screen__content--${screen}`).hide(0);
   }
   $(`#settings-screen__content--${newScreen}`).show(0);
+}
+
+function changeCustomSingleplayerSecondaryScreen(newScreen: string) {
+  for (let screen of ["global", "enemies", "base"]) {
+    $(`#custom-singleplayer-intermission-screen__content--${screen}`).hide(0);
+  }
+  $(`#custom-singleplayer-intermission-screen__content--${newScreen}`).show(0);
 }
 
 function createCustomSingleplayerGameObject() {
@@ -339,5 +376,6 @@ export {
   redrawStage,
   changeScreen,
   changeSettingsSecondaryScreen,
-  createCustomSingleplayerGameObject
+  createCustomSingleplayerGameObject,
+  changeCustomSingleplayerSecondaryScreen
 };

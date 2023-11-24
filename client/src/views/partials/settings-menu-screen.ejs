@@ -13,14 +13,14 @@
         <fieldset class="settings-screen__content-fieldset">
           <legend>Account</legend>
           <div class="settings-screen__content--online--unauthenticated">
-            <form onsubmit="false">
-              <label style="margin:4px 0" for="settings-screen__content--online__username" title="Put the username for your account here.">Username:</label> <input style="margin:4px 0" class="settings-screen__content-input--text" name="settings-screen__content--online__username" id="settings-screen__content--online__username" type="text">
+            <form id="settings-screen__content--online__login-form">
+              <label for="settings-screen__content--online__username" title="Put the username for your account here.">Username:</label> <input class="settings-screen__content-input--text" name="settings-screen__content--online__username" id="settings-screen__content--online__username" type="text">
               <br>
-              <label style="margin:4px 0" for="settings-screen__content--online__password" title="Put the password for your account here.">Password:</label> <input style="margin:4px 0" class="settings-screen__content-input--text" name="settings-screen__content--online__password" id="settings-screen__content--online__password" type="password">
+              <label for="settings-screen__content--online__password" title="Put the password for your account here.">Password:</label> <input class="settings-screen__content-input--text" name="settings-screen__content--online__password" id="settings-screen__content--online__password" type="password">
               <br>
               <input name="settings-screen__content--online__socket-id" id="settings-screen__content--online__socket-id" type="hidden">
               <br>
-              <div style="width:100%;text-align:right;"><button style="padding:0px 32px;" id="settings-screen__content--online__submit" class="settings-screen__content-input--button">Login</button></div>
+              <div style="width:100%;text-align:right;"><input type="submit" style="padding:0px 32px;" id="settings-screen__content--online__submit" class="settings-screen__content-input--button"></input></div>
             </form>
           </div>
           <div class="settings-screen__content--online--authenticated">
@@ -122,8 +122,26 @@
           <input type="radio" id="settings-score-display__off" name="settings__score-display" value="off">
           <label for="settings-score-display__off">Off</label><br>
         </fieldset>
+        <br>
+        <fieldset title="What to display for level information" class="settings-screen__content-fieldset">
+          <legend>Display Level Information</legend>
+          <input type="radio" id="settings-level-display__low" name="settings__level-display" value="low">
+          <label for="settings-level-display__low">Level Only</label><br>
+          <input type="radio" id="settings-level-display__medium" name="settings__level-display" value="medium">
+          <label for="settings-level-display__medium">Level and Basic Info</label><br>
+          <input type="radio" id="settings-level-display__high" name="settings__level-display" value="high">
+          <label for="settings-level-display__high">Everything</label><br>
+        </fieldset>
       </div>
-      <div class="settings-screen__content-secondary-screen" id="settings-screen__content--audio"></div>
+      <div class="settings-screen__content-secondary-screen" id="settings-screen__content--audio">
+        <fieldset title="Whether to play sound." class="settings-screen__content-fieldset">
+          <legend>Sound</legend>
+          <input type="radio" id="settings-sound__on" name="settings__sound" value="on">
+          <label for="settings-sound__on">On</label><br>
+          <input type="radio" id="settings-sound__off" name="settings__sound" value="off">
+          <label for="settings-sound__off">Off</label><br>
+        </fieldset>
+      </div>
     </div>
   </div>
 </div>

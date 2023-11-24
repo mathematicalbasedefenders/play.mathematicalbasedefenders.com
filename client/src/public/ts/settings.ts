@@ -1,34 +1,59 @@
 import { variables } from "./index";
 
+enum SettingsType {
+  Radio,
+  Custom
+}
+
 const SETTINGS_KEYS = [
   {
     storageStringKey: "multiplicationSign",
     htmlName: "settings__multiplication-sign",
-    defaultValue: "middle-dot"
+    defaultValue: "middle-dot",
+    settingsType: SettingsType.Radio
   },
   {
     storageStringKey: "beautifulScore",
     htmlName: "settings__beautiful-score-display",
-    defaultValue: "off"
+    defaultValue: "off",
+    settingsType: SettingsType.Radio
   },
   {
     storageStringKey: "enemyColor",
     htmlName: "settings__enemy-color",
-    defaultValue: "randomForEach"
+    defaultValue: "randomForEach",
+    settingsType: SettingsType.Custom
   },
   {
     storageStringKey: "enemyWidthCoefficient",
     htmlName: "settings__enemy-size-ratio",
-    defaultValue: "1"
+    defaultValue: "1",
+    settingsType: SettingsType.Radio
   },
   {
     storageStringKey: "displayScore",
     htmlName: "settings__score-display",
-    defaultValue: "on"
+    defaultValue: "on",
+    settingsType: SettingsType.Radio
+  },
+  {
+    storageStringKey: "sound",
+    htmlName: "settings__sound",
+    defaultValue: "on",
+    settingsType: SettingsType.Radio
+  },
+  {
+    storageStringKey: "displayLevel",
+    htmlName: "settings__level-display",
+    defaultValue: "high",
+    SettingsType: SettingsType.Radio
   }
 ];
 
-// Use for HTML
+/**
+ * Gets the stored settings from `localStorage`, then updates the HTML with the data.
+ * @param {string} storageString The stored string. This should be from `localStorage`.
+ */
 function getSettings(storageString: string) {
   let settings = JSON.parse(storageString);
   for (let entry of SETTINGS_KEYS) {
@@ -73,7 +98,10 @@ function getSettings(storageString: string) {
   console.log("Got settings!");
 }
 
-// Use for internal
+/**
+ * Gets the stored settings from `localStorage`, then updates the client-side variables with the data.
+ * @param {string} storageString The stored string. This should be from `localStorage`.
+ */
 function loadSettings(storageString: string) {
   let settings = JSON.parse(storageString);
   for (let entry of SETTINGS_KEYS) {
@@ -93,6 +121,9 @@ function loadSettings(storageString: string) {
   console.log("Loaded settings!");
 }
 
+/**
+ * Sets the new settings and writes them into `localStorage`.
+ */
 function setSettings() {
   let toSave: any = {};
   for (let entry of SETTINGS_KEYS) {

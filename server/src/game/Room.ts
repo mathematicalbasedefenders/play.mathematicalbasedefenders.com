@@ -8,190 +8,42 @@ import { submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
 import { findRoomWithConnectionID } from "../core/utilities";
 import { User } from "../models/User";
-import { synchronizeDataWithSocket } from "../universal";
-const NO_HOST_ID = "(no host)";
+import {
+  getSocketFromConnectionID,
+  synchronizeGameDataWithSocket
+} from "../universal";
+import {
+  GameData,
+  SingleplayerGameData,
+  CustomSingleplayerGameData,
+  MultiplayerGameData,
+  GameMode,
+  ClockInterface
+} from "./GameData";
+import { updateSingleplayerRoomData } from "./actions/update";
+import {
+  changeClientSideHTML,
+  changeClientSideText
+} from "./actions/send-html";
+import {
+  checkGlobalMultiplayerRoomClocks,
+  checkPlayerMultiplayerRoomClocks
+} from "./actions/clocks";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
-const MINIFIED_GAME_DATA_KEYS = [
-  "baseHealth",
-  "combo",
-  "currentInput",
-  "receivedEnemiesStock"
-];
-//
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
-// TODO: Change design
 let defaultMultiplayerRoomID: string | null = null;
 
-enum GameMode {
-  EasySingleplayer = "easySingleplayer",
-  StandardSingleplayer = "standardSingleplayer",
-  InsaneSingleplayer = "insaneSingleplayer",
-  DefaultMultiplayer = "defaultMultiplayer",
-  CustomMultiplayer = "customMultiplayer",
-  CustomSingleplayer = "customSingleplayer"
-}
 interface InputActionInterface {
   action: InputAction;
   argument: string;
 }
-interface ClockInterface {
-  [key: string]: {
-    currentTime: number;
-    actionTime: number;
-  };
-}
-
-class GameData {
-  score!: number;
-  enemiesKilled!: number;
-  enemiesSpawned!: number;
-  enemies!: Array<enemy.Enemy>;
-  baseHealth!: number;
-  combo!: number;
-  owner: string;
-  clocks!: ClockInterface;
-  enemiesToErase!: Array<string>;
-  currentInput!: string;
-  elapsedTime!: number;
-  enemySpeedCoefficient!: number;
-  commands!: { [key: string]: any };
-  mode: string;
-  enemySpawnThreshold!: number;
-  aborted: boolean;
-  totalEnemiesSent!: number;
-  totalEnemiesReceived!: number;
-  enemiesSentStock!: number;
-  opponentGameData!: Array<GameData>;
-  ownerName!: string;
-
-  // ...
-  attackScore!: number;
-  receivedEnemiesStock!: number;
-  receivedEnemiesToSpawn!: number;
-  constructor(owner: string, mode: GameMode) {
-    this.mode = mode;
-    this.score = 0;
-    this.enemiesKilled = 0;
-    this.enemiesSpawned = 0;
-    this.baseHealth = 100;
-    this.owner = owner;
-    this.ownerName = universal.getNameFromConnectionID(owner) || "???";
-    this.enemies = [];
-    this.enemiesToErase = [];
-    this.currentInput = "";
-    this.elapsedTime = 0;
-    this.combo = -1;
-    this.commands = {};
-    this.aborted = false;
-    this.totalEnemiesSent = 0;
-    this.totalEnemiesReceived = 0;
-    this.enemiesSentStock = 0;
-    this.attackScore = 0;
-
-    if (mode === GameMode.EasySingleplayer) {
-      this.clocks = {
-        enemySpawn: {
-          currentTime: 0,
-          actionTime: 250
-        },
-        forcedEnemySpawn: {
-          currentTime: 0,
-          actionTime: 7500
-        },
-        comboReset: {
-          currentTime: 0,
-          actionTime: 10000
-        }
-      };
-      this.enemySpeedCoefficient = 0.5;
-      this.enemySpawnThreshold = 0.05;
-    } else {
-      this.clocks = {
-        enemySpawn: {
-          currentTime: 0,
-          actionTime: 100
-        },
-        forcedEnemySpawn: {
-          currentTime: 0,
-          actionTime: 2500
-        },
-        comboReset: {
-          currentTime: 0,
-          actionTime: 5000
-        }
-      };
-      this.enemySpeedCoefficient = 1;
-      this.enemySpawnThreshold = 0.1;
-    }
-  }
-}
-class SingleplayerGameData extends GameData {
-  // nothing here yet...
-
-  constructor(owner: string, gameMode: GameMode) {
-    if (
-      !(
-        gameMode === GameMode.EasySingleplayer ||
-        gameMode === GameMode.StandardSingleplayer
-      )
-    ) {
-      log.error(
-        "Non-singleplayer game mode passed as argument in a singleplayer room."
-      );
-      return;
-    }
-    super(owner, gameMode);
-  }
-}
-
-class CustomSingleplayerGameData extends GameData {
-  constructor(
-    owner: string,
-    gameMode: GameMode,
-    settings: { [key: string]: any }
-  ) {
-    if (!(gameMode === GameMode.CustomSingleplayer)) {
-      log.error(
-        "Non-custom singleplayer game mode passed in a custom s.p. room."
-      );
-      return;
-    }
-    super(owner, gameMode);
-    // This assumes that data has already been validated.
-    this.baseHealth = settings.baseHealth;
-    this.clocks.comboReset.actionTime = settings.comboTime;
-    this.enemySpeedCoefficient = settings.enemySpeedCoefficient;
-    this.clocks.enemySpawn.actionTime = settings.enemySpawnTime;
-    this.enemySpawnThreshold = settings.enemySpawnThreshold;
-    this.clocks.forcedEnemySpawn.actionTime = settings.forcedEnemySpawnTime;
-  }
-}
-
-class MultiplayerGameData extends GameData {
-  constructor(owner: string, gameMode: GameMode) {
-    if (
-      !(
-        gameMode === GameMode.DefaultMultiplayer ||
-        gameMode === GameMode.CustomMultiplayer
-      )
-    ) {
-      log.error(
-        "Non-multiplayer game mode passed as argument in a multiplayer room."
-      );
-      return;
-    }
-    super(owner, gameMode);
-    this.receivedEnemiesStock = 0;
-    this.receivedEnemiesToSpawn = 0;
-  }
-}
 
 class Room {
   id: string;
-  hostConnectionID: string;
+  host: universal.GameSocket | null;
   memberConnectionIDs: Array<string> = [];
   spectatorConnectionIDs: Array<string> = [];
   updateNumber: number = 0;
@@ -202,29 +54,41 @@ class Room {
   connectionIDsThisRound: Array<string> = [];
   ranking: Array<any> = [];
   chatMessages: Array<unknown> = [];
+  updating: boolean = false;
   // custom room exclusive
   customSettings!: { [key: string]: any };
-  // constructor below
-  constructor(hostConnectionID: string, gameMode: GameMode, noHost?: boolean) {
+
+  /**
+   * Creates a `Room` instance. This shouldn't be called directly.
+   * Instead it should be called from a `super()` call from either
+   * a new `SingleplayerRoom` or a new `MultiplayerRoom`.
+   * Note: A Room will only "start to function" when it is in `universal.rooms`.
+   * @param {universal.GameSocket} host The socket that asked for the room.
+   * @param {GameMode} gameMode The game mode of the room
+   * @param {boolean} noHost Should only be `true` on Default Multiplayer.
+   * @returns
+   */
+  constructor(
+    host: universal.GameSocket,
+    gameMode: GameMode,
+    noHost?: boolean
+  ) {
     this.mode = gameMode;
     this.id = generateRoomID(8);
     if (noHost) {
       // should only be used for default multiplayer
-      this.hostConnectionID = NO_HOST_ID;
+      this.host = null;
     } else {
-      this.hostConnectionID = hostConnectionID;
+      this.host = host;
     }
     this.connectionIDsThisRound = [];
-    this.addMember(hostConnectionID);
     this.lastUpdateTime = Date.now();
 
     // special for default multiplayer
     // check if default multiplayer room already exists
     if (gameMode === GameMode.DefaultMultiplayer && defaultMultiplayerRoomID) {
       log.warn(`There may only be one Default Multiplayer room at at time.`);
-      log.warn(
-        `A Default Multiplayer room with ID ${defaultMultiplayerRoomID} already exists.`
-      );
+      log.warn(`There is one, which is ID ${defaultMultiplayerRoomID}.`);
       this.destroy();
       return;
     } else if (gameMode === GameMode.DefaultMultiplayer) {
@@ -235,7 +99,7 @@ class Room {
   }
 
   update(deltaTime: number) {
-    if (!this.playing) {
+    if (!this.playing && !this.updating) {
       return;
     }
 
@@ -249,33 +113,6 @@ class Room {
     this.updateNumber++;
   }
 
-  startPlay() {
-    if (
-      this.mode === GameMode.EasySingleplayer ||
-      this.mode === GameMode.StandardSingleplayer
-    ) {
-      for (let member of this.memberConnectionIDs) {
-        this.gameData.push(new SingleplayerGameData(member, this.mode));
-      }
-    } else if (this.mode === GameMode.CustomSingleplayer) {
-      for (let member of this.memberConnectionIDs) {
-        this.gameData.push(
-          new CustomSingleplayerGameData(member, this.mode, this.customSettings)
-        );
-      }
-    } else if (
-      this.mode === GameMode.DefaultMultiplayer ||
-      this.mode === GameMode.CustomMultiplayer
-    ) {
-      for (let member of this.memberConnectionIDs) {
-        this.gameData.push(new MultiplayerGameData(member, this.mode));
-      }
-    }
-    this.ranking = [];
-    this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
-    this.playing = true;
-    log.info(`Room ${this.id} has started play!`);
-  }
   addChatMessage(message: string, sender: string) {
     let sanitizedMessage = DOMPurify.sanitize(message);
     this.chatMessages.push({
@@ -298,9 +135,139 @@ class Room {
     }
   }
 
-  // TODO: Move this to singleplayer room
+  /**
+   * Adds the socket to this `Room` instance as a member.
+   * @param {universal.GameSocket} caller The socket to add to the room (also the socket who called this function)
+   */
+  addMember(caller: universal.GameSocket) {
+    const connectionID = caller.connectionID as string;
+    if (
+      this.memberConnectionIDs.indexOf(connectionID) === -1 &&
+      this.spectatorConnectionIDs.indexOf(connectionID) === -1
+    ) {
+      this.memberConnectionIDs.push(connectionID);
+      log.info(
+        `Added socket with ID ${connectionID} as a member to room ${this.id}`
+      );
+      caller.subscribe(this.id);
+    }
+  }
+
+  /**
+   * Adds the socket to this `Room` instance as a spectator.
+   * This hasn't been fully implemented yet.
+   * @param {universal.GameSocket} caller The socket to add to the room (also the socket who called this function)
+   */
+  addSpectator(caller: universal.GameSocket) {
+    const connectionID = caller.connectionID as string;
+    if (
+      this.spectatorConnectionIDs.indexOf(connectionID) === -1 &&
+      this.memberConnectionIDs.indexOf(connectionID) === -1
+    ) {
+      this.spectatorConnectionIDs.push(connectionID);
+      log.info(
+        `Added socket with ID ${connectionID} as a spectator to room ${this.id}`
+      );
+    }
+  }
+
+  /**
+   * Deletes the socket from this `Room` instance.
+   * This requires that the socket is a member (and not a spectator),
+   * @param {universal.GameSocket} caller The socket to delete from the room (also the socket who called this function)
+   */
+  deleteMember(caller: universal.GameSocket) {
+    const connectionID = caller.connectionID as string;
+    if (this.memberConnectionIDs.indexOf(connectionID) > -1) {
+      this.memberConnectionIDs.splice(
+        this.memberConnectionIDs.indexOf(connectionID),
+        1
+      );
+      log.info(
+        `Deleted socket with ID ${connectionID} (member) from room ${this.id}`
+      );
+    }
+  }
+
+  /**
+   * Deletes the socket from this `Room` instance.
+   * This requires that the socket is a spectator (and not a member),
+   * @param {universal.GameSocket} caller The socket to delete from the room (also the socket who called this function)
+   */
+  deleteSpectator(caller: universal.GameSocket) {
+    const connectionID = caller.connectionID as string;
+    if (this.spectatorConnectionIDs.indexOf(connectionID) > -1) {
+      this.spectatorConnectionIDs.splice(
+        this.spectatorConnectionIDs.indexOf(connectionID),
+        1
+      );
+      log.info(
+        `Deleted socket with ID ${connectionID} (spectator) from room ${this.id}`
+      );
+    }
+  }
+
+  /**
+   * Remove all of the room's players, then deletes the room.
+   */
+  destroy() {
+    let members = _.clone(this.memberConnectionIDs);
+    let spectators = _.clone(this.spectatorConnectionIDs);
+    for (let spectator of spectators) {
+      const socket = universal.getSocketFromConnectionID(spectator);
+      if (socket) {
+        this.deleteMember(socket);
+      }
+    }
+    for (let member of members) {
+      const socket = universal.getSocketFromConnectionID(member);
+      if (socket) {
+        this.deleteMember(socket);
+      }
+    }
+  }
+}
+
+class SingleplayerRoom extends Room {
+  constructor(host: universal.GameSocket, mode: GameMode, settings?: any) {
+    super(host, mode);
+    // custom settings
+    if (typeof settings !== "undefined") {
+      setCustomRules(this, settings);
+    }
+  }
+
+  startPlay() {
+    if (
+      this.mode === GameMode.EasySingleplayer ||
+      this.mode === GameMode.StandardSingleplayer
+    ) {
+      for (let member of this.memberConnectionIDs) {
+        const socket = getSocketFromConnectionID(member);
+        if (socket) {
+          this.gameData.push(new SingleplayerGameData(socket, this.mode));
+        }
+      }
+    } else if (this.mode === GameMode.CustomSingleplayer) {
+      for (let member of this.memberConnectionIDs) {
+        const socket = getSocketFromConnectionID(member);
+        if (socket) {
+          this.gameData.push(
+            new CustomSingleplayerGameData(
+              socket,
+              this.mode,
+              this.customSettings
+            )
+          );
+        }
+      }
+    }
+    this.updating = true;
+    log.info(`Room ${this.id} has started play!`);
+  }
+
   async startGameOverProcess(data: GameData) {
-    let socket = universal.getSocketFromConnectionID(data.owner);
+    let socket = universal.getSocketFromConnectionID(data.ownerConnectionID);
     let messages = "";
     // game over here
 
@@ -320,225 +287,94 @@ class Room {
       }
     }
 
-    if (
-      data.mode === GameMode.EasySingleplayer ||
-      data.mode === GameMode.StandardSingleplayer ||
-      data.mode === GameMode.CustomSingleplayer
-    ) {
-      data.commands.updateText = [
-        {
-          value: {
-            selector: "#main-content__game-over-screen__stats__score",
-            newText: data.score.toString()
-          },
-          age: 0
+    data.commands.updateText = [
+      {
+        value: {
+          selector: "#main-content__game-over-screen__stats__score",
+          newText: data.score.toString()
         },
-        {
-          value: {
-            selector: "#main-content__game-over-screen__stats__game-mode",
-            newText: gameMode
-          },
-          age: 0
+        age: 0
+      },
+      {
+        value: {
+          selector: "#main-content__game-over-screen__stats__game-mode",
+          newText: gameMode
         },
-        {
-          value: {
-            selector: "#main-content__game-over-screen__stats__enemies",
-            newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
-              (data.enemiesKilled / data.elapsedTime) *
-              1000
-            ).toFixed(3)}/s)`
-          },
-          age: 0
+        age: 0
+      },
+      {
+        value: {
+          selector: "#main-content__game-over-screen__stats__enemies",
+          newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
+            (data.enemiesKilled / data.elapsedTime) *
+            1000
+          ).toFixed(3)}/s)`
         },
-        {
-          value: {
-            selector: "#main-content__game-over-screen__stats__time",
-            newText: utilities.millisecondsToTime(data.elapsedTime)
-          },
-          age: 0
+        age: 0
+      },
+      {
+        value: {
+          selector: "#main-content__game-over-screen__stats__time",
+          newText: utilities.millisecondsToTime(data.elapsedTime)
         },
-        {
-          value: {
-            selector: "#main-content__game-over-screen__stats__score-rank",
-            newText: messages
-          },
-          age: 0
-        }
-      ];
-      data.commands.changeScreenTo = [{ value: "gameOver", age: 0 }];
-      if (socket) {
-        synchronizeDataWithSocket(socket);
+        age: 0
+      },
+      {
+        value: {
+          selector: "#main-content__game-over-screen__stats__score-rank",
+          newText: messages
+        },
+        age: 0
       }
-      // submit score
-      if (socket) {
-        submitSingleplayerGame(data, socket);
-      }
-      // destroy room somehow
-      this.playing = false;
-      if (socket) {
-        socket?.unsubscribe(this.id);
-        this.deleteMember(socket?.connectionID as string);
-      }
+    ];
+    data.commands.changeScreenTo = [{ value: "gameOver", age: 0 }];
+    if (socket) {
+      synchronizeGameDataWithSocket(socket);
+    }
+    // submit score
+    if (socket) {
+      submitSingleplayerGame(data, socket);
+    }
+    // destroy room somehow
+    this.playing = false;
+    if (socket) {
+      socket?.unsubscribe(this.id);
+      this.deleteMember(socket);
     }
   }
 
-  addMember(connectionID: string) {
-    if (
-      this.memberConnectionIDs.indexOf(connectionID) === -1 &&
-      this.spectatorConnectionIDs.indexOf(connectionID) === -1
-    ) {
-      this.memberConnectionIDs.push(connectionID);
-      log.info(
-        `Added socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
-          connectionID
-        )}) as a member to room ${this.id}`
-      );
+  update() {
+    const now: number = Date.now();
+    const deltaTime: number = now - this.lastUpdateTime;
+    // Check if room is supposed to update.
+    if (!this.updating) {
+      return;
     }
-  }
 
-  addSpectator(connectionID: string) {
-    if (
-      this.spectatorConnectionIDs.indexOf(connectionID) === -1 &&
-      this.memberConnectionIDs.indexOf(connectionID) === -1
-    ) {
-      this.spectatorConnectionIDs.push(connectionID);
-      log.info(
-        `Added socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
-          connectionID
-        )}) as a spectator to room ${this.id}`
-      );
-    }
-  }
-
-  deleteMember(connectionID: string) {
-    if (this.memberConnectionIDs.indexOf(connectionID) > -1) {
-      this.memberConnectionIDs.splice(
-        this.memberConnectionIDs.indexOf(connectionID),
-        1
-      );
-      log.info(
-        `Deleted socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
-          connectionID
-        )}) (member) from room ${this.id}`
-      );
-    }
-  }
-
-  deleteSpectator(connectionID: string) {
-    if (this.spectatorConnectionIDs.indexOf(connectionID) > -1) {
-      this.spectatorConnectionIDs.splice(
-        this.spectatorConnectionIDs.indexOf(connectionID),
-        1
-      );
-      log.info(
-        `Deleted socket with connection ID ${connectionID} (${universal.getNameFromConnectionID(
-          connectionID
-        )}) (spectator) from room ${this.id}`
-      );
-    }
-  }
-
-  // delete all players, then destroy room
-  destroy() {
-    let members = _.clone(this.memberConnectionIDs);
-    let spectators = _.clone(this.spectatorConnectionIDs);
-    for (let spectator of spectators) {
-      this.deleteMember(spectator);
-    }
-    for (let member of members) {
-      this.deleteMember(member);
-    }
-  }
-}
-class SingleplayerRoom extends Room {
-  constructor(hostConnectionID: string, mode: GameMode, settings?: any) {
-    super(hostConnectionID, mode);
-    // custom settings
-    if (typeof settings !== "undefined") {
-      // log.info("Custom mode selected: ", settings);
-      // FIXME: This assumes that data already has been validated.
-      setCustomRules(this, settings);
-    }
-  }
-
-  update(): void {
-    // Update for all types of rooms
-    let now: number = Date.now();
-    let deltaTime: number = now - this.lastUpdateTime;
+    /**
+     * Call the `update` method for all types of rooms first.
+     */
     super.update(deltaTime);
     this.lastUpdateTime = now;
-    // Then update for all singleplayer rooms
+
+    /**
+     * Then call the `update` method made for Singleplayer rooms.
+     */
     let data = this.gameData[0];
     if (data.aborted) {
       this.abort(data);
     }
-    let enemyToAdd: enemy.Enemy | null = null;
 
-    for (let data of this.gameData) {
-      // FIXME: ???
-      // Move all the enemies down.
-      for (let enemy of data.enemies) {
-        enemy.move(0.1 * data.enemySpeedCoefficient * (deltaTime / 1000));
-        if (enemy.sPosition <= 0) {
-          enemy.remove(data, 10);
-        }
-      }
-      if (data.baseHealth <= 0) {
-        this.startGameOverProcess(data);
-      }
-
-      // clocks
-      // Add enemy if forced time up
-      if (
-        data.clocks.forcedEnemySpawn.currentTime >=
-        data.clocks.forcedEnemySpawn.actionTime
-      ) {
-        enemyToAdd = generateEnemyWithChance(
-          1,
-          this.updateNumber,
-          0.1 * data.enemySpeedCoefficient
-        );
-        data.clocks.forcedEnemySpawn.currentTime -=
-          data.clocks.forcedEnemySpawn.actionTime;
-        // reset time
-        data.clocks.forcedEnemySpawn.currentTime = 0;
-      }
-      // Add enemy if generated.
-      if (
-        data.clocks.enemySpawn.currentTime >=
-          data.clocks.enemySpawn.actionTime &&
-        enemyToAdd == null
-      ) {
-        enemyToAdd = generateEnemyWithChance(
-          data.enemySpawnThreshold,
-          this.updateNumber,
-          0.1 * data.enemySpeedCoefficient
-        );
-        data.clocks.enemySpawn.currentTime -= data.clocks.enemySpawn.actionTime;
-      }
-      // combo time
-      if (
-        data.clocks.comboReset.currentTime >= data.clocks.comboReset.actionTime
-      ) {
-        data.combo = -1;
-        data.clocks.comboReset.currentTime -= data.clocks.comboReset.actionTime;
-      }
-      if (enemyToAdd) {
-        // reset forced enemy spawn
-        data.clocks.forcedEnemySpawn.currentTime = 0;
-        data.enemiesSpawned++;
-        data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
-      }
-    }
+    updateSingleplayerRoomData(this, deltaTime);
   }
 
   abort(data: GameData) {
-    let socket = universal.getSocketFromConnectionID(data.owner);
+    let socket = universal.getSocketFromConnectionID(data.ownerConnectionID);
     this.playing = false;
     data.commands.changeScreenTo = [{ value: "mainMenu", age: 0 }];
     if (socket) {
       socket?.unsubscribe(this.id);
-      this.deleteMember(socket?.connectionID as string);
+      this.deleteMember(socket);
     }
   }
 }
@@ -548,8 +384,9 @@ class MultiplayerRoom extends Room {
   globalEnemySpawnThreshold: number;
   globalClock: ClockInterface;
   playersAtStart!: number;
-  constructor(hostConnectionID: string, mode: GameMode, noHost: boolean) {
-    super(hostConnectionID, mode, noHost);
+  globalEnemyToAdd!: enemy.Enemy | null;
+  constructor(host: universal.GameSocket, mode: GameMode, noHost: boolean) {
+    super(host, mode, noHost);
     this.nextGameStartTime = null;
     this.globalEnemySpawnThreshold = 0.1;
     this.globalClock = {
@@ -564,7 +401,20 @@ class MultiplayerRoom extends Room {
     };
   }
 
-  update(): void {
+  startPlay() {
+    for (let member of this.memberConnectionIDs) {
+      const socket = universal.getSocketFromConnectionID(member);
+      if (socket) {
+        this.gameData.push(new MultiplayerGameData(socket, this.mode));
+      }
+    }
+    this.ranking = [];
+    this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
+    this.playing = true;
+    log.info(`Room ${this.id} has started play!`);
+  }
+
+  update() {
     // Update for all types of rooms
     let now: number = Date.now();
     let deltaTime: number = now - this.lastUpdateTime;
@@ -572,30 +422,21 @@ class MultiplayerRoom extends Room {
     this.lastUpdateTime = now;
 
     // other global stuff
-    let playerListText = utilities.generatePlayerListText(
-      this.memberConnectionIDs
-    );
     for (let connectionID of this.memberConnectionIDs) {
-      let socket = universal.getSocketFromConnectionID(connectionID);
+      const socket = universal.getSocketFromConnectionID(connectionID);
       if (socket) {
-        socket.send(
-          JSON.stringify({
-            message: "changeHTML",
-            selector:
-              "#main-content__multiplayer-intermission-screen-container__game-status-ranking",
-
-            value: utilities.generateRankingText(_.clone(this.ranking))
-          })
+        const rankingSelector =
+          "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
+        const rankingText = utilities.generateRankingText(
+          _.clone(this.ranking)
         );
-        socket.send(
-          JSON.stringify({
-            message: "changeHTML",
-            selector:
-              "#main-content__multiplayer-intermission-screen-container__player-list",
-
-            value: playerListText
-          })
+        const playersSelector =
+          "#main-content__multiplayer-intermission-screen-container__player-list";
+        const playersText = utilities.generatePlayerListText(
+          this.memberConnectionIDs
         );
+        changeClientSideHTML(socket, rankingSelector, rankingText);
+        changeClientSideHTML(socket, playersSelector, playersText);
       }
     }
 
@@ -650,96 +491,43 @@ class MultiplayerRoom extends Room {
       }
       // Update Text
       for (let connectionID of this.memberConnectionIDs) {
-        let socket = universal.getSocketFromConnectionID(connectionID);
+        const socket = universal.getSocketFromConnectionID(connectionID);
         if (socket) {
+          const selector =
+            "#main-content__multiplayer-intermission-screen-container__game-status-message";
           if (this.nextGameStartTime) {
-            let timeLeft = Math.abs(
-              Date.now() - this.nextGameStartTime?.getTime()
-            );
-            socket.send(
-              JSON.stringify({
-                message: "changeText",
-                selector:
-                  "#main-content__multiplayer-intermission-screen-container__game-status-message",
-                value: `Next game starting in ${(timeLeft / 1000).toFixed(
-                  3
-                )} seconds.`
-              })
-            );
+            let timeLeft = Date.now() - this.nextGameStartTime.getTime();
+            timeLeft = Math.abs(timeLeft / 1000);
+            const value = `Game starting in ${timeLeft.toFixed(3)} seconds.`;
+            changeClientSideText(socket, selector, value);
           } else if (this.memberConnectionIDs.length < 2) {
-            socket.send(
-              JSON.stringify({
-                message: "changeText",
-                selector:
-                  "#main-content__multiplayer-intermission-screen-container__game-status-message",
-                value: `Waiting for at least 2 players.`
-              })
-            );
+            const value = `Waiting for at least 2 players.`;
+            changeClientSideText(socket, selector, value);
           }
         }
       }
     } else {
       // playing
-      // update text first
-      // Update Text
       for (let connectionID of this.memberConnectionIDs) {
-        let socket = universal.getSocketFromConnectionID(connectionID);
+        const socket = universal.getSocketFromConnectionID(connectionID);
         if (socket) {
-          socket.send(
-            JSON.stringify({
-              message: "changeText",
-              selector:
-                "#main-content__multiplayer-intermission-screen-container__game-status-message",
-              value: `Current game in progress. (Remaining: ${this.gameData.length}/${this.playersAtStart})`
-            })
-          );
-          //
+          const selector =
+            "#main-content__multiplayer-intermission-screen-container__game-status-message";
+          const value = `Current game in progress. (Remaining: ${this.gameData.length}/${this.playersAtStart})`;
+          changeClientSideText(socket, selector, value);
         }
       }
 
-      // all players
       // global - applies to all players
-      let enemyToAdd = null;
-
       // global clocks
       this.globalClock.enemySpawn.currentTime += deltaTime;
       this.globalClock.forcedEnemySpawn.currentTime += deltaTime;
-
-      // Add enemy if forced time up
-      if (
-        this.globalClock.forcedEnemySpawn.currentTime >=
-        this.globalClock.forcedEnemySpawn.actionTime
-      ) {
-        enemyToAdd = generateEnemyWithChance(
-          1,
-          this.updateNumber,
-          0.1 //TODO: custom multiplayer will mess this up
-        );
-        this.globalClock.forcedEnemySpawn.currentTime -=
-          this.globalClock.forcedEnemySpawn.actionTime;
-        // reset time
-        this.globalClock.forcedEnemySpawn.currentTime = 0;
-      }
-
-      // Add enemy if generated.
-      if (
-        this.globalClock.enemySpawn.currentTime >=
-          this.globalClock.enemySpawn.actionTime &&
-        enemyToAdd == null
-      ) {
-        enemyToAdd = generateEnemyWithChance(
-          this.globalEnemySpawnThreshold,
-          this.updateNumber,
-          0.1 //TODO: custom multiplayer will mess this up
-        );
-        this.globalClock.enemySpawn.currentTime -=
-          this.globalClock.enemySpawn.actionTime;
-      }
+      checkGlobalMultiplayerRoomClocks(this);
 
       // specific to each player
       for (let data of this.gameData) {
         let opponentGameData = this.gameData.filter(
-          (element) => element.owner !== data.owner
+          (element) => element.ownerConnectionID !== data.ownerConnectionID
         );
 
         if (data.aborted) {
@@ -754,7 +542,9 @@ class MultiplayerRoom extends Room {
         }
         if (data.baseHealth <= 0) {
           // player is eliminated.
-          let socket = universal.getSocketFromConnectionID(data.owner);
+          let socket = universal.getSocketFromConnectionID(
+            data.ownerConnectionID
+          );
           if (socket && !data.aborted) {
             socket.send(
               JSON.stringify({
@@ -764,36 +554,27 @@ class MultiplayerRoom extends Room {
             );
           }
 
-          this.eliminateSocketID(data.owner, data);
+          this.eliminateSocketID(data.ownerConnectionID, data);
         }
 
         // clocks
-        if (
-          data.clocks.comboReset.currentTime >=
-          data.clocks.comboReset.actionTime
-        ) {
-          data.combo = -1;
-          data.clocks.comboReset.currentTime -=
-            data.clocks.comboReset.actionTime;
-        }
+        checkPlayerMultiplayerRoomClocks(data, this);
 
         // generated enemy
-        if (enemyToAdd) {
-          // reset forced enemy time
-          this.globalClock.forcedEnemySpawn.currentTime = 0;
+        if (this.globalEnemyToAdd) {
           data.enemiesSpawned++;
-          data.enemies.push(_.clone(enemyToAdd as enemy.Enemy));
+          data.enemies.push(_.clone(this.globalEnemyToAdd as enemy.Enemy));
         }
 
         // received enemy
         if (data.receivedEnemiesToSpawn > 0) {
           data.receivedEnemiesToSpawn--;
           data.enemiesSpawned++;
+          const attributes = {
+            speed: 0.1 * data.enemySpeedCoefficient
+          };
           data.enemies.push(
-            enemy.createNewReceived(
-              `R${data.enemiesSpawned}`,
-              0.1 * data.enemySpeedCoefficient
-            )
+            enemy.createNewReceivedEnemy(`R${data.enemiesSpawned}`, attributes)
           );
         }
 
@@ -809,40 +590,38 @@ class MultiplayerRoom extends Room {
     }
   }
 
-  eliminateSocketID(connectionID: string, gameData: GameData) {
+  eliminateSocketID(connectionID: string, gameData: GameData | object) {
     let socket = universal.getSocketFromConnectionID(connectionID);
-    this.ranking.push({
-      placement: this.gameData.length,
-      name: universal.getNameFromConnectionID(connectionID) || "???",
-      time: gameData.elapsedTime,
-      sent: gameData.totalEnemiesSent,
-      received: gameData.totalEnemiesReceived
-    });
     if (typeof socket === "undefined") {
       log.warn(
         `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
       );
-      // let gameDataIndex = this.gameData.findIndex(
-      //   (element) => element.owner === connectionID
-      // );
-      // if (gameDataIndex === -1) {
-      //   log.warn(
-      //     `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
-      //   );
-      // }
-      // return;
+    }
+    const place = this.gameData.length;
+    if (gameData instanceof GameData) {
+      this.ranking.push({
+        placement: place,
+        name: universal.getNameFromConnectionID(connectionID) || "???",
+        time: gameData.elapsedTime,
+        sent: gameData.totalEnemiesSent,
+        received: gameData.totalEnemiesReceived
+      });
+    } else {
+      this.ranking.push({
+        placement: place,
+        name: universal.getNameFromConnectionID(connectionID) || "???",
+        time: "???",
+        sent: "???",
+        received: "???"
+      });
     }
     // eliminate the socket
     let gameDataIndex = this.gameData.findIndex(
-      (element) => element.owner === connectionID
+      (element) => element.ownerConnectionID === connectionID
     );
-    if (gameDataIndex === -1) {
-      log.warn(
-        `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
-      );
-      return;
+    if (gameDataIndex > -1) {
+      this.gameData.splice(gameDataIndex, 1);
     }
-    this.gameData.splice(gameDataIndex, 1);
     log.info(
       `Socket ID ${connectionID} (${universal.getNameFromConnectionID(
         connectionID
@@ -861,11 +640,13 @@ class MultiplayerRoom extends Room {
         let winnerGameData = gameDataArray[0];
         log.info(
           `The winner is socket ID ${
-            winnerGameData.owner
-          } (${universal.getNameFromConnectionID(winnerGameData.owner)})`
+            winnerGameData.ownerConnectionID
+          } (${universal.getNameFromConnectionID(
+            winnerGameData.ownerConnectionID
+          )})`
         );
         let userID = universal.getSocketFromConnectionID(
-          winnerGameData.owner
+          winnerGameData.ownerConnectionID
         )?.ownerUserID;
         if (typeof userID === "string") {
           if (!universal.STATUS.databaseAvailable) {
@@ -880,7 +661,9 @@ class MultiplayerRoom extends Room {
         this.ranking.push({
           placement: this.gameData.length,
           name:
-            universal.getNameFromConnectionID(winnerGameData.owner) || "???",
+            universal.getNameFromConnectionID(
+              winnerGameData.ownerConnectionID
+            ) || "???",
           time: winnerGameData.elapsedTime,
           sent: winnerGameData.totalEnemiesSent,
           received: winnerGameData.totalEnemiesReceived
@@ -896,16 +679,16 @@ class MultiplayerRoom extends Room {
   // force quit - NOT send to intermission screen
   abort(data: GameData) {
     data.baseHealth = -99999;
-    let socket = universal.getSocketFromConnectionID(data.owner);
+    let socket = universal.getSocketFromConnectionID(data.ownerConnectionID);
     data.commands.changeScreenTo = [{ value: "mainMenu", age: 0 }];
     log.info(
-      `Socket ID ${data.owner} (${universal.getNameFromConnectionID(
-        data.owner
+      `Socket ID ${data.ownerConnectionID} (${universal.getNameFromConnectionID(
+        data.ownerConnectionID
       )}) has quit the Default Multiplayer Room`
     );
     if (socket) {
       socket?.unsubscribe(this.id);
-      this.deleteMember(socket?.connectionID as string);
+      this.deleteMember(socket);
     }
   }
 
@@ -927,7 +710,7 @@ class MultiplayerRoom extends Room {
       let socket = universal.getSocketFromConnectionID(connectionID);
       if (typeof socket === "undefined") {
         log.warn(
-          `Socket ID ${connectionID} not found while eliminating it from multiplayer room, therefore skipping process.`
+          `Socket ID ${connectionID} not found while summoning it to lobby, therefore skipping process.`
         );
         continue;
       }
@@ -957,18 +740,6 @@ function generateRoomID(length: number): string {
     }
   }
   return current;
-}
-
-function generateEnemyWithChance(
-  threshold: number,
-  updateNumber: number,
-  speed: number
-): enemy.Enemy | null {
-  let roll: number = Math.random();
-  if (roll < threshold) {
-    return enemy.createNew(enemy.EnemyType.NORMAL, `G${updateNumber}`, speed);
-  }
-  return null;
 }
 
 function processKeypressForRoom(connectionID: string, code: string) {
@@ -1011,56 +782,54 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
         room.abort(gameData);
       }
     }
-    room.deleteMember(socket.connectionID as string);
+    room.deleteMember(socket);
     socket.unsubscribe(defaultMultiplayerRoomID as string);
   }
 }
 
-function getMinifiedOpponentInformation(
-  gameData: GameData,
+/**
+ *
+ * @param {universal.GameSocket} socket The socket that called the function. Will be used so function doesn't return self's data.
+ * @param {Room} room The room the socket is in. TODO: Make it so that the room is inferred from the socket automatically.
+ * @param {boolean} minifyData Whether to "minify" the data. This should be `true` if the data is expected to be sent to the client.
+ * @returns
+ */
+function getOpponentsInformation(
+  socket: universal.GameSocket,
   room: Room,
   minifyData: boolean
 ): any {
   let currentRoom: SingleplayerRoom | MultiplayerRoom | null =
-    findRoomWithConnectionID(gameData.owner);
+    findRoomWithConnectionID(socket.connectionID);
   let aliveConnectionIDs: Array<string> = [];
   if (typeof currentRoom === "undefined" || currentRoom == null) {
-    log.warn(`Room for owner ${gameData.owner} of game data not found.`);
+    log.warn(`Room for owner ${socket.connectionID} of game data not found.`);
     return [];
   }
   let opponentGameData = currentRoom.gameData.filter(
-    (element) => element.owner !== gameData.owner
+    (element) => element.ownerConnectionID !== socket.connectionID
   );
-  // add metadata
-  // ...
-  // minify data
   if (minifyData) {
     let minifiedOpponentGameData = [];
-
     for (let singleGameData of opponentGameData) {
       let minifiedGameData: { [key: string]: any } = {};
-      // let allowedKeys = Object.keys(singleGameData).filter((key) =>
-      //   MINIFIED_GAME_DATA_KEYS.includes(key)
-      // );
-      // for (let key of allowedKeys) {
-      //   minifiedGameData[key] = singleGameData[key];
-      // }
       minifiedGameData.baseHealth = singleGameData.baseHealth;
       minifiedGameData.combo = singleGameData.combo;
       minifiedGameData.currentInput = singleGameData.currentInput;
       minifiedGameData.receivedEnemiesStock =
         singleGameData.receivedEnemiesStock;
-      minifiedGameData.owner = singleGameData.owner;
+      minifiedGameData.owner = singleGameData.ownerConnectionID;
       minifiedGameData.ownerName = singleGameData.ownerName;
       minifiedGameData.enemies = singleGameData.enemies;
       minifiedGameData.enemiesToErase = singleGameData.enemiesToErase;
       minifiedOpponentGameData.push(minifiedGameData);
-      aliveConnectionIDs.push(singleGameData.owner);
+      aliveConnectionIDs.push(singleGameData.ownerConnectionID);
     }
     // 0 base health players
     let eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
       (element) =>
-        aliveConnectionIDs.indexOf(element) === -1 && element !== gameData.owner
+        aliveConnectionIDs.indexOf(element) === -1 &&
+        element !== socket.connectionID
     );
     // console.log(eliminatedConnectionIDs);
     for (let eliminated of eliminatedConnectionIDs) {
@@ -1074,11 +843,20 @@ function getMinifiedOpponentInformation(
   return opponentGameData;
 }
 
+/**
+ * Resets the Default Multiplayer Room's ID.
+ * @param {room} room ???
+ */
 function resetDefaultMultiplayerRoomID(room: string) {
   defaultMultiplayerRoomID = null;
   log.info(`Reset default multiplayer room ID from ${room} to null.`);
 }
 
+/**
+ * Sets the custom rules to a room.
+ * @param {Room} room The room to set settings to.
+ * @param {any} settings The settings to set the room to.
+ */
 function setCustomRules(room: Room, settings: { [key: string]: any }) {
   room.customSettings = {};
   room.customSettings.baseHealth = parseFloat(settings.baseHealth);
@@ -1099,13 +877,10 @@ export {
   SingleplayerRoom,
   MultiplayerRoom,
   Room,
-  GameData,
-  SingleplayerGameData,
   processKeypressForRoom,
   GameMode,
   defaultMultiplayerRoomID,
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
-  MultiplayerGameData,
-  getMinifiedOpponentInformation
+  getOpponentsInformation
 };

@@ -1,19 +1,40 @@
+// This file handles most/all enemy-related stuff.
+
 import * as PIXI from "pixi.js";
 import _ from "lodash";
 import { app, mathFont, variables } from "./index";
-import { getSettings } from "./settings";
+import { playSound } from "./sounds";
 const ENEMY_SIZE = 64;
 const ENEMY_FONT_SIZE = 24;
 const DEFAULT_ENEMY_WIDTH = 125;
 const DEFAULT_ENEMY_HEIGHT = 125;
-// file handles all enemy-related stuff
+const MAXIMUM_Y_POSITION = 720;
+const Y_POSITION_OFFSET = 40;
+const PLAYFIELD_WIDTH = 600;
 
 const ENEMY_TEXT_STYLE = new PIXI.TextStyle({
   fontSize: ENEMY_FONT_SIZE,
   fontFamily: "Computer Modern Unicode Serif"
 });
+
+/**
+ * This is to be used when enemy data is sent from the server-side.
+ * For basically everything else, use the regular client-side `Enemy`.
+ */
+type ServerSideEnemy = {
+  id: string;
+  displayedText: string;
+  speed: number;
+  xPosition: number;
+  sPosition: number;
+};
+
+/**
+ * This class is for a client-side enemy.
+ * For parsing data from server-side, use `ServerSideEnemy`.
+ */
 class Enemy {
-  static enemiesCurrentlyDrawn: Array<string> = [];
+  static enemiesDrawn: Array<string> = [];
   static enemyCache: Array<Enemy> = [];
   sprite!: PIXI.Sprite;
   textSprite!: PIXI.Text;
@@ -37,25 +58,27 @@ class Enemy {
   ) {
     // sprite-related
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
-    this.sprite.tint = getEnemyColor();
+    this.sprite.tint = getSetEnemyColor();
     this.sprite.width =
       (width || DEFAULT_ENEMY_WIDTH) *
       parseInt(variables.settings.enemyWidthCoefficient || 1);
     this.sprite.height = height || DEFAULT_ENEMY_HEIGHT;
     this.sprite.x =
-      100 + 580 + (xPosition || Math.random()) * (600 - DEFAULT_ENEMY_WIDTH);
-    this.sprite.y = 720 - 720 * sPosition + DEFAULT_ENEMY_HEIGHT - 40;
+      680 +
+      (xPosition || Math.random()) * (PLAYFIELD_WIDTH - DEFAULT_ENEMY_WIDTH);
+    this.sprite.y =
+      MAXIMUM_Y_POSITION -
+      MAXIMUM_Y_POSITION * sPosition +
+      DEFAULT_ENEMY_HEIGHT -
+      Y_POSITION_OFFSET;
     this.text = text;
     // text-related
     this.textSprite = new PIXI.Text(
-      beautifyDisplayedText(
-        text,
-        variables.settings.multiplicationSign === "times"
-      ),
+      beautifyMathText(text, variables.settings.multiplicationSign === "times"),
       _.clone(ENEMY_TEXT_STYLE)
     );
     this.textSprite.style.fill =
-      calculateLuminance(this.sprite.tint) > 0.5 ? 0 : 16777215;
+      getLuminance(this.sprite.tint) > 0.5 ? 0x000000 : 0xffffff;
     this.textSprite.x =
       this.sprite.x + (this.sprite.width - this.textSprite.width) / 2;
     this.textSprite.y =
@@ -69,20 +92,34 @@ class Enemy {
     this.id = id;
     this.creationTime = Date.now();
     // functions
-    Enemy.enemiesCurrentlyDrawn.push(id);
+    Enemy.enemiesDrawn.push(id);
     Enemy.enemyCache.push(this);
   }
+
+  /**
+   * Renders the enemy.
+   */
   render() {
     app.stage.addChild(this.sprite);
     app.stage.addChild(this.textSprite);
   }
+
+  /**
+   * This moves the enemy to the specified `sPosition`.
+   * TODO: Enemy will damage the base and get deleted if new sPosition <= 0
+   * @param {number} sPosition The sPosition to render the enemy at.
+   */
   reposition(sPosition: number) {
-    this.sprite.y = 720 - 720 * sPosition + DEFAULT_ENEMY_HEIGHT - 40;
+    this.sprite.y =
+      MAXIMUM_Y_POSITION -
+      MAXIMUM_Y_POSITION * sPosition +
+      DEFAULT_ENEMY_HEIGHT -
+      Y_POSITION_OFFSET;
     this.textSprite.x =
       this.sprite.x + (this.sprite.width - this.textSprite.width) / 2;
     this.textSprite.y =
       this.sprite.y + (this.sprite.height - this.textSprite.height) / 2;
-    this.textSprite.style.fontSize = calculateOptimalFontSize(
+    this.textSprite.style.fontSize = getBestFontSize(
       2,
       this.textSprite.text,
       this.sprite.width
@@ -91,47 +128,95 @@ class Enemy {
     if (sPosition <= 0) {
       deleteEnemy(this.id);
       if (!this.attackedBase) {
+        playSound("assets/sounds/damaged.mp3", true);
         variables.currentGameClientSide.baseHealth -= 10;
         this.attackedBase = true;
       }
     }
   }
 
-  calculateScore(coefficient: number, currentCombo: number) {
+  /**
+   * Calculates how many points a killed enemy should earn the player.
+   * @param {number} coefficient The multiplier to apply to the score.
+   * @param {number} combo The current combo.
+   * @returns The score to add.
+   */
+  calculateScore(coefficient: number, combo: number, level: number) {
+    const base = 100;
+    const comboBonus = 0.1;
+    const sPositionThreshold = 0.5;
+    const sPositionBonus = 50;
+    const sPositionScore = Math.max(
+      0,
+      (this.sPosition - sPositionThreshold) * sPositionBonus
+    );
+    const comboScore = Math.max(1, combo * comboBonus + 1);
+    const levelCoefficient = Math.max(1, 1 + 0.1 * (level - 1));
     return Math.round(
-      (100 +
-        Math.max(0, (this.sPosition - 0.5) * 50) *
-          Math.max(1, currentCombo * 0.1 + 1)) *
-        coefficient
+      (base + sPositionScore * comboScore) * levelCoefficient * coefficient
     );
   }
 
+  /**
+   * Calculates how many enemies should be sent (to opponents) on a killed enemy.
+   * Every 3 combo starting at 0 (2, 5, 8, ...): +1
+   * Every 0.1 sPosition from 0.6 (0.6, 0.7, 0.8, ...): +1
+   * @param {number} coefficient The multiplier to apply to the score.
+   * @param {number} combo The current combo.
+   * @returns The score to add.
+   */
   calculateSent(coefficient: number, combo: number) {
-    // every 3 combo starting at 0 (2, 5, 8, ...): +1
-    // every 0.1 sPosition from 0.6 (0.6, 0.7, 0.8, ...): +1
-    let comboSent = Math.max(0, Math.floor((combo + 1) / 3));
-    let sPositionSent = Math.max(0, Math.floor((this.sPosition - 0.5) / 0.1));
+    const comboInterval = 3;
+    const sPositionInterval = 0.1;
+    const sPositionThreshold = 0.5;
+    const positionDifference = this.sPosition - sPositionThreshold;
+
+    const comboSent = Math.max(0, Math.floor((combo + 1) / comboInterval));
+    const sPositionSent = Math.max(
+      0,
+      Math.floor(positionDifference / sPositionInterval)
+    );
     return (comboSent + sPositionSent) * coefficient;
   }
 
-  createKilledText() {
+  /**
+   * Creates the text that should be shown for each enemy according to game mode.
+   * One of the reasons the function is here so that I don't have to duplicate code on whether a +100 should be shown or a sent 1 should be shown.
+   * @returns The text.
+   */
+  getText() {
     if (variables.currentGameMode === "multiplayer") {
       return this.calculateSent(
         1,
         variables.currentGameClientSide.currentCombo
       );
     }
-    return this.calculateScore(1, variables.currentGameClientSide.currentCombo);
+    return this.calculateScore(
+      1,
+      variables.currentGameClientSide.currentCombo,
+      variables.currentGameClientSide.level
+    );
   }
 }
-function getEnemyFromCache(id: string) {
+
+/**
+ * This gets the enemy with ID `id` from `Enemy.enemyCache`.
+ * @param {string} id The ID of the enemy to get.
+ * @returns The client-side `Enemy` if such enemy exists, `undefined` otherwise.
+ */
+function getCachedEnemy(id: string) {
   return Enemy.enemyCache.find((enemy) => enemy.id === id);
 }
-function calculateOptimalFontSize(
-  decrement: number,
-  text: string,
-  width: number
-) {
+
+/**
+ * This function calculates the best font size.
+ * The best font size is the largest font size that can fit the `text` within the 95% of the enemy's width without going over.
+ * @param {number} decrement How much to decrement by each step.
+ * @param {string} text The text to measure.
+ * @param {number} width The width of the enemy.
+ * @returns The best font size (approximately the largest that could fit the enemy)
+ */
+function getBestFontSize(decrement: number, text: string, width: number) {
   let size = ENEMY_FONT_SIZE;
   let style = _.clone(ENEMY_TEXT_STYLE);
   while (size > 12) {
@@ -144,88 +229,139 @@ function calculateOptimalFontSize(
   }
   return size;
 }
-function renderNewEnemy(
-  id: string,
-  text: string,
-  speed: number,
-  xPosition?: number
-) {
-  let enemy = new Enemy(1, text, id, ENEMY_SIZE, ENEMY_SIZE, speed, xPosition);
-  Enemy.enemyCache.push(enemy);
-  getEnemyFromCache(id)?.render();
+
+/**
+ * This function renders a `ServerSideEnemy`.
+ * @param {ServerSideEnemy} enemy A `ServerSideEnemy`.
+ */
+function renderEnemy(enemy: ServerSideEnemy) {
+  const newEnemy = new Enemy(
+    1,
+    enemy.displayedText,
+    enemy.id,
+    ENEMY_SIZE,
+    ENEMY_SIZE,
+    enemy.speed,
+    enemy.xPosition
+  );
+  Enemy.enemyCache.push(newEnemy);
+  getCachedEnemy(newEnemy.id)?.render();
 }
-function repositionExistingEnemy(id: string, sPosition: number) {
-  getEnemyFromCache(id)?.reposition(sPosition);
+
+/**
+ * This function repositions the enemy with ID `id` to sPosition `sPosition`.
+ * @param {string} id The ID of the enemy
+ * @param {number} sPosition The new position of the enemy
+ */
+function repositionEnemy(id: string, sPosition: number) {
+  getCachedEnemy(id)?.reposition(sPosition);
 }
-function deleteEnemy(id: string, addClientSideKill?: boolean) {
-  let enemy: Enemy | undefined = getEnemyFromCache(id);
-  let sprite: PIXI.Sprite | undefined = getEnemyFromCache(id)?.sprite;
-  let text: PIXI.Text | undefined = getEnemyFromCache(id)?.textSprite;
-  if (sprite) {
+
+/**
+ * Deletes the enemy with the ID `id` from `Enemy.enemyCache`.
+ * @param {string} id The ID of the enemy to delete.
+ */
+function deleteEnemy(id: string) {
+  const text = getCachedEnemy(id)?.textSprite;
+  const enemy = getCachedEnemy(id);
+  const sprite = getCachedEnemy(id)?.sprite;
+  if (typeof sprite !== "undefined") {
     app.stage.removeChild(sprite);
   }
-  if (text) {
+  if (typeof text !== "undefined") {
     app.stage.removeChild(text);
   }
-  if (enemy) {
-    Enemy.enemyCache.splice(Enemy.enemyCache.indexOf(enemy), 1);
+  if (typeof enemy !== "undefined") {
+    const enemyIndex = Enemy.enemyCache.indexOf(enemy);
+    Enemy.enemyCache.splice(enemyIndex, 1);
   }
 }
+
+/**
+ * Deletes all the enemies in `Enemy.enemyCache` that are currently rendered.
+ */
 function deleteAllEnemies() {
   for (let enemy of Enemy.enemyCache) {
     deleteEnemy(enemy.id);
   }
 }
-function rerenderEnemy(
-  id: string,
-  sPosition: number,
-  speed: number,
-  displayedText?: string,
-  xPosition?: number
-) {
-  if (Enemy.enemiesCurrentlyDrawn.indexOf(id) > -1) {
+
+/**
+ * This function attempts to rerender a `ServerSideEnemy`.
+ * If it doesn't already exist, it will render a new one.
+ * @param {ServerSideEnemy} enemyData A `ServerSideEnemy`.
+ */
+function rerenderEnemy(enemyData: ServerSideEnemy) {
+  if (Enemy.enemiesDrawn.indexOf(enemyData.id) > -1) {
     // enemy already drawn
-    repositionExistingEnemy(id, sPosition);
+    repositionEnemy(enemyData.id, enemyData.sPosition);
   } else {
     // enemy wasn't drawn yet
-    if (typeof displayedText === "string") {
-      renderNewEnemy(id, displayedText, speed, xPosition);
+    if (typeof enemyData.displayedText === "string") {
+      renderEnemy(enemyData);
     }
   }
 }
-function beautifyDisplayedText(
-  text: string,
-  useTimesForMultiplication?: boolean
-) {
+
+/**
+ * Beautifies the math text, making it look nicer and more readable on the screen.
+ * @param {text} text The text of the enemy.
+ * @param {text} useCross Whether to use the cross for the multiplication sign. This should be from a user setting, not hardcoded.
+ * @returns The text filled with unicode characters.
+ */
+function beautifyMathText(text: string, useCross?: boolean) {
   text = text.replace(/-/g, "\u2212");
   text = text.replace(/\//g, "\u00f7");
-  if (useTimesForMultiplication) {
+  if (useCross) {
     text = text.replace(/\*/g, "\u00d7");
   } else {
     text = text.replace(/\*/g, "\u22c5");
   }
   return text;
 }
-function calculateLuminance(colorNumber: number) {
-  let r = (colorNumber >> 16) & 255;
-  let g = (colorNumber >> 8) & 255;
-  let b = colorNumber & 255;
-  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+
+/**
+ * Gets the luminance of a color.
+ * @param colorNumber The number of the color (red = 0xff0000, etc...)
+ * @returns The luminance of the color.
+ */
+function getLuminance(colorNumber: number) {
+  const rCoefficient = 0.2126;
+  const gCoefficient = 0.7152;
+  const bCoefficient = 0.0722;
+  const steps = 255;
+
+  const r = ((colorNumber >> 16) & steps) * rCoefficient;
+  const g = ((colorNumber >> 8) & steps) * gCoefficient;
+  const b = (colorNumber & steps) * bCoefficient;
+  return (r + g + b) / steps;
 }
-function getEnemyColor() {
-  let value = variables.settings.enemyColor;
-  if (!/\#[0-9a-f]{6}/.test(value)) {
-    return Math.floor(Math.random() * 16777216);
+
+/**
+ * Gets the enemy color.
+ * The enemy color is what the enemy color should be.
+ * If the setting for the enemy color is random, a new color will be picked randomly for each enemy.
+ * @returns The color's number.
+ */
+function getSetEnemyColor() {
+  const hexBase = 16;
+  const maximumValue = 16777216;
+  const value = variables.settings.enemyColor;
+  const validHexRegex = /\#[0-9a-f]{6}/;
+
+  if (!validHexRegex.test(value)) {
+    return Math.floor(Math.random() * maximumValue);
   }
-  return parseInt(value.substring(1), 16);
+  return parseInt(value.substring(1), hexBase);
 }
+
 export {
   Enemy,
   rerenderEnemy,
   deleteEnemy,
   deleteAllEnemies,
-  getEnemyColor,
-  getEnemyFromCache,
+  getSetEnemyColor,
+  getCachedEnemy as getEnemyFromCache,
   DEFAULT_ENEMY_HEIGHT,
   DEFAULT_ENEMY_WIDTH,
   ENEMY_TEXT_STYLE

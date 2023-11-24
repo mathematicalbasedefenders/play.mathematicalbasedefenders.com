@@ -55,10 +55,10 @@ interface UserModel extends mongoose.Model<UserInterface> {
   safeLeanedFindByUserID(userID: string): Promise<object>;
   getAllEasySingleplayerBestScores(): Promise<Array<object>>;
   getAllStandardSingleplayerBestScores(): Promise<Array<object>>;
-  addMultiplayerGamesWonToUserID(id: string, amount: number): void;
-  addMultiplayerGamesPlayedToUserID(id: string, amount: number): void;
-  addGamesPlayedToUserID(id: string, amount: number): void;
-  giveExperiencePointsToUserID(id: string, amount: number): void;
+  addMultiplayerGamesWonToUserID(userID: string, amount: number): void;
+  addMultiplayerGamesPlayedToUserID(userID: string, amount: number): void;
+  addGamesPlayedToUserID(userID: string, amount: number): void;
+  giveExperiencePointsToUserID(userID: string, amount: number): void;
   addMissingKeys(id: string): void;
 }
 
@@ -117,6 +117,7 @@ UserSchema.static("findByUsername", async function (username: string) {
 UserSchema.static("safeFindByUsername", async function (username: string) {
   return this.findOne({ username: username })
     .select({
+      email: 0,
       emailAddress: 0,
       hashedPassword: 0
     })
@@ -183,9 +184,9 @@ UserSchema.static("getAllStandardSingleplayerBestScores", async function () {
 
 UserSchema.static(
   "giveExperiencePointsToUserID",
-  async function (id: string, amount: number) {
+  async function (userID: string, amount: number) {
     // give experience points
-    let playerData = await User.safeFindByUserID(id);
+    let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.totalExperiencePoints += Math.round(amount);
     playerData.save();
   }
@@ -193,8 +194,8 @@ UserSchema.static(
 
 UserSchema.static(
   "addGamesPlayedToUserID",
-  async function (id: string, amount: number) {
-    let playerData = await User.safeFindByUserID(id);
+  async function (userID: string, amount: number) {
+    let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.gamesPlayed += amount;
     playerData.save();
   }
@@ -202,8 +203,8 @@ UserSchema.static(
 
 UserSchema.static(
   "addMultiplayerGamesPlayedToUserID",
-  async function (id: string, amount: number) {
-    let playerData = await User.safeFindByUserID(id);
+  async function (userID: string, amount: number) {
+    let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.multiplayer.gamesPlayed += amount;
     playerData.save();
   }
@@ -211,8 +212,8 @@ UserSchema.static(
 
 UserSchema.static(
   "addMultiplayerGamesWonToUserID",
-  async function (id: string, amount: number) {
-    let playerData = await User.safeFindByUserID(id);
+  async function (userID: string, amount: number) {
+    let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.multiplayer.gamesWon += amount;
     playerData.save();
   }

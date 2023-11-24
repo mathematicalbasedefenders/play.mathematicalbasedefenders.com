@@ -2,12 +2,15 @@ import { log } from "./log";
 import * as universal from "../universal";
 import {
   defaultMultiplayerRoomID,
-  GameData,
   leaveMultiplayerRoom,
-  MultiplayerGameData,
-  processKeypressForRoom,
-  SingleplayerGameData
+  processKeypressForRoom
 } from "../game/Room";
+import {
+  GameData,
+  GameMode,
+  MultiplayerGameData,
+  SingleplayerGameData
+} from "../game/GameData";
 import { findRoomWithConnectionID } from "./utilities";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
@@ -51,14 +54,24 @@ interface InputActionInterface {
 }
 const SEND_KEYS = ["Space", "Enter"];
 
+/**
+ * Emulates a keypress for a player as if the player pressed the key themselves.
+ * Note that it will also log that the press is emulated.
+ * @param {universal.GameSocket} socket
+ * @param {string} code
+ */
 function emulateKeypress(
-  connectionID: string | undefined,
+  socket: universal.GameSocket,
   code: string | undefined
 ) {
+  const connectionID = socket.connectionID;
+  const playerName = universal.getNameFromConnectionID(connectionID || "");
+  if (!connectionID) {
+    log.warn(`Socket has no ID.`);
+    return;
+  }
   log.info(
-    `Keypress ${code} emulated on Socket ID ${connectionID} (${universal.getNameFromConnectionID(
-      connectionID || ""
-    )})`
+    `Keypress ${code} emulated on Socket ID ${connectionID} (${playerName})`
   );
   if (typeof connectionID !== "string") {
     log.warn(
@@ -71,13 +84,18 @@ function emulateKeypress(
     return;
   }
   // TODO: What if player isn't in a room? (e.g. Multiplayer Room Intermission)
-  processKeypress(connectionID, code);
+  processKeypress(socket, code);
 }
 
 function processKeypress(
-  connectionID: string | undefined,
+  socket: universal.GameSocket,
   code: string | undefined
 ) {
+  const connectionID = socket.connectionID;
+  if (!connectionID) {
+    log.warn(`Socket has no ID.`);
+    return;
+  }
   // data validation point
   if (typeof connectionID !== "string") {
     log.warn(
@@ -107,6 +125,11 @@ function processKeypress(
   }
 }
 
+/**
+ * Processes an input for a room.
+ * @param {InputActionInterface} inputInformation The input info
+ * @param {GameData} gameDataToProcess The game data to process on
+ */
 function processInputInformation(
   inputInformation: InputActionInterface,
   gameDataToProcess: GameData
@@ -131,6 +154,7 @@ function processInputInformation(
         return;
       }
       gameDataToProcess.currentInput += "-";
+      break;
     }
     case InputAction.SendAnswer: {
       let enemyKilled = false;
@@ -140,6 +164,12 @@ function processInputInformation(
           gameDataToProcess.enemiesToErase.push(enemy.id);
           enemyKilled = true;
           gameDataToProcess.enemiesKilled += 1;
+          if (gameDataToProcess instanceof SingleplayerGameData) {
+            gameDataToProcess.enemiesToNextLevel -= 1;
+            if (gameDataToProcess.enemiesToNextLevel <= 0) {
+              gameDataToProcess.increaseLevel(1);
+            }
+          }
           enemy.kill(gameDataToProcess, true, true);
         }
       }
@@ -164,6 +194,11 @@ function processInputInformation(
   }
 }
 
+/**
+ * Gets Keyboard input information
+ * @param {string} code The key.code of the pressed key
+ * @returns {object} An object detailing what action and argument to pass to the next function.
+ */
 function getInputInformation(code: string) {
   if (NUMBER_PAD_KEYS.indexOf(code) > -1) {
     return {

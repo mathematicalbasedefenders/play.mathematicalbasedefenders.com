@@ -1,16 +1,22 @@
 import _ from "lodash";
 import { log } from "../core/log";
-import { GameData, SingleplayerGameData, MultiplayerGameData } from "./Room";
-
-enum EnemyType {
-  NORMAL = "1",
-  TANK = "2t",
-  FIGHTER = "2f",
-  SPEEDSTER = "2s"
-}
+import {
+  GameData,
+  SingleplayerGameData,
+  MultiplayerGameData
+} from "./GameData";
 
 const MINIMUM_GENERABLE_NUMBER = -100;
-const MAXIMUM_GENERABLE_NUMBER = 100;
+const POSSIBLE_FACTORS = [2, 3, 4, 5, 6, 8, 9, 10, 11];
+
+interface EnemyAttributes {
+  attack?: number;
+  health?: number;
+  color?: number;
+  speed?: number;
+  width?: number;
+  height?: number;
+}
 
 class Enemy {
   attack?: number;
@@ -48,12 +54,19 @@ class Enemy {
     return this.requestedValue === input;
   }
 
-  calculateScore(coefficient: number, currentCombo: number): number {
+  calculateScore(coefficient: number, combo: number, level: number): number {
+    const base = 100;
+    const comboBonus = 0.1;
+    const levelBonus = Math.max(1, 1 + 0.1 * (level - 1));
+    const sPositionThreshold = 0.5;
+    const sPositionBonus = 50;
+    const sPositionScore = Math.max(
+      0,
+      (this.sPosition - sPositionThreshold) * sPositionBonus
+    );
+    const comboScore = Math.max(1, combo * comboBonus + 1);
     return Math.round(
-      (100 +
-        Math.max(0, (this.sPosition - 0.5) * 50) *
-          Math.max(1, currentCombo * 0.1 + 1)) *
-        coefficient
+      (base + sPositionScore * comboScore) * levelBonus * coefficient
     );
   }
 
@@ -83,7 +96,11 @@ class Enemy {
           attack -= 1;
         }
       }
-      gameData.score += this.calculateScore(1, gameData.combo);
+      gameData.score += this.calculateScore(
+        1,
+        gameData.combo,
+        gameData.level || 1
+      );
     }
     if (giveCombo) {
       gameData.combo += 1;
@@ -93,6 +110,13 @@ class Enemy {
   }
 
   remove(gameData: GameData, damage?: number) {
+    if (typeof damage === "number") {
+      gameData.baseHealth -= damage;
+    }
+    removeEnemyWithIDInGameData(this.id, gameData);
+  }
+
+  attackBase(gameData: GameData, damage?: number) {
     if (typeof damage === "number") {
       gameData.baseHealth -= damage;
     }
@@ -108,7 +132,7 @@ function removeEnemyWithIDInGameData(id: string, gameData: GameData) {
   gameData.enemiesToErase.push(id);
 }
 
-function createNew(enemyType: EnemyType, id: string, speed: number) {
+function createNewEnemy(id: string, attributes?: EnemyAttributes) {
   // TODO: Change this algorithm (line below)
   let generatedValue: number = Math.round(Math.random() * 200 - 100);
   let enemy: Enemy = new Enemy(
@@ -116,28 +140,15 @@ function createNew(enemyType: EnemyType, id: string, speed: number) {
     createProblem(generatedValue),
     Math.random(),
     1,
-    speed || 0.1,
+    attributes?.speed || 0.1,
     id
   );
-  switch (enemyType) {
-    case EnemyType.NORMAL: {
-      enemy.attack = 1;
-      enemy.health = 1;
-      // e.g.
-      enemy.color = 0xffffff;
-      // enemy.speed = 0.1;
-      break;
-    }
-  }
   return enemy;
 }
 
-function createNewReceived(id: string, speed: number) {
-  return createNew(EnemyType.NORMAL, id, speed || 0.1);
+function createNewReceivedEnemy(id: string, attributes?: EnemyAttributes) {
+  return createNewEnemy(id, attributes);
 }
-
-// TODO: this
-function createCustom() {}
 
 function createProblem(result: number) {
   let operation = _.sample([
@@ -169,7 +180,7 @@ function createProblem(result: number) {
       if (result === 0) {
         // TODO: Make it so that either n1, n2, or both is set to 0
         n1 = result;
-        n2 = _.sample([2, 3, 4, 5, 6, 8, 9, 10, 11]) as number;
+        n2 = _.sample(POSSIBLE_FACTORS) as number;
       }
       return `${n1} * ${n2}`;
     }
@@ -182,7 +193,7 @@ function createProblem(result: number) {
       let n2 = coefficient;
       if (result === 0) {
         n1 = result;
-        n2 = _.sample([2, 3, 4, 5, 6, 8, 9, 10, 11]) as number;
+        n2 = _.sample(POSSIBLE_FACTORS) as number;
       }
       return `${n1} / ${n2}`;
     }
@@ -211,4 +222,4 @@ function getFactorsOf(number: number): Array<number> {
   return factors;
 }
 
-export { createNew, createNewReceived, Enemy, EnemyType };
+export { createNewEnemy, createNewReceivedEnemy, Enemy, EnemyAttributes };
