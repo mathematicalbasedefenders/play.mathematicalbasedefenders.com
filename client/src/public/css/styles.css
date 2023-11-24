@@ -47,6 +47,10 @@ body {
   background-color: var(--color-neutral);
 }
 
+.text--link {
+  color: var(--color-text-light) !important;
+}
+
 .text--centered {
   text-align: center;
 }
@@ -1059,7 +1063,7 @@ code {
 
 /* VERSION NUMBER */
 #version-number-container {
-  z-index: 101;
+  z-index: 1001;
   overflow: hidden;
   width: 100vw;
   height: 100vh;

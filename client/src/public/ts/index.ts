@@ -548,6 +548,7 @@ window.addEventListener("load", function () {
     </li>
     <li>This game is best played with a keyboard. However, if you don't have one, there is a "virtual" on-screen keyboard available. These might be slow on tablets and phones.</li>
     <li>To log in to your user account, go to <code>Settings</code>, then <code>Online</code>.</li>
+    <li>To register for an account, go to the accompanying website <a class="text--link" href="https://mathematicalbasedefenders.com">here</a>.</li>
     <li>To request a feature, report a bug or to contribute, please do so in the game's communication channels available on the accompanying website.</li>
     </ul>
     Thank you for playing!</p>`,
