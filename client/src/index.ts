@@ -53,6 +53,11 @@ app.set("views", path.join(__dirname, "views"));
 app.get("/", limiter, (request: Request, response: Response) => {
   response.render("pages/index.ejs");
 });
+
+app.get("*", limiter, (request: Request, response: Response) => {
+  response.render("pages/404.ejs");
+});
+
 app.listen(PORT, () => {
   log.info(`Client app listening at port ${PORT}`);
   if (process.env.credentialSetUsed === "TESTING") {
