@@ -79,10 +79,10 @@ function checkEnemyTimeClocks(data: GameData, room: Room) {
     const roll = Math.random();
     if (roll < data.enemySpawnThreshold && !forcedSpawned) {
       data.enemies.push(_.clone(enemyToAdd));
+      data.enemiesSpawned++;
     }
     enemySpawnClock.currentTime -= enemySpawnClock.actionTime;
     forcedEnemySpawnClock.currentTime = 0;
-    data.enemiesSpawned++;
   }
 }
 

@@ -324,7 +324,7 @@ function initializeEventListeners() {
   //
   $("#settings-screen__content--online__submit").on("click", async (event) => {
     // FIXME: possibly unsafe
-    const url = `${location.protocol}//${location.hostname}:4000/authenticate`;
+    const url = `${location.protocol}//${location.hostname}/authenticate`;
     const result = await fetch(url, {
       method: "POST",
       body: JSON.stringify({
