@@ -183,6 +183,8 @@ function renderGameData(data: { [key: string]: any }) {
   variables.currentGameClientSide.baseHealth = data.baseHealth;
   variables.currentGameClientSide.currentInput = data.currentInput;
   variables.currentGameClientSide.level = data.level;
+  variables.currentGameClientSide.enemySpeedCoefficient =
+    data.enemySpeedCoefficient;
   // beautiful score setting
   // if (variables.settings.beautifulScore === "on") {
   //   let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);

@@ -95,6 +95,7 @@ function resetClientSideVariables() {
   variables.currentGameClientSide.totalElapsedMilliseconds = 0;
   variables.currentGameClientSide.baseHealth = 100;
   variables.currentGameClientSide.enemiesKilled = 0;
+  variables.currentGameClientSide.enemySpeedCoefficient = 1;
 }
 
 /**
