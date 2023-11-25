@@ -199,6 +199,7 @@ class CustomSingleplayerGameData extends GameData {
     super(owner, gameMode);
     // This assumes that data has already been validated.
     this.baseHealth = settings.baseHealth;
+    this.maximumBaseHealth = settings.baseHealth;
     this.clocks.comboReset.actionTime = settings.comboTime;
     this.enemySpeedCoefficient = settings.enemySpeedCoefficient;
     this.clocks.enemySpawn.actionTime = settings.enemySpawnTime;
