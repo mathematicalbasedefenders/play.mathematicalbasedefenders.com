@@ -18,7 +18,8 @@ function render(elapsedMilliseconds: number) {
       let enemy = getEnemyFromCache(enemyID);
       if (typeof enemy !== "undefined") {
         let age = Date.now() - enemy.creationTime;
-        enemy.reposition(1 - enemy.speed * (age / 1000));
+        const speed = variables.currentGameClientSide.enemySpeedCoefficient;
+        enemy.reposition(1 - enemy.speed * speed * (age / 1000));
       }
     }
   }
