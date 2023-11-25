@@ -49,7 +49,7 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
   switch (data.mode) {
     case GameMode.EasySingleplayer: {
       const key = "personalBestScoreOnEasySingleplayerMode";
-      if (data.score > (statistics.statistics[key].score|| -1)) {
+      if (data.score > (statistics.statistics[key].score || -1)) {
         await updatePersonalBest(owner, data);
         log.info(`New Easy Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
@@ -73,7 +73,7 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
   // announce leaderboard rank
   const rank = await getLeaderboardsRank(owner, data);
   if (rank > -1) {
-    rankMessage += `Global Rank #${rank}`;
+    rankMessage += `Global Rank #${rank + 1}`;
   }
   // update data on screen
   await updateSocketUserInformation(owner);
@@ -106,7 +106,7 @@ async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
   if (globalRank > -1) {
     log.info(`${owner.ownerUsername} got #${globalRank + 1} on ${data.mode}.`);
   }
-  return globalRank + 1;
+  return globalRank;
 }
 
 /**
