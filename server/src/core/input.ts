@@ -134,6 +134,8 @@ function processInputInformation(
   inputInformation: InputActionInterface,
   gameDataToProcess: GameData
 ) {
+  // also increment actionsPerformed
+  gameDataToProcess.actionsPerformed++;
   switch (inputInformation.action) {
     case InputAction.AddDigit: {
       if (gameDataToProcess.currentInput.length > 7) {
