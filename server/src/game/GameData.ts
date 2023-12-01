@@ -52,6 +52,7 @@ class GameData {
   enemiesToNextLevel: number;
   baseHealthRegeneration: number;
   maximumBaseHealth: number;
+  actionsPerformed: number;
   // ...
   attackScore!: number;
   receivedEnemiesStock!: number;
@@ -81,6 +82,7 @@ class GameData {
     this.enemiesToNextLevel = 10;
     this.baseHealthRegeneration = 2;
     this.maximumBaseHealth = 100;
+    this.actionsPerformed = 0;
     // per mode
     if (mode === GameMode.EasySingleplayer) {
       this.clocks = {
