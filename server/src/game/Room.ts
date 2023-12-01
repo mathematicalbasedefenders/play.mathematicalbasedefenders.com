@@ -29,6 +29,7 @@ import {
   checkGlobalMultiplayerRoomClocks,
   checkPlayerMultiplayerRoomClocks
 } from "./actions/clocks";
+import { createGameOverScreenText } from "./actions/create-text";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -268,7 +269,7 @@ class SingleplayerRoom extends Room {
 
   async startGameOverProcess(data: GameData) {
     let socket = universal.getSocketFromConnectionID(data.ownerConnectionID);
-    let messages = "";
+
     // game over here
 
     let gameMode: string = "";
@@ -287,46 +288,7 @@ class SingleplayerRoom extends Room {
       }
     }
 
-    data.commands.updateText = [
-      {
-        value: {
-          selector: "#main-content__game-over-screen__stats__score",
-          newText: data.score.toString()
-        },
-        age: 0
-      },
-      {
-        value: {
-          selector: "#main-content__game-over-screen__stats__game-mode",
-          newText: gameMode
-        },
-        age: 0
-      },
-      {
-        value: {
-          selector: "#main-content__game-over-screen__stats__enemies",
-          newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
-            (data.enemiesKilled / data.elapsedTime) *
-            1000
-          ).toFixed(3)}/s)`
-        },
-        age: 0
-      },
-      {
-        value: {
-          selector: "#main-content__game-over-screen__stats__time",
-          newText: utilities.millisecondsToTime(data.elapsedTime)
-        },
-        age: 0
-      },
-      {
-        value: {
-          selector: "#main-content__game-over-screen__stats__score-rank",
-          newText: messages
-        },
-        age: 0
-      }
-    ];
+    data.commands.updateText = createGameOverScreenText(data, gameMode);
     data.commands.changeScreenTo = [{ value: "gameOver", age: 0 }];
     if (socket) {
       synchronizeGameDataWithSocket(socket);
