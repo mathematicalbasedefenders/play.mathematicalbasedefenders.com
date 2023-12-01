@@ -618,7 +618,7 @@ code {
 #main-content__game-over-screen {
   display: grid;
   grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
-  grid-template-rows: [row1-start] 40px [row1-end row2-start] 20vw [row2-end row3-start] 10vw [row3-end row4-start] auto [row4-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] 25vh [row2-end row3-start] 30vh [row3-end row4-start] 10vw [row4-end row5-start] auto [row5-end];
   height: 100%;
   width: 100%;
 }
@@ -637,6 +637,13 @@ code {
   /* justify-content: space-between; */
 }
 
+#main-content__game-over-screen__stats--detailed {
+  border: 1px #ffffff solid;
+  grid-row: row3-start / row3-end;
+  grid-column: column2-start / column2-end;
+  margin: 16px 0;
+}
+
 #main-content__game-over-screen__stats > span {
   width: 45%;
   margin: 0 8px;
@@ -644,7 +651,7 @@ code {
 
 #main-content__game-over-screen__action-button-container {
   display: flex;
-  grid-row: row3-start / row3-end;
+  grid-row: row4-start / row4-end;
   grid-column: column2-start / column2-end;
   justify-content: space-between;
   margin-top: 16px;

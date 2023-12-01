@@ -126,6 +126,7 @@ async function updatePersonalBest(owner: GameSocket, newData: GameData) {
       playerData.statistics[key].scoreSubmissionDateAndTime = new Date();
       playerData.statistics[key].enemiesCreated = newData.enemiesSpawned;
       playerData.statistics[key].enemiesKilled = newData.enemiesKilled;
+      playerData.statistics[key].actionsPerformed = newData.actionsPerformed;
       break;
     }
     case GameMode.StandardSingleplayer: {
@@ -135,6 +136,7 @@ async function updatePersonalBest(owner: GameSocket, newData: GameData) {
       playerData.statistics[key].scoreSubmissionDateAndTime = new Date();
       playerData.statistics[key].enemiesCreated = newData.enemiesSpawned;
       playerData.statistics[key].enemiesKilled = newData.enemiesKilled;
+      playerData.statistics[key].actionsPerformed = newData.actionsPerformed;
       break;
     }
   }
