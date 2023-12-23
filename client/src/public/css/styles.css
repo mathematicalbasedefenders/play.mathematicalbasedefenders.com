@@ -83,11 +83,15 @@ code {
 .option-button--left-bordered {
   border-left: 1px solid #ffffff;
   border-right: none;
+  border-top: 0;
+  border-bottom: 0;
 }
 
 .option-button--right-bordered {
   border-right: 1px solid #ffffff;
   border-left: none;
+  border-top: 0;
+  border-bottom: 0;
 }
 
 .option-button--small:hover {
