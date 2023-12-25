@@ -188,7 +188,9 @@ UserSchema.static(
     // give experience points
     let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.totalExperiencePoints += Math.round(amount);
-    playerData.save();
+    log.info(`Adding ${amount} EXP to User ID ${userID}`);
+    await playerData.save();
+    log.info(`Successfully updated player data in database.`);
   }
 );
 
@@ -197,7 +199,9 @@ UserSchema.static(
   async function (userID: string, amount: number) {
     let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.gamesPlayed += amount;
-    playerData.save();
+    log.info(`Adding ${amount} games played to User ID ${userID}`);
+    await playerData.save();
+    log.info(`Successfully updated player data in database.`);
   }
 );
 
@@ -206,7 +210,9 @@ UserSchema.static(
   async function (userID: string, amount: number) {
     let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.multiplayer.gamesPlayed += amount;
-    playerData.save();
+    log.info(`Adding ${amount} multiplayer games played to User ID ${userID}`);
+    await playerData.save();
+    log.info(`Successfully updated player data in database.`);
   }
 );
 
@@ -215,7 +221,9 @@ UserSchema.static(
   async function (userID: string, amount: number) {
     let playerData = await User.safeFindByUserID(userID);
     playerData.statistics.multiplayer.gamesWon += amount;
-    playerData.save();
+    log.info(`Adding ${amount} multiplayer games won to User ID ${userID}`);
+    await playerData.save();
+    log.info(`Successfully updated player data in database.`);
   }
 );
 
@@ -239,7 +247,7 @@ UserSchema.static("addMissingKeys", async function (id: string) {
       await User.updateOne({ _id: id }, { [property]: 0 });
     }
   }
-  playerData.save();
+  await playerData.save();
   log.info(`Added ${keysAdded} keys to User ID ${id}.`);
 });
 
