@@ -17,7 +17,6 @@ import { PopupNotification } from "./notifications";
 let startInitTime: number = Date.now();
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
-const X_POSITION_OFFSET: number = 0;
 // Fonts
 const serifFont = new FontFaceObserver("Computer Modern Unicode Serif");
 const mathFont = new FontFaceObserver("Computer Modern Math Italic");
@@ -328,7 +327,7 @@ function initializeEventListeners() {
     const url = `${location.protocol}//${location.hostname}${
       location.protocol === "http:" ? ":4000" : ""
     }/authenticate`;
-    const result = await fetch(url, {
+    await fetch(url, {
       method: "POST",
       body: JSON.stringify({
         username: $("#settings-screen__content--online__username").val(),
@@ -386,7 +385,6 @@ function initializeEventListeners() {
   //
   $("#on-screen-keyboard-button--decrease-size").on("click", () => {
     let onScreenKeyboard = $("#on-screen-keyboard");
-    let top = onScreenKeyboard.position().top;
     let height = onScreenKeyboard.height() as number;
     console.debug(height);
     if (height > 90) {
@@ -396,7 +394,6 @@ function initializeEventListeners() {
   });
   $("#on-screen-keyboard-button--increase-size").on("click", () => {
     let onScreenKeyboard = $("#on-screen-keyboard");
-    let top = onScreenKeyboard.position().top;
     let height = onScreenKeyboard.height() as number;
     console.debug(height);
     if (height < 240) {
