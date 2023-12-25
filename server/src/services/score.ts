@@ -158,4 +158,4 @@ async function sendDataToUser(owner: GameSocket, message: string) {
   );
 }
 
-export { submitSingleplayerGame, sendDataToUser };
+export { submitSingleplayerGame, sendDataToUser, addToStatistics };

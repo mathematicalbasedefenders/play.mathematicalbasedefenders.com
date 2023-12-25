@@ -4,7 +4,7 @@ import * as enemy from "./Enemy";
 import * as _ from "lodash";
 import { log } from "../core/log";
 import * as input from "../core/input";
-import { submitSingleplayerGame } from "../services/score";
+import { addToStatistics, submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
 import { findRoomWithConnectionID } from "../core/utilities";
 import { User } from "../models/User";
@@ -268,6 +268,9 @@ class SingleplayerRoom extends Room {
   }
 
   async startGameOverProcess(data: GameData) {
+    // destroy room
+    this.playing = false;
+
     let socket = universal.getSocketFromConnectionID(data.ownerConnectionID);
 
     // game over here
@@ -297,8 +300,7 @@ class SingleplayerRoom extends Room {
     if (socket) {
       submitSingleplayerGame(data, socket);
     }
-    // destroy room somehow
-    this.playing = false;
+
     if (socket) {
       socket?.unsubscribe(this.id);
       this.deleteMember(socket);
@@ -577,6 +579,13 @@ class MultiplayerRoom extends Room {
         received: "???"
       });
     }
+    if (socket?.loggedIn && gameData instanceof GameData) {
+      const earnedEXP = Math.round(gameData.elapsedTime / 2000);
+      User.giveExperiencePointsToUserID(
+        socket.ownerUserID as string,
+        earnedEXP
+      );
+    }
     // eliminate the socket
     let gameDataIndex = this.gameData.findIndex(
       (element) => element.ownerConnectionID === connectionID
@@ -589,6 +598,7 @@ class MultiplayerRoom extends Room {
         connectionID
       )}) has been eliminated from the Default Multiplayer Room`
     );
+    // give exp to eliminated player
     // add to ranking
     this.checkIfGameFinished(this.gameData);
   }
@@ -616,7 +626,12 @@ class MultiplayerRoom extends Room {
               "Database is not available. Not running database operation."
             );
           } else {
+            // multiplayer games won
             User.addMultiplayerGamesWonToUserID(userID as string, 1);
+            // experience (50% bonus for winning)
+            const earnedEXP =
+              Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
+            User.giveExperiencePointsToUserID(userID as string, earnedEXP);
           }
         }
 
@@ -635,6 +650,11 @@ class MultiplayerRoom extends Room {
       this.stopPlay();
       // bring everyone to intermission screen
       this.summonEveryoneToIntermission();
+      // update everyone's client-side statistics
+      const socketsInRoom = this.memberConnectionIDs.map((id) =>
+        universal.getSocketFromConnectionID(id)
+      );
+      utilities.bulkUpdateSocketUserInformation(...socketsInRoom);
     }
   }
 

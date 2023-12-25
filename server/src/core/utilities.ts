@@ -314,6 +314,16 @@ async function updateSocketUserInformation(socket: universal.GameSocket) {
   );
 }
 
+async function bulkUpdateSocketUserInformation(
+  ...sockets: Array<universal.GameSocket | undefined>
+) {
+  for (const socket of sockets) {
+    if (socket && socket.loggedIn) {
+      updateSocketUserInformation(socket);
+    }
+  }
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -327,5 +337,6 @@ export {
   minifySelfGameData,
   generateConnectionID,
   generateGuestID,
-  updateSocketUserInformation
+  updateSocketUserInformation,
+  bulkUpdateSocketUserInformation
 };
