@@ -75,10 +75,10 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
   if (rank > -1) {
     rankMessage += `Global Rank #${rank + 1}`;
   }
-  // update data on screen
-  await updateSocketUserInformation(owner);
   // send data to user
   await sendDataToUser(owner, rankMessage);
+  // update data on screen
+  await updateSocketUserInformation(owner);
 }
 
 /**
@@ -158,4 +158,4 @@ async function sendDataToUser(owner: GameSocket, message: string) {
   );
 }
 
-export { submitSingleplayerGame };
+export { submitSingleplayerGame, sendDataToUser };
