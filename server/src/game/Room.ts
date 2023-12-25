@@ -6,7 +6,7 @@ import { log } from "../core/log";
 import * as input from "../core/input";
 import { addToStatistics, submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
-import { findRoomWithConnectionID } from "../core/utilities";
+import { findRoomWithConnectionID, sleep } from "../core/utilities";
 import { User } from "../models/User";
 import {
   getSocketFromConnectionID,
@@ -603,7 +603,7 @@ class MultiplayerRoom extends Room {
     this.checkIfGameFinished(this.gameData);
   }
 
-  checkIfGameFinished(gameDataArray: Array<GameData>) {
+  async checkIfGameFinished(gameDataArray: Array<GameData>) {
     if (gameDataArray.length <= 1) {
       // game finished
       // Default Multiplayer for now since there's only 1 multiplayer room at a given time.
@@ -654,6 +654,7 @@ class MultiplayerRoom extends Room {
       const socketsInRoom = this.memberConnectionIDs.map((id) =>
         universal.getSocketFromConnectionID(id)
       );
+      await sleep(1000);
       utilities.bulkUpdateSocketUserInformation(...socketsInRoom);
     }
   }

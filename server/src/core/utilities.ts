@@ -324,6 +324,9 @@ async function bulkUpdateSocketUserInformation(
   }
 }
 
+// Taken from https://stackoverflow.com/a/39914235
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -338,5 +341,6 @@ export {
   generateConnectionID,
   generateGuestID,
   updateSocketUserInformation,
-  bulkUpdateSocketUserInformation
+  bulkUpdateSocketUserInformation,
+  sleep
 };
