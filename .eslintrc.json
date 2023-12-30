@@ -12,8 +12,13 @@
       "no-undef": "off",
       "no-unused-vars": "off"
     }
-  }
-  ],
+  },
+  {
+    "files": "src/models/*",
+    "rules": {
+      "no-unused-vars": "off"
+    }
+  }],
   "parserOptions": {
     "ecmaVersion": "latest"
   },
