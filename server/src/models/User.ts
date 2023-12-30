@@ -147,7 +147,6 @@ UserSchema.static("safeLeanedFindByUserID", async function (userID: string) {
 
 // TODO: This thing isn't DRY lol
 UserSchema.static("getAllEasySingleplayerBestScores", async function () {
-  let players: Array<object> = [];
   let loaded: Array<object> = [];
   let cursor = this.find({})
     .select({
