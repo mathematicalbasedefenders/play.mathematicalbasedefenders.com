@@ -14,7 +14,7 @@
     }
   },
   {
-    "files": "src/models/*",
+    "files": "server/src/models/*.ts",
     "rules": {
       "no-unused-vars": "off"
     }
