@@ -18,6 +18,10 @@ This is the `play` subdomain, where the actual game content is located.
   - Able to set width of enemies
   - Able to set what symbol to use for the multiplication sign
 
+## Screenshots
+![A screenshot of a Standard Singleplayer game.](https://storage.mistertfy64.com/playmbd-screenshots/gameplay.png|height=480)
+![A screenshot of the main menu.](https://storage.mistertfy64.com/playmbd-screenshots/main-menu.png|height=480)
+
 ## Usage on Other Servers
 
 Because this is open-source, you are free to use it on your own servers/domains. Feel free to modify the (horrible) source code, add your own modifications, and share!
