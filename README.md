@@ -19,8 +19,8 @@ This is the `play` subdomain, where the actual game content is located.
   - Able to set what symbol to use for the multiplication sign
 
 ## Screenshots
-![A screenshot of a Standard Singleplayer game.](https://storage.mistertfy64.com/playmbd-screenshots/gameplay.png|height=480)
-![A screenshot of the main menu.](https://storage.mistertfy64.com/playmbd-screenshots/main-menu.png|height=480)
+<img src="https://storage.mistertfy64.com/playmbd-screenshots/gameplay.png" height="360" alt="A screenshot of a Standard Singleplayer game.">
+<img src="https://storage.mistertfy64.com/playmbd-screenshots/main-menu.png" height="360" alt="A screenshot of the main menu.">
 
 ## Usage on Other Servers
 
