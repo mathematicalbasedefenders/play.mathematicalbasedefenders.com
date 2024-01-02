@@ -314,6 +314,19 @@ async function updateSocketUserInformation(socket: universal.GameSocket) {
   );
 }
 
+async function bulkUpdateSocketUserInformation(
+  ...sockets: Array<universal.GameSocket | undefined>
+) {
+  for (const socket of sockets) {
+    if (socket && socket.loggedIn) {
+      updateSocketUserInformation(socket);
+    }
+  }
+}
+
+// Taken from https://stackoverflow.com/a/39914235
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -327,5 +340,7 @@ export {
   minifySelfGameData,
   generateConnectionID,
   generateGuestID,
-  updateSocketUserInformation
+  updateSocketUserInformation,
+  bulkUpdateSocketUserInformation,
+  sleep
 };

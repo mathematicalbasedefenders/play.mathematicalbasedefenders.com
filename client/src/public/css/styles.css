@@ -83,11 +83,15 @@ code {
 .option-button--left-bordered {
   border-left: 1px solid #ffffff;
   border-right: none;
+  border-top: 0;
+  border-bottom: 0;
 }
 
 .option-button--right-bordered {
   border-right: 1px solid #ffffff;
   border-left: none;
+  border-top: 0;
+  border-bottom: 0;
 }
 
 .option-button--small:hover {
@@ -171,14 +175,22 @@ code {
 }
 
 #main-menu-screen-button--singleplayer {
+  background-color: var(--color-singleplayer);
+  background-image: url("../assets/images/singleplayerbuttonbackground.png");
+  background-position: 0 130%;
   height: 60%;
 }
 
 #main-menu-screen-button--multiplayer {
+  background-color: var(--color-multiplayer);
+  background-image: url("../assets/images/multiplayerbuttonbackground.png");
+  background-position: 0 70%;
   height: 30%;
 }
 
 #main-menu-screen-button--settings {
+  background-color: var(--color-neutral);
+  background-position: 0 70%;
   height: 10%;
 }
 
@@ -198,23 +210,6 @@ code {
   text-overflow: clip;
   text-align: left;
   font-family: "Computer Modern Unicode Serif";
-}
-
-#main-menu-screen-button--singleplayer {
-  background-color: var(--color-singleplayer);
-  background-image: url("../assets/images/singleplayerbuttonbackground.png");
-  background-position: 0 130%;
-}
-
-#main-menu-screen-button--multiplayer {
-  background-color: var(--color-multiplayer);
-  background-image: url("../assets/images/multiplayerbuttonbackground.png");
-  background-position: 0 70%;
-}
-
-#main-menu-screen-button--settings {
-  background-color: var(--color-neutral);
-  background-position: 0 70%;
 }
 
 .main-menu-screen-button:hover {
@@ -408,6 +403,12 @@ code {
 #main-content__custom-singleplayer-intermission-screen-container__options {
   font-size: 24px;
   padding: 8px;
+  margin: 32px 0;
+  border: 2px solid #ffffff;
+  overflow-y: scroll;
+  height: 90%;
+  background-color: var(--color-neutral);
+  color: var(--color-text-light);
 }
 
 .custom-singleplayer-game-input--text {
@@ -416,15 +417,6 @@ code {
   color: var(--color-text-light);
   font-size: 24px;
   font-family: "Computer Modern Unicode Serif";
-}
-
-#main-content__custom-singleplayer-intermission-screen-container__options {
-  margin: 32px 0;
-  border: 2px solid #ffffff;
-  overflow-y: scroll;
-  height: 90%;
-  background-color: var(--color-neutral);
-  color: var(--color-text-light);
 }
 
 #main-content__custom-singleplayer-intermission-screen-container__left
