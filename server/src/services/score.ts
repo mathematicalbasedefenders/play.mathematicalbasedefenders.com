@@ -4,6 +4,7 @@ import { GameData, GameMode } from "../game/GameData";
 import { User } from "../models/User";
 import { sleep, updateSocketUserInformation } from "../core/utilities";
 import { GameSocket, STATUS } from "../universal";
+import { sendDiscordWebhook } from "./discord-webhook";
 // TODO: make this DRY
 async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
   let wordedGameMode: string = "";
@@ -70,10 +71,11 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
   // give statistics
   // guest users already ignored - no need to actually check for data
   await addToStatistics(owner, data);
-  // announce leaderboard rank
+  // announce leaderboard rank + send webhook
   const rank = await getLeaderboardsRank(owner, data);
   if (rank > -1) {
-    rankMessage += `Global Rank #${rank + 1}`;
+    rankMessage += `Global Rank #${rank}`;
+    sendDiscordWebhook(data);
   }
   // send data to user
   await sendDataToUser(owner, rankMessage);
@@ -107,7 +109,7 @@ async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
   if (globalRank > -1) {
     log.info(`${owner.ownerUsername} got #${globalRank + 1} on ${data.mode}.`);
   }
-  return globalRank;
+  return globalRank + 1;
 }
 
 /**
