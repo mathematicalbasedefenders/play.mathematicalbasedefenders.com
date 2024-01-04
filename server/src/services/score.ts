@@ -9,6 +9,7 @@ import { sendDiscordWebhook } from "./discord-webhook";
 async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
   let wordedGameMode: string = "";
   let dataKey: string = "";
+  let personalBestBeaten = false;
   // TODO: Make this JSON for more options in the future.
   let rankMessage = "";
   switch (data.mode) {
@@ -54,6 +55,7 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
         await updatePersonalBest(owner, data);
         log.info(`New Easy Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
+        personalBestBeaten = true;
       }
       break;
     }
@@ -63,6 +65,7 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
         await updatePersonalBest(owner, data);
         log.info(`New Standard Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
+        personalBestBeaten = true;
       }
       break;
     }
@@ -75,7 +78,10 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
   const rank = await getLeaderboardsRank(owner, data);
   if (rank > -1) {
     rankMessage += `Global Rank #${rank}`;
-    sendDiscordWebhook(data);
+    // for webhook sends, also check if record holder beat pb
+    if (personalBestBeaten) {
+      sendDiscordWebhook(data, rank);
+    }
   }
   // send data to user
   await sendDataToUser(owner, rankMessage);
