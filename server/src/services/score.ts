@@ -105,11 +105,14 @@ async function addToStatistics(owner: GameSocket, data: GameData) {
  */
 async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
   const records = await getScoresOfAllPlayers(data.mode);
-  const globalRank = records.findIndex((r) => r._id === owner.ownerUserID);
+  const globalRank = records.findIndex(
+    (r) => r._id.toString() === owner.ownerUserID
+  );
   if (globalRank > -1) {
     log.info(`${owner.ownerUsername} got #${globalRank + 1} on ${data.mode}.`);
+    return globalRank + 1;
   }
-  return globalRank + 1;
+  return -1;
 }
 
 /**
