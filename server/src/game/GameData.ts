@@ -88,7 +88,7 @@ class GameData {
       this.clocks = {
         enemySpawn: {
           currentTime: 0,
-          actionTime: 250 // *0.9875 every level
+          actionTime: 150 // *0.9875 every level
         },
         forcedEnemySpawn: {
           currentTime: 0,
@@ -104,7 +104,7 @@ class GameData {
         }
       };
       this.enemySpeedCoefficient = 0.5; // no change
-      this.enemySpawnThreshold = 0.05;
+      this.enemySpawnThreshold = 0.075;
     } else {
       this.clocks = {
         enemySpawn: {

@@ -4,10 +4,12 @@ import { GameData, GameMode } from "../game/GameData";
 import { User } from "../models/User";
 import { sleep, updateSocketUserInformation } from "../core/utilities";
 import { GameSocket, STATUS } from "../universal";
+import { sendDiscordWebhook } from "./discord-webhook";
 // TODO: make this DRY
 async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
   let wordedGameMode: string = "";
   let dataKey: string = "";
+  let personalBestBeaten = false;
   // TODO: Make this JSON for more options in the future.
   let rankMessage = "";
   switch (data.mode) {
@@ -53,6 +55,7 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
         await updatePersonalBest(owner, data);
         log.info(`New Easy Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
+        personalBestBeaten = true;
       }
       break;
     }
@@ -62,6 +65,7 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
         await updatePersonalBest(owner, data);
         log.info(`New Standard Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
+        personalBestBeaten = true;
       }
       break;
     }
@@ -70,10 +74,14 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
   // give statistics
   // guest users already ignored - no need to actually check for data
   await addToStatistics(owner, data);
-  // announce leaderboard rank
+  // announce leaderboard rank + send webhook
   const rank = await getLeaderboardsRank(owner, data);
   if (rank > -1) {
-    rankMessage += `Global Rank #${rank + 1}`;
+    rankMessage += `Global Rank #${rank}`;
+    // for webhook sends, also check if record holder beat pb
+    if (personalBestBeaten) {
+      sendDiscordWebhook(data, rank);
+    }
   }
   // send data to user
   await sendDataToUser(owner, rankMessage);
@@ -103,11 +111,14 @@ async function addToStatistics(owner: GameSocket, data: GameData) {
  */
 async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
   const records = await getScoresOfAllPlayers(data.mode);
-  const globalRank = records.findIndex((r) => r._id === owner.ownerUserID);
+  const globalRank = records.findIndex(
+    (r) => r._id.toString() === owner.ownerUserID
+  );
   if (globalRank > -1) {
     log.info(`${owner.ownerUsername} got #${globalRank + 1} on ${data.mode}.`);
+    return globalRank + 1;
   }
-  return globalRank;
+  return -1;
 }
 
 /**
