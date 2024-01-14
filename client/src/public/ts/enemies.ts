@@ -12,6 +12,15 @@ const MAXIMUM_Y_POSITION = 720;
 const Y_POSITION_OFFSET = 40;
 const PLAYFIELD_WIDTH = 600;
 
+const ENEMY_COLOR_PALETTES: { [key: string]: Array<number> } = {
+  // https://www.color-hex.com/color-palette/18840
+  "fire": [0xff0000, 0xff5a00, 0xff9a00, 0xffce00, 0xffe808],
+  // https://www.color-hex.com/color-palette/6839
+  "aurora": [0x14e81e, 0x00ea8d, 0x017ed5, 0xb53dff, 0x8d00c4],
+  // https://www.color-hex.com/color-palette/184
+  "grayscale": [0x999999, 0x777777, 0x555555, 0x333333, 0x111111]
+};
+
 const ENEMY_TEXT_STYLE = new PIXI.TextStyle({
   fontSize: ENEMY_FONT_SIZE,
   fontFamily: "Computer Modern Unicode Serif"
@@ -348,8 +357,22 @@ function getSetEnemyColor() {
   const maximumValue = 16777216;
   const value = variables.settings.enemyColor;
   const validHexRegex = /\#[0-9a-f]{6}/;
-
-  if (!validHexRegex.test(value)) {
+  if (variables.settings.enemyColor === "randomFromPalette") {
+    // select from palette
+    const palette = $("#selected-enemy-color-palette").val()?.toString();
+    if (
+      typeof palette === "string" &&
+      Object.keys(ENEMY_COLOR_PALETTES).indexOf(palette) > -1
+    ) {
+      const paletteColors = ENEMY_COLOR_PALETTES[palette].length;
+      const roll = Math.floor(Math.random() * paletteColors);
+      return ENEMY_COLOR_PALETTES[palette][roll];
+    }
+    // in case palette name is invalid...
+    // return random color
+    return Math.floor(Math.random() * maximumValue);
+  } else if (!validHexRegex.test(value)) {
+    // random color
     return Math.floor(Math.random() * maximumValue);
   }
   return parseInt(value.substring(1), hexBase);
