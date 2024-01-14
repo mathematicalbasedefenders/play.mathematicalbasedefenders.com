@@ -55,6 +55,12 @@ const SETTINGS_KEYS = [
     htmlID: "selected-enemy-color-palette",
     defaultValue: "fire",
     settingsType: SettingsType.Dropdown
+  },
+  {
+    storageStringKey: "enemySizeCoefficient",
+    htmlName: "settings-enemy-scale",
+    defaultValue: 1,
+    settingsType: SettingsType.Radio
   }
 ];
 

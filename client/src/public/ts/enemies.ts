@@ -4,10 +4,9 @@ import * as PIXI from "pixi.js";
 import _ from "lodash";
 import { app, mathFont, variables } from "./index";
 import { playSound } from "./sounds";
-const ENEMY_SIZE = 64;
 const ENEMY_FONT_SIZE = 24;
-const DEFAULT_ENEMY_WIDTH = 125;
-const DEFAULT_ENEMY_HEIGHT = 125;
+const DEFAULT_ENEMY_WIDTH = 64;
+const DEFAULT_ENEMY_HEIGHT = 64;
 const MAXIMUM_Y_POSITION = 720;
 const Y_POSITION_OFFSET = 40;
 const PLAYFIELD_WIDTH = 600;
@@ -69,16 +68,16 @@ class Enemy {
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
     this.sprite.tint = getSetEnemyColor();
     this.sprite.width =
-      (width || DEFAULT_ENEMY_WIDTH) *
+      (width || getScaledEnemyWidth()) *
       parseInt(variables.settings.enemyWidthCoefficient || 1);
-    this.sprite.height = height || DEFAULT_ENEMY_HEIGHT;
+    this.sprite.height = height || getScaledEnemyHeight();
     this.sprite.x =
       680 +
-      (xPosition || Math.random()) * (PLAYFIELD_WIDTH - DEFAULT_ENEMY_WIDTH);
+      (xPosition || Math.random()) * (PLAYFIELD_WIDTH - getScaledEnemyWidth());
     this.sprite.y =
       MAXIMUM_Y_POSITION -
       MAXIMUM_Y_POSITION * sPosition +
-      DEFAULT_ENEMY_HEIGHT -
+      getScaledEnemyHeight() -
       Y_POSITION_OFFSET;
     this.text = text;
     // text-related
@@ -122,7 +121,7 @@ class Enemy {
     this.sprite.y =
       MAXIMUM_Y_POSITION -
       MAXIMUM_Y_POSITION * sPosition +
-      DEFAULT_ENEMY_HEIGHT -
+      getScaledEnemyHeight() -
       Y_POSITION_OFFSET;
     this.textSprite.x =
       this.sprite.x + (this.sprite.width - this.textSprite.width) / 2;
@@ -226,7 +225,7 @@ function getCachedEnemy(id: string) {
  * @returns The best font size (approximately the largest that could fit the enemy)
  */
 function getBestFontSize(decrement: number, text: string, width: number) {
-  let size = ENEMY_FONT_SIZE;
+  let size = ENEMY_FONT_SIZE * variables.settings.enemySizeCoefficient;
   let style = _.clone(ENEMY_TEXT_STYLE);
   while (size > 12) {
     let textMetrics = PIXI.TextMetrics.measureText(text, style);
@@ -248,8 +247,8 @@ function renderEnemy(enemy: ServerSideEnemy) {
     1,
     enemy.displayedText,
     enemy.id,
-    ENEMY_SIZE,
-    ENEMY_SIZE,
+    getScaledEnemyWidth(),
+    getScaledEnemyHeight(),
     enemy.speed,
     enemy.xPosition
   );
@@ -378,6 +377,18 @@ function getSetEnemyColor() {
   return parseInt(value.substring(1), hexBase);
 }
 
+function getScaledEnemyWidth() {
+  return (
+    DEFAULT_ENEMY_WIDTH * parseFloat(variables.settings.enemySizeCoefficient)
+  );
+}
+
+function getScaledEnemyHeight() {
+  return (
+    DEFAULT_ENEMY_HEIGHT * parseFloat(variables.settings.enemySizeCoefficient)
+  );
+}
+
 export {
   Enemy,
   rerenderEnemy,
@@ -387,5 +398,7 @@ export {
   getCachedEnemy as getEnemyFromCache,
   DEFAULT_ENEMY_HEIGHT,
   DEFAULT_ENEMY_WIDTH,
+  getScaledEnemyHeight,
+  getScaledEnemyWidth,
   ENEMY_TEXT_STYLE
 };
