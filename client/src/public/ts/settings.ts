@@ -2,7 +2,8 @@ import { variables } from "./index";
 
 enum SettingsType {
   Radio,
-  Custom
+  Custom,
+  Dropdown
 }
 
 const SETTINGS_KEYS = [
@@ -47,6 +48,13 @@ const SETTINGS_KEYS = [
     htmlName: "settings__level-display",
     defaultValue: "high",
     SettingsType: SettingsType.Radio
+  },
+  {
+    storageStringKey: "selectedColorPalette",
+    htmlName: "settings-enemy-color__selected-enemy-color-palette",
+    htmlID: "selected-enemy-color-palette",
+    defaultValue: "fire",
+    settingsType: SettingsType.Dropdown
   }
 ];
 
@@ -62,6 +70,8 @@ function getSettings(storageString: string) {
     // special cases
     // color picker
     if (entry.storageStringKey === "enemyColor") {
+      const palette = variables.settings["selectedColorPalette"];
+      $("#selected-enemy-color-palette").val(palette);
       if (/\#[0-9a-f]{6}/.test(value)) {
         $(`input[name="${entry.htmlName}"][value="setColor"]`).prop(
           "checked",
@@ -69,12 +79,19 @@ function getSettings(storageString: string) {
         );
         $("#settings__enemy-color__forced-color").text(value);
         variables.settings[entry.storageStringKey] = value;
-      } else {
-        variables.settings[entry.storageStringKey] = "randomForEach";
-        $(`input[name="${entry.htmlName}"][value="randomForEach"]`).prop(
+      } else if (
+        variables.settings[entry.storageStringKey] === "randomFromPalette"
+      ) {
+        $(`input[name="${entry.htmlName}"][value="randomFromPalette"]`).prop(
           "checked",
           true
         );
+        $(`input[name="${entry.htmlName}"][value="randomFromPalette"]`).prop(
+          "checked",
+          true
+        );
+      } else {
+        variables.settings[entry.storageStringKey] = "randomForEach";
         $("#settings__enemy-color__forced-color").text("#ff0000");
       }
       continue;
@@ -128,15 +145,20 @@ function setSettings() {
   let toSave: any = {};
   for (let entry of SETTINGS_KEYS) {
     // special cases
-    // color picker
+    // enemy color
     if (entry.storageStringKey === "enemyColor") {
       let selectValue = $(`input[name="${entry.htmlName}"]:checked`).val();
-      if (selectValue !== "randomForEach") {
+      if (selectValue === "setColor") {
         let forcedValue = $("#settings__enemy-color__forced-color-picker")
           .val()
           ?.toString();
         variables.settings[entry.storageStringKey] = forcedValue;
         toSave[entry.storageStringKey] = forcedValue;
+      } else if (selectValue === "randomFromPalette") {
+        variables.settings[entry.storageStringKey] = "randomFromPalette";
+        toSave[entry.storageStringKey] = "randomFromPalette";
+        const palette = $("#selected-enemy-color-palette").val();
+        toSave["selectedColorPalette"] = palette;
       } else {
         variables.settings[entry.storageStringKey] = "randomForEach";
         toSave[entry.storageStringKey] = "randomForEach";
@@ -145,7 +167,12 @@ function setSettings() {
     }
 
     // normal cases
-    let value = $(`input[name="${entry.htmlName}"]:checked`).val();
+    let value;
+    if (entry.settingsType === SettingsType.Radio) {
+      value = $(`input[name="${entry.htmlName}"]:checked`).val();
+    } else if (entry.settingsType === SettingsType.Dropdown) {
+      value = $(`#${entry.htmlID}`).val();
+    }
     if (typeof value !== "undefined") {
       variables.settings[entry.storageStringKey] = value;
       toSave[entry.storageStringKey] = value;
