@@ -64,16 +64,18 @@ class Enemy {
     speed: number,
     xPosition?: number
   ) {
+    // meta-related
+    const maxXPosition = 600 + PLAYFIELD_WIDTH - getScaledEnemyWidth();
     // sprite-related
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
     this.sprite.tint = getSetEnemyColor();
-    this.sprite.width =
-      (width || getScaledEnemyWidth()) *
-      parseInt(variables.settings.enemyWidthCoefficient || 1);
+    this.sprite.width = width || getScaledEnemyWidth();
+
     this.sprite.height = height || getScaledEnemyHeight();
-    this.sprite.x =
-      680 +
-      (xPosition || Math.random()) * (PLAYFIELD_WIDTH - getScaledEnemyWidth());
+    // playfield width is 600px
+    // therefore, the highest x coordinate an enemy can spawn in would be 640+600-width
+    // therefore if xPosition = 0.1, spawn at 640+(600-width)*0.1
+    this.sprite.x = 640 + (xPosition || Math.random()) * (maxXPosition - 600);
     this.sprite.y =
       MAXIMUM_Y_POSITION -
       MAXIMUM_Y_POSITION * sPosition +
@@ -379,7 +381,9 @@ function getSetEnemyColor() {
 
 function getScaledEnemyWidth() {
   return (
-    DEFAULT_ENEMY_WIDTH * parseFloat(variables.settings.enemySizeCoefficient)
+    DEFAULT_ENEMY_WIDTH *
+    parseFloat(variables.settings.enemySizeCoefficient) *
+    parseInt(variables.settings.enemyWidthCoefficient || 1)
   );
 }
 
