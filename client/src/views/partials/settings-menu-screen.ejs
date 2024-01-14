@@ -99,10 +99,18 @@
           <label for="settings-beautiful-score-display__off">Off</label><br>
         </fieldset>
         <br>
-        <fieldset title="What color to use for every enemy that spawns." class="settings-screen__content-fieldset">
+        <fieldset title="What color to use for every enemy that spawns. All enemies are the same regardless of color." class="settings-screen__content-fieldset">
           <legend>Enemy Color</legend>
           <input type="radio" id="settings-enemy-color__random-for-each" name="settings__enemy-color" value="randomForEach">
           <label for="settings-enemy-color__random-for-each">Random for Each</label><br>
+          <input type="radio" id="settings-enemy-color__random-for-each-from-palette" name="settings__enemy-color" value="palette">
+          <label for="settings-enemy-color__random-for-each-from-palette">Random for Each from Palette: </label>
+          <select name="selected-enemy-color-palette" id="selected-enemy-color-palette">
+            <option value="fire">Fire</option>
+            <option value="aurora">Aurora</option>
+            <option value="grayscale">Grayscale</option>
+          </select>
+          <br>
           <input type="radio" id="settings-enemy-color__set-color" name="settings__enemy-color" value="setColor">
           <label for="settings-enemy-color__set-color">Set Color: <span class="text--monospace" id="settings__enemy-color__forced-color"></span></label>&nbsp;<input id="settings__enemy-color__forced-color-picker" name="forced-color" type="color" value="#ff0000">
         </fieldset>
