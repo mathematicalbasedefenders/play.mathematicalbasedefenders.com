@@ -7,8 +7,7 @@ import { playSound } from "./sounds";
 const ENEMY_FONT_SIZE = 24;
 const DEFAULT_ENEMY_WIDTH = 64;
 const DEFAULT_ENEMY_HEIGHT = 64;
-const MAXIMUM_Y_POSITION = 720;
-const Y_POSITION_OFFSET = 40;
+const MAXIMUM_Y_POSITION = 880;
 const PLAYFIELD_WIDTH = 600;
 
 const ENEMY_COLOR_PALETTES: { [key: string]: Array<number> } = {
@@ -76,11 +75,9 @@ class Enemy {
     // therefore, the highest x coordinate an enemy can spawn in would be 640+600-width
     // therefore if xPosition = 0.1, spawn at 640+(600-width)*0.1
     this.sprite.x = 640 + (xPosition || Math.random()) * (maxXPosition - 600);
-    this.sprite.y =
-      MAXIMUM_Y_POSITION -
-      MAXIMUM_Y_POSITION * sPosition +
-      getScaledEnemyHeight() -
-      Y_POSITION_OFFSET;
+    const traveled = MAXIMUM_Y_POSITION * (1 - sPosition);
+    this.sprite.y = traveled - getScaledEnemyHeight();
+
     this.text = text;
     // text-related
     this.textSprite = new PIXI.Text(
@@ -120,11 +117,8 @@ class Enemy {
    * @param {number} sPosition The sPosition to render the enemy at.
    */
   reposition(sPosition: number) {
-    this.sprite.y =
-      MAXIMUM_Y_POSITION -
-      MAXIMUM_Y_POSITION * sPosition +
-      getScaledEnemyHeight() -
-      Y_POSITION_OFFSET;
+    const traveled = MAXIMUM_Y_POSITION * (1 - sPosition);
+    this.sprite.y = traveled - getScaledEnemyHeight();
     this.textSprite.x =
       this.sprite.x + (this.sprite.width - this.textSprite.width) / 2;
     this.textSprite.y =
