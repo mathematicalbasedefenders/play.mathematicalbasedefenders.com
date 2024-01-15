@@ -298,9 +298,7 @@ code {
   font-size: min(24px, 1.5vw);
   color: #ffffff;
   text-wrap: pretty;
-
   margin: 0 0 0 4px;
-  white-space: nowrap;
   text-overflow: clip;
   text-align: left;
   font-family: "Computer Modern Unicode Serif";
