@@ -444,7 +444,8 @@ async function attemptAuthentication(
       JSON.stringify({
         message: "createToastNotification",
         // TODO: Refactor this
-        text: `Failed to log in as ${username} (${result.reason})`
+        text: `Failed to log in as ${username} (${result.reason})`,
+        borderColor: "#ff0000"
       })
     );
     return false;
@@ -460,7 +461,8 @@ async function attemptAuthentication(
   socket.send(
     JSON.stringify({
       message: "createToastNotification",
-      text: `Successfully logged in as ${username}`
+      text: `Successfully logged in as ${username}`,
+      borderColor: "#1fa628"
     })
   );
   socket.send(
