@@ -3,6 +3,7 @@ import { log } from "./log";
 import { Room } from "../game/Room";
 import { User, UserInterface } from "../models/User";
 import _ from "lodash";
+import { GameData, GameMode } from "../game/GameData";
 // Highest comes first
 const RANK_ORDER = [
   ["Developer", "isDeveloper"],
@@ -324,6 +325,24 @@ async function bulkUpdateSocketUserInformation(
   }
 }
 
+function createGlobalLeaderboardsMessage(data: GameData, rank: number) {
+  const toReturn: { [key: string]: any } = {};
+  let modeName = "";
+  switch (data.mode) {
+    case GameMode.EasySingleplayer: {
+      modeName = "Easy Singleplayer";
+      break;
+    }
+    case GameMode.StandardSingleplayer: {
+      modeName = "Standard Singleplayer";
+      break;
+    }
+  }
+  toReturn.text = `${data.ownerName} has achieved #${rank} on the ${modeName} leaderboards with a score of ${data.score} points.`;
+  toReturn.borderColor = "#ab93db";
+  return toReturn;
+}
+
 // Taken from https://stackoverflow.com/a/39914235
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -342,5 +361,6 @@ export {
   generateGuestID,
   updateSocketUserInformation,
   bulkUpdateSocketUserInformation,
-  sleep
+  sleep,
+  createGlobalLeaderboardsMessage
 };

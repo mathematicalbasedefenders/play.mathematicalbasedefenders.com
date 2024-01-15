@@ -2,8 +2,12 @@ import { log } from "../core/log";
 import { getScoresOfAllPlayers } from "./leaderboards";
 import { GameData, GameMode } from "../game/GameData";
 import { User } from "../models/User";
-import { sleep, updateSocketUserInformation } from "../core/utilities";
-import { GameSocket, STATUS } from "../universal";
+import {
+  sleep,
+  updateSocketUserInformation,
+  createGlobalLeaderboardsMessage
+} from "../core/utilities";
+import { GameSocket, STATUS, sendGlobalToastNotification } from "../universal";
 import { sendDiscordWebhook } from "./discord-webhook";
 // TODO: make this DRY
 async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
@@ -81,6 +85,8 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
     // for webhook sends, also check if record holder beat pb
     if (personalBestBeaten) {
       sendDiscordWebhook(data, rank);
+      const notification = createGlobalLeaderboardsMessage(data, rank);
+      sendGlobalToastNotification(notification);
     }
   }
   // send data to user
