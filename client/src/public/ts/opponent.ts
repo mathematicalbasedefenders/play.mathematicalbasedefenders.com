@@ -1,8 +1,8 @@
 import { app, ExtendedSprite, ExtendedText, stageItems, variables } from ".";
 import * as PIXI from "pixi.js";
 import {
-  DEFAULT_ENEMY_HEIGHT,
-  DEFAULT_ENEMY_WIDTH,
+  getScaledEnemyHeight,
+  getScaledEnemyWidth,
   getSetEnemyColor
 } from "./enemies";
 import _ from "lodash";
@@ -176,9 +176,9 @@ class Opponent {
         PIXI.Texture.WHITE
       );
       this.stageItems.sprites[`enemy${id}`].width =
-        DEFAULT_ENEMY_WIDTH * (DEFAULT_ENEMY_WIDTH / Math.min(640, 800));
+        getScaledEnemyWidth() * (getScaledEnemyWidth() / Math.min(640, 800));
       this.stageItems.sprites[`enemy${id}`].height =
-        DEFAULT_ENEMY_HEIGHT * (DEFAULT_ENEMY_HEIGHT / Math.min(800, 640));
+        getScaledEnemyHeight() * (getScaledEnemyHeight() / Math.min(800, 640));
       this.stageItems.sprites[`enemy${id}`].tint = getSetEnemyColor();
       app.stage.addChild(this.stageItems.sprites[`enemy${id}`]);
     }
@@ -194,7 +194,7 @@ class Opponent {
         enemyRealPosition;
 
       this.stageItems.sprites[`enemy${id}`].position.y =
-        (720 - 720 * enemyData.sPosition + 100 - 40 - DEFAULT_ENEMY_HEIGHT) *
+        (720 - 720 * enemyData.sPosition + 100 - 40 - getScaledEnemyHeight()) *
           Opponent.globalScale +
         this.yPositionOffset;
     }

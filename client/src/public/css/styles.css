@@ -202,11 +202,11 @@ code {
   font-family: "Computer Modern Unicode Serif";
 }
 .main-menu-screen-button__description {
-  font-size: min(16px, 1vw);
+  font-size: min(24px, 1.5vw);
   color: #ffffff;
   margin: 0 0 0 4px;
   white-space: nowrap;
-
+  text-wrap: pretty;
   text-overflow: clip;
   text-align: left;
   font-family: "Computer Modern Unicode Serif";
@@ -295,10 +295,10 @@ code {
   font-family: "Computer Modern Unicode Serif";
 }
 .singleplayer-menu-screen-button__description {
-  font-size: min(16px, 1vw);
+  font-size: min(24px, 1.5vw);
   color: #ffffff;
+  text-wrap: pretty;
   margin: 0 0 0 4px;
-  white-space: nowrap;
   text-overflow: clip;
   text-align: left;
   font-family: "Computer Modern Unicode Serif";
@@ -470,9 +470,11 @@ code {
   font-family: "Computer Modern Unicode Serif";
 }
 .multiplayer-menu-screen-button__description {
-  font-size: min(16px, 1vw);
+  font-size: min(24px, 1.5vw);
   color: #ffffff;
   margin: 0 0 0 4px;
+  text-wrap: pretty;
+
   white-space: nowrap;
   text-overflow: clip;
   text-align: left;
@@ -674,17 +676,19 @@ code {
 }
 
 .game-over-screen-button__title {
-  font-size: min(36px, 4.5vw);
+  font-size: min(48px, 4.5vw);
   color: #ffffff;
   margin: 0 0 0 4px;
   text-align: left;
   font-family: "Computer Modern Unicode Serif";
 }
 .game-over-screen-button__description {
-  font-size: min(18px, 1.5vw);
+  font-size: min(24px, 1.5vw);
   color: #ffffff;
   margin: 0 0 0 4px;
   white-space: nowrap;
+  text-wrap: pretty;
+
   overflow: hidden;
   text-overflow: clip;
   text-align: left;
