@@ -187,6 +187,30 @@ function getServerMetadata(deltaTime: number) {
   };
 }
 
+/**
+ * Sends a global toast notification to everyone, regardless of logged in/out.
+ * @param settings Settings to the sent global toast notification.
+ */
+function sendGlobalToastNotification(settings: { [key: string]: any }) {
+  const tns = settings;
+  for (const socket of sockets) {
+    if (socket) {
+      socket.send(
+        // TODO: Refactor this?
+        JSON.stringify({
+          message: "createToastNotification",
+          text: tns.text,
+          position: tns.position,
+          lifespan: tns.lifespan,
+          foregroundColor: tns.foregroundColor,
+          backgroundColor: tns.backgroundColor,
+          borderColor: tns.borderColor
+        })
+      );
+    }
+  }
+}
+
 export {
   GameSocket,
   sockets,
@@ -198,5 +222,6 @@ export {
   getSocketsFromUserID,
   STATUS,
   synchronizeGameDataWithSocket,
-  synchronizeMetadataWithSocket
+  synchronizeMetadataWithSocket,
+  sendGlobalToastNotification
 };

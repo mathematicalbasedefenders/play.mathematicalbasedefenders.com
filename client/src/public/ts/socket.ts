@@ -62,7 +62,14 @@ socket.addEventListener("message", (event: any) => {
       break;
     }
     case "createToastNotification": {
-      new ToastNotification(message.text, message.position);
+      new ToastNotification(
+        message.text,
+        message.position,
+        message.lifespan || 5000,
+        message.foregroundColor || null,
+        message.backgroundColor || null,
+        message.borderColor || null
+      );
       break;
     }
     case "updateUserInformationText": {

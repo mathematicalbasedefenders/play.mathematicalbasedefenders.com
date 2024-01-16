@@ -4,13 +4,20 @@ import * as PIXI from "pixi.js";
 import _ from "lodash";
 import { app, mathFont, variables } from "./index";
 import { playSound } from "./sounds";
-const ENEMY_SIZE = 64;
 const ENEMY_FONT_SIZE = 24;
-const DEFAULT_ENEMY_WIDTH = 125;
-const DEFAULT_ENEMY_HEIGHT = 125;
-const MAXIMUM_Y_POSITION = 720;
-const Y_POSITION_OFFSET = 40;
+const DEFAULT_ENEMY_WIDTH = 64;
+const DEFAULT_ENEMY_HEIGHT = 64;
+const MAXIMUM_Y_POSITION = 880;
 const PLAYFIELD_WIDTH = 600;
+
+const ENEMY_COLOR_PALETTES: { [key: string]: Array<number> } = {
+  // https://www.color-hex.com/color-palette/18840
+  "fire": [0xff0000, 0xff5a00, 0xff9a00, 0xffce00, 0xffe808],
+  // https://www.color-hex.com/color-palette/6839
+  "aurora": [0x14e81e, 0x00ea8d, 0x017ed5, 0xb53dff, 0x8d00c4],
+  // https://www.color-hex.com/color-palette/184
+  "grayscale": [0x999999, 0x777777, 0x555555, 0x333333, 0x111111]
+};
 
 const ENEMY_TEXT_STYLE = new PIXI.TextStyle({
   fontSize: ENEMY_FONT_SIZE,
@@ -56,21 +63,21 @@ class Enemy {
     speed: number,
     xPosition?: number
   ) {
+    // meta-related
+    const maxXPosition = 600 + PLAYFIELD_WIDTH - getScaledEnemyWidth();
     // sprite-related
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
     this.sprite.tint = getSetEnemyColor();
-    this.sprite.width =
-      (width || DEFAULT_ENEMY_WIDTH) *
-      parseInt(variables.settings.enemyWidthCoefficient || 1);
-    this.sprite.height = height || DEFAULT_ENEMY_HEIGHT;
-    this.sprite.x =
-      680 +
-      (xPosition || Math.random()) * (PLAYFIELD_WIDTH - DEFAULT_ENEMY_WIDTH);
-    this.sprite.y =
-      MAXIMUM_Y_POSITION -
-      MAXIMUM_Y_POSITION * sPosition +
-      DEFAULT_ENEMY_HEIGHT -
-      Y_POSITION_OFFSET;
+    this.sprite.width = width || getScaledEnemyWidth();
+
+    this.sprite.height = height || getScaledEnemyHeight();
+    // playfield width is 600px
+    // therefore, the highest x coordinate an enemy can spawn in would be 640+600-width
+    // therefore if xPosition = 0.1, spawn at 640+(600-width)*0.1
+    this.sprite.x = 640 + (xPosition || Math.random()) * (maxXPosition - 600);
+    const traveled = MAXIMUM_Y_POSITION * (1 - sPosition);
+    this.sprite.y = traveled - getScaledEnemyHeight();
+
     this.text = text;
     // text-related
     this.textSprite = new PIXI.Text(
@@ -110,11 +117,8 @@ class Enemy {
    * @param {number} sPosition The sPosition to render the enemy at.
    */
   reposition(sPosition: number) {
-    this.sprite.y =
-      MAXIMUM_Y_POSITION -
-      MAXIMUM_Y_POSITION * sPosition +
-      DEFAULT_ENEMY_HEIGHT -
-      Y_POSITION_OFFSET;
+    const traveled = MAXIMUM_Y_POSITION * (1 - sPosition);
+    this.sprite.y = traveled - getScaledEnemyHeight();
     this.textSprite.x =
       this.sprite.x + (this.sprite.width - this.textSprite.width) / 2;
     this.textSprite.y =
@@ -217,7 +221,7 @@ function getCachedEnemy(id: string) {
  * @returns The best font size (approximately the largest that could fit the enemy)
  */
 function getBestFontSize(decrement: number, text: string, width: number) {
-  let size = ENEMY_FONT_SIZE;
+  let size = ENEMY_FONT_SIZE * variables.settings.enemySizeCoefficient;
   let style = _.clone(ENEMY_TEXT_STYLE);
   while (size > 12) {
     let textMetrics = PIXI.TextMetrics.measureText(text, style);
@@ -239,8 +243,8 @@ function renderEnemy(enemy: ServerSideEnemy) {
     1,
     enemy.displayedText,
     enemy.id,
-    ENEMY_SIZE,
-    ENEMY_SIZE,
+    getScaledEnemyWidth(),
+    getScaledEnemyHeight(),
     enemy.speed,
     enemy.xPosition
   );
@@ -348,11 +352,39 @@ function getSetEnemyColor() {
   const maximumValue = 16777216;
   const value = variables.settings.enemyColor;
   const validHexRegex = /\#[0-9a-f]{6}/;
-
-  if (!validHexRegex.test(value)) {
+  if (variables.settings.enemyColor === "randomFromPalette") {
+    // select from palette
+    const palette = $("#selected-enemy-color-palette").val()?.toString();
+    if (
+      typeof palette === "string" &&
+      Object.keys(ENEMY_COLOR_PALETTES).indexOf(palette) > -1
+    ) {
+      const paletteColors = ENEMY_COLOR_PALETTES[palette].length;
+      const roll = Math.floor(Math.random() * paletteColors);
+      return ENEMY_COLOR_PALETTES[palette][roll];
+    }
+    // in case palette name is invalid...
+    // return random color
+    return Math.floor(Math.random() * maximumValue);
+  } else if (!validHexRegex.test(value)) {
+    // random color
     return Math.floor(Math.random() * maximumValue);
   }
   return parseInt(value.substring(1), hexBase);
+}
+
+function getScaledEnemyWidth() {
+  return (
+    DEFAULT_ENEMY_WIDTH *
+    parseFloat(variables.settings.enemySizeCoefficient) *
+    parseInt(variables.settings.enemyWidthCoefficient || 1)
+  );
+}
+
+function getScaledEnemyHeight() {
+  return (
+    DEFAULT_ENEMY_HEIGHT * parseFloat(variables.settings.enemySizeCoefficient)
+  );
 }
 
 export {
@@ -364,5 +396,7 @@ export {
   getCachedEnemy as getEnemyFromCache,
   DEFAULT_ENEMY_HEIGHT,
   DEFAULT_ENEMY_WIDTH,
+  getScaledEnemyHeight,
+  getScaledEnemyWidth,
   ENEMY_TEXT_STYLE
 };

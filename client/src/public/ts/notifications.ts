@@ -13,11 +13,17 @@ class ToastNotification {
   position: ToastNotificationPosition;
   id: number;
   lifespan: number;
+  foregroundColor!: string | null;
+  backgroundColor!: string | null;
+  borderColor!: string | null;
 
   constructor(
     text: string,
     position?: ToastNotificationPosition,
-    lifespan?: number
+    lifespan?: number,
+    foregroundColor?: string,
+    backgroundColor?: string,
+    borderColor?: string
   ) {
     this.text = text;
     this.position = position || ToastNotificationPosition.BOTTOM_RIGHT;
@@ -25,12 +31,25 @@ class ToastNotification {
     ToastNotification.nextID++;
     this.lifespan = lifespan || 5000;
     this.age = 0;
+    this.foregroundColor = foregroundColor || null;
+    this.backgroundColor = backgroundColor || null;
+    this.borderColor = borderColor || null;
     this.render();
     ToastNotification.notifications.push(this);
   }
 
   render() {
     this.renderTime = new Date();
+    const fgColorTag = this.foregroundColor
+      ? `color:${this.foregroundColor};`
+      : ``;
+    const bgColorTag = this.backgroundColor
+      ? `background-color:${this.backgroundColor};`
+      : ``;
+    const bdColorTag = this.borderColor
+      ? `border-color:${this.borderColor};`
+      : ``;
+
     let id = this.id;
     // TODO: This is only for bottom right (pos 8)
     for (let toast of ToastNotification.notifications) {
@@ -40,7 +59,7 @@ class ToastNotification {
       $(`#toast-notification--${toast.id}`).animate({ bottom: "+=76" }, 500);
     }
     $("#main-content__toast-notification-container").append(
-      `<div style='display:flex;justify-content:center;align-items:center;'class='text--centered toast-notification toast-notification--position-${this.position}' id='toast-notification--${this.id}'>${this.text}</div>`
+      `<div style='display:flex;justify-content:center;align-items:center;${fgColorTag}${bgColorTag}${bdColorTag}'class='text--centered toast-notification toast-notification--position-${this.position}' id='toast-notification--${this.id}'>${this.text}</div>`
     );
     setTimeout(function () {
       $(`#toast-notification--${id}`).remove();
