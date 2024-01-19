@@ -6,7 +6,7 @@ const WEBHOOK_USERNAME = "Mathematical Base Defenders Leaderboards Watcher";
 
 function sendDiscordWebhook(data: GameData, rank: number) {
   const parameters: { [key: string]: any } = {};
-  const apm = ((data.actionsPerformed * data.elapsedTime) / 60000).toFixed(3);
+  const apm = ((data.actionsPerformed / data.elapsedTime) * 60000).toFixed(3);
   const time = data.elapsedTime;
   const spawned = data.enemiesSpawned;
   const killed = data.enemiesKilled;
