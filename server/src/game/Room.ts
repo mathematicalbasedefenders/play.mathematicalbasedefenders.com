@@ -570,14 +570,6 @@ class MultiplayerRoom extends Room {
         sent: gameData.totalEnemiesSent,
         received: gameData.totalEnemiesReceived
       });
-    } else {
-      this.ranking.push({
-        placement: place,
-        name: universal.getNameFromConnectionID(connectionID) || "???",
-        time: "???",
-        sent: "???",
-        received: "???"
-      });
     }
     if (socket?.loggedIn && gameData instanceof GameData) {
       const earnedEXP = Math.round(gameData.elapsedTime / 2000);

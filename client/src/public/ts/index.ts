@@ -15,8 +15,11 @@ import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
 import { PopupNotification } from "./notifications";
 let startInitTime: number = Date.now();
+//
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
+// Positions
+const STATISTICS_POSITION: number = 1294;
 // Fonts
 const serifFont = new FontFaceObserver("Computer Modern Unicode Serif");
 const mathFont = new FontFaceObserver("Computer Modern Math Italic");
@@ -103,13 +106,13 @@ const stageItems: stageItemsContainer = {
     }),
     scoreText: new ExtendedText("0", {
       fontFamily: "Computer Modern Unicode Serif",
-      fontSize: 72,
+      fontSize: 80,
       fill: "#ffffff"
     }),
     //
     enemiesText: new ExtendedText("Enemy Kills: 0 ≈ 0.000/s", {
       fontFamily: "Computer Modern Unicode Serif",
-      fontSize: 20,
+      fontSize: 24,
       fill: "#ffffff"
     }),
     inputText: new ExtendedText("0", {
@@ -119,32 +122,32 @@ const stageItems: stageItemsContainer = {
     }),
     elapsedTimeText: new ExtendedText("0:00.000", {
       fontFamily: "Computer Modern Unicode Serif",
-      fontSize: 20,
+      fontSize: 24,
       fill: "#ffffff"
     }),
     baseHealthText: new ExtendedText("♥️ 100", {
       fontFamily: "Computer Modern Unicode Serif",
-      fontSize: 20,
+      fontSize: 24,
       fill: "#ffffff"
     }),
     comboText: new ExtendedText("", {
       fontFamily: "Computer Modern Unicode Serif",
-      fontSize: 20,
+      fontSize: 24,
       fill: "#ffffff"
     }),
     enemiesReceivedStockText: new ExtendedText("0", {
       fontFamily: "Computer Modern Unicode Serif",
-      fontSize: 48,
+      fontSize: 64,
       fill: "#ffffff"
     }),
-    nameText: new ExtendedText("Score", {
+    nameText: new ExtendedText("", {
       fontFamily: "Computer Modern Unicode Serif",
       fontSize: 20,
       fill: "#ffffff"
     }),
     levelText: new ExtendedText("Level", {
       fontFamily: "Computer Modern Unicode Serif",
-      fontSize: 28,
+      fontSize: 32,
       fill: "#ffffff"
     }),
     levelDetailsText: new ExtendedText("Level", {
@@ -163,39 +166,45 @@ function setContainerItemProperties() {
   //
   stageItems.sprites.playFieldBorder.position.set(640, 160);
   // text
-  stageItems.textSprites.scoreText.position.set(1294, 725);
+  stageItems.textSprites.scoreText.position.set(STATISTICS_POSITION, 706);
   //
-  stageItems.textSprites.scoreLabelText.position.set(1294, 705);
+  stageItems.textSprites.scoreLabelText.position.set(STATISTICS_POSITION, 690);
   stageItems.textSprites.scoreLabelText.text = "Score";
   //
   stageItems.textSprites.enemiesText.text = "Enemy Kills: 0 ≈ 0.000/s";
-  stageItems.textSprites.enemiesText.position.set(1294, 795);
+  stageItems.textSprites.enemiesText.position.set(STATISTICS_POSITION, 788);
   //
   stageItems.textSprites.elapsedTimeText.text = "0:00.000";
-  stageItems.textSprites.elapsedTimeText.position.set(1294, 815);
+  stageItems.textSprites.elapsedTimeText.position.set(STATISTICS_POSITION, 814);
   //
   stageItems.textSprites.baseHealthText.text = "♥️ 100";
-  stageItems.textSprites.baseHealthText.position.set(1294, 835);
+  stageItems.textSprites.baseHealthText.position.set(STATISTICS_POSITION, 840);
   //
   stageItems.textSprites.comboText.text = "";
-  stageItems.textSprites.comboText.position.set(1294, 855);
+  stageItems.textSprites.comboText.position.set(STATISTICS_POSITION, 866);
   //
   stageItems.textSprites.inputText.position.set(964, 915);
   stageItems.textSprites.inputText.anchor.set(0.5, 0.5);
   //
   stageItems.textSprites.enemiesReceivedStockText.text = "";
-  stageItems.textSprites.enemiesReceivedStockText.position.set(1294, 525);
+  stageItems.textSprites.enemiesReceivedStockText.position.set(
+    STATISTICS_POSITION,
+    525
+  );
   //
   stageItems.textSprites.nameText.text = "";
   stageItems.textSprites.nameText.position.set(964, 983);
   stageItems.textSprites.nameText.anchor.set(0.5, 0.5);
   //
   stageItems.textSprites.levelText.text = "Level 1";
-  stageItems.textSprites.levelText.position.set(1294, 615);
+  stageItems.textSprites.levelText.position.set(STATISTICS_POSITION, 595);
   //
   stageItems.textSprites.levelDetailsText.text =
     "+♥: ?/s, ↓: ×1.00, ■: 5% every 1000ms";
-  stageItems.textSprites.levelDetailsText.position.set(1294, 645);
+  stageItems.textSprites.levelDetailsText.position.set(
+    STATISTICS_POSITION,
+    630
+  );
 }
 
 setContainerItemProperties();

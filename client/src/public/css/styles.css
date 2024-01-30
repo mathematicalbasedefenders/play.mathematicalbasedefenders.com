@@ -547,6 +547,7 @@ code {
 #main-content__multiplayer-intermission-screen-container__left {
   grid-column: column1-start / column3-end;
   grid-row: row1-start / row1-end;
+  font-size: 125%;
 }
 
 #main-content__multiplayer-intermission-screen-container__center {
@@ -864,7 +865,7 @@ code {
   width: 80%;
   margin: auto;
   height: 90%;
-  font-size: 100%;
+  font-size: 125%;
   color: var(--color-text-light);
 }
 
@@ -1081,4 +1082,5 @@ code {
   position: absolute;
   right: 0;
   bottom: 0;
+  font-size: 125%;
 }
