@@ -547,6 +547,7 @@ code {
 #main-content__multiplayer-intermission-screen-container__left {
   grid-column: column1-start / column3-end;
   grid-row: row1-start / row1-end;
+  font-size: 125%;
 }
 
 #main-content__multiplayer-intermission-screen-container__center {
