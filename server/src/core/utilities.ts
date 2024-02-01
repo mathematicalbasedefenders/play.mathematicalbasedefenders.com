@@ -27,7 +27,7 @@ const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
   },
   enemySpeedCoefficient: {
     type: "number",
-    minimum: 1,
+    minimum: 0.25,
     maximum: 50
   },
   enemySpawnTime: {
