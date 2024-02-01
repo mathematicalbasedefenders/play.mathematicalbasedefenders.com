@@ -28,7 +28,7 @@ const SETTINGS_KEYS = [
   {
     storageStringKey: "enemyWidthCoefficient",
     htmlName: "settings__enemy-size-ratio",
-    defaultValue: "1",
+    defaultValue: "2",
     settingsType: SettingsType.Radio
   },
   {
