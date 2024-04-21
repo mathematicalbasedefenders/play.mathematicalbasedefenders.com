@@ -38,7 +38,7 @@ class Opponent {
         )
       },
       textSprites: {
-        // "statistics": _.cloneDeep(emptyText),
+        "statistics": _.cloneDeep(emptyText),
         "input": _.cloneDeep(emptyText),
         "name": _.cloneDeep(emptyText)
       }
