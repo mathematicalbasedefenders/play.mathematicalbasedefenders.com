@@ -38,7 +38,7 @@ class Opponent {
         )
       },
       textSprites: {
-        "statistics": _.cloneDeep(emptyText),
+        // "statistics": _.cloneDeep(emptyText),
         "input": _.cloneDeep(emptyText),
         "name": _.cloneDeep(emptyText)
       }
@@ -92,9 +92,9 @@ class Opponent {
    * @param {any} data The new data.
    */
   update(data: any) {
-    this.stageItems.textSprites.statistics.text = `♥${
-      data.baseHealth
-    } ${Math.max(data.combo, 0)}C ${Math.max(data.receivedEnemiesStock, 0)}ST`;
+    // this.stageItems.textSprites.statistics.text = `♥${
+    //   data.baseHealth
+    // } ${Math.max(data.combo, 0)}C ${Math.max(data.receivedEnemiesStock, 0)}ST`;
     this.stageItems.textSprites.input.text = `${data.currentInput || ""}`;
     this.stageItems.textSprites.name.text = `${data.ownerName}`;
     for (let enemy of data.enemies) {
