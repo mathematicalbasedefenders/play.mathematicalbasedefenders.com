@@ -1,7 +1,0 @@
-version: "3.9"
-services:
-  mbd-web-database: 
-    container_name: mbd-web-database
-    image: mongo:4.4.17-rc2
-    ports:
-      - 27017:27017 # somebody unhardcode this plz
