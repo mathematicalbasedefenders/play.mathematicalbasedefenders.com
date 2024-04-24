@@ -45,8 +45,14 @@ function navigateFocus(keyPressed: string) {
     console.warn("Unable to select destination element because it is falsy.");
     return;
   }
+  // remove old element
+  const oldElement = $(variables.navigation.focusing);
+  if (oldElement) {
+    oldElement.removeClass("button--arrow-key-focused");
+  }
   // focus new element
   destinationElement.trigger("focus");
+  destinationElement.addClass("button--arrow-key-focused");
   variables.navigation.focusing = destination;
 }
 
