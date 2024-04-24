@@ -82,6 +82,9 @@ const variables: { [key: string]: any } = {
     timeSinceLastEnemyKill: 60 * 1000 + 1,
     level: 0,
     enemySpeedCoefficient: 1
+  },
+  navigation: {
+    focusing: null
   }
 };
 
