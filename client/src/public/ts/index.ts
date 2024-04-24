@@ -84,6 +84,7 @@ const variables: { [key: string]: any } = {
     enemySpeedCoefficient: 1
   },
   navigation: {
+    currentScreen: "mainMenu",
     focusing: null
   }
 };

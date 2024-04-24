@@ -10,6 +10,7 @@ import { BezierCurve } from "./bezier";
 import * as PIXI from "pixi.js";
 import { playSound } from "./sounds";
 import { getSettings } from "./settings";
+import { directions } from "./arrow-key-navigation";
 
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -291,6 +292,8 @@ function changeScreen(
   if (newData) {
     setClientSideRendering(newData);
   }
+  // set new screen
+  variables.navigation.focusing = directions[screen]?.defaultFocused;
   // reset stuff
   // TODO: temporary
   for (let opponent of Opponent.instances) {
