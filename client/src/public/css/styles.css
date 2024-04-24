@@ -367,7 +367,7 @@ code {
   color: #ffffff;
   border: 1px solid #ffffff;
   background-color: var(--color-neutral);
-  font-size: 24px;
+  font-size: 150%;
 }
 
 .custom-singleplayer__content-fieldset label,
@@ -379,14 +379,14 @@ code {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
-  font-size: 24px;
+  font-size: 150%;
   font-family: "Computer Modern Unicode Serif";
 }
 .custom-singleplayer__content-input--button {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
-  font-size: 28px;
+  font-size: 150%;
   font-family: "Computer Modern Unicode Serif";
   transition-duration: var(--transition-duration-short);
 }
@@ -401,7 +401,7 @@ code {
   color: var(--color-neutral);
 }
 #main-content__custom-singleplayer-intermission-screen-container__options {
-  font-size: 24px;
+  font-size: 150%;
   padding: 8px;
   margin: 32px 0;
   border: 2px solid #ffffff;
@@ -415,7 +415,7 @@ code {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
-  font-size: 24px;
+  font-size: 150%;
   font-family: "Computer Modern Unicode Serif";
 }
 
@@ -754,7 +754,7 @@ code {
   width: 100%;
   height: 100vh;
   color: var(--color-text-light);
-  font-size: 16px;
+  font-size: 100%;
   overflow-y: auto;
 }
 
@@ -762,7 +762,7 @@ code {
   color: #ffffff;
   border: 1px solid #ffffff;
   background-color: var(--color-neutral);
-  font-size: 24px;
+  font-size: 150%;
 }
 
 .settings-screen__content-fieldset label,
@@ -774,7 +774,7 @@ code {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
-  font-size: 24px;
+  font-size: 150%;
   font-family: "Computer Modern Unicode Serif";
 }
 
@@ -782,7 +782,7 @@ code {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
-  font-size: 28px;
+  font-size: 150%;
   font-family: "Computer Modern Unicode Serif";
   transition-duration: var(--transition-duration-short);
 }
@@ -804,14 +804,14 @@ code {
   color: var(--color-text-light);
   width: 48px;
   height: 48px;
-  font-size: 36px;
+  font-size: 225%;
   border: 1px #ffffff solid;
 }
 
 .quick-menu__content-button {
   width: 48px;
   height: 48px;
-  font-size: 18px;
+  font-size: 225%;
   font-family: "Computer Modern Unicode Serif";
   word-wrap: break-word;
 }
@@ -935,13 +935,13 @@ code {
 .popup-notification__title {
   height: 12.5%;
   width: 100%;
-  font-size: 5vh;
+  font-size: 250%;
 }
 
 .popup-notification__content {
   height: 77.5%;
   width: 100%;
-  font-size: 2vh;
+  font-size: 125%;
 }
 
 .popup-notification__button-container {
@@ -955,7 +955,7 @@ code {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
-  font-size: 28px;
+  font-size: 200%;
   font-family: "Computer Modern Unicode Serif";
   transition-duration: var(--transition-duration-short);
 }
@@ -1040,7 +1040,7 @@ code {
 .on-screen-keyboard-button--small {
   width: 2.5%;
   height: 100%;
-  font-size: 12px;
+  font-size: 75%;
 }
 /* USER INFO */
 #main-content__user-menu-small-display {
