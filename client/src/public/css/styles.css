@@ -720,7 +720,7 @@ code {
 .settings-screen__sidebar-item {
   width: 100%;
   color: var(--color-text-light);
-  font-size: 32px;
+  font-size: 200%;
   text-align: left;
   margin: 4px;
   background-color: #000000;
