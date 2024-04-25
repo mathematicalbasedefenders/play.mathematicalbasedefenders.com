@@ -34,9 +34,8 @@ function navigateFocus(keyPressed: string) {
   if (element == null) {
     element = directions[screen].defaultFocused;
   }
-  const destination = `${directions[screen]?.destinations?.[element]?.[keyPressed]}`;
-  // TODO: Find a safer way to check?
-  if (destination === "undefined") {
+  const destination = directions[screen]?.destinations?.[element]?.[keyPressed];
+  if (!destination) {
     // no element corresponds to destination
     return;
   }
