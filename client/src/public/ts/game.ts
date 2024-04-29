@@ -271,6 +271,10 @@ function changeScreen(
   alsoResetStage?: boolean,
   newData?: { [key: string]: any }
 ) {
+  // reset arrow key navigation
+  // remove old element's focus status
+  $(variables.navigation.focusing).removeClass("button--arrow-key-focused");
+
   // set settings
   getSettings(localStorage.getItem("settings") || "{}");
 
@@ -296,6 +300,12 @@ function changeScreen(
   variables.navigation.focusing = directions[screen]?.defaultFocused;
   variables.navigation.currentScreen = screen;
   // reset stuff
+  // remove old element's focus status
+  const oldElement = $(variables.navigation.focusing);
+  if (oldElement) {
+    oldElement.removeClass("button--arrow-key-focused");
+  }
+  variables.navigation.focusing = null;
   // TODO: temporary
   for (let opponent of Opponent.instances) {
     opponent.destroyAllInstances();
