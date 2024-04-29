@@ -91,6 +91,18 @@ function navigateFocus(keyPressed: string) {
     Object.keys(directions[screen].destinations).indexOf(element) === -1
   ) {
     element = directions[screen].defaultFocused;
+    // focus on the `defaultFocus` element if nothing is arrow-key focused
+    const destinationElement = $(`${element}`);
+    // remove old element's focus status
+    const oldElement = $(variables.navigation.focusing);
+    if (oldElement) {
+      oldElement.removeClass("button--arrow-key-focused");
+    }
+    // focus new element
+    destinationElement.trigger("focus");
+    destinationElement.addClass("button--arrow-key-focused");
+    variables.navigation.focusing = element;
+    return;
   }
   const destination = directions[screen]?.destinations?.[element]?.[keyPressed];
   if (!destination) {
@@ -102,7 +114,7 @@ function navigateFocus(keyPressed: string) {
     console.warn("Unable to select destination element because it is falsy.");
     return;
   }
-  // remove old element
+  // remove old element's focus status
   const oldElement = $(variables.navigation.focusing);
   if (oldElement) {
     oldElement.removeClass("button--arrow-key-focused");
