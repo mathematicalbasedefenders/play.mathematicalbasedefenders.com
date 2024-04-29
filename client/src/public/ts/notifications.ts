@@ -79,6 +79,7 @@ enum PopupNotificationButtonStyle {
 }
 class PopupNotification {
   static activeNotifications = 0;
+  static activeNotificationIDs: Array<number> = []; // stack data structure
   static nextID = 0;
   title = "";
   id = 0;
@@ -100,10 +101,12 @@ class PopupNotification {
   // TODO: wtf is this
   render() {
     PopupNotification.activeNotifications++;
+    PopupNotification.activeNotificationIDs.push(this.id);
     let buttons = `<button id="popup-notification--${this.id}__close-button">Close</button>`;
-    if (this.buttonStyle === PopupNotificationButtonStyle.DOUBLE_SELECT) {
-      buttons += `&nbsp;&nbsp;<button>OK</button>`;
-    }
+    // FIXME: Never used, consider removing?
+    // if (this.buttonStyle === PopupNotificationButtonStyle.DOUBLE_SELECT) {
+    //   buttons += `&nbsp;&nbsp;<button>OK</button>`;
+    // }
     $("#main-content__popup-notification-container").append(
       `<dialog id="popup-notification--${this.id}" class="popup-notification"><div class="popup-notification__title">${this.title}</div><div class="popup-notification__content">${this.text}</div><div class="popup-notification__button-container">${buttons}</div></dialog>`
     );
@@ -121,6 +124,8 @@ class PopupNotification {
 
   close(id: number) {
     $(`#popup-notification--${id}`).hide(250);
+    const index = PopupNotification.activeNotificationIDs.indexOf(id);
+    PopupNotification.activeNotificationIDs.splice(index, 1);
     // ...
     PopupNotification.activeNotifications--;
     if (PopupNotification.activeNotifications <= 0) {

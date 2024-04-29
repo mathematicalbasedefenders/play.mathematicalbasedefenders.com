@@ -1,4 +1,6 @@
+import _ from "lodash";
 import { variables } from ".";
+import { PopupNotification } from "./notifications";
 
 /**
  * New destination: directions.(currentScreen).destinations.(currentElement).(keyPressed)
@@ -31,7 +33,26 @@ const directions: { [key: string]: any } = {
 function navigateFocus(keyPressed: string) {
   let screen = variables.navigation.currentScreen;
   let element = variables.navigation.focusing;
-  if (element == null) {
+  // overwrite: if there is a popup notification active, give it priority.
+  if (PopupNotification.activeNotifications > 0) {
+    // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.
+    // currently, later notifications are given priority when dealing with arrow keys.
+    const popUpID =
+      PopupNotification.activeNotificationIDs[
+        PopupNotification.activeNotificationIDs.length - 1
+      ];
+    const popupToFocusID = `#popup-notification--${popUpID}__close-button`;
+    const popupElement = $(popupToFocusID);
+    popupElement.trigger("focus");
+    popupElement.addClass("button--arrow-key-focused");
+    variables.navigation.focusing = popupToFocusID;
+    return;
+  }
+  // normal case
+  if (
+    element == null ||
+    Object.keys(directions[screen].destinations).indexOf(element) === -1
+  ) {
     element = directions[screen].defaultFocused;
   }
   const destination = directions[screen]?.destinations?.[element]?.[keyPressed];
