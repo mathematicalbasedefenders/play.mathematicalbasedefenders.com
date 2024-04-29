@@ -41,6 +41,21 @@ const directions: { [key: string]: any } = {
       }
     },
     defaultFocused: "#singleplayer-menu-screen-button--standard"
+  },
+  "multiplayerMenu": {
+    destinations: {
+      "#multiplayer-menu-screen-button--default": {
+        "ArrowDown": "#multiplayer-menu-screen-button--custom"
+      },
+      "#multiplayer-menu-screen-button--custom": {
+        "ArrowUp": "#multiplayer-menu-screen-button--default",
+        "ArrowDown": "#multiplayer-menu-screen-button--back"
+      },
+      "#multiplayer-menu-screen-button--back": {
+        "ArrowUp": "#multiplayer-menu-screen-button--custom"
+      }
+    },
+    defaultFocused: "#multiplayer-menu-screen-button--default"
   }
 };
 
