@@ -110,7 +110,7 @@ class PopupNotification {
     $(`#popup-notification--${this.id}__close-button`).on("click", () => {
       this.close(this.id);
     });
-    if (PopupNotification.activeNotifications === 1) {
+    if (PopupNotification.activeNotifications > 0) {
       $("#main-content__popup-notification-container").show(0);
       $("#main-content__popup-notification-container").css(
         "pointer-events",
