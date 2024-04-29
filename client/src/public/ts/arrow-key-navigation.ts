@@ -20,6 +20,27 @@ const directions: { [key: string]: any } = {
       }
     },
     defaultFocused: "#main-menu-screen-button--singleplayer"
+  },
+  "singleplayerMenu": {
+    destinations: {
+      "#singleplayer-menu-screen-button--standard": {
+        "ArrowDown": "#singleplayer-menu-screen-button--easy"
+      },
+      "#singleplayer-menu-screen-button--easy": {
+        "ArrowUp": "#singleplayer-menu-screen-button--standard",
+        "ArrowRight": "#singleplayer-menu-screen-button--custom",
+        "ArrowDown": "#singleplayer-menu-screen-button--back"
+      },
+      "#singleplayer-menu-screen-button--custom": {
+        "ArrowUp": "#singleplayer-menu-screen-button--standard",
+        "ArrowLeft": "#singleplayer-menu-screen-button--easy",
+        "ArrowDown": "#singleplayer-menu-screen-button--back"
+      },
+      "#singleplayer-menu-screen-button--back": {
+        "ArrowUp": "#singleplayer-menu-screen-button--easy"
+      }
+    },
+    defaultFocused: "#singleplayer-menu-screen-button--standard"
   }
 };
 
@@ -48,6 +69,7 @@ function navigateFocus(keyPressed: string) {
     variables.navigation.focusing = popupToFocusID;
     return;
   }
+  console.debug(element);
   // normal case
   if (
     element == null ||

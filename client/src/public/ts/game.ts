@@ -294,6 +294,7 @@ function changeScreen(
   }
   // set new screen
   variables.navigation.focusing = directions[screen]?.defaultFocused;
+  variables.navigation.currentScreen = screen;
   // reset stuff
   // TODO: temporary
   for (let opponent of Opponent.instances) {
