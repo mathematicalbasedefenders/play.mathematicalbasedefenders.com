@@ -113,6 +113,7 @@ code {
 }
 
 .button--arrow-key-focused {
+  z-index: 1003;
   outline: 12px solid var(--color-arrow-key-focused);
 }
 
