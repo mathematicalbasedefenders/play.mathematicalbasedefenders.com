@@ -85,6 +85,7 @@ const variables: { [key: string]: any } = {
   },
   navigation: {
     currentScreen: "mainMenu",
+    currentSecondaryScreen: null,
     focusing: null
   }
 };

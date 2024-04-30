@@ -5,59 +5,72 @@ import { PopupNotification } from "./notifications";
 /**
  * New destination: directions.(currentScreen).destinations.(currentElement).(keyPressed)
  */
-const directions: { [key: string]: any } = {
-  "mainMenu": {
-    destinations: {
-      "#main-menu-screen-button--singleplayer": {
-        "ArrowDown": "#main-menu-screen-button--multiplayer"
+function getArrowKeyDirections() {
+  const directions: { [key: string]: any } = {
+    "mainMenu": {
+      destinations: {
+        "#main-menu-screen-button--singleplayer": {
+          "ArrowDown": "#main-menu-screen-button--multiplayer"
+        },
+        "#main-menu-screen-button--multiplayer": {
+          "ArrowUp": "#main-menu-screen-button--singleplayer",
+          "ArrowDown": "#main-menu-screen-button--settings"
+        },
+        "#main-menu-screen-button--settings": {
+          "ArrowUp": "#main-menu-screen-button--multiplayer"
+        }
       },
-      "#main-menu-screen-button--multiplayer": {
-        "ArrowUp": "#main-menu-screen-button--singleplayer",
-        "ArrowDown": "#main-menu-screen-button--settings"
-      },
-      "#main-menu-screen-button--settings": {
-        "ArrowUp": "#main-menu-screen-button--multiplayer"
-      }
+      defaultFocused: "#main-menu-screen-button--singleplayer"
     },
-    defaultFocused: "#main-menu-screen-button--singleplayer"
-  },
-  "singleplayerMenu": {
-    destinations: {
-      "#singleplayer-menu-screen-button--standard": {
-        "ArrowDown": "#singleplayer-menu-screen-button--easy"
+    "singleplayerMenu": {
+      destinations: {
+        "#singleplayer-menu-screen-button--standard": {
+          "ArrowDown": "#singleplayer-menu-screen-button--easy"
+        },
+        "#singleplayer-menu-screen-button--easy": {
+          "ArrowUp": "#singleplayer-menu-screen-button--standard",
+          "ArrowRight": "#singleplayer-menu-screen-button--custom",
+          "ArrowDown": "#singleplayer-menu-screen-button--back"
+        },
+        "#singleplayer-menu-screen-button--custom": {
+          "ArrowUp": "#singleplayer-menu-screen-button--standard",
+          "ArrowLeft": "#singleplayer-menu-screen-button--easy",
+          "ArrowDown": "#singleplayer-menu-screen-button--back"
+        },
+        "#singleplayer-menu-screen-button--back": {
+          "ArrowUp": "#singleplayer-menu-screen-button--easy"
+        }
       },
-      "#singleplayer-menu-screen-button--easy": {
-        "ArrowUp": "#singleplayer-menu-screen-button--standard",
-        "ArrowRight": "#singleplayer-menu-screen-button--custom",
-        "ArrowDown": "#singleplayer-menu-screen-button--back"
-      },
-      "#singleplayer-menu-screen-button--custom": {
-        "ArrowUp": "#singleplayer-menu-screen-button--standard",
-        "ArrowLeft": "#singleplayer-menu-screen-button--easy",
-        "ArrowDown": "#singleplayer-menu-screen-button--back"
-      },
-      "#singleplayer-menu-screen-button--back": {
-        "ArrowUp": "#singleplayer-menu-screen-button--easy"
-      }
+      defaultFocused: "#singleplayer-menu-screen-button--standard"
     },
-    defaultFocused: "#singleplayer-menu-screen-button--standard"
-  },
-  "multiplayerMenu": {
-    destinations: {
-      "#multiplayer-menu-screen-button--default": {
-        "ArrowDown": "#multiplayer-menu-screen-button--custom"
+    "multiplayerMenu": {
+      destinations: {
+        "#multiplayer-menu-screen-button--default": {
+          "ArrowDown": "#multiplayer-menu-screen-button--custom"
+        },
+        "#multiplayer-menu-screen-button--custom": {
+          "ArrowUp": "#multiplayer-menu-screen-button--default",
+          "ArrowDown": "#multiplayer-menu-screen-button--back"
+        },
+        "#multiplayer-menu-screen-button--back": {
+          "ArrowUp": "#multiplayer-menu-screen-button--custom"
+        }
       },
-      "#multiplayer-menu-screen-button--custom": {
-        "ArrowUp": "#multiplayer-menu-screen-button--default",
-        "ArrowDown": "#multiplayer-menu-screen-button--back"
-      },
-      "#multiplayer-menu-screen-button--back": {
-        "ArrowUp": "#multiplayer-menu-screen-button--custom"
-      }
+      defaultFocused: "#multiplayer-menu-screen-button--default"
     },
-    defaultFocused: "#multiplayer-menu-screen-button--default"
-  }
-};
+    "settingsMenu": {
+      destinations: getSettingsMenuDestinations(
+        variables.navigation.currentSecondaryScreen
+      )
+    }
+  };
+  return directions;
+}
+
+function getSettingsMenuDestinations(secondaryScreen: string) {
+  const result = {};
+  return result;
+}
 
 /**
  * Changes/navigates the focused element based on the current screen shown
@@ -88,9 +101,11 @@ function navigateFocus(keyPressed: string) {
   // normal case
   if (
     element == null ||
-    Object.keys(directions[screen].destinations).indexOf(element) === -1
+    Object.keys(getArrowKeyDirections()[screen].destinations).indexOf(
+      element
+    ) === -1
   ) {
-    element = directions[screen].defaultFocused;
+    element = getArrowKeyDirections()[screen].defaultFocused;
     // focus on the `defaultFocus` element if nothing is arrow-key focused
     const destinationElement = $(`${element}`);
     // remove old element's focus status
@@ -104,7 +119,8 @@ function navigateFocus(keyPressed: string) {
     variables.navigation.focusing = element;
     return;
   }
-  const destination = directions[screen]?.destinations?.[element]?.[keyPressed];
+  const destination =
+    getArrowKeyDirections()[screen]?.destinations?.[element]?.[keyPressed];
   if (!destination) {
     // no element corresponds to destination
     return;
@@ -125,4 +141,4 @@ function navigateFocus(keyPressed: string) {
   variables.navigation.focusing = destination;
 }
 
-export { navigateFocus, directions };
+export { navigateFocus, getArrowKeyDirections };

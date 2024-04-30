@@ -10,7 +10,7 @@ import { BezierCurve } from "./bezier";
 import * as PIXI from "pixi.js";
 import { playSound } from "./sounds";
 import { getSettings } from "./settings";
-import { directions } from "./arrow-key-navigation";
+import { getArrowKeyDirections } from "./arrow-key-navigation";
 
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -297,7 +297,8 @@ function changeScreen(
     setClientSideRendering(newData);
   }
   // set new screen
-  variables.navigation.focusing = directions[screen]?.defaultFocused;
+  variables.navigation.focusing =
+    getArrowKeyDirections()[screen]?.defaultFocused;
   variables.navigation.currentScreen = screen;
   // reset stuff
   // remove old element's focus status
