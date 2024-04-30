@@ -2,6 +2,8 @@ import _ from "lodash";
 import { variables } from ".";
 import { PopupNotification } from "./notifications";
 
+// Globals
+
 /**
  * New destination: directions.(currentScreen).destinations.(currentElement).(keyPressed)
  */
@@ -58,17 +60,33 @@ function getArrowKeyDirections() {
       },
       defaultFocused: "#multiplayer-menu-screen-button--default"
     },
-    "settingsMenu": {
-      destinations: getSettingsMenuDestinations(
-        variables.navigation.currentSecondaryScreen
-      )
-    }
+    "settingsMenu": getSettingsMenuDestinations(
+      variables.navigation.currentSecondaryScreen
+    )
   };
   return directions;
 }
 
 function getSettingsMenuDestinations(secondaryScreen: string) {
-  const result = {};
+  const result = {
+    destinations: {
+      "#settings-screen__sidebar-item--back": {
+        "ArrowDown": "#settings-screen__sidebar-item--online"
+      },
+      "#settings-screen__sidebar-item--online": {
+        "ArrowUp": "#settings-screen__sidebar-item--back",
+        "ArrowDown": "#settings-screen__sidebar-item--video"
+      },
+      "#settings-screen__sidebar-item--video": {
+        "ArrowUp": "#settings-screen__sidebar-item--online",
+        "ArrowDown": "#settings-screen__sidebar-item--audio"
+      },
+      "#settings-screen__sidebar-item--audio": {
+        "ArrowUp": "#settings-screen__sidebar-item--video"
+      }
+    },
+    defaultFocused: "#settings-screen__sidebar-item--back"
+  };
   return result;
 }
 
@@ -82,6 +100,8 @@ function getSettingsMenuDestinations(secondaryScreen: string) {
 function navigateFocus(keyPressed: string) {
   let screen = variables.navigation.currentScreen;
   let element = variables.navigation.focusing;
+  console.debug("PREV: ", element);
+  const directions = getArrowKeyDirections();
   // overwrite: if there is a popup notification active, give it priority.
   if (PopupNotification.activeNotifications > 0) {
     // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.
@@ -97,15 +117,13 @@ function navigateFocus(keyPressed: string) {
     variables.navigation.focusing = popupToFocusID;
     return;
   }
-  console.debug(element);
-  // normal case
+  // overwrite: if no object is highlighted, highlight the `defaultFocused` element.
   if (
     element == null ||
-    Object.keys(getArrowKeyDirections()[screen].destinations).indexOf(
-      element
-    ) === -1
+    Object.keys(directions[screen].destinations).indexOf(element) === -1
   ) {
-    element = getArrowKeyDirections()[screen].defaultFocused;
+    console.debug(directions);
+    element = directions[screen].defaultFocused;
     // focus on the `defaultFocus` element if nothing is arrow-key focused
     const destinationElement = $(`${element}`);
     // remove old element's focus status
@@ -119,8 +137,8 @@ function navigateFocus(keyPressed: string) {
     variables.navigation.focusing = element;
     return;
   }
-  const destination =
-    getArrowKeyDirections()[screen]?.destinations?.[element]?.[keyPressed];
+  // normal case
+  const destination = directions[screen]?.destinations?.[element]?.[keyPressed];
   if (!destination) {
     // no element corresponds to destination
     return;
@@ -139,6 +157,7 @@ function navigateFocus(keyPressed: string) {
   destinationElement.trigger("focus");
   destinationElement.addClass("button--arrow-key-focused");
   variables.navigation.focusing = destination;
+  console.debug("NOW: ", element);
 }
 
 export { navigateFocus, getArrowKeyDirections };
