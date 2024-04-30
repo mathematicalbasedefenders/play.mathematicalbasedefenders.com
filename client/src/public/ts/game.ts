@@ -361,6 +361,7 @@ function changeSettingsSecondaryScreen(newScreen: string) {
     $(`#settings-screen__content--${screen}`).hide(0);
   }
   $(`#settings-screen__content--${newScreen}`).show(0);
+  variables.navigation.currentSecondaryScreen = newScreen;
 }
 
 function changeCustomSingleplayerSecondaryScreen(newScreen: string) {
