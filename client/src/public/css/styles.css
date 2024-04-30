@@ -114,7 +114,7 @@ code {
 
 .button--arrow-key-focused {
   z-index: 1003;
-  outline: 12px solid var(--color-arrow-key-focused);
+  outline: 8px solid var(--color-arrow-key-focused);
 }
 
 /* MAIN MENU SCREEN */
