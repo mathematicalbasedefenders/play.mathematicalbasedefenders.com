@@ -120,7 +120,19 @@ function getArrowKeyDirections() {
         }
       },
       defaultFocused: "#game-over-screen-button--retry"
-    }
+    },
+    "multiplayerIntermission": {
+      destinations: {
+        "#chat-message": {
+          "ArrowRight": "#message-send-button"
+        },
+        "#message-send-button": {
+          "ArrowLeft": "#chat-message"
+        }
+      },
+      defaultFocused: "#chat-message"
+    },
+    "canvas": null
   };
   return directions;
 }
@@ -273,6 +285,10 @@ function navigateFocus(keyPressed: string) {
     popupElement.trigger("focus");
     popupElement.addClass("button--arrow-key-focused");
     variables.navigation.focusing = popupToFocusID;
+    return;
+  }
+  // overwrite: if there is nothing to arrow-key navigate to, do nothing.
+  if (directions[screen] == null) {
     return;
   }
   // overwrite: if no object is highlighted, highlight the `defaultFocused` element.
