@@ -109,7 +109,18 @@ function getArrowKeyDirections() {
     ),
     "settingsMenu": getSettingsMenuDestinations(
       variables.navigation.currentSecondaryScreen
-    )
+    ),
+    "gameOver": {
+      destinations: {
+        "#game-over-screen-button--retry": {
+          "ArrowRight": "#game-over-screen-button--back"
+        },
+        "#game-over-screen-button--back": {
+          "ArrowLeft": "#game-over-screen-button--retry"
+        }
+      },
+      defaultFocused: "#game-over-screen-button--retry"
+    }
   };
   return directions;
 }
