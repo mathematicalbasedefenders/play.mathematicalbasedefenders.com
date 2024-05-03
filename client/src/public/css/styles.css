@@ -422,7 +422,7 @@ code {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
-  font-size: 150%;
+  font-size: 100%;
   font-family: "Computer Modern Unicode Serif";
 }
 
@@ -781,7 +781,7 @@ code {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
-  font-size: 150%;
+  font-size: 100%;
   font-family: "Computer Modern Unicode Serif";
 }
 
