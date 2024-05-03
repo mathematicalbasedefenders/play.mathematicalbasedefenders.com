@@ -32,6 +32,21 @@ const settingsSecondaryScreenOrder: { [key: string]: Array<string> } = {
   ],
   "audio": ["#settings-sound__on", "#settings-sound__off"]
 };
+const customSingleplayerIntermissionSecondaryScreenOrder: {
+  [key: string]: Array<string>;
+} = {
+  "global": [
+    "#custom-singleplayer-intermission-screen-container__start-button",
+    "#custom-singleplayer-game__combo-time"
+  ],
+  "enemies": [
+    "#custom-singleplayer-game__enemy-spawn-time",
+    "#custom-singleplayer-game__enemy-spawn-chance",
+    "#custom-singleplayer-game__forced-enemy-spawn-time",
+    "#custom-singleplayer-game__enemy-speed-coefficient"
+  ],
+  "base": ["#custom-singleplayer-game__starting-base-health"]
+};
 
 /**
  * New destination: directions.(currentScreen).destinations.(currentElement).(keyPressed)
@@ -89,6 +104,9 @@ function getArrowKeyDirections() {
       },
       defaultFocused: "#multiplayer-menu-screen-button--default"
     },
+    "customSingleplayerIntermission": getCustomSingleplayerMenuDestinations(
+      variables.navigation.currentSecondaryScreen
+    ),
     "settingsMenu": getSettingsMenuDestinations(
       variables.navigation.currentSecondaryScreen
     )
@@ -116,7 +134,7 @@ function getSettingsMenuDestinations(secondaryScreen: string) {
     },
     defaultFocused: "#settings-screen__sidebar-item--back"
   };
-  if (secondaryScreen == null || secondaryScreen === "") {
+  if (["online", "video", "audio"].indexOf(secondaryScreen) === -1) {
     return result;
   }
   // add `ArrowRight` action
@@ -134,7 +152,58 @@ function getSettingsMenuDestinations(secondaryScreen: string) {
     result.destinations[key]["ArrowLeft"] =
       "#settings-screen__sidebar-item--back";
   }
-  console.debug(result);
+  return result;
+}
+
+function getCustomSingleplayerMenuDestinations(secondaryScreen: string) {
+  const result: { [key: string]: any } = {
+    destinations: {
+      "#custom-singleplayer-intermission-screen-container__back-button": {
+        "ArrowDown":
+          "#custom-singleplayer-intermission-screen-container__global-button"
+      },
+      "#custom-singleplayer-intermission-screen-container__global-button": {
+        "ArrowUp":
+          "#custom-singleplayer-intermission-screen-container__back-button",
+        "ArrowDown":
+          "#custom-singleplayer-intermission-screen-container__enemies-button"
+      },
+      "#custom-singleplayer-intermission-screen-container__enemies-button": {
+        "ArrowUp":
+          "#custom-singleplayer-intermission-screen-container__global-button",
+        "ArrowDown":
+          "#custom-singleplayer-intermission-screen-container__base-button"
+      },
+      "#custom-singleplayer-intermission-screen-container__base-button": {
+        "ArrowUp":
+          "#custom-singleplayer-intermission-screen-container__enemies-button"
+      }
+    },
+    defaultFocused:
+      "#custom-singleplayer-intermission-screen-container__back-button"
+  };
+  if (["global", "enemies", "base"].indexOf(secondaryScreen) === -1) {
+    return result;
+  }
+  // add `ArrowRight` action
+  for (const key of Object.keys(result.destinations)) {
+    result.destinations[key]["ArrowRight"] =
+      customSingleplayerIntermissionSecondaryScreenOrder[secondaryScreen][0];
+  }
+  // merge with function
+  _.merge(
+    result.destinations,
+    constructUpDownKeyDirections(
+      customSingleplayerIntermissionSecondaryScreenOrder[secondaryScreen]
+    )
+  );
+  // add `ArrowLeft` action
+  for (const key of customSingleplayerIntermissionSecondaryScreenOrder[
+    secondaryScreen
+  ]) {
+    result.destinations[key]["ArrowLeft"] =
+      "#custom-singleplayer-intermission-screen-container__back-button";
+  }
   return result;
 }
 
@@ -179,6 +248,7 @@ function navigateFocus(keyPressed: string) {
   let element = variables.navigation.focusing;
   console.debug("PREV: ", element);
   const directions = getArrowKeyDirections();
+  console.debug("DIRECTIONS: ", directions);
   // overwrite: if there is a popup notification active, give it priority.
   if (PopupNotification.activeNotifications > 0) {
     // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.

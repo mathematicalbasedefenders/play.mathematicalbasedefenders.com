@@ -369,6 +369,7 @@ function changeCustomSingleplayerSecondaryScreen(newScreen: string) {
     $(`#custom-singleplayer-intermission-screen__content--${screen}`).hide(0);
   }
   $(`#custom-singleplayer-intermission-screen__content--${newScreen}`).show(0);
+  variables.navigation.currentSecondaryScreen = newScreen;
 }
 
 function createCustomSingleplayerGameObject() {
