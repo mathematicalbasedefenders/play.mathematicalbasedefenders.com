@@ -269,9 +269,7 @@ function constructUpDownKeyDirections(ids: Array<string>) {
 function navigateFocus(keyPressed: string) {
   let screen = variables.navigation.currentScreen;
   let element = variables.navigation.focusing;
-  console.debug("PREV: ", element);
   const directions = getArrowKeyDirections();
-  console.debug("DIRECTIONS: ", directions);
   // overwrite: if there is a popup notification active, give it priority.
   if (PopupNotification.activeNotifications > 0) {
     // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.
@@ -296,7 +294,6 @@ function navigateFocus(keyPressed: string) {
     element == null ||
     Object.keys(directions[screen].destinations).indexOf(element) === -1
   ) {
-    console.debug(directions);
     element = directions[screen].defaultFocused;
     // focus on the `defaultFocus` element if nothing is arrow-key focused
     const destinationElement = $(`${element}`);
@@ -331,7 +328,6 @@ function navigateFocus(keyPressed: string) {
   destinationElement.trigger("focus");
   destinationElement.addClass("button--arrow-key-focused");
   variables.navigation.focusing = destination;
-  console.debug("NOW: ", element);
 }
 
 export { navigateFocus, getArrowKeyDirections };
