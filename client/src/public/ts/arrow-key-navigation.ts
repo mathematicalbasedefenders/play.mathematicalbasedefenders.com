@@ -170,6 +170,21 @@ function getSettingsMenuDestinations(secondaryScreen: string) {
     result.destinations,
     constructUpDownKeyDirections(settingsSecondaryScreenOrder[secondaryScreen])
   );
+  // merge with extras
+  _.merge(result.destinations, {
+    "#settings-enemy-color__random-for-each-from-palette": {
+      "ArrowRight": "#selected-enemy-color-palette"
+    },
+    "#settings-enemy-color__set-color": {
+      "ArrowRight": "#settings__enemy-color__forced-color-picker"
+    },
+    "#selected-enemy-color-palette": {
+      "ArrowLeft": "#settings-enemy-color__random-for-each-from-palette"
+    },
+    "#settings__enemy-color__forced-color-picker": {
+      "ArrowLeft": "#settings-enemy-color__set-color"
+    }
+  });
   // add `ArrowLeft` action
   for (const key of settingsSecondaryScreenOrder[secondaryScreen]) {
     result.destinations[key]["ArrowLeft"] =
