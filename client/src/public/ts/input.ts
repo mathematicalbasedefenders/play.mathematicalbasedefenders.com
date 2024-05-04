@@ -1,3 +1,4 @@
+import { navigateFocus } from "./arrow-key-navigation";
 import { variables } from "./index";
 import { sendSocketMessage, socket } from "./socket";
 const NUMBER_ROW_KEYS = [
@@ -26,9 +27,21 @@ const NUMBER_PAD_KEYS = [
 ];
 const REMOVE_DIGIT_KEYS = ["NumpadAdd", "Backspace"];
 const SUBTRACTION_SIGN_KEYS = ["Minus", "NumpadSubtract"];
+const ARROW_KEYS = ["ArrowLeft", "ArrowUp", "ArrowDown", "ArrowRight"];
 // events
 function initializeKeypressEventListener() {
   window.addEventListener("keydown", (event) => {
+    // other client-side events start
+    if (event.code === "Tab") {
+      event.preventDefault();
+      $("#status-tray-container").toggle(0);
+      return;
+    }
+    if (ARROW_KEYS.indexOf(event.code) > -1) {
+      event.preventDefault();
+      navigateFocus(event.code);
+      return;
+    }
     // main client-side events start
     sendSocketMessage({
       message: "keypress",
@@ -53,11 +66,6 @@ function initializeKeypressEventListener() {
         variables.currentGameClientSide.currentInput.substring(0, newLength);
     }
     // main client-side events end
-    // other client-side events start
-    if (event.code === "Tab") {
-      event.preventDefault();
-      $("#status-tray-container").toggle(0);
-    }
   });
 }
 export { initializeKeypressEventListener };
