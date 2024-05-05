@@ -1,5 +1,5 @@
 import { stageItems, variables } from ".";
-import { setNewBeautifulScoreDisplayGoal } from "./beautiful-score-display";
+import { renderBeautifulScoreDisplay } from "./beautiful-score-display";
 import { Enemy, getEnemyFromCache } from "./enemies";
 import { SlidingText } from "./sliding-text";
 import { millisecondsToTime } from "./utilities";
@@ -91,12 +91,13 @@ function render(elapsedMilliseconds: number) {
 
   // beautiful score display
   if (variables.settings.beautifulScore === "on") {
-    // setNewBeautifulScoreDisplayGoal();
-    stageItems.textSprites.scoreText.text =
-      variables.currentGameClientSide.shownScore;
+    variables.currentGameClientSide.beautifulScoreDisplayProgress +=
+      elapsedMilliseconds;
+    renderBeautifulScoreDisplay();
   } else {
-    stageItems.textSprites.scoreText.text =
-      variables.currentGameClientSide.shownScore;
+    stageItems.textSprites.scoreText.text = parseInt(
+      variables.currentGameClientSide.shownScore
+    );
   }
 }
 
@@ -109,6 +110,8 @@ function resetClientSideVariables() {
   variables.currentGameClientSide.enemiesKilled = 0;
   variables.currentGameClientSide.enemySpeedCoefficient = 1;
   variables.currentGameClientSide.shownScore = 0;
+  variables.currentGameClientSide.beautifulScoreDisplayGoal = 0;
+  variables.currentGameClientSide.beautifulScoreDisplayProgress = 0;
 }
 
 /**
