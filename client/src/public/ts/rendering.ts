@@ -112,6 +112,7 @@ function resetClientSideVariables() {
   variables.currentGameClientSide.shownScore = 0;
   variables.currentGameClientSide.beautifulScoreDisplayGoal = 0;
   variables.currentGameClientSide.beautifulScoreDisplayProgress = 0;
+  variables.currentGameClientSide.beautifulScoreDisplayPrevious = 0;
 }
 
 /**
