@@ -180,6 +180,9 @@ function renderGameData(data: { [key: string]: any }) {
   if (
     variables.currentGameClientSide.beautifulScoreDisplayGoal !== data.score
   ) {
+    variables.currentGameClientSide.beautifulScoreDisplayPrevious = Math.round(
+      parseInt(stageItems.textSprites.scoreText.text)
+    );
     variables.currentGameClientSide.beautifulScoreDisplayProgress = 0;
   }
 
