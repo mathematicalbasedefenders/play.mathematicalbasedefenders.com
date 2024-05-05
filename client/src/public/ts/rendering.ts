@@ -1,4 +1,5 @@
 import { stageItems, variables } from ".";
+import { setNewBeautifulScoreDisplayGoal } from "./beautiful-score-display";
 import { Enemy, getEnemyFromCache } from "./enemies";
 import { SlidingText } from "./sliding-text";
 import { millisecondsToTime } from "./utilities";
@@ -87,6 +88,7 @@ function render(elapsedMilliseconds: number) {
   renderEnemies();
   renderSlidingTexts();
   renderStatistics();
+  setNewBeautifulScoreDisplayGoal();
 }
 
 /**
