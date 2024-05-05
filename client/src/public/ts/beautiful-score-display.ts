@@ -14,11 +14,21 @@ function renderBeautifulScoreDisplay() {
   const previous =
     variables.currentGameClientSide.beautifulScoreDisplayPrevious;
   // planned bezier (0,0,.6,1)
-  const CURVE = new BezierCurve(DURATION, [0, 0], [0, 0], [0.6, 1], [1, 1]);
+  // current bezier: https://easings.co/, easeOutCubic
+  const CURVE = new BezierCurve(
+    DURATION,
+    [0, 0],
+    [0.22, 0.61],
+    [0.36, 1],
+    [1, 1]
+  );
 
   if (progress >= DURATION) {
     stageItems.textSprites.scoreText.text =
       variables.currentGameClientSide.shownScore;
+    variables.currentGameClientSide.beautifulScoreDisplayPrevious = Math.round(
+      parseInt(stageItems.textSprites.scoreText.text)
+    );
     return;
   }
 
@@ -27,10 +37,6 @@ function renderBeautifulScoreDisplay() {
   const toShow = Math.max(previous, result);
 
   stageItems.textSprites.scoreText.text = Math.round(toShow);
-
-  variables.currentGameClientSide.beautifulScoreDisplayPrevious = Math.round(
-    parseInt(stageItems.textSprites.scoreText.text)
-  );
 }
 
 export { renderBeautifulScoreDisplay };
