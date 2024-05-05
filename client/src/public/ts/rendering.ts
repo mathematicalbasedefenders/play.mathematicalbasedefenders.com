@@ -88,7 +88,16 @@ function render(elapsedMilliseconds: number) {
   renderEnemies();
   renderSlidingTexts();
   renderStatistics();
-  setNewBeautifulScoreDisplayGoal();
+
+  // beautiful score display
+  if (variables.settings.beautifulScore === "on") {
+    // setNewBeautifulScoreDisplayGoal();
+    stageItems.textSprites.scoreText.text =
+      variables.currentGameClientSide.shownScore;
+  } else {
+    stageItems.textSprites.scoreText.text =
+      variables.currentGameClientSide.shownScore;
+  }
 }
 
 /**

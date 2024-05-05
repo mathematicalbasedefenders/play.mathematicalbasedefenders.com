@@ -201,7 +201,8 @@ function renderGameData(data: { [key: string]: any }) {
   //     }
   //   }
   // } else {
-  stageItems.textSprites.scoreText.text = data.score;
+
+  variables.currentGameClientSide.shownScore = data.score;
   // }
 
   // level display for singleplayer
