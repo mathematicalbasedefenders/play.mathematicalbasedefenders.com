@@ -81,7 +81,11 @@ const variables: { [key: string]: any } = {
     currentCombo: 0,
     timeSinceLastEnemyKill: 60 * 1000 + 1,
     level: 0,
-    enemySpeedCoefficient: 1
+    enemySpeedCoefficient: 1,
+    shownScore: 0,
+    beautifulScoreDisplayGoal: 0,
+    beautifulScoreDisplayProgress: 0,
+    beautifulScoreDisplayPrevious: 0
   },
   navigation: {
     currentScreen: "mainMenu",

@@ -177,6 +177,15 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   // update values
+  if (
+    variables.currentGameClientSide.beautifulScoreDisplayGoal !== data.score
+  ) {
+    variables.currentGameClientSide.beautifulScoreDisplayPrevious = Math.round(
+      parseInt(stageItems.textSprites.scoreText.text)
+    );
+    variables.currentGameClientSide.beautifulScoreDisplayProgress = 0;
+  }
+
   variables.currentGameClientSide.enemiesKilled = data.enemiesKilled;
   variables.currentGameClientSide.comboTime = data.clocks.comboReset.actionTime;
   variables.currentGameClientSide.timeSinceLastEnemyKill =
@@ -201,7 +210,8 @@ function renderGameData(data: { [key: string]: any }) {
   //     }
   //   }
   // } else {
-  stageItems.textSprites.scoreText.text = data.score;
+  variables.currentGameClientSide.beautifulScoreDisplayGoal = data.score;
+  variables.currentGameClientSide.shownScore = data.score;
   // }
 
   // level display for singleplayer
