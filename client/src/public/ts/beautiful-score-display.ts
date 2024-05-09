@@ -10,7 +10,7 @@ function renderBeautifulScoreDisplay() {
   const progress =
     variables.currentGameClientSide.beautifulScoreDisplayProgress;
   const goal = variables.currentGameClientSide.beautifulScoreDisplayGoal;
-  const DURATION = 1500;
+  const DURATION = 1000;
   const previous =
     variables.currentGameClientSide.beautifulScoreDisplayPrevious;
   // planned bezier (0,0,.6,1)
