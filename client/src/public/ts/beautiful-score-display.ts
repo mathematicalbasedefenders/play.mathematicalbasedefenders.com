@@ -27,7 +27,7 @@ function renderBeautifulScoreDisplay() {
     stageItems.textSprites.scoreText.text =
       variables.currentGameClientSide.shownScore;
     variables.currentGameClientSide.beautifulScoreDisplayPrevious = Math.round(
-      parseInt(stageItems.textSprites.scoreText.text)
+      parseInt(stageItems.textSprites.scoreText.text, 10)
     );
     return;
   }
