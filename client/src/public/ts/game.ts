@@ -10,6 +10,7 @@ import { BezierCurve } from "./bezier";
 import * as PIXI from "pixi.js";
 import { playSound } from "./sounds";
 import { getSettings } from "./settings";
+import { getArrowKeyDirections } from "./arrow-key-navigation";
 
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -176,6 +177,15 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   // update values
+  if (
+    variables.currentGameClientSide.beautifulScoreDisplayGoal !== data.score
+  ) {
+    variables.currentGameClientSide.beautifulScoreDisplayPrevious = Math.round(
+      parseInt(stageItems.textSprites.scoreText.text)
+    );
+    variables.currentGameClientSide.beautifulScoreDisplayProgress = 0;
+  }
+
   variables.currentGameClientSide.enemiesKilled = data.enemiesKilled;
   variables.currentGameClientSide.comboTime = data.clocks.comboReset.actionTime;
   variables.currentGameClientSide.timeSinceLastEnemyKill =
@@ -200,7 +210,8 @@ function renderGameData(data: { [key: string]: any }) {
   //     }
   //   }
   // } else {
-  stageItems.textSprites.scoreText.text = data.score;
+  variables.currentGameClientSide.beautifulScoreDisplayGoal = data.score;
+  variables.currentGameClientSide.shownScore = data.score;
   // }
 
   // level display for singleplayer
@@ -270,6 +281,10 @@ function changeScreen(
   alsoResetStage?: boolean,
   newData?: { [key: string]: any }
 ) {
+  // reset arrow key navigation
+  // remove old element's focus status
+  $(variables.navigation.focusing).removeClass("button--arrow-key-focused");
+
   // set settings
   getSettings(localStorage.getItem("settings") || "{}");
 
@@ -291,7 +306,17 @@ function changeScreen(
   if (newData) {
     setClientSideRendering(newData);
   }
+  // set new screen
+  variables.navigation.focusing =
+    getArrowKeyDirections()[screen]?.defaultFocused;
+  variables.navigation.currentScreen = screen;
   // reset stuff
+  // remove old element's focus status
+  const oldElement = $(variables.navigation.focusing);
+  if (oldElement) {
+    oldElement.removeClass("button--arrow-key-focused");
+  }
+  variables.navigation.focusing = null;
   // TODO: temporary
   for (let opponent of Opponent.instances) {
     opponent.destroyAllInstances();
@@ -346,6 +371,7 @@ function changeSettingsSecondaryScreen(newScreen: string) {
     $(`#settings-screen__content--${screen}`).hide(0);
   }
   $(`#settings-screen__content--${newScreen}`).show(0);
+  variables.navigation.currentSecondaryScreen = newScreen;
 }
 
 function changeCustomSingleplayerSecondaryScreen(newScreen: string) {
@@ -353,6 +379,7 @@ function changeCustomSingleplayerSecondaryScreen(newScreen: string) {
     $(`#custom-singleplayer-intermission-screen__content--${screen}`).hide(0);
   }
   $(`#custom-singleplayer-intermission-screen__content--${newScreen}`).show(0);
+  variables.navigation.currentSecondaryScreen = newScreen;
 }
 
 function createCustomSingleplayerGameObject() {

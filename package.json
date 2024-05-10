@@ -1,12 +1,13 @@
 {
   "name": "play.mathematicalbasedefenders.com",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "private": true,
   "description": "Fun math game",
   "main": "server.js",
   "scripts": {
     "test-jest": "jest",
     "test-cypress": "cypress run",
+    "test-cypress-headed": "cypress run --headed",
     "build": "webpack --config ./webpack.config.production.js",
     "build-dev": "webpack --config ./webpack.config.development.js",
     "compile": "tsc",

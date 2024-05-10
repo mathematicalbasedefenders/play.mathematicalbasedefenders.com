@@ -2,7 +2,6 @@ import { nCr } from "./utilities";
 
 /**
  * This represents a Bezier curve.
- * This is currently used for sliding text.
  */
 class BezierCurve {
   duration!: number;
