@@ -4,7 +4,7 @@
 
 Mathematical Base Defenders is a multiplayer math game where the objective is simple: solve problems on the enemies to kill them.
 
-This is the `play` subdomain, where the actual game content is located.
+This is the source code of the `play` subdomain, where the actual game content is located.
 
 ## Gameplay
 Here is an excerpt from [`https://mathematicalbasedefenders.com/about`](https://mathematicalbasedefenders.com/about), which mistertfy64 believes gives the basic idea of the game well:
@@ -49,4 +49,4 @@ If you instead want to contribute to the official server, feel free to open an i
 
 ## License
 
-AGPLv3, however earlier commits (before f1730aed53a939a520a6acfecde6f641e06a215d) used a different license, because of mistertfy64's lack of knowledge and indecisiveness. See the [LICENSE](https://github.com/mathematicalbasedefenders/play.mathematicalbasedefenders.com/blob/master/LICENSE) file for details.
+AGPLv3, however earlier commits (before [`f1730aed53a939a520a6acfecde6f641e06a215d`](https://github.com/mathematicalbasedefenders/play.mathematicalbasedefenders.com/commit/f1730aed53a939a520a6acfecde6f641e06a215d)) used a different license, because of mistertfy64's lack of knowledge and indecisiveness. See the [LICENSE](https://github.com/mathematicalbasedefenders/play.mathematicalbasedefenders.com/blob/master/LICENSE) file for details.
