@@ -54,6 +54,8 @@ const variables: { [key: string]: any } = {
   cachedSingleplayerMode: null,
   beautifulScoreCounter: true,
   currentGameMode: null,
+  // below is for how to play
+  howToPlayGamesRemaining: 5,
   // below is for beautifulScoreCounter
   scoreOnLastUpdate: 0,
   playing: false,
