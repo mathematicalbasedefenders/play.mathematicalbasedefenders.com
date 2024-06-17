@@ -137,6 +137,8 @@ function renderGameData(data: { [key: string]: any }) {
         }
       }
     }
+    // hide how to play text regardless
+    formatHowToPlayText(variables.howToPlayGamesRemaining, true);
   } else {
     stageItems.textSprites.scoreLabelText.text = "Score";
   }
