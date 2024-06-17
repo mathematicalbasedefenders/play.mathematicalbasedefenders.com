@@ -16,7 +16,7 @@ const SETTINGS_KEYS = [
   {
     storageStringKey: "beautifulScore",
     htmlName: "settings__beautiful-score-display",
-    defaultValue: "off",
+    defaultValue: "on",
     settingsType: SettingsType.Radio
   },
   {
@@ -47,7 +47,13 @@ const SETTINGS_KEYS = [
     storageStringKey: "displayLevel",
     htmlName: "settings__level-display",
     defaultValue: "high",
-    SettingsType: SettingsType.Radio
+    settingsType: SettingsType.Radio
+  },
+  {
+    storageStringKey: "forceHideTutorialText",
+    htmlName: "settings__force-hide-tutorial-text",
+    defaultValue: "off",
+    settingsType: SettingsType.Radio
   },
   {
     storageStringKey: "selectedColorPalette",
