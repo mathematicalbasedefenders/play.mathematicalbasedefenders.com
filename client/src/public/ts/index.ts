@@ -163,6 +163,11 @@ const stageItems: stageItemsContainer = {
       fontFamily: "Computer Modern Unicode Serif",
       fontSize: 20,
       fill: "#ffffff"
+    }),
+    howToPlayText: new ExtendedText("", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 20,
+      fill: "#ffffff"
     })
   }
 };
@@ -214,6 +219,19 @@ function setContainerItemProperties() {
     STATISTICS_POSITION,
     630
   );
+  //
+  stageItems.textSprites.howToPlayText.text = "Tutorial:\n";
+  stageItems.textSprites.howToPlayText.text +=
+    "Type the number on the enemy or the answer to an expression on an enemy\n";
+  stageItems.textSprites.howToPlayText.text +=
+    "with the number row or your numpad on your keyboard.\n";
+  stageItems.textSprites.howToPlayText.text +=
+    "Press Space or Enter to submit an answer.\n";
+  stageItems.textSprites.howToPlayText.text +=
+    "This will go away after 5 more games in this session.\n";
+  stageItems.textSprites.howToPlayText.text +=
+    "You can also turn off this message in the settings.\n";
+  stageItems.textSprites.howToPlayText.position.set(STATISTICS_POSITION, 400);
 }
 
 setContainerItemProperties();
