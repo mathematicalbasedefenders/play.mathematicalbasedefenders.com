@@ -2,6 +2,10 @@ import { stageItems } from ".";
 
 function formatHowToPlayText(gamesRemaining: number) {
   // how to play
+  if (gamesRemaining <= 0) {
+    stageItems.textSprites.howToPlayText.text = "";
+    return;
+  }
   const plural = `${gamesRemaining == 1 ? "" : "s"}`;
   stageItems.textSprites.howToPlayText.text = "Tutorial:\n";
   stageItems.textSprites.howToPlayText.text +=

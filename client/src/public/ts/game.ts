@@ -358,10 +358,7 @@ function changeScreen(
       $("#main-content__game-over-screen-container").show(0);
       // also move these as well
       variables.howToPlayGamesRemaining--;
-      if (variables.howToPlayGamesRemaining < 0) {
-      } else {
-        formatHowToPlayText(variables.howToPlayGamesRemaining);
-      }
+      formatHowToPlayText(variables.howToPlayGamesRemaining);
       break;
     }
     case "canvas": {
