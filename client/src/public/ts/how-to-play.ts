@@ -1,10 +1,11 @@
 import { stageItems, variables } from ".";
 
-function formatHowToPlayText(gamesRemaining: number) {
+function formatHowToPlayText(gamesRemaining: number, hide?: boolean) {
   // how to play
   if (
     gamesRemaining <= 0 ||
-    variables.settings.forceHideTutorialText === "on"
+    variables.settings.forceHideTutorialText === "on" ||
+    hide
   ) {
     stageItems.textSprites.howToPlayText.text = "";
     return;
