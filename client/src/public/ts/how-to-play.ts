@@ -1,8 +1,11 @@
-import { stageItems } from ".";
+import { stageItems, variables } from ".";
 
 function formatHowToPlayText(gamesRemaining: number) {
   // how to play
-  if (gamesRemaining <= 0) {
+  if (
+    gamesRemaining <= 0 ||
+    variables.settings.forceHideTutorialText === "on"
+  ) {
     stageItems.textSprites.howToPlayText.text = "";
     return;
   }
