@@ -362,6 +362,7 @@ function changeScreen(
       break;
     }
     case "canvas": {
+      formatHowToPlayText(variables.howToPlayGamesRemaining);
       $("#canvas-container").show(0);
       // TODO: move this somewhere else
       variables.playing = true;
