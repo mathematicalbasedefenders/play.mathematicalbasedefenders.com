@@ -54,6 +54,8 @@ const variables: { [key: string]: any } = {
   cachedSingleplayerMode: null,
   beautifulScoreCounter: true,
   currentGameMode: null,
+  // below is for how to play
+  howToPlayGamesRemaining: 5,
   // below is for beautifulScoreCounter
   scoreOnLastUpdate: 0,
   playing: false,
@@ -163,6 +165,11 @@ const stageItems: stageItemsContainer = {
       fontFamily: "Computer Modern Unicode Serif",
       fontSize: 20,
       fill: "#ffffff"
+    }),
+    howToPlayText: new ExtendedText("", {
+      fontFamily: "Computer Modern Unicode Serif",
+      fontSize: 20,
+      fill: "#ffffff"
     })
   }
 };
@@ -172,48 +179,61 @@ function setContainerItemProperties() {
   stageItems.sprites.screenTopLeftIndicator.alpha = 0;
   stageItems.sprites.screenBottomRightIndicator.position.set(1920, 1080);
   stageItems.sprites.screenBottomRightIndicator.alpha = 0;
-  //
+  // playfield
   stageItems.sprites.playFieldBorder.position.set(640, 160);
   // text
   stageItems.textSprites.scoreText.position.set(STATISTICS_POSITION, 706);
-  //
+  // score label
   stageItems.textSprites.scoreLabelText.position.set(STATISTICS_POSITION, 690);
   stageItems.textSprites.scoreLabelText.text = "Score";
-  //
+  // enemies/s
   stageItems.textSprites.enemiesText.text = "Enemy Kills: 0 ≈ 0.000/s";
   stageItems.textSprites.enemiesText.position.set(STATISTICS_POSITION, 788);
-  //
+  // time
   stageItems.textSprites.elapsedTimeText.text = "0:00.000";
   stageItems.textSprites.elapsedTimeText.position.set(STATISTICS_POSITION, 814);
-  //
+  // base health
   stageItems.textSprites.baseHealthText.text = "♥️ 100";
   stageItems.textSprites.baseHealthText.position.set(STATISTICS_POSITION, 840);
-  //
+  // combo
   stageItems.textSprites.comboText.text = "";
   stageItems.textSprites.comboText.position.set(STATISTICS_POSITION, 866);
-  //
+  // input
   stageItems.textSprites.inputText.position.set(964, 915);
   stageItems.textSprites.inputText.anchor.set(0.5, 0.5);
-  //
+  // enemies stock
   stageItems.textSprites.enemiesReceivedStockText.text = "";
   stageItems.textSprites.enemiesReceivedStockText.position.set(
     STATISTICS_POSITION,
     525
   );
-  //
+  // username
   stageItems.textSprites.nameText.text = "";
   stageItems.textSprites.nameText.position.set(964, 983);
   stageItems.textSprites.nameText.anchor.set(0.5, 0.5);
-  //
+  // level
   stageItems.textSprites.levelText.text = "Level 1";
   stageItems.textSprites.levelText.position.set(STATISTICS_POSITION, 595);
-  //
+  // level details
   stageItems.textSprites.levelDetailsText.text =
     "+♥: ?/s, ↓: ×1.00, ■: 5% every 1000ms";
   stageItems.textSprites.levelDetailsText.position.set(
     STATISTICS_POSITION,
     630
   );
+  // how to play
+  stageItems.textSprites.howToPlayText.text = "Tutorial:\n";
+  stageItems.textSprites.howToPlayText.text +=
+    "Type the number on the enemy or the answer to an expression on an enemy\n";
+  stageItems.textSprites.howToPlayText.text +=
+    "with the number row or your numpad on your keyboard.\n";
+  stageItems.textSprites.howToPlayText.text +=
+    "Press Space or Enter to submit an answer.\n";
+  stageItems.textSprites.howToPlayText.text +=
+    "This will go away after 5 more games in this session.\n";
+  stageItems.textSprites.howToPlayText.text +=
+    "You can also turn off this message in the settings.\n";
+  stageItems.textSprites.howToPlayText.position.set(STATISTICS_POSITION, 400);
 }
 
 setContainerItemProperties();

@@ -11,6 +11,7 @@ import * as PIXI from "pixi.js";
 import { playSound } from "./sounds";
 import { getSettings } from "./settings";
 import { getArrowKeyDirections } from "./arrow-key-navigation";
+import { formatHowToPlayText } from "./how-to-play";
 
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -355,9 +356,13 @@ function changeScreen(
     case "gameOver": {
       variables.playing = false;
       $("#main-content__game-over-screen-container").show(0);
+      // also move these as well
+      variables.howToPlayGamesRemaining--;
+      formatHowToPlayText(variables.howToPlayGamesRemaining);
       break;
     }
     case "canvas": {
+      formatHowToPlayText(variables.howToPlayGamesRemaining);
       $("#canvas-container").show(0);
       // TODO: move this somewhere else
       variables.playing = true;

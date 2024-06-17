@@ -47,7 +47,13 @@ const SETTINGS_KEYS = [
     storageStringKey: "displayLevel",
     htmlName: "settings__level-display",
     defaultValue: "high",
-    SettingsType: SettingsType.Radio
+    settingsType: SettingsType.Radio
+  },
+  {
+    storageStringKey: "forceHideTutorialText",
+    htmlName: "settings__force-hide-tutorial-text",
+    defaultValue: "off",
+    settingsType: SettingsType.Radio
   },
   {
     storageStringKey: "selectedColorPalette",
