@@ -50,6 +50,12 @@ const SETTINGS_KEYS = [
     SettingsType: SettingsType.Radio
   },
   {
+    storageStringKey: "forceHideTutorialText",
+    htmlName: "settings__force-hide-tutorial-text",
+    defaultValue: "off",
+    SettingsType: SettingsType.Radio
+  },
+  {
     storageStringKey: "selectedColorPalette",
     htmlName: "settings-enemy-color__selected-enemy-color-palette",
     htmlID: "selected-enemy-color-palette",
