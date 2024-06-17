@@ -16,7 +16,7 @@ const SETTINGS_KEYS = [
   {
     storageStringKey: "beautifulScore",
     htmlName: "settings__beautiful-score-display",
-    defaultValue: "off",
+    defaultValue: "on",
     settingsType: SettingsType.Radio
   },
   {
