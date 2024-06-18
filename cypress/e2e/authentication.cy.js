@@ -13,11 +13,11 @@ describe("authentication", () => {
   beforeEach(() => {
     cy.visit("http://localhost:3000");
     cy.intercept("POST", "/authenticate").as("postAuthentication");
+    cy.closeWelcomePopup();
+    cy.goToLogInField();
   });
 
   it("should allow logging users in w/ correct credentials", () => {
-    cy.closeWelcomePopup();
-    cy.goToLogInField();
     cy.get("#settings-screen__content--online__username").type("mistertfy64water");
     // password in testing db should be changed to this
     cy.get("#settings-screen__content--online__password").type("password-mistertfy64water");
@@ -27,8 +27,6 @@ describe("authentication", () => {
   });
 
   it("should not allow logging users in w/ incorrect credentials", () => {
-    cy.closeWelcomePopup();
-    cy.goToLogInField();
     cy.get("#settings-screen__content--online__username").type("mistertfy64water");
     cy.get("#settings-screen__content--online__password").type("password-mistertfy64water-incorrect");
     cy.get("#settings-screen__content--online__submit").click();
@@ -37,8 +35,6 @@ describe("authentication", () => {
   });
 
   it("should not allow logging users in w/ invalid credentials", () => {
-    cy.closeWelcomePopup();
-    cy.goToLogInField();
     cy.get("#settings-screen__content--online__username").type("<script>alert(1)</script>");
     cy.get("#settings-screen__content--online__password").type("password-mistertfy64water");
     cy.get("#settings-screen__content--online__submit").click();
