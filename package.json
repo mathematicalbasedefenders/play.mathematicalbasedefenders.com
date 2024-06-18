@@ -75,6 +75,7 @@
     "url": "https://github.com/mistertfy64/play.mathematicalbasedefenders.com/issues"
   },
   "devDependencies": {
+    "@lensesio/cypress-websocket-testing": "^1.0.1",
     "@shelf/jest-mongodb": "^4.1.7",
     "@types/express": "^4.17.17",
     "@types/fontfaceobserver": "^2.1.0",
@@ -94,6 +95,7 @@
     "jest": "^29.6.1",
     "mongodb-memory-server": "^8.13.0",
     "node-polyfill-webpack-plugin": "^2.0.1",
+    "rxjs": "^7.8.1",
     "ts-jest": "^29.1.1",
     "ts-loader": "^9.4.4",
     "webpack": "^5.88.1",
