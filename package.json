@@ -85,7 +85,7 @@
     "@types/node-fetch": "^2.6.10",
     "concurrently": "^8.2.0",
     "copy-webpack-plugin": "^11.0.0",
-    "cypress": "^13.1.0",
+    "cypress": "^13.11.0",
     "eslint": "^8.45.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.27.5",
