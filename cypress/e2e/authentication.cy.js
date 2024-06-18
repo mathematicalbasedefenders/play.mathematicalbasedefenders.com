@@ -1,6 +1,9 @@
 // set command
-Cypress.Commands.add("goToLogInField", () => {
+Cypress.Commands.add("closeWelcomePopup", () => {
   cy.get("#popup-notification--1__close-button").click();
+});
+
+Cypress.Commands.add("goToLogInField", () => {
   cy.get("#main-menu-screen-button--settings").click();
   cy.get("#settings-screen__sidebar-item--online").click();
 });
@@ -13,6 +16,7 @@ describe("authentication", () => {
 
   it("should allow logging users in w/ correct credentials", () => {
     cy.visit("http://localhost:3000");
+    cy.closeWelcomePopup();
     cy.goToLogInField();
     cy.get("#settings-screen__content--online__username").type("mistertfy64water");
     // password in testing db should be changed to this
@@ -24,6 +28,7 @@ describe("authentication", () => {
 
   it("should not allow logging users in w/ incorrect credentials", () => {
     cy.visit("http://localhost:3000");
+    cy.closeWelcomePopup();
     cy.goToLogInField();
     cy.get("#settings-screen__content--online__username").type("mistertfy64water");
     cy.get("#settings-screen__content--online__password").type("password-mistertfy64water-incorrect");
@@ -34,6 +39,7 @@ describe("authentication", () => {
 
   it("should not allow logging users in w/ invalid credentials", () => {
     cy.visit("http://localhost:3000");
+    cy.closeWelcomePopup();
     cy.goToLogInField();
     cy.get("#settings-screen__content--online__username").type("<script>alert(1)</script>");
     cy.get("#settings-screen__content--online__password").type("password-mistertfy64water");
