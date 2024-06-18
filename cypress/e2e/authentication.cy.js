@@ -11,11 +11,11 @@ Cypress.Commands.add("goToLogInField", () => {
 describe("authentication", () => {
   // set authentication route
   beforeEach(() => {
+    cy.visit("http://localhost:3000");
     cy.intercept("POST", "/authenticate").as("postAuthentication");
   });
 
   it("should allow logging users in w/ correct credentials", () => {
-    cy.visit("http://localhost:3000");
     cy.closeWelcomePopup();
     cy.goToLogInField();
     cy.get("#settings-screen__content--online__username").type("mistertfy64water");
@@ -27,7 +27,6 @@ describe("authentication", () => {
   });
 
   it("should not allow logging users in w/ incorrect credentials", () => {
-    cy.visit("http://localhost:3000");
     cy.closeWelcomePopup();
     cy.goToLogInField();
     cy.get("#settings-screen__content--online__username").type("mistertfy64water");
@@ -38,7 +37,6 @@ describe("authentication", () => {
   });
 
   it("should not allow logging users in w/ invalid credentials", () => {
-    cy.visit("http://localhost:3000");
     cy.closeWelcomePopup();
     cy.goToLogInField();
     cy.get("#settings-screen__content--online__username").type("<script>alert(1)</script>");
