@@ -33,4 +33,14 @@ describe("user interface arrow key navigation", () => {
     cy.get("body").type("{downArrow}{enter}");
     cy.get("#main-content__singleplayer-menu-screen-container").should("not.have.css", "display", "none");
   });
+
+  it("should be at multiplayer main menu when enter key is pressed on multiplayer button when focused", () => {
+    cy.get("body").type("{downArrow}{downArrow}{enter}");
+    cy.get("#main-content__multiplayer-menu-screen-container").should("not.have.css", "display", "none");
+  });
+
+  it("should be at settings menu when enter key is pressed on settings button when focused", () => {
+    cy.get("body").type("{downArrow}{downArrow}{downArrow}{enter}");
+    cy.get("#main-content__settings-screen-container").should("not.have.css", "display", "none");
+  });
 });
