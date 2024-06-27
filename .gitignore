@@ -521,3 +521,4 @@ ignored/
 mbd-server-configuration.json
 cypress/screenshots
 cypress/videos
+package-lock.json
