@@ -1,5 +1,5 @@
 import { log } from "../core/log";
-import { GameMode } from "../game/Room";
+import { GameMode } from "../game/rooms/Room";
 import { User } from "../models/User";
 
 /**

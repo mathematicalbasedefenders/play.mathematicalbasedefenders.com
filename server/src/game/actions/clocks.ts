@@ -3,7 +3,7 @@ import _ from "lodash";
 // other files
 import { Enemy, createNewEnemy } from "../Enemy";
 import { GameData } from "../GameData";
-import { Room, MultiplayerRoom } from "../Room";
+import { Room, MultiplayerRoom } from "../rooms/Room";
 
 /**
  * Check all Singleplayer room clocks.

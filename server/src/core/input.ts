@@ -4,7 +4,7 @@ import {
   defaultMultiplayerRoomID,
   leaveMultiplayerRoom,
   processKeypressForRoom
-} from "../game/Room";
+} from "../game/rooms/Room";
 import {
   GameData,
   GameMode,

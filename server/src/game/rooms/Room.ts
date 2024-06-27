@@ -1,17 +1,17 @@
-import * as utilities from "../core/utilities";
-import * as universal from "../universal";
-import * as enemy from "./Enemy";
+import * as utilities from "../../core/utilities";
+import * as universal from "../../universal";
+import * as enemy from "../Enemy";
 import * as _ from "lodash";
-import { log } from "../core/log";
-import * as input from "../core/input";
-import { addToStatistics, submitSingleplayerGame } from "../services/score";
-import { InputAction } from "../core/input";
-import { findRoomWithConnectionID, sleep } from "../core/utilities";
-import { User } from "../models/User";
+import { log } from "../../core/log";
+import * as input from "../../core/input";
+import { addToStatistics, submitSingleplayerGame } from "../../services/score";
+import { InputAction } from "../../core/input";
+import { findRoomWithConnectionID, sleep } from "../../core/utilities";
+import { User } from "../../models/User";
 import {
   getSocketFromConnectionID,
   synchronizeGameDataWithSocket
-} from "../universal";
+} from "../../universal";
 import {
   GameData,
   SingleplayerGameData,
@@ -19,17 +19,17 @@ import {
   MultiplayerGameData,
   GameMode,
   ClockInterface
-} from "./GameData";
-import { updateSingleplayerRoomData } from "./actions/update";
+} from "../GameData";
+import { updateSingleplayerRoomData } from "../actions/update";
 import {
   changeClientSideHTML,
   changeClientSideText
-} from "./actions/send-html";
+} from "../actions/send-html";
 import {
   checkGlobalMultiplayerRoomClocks,
   checkPlayerMultiplayerRoomClocks
-} from "./actions/clocks";
-import { createGameOverScreenText } from "./actions/create-text";
+} from "../actions/clocks";
+import { createGameOverScreenText } from "../actions/create-text";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");

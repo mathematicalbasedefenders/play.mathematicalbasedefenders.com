@@ -16,7 +16,7 @@ import {
   Room,
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID
-} from "./game/Room";
+} from "./game/rooms/Room";
 import _ from "lodash";
 import { authenticate } from "./authentication/authenticate";
 import { User } from "./models/User";

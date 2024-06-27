@@ -4,7 +4,7 @@ import {
   MultiplayerRoom,
   getOpponentsInformation,
   Room
-} from "./game/Room";
+} from "./game/rooms/Room";
 import { GameData, SingleplayerGameData } from "./game/GameData";
 import _ from "lodash";
 import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
