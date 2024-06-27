@@ -1,7 +1,7 @@
 // packages
 import * as _ from "lodash";
 // other files
-import { SingleplayerRoom } from "../rooms/Room";
+import { SingleplayerRoom } from "../rooms/SingleplayerRoom";
 import { checkSingleplayerRoomClocks } from "./clocks";
 
 function updateSingleplayerRoomData(room: SingleplayerRoom, deltaTime: number) {

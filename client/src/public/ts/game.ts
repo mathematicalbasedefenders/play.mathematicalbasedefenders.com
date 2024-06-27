@@ -102,6 +102,7 @@ function renderGameData(data: { [key: string]: any }) {
 
   // multiplayer
   if (data.mode.indexOf("Multiplayer") > -1) {
+    console.log(Opponent.instances);
     // multiplayer
     variables.currentGameMode = "multiplayer";
     stageItems.textSprites.scoreLabelText.text = "Attack Score";

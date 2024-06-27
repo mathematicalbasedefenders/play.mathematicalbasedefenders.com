@@ -1,13 +1,9 @@
 import { WebSocket } from "uWebSockets.js";
-import {
-  SingleplayerRoom,
-  MultiplayerRoom,
-  getOpponentsInformation,
-  Room
-} from "./game/rooms/Room";
 import { GameData, SingleplayerGameData } from "./game/GameData";
 import _ from "lodash";
 import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
+import { SingleplayerRoom } from "./game/rooms/SingleplayerRoom";
+import { MultiplayerRoom } from "./game/rooms/MultiplayerRoom";
 
 type GameSocket = WebSocket & {
   ownerUsername?: string;
@@ -86,7 +82,7 @@ function getNameFromConnectionID(id: string): string | undefined {
  * @param {string} id The ID of the socket to find the game data of.
  * @returns The `GameData` if such ID exists, `null` otherwise.
  */
-function getGameDataFromConnectionID(id: string): GameData | null {
+function getGameDataFromConnectionID(id: string) {
   for (let room of rooms) {
     if (room) {
       for (let data of room.gameData) {
@@ -129,12 +125,9 @@ function synchronizeGameDataWithSocket(socket: GameSocket) {
     // such as for multiplayer
     if (clonedSocketGameData.mode.indexOf("Multiplayer") > -1) {
       let room = findRoomWithConnectionID(socket.connectionID);
-      if (room) {
-        clonedSocketGameData.opponentGameData = getOpponentsInformation(
-          socket,
-          room,
-          true
-        );
+      if (room && socketGameData) {
+        clonedSocketGameData.opponentGameData =
+          socketGameData?.getOpponentInformation(socket, true);
       }
     }
     let gameDataToSend = JSON.stringify(clonedSocketGameData);

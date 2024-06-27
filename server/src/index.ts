@@ -11,13 +11,13 @@ import * as input from "./core/input";
 import {
   defaultMultiplayerRoomID,
   GameMode,
-  SingleplayerRoom,
-  MultiplayerRoom,
   Room,
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID
 } from "./game/rooms/Room";
 import _ from "lodash";
+import { SingleplayerRoom } from "./game/rooms/SingleplayerRoom";
+import { MultiplayerRoom } from "./game/rooms/MultiplayerRoom";
 import { authenticate } from "./authentication/authenticate";
 import { User } from "./models/User";
 const cors = require("cors");
