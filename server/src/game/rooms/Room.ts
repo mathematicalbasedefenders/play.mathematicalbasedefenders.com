@@ -63,7 +63,9 @@ class Room {
       log.warn(`There is one, which is ID ${defaultMultiplayerRoomID}.`);
       this.destroy();
       return;
-    } else if (gameMode === GameMode.DefaultMultiplayer) {
+    }
+
+    if (gameMode === GameMode.DefaultMultiplayer) {
       defaultMultiplayerRoomID = this.id;
     }
 
