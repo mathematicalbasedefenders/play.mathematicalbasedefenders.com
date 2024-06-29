@@ -183,12 +183,12 @@ class Room {
    * Remove all of the room's players, then deletes the room.
    */
   destroy() {
-    let members = _.clone(this.memberConnectionIDs);
-    let spectators = _.clone(this.spectatorConnectionIDs);
+    const members = _.clone(this.memberConnectionIDs);
+    const spectators = _.clone(this.spectatorConnectionIDs);
     for (let spectator of spectators) {
       const socket = universal.getSocketFromConnectionID(spectator);
       if (socket) {
-        this.deleteMember(socket);
+        this.deleteSpectator(socket);
       }
     }
     for (let member of members) {
