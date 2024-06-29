@@ -2,9 +2,8 @@ import { log } from "./log";
 import * as universal from "../universal";
 import {
   defaultMultiplayerRoomID,
-  leaveMultiplayerRoom,
-  processKeypressForRoom
-} from "../game/Room";
+  leaveMultiplayerRoom
+} from "../game/rooms/Room";
 import {
   GameData,
   GameMode,
@@ -107,7 +106,13 @@ function processKeypress(
     log.warn("A keypress event that isn't a string has been fired.");
     return;
   }
-  processKeypressForRoom(connectionID, code);
+
+  // find and process room connection ID is in, if any
+  const room = findRoomWithConnectionID(connectionID);
+  if (room) {
+    room.processKeypress(connectionID, code);
+  }
+
   // non-room interactions
   if (code === "Escape") {
     let socket = universal.sockets.find(

@@ -1,6 +1,6 @@
 import * as universal from "../universal";
 import { log } from "./log";
-import { Room } from "../game/Room";
+import { Room } from "../game/rooms/Room";
 import { User, UserInterface } from "../models/User";
 import _ from "lodash";
 import { GameData, GameMode } from "../game/GameData";

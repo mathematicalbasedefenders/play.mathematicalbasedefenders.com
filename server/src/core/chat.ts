@@ -1,7 +1,7 @@
 import { log } from "./log";
 import * as universal from "../universal";
 import { findRoomWithConnectionID } from "./utilities";
-import { Room } from "../game/Room";
+import { Room } from "../game/rooms/Room";
 //
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");

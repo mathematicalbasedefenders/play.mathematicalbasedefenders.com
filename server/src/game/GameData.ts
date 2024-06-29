@@ -1,9 +1,10 @@
-/**
- * Other stuff
- */
 import * as universal from "../universal";
 import * as enemy from "./Enemy";
 import { log } from "../core/log";
+import {
+  findRoomWithConnectionID,
+  minifySelfGameData
+} from "../core/utilities";
 
 interface ClockInterface {
   [key: string]: {
@@ -44,7 +45,7 @@ class GameData {
   totalEnemiesSent!: number;
   totalEnemiesReceived!: number;
   enemiesSentStock!: number;
-  opponentGameData!: Array<GameData>;
+  opponentGameData!: Array<GameData | { [key: string]: any }>;
   ownerName!: string;
   owner: universal.GameSocket;
   // ... (0.4.0)
@@ -127,6 +128,43 @@ class GameData {
       this.enemySpeedCoefficient = 1; // +0.05 every level
       this.enemySpawnThreshold = 0.1;
     }
+  }
+
+  /**
+   *
+   * @param {universal.GameSocket} socket The socket that called the function. Will be used so function doesn't return self's data.
+   * @param {boolean} minify Whether to "minify" the data. This should be `true` if the data is expected to be sent to the client.
+   * @returns
+   */
+  getOpponentInformation(socket: universal.GameSocket, minify: boolean) {
+    function minifyData(data: any) {
+      const minifiedGameData: { [key: string]: any } = {};
+      minifiedGameData.baseHealth = data.baseHealth;
+      minifiedGameData.combo = data.combo;
+      minifiedGameData.currentInput = data.currentInput;
+      minifiedGameData.receivedEnemiesStock = data.receivedEnemiesStock;
+      minifiedGameData.owner = data.ownerConnectionID;
+      minifiedGameData.ownerName = data.ownerName;
+      minifiedGameData.enemies = data.enemies;
+      minifiedGameData.enemiesToErase = data.enemiesToErase;
+      aliveConnectionIDs.push(data.ownerConnectionID);
+      return minifiedGameData;
+    }
+
+    const currentRoom = findRoomWithConnectionID(socket.connectionID);
+    const aliveConnectionIDs: Array<string> = [];
+    if (!currentRoom) {
+      log.warn(`Room for owner ${socket.connectionID} of game data not found.`);
+      return [];
+    }
+
+    const opponentGameData = currentRoom.gameData.filter(
+      (element) => element.ownerConnectionID !== socket.connectionID
+    );
+    if (minify) {
+      return opponentGameData.map((data) => minifyData(data));
+    }
+    return opponentGameData;
   }
 }
 class SingleplayerGameData extends GameData {
