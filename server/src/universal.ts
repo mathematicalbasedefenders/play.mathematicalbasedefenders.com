@@ -82,7 +82,7 @@ function getNameFromConnectionID(id: string): string | undefined {
  * @param {string} id The ID of the socket to find the game data of.
  * @returns The `GameData` if such ID exists, `null` otherwise.
  */
-function getGameDataFromConnectionID(id: string) {
+function getGameDataFromConnectionID(id: string): GameData | null {
   for (let room of rooms) {
     if (room) {
       for (let data of room.gameData) {
