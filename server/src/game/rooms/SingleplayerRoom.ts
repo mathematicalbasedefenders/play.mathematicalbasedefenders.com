@@ -36,7 +36,9 @@ class SingleplayerRoom extends Room {
           this.gameData.push(new SingleplayerGameData(socket, this.mode));
         }
       }
-    } else if (this.mode === GameMode.CustomSingleplayer) {
+    }
+
+    if (this.mode === GameMode.CustomSingleplayer) {
       for (let member of this.memberConnectionIDs) {
         const socket = getSocketFromConnectionID(member);
         if (socket) {
