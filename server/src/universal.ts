@@ -9,12 +9,16 @@ import { GameData, SingleplayerGameData } from "./game/GameData";
 import _ from "lodash";
 import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
 
-type GameSocket = WebSocket & {
+// 0.4.10
+interface UserData {}
+
+type GameSocket = WebSocket<UserData> & {
   ownerUsername?: string;
   ownerUserID?: string;
   ownerGuestName?: string;
   connectionID?: string;
   loggedIn?: boolean;
+  playerRank?: any; // TODO: fix this
 };
 
 let sockets: Array<GameSocket> = [];
