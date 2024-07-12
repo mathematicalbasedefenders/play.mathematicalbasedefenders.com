@@ -117,6 +117,13 @@ code {
   outline: 8px solid var(--color-arrow-key-focused);
 }
 
+.button--top-aligned-text {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: flex-start;
+}
+
 /* MAIN MENU SCREEN */
 
 #main-content__main-menu-screen-container {
