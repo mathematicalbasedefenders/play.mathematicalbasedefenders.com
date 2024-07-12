@@ -508,7 +508,7 @@ FodyWeavers.xsd
 
 # IMPORTANT LINE - DO NOT REMOVE!!!!!!!!!!!!!!!!!!!!
 credentials/
-server/anticheat
+server/anticheat/*
 !server/anticheat/anticheat.ts
 
 # MacOS System files
