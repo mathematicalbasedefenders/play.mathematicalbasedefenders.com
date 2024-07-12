@@ -294,7 +294,7 @@ uWS
     }
   })
 
-  .listen(WEBSOCKET_PORT, (token: string) => {
+  .listen(WEBSOCKET_PORT, (token) => {
     if (token) {
       log.info(`WebSockets Server listening at port ${WEBSOCKET_PORT}`);
     } else {
