@@ -1,5 +1,7 @@
 // Anticheat entry point
-function performCheck(...data: any[]) {
-  return true;
+
+function performAnticheatCheck(...data: any[]) {
+  return { ok: true };
 }
-export { performCheck };
+
+export { performAnticheatCheck };
