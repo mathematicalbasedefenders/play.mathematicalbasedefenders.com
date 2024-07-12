@@ -508,8 +508,8 @@ FodyWeavers.xsd
 
 # IMPORTANT LINE - DO NOT REMOVE!!!!!!!!!!!!!!!!!!!!
 credentials/
-
-
+server/anticheat
+!server/anticheat/anticheat.ts
 
 # MacOS System files
 .DS_Store
@@ -521,3 +521,4 @@ ignored/
 mbd-server-configuration.json
 cypress/screenshots
 cypress/videos
+
