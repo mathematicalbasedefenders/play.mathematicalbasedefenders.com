@@ -12,6 +12,12 @@ interface ClockInterface {
   };
 }
 
+type ActionRecord = {
+  action: string;
+  timestamp: Date;
+  data: { [key: string]: any };
+};
+
 enum GameMode {
   EasySingleplayer = "easySingleplayer",
   StandardSingleplayer = "standardSingleplayer",
@@ -57,6 +63,8 @@ class GameData {
   attackScore!: number;
   receivedEnemiesStock!: number;
   receivedEnemiesToSpawn!: number;
+  // ... (0.4.10, anticheat)
+  actionRecords!: Array<ActionRecord>;
   constructor(owner: universal.GameSocket, mode: GameMode) {
     this.mode = mode;
     this.score = 0;
@@ -83,6 +91,7 @@ class GameData {
     this.baseHealthRegeneration = 2;
     this.maximumBaseHealth = 100;
     this.actionsPerformed = 0;
+    this.actionRecords = [];
     // per mode
     if (mode === GameMode.EasySingleplayer) {
       this.clocks = {
