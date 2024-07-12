@@ -1,1 +1,1 @@
-cp ./server/anticheat/disabled-anticheat.ts ./server/anticheat/anticheat.ts
+cp ./server/src/anticheat/disabled-anticheat.ts ./server/src/anticheat/anticheat.ts
