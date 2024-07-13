@@ -1,7 +1,8 @@
-// Anticheat entry point
+import { ActionRecord, check } from "./check";
 
-function performAnticheatCheck(...data: any[]) {
-  return { ok: true };
+function performAnticheatCheck(data: Array<ActionRecord>) {
+	const result = check(data);
+	return result;
 }
 
 export { performAnticheatCheck };
