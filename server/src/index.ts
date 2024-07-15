@@ -170,30 +170,6 @@ uWS
       // check if exceed limit msg/sec, if so, close immediately.
       if (typeof socket.accumulatedMessages === "number") {
         socket.accumulatedMessages++;
-        const elapsedTime = Date.now() - lastUpdateTime;
-        if (
-          (1000 / elapsedTime) * socket.accumulatedMessages >
-          MESSAGES_PER_SECOND_LIMIT
-        ) {
-          // close socket connection now.
-          // log.warn(
-          //   `Disconnecting socket ${
-          //     socket.connectionID
-          //   } for sending too many messages at once. (${
-          //     (1000 / elapsedTime) * socket.accumulatedMessages
-          //   } per second > ${MESSAGES_PER_SECOND_LIMIT} per second)`
-          // );
-          // socket?.send(
-          //   JSON.stringify({
-          //     message: "createToastNotification",
-          //     // TODO: Refactor this
-          //     text: `You're going too fast! You have been immediately disconnected.`,
-          //     borderColor: "#ff0000"
-          //   })
-          // );
-          // socket?.close();
-          // return;
-        }
       }
       // ...
       const parsedMessage = incompleteParsedMessage.message;
@@ -334,7 +310,7 @@ uWS
       code: unknown,
       message: WebSocketMessage
     ) => {
-      log.info(`Socket disconnected! (${code} ${message})`);
+      log.info(`Socket with ID ${socket.connectionID} has disconnected!`);
       universal.deleteSocket(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
     }
@@ -356,6 +332,7 @@ function update(deltaTime: number) {
   }
 
   // CHECK FOR BAD SOCKETS
+  const socketsToForceDelete = [];
   for (const socket of universal.sockets) {
     if (socket.accumulatedMessages) {
       const messagesPerSecond =
@@ -376,11 +353,14 @@ function update(deltaTime: number) {
             borderColor: "#ff0000"
           })
         );
-        socket?.close();
+        socketsToForceDelete.push(socket);
       } else {
         socket.accumulatedMessages = 0;
       }
     }
+  }
+  for (const socket of socketsToForceDelete) {
+    universal.forceDeleteAndCloseSocket(socket);
   }
 
   // DATA IS SENT HERE. <---

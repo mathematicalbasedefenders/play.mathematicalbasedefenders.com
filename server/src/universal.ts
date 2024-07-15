@@ -8,6 +8,7 @@ import {
 import { GameData, SingleplayerGameData } from "./game/GameData";
 import _ from "lodash";
 import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
+import { log } from "./core/log";
 
 // 0.4.10
 interface UserData {}
@@ -53,7 +54,18 @@ function deleteSocket(socketToClose: GameSocket) {
   }
   // delete the socket
   const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
-  sockets.splice(socketToDeleteIndex, 1);
+  if (socketToDeleteIndex > -1) {
+    sockets.splice(socketToDeleteIndex, 1);
+  }
+}
+
+function forceDeleteAndCloseSocket(socketToClose: GameSocket) {
+  log.warn(`Forcing deleting+closing socket ID ${socketToClose.connectionID}`);
+  const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
+  if (socketToDeleteIndex > -1) {
+    sockets.splice(socketToDeleteIndex, 1);
+  }
+  socketToClose?.close();
 }
 
 /**
@@ -228,5 +240,6 @@ export {
   STATUS,
   synchronizeGameDataWithSocket,
   synchronizeMetadataWithSocket,
-  sendGlobalToastNotification
+  sendGlobalToastNotification,
+  forceDeleteAndCloseSocket
 };
