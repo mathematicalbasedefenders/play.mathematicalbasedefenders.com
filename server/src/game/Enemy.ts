@@ -107,7 +107,7 @@ class Enemy {
       gameData.combo += 1;
       gameData.clocks.comboReset.currentTime = 0;
     }
-    gameData.addAction(constructEnemyKillRecord());
+    gameData.addAction(constructEnemyKillRecord(this));
     removeEnemyWithIDInGameData(this.id, gameData);
   }
 
@@ -224,11 +224,13 @@ function getFactorsOf(number: number): Array<number> {
   return factors;
 }
 
-function constructEnemyKillRecord() {
+function constructEnemyKillRecord(enemy: Enemy) {
   const record: ActionRecord = {
     action: "enemyKill",
     timestamp: Date.now(),
-    data: {}
+    data: {
+      sPositionOnKill: enemy.sPosition
+    }
   };
   return record;
 }
