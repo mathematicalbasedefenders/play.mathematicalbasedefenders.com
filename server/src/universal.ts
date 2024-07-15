@@ -19,6 +19,7 @@ type GameSocket = WebSocket<UserData> & {
   connectionID?: string;
   loggedIn?: boolean;
   playerRank?: any; // TODO: fix this
+  accumulatedMessages?: number;
 };
 
 let sockets: Array<GameSocket> = [];

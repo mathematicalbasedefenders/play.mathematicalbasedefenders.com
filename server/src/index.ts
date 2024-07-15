@@ -17,7 +17,7 @@ import {
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID
 } from "./game/Room";
-import _ from "lodash";
+import _, { last } from "lodash";
 import { authenticate } from "./authentication/authenticate";
 import { User } from "./models/User";
 const cors = require("cors");
@@ -90,6 +90,8 @@ const DESIRED_SERVER_UPDATES_PER_SECOND: number = 60;
 const UPDATE_INTERVAL: number = 1000 / DESIRED_SERVER_UPDATES_PER_SECOND;
 const SYNCHRONIZATION_INTERVAL: number =
   1000 / DESIRED_SYNCHRONIZATIONS_PER_SECOND;
+const MESSAGES_PER_SECOND_LIMIT = 400;
+
 let initialized = false;
 
 let currentTime: number = Date.now();
@@ -120,6 +122,7 @@ uWS
       log.info("Socket connected!");
       socket.connectionID = utilities.generateConnectionID(16);
       socket.ownerGuestName = `Guest ${utilities.generateGuestID(8)}`;
+      socket.accumulatedMessages = 0;
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
@@ -150,6 +153,49 @@ uWS
       if (!incompleteParsedMessage) {
         return;
       }
+      // check if buffer too big
+      if (buffer.length > 2048) {
+        socket?.send(
+          JSON.stringify({
+            message: "createToastNotification",
+            // TODO: Refactor this
+            text: `You're sending a very large message! You have been immediately disconnected.`,
+            borderColor: "#ff0000"
+          })
+        );
+        socket?.close();
+        return;
+      }
+      // TODO: Refactor
+      // check if exceed limit msg/sec, if so, close immediately.
+      if (typeof socket.accumulatedMessages === "number") {
+        socket.accumulatedMessages++;
+        const elapsedTime = Date.now() - lastUpdateTime;
+        if (
+          (1000 / elapsedTime) * socket.accumulatedMessages >
+          MESSAGES_PER_SECOND_LIMIT
+        ) {
+          // close socket connection now.
+          // log.warn(
+          //   `Disconnecting socket ${
+          //     socket.connectionID
+          //   } for sending too many messages at once. (${
+          //     (1000 / elapsedTime) * socket.accumulatedMessages
+          //   } per second > ${MESSAGES_PER_SECOND_LIMIT} per second)`
+          // );
+          // socket?.send(
+          //   JSON.stringify({
+          //     message: "createToastNotification",
+          //     // TODO: Refactor this
+          //     text: `You're going too fast! You have been immediately disconnected.`,
+          //     borderColor: "#ff0000"
+          //   })
+          // );
+          // socket?.close();
+          // return;
+        }
+      }
+      // ...
       const parsedMessage = incompleteParsedMessage.message;
       // FIXME: VALIDATE DATA!!!
       switch (parsedMessage.message) {
@@ -309,6 +355,34 @@ function update(deltaTime: number) {
     }
   }
 
+  // CHECK FOR BAD SOCKETS
+  for (const socket of universal.sockets) {
+    if (socket.accumulatedMessages) {
+      const messagesPerSecond =
+        (1000 / Math.max(1, deltaTime)) * socket.accumulatedMessages;
+      if (messagesPerSecond > MESSAGES_PER_SECOND_LIMIT) {
+        log.warn(
+          `Disconnecting socket ${
+            socket.connectionID
+          } for sending too many messages at once. (${
+            (1000 / deltaTime) * socket.accumulatedMessages
+          } per second > ${MESSAGES_PER_SECOND_LIMIT} per second)`
+        );
+        socket?.send(
+          JSON.stringify({
+            message: "createToastNotification",
+            // TODO: Refactor this
+            text: `You're going too fast! You have been immediately disconnected.`,
+            borderColor: "#ff0000"
+          })
+        );
+        socket?.close();
+      } else {
+        socket.accumulatedMessages = 0;
+      }
+    }
+  }
+
   // DATA IS SENT HERE. <---
   synchronizeGameDataWithSockets(deltaTime);
 
@@ -345,6 +419,7 @@ function synchronizeGameDataWithSockets(deltaTime: number) {
   for (let socket of universal.sockets) {
     synchronizeGameDataWithSocket(socket);
     universal.synchronizeMetadataWithSocket(socket, deltaTime);
+    // TODO: create a separate function for resetting `accumulatedMessages.`
   }
 }
 
