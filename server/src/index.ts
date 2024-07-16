@@ -17,7 +17,7 @@ import {
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID
 } from "./game/Room";
-import _, { last } from "lodash";
+import _ from "lodash";
 import { authenticate } from "./authentication/authenticate";
 import { User } from "./models/User";
 const cors = require("cors");
@@ -305,11 +305,7 @@ uWS
       }
     },
 
-    close: (
-      socket: universal.GameSocket,
-      code: unknown,
-      message: WebSocketMessage
-    ) => {
+    close: (socket: universal.GameSocket) => {
       log.info(`Socket with ID ${socket.connectionID} has disconnected!`);
       universal.deleteSocket(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
