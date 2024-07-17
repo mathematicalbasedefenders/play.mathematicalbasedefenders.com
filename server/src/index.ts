@@ -153,21 +153,10 @@ uWS
       if (!incompleteParsedMessage) {
         return;
       }
-      // check if buffer too big
-      if (buffer.length > 2048) {
-        socket?.send(
-          JSON.stringify({
-            message: "createToastNotification",
-            // TODO: Refactor this
-            text: `You're sending a very large message! You have been immediately disconnected.`,
-            borderColor: "#ff0000"
-          })
-        );
-        socket?.close();
+      if (!checkBufferSize(buffer, socket)) {
         return;
       }
-      // TODO: Refactor
-      // check if exceed limit msg/sec, if so, close immediately.
+      // increment accumulated messages of socket this time interval.
       if (typeof socket.accumulatedMessages === "number") {
         socket.accumulatedMessages++;
       }
@@ -328,37 +317,7 @@ function update(deltaTime: number) {
   }
 
   // CHECK FOR BAD SOCKETS
-  const socketsToForceDelete = [];
-  for (const socket of universal.sockets) {
-    if (socket.accumulatedMessages) {
-      const messagesPerSecond =
-        (1000 / Math.max(1, deltaTime)) * socket.accumulatedMessages;
-      if (messagesPerSecond > MESSAGES_PER_SECOND_LIMIT) {
-        log.warn(
-          `Disconnecting socket ${
-            socket.connectionID
-          } for sending too many messages at once. (${
-            (1000 / deltaTime) * socket.accumulatedMessages
-          } per second > ${MESSAGES_PER_SECOND_LIMIT} per second)`
-        );
-        socket?.send(
-          JSON.stringify({
-            message: "createToastNotification",
-            // TODO: Refactor this
-            text: `You're going too fast! You have been immediately disconnected.`,
-            borderColor: "#ff0000"
-          })
-        );
-        socketsToForceDelete.push(socket);
-      } else {
-        socket.accumulatedMessages = 0;
-      }
-    }
-  }
-  for (const socket of socketsToForceDelete) {
-    universal.forceDeleteAndCloseSocket(socket);
-  }
-
+  utilities.checkWebsocketMessageSpeeds(universal.sockets, deltaTime);
   // DATA IS SENT HERE. <---
   synchronizeGameDataWithSockets(deltaTime);
 
@@ -540,6 +499,27 @@ async function attemptAuthentication(
     User.addMissingKeys(socket.ownerUserID);
   }
   return;
+}
+
+function checkBufferSize(buffer: Buffer, socket: universal.GameSocket) {
+  // check if buffer too big, if so, alert socket and instantly disconnect.
+  if (buffer.length > 2048) {
+    const connectionID = socket.connectionID;
+    log.warn(
+      `Disconnecting socket ID ${connectionID} due to sending a large buffer.`
+    );
+    socket?.send(
+      JSON.stringify({
+        message: "createToastNotification",
+        // TODO: Refactor this
+        text: `You're sending a very large message! You have been immediately disconnected.`,
+        borderColor: "#ff0000"
+      })
+    );
+    universal.forceDeleteAndCloseSocket(socket);
+    return false;
+  }
+  return true;
 }
 
 function initialize() {

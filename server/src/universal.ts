@@ -11,7 +11,13 @@ import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
 import { log } from "./core/log";
 
 // 0.4.10
+// TODO: Rewrite to adhere to new uWS.js version.
 interface UserData {}
+
+type PlayerRank = {
+  color: string;
+  title: string;
+};
 
 type GameSocket = WebSocket<UserData> & {
   ownerUsername?: string;
@@ -19,7 +25,7 @@ type GameSocket = WebSocket<UserData> & {
   ownerGuestName?: string;
   connectionID?: string;
   loggedIn?: boolean;
-  playerRank?: any; // TODO: fix this
+  playerRank?: PlayerRank;
   accumulatedMessages?: number;
 };
 
