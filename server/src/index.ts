@@ -32,6 +32,7 @@ import rateLimit from "express-rate-limit";
 import { attemptToSendChatMessage } from "./core/chat";
 import { validateCustomGameSettings } from "./core/utilities";
 import { synchronizeGameDataWithSocket } from "./universal";
+import { updateSystemStatus } from "./core/status-indicators";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -318,6 +319,7 @@ function update(deltaTime: number) {
   // CHECK FOR BAD SOCKETS
   utilities.checkWebsocketMessageSpeeds(universal.sockets, deltaTime);
   // DATA IS SENT HERE. <---
+  updateSystemStatus(deltaTime);
   synchronizeGameDataWithSockets(deltaTime);
 
   // delete rooms with zero players
