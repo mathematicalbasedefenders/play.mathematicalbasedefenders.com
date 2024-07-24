@@ -30,6 +30,7 @@ import {
   checkPlayerMultiplayerRoomClocks
 } from "./actions/clocks";
 import { createGameOverScreenText } from "./actions/create-text";
+import { performAnticheatCheck } from "../anticheat/anticheat";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -40,6 +41,7 @@ let defaultMultiplayerRoomID: string | null = null;
 interface InputActionInterface {
   action: InputAction;
   argument: string;
+  keyPressed?: string | undefined;
 }
 
 class Room {
@@ -296,9 +298,14 @@ class SingleplayerRoom extends Room {
     if (socket) {
       synchronizeGameDataWithSocket(socket);
     }
-    // submit score
+
+    // check anticheat and submit score
     if (socket) {
-      submitSingleplayerGame(data, socket);
+      if (performAnticheatCheck(data.actionRecords).ok) {
+        submitSingleplayerGame(data, socket);
+      } else {
+        log.warn("Anticheat may have detected cheating.");
+      }
     }
 
     if (socket) {
@@ -717,7 +724,11 @@ function generateRoomID(length: number): string {
   return current;
 }
 
-function processKeypressForRoom(connectionID: string, code: string) {
+function processKeypressForRoom(
+  connectionID: string,
+  code: string,
+  emulated?: boolean
+) {
   let roomToProcess = utilities.findRoomWithConnectionID(connectionID, false);
   let inputInformation: InputActionInterface = {
     action: InputAction.Unknown,
@@ -736,8 +747,13 @@ function processKeypressForRoom(connectionID: string, code: string) {
   // TODO: Refactor this.
   // find the type of room input
   inputInformation = input.getInputInformation(code);
+  inputInformation.keyPressed = code;
   if (inputInformation.action !== InputAction.Unknown) {
-    input.processInputInformation(inputInformation, gameDataToProcess);
+    input.processInputInformation(
+      inputInformation,
+      gameDataToProcess,
+      emulated
+    );
   }
 }
 

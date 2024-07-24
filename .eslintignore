@@ -1,3 +1,5 @@
 tests/*
 cypress/**/*
 client/src/public/lib/*
+anticheat.ts
+disabled-anticheat.ts

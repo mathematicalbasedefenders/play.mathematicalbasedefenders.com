@@ -14,6 +14,8 @@ const RANK_ORDER = [
   ["Donator", "isDonator"]
 ];
 
+const MESSAGES_PER_SECOND_LIMIT = 400;
+
 const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
   baseHealth: {
     type: "number",
@@ -135,10 +137,9 @@ function getRank(data: UserInterface | string | undefined) {
     return { title: "", color: "#ffffff" };
   }
   if (typeof data === "string") {
-    // ...
-    return "";
+    // Custom rank
+    return { title: data, color: "#ffffff" };
   }
-  // TODO: Refactor this stupid thing already
   if (data.membership.isDeveloper) {
     return { title: "Developer", color: "#ff0000" };
   }
@@ -343,6 +344,54 @@ function createGlobalLeaderboardsMessage(data: GameData, rank: number) {
   return toReturn;
 }
 
+/**
+ * Derives the number of messages a `GameSocket` will send per 1000ms from the socket and the time passed now.
+ * @param {GameSocket} socket The socket to check the speed of.
+ * @param {number} time The time period of the speed.
+ * @returns How many messages the GameSocket would have sent as if 1000ms has passed,
+ * or -1 if socket doesn't have the `accumulatedMessages` property.
+ */
+function getWebsocketMessageSpeed(socket: universal.GameSocket, time: number) {
+  if (socket.accumulatedMessages) {
+    return (1000 / Math.max(1, time)) * socket.accumulatedMessages;
+  }
+  return -1;
+}
+
+/**
+ *
+ */
+function checkWebsocketMessageSpeeds(
+  sockets: Array<universal.GameSocket>,
+  time: number
+) {
+  const socketsToForceDelete = [];
+  for (const socket of sockets) {
+    if (socket.accumulatedMessages) {
+      const amount = getWebsocketMessageSpeed(socket, time);
+      if (amount > MESSAGES_PER_SECOND_LIMIT) {
+        log.warn(
+          `Disconnecting socket ${socket.connectionID} for sending too many messages at once. (${amount} per second > ${MESSAGES_PER_SECOND_LIMIT} per second)`
+        );
+        socket?.send(
+          JSON.stringify({
+            message: "createToastNotification",
+            // TODO: Refactor this
+            text: `You're going too fast! You have been immediately disconnected.`,
+            borderColor: "#ff0000"
+          })
+        );
+        socketsToForceDelete.push(socket);
+      } else {
+        socket.accumulatedMessages = 0;
+      }
+    }
+  }
+  for (const socket of socketsToForceDelete) {
+    universal.forceDeleteAndCloseSocket(socket);
+  }
+}
+
 // Taken from https://stackoverflow.com/a/39914235
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -362,5 +411,7 @@ export {
   updateSocketUserInformation,
   bulkUpdateSocketUserInformation,
   sleep,
-  createGlobalLeaderboardsMessage
+  createGlobalLeaderboardsMessage,
+  getWebsocketMessageSpeed,
+  checkWebsocketMessageSpeeds
 };

@@ -8,13 +8,25 @@ import {
 import { GameData, SingleplayerGameData } from "./game/GameData";
 import _ from "lodash";
 import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
+import { log } from "./core/log";
 
-type GameSocket = WebSocket & {
+// 0.4.10
+// TODO: Rewrite to adhere to new uWS.js version.
+interface UserData {}
+
+type PlayerRank = {
+  color: string;
+  title: string;
+};
+
+type GameSocket = WebSocket<UserData> & {
   ownerUsername?: string;
   ownerUserID?: string;
   ownerGuestName?: string;
   connectionID?: string;
   loggedIn?: boolean;
+  playerRank?: PlayerRank;
+  accumulatedMessages?: number;
 };
 
 let sockets: Array<GameSocket> = [];
@@ -48,7 +60,18 @@ function deleteSocket(socketToClose: GameSocket) {
   }
   // delete the socket
   const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
-  sockets.splice(socketToDeleteIndex, 1);
+  if (socketToDeleteIndex > -1) {
+    sockets.splice(socketToDeleteIndex, 1);
+  }
+}
+
+function forceDeleteAndCloseSocket(socketToClose: GameSocket) {
+  log.warn(`Forcing deleting+closing socket ID ${socketToClose.connectionID}`);
+  const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
+  if (socketToDeleteIndex > -1) {
+    sockets.splice(socketToDeleteIndex, 1);
+  }
+  socketToClose?.close();
 }
 
 /**
@@ -223,5 +246,6 @@ export {
   STATUS,
   synchronizeGameDataWithSocket,
   synchronizeMetadataWithSocket,
-  sendGlobalToastNotification
+  sendGlobalToastNotification,
+  forceDeleteAndCloseSocket
 };
