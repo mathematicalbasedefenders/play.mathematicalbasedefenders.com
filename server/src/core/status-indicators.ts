@@ -33,9 +33,9 @@ function checkStatus() {
   const totalHeapMemory = memoryUsage.heapTotal;
   const totalOSMemory = os.totalmem();
   const usedOSMemory = totalOSMemory - os.freemem();
-  log.debug(`GAME: ${usedHeapMemory} / ${totalHeapMemory}`);
-  log.debug(`OS: ${usedOSMemory} / ${totalOSMemory}`);
-  log.debug(`UPD: ${STATUS.lastDeltaTimeToUpdate}ms`);
+  // log.debug(`GAME: ${usedHeapMemory} / ${totalHeapMemory}`);
+  // log.debug(`OS: ${usedOSMemory} / ${totalOSMemory}`);
+  // log.debug(`UPD: ${STATUS.lastDeltaTimeToUpdate}ms`);
   // send status updates
   // for os memory
   result.os.usage = usedOSMemory / totalOSMemory;
