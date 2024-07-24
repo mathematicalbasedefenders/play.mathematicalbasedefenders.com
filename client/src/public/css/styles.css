@@ -1087,7 +1087,7 @@ code {
   position: absolute;
   top: 50%;
   background-color: transparent;
-  left: 0;
+  left: 4px;
 }
 
 /* VERSION NUMBER */
