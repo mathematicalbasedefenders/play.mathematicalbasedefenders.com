@@ -6,6 +6,7 @@ import {
 import { updateStatusTrayText } from "./status-tray";
 import { changeScreen, renderGameData } from "./game";
 import { ToastNotification } from "./notifications";
+import { updateSystemStatusTrayText } from "./system-status-indicator";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
     window.location.origin === "https://play.mathematicalbasedefenders.com"
@@ -77,8 +78,8 @@ socket.addEventListener("message", (event: any) => {
       break;
     }
     case "updateServerMetadata": {
-      // currently only one
       updateStatusTrayText(message.data);
+      updateSystemStatusTrayText(message.data);
       break;
     }
   }
