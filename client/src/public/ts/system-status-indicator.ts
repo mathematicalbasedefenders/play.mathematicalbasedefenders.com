@@ -11,10 +11,7 @@ function updateSystemStatusTrayText(data: { [key: string]: any }) {
     );
   } else {
     $("#status-indicators--os").css("color", "#000000");
-    // $("#status-indicators--os").text("");
-    $("#status-indicators--os").text(
-      `OS: ${Math.round(data.osUsageToShow * 100)}%`
-    );
+    $("#status-indicators--os").text("");
   }
 
   if (data.updateTimeLevel == 2) {
@@ -30,9 +27,6 @@ function updateSystemStatusTrayText(data: { [key: string]: any }) {
   } else {
     $("#status-indicators--update-time").css("color", "#000000");
     $("#status-indicators--update-time").text("");
-    $("#status-indicators--update-time").text(
-      `UT: ${Math.round(data.updateTimeToShow)}ms`
-    );
   }
 }
 export { updateSystemStatusTrayText };
