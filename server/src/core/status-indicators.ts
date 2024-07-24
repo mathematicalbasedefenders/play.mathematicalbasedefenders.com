@@ -14,9 +14,13 @@ function updateSystemStatus(deltaTime: number) {
 }
 
 function checkStatus() {
-  const totalMemory = os.totalmem();
-  const freeMemory = os.freemem();
-  log.debug(`${freeMemory} / ${totalMemory}`);
+  const memoryUsage = process.memoryUsage();
+  const usedHeapMemory = memoryUsage.heapUsed;
+  const totalHeapMemory = memoryUsage.heapTotal;
+  const totalOSMemory = os.totalmem();
+  const freeOSMemory = totalOSMemory - os.freemem();
+  log.debug(`GAME: ${usedHeapMemory} / ${totalHeapMemory}`);
+  log.debug(`OS: ${freeOSMemory} / ${totalOSMemory}`);
 }
 
 export { updateSystemStatus };
