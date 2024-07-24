@@ -1086,7 +1086,7 @@ code {
   z-index: 999;
   position: absolute;
   top: 50%;
-  background-color: red;
+  background-color: #000000;
   left: 0;
 }
 
