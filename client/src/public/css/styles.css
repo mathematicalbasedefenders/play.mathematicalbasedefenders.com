@@ -1081,6 +1081,15 @@ code {
   width: 320px;
 }
 
+/* STATUS INDICATORS */
+#main-content__status-indicator-menu-container {
+  z-index: 999;
+  position: absolute;
+  top: 50%;
+  background-color: transparent;
+  left: 4px;
+}
+
 /* VERSION NUMBER */
 #version-number-container {
   z-index: 1001;

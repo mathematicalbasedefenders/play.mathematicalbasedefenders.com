@@ -32,6 +32,7 @@ import rateLimit from "express-rate-limit";
 import { attemptToSendChatMessage } from "./core/chat";
 import { validateCustomGameSettings } from "./core/utilities";
 import { synchronizeGameDataWithSocket } from "./universal";
+import { updateSystemStatus } from "./core/status-indicators";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -318,7 +319,8 @@ function update(deltaTime: number) {
   // CHECK FOR BAD SOCKETS
   utilities.checkWebsocketMessageSpeeds(universal.sockets, deltaTime);
   // DATA IS SENT HERE. <---
-  synchronizeGameDataWithSockets(deltaTime);
+  const systemStatus = updateSystemStatus(deltaTime);
+  synchronizeGameDataWithSockets(deltaTime, systemStatus || {});
 
   // delete rooms with zero players
   // additionally, delete rooms which are empty JSON objects.
@@ -343,8 +345,11 @@ function update(deltaTime: number) {
   }
 }
 
-// TODO: Move these functions somewhere else.
-function synchronizeGameDataWithSockets(deltaTime: number) {
+// TODO: Move these functions somewhere else, and also stop using any already
+function synchronizeGameDataWithSockets(
+  deltaTime: number,
+  systemStatus: { [key: string]: any }
+) {
   sendDataDeltaTime += deltaTime;
   if (sendDataDeltaTime < SYNCHRONIZATION_INTERVAL) {
     return;
@@ -352,7 +357,7 @@ function synchronizeGameDataWithSockets(deltaTime: number) {
   sendDataDeltaTime -= SYNCHRONIZATION_INTERVAL;
   for (let socket of universal.sockets) {
     synchronizeGameDataWithSocket(socket);
-    universal.synchronizeMetadataWithSocket(socket, deltaTime);
+    universal.synchronizeMetadataWithSocket(socket, deltaTime, systemStatus);
     // TODO: create a separate function for resetting `accumulatedMessages.`
   }
 }
