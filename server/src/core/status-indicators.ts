@@ -18,9 +18,9 @@ function checkStatus() {
   const usedHeapMemory = memoryUsage.heapUsed;
   const totalHeapMemory = memoryUsage.heapTotal;
   const totalOSMemory = os.totalmem();
-  const freeOSMemory = totalOSMemory - os.freemem();
+  const usedOSMemory = totalOSMemory - os.freemem();
   log.debug(`GAME: ${usedHeapMemory} / ${totalHeapMemory}`);
-  log.debug(`OS: ${freeOSMemory} / ${totalOSMemory}`);
+  log.debug(`OS: ${usedOSMemory} / ${totalOSMemory}`);
 }
 
 export { updateSystemStatus };
