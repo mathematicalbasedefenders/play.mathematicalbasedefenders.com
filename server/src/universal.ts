@@ -6,22 +6,35 @@ import {
   Room
 } from "./game/Room";
 import { GameData, SingleplayerGameData } from "./game/GameData";
-import _ from "lodash";
+import _, { update } from "lodash";
 import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
+import { log } from "./core/log";
 
-type GameSocket = WebSocket & {
+// 0.4.10
+// TODO: Rewrite to adhere to new uWS.js version.
+interface UserData {}
+
+type PlayerRank = {
+  color: string;
+  title: string;
+};
+
+type GameSocket = WebSocket<UserData> & {
   ownerUsername?: string;
   ownerUserID?: string;
   ownerGuestName?: string;
   connectionID?: string;
   loggedIn?: boolean;
+  playerRank?: PlayerRank;
+  accumulatedMessages?: number;
 };
 
 let sockets: Array<GameSocket> = [];
 let rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
 
 const STATUS = {
-  databaseAvailable: false
+  databaseAvailable: false,
+  lastDeltaTimeToUpdate: 0
 };
 
 /**
@@ -48,7 +61,18 @@ function deleteSocket(socketToClose: GameSocket) {
   }
   // delete the socket
   const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
-  sockets.splice(socketToDeleteIndex, 1);
+  if (socketToDeleteIndex > -1) {
+    sockets.splice(socketToDeleteIndex, 1);
+  }
+}
+
+function forceDeleteAndCloseSocket(socketToClose: GameSocket) {
+  log.warn(`Forcing deleting+closing socket ID ${socketToClose.connectionID}`);
+  const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
+  if (socketToDeleteIndex > -1) {
+    sockets.splice(socketToDeleteIndex, 1);
+  }
+  socketToClose?.close();
 }
 
 /**
@@ -103,8 +127,13 @@ function getGameDataFromConnectionID(id: string): GameData | null {
  * Synchronizes the game data of the server from the server-side to the client-side.
  * @param {GameSocket} socket The socket to sync data with.
  */
-function synchronizeMetadataWithSocket(socket: GameSocket, deltaTime: number) {
-  const metadataToSend = getServerMetadata(deltaTime);
+function synchronizeMetadataWithSocket(
+  socket: GameSocket,
+  deltaTime: number,
+  systemStatus: { [key: string]: any }
+) {
+  STATUS.lastDeltaTimeToUpdate = deltaTime;
+  const metadataToSend = getServerMetadata(deltaTime, systemStatus);
   socket.send(
     JSON.stringify({
       message: "updateServerMetadata",
@@ -167,7 +196,11 @@ function synchronizeGameDataWithSocket(socket: GameSocket) {
 /**
  * Gets the server's metadata.
  */
-function getServerMetadata(deltaTime: number) {
+function getServerMetadata(
+  deltaTime: number,
+  systemStatus: { [key: string]: any }
+) {
+  // number of rooms
   const online = sockets.length;
   const onlineRegistered = sockets.filter((e) => e.loggedIn).length;
   const onlineGuests = online - onlineRegistered;
@@ -176,6 +209,12 @@ function getServerMetadata(deltaTime: number) {
   const roomsMulti =
     rooms.filter((e) => e.mode === "defaultMultiplayer").length || 0;
   const roomsSingle = roomsTotal - roomsMulti;
+  // system usage status
+  const osUsageLevel = systemStatus.os.level;
+  const osUsageToShow = osUsageLevel > 0 ? systemStatus.os.usage : -1;
+  const updateTimeLevel = systemStatus.updateTime.level;
+  const updateTimeToShow =
+    updateTimeLevel > 0 ? systemStatus.updateTime.time : -1;
   return {
     onlineTotal: online,
     onlineRegistered: onlineRegistered,
@@ -183,7 +222,11 @@ function getServerMetadata(deltaTime: number) {
     roomsTotal: roomsTotal,
     roomsMulti: roomsMulti,
     roomsSingle: roomsSingle,
-    lastUpdated: deltaTime
+    lastUpdated: deltaTime,
+    osUsageLevel: osUsageLevel,
+    osUsageToShow: osUsageToShow,
+    updateTimeLevel: updateTimeLevel,
+    updateTimeToShow: updateTimeToShow
   };
 }
 
@@ -223,5 +266,6 @@ export {
   STATUS,
   synchronizeGameDataWithSocket,
   synchronizeMetadataWithSocket,
-  sendGlobalToastNotification
+  sendGlobalToastNotification,
+  forceDeleteAndCloseSocket
 };

@@ -12,6 +12,12 @@ interface ClockInterface {
   };
 }
 
+type ActionRecord = {
+  action: string;
+  timestamp: number;
+  data: { [key: string]: any };
+};
+
 enum GameMode {
   EasySingleplayer = "easySingleplayer",
   StandardSingleplayer = "standardSingleplayer",
@@ -57,6 +63,8 @@ class GameData {
   attackScore!: number;
   receivedEnemiesStock!: number;
   receivedEnemiesToSpawn!: number;
+  // ... (0.4.10, anticheat)
+  actionRecords!: Array<ActionRecord>;
   constructor(owner: universal.GameSocket, mode: GameMode) {
     this.mode = mode;
     this.score = 0;
@@ -83,6 +91,7 @@ class GameData {
     this.baseHealthRegeneration = 2;
     this.maximumBaseHealth = 100;
     this.actionsPerformed = 0;
+    this.actionRecords = [];
     // per mode
     if (mode === GameMode.EasySingleplayer) {
       this.clocks = {
@@ -128,6 +137,10 @@ class GameData {
       this.enemySpawnThreshold = 0.1;
     }
   }
+
+  addAction(action: ActionRecord) {
+    this.actionRecords.push(action);
+  }
 }
 class SingleplayerGameData extends GameData {
   // nothing here yet...
@@ -145,6 +158,7 @@ class SingleplayerGameData extends GameData {
       return;
     }
     super(owner, gameMode);
+    this.actionRecords.push(constructStartGameRecord());
   }
 
   increaseLevel(amount: number) {
@@ -229,11 +243,21 @@ class MultiplayerGameData extends GameData {
   }
 }
 
+function constructStartGameRecord() {
+  const record: ActionRecord = {
+    action: "started",
+    timestamp: Date.now(),
+    data: {}
+  };
+  return record;
+}
+
 export {
   SingleplayerGameData,
   GameData,
   MultiplayerGameData,
   CustomSingleplayerGameData,
   GameMode,
-  ClockInterface
+  ClockInterface,
+  ActionRecord
 };

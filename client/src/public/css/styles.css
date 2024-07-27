@@ -110,11 +110,20 @@ code {
   font-family: "Computer Modern Unicode Serif";
   width: 750px;
   padding: 8px;
+  top: -66.6%;
+  position: relative;
 }
 
 .button--arrow-key-focused {
   z-index: 1003;
   outline: 8px solid var(--color-arrow-key-focused);
+}
+
+.button--top-aligned-text {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: flex-start;
 }
 
 /* MAIN MENU SCREEN */
@@ -1070,6 +1079,15 @@ code {
 
 #main-content__user-menu-small-display {
   width: 320px;
+}
+
+/* STATUS INDICATORS */
+#main-content__status-indicator-menu-container {
+  z-index: 999;
+  position: absolute;
+  top: 50%;
+  background-color: transparent;
+  left: 4px;
 }
 
 /* VERSION NUMBER */

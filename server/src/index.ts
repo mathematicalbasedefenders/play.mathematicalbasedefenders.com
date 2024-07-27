@@ -32,6 +32,7 @@ import rateLimit from "express-rate-limit";
 import { attemptToSendChatMessage } from "./core/chat";
 import { validateCustomGameSettings } from "./core/utilities";
 import { synchronizeGameDataWithSocket } from "./universal";
+import { updateSystemStatus } from "./core/status-indicators";
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -90,6 +91,7 @@ const DESIRED_SERVER_UPDATES_PER_SECOND: number = 60;
 const UPDATE_INTERVAL: number = 1000 / DESIRED_SERVER_UPDATES_PER_SECOND;
 const SYNCHRONIZATION_INTERVAL: number =
   1000 / DESIRED_SYNCHRONIZATIONS_PER_SECOND;
+
 let initialized = false;
 
 let currentTime: number = Date.now();
@@ -120,6 +122,7 @@ uWS
       log.info("Socket connected!");
       socket.connectionID = utilities.generateConnectionID(16);
       socket.ownerGuestName = `Guest ${utilities.generateGuestID(8)}`;
+      socket.accumulatedMessages = 0;
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
@@ -150,6 +153,14 @@ uWS
       if (!incompleteParsedMessage) {
         return;
       }
+      if (!checkBufferSize(buffer, socket)) {
+        return;
+      }
+      // increment accumulated messages of socket this time interval.
+      if (typeof socket.accumulatedMessages === "number") {
+        socket.accumulatedMessages++;
+      }
+      // ...
       const parsedMessage = incompleteParsedMessage.message;
       // FIXME: VALIDATE DATA!!!
       switch (parsedMessage.message) {
@@ -283,18 +294,14 @@ uWS
       }
     },
 
-    close: (
-      socket: universal.GameSocket,
-      code: unknown,
-      message: WebSocketMessage
-    ) => {
-      log.info(`Socket disconnected! (${code} ${message})`);
+    close: (socket: universal.GameSocket) => {
+      log.info(`Socket with ID ${socket.connectionID} has disconnected!`);
       universal.deleteSocket(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
     }
   })
 
-  .listen(WEBSOCKET_PORT, (token: string) => {
+  .listen(WEBSOCKET_PORT, (token) => {
     if (token) {
       log.info(`WebSockets Server listening at port ${WEBSOCKET_PORT}`);
     } else {
@@ -309,8 +316,11 @@ function update(deltaTime: number) {
     }
   }
 
+  // CHECK FOR BAD SOCKETS
+  utilities.checkWebsocketMessageSpeeds(universal.sockets, deltaTime);
   // DATA IS SENT HERE. <---
-  synchronizeGameDataWithSockets(deltaTime);
+  const systemStatus = updateSystemStatus(deltaTime);
+  synchronizeGameDataWithSockets(deltaTime, systemStatus || {});
 
   // delete rooms with zero players
   // additionally, delete rooms which are empty JSON objects.
@@ -335,8 +345,11 @@ function update(deltaTime: number) {
   }
 }
 
-// TODO: Move these functions somewhere else.
-function synchronizeGameDataWithSockets(deltaTime: number) {
+// TODO: Move these functions somewhere else, and also stop using any already
+function synchronizeGameDataWithSockets(
+  deltaTime: number,
+  systemStatus: { [key: string]: any }
+) {
   sendDataDeltaTime += deltaTime;
   if (sendDataDeltaTime < SYNCHRONIZATION_INTERVAL) {
     return;
@@ -344,7 +357,8 @@ function synchronizeGameDataWithSockets(deltaTime: number) {
   sendDataDeltaTime -= SYNCHRONIZATION_INTERVAL;
   for (let socket of universal.sockets) {
     synchronizeGameDataWithSocket(socket);
-    universal.synchronizeMetadataWithSocket(socket, deltaTime);
+    universal.synchronizeMetadataWithSocket(socket, deltaTime, systemStatus);
+    // TODO: create a separate function for resetting `accumulatedMessages.`
   }
 }
 
@@ -489,6 +503,27 @@ async function attemptAuthentication(
     User.addMissingKeys(socket.ownerUserID);
   }
   return;
+}
+
+function checkBufferSize(buffer: Buffer, socket: universal.GameSocket) {
+  // check if buffer too big, if so, alert socket and instantly disconnect.
+  if (buffer.length > 2048) {
+    const connectionID = socket.connectionID;
+    log.warn(
+      `Disconnecting socket ID ${connectionID} due to sending a large buffer.`
+    );
+    socket?.send(
+      JSON.stringify({
+        message: "createToastNotification",
+        // TODO: Refactor this
+        text: `You're sending a very large message! You have been immediately disconnected.`,
+        borderColor: "#ff0000"
+      })
+    );
+    universal.forceDeleteAndCloseSocket(socket);
+    return false;
+  }
+  return true;
 }
 
 function initialize() {

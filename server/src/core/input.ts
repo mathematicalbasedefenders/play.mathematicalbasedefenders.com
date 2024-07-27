@@ -6,6 +6,7 @@ import {
   processKeypressForRoom
 } from "../game/Room";
 import {
+  ActionRecord,
   GameData,
   GameMode,
   MultiplayerGameData,
@@ -50,6 +51,7 @@ enum InputAction {
 }
 interface InputActionInterface {
   action: InputAction;
+  keyPressed?: string | undefined;
   argument: string;
 }
 const SEND_KEYS = ["Space", "Enter"];
@@ -84,12 +86,13 @@ function emulateKeypress(
     return;
   }
   // TODO: What if player isn't in a room? (e.g. Multiplayer Room Intermission)
-  processKeypress(socket, code);
+  processKeypress(socket, code, true);
 }
 
 function processKeypress(
   socket: universal.GameSocket,
-  code: string | undefined
+  code: string | undefined,
+  emulated?: boolean
 ) {
   const connectionID = socket.connectionID;
   if (!connectionID) {
@@ -107,7 +110,7 @@ function processKeypress(
     log.warn("A keypress event that isn't a string has been fired.");
     return;
   }
-  processKeypressForRoom(connectionID, code);
+  processKeypressForRoom(connectionID, code, emulated);
   // non-room interactions
   if (code === "Escape") {
     let socket = universal.sockets.find(
@@ -132,8 +135,11 @@ function processKeypress(
  */
 function processInputInformation(
   inputInformation: InputActionInterface,
-  gameDataToProcess: GameData
+  gameDataToProcess: GameData,
+  emulated?: boolean
 ) {
+  // add action to record
+  gameDataToProcess.addAction(constructInputRecord(inputInformation, emulated));
   // also increment actionsPerformed
   gameDataToProcess.actionsPerformed++;
   switch (inputInformation.action) {
@@ -243,6 +249,21 @@ function getInputInformation(code: string) {
     action: InputAction.Unknown,
     argument: "" // no need
   };
+}
+
+function constructInputRecord(
+  inputRecord: InputActionInterface,
+  emulated?: boolean
+) {
+  const record: ActionRecord = {
+    action: "keypress",
+    timestamp: Date.now(),
+    data: {
+      keyCode: inputRecord.keyPressed?.toString(),
+      emulated: emulated ?? false
+    }
+  };
+  return record;
 }
 
 export {
