@@ -14,7 +14,7 @@ const RANK_ORDER = [
   ["Donator", "isDonator"]
 ];
 
-const MESSAGES_PER_SECOND_LIMIT = 400;
+const MESSAGES_PER_SECOND_LIMIT = 1600;
 
 const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
   baseHealth: {
@@ -353,7 +353,7 @@ function createGlobalLeaderboardsMessage(data: GameData, rank: number) {
  */
 function getWebsocketMessageSpeed(socket: universal.GameSocket, time: number) {
   if (socket.accumulatedMessages) {
-    return (1000 / Math.max(1, time)) * socket.accumulatedMessages;
+    return (1000 / Math.max(15, time)) * socket.accumulatedMessages;
   }
   return -1;
 }
