@@ -352,7 +352,7 @@ function createGlobalLeaderboardsMessage(data: GameData, rank: number) {
  * or -1 if socket doesn't have the `accumulatedMessages` property.
  */
 function getWebSocketMessageSpeed(socket: universal.GameSocket, time: number) {
-  if (socket.accumulatedMessages) {
+  if (typeof socket.accumulatedMessages === "number") {
     return (1000 / Math.max(15, time)) * socket.accumulatedMessages;
   }
   return -1;
@@ -370,7 +370,9 @@ function checkWebSocketMessageSpeeds(
     if (typeof socket.accumulatedMessages === "number") {
       const amount = getWebSocketMessageSpeed(socket, time);
       // FIXME: remove this
-      console.log(`${amount} ws msg./s`);
+      if (amount > -1) {
+        console.log(`${amount} ws msg./s`);
+      }
       if (amount > MESSAGES_PER_SECOND_LIMIT) {
         log.warn(
           `Disconnecting socket ${socket.connectionID} for sending too many messages at once. (${amount} per second > ${MESSAGES_PER_SECOND_LIMIT} per second)`
