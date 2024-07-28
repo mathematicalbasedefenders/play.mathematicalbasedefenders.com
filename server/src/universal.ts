@@ -27,6 +27,10 @@ type GameSocket = WebSocket<UserData> & {
   loggedIn?: boolean;
   playerRank?: PlayerRank;
   accumulatedMessages?: number;
+  rateLimiting?: {
+    last: number;
+    count: number;
+  };
 };
 
 let sockets: Array<GameSocket> = [];
