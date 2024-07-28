@@ -367,10 +367,10 @@ function checkWebSocketMessageSpeeds(
 ) {
   const socketsToForceDelete = [];
   for (const socket of sockets) {
-    if (socket.accumulatedMessages) {
+    if (typeof socket.accumulatedMessages === "number") {
       const amount = getWebSocketMessageSpeed(socket, time);
       // FIXME: remove this
-      console.log(`${amount} wsmps`);
+      console.log(`${amount} ws msg./s`);
       if (amount > MESSAGES_PER_SECOND_LIMIT) {
         log.warn(
           `Disconnecting socket ${socket.connectionID} for sending too many messages at once. (${amount} per second > ${MESSAGES_PER_SECOND_LIMIT} per second)`
