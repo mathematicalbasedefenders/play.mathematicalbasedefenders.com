@@ -82,6 +82,10 @@ socket.addEventListener("message", (event: any) => {
       updateSystemStatusTrayText(message.data);
       break;
     }
+    case "updateSocketMetadata": {
+      variables.serverReportsPlaying = message.data.playing;
+      break;
+    }
   }
 });
 function sendSocketMessage(message: { [key: string]: string }) {
