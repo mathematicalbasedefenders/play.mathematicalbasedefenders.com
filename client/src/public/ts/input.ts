@@ -28,18 +28,56 @@ const NUMBER_PAD_KEYS = [
 const REMOVE_DIGIT_KEYS = ["NumpadAdd", "Backspace"];
 const SUBTRACTION_SIGN_KEYS = ["Minus", "NumpadSubtract"];
 const ARROW_KEYS = ["ArrowLeft", "ArrowUp", "ArrowDown", "ArrowRight"];
+const ABORT_KEYS = ["Escape"];
+const SEND_KEYS = ["Space", "Enter"];
+// send websocket message keys
+const WEBSOCKET_MESSAGE_SEND_KEYS = NUMBER_ROW_KEYS.concat(
+  NUMBER_PAD_KEYS,
+  REMOVE_DIGIT_KEYS,
+  SUBTRACTION_SIGN_KEYS,
+  ABORT_KEYS,
+  SEND_KEYS
+);
+// ignore send websocket elements
+const ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE = [
+  "#settings-screen__content--online__username",
+  "#settings-screen__content--online__password",
+  "#custom-singleplayer-game__combo-time",
+  "#custom-singleplayer-game__enemy-spawn-time",
+  "#custom-singleplayer-game__enemy-spawn-chance",
+  "#custom-singleplayer-game__forced-enemy-spawn-time",
+  "#custom-singleplayer-game__enemy-speed-coefficient",
+  "#custom-singleplayer-game__starting-base-health"
+];
+
 // events
 function initializeKeypressEventListener() {
   window.addEventListener("keydown", (event) => {
+    let sendWebsocketMessage = true;
     // other client-side events start
     if (event.code === "Tab") {
       event.preventDefault();
       $("#status-tray-container").toggle(0);
-      return;
+      sendWebsocketMessage = false;
     }
     if (ARROW_KEYS.indexOf(event.code) > -1) {
       event.preventDefault();
       navigateFocus(event.code);
+      sendWebsocketMessage = false;
+    }
+    if (!WEBSOCKET_MESSAGE_SEND_KEYS.includes(event.code)) {
+      sendWebsocketMessage = false;
+    }
+    const focusedElement = document.activeElement;
+    if (focusedElement) {
+      const focusedElementJQuery = $(focusedElement)[0];
+      const focusedElementID = "#" + focusedElementJQuery.id;
+      if (ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE.includes(focusedElementID)) {
+        sendWebsocketMessage = false;
+      }
+    }
+    // see if a websocket message should be sent
+    if (!sendWebsocketMessage) {
       return;
     }
     // main client-side events start

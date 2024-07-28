@@ -370,7 +370,7 @@ function checkWebSocketMessageSpeeds(
     if (typeof socket.accumulatedMessages === "number") {
       const amount = getWebSocketMessageSpeed(socket, time);
       // FIXME: remove this
-      if (amount > -1) {
+      if (amount > 0) {
         console.log(`${amount} ws msg./s`);
       }
       if (amount > MESSAGES_PER_SECOND_LIMIT) {
