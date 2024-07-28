@@ -79,6 +79,9 @@ function initializeKeypressEventListener() {
     if (!variables.serverReportsPlaying) {
       sendWebSocketMessage = false;
     }
+    if (variables.currentGameClientSide.currentInput.length >= 12) {
+      sendWebSocketMessage = false;
+    }
     // see if a websocket message should be sent
     if (!sendWebSocketMessage) {
       return;
