@@ -53,31 +53,34 @@ const ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE = [
 // events
 function initializeKeypressEventListener() {
   window.addEventListener("keydown", (event) => {
-    let sendWebsocketMessage = true;
+    let sendWebSocketMessage = true;
     // other client-side events start
     if (event.code === "Tab") {
       event.preventDefault();
       $("#status-tray-container").toggle(0);
-      sendWebsocketMessage = false;
+      sendWebSocketMessage = false;
     }
     if (ARROW_KEYS.indexOf(event.code) > -1) {
       event.preventDefault();
       navigateFocus(event.code);
-      sendWebsocketMessage = false;
+      sendWebSocketMessage = false;
     }
     if (!WEBSOCKET_MESSAGE_SEND_KEYS.includes(event.code)) {
-      sendWebsocketMessage = false;
+      sendWebSocketMessage = false;
     }
     const focusedElement = document.activeElement;
     if (focusedElement) {
       const focusedElementJQuery = $(focusedElement)[0];
       const focusedElementID = "#" + focusedElementJQuery.id;
       if (ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE.includes(focusedElementID)) {
-        sendWebsocketMessage = false;
+        sendWebSocketMessage = false;
       }
     }
+    if (!variables.serverReportsPlaying) {
+      sendWebSocketMessage = false;
+    }
     // see if a websocket message should be sent
-    if (!sendWebsocketMessage) {
+    if (!sendWebSocketMessage) {
       return;
     }
     // main client-side events start
