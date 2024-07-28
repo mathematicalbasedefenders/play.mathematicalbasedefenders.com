@@ -317,7 +317,7 @@ function update(deltaTime: number) {
   }
 
   // CHECK FOR BAD SOCKETS
-  utilities.checkWebsocketMessageSpeeds(universal.sockets, deltaTime);
+  utilities.checkWebSocketMessageSpeeds(universal.sockets, deltaTime);
   // DATA IS SENT HERE. <---
   const systemStatus = updateSystemStatus(deltaTime);
   synchronizeGameDataWithSockets(deltaTime, systemStatus || {});
