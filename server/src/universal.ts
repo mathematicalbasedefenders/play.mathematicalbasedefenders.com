@@ -124,6 +124,20 @@ function getGameDataFromConnectionID(id: string): GameData | null {
 }
 
 /**
+ * Checks if the socket is in game.
+ * This uses another function to check for `GameData`.
+ * This assumes that all playing sockets have a `GameData` associated to it,
+ * and all non-playing sockets don't. This isn't really a good idea.
+ * TODO: Create a separate variable/function/etc. that doesn't depend on whether
+ * the socket has `GameData` tied to it.
+ * @param {string} id The ID of the socket to see if playing.
+ * @returns `true` if the socket is in game, `false` otherwise.
+ */
+function checkIfSocketIsPlaying(id: string) {
+  return getGameDataFromConnectionID(id) != null;
+}
+
+/**
  * Synchronizes the game data of the server from the server-side to the client-side.
  * @param {GameSocket} socket The socket to sync data with.
  */
@@ -132,6 +146,7 @@ function synchronizeMetadataWithSocket(
   deltaTime: number,
   systemStatus: { [key: string]: any }
 ) {
+  // server metadata
   STATUS.lastDeltaTimeToUpdate = deltaTime;
   const metadataToSend = getServerMetadata(deltaTime, systemStatus);
   socket.send(
@@ -140,6 +155,18 @@ function synchronizeMetadataWithSocket(
       data: metadataToSend
     })
   );
+  // socket metadata
+  if (socket.connectionID) {
+    const socketIsPlaying = checkIfSocketIsPlaying(socket.connectionID);
+    socket.send(
+      JSON.stringify({
+        message: "updateSocketMetadata",
+        data: {
+          playing: socketIsPlaying
+        }
+      })
+    );
+  }
 }
 
 /**
