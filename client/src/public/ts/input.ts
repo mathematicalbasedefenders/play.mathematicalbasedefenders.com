@@ -79,7 +79,20 @@ function initializeKeypressEventListener() {
     if (!variables.serverReportsPlaying) {
       sendWebSocketMessage = false;
     }
-    if (variables.currentGameClientSide.currentInput.length >= 12) {
+    if (
+      variables.currentGameClientSide.currentInput.length >= 8 &&
+      !REMOVE_DIGIT_KEYS.includes(event.code) &&
+      !ABORT_KEYS.includes(event.code) &&
+      !SEND_KEYS.includes(event.code)
+    ) {
+      sendWebSocketMessage = false;
+    }
+    if (
+      variables.currentGameClientSide.currentInput.length <= 0 &&
+      (REMOVE_DIGIT_KEYS.includes(event.code) ||
+        SEND_KEYS.includes(event.code)) &&
+      !ABORT_KEYS.includes(event.code)
+    ) {
       sendWebSocketMessage = false;
     }
     // see if a websocket message should be sent
