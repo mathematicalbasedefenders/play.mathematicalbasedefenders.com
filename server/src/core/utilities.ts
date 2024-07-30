@@ -14,7 +14,7 @@ const RANK_ORDER = [
   ["Donator", "isDonator"]
 ];
 
-const MESSAGES_PER_SECOND_LIMIT = 1500;
+const MESSAGES_PER_SECOND_LIMIT = 500;
 
 const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
   baseHealth: {
