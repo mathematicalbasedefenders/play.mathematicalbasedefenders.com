@@ -14,6 +14,8 @@ const RANK_ORDER = [
   ["Donator", "isDonator"]
 ];
 
+const MESSAGES_PER_SECOND_TIME_PERIOD = 200;
+let timePeriodPassedForMessageSpeed = 0;
 const MESSAGES_PER_SECOND_LIMIT = 500;
 
 const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
@@ -365,6 +367,11 @@ function checkWebSocketMessageSpeeds(
   sockets: Array<universal.GameSocket>,
   time: number
 ) {
+  timePeriodPassedForMessageSpeed += time;
+  // here incase Nms is too low (e.g. 1 msg. in 1ms => 1000 msg./s => disconnect)
+  if (timePeriodPassedForMessageSpeed < MESSAGES_PER_SECOND_TIME_PERIOD) {
+    return;
+  }
   const socketsToForceDelete = [];
   for (const socket of sockets) {
     if (typeof socket.accumulatedMessages === "number") {
@@ -390,6 +397,8 @@ function checkWebSocketMessageSpeeds(
   for (const socket of socketsToForceDelete) {
     universal.forceDeleteAndCloseSocket(socket);
   }
+  // modulo instead of subtract because it doesn't get check multiple times.
+  timePeriodPassedForMessageSpeed %= MESSAGES_PER_SECOND_TIME_PERIOD;
 }
 
 // Taken from https://stackoverflow.com/a/39914235
