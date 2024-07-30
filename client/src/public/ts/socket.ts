@@ -84,6 +84,7 @@ socket.addEventListener("message", (event: any) => {
     }
     case "updateSocketMetadata": {
       variables.serverReportsPlaying = message.data.playing;
+      variables.serverReportsInMultiplayer = message.data.inMultiplayerRoom;
       break;
     }
   }

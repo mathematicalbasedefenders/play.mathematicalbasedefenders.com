@@ -53,48 +53,8 @@ const ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE = [
 // events
 function initializeKeypressEventListener() {
   window.addEventListener("keydown", (event) => {
-    let sendWebSocketMessage = true;
     // other client-side events start
-    if (event.code === "Tab") {
-      event.preventDefault();
-      $("#status-tray-container").toggle(0);
-      sendWebSocketMessage = false;
-    }
-    if (ARROW_KEYS.indexOf(event.code) > -1) {
-      event.preventDefault();
-      navigateFocus(event.code);
-      sendWebSocketMessage = false;
-    }
-    if (!WEBSOCKET_MESSAGE_SEND_KEYS.includes(event.code)) {
-      sendWebSocketMessage = false;
-    }
-    const focusedElement = document.activeElement;
-    if (focusedElement) {
-      const focusedElementJQuery = $(focusedElement)[0];
-      const focusedElementID = "#" + focusedElementJQuery.id;
-      if (ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE.includes(focusedElementID)) {
-        sendWebSocketMessage = false;
-      }
-    }
-    if (!variables.serverReportsPlaying) {
-      sendWebSocketMessage = false;
-    }
-    if (
-      variables.currentGameClientSide.currentInput.length >= 8 &&
-      !REMOVE_DIGIT_KEYS.includes(event.code) &&
-      !ABORT_KEYS.includes(event.code) &&
-      !SEND_KEYS.includes(event.code)
-    ) {
-      sendWebSocketMessage = false;
-    }
-    if (
-      variables.currentGameClientSide.currentInput.length <= 0 &&
-      (REMOVE_DIGIT_KEYS.includes(event.code) ||
-        SEND_KEYS.includes(event.code)) &&
-      !ABORT_KEYS.includes(event.code)
-    ) {
-      sendWebSocketMessage = false;
-    }
+    const sendWebSocketMessage = checkIfShouldSendWebSocketMessage(event);
     // see if a websocket message should be sent
     if (!sendWebSocketMessage) {
       return;
@@ -124,5 +84,55 @@ function initializeKeypressEventListener() {
     }
     // main client-side events end
   });
+}
+
+function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
+  // overrides: set to false
+  let sendWebSocketMessage = true;
+  if (event.code === "Tab") {
+    event.preventDefault();
+    $("#status-tray-container").toggle(0);
+    sendWebSocketMessage = false;
+  }
+  if (ARROW_KEYS.indexOf(event.code) > -1) {
+    event.preventDefault();
+    navigateFocus(event.code);
+    sendWebSocketMessage = false;
+  }
+  if (!WEBSOCKET_MESSAGE_SEND_KEYS.includes(event.code)) {
+    sendWebSocketMessage = false;
+  }
+  const focusedElement = document.activeElement;
+  if (focusedElement) {
+    const focusedElementJQuery = $(focusedElement)[0];
+    const focusedElementID = "#" + focusedElementJQuery.id;
+    if (ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE.includes(focusedElementID)) {
+      sendWebSocketMessage = false;
+    }
+  }
+  if (!variables.serverReportsPlaying) {
+    sendWebSocketMessage = false;
+  }
+  if (
+    variables.currentGameClientSide.currentInput.length >= 8 &&
+    !REMOVE_DIGIT_KEYS.includes(event.code) &&
+    !ABORT_KEYS.includes(event.code) &&
+    !SEND_KEYS.includes(event.code)
+  ) {
+    sendWebSocketMessage = false;
+  }
+  if (
+    variables.currentGameClientSide.currentInput.length <= 0 &&
+    (REMOVE_DIGIT_KEYS.includes(event.code) ||
+      SEND_KEYS.includes(event.code)) &&
+    !ABORT_KEYS.includes(event.code)
+  ) {
+    sendWebSocketMessage = false;
+  }
+  // overrides: set to true
+  if (variables.serverReportsInMultiplayer && ABORT_KEYS.includes(event.code)) {
+    sendWebSocketMessage = true;
+  }
+  return sendWebSocketMessage;
 }
 export { initializeKeypressEventListener };
