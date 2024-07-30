@@ -5,7 +5,7 @@ describe("keypresses", () => {
     cy.get("#main-menu-screen-button--multiplayer").click();
     cy.get("#multiplayer-menu-screen-button--default").click();
     cy.wait(1000);
-    cy.type(`{esc}`);
+    cy.get("#chat-message").type(`{esc}`);
     cy.get("#main-menu-screen-button--singleplayer").should("be.visible");
   });
 });
