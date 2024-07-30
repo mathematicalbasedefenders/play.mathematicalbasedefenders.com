@@ -7,7 +7,11 @@ import {
 } from "./game/Room";
 import { GameData, SingleplayerGameData } from "./game/GameData";
 import _, { update } from "lodash";
-import { minifySelfGameData, findRoomWithConnectionID } from "./core/utilities";
+import {
+  minifySelfGameData,
+  findRoomWithConnectionID,
+  checkIfPropertyWithValueExists
+} from "./core/utilities";
 import { log } from "./core/log";
 
 // 0.4.10
@@ -141,6 +145,17 @@ function checkIfSocketIsPlaying(id: string) {
   return getGameDataFromConnectionID(id) != null;
 }
 
+function checkIfSocketIsInMultiplayerRoom(id: string) {
+  const room = findRoomWithConnectionID(id);
+  if (!room) {
+    return false;
+  }
+  if (room.mode !== "defaultMultiplayer") {
+    return false;
+  }
+  return true;
+}
+
 /**
  * Synchronizes the game data of the server from the server-side to the client-side.
  * @param {GameSocket} socket The socket to sync data with.
@@ -161,12 +176,15 @@ function synchronizeMetadataWithSocket(
   );
   // socket metadata
   if (socket.connectionID) {
-    const socketIsPlaying = checkIfSocketIsPlaying(socket.connectionID);
+    const id = socket.connectionID;
+    const socketIsPlaying = checkIfSocketIsPlaying(id);
+    const socketIsInMPRoom = checkIfSocketIsInMultiplayerRoom(id);
     socket.send(
       JSON.stringify({
         message: "updateSocketMetadata",
         data: {
-          playing: socketIsPlaying
+          playing: socketIsPlaying,
+          inMultiplayerRoom: socketIsInMPRoom
         }
       })
     );
