@@ -59,6 +59,7 @@ const variables: { [key: string]: any } = {
   // below is for beautifulScoreCounter
   scoreOnLastUpdate: 0,
   playing: false,
+  serverReportsPlaying: false,
   settings: {
     multiplicationSign: "dot",
     beautifulScore: false

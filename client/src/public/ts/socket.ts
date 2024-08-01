@@ -82,6 +82,11 @@ socket.addEventListener("message", (event: any) => {
       updateSystemStatusTrayText(message.data);
       break;
     }
+    case "updateSocketMetadata": {
+      variables.serverReportsPlaying = message.data.playing;
+      variables.serverReportsInMultiplayer = message.data.inMultiplayerRoom;
+      break;
+    }
   }
 });
 function sendSocketMessage(message: { [key: string]: string }) {
