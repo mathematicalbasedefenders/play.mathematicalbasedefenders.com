@@ -64,26 +64,30 @@ function initializeKeypressEventListener() {
       message: "keypress",
       keypress: event.code
     });
-    // also take care of client-side.
-    const numberRowKeyIndex = NUMBER_ROW_KEYS.indexOf(event.code);
-    const numberPadKeyIndex = NUMBER_PAD_KEYS.indexOf(event.code);
-    const removeDigitKeyIndex = REMOVE_DIGIT_KEYS.indexOf(event.code);
-    const subtractionSignKeyIndex = SUBTRACTION_SIGN_KEYS.indexOf(event.code);
-    if (numberRowKeyIndex > -1) {
-      variables.currentGameClientSide.currentInput +=
-        numberRowKeyIndex.toString();
-    } else if (numberPadKeyIndex > -1) {
-      variables.currentGameClientSide.currentInput +=
-        numberPadKeyIndex.toString();
-    } else if (subtractionSignKeyIndex > -1) {
-      variables.currentGameClientSide.currentInput += "-";
-    } else if (removeDigitKeyIndex > -1) {
-      const newLength = variables.currentGameClientSide.currentInput.length - 1;
-      variables.currentGameClientSide.currentInput =
-        variables.currentGameClientSide.currentInput.substring(0, newLength);
-    }
+    handleClientSideEvents(event);
     // main client-side events end
   });
+}
+
+function handleClientSideEvents(event: KeyboardEvent) {
+  // also take care of client-side.
+  const numberRowKeyIndex = NUMBER_ROW_KEYS.indexOf(event.code);
+  const numberPadKeyIndex = NUMBER_PAD_KEYS.indexOf(event.code);
+  const removeDigitKeyIndex = REMOVE_DIGIT_KEYS.indexOf(event.code);
+  const subtractionSignKeyIndex = SUBTRACTION_SIGN_KEYS.indexOf(event.code);
+  if (numberRowKeyIndex > -1) {
+    variables.currentGameClientSide.currentInput +=
+      numberRowKeyIndex.toString();
+  } else if (numberPadKeyIndex > -1) {
+    variables.currentGameClientSide.currentInput +=
+      numberPadKeyIndex.toString();
+  } else if (subtractionSignKeyIndex > -1) {
+    variables.currentGameClientSide.currentInput += "-";
+  } else if (removeDigitKeyIndex > -1) {
+    const newLength = variables.currentGameClientSide.currentInput.length - 1;
+    variables.currentGameClientSide.currentInput =
+      variables.currentGameClientSide.currentInput.substring(0, newLength);
+  }
 }
 
 function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
