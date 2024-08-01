@@ -14,7 +14,9 @@ const RANK_ORDER = [
   ["Donator", "isDonator"]
 ];
 
-const MESSAGES_PER_SECOND_LIMIT = 400;
+const MESSAGES_PER_SECOND_TIME_PERIOD = 200;
+let timePeriodPassedForMessageSpeed = 0;
+const MESSAGES_PER_SECOND_LIMIT = 500;
 
 const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
   baseHealth: {
@@ -351,9 +353,9 @@ function createGlobalLeaderboardsMessage(data: GameData, rank: number) {
  * @returns How many messages the GameSocket would have sent as if 1000ms has passed,
  * or -1 if socket doesn't have the `accumulatedMessages` property.
  */
-function getWebsocketMessageSpeed(socket: universal.GameSocket, time: number) {
-  if (socket.accumulatedMessages) {
-    return (1000 / Math.max(1, time)) * socket.accumulatedMessages;
+function getWebSocketMessageSpeed(socket: universal.GameSocket, time: number) {
+  if (typeof socket.accumulatedMessages === "number") {
+    return (1000 / Math.max(15, time)) * socket.accumulatedMessages;
   }
   return -1;
 }
@@ -361,14 +363,19 @@ function getWebsocketMessageSpeed(socket: universal.GameSocket, time: number) {
 /**
  *
  */
-function checkWebsocketMessageSpeeds(
+function checkWebSocketMessageSpeeds(
   sockets: Array<universal.GameSocket>,
   time: number
 ) {
+  timePeriodPassedForMessageSpeed += time;
+  // here incase Nms is too low (e.g. 1 msg. in 1ms => 1000 msg./s => disconnect)
+  if (timePeriodPassedForMessageSpeed < MESSAGES_PER_SECOND_TIME_PERIOD) {
+    return;
+  }
   const socketsToForceDelete = [];
   for (const socket of sockets) {
-    if (socket.accumulatedMessages) {
-      const amount = getWebsocketMessageSpeed(socket, time);
+    if (typeof socket.accumulatedMessages === "number") {
+      const amount = getWebSocketMessageSpeed(socket, time);
       if (amount > MESSAGES_PER_SECOND_LIMIT) {
         log.warn(
           `Disconnecting socket ${socket.connectionID} for sending too many messages at once. (${amount} per second > ${MESSAGES_PER_SECOND_LIMIT} per second)`
@@ -390,6 +397,8 @@ function checkWebsocketMessageSpeeds(
   for (const socket of socketsToForceDelete) {
     universal.forceDeleteAndCloseSocket(socket);
   }
+  // modulo instead of subtract because it doesn't get check multiple times.
+  timePeriodPassedForMessageSpeed %= MESSAGES_PER_SECOND_TIME_PERIOD;
 }
 
 // Taken from https://stackoverflow.com/a/39914235
@@ -412,6 +421,6 @@ export {
   bulkUpdateSocketUserInformation,
   sleep,
   createGlobalLeaderboardsMessage,
-  getWebsocketMessageSpeed,
-  checkWebsocketMessageSpeeds
+  getWebSocketMessageSpeed,
+  checkWebSocketMessageSpeeds
 };

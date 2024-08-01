@@ -1,6 +1,6 @@
 describe("authentication", () => {
   it("should allow logging users in w/ correct credentials", () => {
-    cy.visit("http://localhost:3000");
+    cy.visit(Cypress.env("baseUrl") || "http://localhost:3000");
     cy.get("#popup-notification--1__close-button").click();
     cy.get("#main-menu-screen-button--settings").click();
     cy.get("#settings-screen__sidebar-item--online").click();
@@ -14,7 +14,7 @@ describe("authentication", () => {
   });
 
   it("should not allow logging users in w/ incorrect credentials", () => {
-    cy.visit("http://localhost:3000");
+    cy.visit(Cypress.env("baseUrl") || "http://localhost:3000");
     cy.get("#popup-notification--1__close-button").click();
     cy.get("#main-menu-screen-button--settings").click();
     cy.get("#settings-screen__sidebar-item--online").click();
@@ -27,7 +27,7 @@ describe("authentication", () => {
   });
 
   it("should not allow logging users in w/ invalid credentials", () => {
-    cy.visit("http://localhost:3000");
+    cy.visit(Cypress.env("baseUrl") || "http://localhost:3000");
     cy.get("#popup-notification--1__close-button").click();
     cy.get("#main-menu-screen-button--settings").click();
     cy.get("#settings-screen__sidebar-item--online").click();

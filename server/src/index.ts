@@ -92,6 +92,28 @@ const UPDATE_INTERVAL: number = 1000 / DESIRED_SERVER_UPDATES_PER_SECOND;
 const SYNCHRONIZATION_INTERVAL: number =
   1000 / DESIRED_SYNCHRONIZATIONS_PER_SECOND;
 
+// https://github.com/uNetworking/uWebSockets.js/issues/335#issuecomment-643500581
+// https://github.com/uNetworking/uWebSockets.js/issues/335#issuecomment-834141711
+const WebSocketRateLimit = (limit: number, interval: number) => {
+  let now = 0;
+  // const last = Symbol() as unknown as string;
+  // const count = Symbol() as unknown as string;
+  setInterval(() => ++now, interval);
+  return (webSocket: universal.GameSocket) => {
+    if (!webSocket.rateLimiting) {
+      return;
+    }
+    if (webSocket.rateLimiting.last != now) {
+      webSocket.rateLimiting.last = now;
+      webSocket.rateLimiting.count = 1;
+    } else {
+      return ++webSocket.rateLimiting.count > limit;
+    }
+  };
+};
+
+const websocketRateLimit = WebSocketRateLimit(500, 1000);
+
 let initialized = false;
 
 let currentTime: number = Date.now();
@@ -123,6 +145,10 @@ uWS
       socket.connectionID = utilities.generateConnectionID(16);
       socket.ownerGuestName = `Guest ${utilities.generateGuestID(8)}`;
       socket.accumulatedMessages = 0;
+      socket.rateLimiting = {
+        last: 1,
+        count: 0
+      };
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
       socket.subscribe("game");
@@ -148,6 +174,19 @@ uWS
       message: WebSocketMessage,
       isBinary: boolean
     ) => {
+      if (websocketRateLimit(socket)) {
+        socket?.send(
+          JSON.stringify({
+            message: "createToastNotification",
+            // TODO: Refactor this
+            text: `You're going too fast! You have been immediately disconnected.`,
+            borderColor: "#ff0000"
+          })
+        );
+        log.warn(`Rate-limited and killing socket ${socket.connectionID}.`);
+        universal.forceDeleteAndCloseSocket(socket);
+        return;
+      }
       const buffer = Buffer.from(message);
       const incompleteParsedMessage = JSON.parse(buffer.toString());
       if (!incompleteParsedMessage) {
@@ -317,7 +356,7 @@ function update(deltaTime: number) {
   }
 
   // CHECK FOR BAD SOCKETS
-  utilities.checkWebsocketMessageSpeeds(universal.sockets, deltaTime);
+  utilities.checkWebSocketMessageSpeeds(universal.sockets, deltaTime);
   // DATA IS SENT HERE. <---
   const systemStatus = updateSystemStatus(deltaTime);
   synchronizeGameDataWithSockets(deltaTime, systemStatus || {});
