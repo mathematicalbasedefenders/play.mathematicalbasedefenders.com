@@ -109,7 +109,7 @@ function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   const focusedElement = document.activeElement;
   if (focusedElement) {
     const focusedElementJQuery = $(focusedElement)[0];
-    const focusedElementID = "#" + focusedElementJQuery.id;
+    const focusedElementID = `#${focusedElementJQuery.id}`;
     if (ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE.includes(focusedElementID)) {
       sendWebSocketMessage = false;
     }
