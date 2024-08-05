@@ -73,7 +73,7 @@ function renderGameData(data: { [key: string]: any }) {
       const slidingText = new SlidingText(
         `+${textToDisplay}`,
         new PIXI.TextStyle({
-          fontFamily: "Computer Modern Unicode Serif",
+          fontFamily: ["Noto Sans", "sans-serif"],
           fill: `#ffffff`
         }),
         slideBezier,

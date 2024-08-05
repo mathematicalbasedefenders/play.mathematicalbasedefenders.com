@@ -23,6 +23,7 @@ const STATISTICS_POSITION: number = 1294;
 // Fonts
 const serifFont = new FontFaceObserver("Computer Modern Unicode Serif");
 const mathFont = new FontFaceObserver("Computer Modern Math Italic");
+const notoFont = new FontFaceObserver("Noto Sans");
 
 class ExtendedSprite extends PIXI.Sprite {
   scalingPolicy!: AS.POLICY;
@@ -34,6 +35,7 @@ class ExtendedText extends PIXI.Text {
 
 serifFont.load();
 mathFont.load();
+notoFont.load();
 
 const app = new PIXI.Application({
   width: OPTIMAL_SCREEN_WIDTH,
@@ -112,63 +114,63 @@ const stageItems: stageItemsContainer = {
   },
   textSprites: {
     scoreLabelText: new ExtendedText("Score", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
     }),
     scoreText: new ExtendedText("0", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 80,
       fill: "#ffffff"
     }),
     //
     enemiesText: new ExtendedText("Enemy Kills: 0 ≈ 0.000/s", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
     }),
     inputText: new ExtendedText("0", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Computer Modern Unicode Serif", "serif"],
       fontSize: 48,
       fill: "#ffffff"
     }),
     elapsedTimeText: new ExtendedText("0:00.000", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
     }),
     baseHealthText: new ExtendedText("♥️ 100", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
     }),
     comboText: new ExtendedText("", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
     }),
     enemiesReceivedStockText: new ExtendedText("0", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 64,
       fill: "#ffffff"
     }),
     nameText: new ExtendedText("", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 20,
       fill: "#ffffff"
     }),
     levelText: new ExtendedText("Level", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 32,
       fill: "#ffffff"
     }),
     levelDetailsText: new ExtendedText("Level", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 20,
       fill: "#ffffff"
     }),
     howToPlayText: new ExtendedText("", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 20,
       fill: "#ffffff"
     })
