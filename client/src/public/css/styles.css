@@ -12,7 +12,7 @@ body {
   margin: 0;
   overflow-x: hidden;
   overflow-y: hidden;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: "Noto Sans", sans-serif;
   font-variant-ligatures: none;
   font-size: 100%;
 }
@@ -67,7 +67,7 @@ body {
 
 .text--monospace,
 code {
-  font-family: "JetBrains Mono", monospace;
+  font-family: "Noto Sans Mono", monospace;
 }
 
 .option-button--small {
@@ -76,7 +76,7 @@ code {
   text-align: left;
   margin: 4px;
   background-color: #000000;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   transition-duration: var(--transition-duration-short);
   border-top: none;
   width: 100%;
@@ -107,7 +107,7 @@ code {
   background-color: #ff0000;
   color: var(--color-text-light);
   font-size: 300%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   width: 750px;
   padding: 8px;
   top: -66.6%;
@@ -215,7 +215,7 @@ code {
   color: #ffffff;
   margin: 0 0 0 4px;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 .main-menu-screen-button__description {
   font-size: min(24px, 1.5vw);
@@ -225,7 +225,7 @@ code {
   text-wrap: pretty;
   text-overflow: clip;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 
 .main-menu-screen-button:hover {
@@ -308,7 +308,7 @@ code {
   color: #ffffff;
   margin: 0 0 0 4px;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 .singleplayer-menu-screen-button__description {
   font-size: min(24px, 1.5vw);
@@ -317,7 +317,7 @@ code {
   margin: 0 0 0 4px;
   text-overflow: clip;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 
 #singleplayer-menu-screen-button--easy {
@@ -396,14 +396,14 @@ code {
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 150%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 .custom-singleplayer__content-input--button {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 150%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   transition-duration: var(--transition-duration-short);
 }
 .custom-singleplayer__content-input--button:hover {
@@ -432,7 +432,7 @@ code {
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 100%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 
 #main-content__custom-singleplayer-intermission-screen-container__left
@@ -483,7 +483,7 @@ code {
   color: #ffffff;
   margin: 0 0 0 4px;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 .multiplayer-menu-screen-button__description {
   font-size: min(24px, 1.5vw);
@@ -494,7 +494,7 @@ code {
   white-space: nowrap;
   text-overflow: clip;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 
 #multiplayer-menu-screen-button--default {
@@ -608,7 +608,7 @@ code {
   background-color: #000000;
   border: 2px solid #ffffff;
   color: #ffffff;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   margin: 0 2px;
 }
 
@@ -617,7 +617,7 @@ code {
   background-color: #000000;
   border: 2px solid #ffffff;
   color: #ffffff;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 /* GAME OVER SCREEN */
 #main-content__game-over-screen-container {
@@ -697,7 +697,7 @@ code {
   color: #ffffff;
   margin: 0 0 0 4px;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 .game-over-screen-button__description {
   font-size: min(24px, 1.5vw);
@@ -709,7 +709,7 @@ code {
   overflow: hidden;
   text-overflow: clip;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 
 /* SETTINGS SCREEN */
@@ -741,7 +741,7 @@ code {
   margin: 4px;
   background-color: #000000;
   border-left: 1px solid #ffffff;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   transition-duration: var(--transition-duration-short);
   border-top: none;
   border-right: none;
@@ -791,7 +791,7 @@ code {
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 100%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 
 .settings-screen__content-input--button {
@@ -799,7 +799,7 @@ code {
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 150%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   transition-duration: var(--transition-duration-short);
 }
 
@@ -828,7 +828,7 @@ code {
   width: 48px;
   height: 48px;
   font-size: 225%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   word-wrap: break-word;
 }
 
@@ -972,7 +972,7 @@ code {
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 200%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   transition-duration: var(--transition-duration-short);
 }
 
@@ -1027,7 +1027,7 @@ code {
   background-color: var(--color-neutral);
   color: var(--color-text-light);
   border: 1px solid var(--color-text-light);
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   font-size: 3vh;
 }
 
