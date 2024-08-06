@@ -871,7 +871,7 @@ code {
 }
 
 #status-tray {
-  width: max(15%, 240px);
+  width: max(25%, 360px);
   height: 100%;
   background-color: var(--color-neutral);
   border: 1px solid #ffffff;
@@ -879,6 +879,33 @@ code {
 
 #status-tray-text-container {
   width: 80%;
+  margin: auto;
+  height: 90%;
+  font-size: 125%;
+  color: var(--color-text-light);
+}
+
+/* CHAT TRAY */
+#chat-tray-container {
+  z-index: 99;
+  width: 100vw;
+  height: 100vh;
+  display: none; /* original value */
+  position: absolute;
+  top: 0;
+}
+
+#chat-tray {
+  width: max(25%, 360px);
+  height: 100%;
+  right: 0;
+  background-color: var(--color-neutral);
+  border: 1px solid #ffffff;
+  position: absolute;
+}
+
+#chat-tray-text-container {
+  width: 90%;
   margin: auto;
   height: 90%;
   font-size: 125%;
