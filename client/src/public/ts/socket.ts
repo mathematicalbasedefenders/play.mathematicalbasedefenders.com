@@ -95,7 +95,7 @@ socket.addEventListener("message", (event: any) => {
         message.data.attribute
       );
       console.log(message);
-      $(message.data.location).append(chatMessage);
+      $(message.data.location).prepend(chatMessage);
       break;
     }
   }
