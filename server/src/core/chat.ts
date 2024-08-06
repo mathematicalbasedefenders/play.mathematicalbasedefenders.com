@@ -27,15 +27,43 @@ function attemptToSendChatMessage(
   const playerName = universal.getNameFromConnectionID(connectionID);
   switch (scope) {
     case "room": {
+      const roomID = findRoomWithConnectionID(connectionID, true)?.id;
+      if (typeof roomID === "undefined") {
+        log.warn(
+          `Room Undefined found for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+        );
+        return;
+      }
+      const roomIndex = universal.rooms.findIndex(
+        (element) => element.id === roomID
+      );
+      if (roomIndex === -1) {
+        log.warn(
+          `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+        );
+        return false;
+      }
       if (!validateMessage(message, connectionID)) {
         log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
         return;
       }
-
       let room = findRoomWithConnectionID(connectionID, true) as Room;
       room.addChatMessage(message, playerName || "");
       log.info(
         `Socket ID ${connectionID} (${playerName}) sent message ${message} to Room ID ${room.id}`
+      );
+      break;
+    }
+    case "global": {
+      if (!validateMessage(message, connectionID)) {
+        log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
+        return;
+      }
+      const messageObject = createGlobalMessageObject(message, connectionID);
+      socket.publish("game", JSON.stringify(messageObject));
+      socket.send(JSON.stringify(messageObject));
+      log.info(
+        `Socket ID ${connectionID} (${playerName}) sent message ${message} to global chat.`
       );
       break;
     }
@@ -55,21 +83,7 @@ function attemptToSendChatMessage(
  * @returns `true` if the message passed validation, false if not.
  */
 function validateMessage(message: string, connectionID: string) {
-  const roomID = findRoomWithConnectionID(connectionID, true)?.id;
   const playerName = universal.getNameFromConnectionID(connectionID);
-  if (typeof roomID === "undefined") {
-    log.warn(
-      `Room Undefined found for Socket ID ${connectionID} (${playerName}) when validating chat message.`
-    );
-    return false;
-  }
-  let roomIndex = universal.rooms.findIndex((element) => element.id === roomID);
-  if (roomIndex === -1) {
-    log.warn(
-      `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
-    );
-    return false;
-  }
   const notEmpty = message !== "";
   const notJustBlank = message.replace(/\s/g, "").length > 0;
   const notTooLong = message.length <= 256;
@@ -81,5 +95,23 @@ function validateMessage(message: string, connectionID: string) {
     return false;
   }
   return true;
+}
+
+function createGlobalMessageObject(
+  message: string,
+  connectionID: string,
+  attribute?: string
+) {
+  const playerName = universal.getNameFromConnectionID(connectionID);
+  const toReturn = {
+    message: "addChatMessage",
+    data: {
+      sender: playerName,
+      message: message,
+      attribute: attribute ?? "",
+      location: "#chat-tray-message-container"
+    }
+  };
+  return toReturn;
 }
 export { attemptToSendChatMessage };

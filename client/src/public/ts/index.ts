@@ -477,6 +477,13 @@ function initializeEventListeners() {
     });
     $("#chat-message").val("");
   });
+  $(`#chat-tray-input-send-button`).on("click", () => {
+    sendSocketMessage({
+      message: "sendChatMessage",
+      scope: "global",
+      chatMessage: $("#chat-tray-input").val()?.toString() || ""
+    });
+  });
 }
 
 // events
