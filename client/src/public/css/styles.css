@@ -907,8 +907,21 @@ code {
 #chat-tray-text-container {
   width: 90%;
   margin: auto;
-  height: 90%;
   font-size: 125%;
+  color: var(--color-text-light);
+}
+
+#chat-tray-message-container {
+  width: 90%;
+  margin: auto;
+  height: 70%;
+  font-size: 125%;
+  display: flex;
+  flex-direction: column-reverse;
+  color: var(--color-text-light);
+}
+
+.chat-tray__message {
   color: var(--color-text-light);
 }
 
