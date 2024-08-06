@@ -10,7 +10,8 @@ import _, { update } from "lodash";
 import {
   minifySelfGameData,
   findRoomWithConnectionID,
-  checkIfPropertyWithValueExists
+  checkIfPropertyWithValueExists,
+  getRank
 } from "./core/utilities";
 import { log } from "./core/log";
 
@@ -168,6 +169,10 @@ function synchronizeMetadataWithSocket(
   // server metadata
   STATUS.lastDeltaTimeToUpdate = deltaTime;
   const metadataToSend = getServerMetadata(deltaTime, systemStatus);
+  const socketID = socket?.connectionID;
+  if (socketID) {
+    metadataToSend.playerName = getNameFromConnectionID(socketID) ?? "???";
+  }
   socket.send(
     JSON.stringify({
       message: "updateServerMetadata",
@@ -275,7 +280,10 @@ function getServerMetadata(
     osUsageLevel: osUsageLevel,
     osUsageToShow: osUsageToShow,
     updateTimeLevel: updateTimeLevel,
-    updateTimeToShow: updateTimeToShow
+    updateTimeToShow: updateTimeToShow,
+    playerName: "???",
+    playerRank: "???",
+    playerLevel: "???"
   };
 }
 
