@@ -124,7 +124,10 @@ function createGlobalMessageObject(
     message: "addChatMessage",
     data: {
       sender: playerName,
-      message: message,
+      message: {
+        sender: playerName,
+        message: message
+      },
       attribute: attribute ?? "",
       location: "#chat-tray-message-container",
       senderColor: senderColor ?? "#ffffff"
