@@ -960,22 +960,22 @@ code {
 }
 
 .chat-tray__message--alert-score {
-  border: 2px #ff0000 solid;
+  border: 2px #ab93db solid;
   margin: 4px 0;
   padding: 4px;
 }
 
-.chat-tray__message-alert-score--top {
+.chat-tray__message-alert-score__top {
   display: flex;
   justify-content: space-between;
 }
 
-.chat-tray__message-alert-score--middle {
+.chat-tray__message-alert-score__middle {
   font-size: 200%;
   text-align: right;
 }
 
-.chat-tray__message-alert-score--bottom {
+.chat-tray__message-alert-score__bottom {
   font-size: 100%;
   text-align: right;
 }
