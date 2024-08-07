@@ -939,6 +939,7 @@ code {
   color: var(--color-text-light);
   font-family: inherit;
   height: 28px;
+  width: 96px;
 }
 
 #chat-tray-error-container {
