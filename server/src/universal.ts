@@ -311,6 +311,26 @@ function sendGlobalToastNotification(settings: { [key: string]: any }) {
   }
 }
 
+/**
+ * Sends a message to every socket connected, regardless of logged in/out
+ * @param message The message.
+ */
+function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
+  for (const socket of sockets) {
+    if (socket) {
+      if (typeof message === "string") {
+        socket.send(message);
+      } else {
+        socket.send(
+          JSON.stringify({
+            message
+          })
+        );
+      }
+    }
+  }
+}
+
 export {
   GameSocket,
   sockets,
@@ -324,5 +344,6 @@ export {
   synchronizeGameDataWithSocket,
   synchronizeMetadataWithSocket,
   sendGlobalToastNotification,
-  forceDeleteAndCloseSocket
+  forceDeleteAndCloseSocket,
+  sendGlobalWebSocketMessage
 };
