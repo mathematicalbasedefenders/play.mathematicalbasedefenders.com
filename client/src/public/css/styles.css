@@ -924,7 +924,7 @@ code {
 #chat-tray-input-container {
   width: 90%;
   margin: auto;
-  height: 10%;
+  height: 28px;
   display: flex;
 }
 
@@ -943,6 +943,15 @@ code {
 
 #chat-tray-error-container {
   width: 90%;
+  color: var(--color-text-light);
+  margin: auto;
+  display: flex;
+  font-size: 125%;
+}
+
+#chat-tray-separator {
+  width: 90%;
+  margin: auto;
 }
 
 .chat-tray__message {
