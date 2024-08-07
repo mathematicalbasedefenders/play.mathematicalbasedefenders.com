@@ -1,16 +1,5 @@
-type LeaderboardsChatMessage = {
-  name: string;
-  mode: string;
-  score: string | number;
-  apm: string | number;
-  rank: string | number;
-  enemiesKilled: string | number;
-  enemiesSpawned: string | number;
-  timeElapsed: string | number;
-};
-
 function createChatMessage(
-  message: any,
+  message: { [key: string]: string | number },
   sender: string,
   color: string,
   attribute?: string
@@ -31,16 +20,15 @@ function createChatMessage(
   // default: "#chat-tray-message-container";
   const element = $("<div></div>");
   element.addClass("chat-tray__message");
+  const data = message;
   switch (attribute) {
     case "leaderboards": {
-      // if (typeof message === "object") {
-      const data = message;
       element.addClass("chat-tray__message--alert-score");
       const topDiv = $(`<div></div>`);
       topDiv.addClass("chat-tray__message-alert-score__top");
       topDiv.append(
         `<div style="color:${color}">${data.name}</div><div>${getMode(
-          data.mode
+          data.mode as string
         )}</div>`
       );
       const middleDiv = $(`<div></div>`);
@@ -54,12 +42,11 @@ function createChatMessage(
       element.append(topDiv);
       element.append(middleDiv);
       element.append(bottomDiv);
-      // }
       break;
     }
     default: {
-      element.append(`<span style="color:${color}">${sender}</span>: `);
-      element.append(`${message}`);
+      element.append(`<span style="color:${color}">${data.sender}</span>: `);
+      element.append(`${data.message}`);
       break;
     }
   }
