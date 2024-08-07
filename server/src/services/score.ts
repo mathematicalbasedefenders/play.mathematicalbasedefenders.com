@@ -7,7 +7,12 @@ import {
   updateSocketUserInformation,
   createGlobalLeaderboardsMessage
 } from "../core/utilities";
-import { GameSocket, STATUS, sendGlobalToastNotification } from "../universal";
+import {
+  GameSocket,
+  STATUS,
+  sendGlobalToastNotification,
+  sendGlobalWebSocketMessage
+} from "../universal";
 import { sendDiscordWebhook } from "./discord-webhook";
 // TODO: make this DRY
 async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
@@ -87,6 +92,8 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
       sendDiscordWebhook(data, rank);
       const notification = createGlobalLeaderboardsMessage(data, rank);
       sendGlobalToastNotification(notification);
+      const chatAlert = createGlobalChatLeaderboardsMessage(data, rank);
+      sendRankToGlobalChat(chatAlert);
     }
   }
   // send data to user
@@ -174,6 +181,32 @@ async function sendDataToUser(owner: GameSocket, message: string) {
       value: message
     })
   );
+}
+
+function createGlobalChatLeaderboardsMessage(data: GameData, rank: number) {
+  const toReturn = {
+    message: "addChatMessage",
+    data: {
+      message: {
+        sender: data.ownerName,
+        name: data.ownerName,
+        mode: data.mode,
+        score: data.score,
+        apm: ((data.actionsPerformed / data.elapsedTime) * 60000).toFixed(3),
+        rank: rank,
+        enemiesKilled: data.enemiesKilled,
+        enemiesSpawned: data.enemiesSpawned,
+        timeElapsed: data.elapsedTime
+      },
+      attribute: "leaderboards",
+      location: "#chat-tray-message-container"
+    }
+  };
+  return JSON.stringify(toReturn);
+}
+
+function sendRankToGlobalChat(message: { [key: string]: any } | string) {
+  sendGlobalWebSocketMessage(message);
 }
 
 export { submitSingleplayerGame, sendDataToUser, addToStatistics };
