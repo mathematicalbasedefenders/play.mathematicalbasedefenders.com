@@ -921,6 +921,30 @@ code {
   color: var(--color-text-light);
 }
 
+#chat-tray-input-container {
+  width: 90%;
+  margin: auto;
+  height: 10%;
+  display: flex;
+}
+
+#chat-tray-input {
+  width: 85%;
+  height: 24px;
+}
+
+#chat-tray-input-send-button {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-family: inherit;
+  height: 28px;
+}
+
+#chat-tray-error-container {
+  width: 90%;
+}
+
 .chat-tray__message {
   color: var(--color-text-light);
 }
@@ -944,6 +968,14 @@ code {
 .chat-tray__message-alert-score--bottom {
   font-size: 100%;
   text-align: right;
+}
+
+#chat-tray-input {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 125%;
+  font-family: inherit;
 }
 
 /* OTHERS */
