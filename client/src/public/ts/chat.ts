@@ -1,4 +1,3 @@
-// TODO: Rename this file so it can differentiate between global and room
 type LeaderboardsChatMessage = {
   name: string;
   mode: string;
