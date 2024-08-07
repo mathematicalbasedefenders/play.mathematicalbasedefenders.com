@@ -92,6 +92,7 @@ socket.addEventListener("message", (event: any) => {
       const chatMessage = createChatMessage(
         message.data.message,
         message.data.sender,
+        message.data.senderColor,
         message.data.attribute
       );
       $(message.data.location).prepend(chatMessage);
