@@ -92,7 +92,11 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
       sendDiscordWebhook(data, rank);
       const notification = createGlobalLeaderboardsMessage(data, rank);
       sendGlobalToastNotification(notification);
-      const chatAlert = createGlobalChatLeaderboardsMessage(data, rank);
+      const chatAlert = createGlobalChatLeaderboardsMessage(
+        data,
+        rank,
+        owner?.playerRank?.color
+      );
       sendRankToGlobalChat(chatAlert);
     }
   }
@@ -183,7 +187,11 @@ async function sendDataToUser(owner: GameSocket, message: string) {
   );
 }
 
-function createGlobalChatLeaderboardsMessage(data: GameData, rank: number) {
+function createGlobalChatLeaderboardsMessage(
+  data: GameData,
+  rank: number,
+  nameColor: string | undefined
+) {
   const toReturn = {
     message: "addChatMessage",
     data: {
@@ -199,7 +207,8 @@ function createGlobalChatLeaderboardsMessage(data: GameData, rank: number) {
         timeElapsed: data.elapsedTime
       },
       attribute: "leaderboards",
-      location: "#chat-tray-message-container"
+      location: "#chat-tray-message-container",
+      senderColor: nameColor ?? "#ffffff"
     }
   };
   return JSON.stringify(toReturn);
