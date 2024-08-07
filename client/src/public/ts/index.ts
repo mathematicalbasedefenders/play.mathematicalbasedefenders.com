@@ -483,6 +483,7 @@ function initializeEventListeners() {
       scope: "global",
       chatMessage: $("#chat-tray-input").val()?.toString() || ""
     });
+    $("#chat-tray-input").val("");
   });
 }
 
