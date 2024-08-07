@@ -919,6 +919,8 @@ code {
   display: flex;
   flex-direction: column-reverse;
   color: var(--color-text-light);
+  overflow: auto;
+  word-wrap: break-word;
 }
 
 #chat-tray-input-container {
