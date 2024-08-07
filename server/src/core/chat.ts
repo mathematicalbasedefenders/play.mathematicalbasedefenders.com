@@ -70,7 +70,11 @@ function attemptToSendChatMessage(
         socket.send(JSON.stringify(badMessageObject));
         return;
       }
-      const messageObject = createGlobalMessageObject(message, connectionID);
+      const messageObject = createGlobalMessageObject(
+        message,
+        connectionID,
+        socket?.playerRank?.color
+      );
       socket.publish("game", JSON.stringify(messageObject));
       socket.send(JSON.stringify(messageObject));
       socket.send(JSON.stringify(clearBadMessageObject));
@@ -112,6 +116,7 @@ function validateMessage(message: string, connectionID: string) {
 function createGlobalMessageObject(
   message: string,
   connectionID: string,
+  senderColor: string | undefined,
   attribute?: string
 ) {
   const playerName = universal.getNameFromConnectionID(connectionID);
@@ -121,7 +126,8 @@ function createGlobalMessageObject(
       sender: playerName,
       message: message,
       attribute: attribute ?? "",
-      location: "#chat-tray-message-container"
+      location: "#chat-tray-message-container",
+      senderColor: senderColor ?? "#ffffff"
     }
   };
   return toReturn;

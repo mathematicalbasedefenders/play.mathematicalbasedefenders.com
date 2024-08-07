@@ -10,7 +10,12 @@ type LeaderboardsChatMessage = {
   timeElapsed: string | number;
 };
 
-function createChatMessage(message: any, sender: string, attribute?: string) {
+function createChatMessage(
+  message: any,
+  sender: string,
+  color: string,
+  attribute?: string
+) {
   function getMode(mode: string) {
     switch (mode) {
       case "easySingleplayer": {
@@ -34,7 +39,11 @@ function createChatMessage(message: any, sender: string, attribute?: string) {
       element.addClass("chat-tray__message--alert-score");
       const topDiv = $(`<div></div>`);
       topDiv.addClass("chat-tray__message-alert-score__top");
-      topDiv.append(`<div>${data.name}</div><div>${getMode(data.mode)}</div>`);
+      topDiv.append(
+        `<div style="color:${color}">${data.name}</div><div>${getMode(
+          data.mode
+        )}</div>`
+      );
       const middleDiv = $(`<div></div>`);
       middleDiv.addClass("chat-tray__message-alert-score__middle");
       middleDiv.text(`${data.score}`);
@@ -50,7 +59,8 @@ function createChatMessage(message: any, sender: string, attribute?: string) {
       break;
     }
     default: {
-      element.text(`${sender}: ${message}`);
+      element.append(`<span style="color:${color}">${sender}</span>: `);
+      element.append(`${message}`);
       break;
     }
   }
