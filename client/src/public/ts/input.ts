@@ -96,6 +96,7 @@ function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   if (event.code === "Tab") {
     event.preventDefault();
     $("#status-tray-container").toggle(0);
+    $("#chat-tray-container").toggle(0);
     sendWebSocketMessage = false;
   }
   if (ARROW_KEYS.indexOf(event.code) > -1) {
