@@ -726,7 +726,7 @@ code {
 
 .main-content__game-over-screen--field {
   width: 100%;
-  font-size: min(36px, 4.5vw);
+  font-size: 175%;
   display: flex;
   justify-content: space-between;
   padding: 4px;
