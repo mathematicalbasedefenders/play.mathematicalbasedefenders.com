@@ -728,11 +728,11 @@ code {
 }
 
 .main-content__game-over-screen--field {
-  width: 90%;
+  width: 100%;
   font-size: 175%;
   display: flex;
   justify-content: space-between;
-  padding: 4px;
+  padding: 4px 0 0 0;
 }
 
 #main-content__game-over-screen__stats--detailed hr {
