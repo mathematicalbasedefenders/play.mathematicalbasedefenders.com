@@ -300,21 +300,18 @@ function navigateFocus(event: KeyboardEvent) {
   let screen = variables.navigation.currentScreen;
   let element = variables.navigation.focusing;
   const directions = getArrowKeyDirections();
-  // overwrite: if there is a popup notification active, give it priority.
-  if (PopupNotification.activeNotifications > 0) {
-    // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.
-    // currently, later notifications are given priority when dealing with arrow keys.
-    event.preventDefault();
-    const popUpID =
-      PopupNotification.activeNotificationIDs[
-        PopupNotification.activeNotificationIDs.length - 1
-      ];
-    const popupToFocusID = `#popup-notification--${popUpID}__close-button`;
-    const popupElement = $(popupToFocusID);
-    popupElement.trigger("focus");
-    popupElement.addClass("button--arrow-key-focused");
-    variables.navigation.focusing = popupToFocusID;
-    return;
+  // FORCED OVERWRITES
+  // overwrite: if multiplayer chat tray is focused, focus there instead.
+  if (element === "#chat-message") {
+    const input = document.getElementById("chat-message") as HTMLInputElement;
+    if (
+      input &&
+      input.value.length === input.selectionEnd &&
+      element === "#chat-message" &&
+      keyPressed === "ArrowRight"
+    ) {
+      forcedDestination = "#message-send-button";
+    }
   }
   // overwrite: if chat tray is active, focus there instead.
   if ($("#chat-tray-container").is(":visible")) {
@@ -332,6 +329,23 @@ function navigateFocus(event: KeyboardEvent) {
     ) {
       forcedDestination = "#chat-tray-input-send-button";
     }
+  }
+  // DESTRUCTIVE OVERWRITES
+  // overwrite: if there is a popup notification active, give it priority.
+  if (PopupNotification.activeNotifications > 0) {
+    // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.
+    // currently, later notifications are given priority when dealing with arrow keys.
+    event.preventDefault();
+    const popUpID =
+      PopupNotification.activeNotificationIDs[
+        PopupNotification.activeNotificationIDs.length - 1
+      ];
+    const popupToFocusID = `#popup-notification--${popUpID}__close-button`;
+    const popupElement = $(popupToFocusID);
+    popupElement.trigger("focus");
+    popupElement.addClass("button--arrow-key-focused");
+    variables.navigation.focusing = popupToFocusID;
+    return;
   }
   // overwrite: if an input box is focused on, pushing left and right arrow keys should not
   // move on focused element, instead, it should move the caret in the input field.
