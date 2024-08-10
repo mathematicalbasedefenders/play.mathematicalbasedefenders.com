@@ -279,9 +279,10 @@ function constructUpDownKeyDirections(ids: Array<string>) {
  * (and the focused element) and the pressed key.
  * The focused element is already stored in `variables.navigation`,
  * so there is no need to pass it as a parameter.
- * @param {string} keyPressed The key that the user pressed.
+ * @param {string} event The keypress event.
  */
-function navigateFocus(keyPressed: string) {
+function navigateFocus(event: KeyboardEvent) {
+  const keyPressed = event.code;
   let screen = variables.navigation.currentScreen;
   let element = variables.navigation.focusing;
   const directions = getArrowKeyDirections();
@@ -289,6 +290,7 @@ function navigateFocus(keyPressed: string) {
   if (PopupNotification.activeNotifications > 0) {
     // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.
     // currently, later notifications are given priority when dealing with arrow keys.
+    event.preventDefault();
     const popUpID =
       PopupNotification.activeNotificationIDs[
         PopupNotification.activeNotificationIDs.length - 1
@@ -300,8 +302,17 @@ function navigateFocus(keyPressed: string) {
     variables.navigation.focusing = popupToFocusID;
     return;
   }
+  // overwrite: if an input box is focused on, pushing left and right arrow keys should not
+  // move on focused element, instead, it should move the caret in the input field.
+  if (
+    (keyPressed === "ArrowLeft" || keyPressed === "ArrowRight") &&
+    $(element).is("input")
+  ) {
+    return;
+  }
   // overwrite: if there is nothing to arrow-key navigate to, do nothing.
   if (directions[screen] == null) {
+    event.preventDefault();
     return;
   }
   // overwrite: if no object is highlighted, highlight the `defaultFocused` element.
@@ -309,6 +320,7 @@ function navigateFocus(keyPressed: string) {
     element == null ||
     Object.keys(directions[screen].destinations).indexOf(element) === -1
   ) {
+    event.preventDefault();
     element = directions[screen].defaultFocused;
     // focus on the `defaultFocus` element if nothing is arrow-key focused
     const destinationElement = $(`${element}`);
@@ -325,6 +337,7 @@ function navigateFocus(keyPressed: string) {
   }
   // normal case
   const destination = directions[screen]?.destinations?.[element]?.[keyPressed];
+  event.preventDefault();
   if (!destination) {
     // no element corresponds to destination
     return;
