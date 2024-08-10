@@ -643,7 +643,7 @@ code {
   flex-direction: column;
   align-items: center;
   justify-items: center;
-  overflow: hidden;
+  overflow-y: hidden;
   height: 100%;
   /* justify-content: space-between; */
 }
@@ -656,7 +656,7 @@ code {
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: auto;
+  overflow-y: auto;
 }
 
 #main-content__game-over-screen__stats > span {
@@ -670,6 +670,7 @@ code {
   grid-column: column2-start / column2-end;
   justify-content: space-between;
   margin: 40px 8px 8px;
+  height: fit-content;
 }
 
 .game-over-screen-button {
