@@ -132,6 +132,7 @@ function getArrowKeyDirections() {
       },
       defaultFocused: "#chat-message"
     },
+    "globalChatTray": getGlobalChatTrayDirections(),
     "canvas": null
   };
   return directions;
@@ -245,6 +246,18 @@ function getCustomSingleplayerMenuDestinations(secondaryScreen: string) {
   return result;
 }
 
+function getGlobalChatTrayDirections() {
+  const result: { [key: string]: any } = {
+    destinations: {
+      "#chat-tray-input-send-button": {
+        "ArrowLeft": "#chat-tray-input"
+      }
+    },
+    defaultFocused: "#chat-tray-input"
+  };
+  return result;
+}
+
 /**
  * Utility function which constructs a object for easy `ArrowUp/ArrowDown` navigation.
  * @param {Array<string>} ids The ids of each element in order.
@@ -283,6 +296,7 @@ function constructUpDownKeyDirections(ids: Array<string>) {
  */
 function navigateFocus(event: KeyboardEvent) {
   const keyPressed = event.code;
+  let forcedDestination = null;
   let screen = variables.navigation.currentScreen;
   let element = variables.navigation.focusing;
   const directions = getArrowKeyDirections();
@@ -302,23 +316,42 @@ function navigateFocus(event: KeyboardEvent) {
     variables.navigation.focusing = popupToFocusID;
     return;
   }
+  // overwrite: if chat tray is active, focus there instead.
+  if ($("#chat-tray-container").is(":visible")) {
+    screen = "globalChatTray";
+    // overwrite: if chat tray is focused and caret is at end, move
+    // to send button instead.
+    const input = document.getElementById(
+      "chat-tray-input"
+    ) as HTMLInputElement;
+    if (
+      input &&
+      input.value.length === input.selectionEnd &&
+      element === "#chat-tray-input" &&
+      keyPressed === "ArrowRight"
+    ) {
+      forcedDestination = "#chat-tray-input-send-button";
+    }
+  }
   // overwrite: if an input box is focused on, pushing left and right arrow keys should not
   // move on focused element, instead, it should move the caret in the input field.
   if (
     (keyPressed === "ArrowLeft" || keyPressed === "ArrowRight") &&
-    $(element).is("input")
+    $(element).is("input") &&
+    !forcedDestination
   ) {
     return;
   }
   // overwrite: if there is nothing to arrow-key navigate to, do nothing.
-  if (directions[screen] == null) {
+  if (directions[screen] == null && !forcedDestination) {
     event.preventDefault();
     return;
   }
   // overwrite: if no object is highlighted, highlight the `defaultFocused` element.
   if (
-    element == null ||
-    Object.keys(directions[screen].destinations).indexOf(element) === -1
+    (element == null ||
+      Object.keys(directions[screen].destinations).indexOf(element) === -1) &&
+    !forcedDestination
   ) {
     event.preventDefault();
     element = directions[screen].defaultFocused;
@@ -336,7 +369,9 @@ function navigateFocus(event: KeyboardEvent) {
     return;
   }
   // normal case
-  const destination = directions[screen]?.destinations?.[element]?.[keyPressed];
+  const destination =
+    forcedDestination ||
+    directions[screen]?.destinations?.[element]?.[keyPressed];
   event.preventDefault();
   if (!destination) {
     // no element corresponds to destination
