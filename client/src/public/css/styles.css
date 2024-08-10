@@ -670,7 +670,8 @@ code {
   grid-column: column2-start / column2-end;
   justify-content: space-between;
   margin: 40px 8px 8px;
-  height: fit-content;
+  height: 12.5vh;
+  min-height: fit-content;
 }
 
 .game-over-screen-button {
