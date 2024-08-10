@@ -722,6 +722,7 @@ code {
   flex-direction: column;
   width: 95%;
   margin: 16px 0;
+  overflow: auto;
 }
 
 .main-content__game-over-screen--field {
