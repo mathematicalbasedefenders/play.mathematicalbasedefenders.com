@@ -723,11 +723,12 @@ code {
   flex-direction: column;
   width: 95%;
   margin: 16px 0;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .main-content__game-over-screen--field {
-  width: 100%;
+  width: 90%;
   font-size: 175%;
   display: flex;
   justify-content: space-between;
