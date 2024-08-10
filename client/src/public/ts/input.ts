@@ -100,8 +100,7 @@ function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
     sendWebSocketMessage = false;
   }
   if (ARROW_KEYS.indexOf(event.code) > -1) {
-    event.preventDefault();
-    navigateFocus(event.code);
+    navigateFocus(event);
     sendWebSocketMessage = false;
   }
   if (!WEBSOCKET_MESSAGE_SEND_KEYS.includes(event.code)) {
