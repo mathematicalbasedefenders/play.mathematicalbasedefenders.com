@@ -656,6 +656,7 @@ code {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: auto;
 }
 
 #main-content__game-over-screen__stats > span {
