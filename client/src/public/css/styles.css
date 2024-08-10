@@ -654,6 +654,8 @@ code {
   grid-column: column2-start / column2-end;
   margin: 24px 8px 8px 8px;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 #main-content__game-over-screen__stats > span {
@@ -717,6 +719,15 @@ code {
   height: 100%;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  margin: 16px 0;
+}
+
+.main-content__game-over-screen--field {
+  width: 100%;
+  font-size: min(36px, 4.5vw);
+  display: flex;
+  justify-content: space-between;
 }
 
 /* SETTINGS SCREEN */
