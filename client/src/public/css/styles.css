@@ -666,7 +666,7 @@ code {
   grid-row: row4-start / row4-end;
   grid-column: column2-start / column2-end;
   justify-content: space-between;
-  margin: 24px 8px 8px;
+  margin: 40px 8px 8px;
 }
 
 .game-over-screen-button {
@@ -715,6 +715,8 @@ code {
 
 .main-content__game-over-screen__text {
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* SETTINGS SCREEN */
