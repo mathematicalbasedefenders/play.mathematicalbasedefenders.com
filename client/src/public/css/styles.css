@@ -638,13 +638,13 @@ code {
   border: 1px #ffffff solid;
   grid-row: row2-start / row2-end;
   grid-column: column2-start / column2-end;
-  margin-bottom: 16px;
+  margin: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-items: center;
-  height: 100%;
   overflow: hidden;
+  height: 100%;
   /* justify-content: space-between; */
 }
 
@@ -652,7 +652,8 @@ code {
   border: 1px #ffffff solid;
   grid-row: row3-start / row3-end;
   grid-column: column2-start / column2-end;
-  margin: 16px 0;
+  margin: 24px 8px 8px 8px;
+  height: 100%;
 }
 
 #main-content__game-over-screen__stats > span {
@@ -665,7 +666,7 @@ code {
   grid-row: row4-start / row4-end;
   grid-column: column2-start / column2-end;
   justify-content: space-between;
-  margin-top: 16px;
+  margin: 24px 8px 8px;
 }
 
 .game-over-screen-button {
@@ -710,6 +711,10 @@ code {
   text-overflow: clip;
   text-align: left;
   font-family: inherit;
+}
+
+.main-content__game-over-screen__text {
+  height: 100%;
 }
 
 /* SETTINGS SCREEN */
