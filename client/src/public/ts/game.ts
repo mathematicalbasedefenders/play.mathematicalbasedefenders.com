@@ -184,7 +184,7 @@ function renderGameData(data: { [key: string]: any }) {
     variables.currentGameClientSide.beautifulScoreDisplayGoal !== data.score
   ) {
     variables.currentGameClientSide.beautifulScoreDisplayPrevious = Math.round(
-      parseInt(stageItems.textSprites.scoreText.text)
+      parseInt(stageItems.textSprites.scoreText.text.replaceAll(",", ""))
     );
     variables.currentGameClientSide.beautifulScoreDisplayProgress = 0;
   }
@@ -198,24 +198,8 @@ function renderGameData(data: { [key: string]: any }) {
   variables.currentGameClientSide.level = data.level;
   variables.currentGameClientSide.enemySpeedCoefficient =
     data.enemySpeedCoefficient;
-  // beautiful score setting
-  // if (variables.settings.beautifulScore === "on") {
-  //   let currentDisplayedScore = parseInt(stageItems.textSprites.scoreText.text);
-  //   if (data.score !== currentDisplayedScore) {
-  //     if (variables.scoreOnLastUpdate !== data.score) {
-  //       variables.scoreOnLastUpdate = data.score;
-  //     }
-  //     let difference = variables.scoreOnLastUpdate - currentDisplayedScore;
-  //     stageItems.textSprites.scoreText.text =
-  //       currentDisplayedScore + Math.round(difference / 60);
-  //     if (data.score < currentDisplayedScore * 1.1) {
-  //       stageItems.textSprites.scoreText.text = data.score;
-  //     }
-  //   }
-  // } else {
   variables.currentGameClientSide.beautifulScoreDisplayGoal = data.score;
   variables.currentGameClientSide.shownScore = data.score;
-  // }
 
   // level display for singleplayer
   if (

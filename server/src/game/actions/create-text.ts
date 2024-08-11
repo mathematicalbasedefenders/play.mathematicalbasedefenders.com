@@ -6,7 +6,7 @@ function createGameOverScreenText(data: GameData, gameMode: string) {
     {
       value: {
         selector: "#main-content__game-over-screen__stats__score",
-        newText: data.score.toString()
+        newText: data.score.toLocaleString("en-US")
       },
       age: 0
     },

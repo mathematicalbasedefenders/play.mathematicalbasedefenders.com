@@ -97,7 +97,7 @@ function render(elapsedMilliseconds: number) {
   } else {
     stageItems.textSprites.scoreText.text = parseInt(
       variables.currentGameClientSide.shownScore
-    );
+    ).toLocaleString("en-US");
   }
 }
 

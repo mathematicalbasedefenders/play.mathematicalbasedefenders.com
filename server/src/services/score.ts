@@ -199,7 +199,7 @@ function createGlobalChatLeaderboardsMessage(
         sender: data.ownerName,
         name: data.ownerName,
         mode: data.mode,
-        score: data.score,
+        score: data.score.toLocaleString("en-US"),
         apm: ((data.actionsPerformed / data.elapsedTime) * 60000).toFixed(3),
         rank: rank,
         enemiesKilled: data.enemiesKilled,

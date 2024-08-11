@@ -522,10 +522,14 @@ function updateUserInformationText(data: any) {
     }% to next)`
   );
   $("#user-account-stat--easy-singleplayer-record").text(
-    isNaN(data.records.easy?.score) ? "N/A" : data.records.easy.score
+    isNaN(data.records.easy?.score)
+      ? "N/A"
+      : data.records.easy.score.toLocaleString("en-US")
   );
   $("#user-account-stat--standard-singleplayer-record").text(
-    isNaN(data.records.standard?.score) ? "N/A" : data.records.standard.score
+    isNaN(data.records.standard?.score)
+      ? "N/A"
+      : data.records.standard.score.toLocaleString("en-US")
   );
   $("#user-account-stat--level").attr("title", `${data.experiencePoints}EXP`);
   $("#user-account-stat--easy-singleplayer-record").attr(
