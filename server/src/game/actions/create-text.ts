@@ -20,7 +20,7 @@ function createGameOverScreenText(data: GameData, gameMode: string) {
     {
       value: {
         selector: "#main-content__game-over-screen__stats__enemies",
-        newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
+        newText: `${data.enemiesKilled}/${data.enemiesSpawned} (${(
           (data.enemiesKilled / data.elapsedTime) *
           1000
         ).toFixed(3)}/s)`
@@ -44,14 +44,14 @@ function createGameOverScreenText(data: GameData, gameMode: string) {
     {
       value: {
         selector: "#main-content__game-over-screen__stats__level",
-        newText: `Level ${data.level} (${data.enemiesToNextLevel} to next)`
+        newText: `${data.level} (${data.enemiesToNextLevel} to next)`
       },
       age: 0
     },
     {
       value: {
         selector: "#main-content__game-over-screen__stats__actions",
-        newText: `Actions Per Minute:  ${(
+        newText: `${(
           (data.actionsPerformed / data.elapsedTime) *
           60000
         ).toFixed(3)}`
