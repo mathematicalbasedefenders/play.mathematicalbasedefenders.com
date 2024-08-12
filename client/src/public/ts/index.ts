@@ -531,7 +531,10 @@ function updateUserInformationText(data: any) {
       ? "N/A"
       : data.records.standard.score.toLocaleString("en-US")
   );
-  $("#user-account-stat--level").attr("title", `${data.experiencePoints}EXP`);
+  $("#user-account-stat--level").attr(
+    "title",
+    `${data.experiencePoints.toLocaleString("en-US")}EXP`
+  );
   $("#user-account-stat--easy-singleplayer-record").attr(
     "title",
     `${millisecondsToTime(data.records.easy.timeInMilliseconds)}, ${
