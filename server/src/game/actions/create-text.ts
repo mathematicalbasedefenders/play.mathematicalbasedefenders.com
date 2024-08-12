@@ -20,7 +20,9 @@ function createGameOverScreenText(data: GameData, gameMode: string) {
     {
       value: {
         selector: "#main-content__game-over-screen__stats__enemies",
-        newText: `Enemies: ${data.enemiesKilled}/${data.enemiesSpawned} (${(
+        newText: `Enemies: ${data.enemiesKilled.toLocaleString(
+          "en-US"
+        )}/${data.enemiesSpawned.toLocaleString("en-US")} (${(
           (data.enemiesKilled / data.elapsedTime) *
           1000
         ).toFixed(3)}/s)`

@@ -148,9 +148,9 @@ function renderGameData(data: { [key: string]: any }) {
     "-",
     "−"
   );
-  stageItems.textSprites.enemiesText.text = `Enemy Kills: ${
-    data.enemiesKilled
-  } ≈ ${((data.enemiesKilled / data.elapsedTime) * 1000).toFixed(3)}/s`;
+  stageItems.textSprites.enemiesText.text = `Enemy Kills: ${data.enemiesKilled.toLocaleString(
+    "en-US"
+  )} ≈ ${((data.enemiesKilled / data.elapsedTime) * 1000).toFixed(3)}/s`;
   stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(
     data.elapsedTime
   );
