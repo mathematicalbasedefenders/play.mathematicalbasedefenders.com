@@ -205,7 +205,7 @@ function validateCustomGameSettings(
       errors.push(
         `Wrong type in ${key}: got ${typeof parsedValue}, but expected ${
           restriction.type
-        }`
+        }.`
       );
       ok = false;
       continue;
