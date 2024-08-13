@@ -214,13 +214,15 @@ class CustomSingleplayerGameData extends GameData {
     }
     super(owner, gameMode);
     // This assumes that data has already been validated.
-    this.baseHealth = settings.baseHealth;
-    this.maximumBaseHealth = settings.baseHealth;
-    this.clocks.comboReset.actionTime = settings.comboTime;
-    this.enemySpeedCoefficient = settings.enemySpeedCoefficient;
-    this.clocks.enemySpawn.actionTime = settings.enemySpawnTime;
-    this.enemySpawnThreshold = settings.enemySpawnThreshold;
-    this.clocks.forcedEnemySpawn.actionTime = settings.forcedEnemySpawnTime;
+    this.baseHealth = parseFloat(settings.baseHealth);
+    this.maximumBaseHealth = parseFloat(settings.baseHealth);
+    this.clocks.comboReset.actionTime = parseFloat(settings.comboTime);
+    this.enemySpeedCoefficient = parseFloat(settings.enemySpeedCoefficient);
+    this.clocks.enemySpawn.actionTime = parseFloat(settings.enemySpawnTime);
+    this.enemySpawnThreshold = parseFloat(settings.enemySpawnThreshold);
+    this.clocks.forcedEnemySpawn.actionTime = parseFloat(
+      settings.forcedEnemySpawnTime
+    );
   }
 }
 
