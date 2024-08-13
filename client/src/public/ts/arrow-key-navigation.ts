@@ -330,6 +330,23 @@ function navigateFocus(event: KeyboardEvent) {
       forcedDestination = "#chat-tray-input-send-button";
     }
   }
+  // overwrite: if focused element is an input, and caret is at leftmost,
+  // move where the left arrow should he instead
+  if ($(element).is("input")) {
+    let elementID = element;
+    if (element[0] === "#") {
+      elementID = element.substring(1);
+    }
+    const input = document.getElementById(elementID) as HTMLInputElement;
+    if (
+      input &&
+      input.selectionEnd === 0 &&
+      keyPressed === "ArrowLeft" &&
+      !forcedDestination
+    ) {
+      forcedDestination = directions[screen]?.defaultFocused;
+    }
+  }
   // DESTRUCTIVE OVERWRITES
   // overwrite: if there is a popup notification active, give it priority.
   if (PopupNotification.activeNotifications > 0) {
