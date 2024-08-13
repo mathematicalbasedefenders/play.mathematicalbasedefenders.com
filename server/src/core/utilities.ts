@@ -41,7 +41,7 @@ const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
   },
   enemySpawnChance: {
     type: "number",
-    minimum: 0,
+    minimum: 0.001,
     maximum: 1
   },
   forcedEnemySpawnTime: {
