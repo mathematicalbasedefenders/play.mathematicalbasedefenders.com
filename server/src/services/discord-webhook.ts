@@ -35,7 +35,11 @@ function sendDiscordWebhook(data: GameData, rank: number) {
         "color": 0xffd700
       },
       {
-        "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${data.score} points.`,
+        "title": `${
+          data.ownerName
+        } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
+          "en-US"
+        )} points.`,
         "description": `${apm}APM, ${killed}/${spawned} enemies, survived for ${time}ms.`,
         "color": 0xffd700
       }
@@ -44,7 +48,11 @@ function sendDiscordWebhook(data: GameData, rank: number) {
     // Rank 2: Super Special Embed
     parameters.embeds = [
       {
-        "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${data.score} points.`,
+        "title": `${
+          data.ownerName
+        } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
+          "en-US"
+        )} points.`,
         "description": `${apm}APM, ${killed}/${spawned} enemies, survived for ${time}ms.`,
         "color": 0xc0c0c0
       }
@@ -53,7 +61,11 @@ function sendDiscordWebhook(data: GameData, rank: number) {
     // Rank 3: Super Special Embed
     parameters.embeds = [
       {
-        "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${data.score} points.`,
+        "title": `${
+          data.ownerName
+        } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
+          "en-US"
+        )} points.`,
         "description": `${apm}APM, ${killed}/${spawned} enemies, survived for ${time}ms.`,
         "color": 0xcd7f32
       }
@@ -62,13 +74,21 @@ function sendDiscordWebhook(data: GameData, rank: number) {
     // Up to Rank 10: Embed Message
     parameters.embeds = [
       {
-        "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${data.score} points.`,
+        "title": `${
+          data.ownerName
+        } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
+          "en-US"
+        )} points.`,
         "color": 0x8b1ed
       }
     ];
   } else if (rank <= 100) {
     // Up to Rank 100: Regular Message
-    parameters.content = `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${data.score} points.`;
+    parameters.content = `${
+      data.ownerName
+    } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
+      "en-US"
+    )} points.`;
   }
   fetch(process.env.DISCORD_WEBHOOK_URL, {
     method: "POST",

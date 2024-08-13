@@ -42,9 +42,9 @@ function render(elapsedMilliseconds: number) {
       3
     )}`;
     // enemies killed (per second)
-    stageItems.textSprites.enemiesText.text = `Enemy Kills: ${
-      variables.currentGameClientSide.enemiesKilled
-    } ≈ ${(
+    stageItems.textSprites.enemiesText.text = `Enemy Kills: ${variables.currentGameClientSide.enemiesKilled.toLocaleString(
+      "en-US"
+    )} ≈ ${(
       (variables.currentGameClientSide.enemiesKilled /
         variables.currentGameClientSide.totalElapsedMilliseconds) *
       1000
@@ -97,7 +97,7 @@ function render(elapsedMilliseconds: number) {
   } else {
     stageItems.textSprites.scoreText.text = parseInt(
       variables.currentGameClientSide.shownScore
-    );
+    ).toLocaleString("en-US");
   }
 }
 

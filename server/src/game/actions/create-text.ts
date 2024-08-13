@@ -6,7 +6,7 @@ function createGameOverScreenText(data: GameData, gameMode: string) {
     {
       value: {
         selector: "#main-content__game-over-screen__stats__score",
-        newText: data.score.toString()
+        newText: data.score.toLocaleString("en-US")
       },
       age: 0
     },
@@ -20,7 +20,9 @@ function createGameOverScreenText(data: GameData, gameMode: string) {
     {
       value: {
         selector: "#main-content__game-over-screen__stats__enemies",
-        newText: `${data.enemiesKilled}/${data.enemiesSpawned} (${(
+        newText: `Enemies: ${data.enemiesKilled.toLocaleString(
+          "en-US"
+        )}/${data.enemiesSpawned.toLocaleString("en-US")} (${(
           (data.enemiesKilled / data.elapsedTime) *
           1000
         ).toFixed(3)}/s)`

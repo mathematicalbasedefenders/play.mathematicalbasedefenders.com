@@ -33,7 +33,7 @@ function createChatMessage(
       );
       const middleDiv = $(`<div></div>`);
       middleDiv.addClass("chat-tray__message-alert-score__middle");
-      middleDiv.text(`${data.score}`);
+      middleDiv.text(`${data.score.toLocaleString("en-US")}`);
       const bottomDiv = $(`<div></div>`);
       bottomDiv.addClass("chat-tray__message-alert-score__bottom");
       bottomDiv.append(
