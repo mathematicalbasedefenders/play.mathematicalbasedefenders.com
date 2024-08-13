@@ -347,9 +347,18 @@ function navigateFocus(event: KeyboardEvent) {
       forcedDestination = directions[screen]?.defaultFocused;
     }
   }
-  // DESTRUCTIVE OVERWRITES
-  // overwrite: if there is a popup notification active, give it priority.
+  // overwrite: radio buttons
+  if (
+    $(element).is("input[type=radio]") &&
+    !forcedDestination &&
+    keyPressed === "ArrowLeft"
+  ) {
+    event.preventDefault();
+    forcedDestination = directions[screen]?.defaultFocused;
+  }
   if (PopupNotification.activeNotifications > 0) {
+    // DESTRUCTIVE OVERWRITES
+    // overwrite: if there is a popup notification active, give it priority.
     // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.
     // currently, later notifications are given priority when dealing with arrow keys.
     event.preventDefault();
