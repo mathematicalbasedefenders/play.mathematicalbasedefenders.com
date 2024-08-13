@@ -356,6 +356,10 @@ function navigateFocus(event: KeyboardEvent) {
     event.preventDefault();
     forcedDestination = directions[screen]?.defaultFocused;
   }
+  // overwrite: right buttons on input type radio no more select
+  if ($(element).is("input[type=radio]") && keyPressed === "ArrowRight") {
+    event.preventDefault();
+  }
   if (PopupNotification.activeNotifications > 0) {
     // DESTRUCTIVE OVERWRITES
     // overwrite: if there is a popup notification active, give it priority.
