@@ -340,7 +340,7 @@ function navigateFocus(event: KeyboardEvent) {
     const input = document.getElementById(elementID) as HTMLInputElement;
     if (
       input &&
-      input.selectionEnd === 0 &&
+      input.selectionStart === 0 &&
       keyPressed === "ArrowLeft" &&
       !forcedDestination
     ) {
