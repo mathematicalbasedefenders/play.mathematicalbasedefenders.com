@@ -27,7 +27,7 @@ function renderBeautifulScoreDisplay() {
     const shown = variables.currentGameClientSide.shownScore;
     stageItems.textSprites.scoreText.text = shown.toLocaleString("en-US");
     variables.currentGameClientSide.beautifulScoreDisplayPrevious = Math.round(
-      parseInt(shown, 10)
+      Number.parseInt(shown, 10)
     );
     return;
   }
