@@ -3,7 +3,8 @@ import { variables } from "./index";
 enum SettingsType {
   Radio,
   Custom,
-  Dropdown
+  Dropdown,
+  Text
 }
 
 const SETTINGS_KEYS = [
@@ -67,6 +68,12 @@ const SETTINGS_KEYS = [
     htmlName: "settings-enemy-scale",
     defaultValue: 1,
     settingsType: SettingsType.Radio
+  },
+  {
+    storageStringKey: "backgroundImage",
+    htmlName: "background-image",
+    defaultValue: "",
+    settingsType: SettingsType.Text
   }
 ];
 
@@ -185,6 +192,8 @@ function setSettings() {
     } else if (entry.settingsType === SettingsType.Dropdown) {
       value = $(`#${entry.htmlID}`).val();
     }
+
+    // default values
     if (typeof value !== "undefined") {
       variables.settings[entry.storageStringKey] = value;
       toSave[entry.storageStringKey] = value;
