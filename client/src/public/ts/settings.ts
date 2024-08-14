@@ -71,7 +71,8 @@ const SETTINGS_KEYS = [
   },
   {
     storageStringKey: "backgroundImage",
-    htmlName: "background-image",
+    htmlName: "settings__background-image",
+    htmlID: "settings__background-image",
     defaultValue: "",
     settingsType: SettingsType.Text
   }
@@ -85,7 +86,6 @@ function getSettings(storageString: string) {
   let settings = JSON.parse(storageString);
   for (let entry of SETTINGS_KEYS) {
     let value = settings[entry.storageStringKey];
-
     // special cases
     // color picker
     if (entry.storageStringKey === "enemyColor") {
@@ -117,18 +117,30 @@ function getSettings(storageString: string) {
     }
 
     // normal cases
-    if (typeof value !== "undefined") {
-      variables.settings[entry.storageStringKey] = value;
-      $(`input[name="${entry.htmlName}"][value="${value}"]`).prop(
-        "checked",
-        true
-      );
-    } else {
-      variables.settings[entry.storageStringKey] = entry.defaultValue;
-      $(`input[name="${entry.htmlName}"][value="${entry.defaultValue}"]`).prop(
-        "checked",
-        true
-      );
+    switch (entry.settingsType) {
+      case SettingsType.Radio: {
+        if (typeof value !== "undefined") {
+          variables.settings[entry.storageStringKey] = value;
+          $(`input[name="${entry.htmlName}"][value="${value}"]`).prop(
+            "checked",
+            true
+          );
+        } else {
+          variables.settings[entry.storageStringKey] = entry.defaultValue;
+          $(
+            `input[name="${entry.htmlName}"][value="${entry.defaultValue}"]`
+          ).prop("checked", true);
+        }
+        break;
+      }
+      case SettingsType.Text: {
+        if (typeof value !== "undefined") {
+          $(`input[name="${entry.htmlName}"]`).val(value as unknown as string);
+        } else {
+          $(`input[name="${entry.htmlName}"]`).val(entry.defaultValue);
+        }
+        break;
+      }
     }
   }
   console.log("Got settings!");
@@ -142,16 +154,28 @@ function loadSettings(storageString: string) {
   let settings = JSON.parse(storageString);
   for (let entry of SETTINGS_KEYS) {
     let value = settings[entry.storageStringKey];
-    if (typeof value !== "undefined") {
-      $(`input[name="${entry.htmlName}"][value="${value}"]`).prop(
-        "checked",
-        true
-      );
-    } else {
-      $(`input[name="${entry.htmlName}"][value="${entry.defaultValue}"]`).prop(
-        "checked",
-        true
-      );
+    switch (entry.settingsType) {
+      case SettingsType.Radio: {
+        if (typeof value !== "undefined") {
+          $(`input[name="${entry.htmlName}"][value="${value}"]`).prop(
+            "checked",
+            true
+          );
+        } else {
+          $(
+            `input[name="${entry.htmlName}"][value="${entry.defaultValue}"]`
+          ).prop("checked", true);
+        }
+        break;
+      }
+      case SettingsType.Text: {
+        if (typeof value !== "undefined") {
+          $(`input[name="${entry.htmlName}"]`).val(value as unknown as string);
+        } else {
+          $(`input[name="${entry.htmlName}"]`).val(entry.defaultValue);
+        }
+        break;
+      }
     }
   }
   console.log("Loaded settings!");
