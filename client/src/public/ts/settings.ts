@@ -191,6 +191,8 @@ function setSettings() {
       value = $(`input[name="${entry.htmlName}"]:checked`).val();
     } else if (entry.settingsType === SettingsType.Dropdown) {
       value = $(`#${entry.htmlID}`).val();
+    } else if (entry.settingsType === SettingsType.Text) {
+      value = $(`#${entry.htmlID}`).val();
     }
 
     // default values
