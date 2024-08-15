@@ -796,7 +796,7 @@ code {
 
 .settings-screen__content-secondary-screen {
   width: 100%;
-  height: 100vh;
+  height: 95vh;
   color: var(--color-text-light);
   font-size: 100%;
   overflow-y: auto;
