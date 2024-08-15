@@ -28,7 +28,10 @@ const settingsSecondaryScreenOrder: { [key: string]: Array<string> } = {
     "#settings-score-display__off",
     "#settings-level-display__low",
     "#settings-level-display__medium",
-    "#settings-level-display__high"
+    "#settings-level-display__high",
+    "#settings-force-hide-tutorial-text__on",
+    "#settings-force-hide-tutorial-text__off",
+    "#settings-background-image"
   ],
   "audio": ["#settings-sound__on", "#settings-sound__off"]
 };
