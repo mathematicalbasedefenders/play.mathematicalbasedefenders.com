@@ -24,7 +24,7 @@ const SETTINGS_KEYS = [
     storageStringKey: "enemyColor",
     htmlName: "settings__enemy-color",
     defaultValue: "randomForEach",
-    settingsType: SettingsType.Custom
+    settingsType: SettingsType.Radio
   },
   {
     storageStringKey: "enemyWidthCoefficient",
