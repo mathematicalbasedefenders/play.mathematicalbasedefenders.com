@@ -113,7 +113,7 @@ function getSettings(storageString: string) {
         variables.settings[entry.storageStringKey] = "randomForEach";
         $("#settings__enemy-color__forced-color").text("#ff0000");
       }
-      continue;
+      // continue;
     }
 
     // normal cases
@@ -130,6 +130,14 @@ function getSettings(storageString: string) {
           $(
             `input[name="${entry.htmlName}"][value="${entry.defaultValue}"]`
           ).prop("checked", true);
+        }
+        break;
+      }
+      case SettingsType.Dropdown: {
+        if (typeof value !== "undefined") {
+          $(`#${entry.htmlID}`).val(value as unknown as string);
+        } else {
+          $(`#${entry.htmlID}`).val(entry.defaultValue);
         }
         break;
       }
@@ -168,6 +176,14 @@ function loadSettings(storageString: string) {
         }
         break;
       }
+      case SettingsType.Dropdown: {
+        if (typeof value !== "undefined") {
+          $(`#${entry.htmlID}`).val(value as unknown as string);
+        } else {
+          $(`#${entry.htmlID}`).val(entry.defaultValue);
+        }
+        break;
+      }
       case SettingsType.Text: {
         if (typeof value !== "undefined") {
           $(`input[name="${entry.htmlName}"]`).val(value as unknown as string);
@@ -186,6 +202,9 @@ function loadSettings(storageString: string) {
  */
 function setSettings() {
   let toSave: any = {};
+  // selected palette
+
+  // keys
   for (let entry of SETTINGS_KEYS) {
     // special cases
     // enemy color
@@ -200,13 +219,10 @@ function setSettings() {
       } else if (selectValue === "randomFromPalette") {
         variables.settings[entry.storageStringKey] = "randomFromPalette";
         toSave[entry.storageStringKey] = "randomFromPalette";
-        const palette = $("#selected-enemy-color-palette").val();
-        toSave["selectedColorPalette"] = palette;
       } else {
         variables.settings[entry.storageStringKey] = "randomForEach";
         toSave[entry.storageStringKey] = "randomForEach";
       }
-      continue;
     }
 
     // normal cases
@@ -228,6 +244,11 @@ function setSettings() {
       toSave[entry.storageStringKey] = entry.defaultValue;
     }
   }
+
+  // TODO: move this into dropdown to make it more cleaner
+  const palette = $("#selected-enemy-color-palette").val();
+  toSave["selectedColorPalette"] = palette;
+
   let newString = JSON.stringify(toSave);
   localStorage.setItem("settings", newString);
   console.log("Saved settings!");
