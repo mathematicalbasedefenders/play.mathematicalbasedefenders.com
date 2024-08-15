@@ -72,7 +72,7 @@ const SETTINGS_KEYS = [
   {
     storageStringKey: "backgroundImage",
     htmlName: "settings__background-image",
-    htmlID: "settings__background-image",
+    htmlID: "settings-background-image",
     defaultValue: "",
     settingsType: SettingsType.Text
   }
