@@ -216,6 +216,7 @@ function setSettings() {
           ?.toString();
         variables.settings[entry.storageStringKey] = forcedValue;
         toSave[entry.storageStringKey] = forcedValue;
+        continue;
       } else if (selectValue === "randomFromPalette") {
         variables.settings[entry.storageStringKey] = "randomFromPalette";
         toSave[entry.storageStringKey] = "randomFromPalette";
