@@ -72,7 +72,7 @@ const SETTINGS_KEYS = [
   {
     storageStringKey: "backgroundImage",
     htmlName: "settings__background-image",
-    htmlID: "settings-background-image",
+    htmlID: "settings__background-image-url",
     defaultValue: "",
     settingsType: SettingsType.Text
   }
@@ -120,13 +120,11 @@ function getSettings(storageString: string) {
     switch (entry.settingsType) {
       case SettingsType.Radio: {
         if (typeof value !== "undefined") {
-          variables.settings[entry.storageStringKey] = value;
           $(`input[name="${entry.htmlName}"][value="${value}"]`).prop(
             "checked",
             true
           );
         } else {
-          variables.settings[entry.storageStringKey] = entry.defaultValue;
           $(
             `input[name="${entry.htmlName}"][value="${entry.defaultValue}"]`
           ).prop("checked", true);
@@ -136,16 +134,20 @@ function getSettings(storageString: string) {
       case SettingsType.Dropdown: {
         if (typeof value !== "undefined") {
           $(`#${entry.htmlID}`).val(value as unknown as string);
+          variables.settings[entry.storageStringKey] = value;
         } else {
           $(`#${entry.htmlID}`).val(entry.defaultValue);
+          variables.settings[entry.storageStringKey] = entry.defaultValue;
         }
         break;
       }
       case SettingsType.Text: {
         if (typeof value !== "undefined") {
           $(`input[name="${entry.htmlName}"]`).val(value as unknown as string);
+          variables.settings[entry.storageStringKey] = value;
         } else {
           $(`input[name="${entry.htmlName}"]`).val(entry.defaultValue);
+          variables.settings[entry.storageStringKey] = entry.defaultValue;
         }
         break;
       }
@@ -156,6 +158,7 @@ function getSettings(storageString: string) {
 
 /**
  * Gets the stored settings from `localStorage`, then updates the client-side variables with the data.
+ * FIXME: I believe this just copies `getSettings`, I guess we can merge them? -mistertfy64
  * @param {string} storageString The stored string. This should be from `localStorage`.
  */
 function loadSettings(storageString: string) {
