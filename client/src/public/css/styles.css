@@ -15,6 +15,7 @@ body {
   font-family: "Noto Sans", sans-serif;
   font-variant-ligatures: none;
   font-size: 100%;
+  background-color: #000000;
 }
 
 :root {
@@ -75,7 +76,7 @@ code {
   font-size: 200%;
   text-align: left;
   margin: 4px;
-  background-color: #000000;
+  /* background-color: #000000; */
   font-family: inherit;
   transition-duration: var(--transition-duration-short);
   border-top: none;
@@ -129,7 +130,7 @@ code {
 /* MAIN MENU SCREEN */
 
 #main-content__main-menu-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
   display: grid;
@@ -235,7 +236,7 @@ code {
 
 /* SINGLEPLAYER MENU SCREEN */
 #main-content__singleplayer-menu-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
   display: grid;
@@ -361,7 +362,7 @@ code {
   grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
   height: 100%;
   width: 100%;
-  background-color: #000000;
+  /* background-color: #000000; */
 }
 
 #main-content__custom-singleplayer-intermission-screen-container__sidebar {
@@ -443,7 +444,7 @@ code {
 
 /* MULTIPLAYER MENU */
 #main-content__multiplayer-menu-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
   display: grid;
@@ -552,7 +553,7 @@ code {
 
 /* MULTIPLAYER INTERMISSION */
 #main-content__multiplayer-intermission-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
   display: grid;
@@ -605,7 +606,7 @@ code {
 
 #chat-message {
   width: calc(100% - 86px);
-  background-color: #000000;
+  /* background-color: #000000; */
   border: 2px solid #ffffff;
   color: #ffffff;
   font-family: inherit;
@@ -614,14 +615,14 @@ code {
 
 #message-send-button {
   width: 70px;
-  background-color: #000000;
+  /* background-color: #000000; */
   border: 2px solid #ffffff;
   color: #ffffff;
   font-family: inherit;
 }
 /* GAME OVER SCREEN */
 #main-content__game-over-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
 }
@@ -742,7 +743,7 @@ code {
 
 /* SETTINGS SCREEN */
 #main-content__settings-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
 }
@@ -767,7 +768,7 @@ code {
   font-size: 200%;
   text-align: left;
   margin: 4px;
-  background-color: #000000;
+  background-color: transparent;
   border-left: 1px solid #ffffff;
   font-family: inherit;
   transition-duration: var(--transition-duration-short);
