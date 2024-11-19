@@ -129,6 +129,9 @@ function getSettings(storageString: string) {
             `input[name="${entry.htmlName}"][value="${entry.defaultValue}"]`
           ).prop("checked", true);
         }
+        variables.settings[entry.storageStringKey] = $(
+          `input[name="${entry.htmlName}"]:checked`
+        ).val();
         break;
       }
       case SettingsType.Dropdown: {

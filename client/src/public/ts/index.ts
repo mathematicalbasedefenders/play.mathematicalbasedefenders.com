@@ -41,6 +41,7 @@ notoFont.load();
 const app = new PIXI.Application({
   width: OPTIMAL_SCREEN_WIDTH,
   height: OPTIMAL_SCREEN_HEIGHT,
+  backgroundAlpha: 0,
   backgroundColor: 0x000000,
   resizeTo: window,
   autoDensity: true,
@@ -436,7 +437,6 @@ function initializeEventListeners() {
   $("#on-screen-keyboard-button--decrease-size").on("click", () => {
     let onScreenKeyboard = $("#on-screen-keyboard");
     let height = onScreenKeyboard.height() as number;
-    console.debug(height);
     if (height > 90) {
       onScreenKeyboard.css({ "top": "+=10px" });
       onScreenKeyboard.height(height - 10);
@@ -445,7 +445,6 @@ function initializeEventListeners() {
   $("#on-screen-keyboard-button--increase-size").on("click", () => {
     let onScreenKeyboard = $("#on-screen-keyboard");
     let height = onScreenKeyboard.height() as number;
-    console.debug(height);
     if (height < 240) {
       onScreenKeyboard.css({ "top": "-=10px" });
       onScreenKeyboard.height(height + 10);
@@ -594,7 +593,6 @@ loadSettings(localStorage.getItem("settings") || "{}");
 window.addEventListener("load", function () {
   const endInitTime: number = Date.now();
   // initialize some settings
-  getSettings(localStorage.getItem("settings") || "{}");
   if (variables.settings.backgroundImage) {
     changeBackgroundImage(variables.settings.backgroundImage);
   }
