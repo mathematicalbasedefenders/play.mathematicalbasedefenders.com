@@ -13,7 +13,8 @@ import {
 import { calculateLevel, millisecondsToTime } from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
-import { PopupNotification } from "./notifications";
+import { PopupNotification, ToastNotification } from "./notifications";
+import { changeBackgroundImage } from "./change-background-image";
 let startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -379,6 +380,14 @@ function initializeEventListeners() {
     });
     event.preventDefault();
   });
+  //
+  $("#settings-screen__content-save-background-image").on(
+    "click",
+    async (event) => {
+      const url = $("#settings__background-image-url").val() as string;
+      changeBackgroundImage(url);
+    }
+  );
   //
   $("#game-over-screen-button--retry").on("click", () => {
     let settings = JSON.stringify(createCustomSingleplayerGameObject());
