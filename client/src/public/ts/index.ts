@@ -592,7 +592,12 @@ loadSettings(localStorage.getItem("settings") || "{}");
 
 // ======
 window.addEventListener("load", function () {
-  let endInitTime: number = Date.now();
+  const endInitTime: number = Date.now();
+  // initialize some settings
+  getSettings(localStorage.getItem("settings") || "{}");
+  if (variables.settings.backgroundImage) {
+    changeBackgroundImage(variables.settings.backgroundImage);
+  }
   console.log(
     `Initialization completed! (Took ${Math.round(
       endInitTime - startInitTime
