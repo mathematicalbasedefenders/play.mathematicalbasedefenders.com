@@ -13,7 +13,8 @@ import {
 import { calculateLevel, millisecondsToTime } from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
-import { PopupNotification } from "./notifications";
+import { PopupNotification, ToastNotification } from "./notifications";
+import { changeBackgroundImage } from "./change-background-image";
 let startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -40,6 +41,7 @@ notoFont.load();
 const app = new PIXI.Application({
   width: OPTIMAL_SCREEN_WIDTH,
   height: OPTIMAL_SCREEN_HEIGHT,
+  backgroundAlpha: 0,
   backgroundColor: 0x000000,
   resizeTo: window,
   autoDensity: true,
@@ -380,6 +382,14 @@ function initializeEventListeners() {
     event.preventDefault();
   });
   //
+  $("#settings-screen__content-save-background-image").on(
+    "click",
+    async (event) => {
+      const url = $("#settings__background-image-url").val() as string;
+      changeBackgroundImage(url);
+    }
+  );
+  //
   $("#game-over-screen-button--retry").on("click", () => {
     let settings = JSON.stringify(createCustomSingleplayerGameObject());
     if (variables.cachedSingleplayerMode === "custom") {
@@ -427,7 +437,6 @@ function initializeEventListeners() {
   $("#on-screen-keyboard-button--decrease-size").on("click", () => {
     let onScreenKeyboard = $("#on-screen-keyboard");
     let height = onScreenKeyboard.height() as number;
-    console.debug(height);
     if (height > 90) {
       onScreenKeyboard.css({ "top": "+=10px" });
       onScreenKeyboard.height(height - 10);
@@ -436,7 +445,6 @@ function initializeEventListeners() {
   $("#on-screen-keyboard-button--increase-size").on("click", () => {
     let onScreenKeyboard = $("#on-screen-keyboard");
     let height = onScreenKeyboard.height() as number;
-    console.debug(height);
     if (height < 240) {
       onScreenKeyboard.css({ "top": "-=10px" });
       onScreenKeyboard.height(height + 10);
@@ -583,7 +591,11 @@ loadSettings(localStorage.getItem("settings") || "{}");
 
 // ======
 window.addEventListener("load", function () {
-  let endInitTime: number = Date.now();
+  const endInitTime: number = Date.now();
+  // initialize some settings
+  if (variables.settings.backgroundImage) {
+    changeBackgroundImage(variables.settings.backgroundImage);
+  }
   console.log(
     `Initialization completed! (Took ${Math.round(
       endInitTime - startInitTime
