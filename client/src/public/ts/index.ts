@@ -493,6 +493,10 @@ function initializeEventListeners() {
     });
     $("#chat-tray-input").val("");
   });
+  $(`#main-content__user-menu-small-display`).on("click", () => {
+    changeScreen("settingsMenu");
+    changeSettingsSecondaryScreen("online");
+  });
 }
 
 // events
