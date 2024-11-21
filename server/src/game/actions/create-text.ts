@@ -20,12 +20,15 @@ function createGameOverScreenText(data: GameData, gameMode: string) {
     {
       value: {
         selector: "#main-content__game-over-screen__stats__enemies",
-        newText: `Enemies: ${data.enemiesKilled.toLocaleString(
-          "en-US"
-        )}/${data.enemiesSpawned.toLocaleString("en-US")} (${(
-          (data.enemiesKilled / data.elapsedTime) *
-          1000
-        ).toFixed(3)}/s)`
+        newText: (() => {
+          const killed = data.enemiesKilled.toLocaleString("en-US");
+          const spawned = data.enemiesSpawned.toLocaleString("en-US");
+          const killsPerSecond = (
+            (data.enemiesKilled / data.elapsedTime) *
+            1000
+          ).toFixed(3);
+          return `Enemies: ${killed}/${spawned} (${killsPerSecond}/s)`;
+        })()
       },
       age: 0
     },
