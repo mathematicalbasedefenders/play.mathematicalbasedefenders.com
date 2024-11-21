@@ -1,55 +1,140 @@
+import DOMPurify from "dompurify";
+
+interface GlobalChatMessage {
+  name?: string;
+  mode?: string;
+  score?: number;
+  rank?: number;
+  timeElapsed?: number;
+  apm?: number;
+  enemiesKilled?: number;
+  enemiesSpawned?: number;
+  sender: string;
+  message: string;
+}
+
+/**
+ * Creates a chat message for the global(?) chat tray.
+ * @param {GlobalChatMessage} message The data of the message. This is not limited to the content of the message.
+ * @param {string} nameColor The color to color the sender's name of the message with.
+ * @param {string} attribute The message's type.
+ * @returns A jQuery element (to be appended to the chat box)
+ */
 function createChatMessage(
-  message: { [key: string]: string | number },
-  sender: string,
-  color: string,
+  message: GlobalChatMessage,
+  nameColor: string,
   attribute?: string
 ) {
-  function getMode(mode: string) {
-    switch (mode) {
-      case "easySingleplayer": {
-        return "Easy Singleplayer";
-      }
-      case "standardSingleplayer": {
-        return "Standard Singleplayer";
-      }
-      default: {
-        return "???";
-      }
-    }
-  }
-  // default: "#chat-tray-message-container";
-  const element = $("<div></div>");
-  element.addClass("chat-tray__message");
   const data = message;
   switch (attribute) {
     case "leaderboards": {
-      element.addClass("chat-tray__message--alert-score");
-      const topDiv = $(`<div></div>`);
-      topDiv.addClass("chat-tray__message-alert-score__top");
-      topDiv.append(
-        `<div style="color:${color}">${data.name}</div><div>${getMode(
-          data.mode as string
-        )}</div>`
-      );
-      const middleDiv = $(`<div></div>`);
-      middleDiv.addClass("chat-tray__message-alert-score__middle");
-      middleDiv.text(`${data.score.toLocaleString("en-US")}`);
-      const bottomDiv = $(`<div></div>`);
-      bottomDiv.addClass("chat-tray__message-alert-score__bottom");
-      bottomDiv.append(
-        `#${data.rank}, ${data.timeElapsed}ms, ${data.apm}APM, ${data.enemiesKilled}/${data.enemiesSpawned}`
-      );
-      element.append(topDiv);
-      element.append(middleDiv);
-      element.append(bottomDiv);
-      break;
+      return createLeaderboardsChatMessage(data, nameColor);
     }
     default: {
-      element.append(`<span style="color:${color}">${data.sender}</span>: `);
-      element.append(`${data.message}`);
-      break;
+      return createDefaultChatMessage(data, nameColor);
     }
   }
+}
+
+/**
+ * Changes an internal mode name to a human-readable mode name.
+ * @param {string} mode The internal mode name
+ * @returns The human-readable mode name.
+ */
+function getMode(mode: string) {
+  switch (mode) {
+    case "easySingleplayer": {
+      return "Easy Singleplayer";
+    }
+    case "standardSingleplayer": {
+      return "Standard Singleplayer";
+    }
+    default: {
+      return "(Unknown Mode)";
+    }
+  }
+}
+
+/**
+ * Creates a "leaderboard announcement"-styled chat message for global chat.
+ * @param {GlobalChatMessage} data The data for the chat message. Should contain game data.
+ * @param {string} nameColor The color to use for the sender's name. `#ffffff` if not supplied.
+ * @returns A jQuery element (to be appended to the chat box)
+ */
+function createLeaderboardsChatMessage(
+  data: GlobalChatMessage,
+  nameColor?: string
+) {
+  // fix broken data
+  if (!data.score) {
+    data.score = 0;
+  }
+
+  if (!nameColor) {
+    nameColor = "#ffffff";
+  }
+
+  // create element
+  const CLASS_NAMES = ["chat-tray__message", "chat-tray__message--alert-score"];
+  const element = $("<div></div>");
+  element.addClass(CLASS_NAMES);
+  // create top part
+  const topDiv = $(`<div></div>`);
+  topDiv.addClass("chat-tray__message-alert-score__top");
+  // create name for top part
+  const nameElement = $(`<span>${DOMPurify.sanitize(data.sender)}</span>`);
+  nameElement.css("color", nameColor);
+  // combine name to top part
+  topDiv.append(nameElement);
+  // add mode to top part
+  topDiv.append(`<div>${getMode(data.mode as string)}</div>`);
+  // create middle part
+  const middleDiv = $(`<div></div>`);
+  middleDiv.addClass("chat-tray__message-alert-score__middle");
+  middleDiv.text(`${DOMPurify.sanitize(data.score.toLocaleString("en-US"))}`);
+  // create bottom part
+  const bottomDiv = $(`<div></div>`);
+  bottomDiv.addClass("chat-tray__message-alert-score__bottom");
+  bottomDiv.append(`#${DOMPurify.sanitize(data.rank?.toString() || "0")}, `);
+  bottomDiv.append(
+    `${DOMPurify.sanitize(data.timeElapsed?.toString() || "0")}ms, `
+  );
+  bottomDiv.append(`${DOMPurify.sanitize(data.apm?.toString() || "0")}APM, `);
+  bottomDiv.append(
+    `${DOMPurify.sanitize(data.enemiesKilled?.toString() || "0")}`
+  );
+  bottomDiv.append(`/`);
+  bottomDiv.append(
+    `${DOMPurify.sanitize(data.enemiesSpawned?.toString() || "0")}`
+  );
+  // construct element
+  element.append(topDiv);
+  element.append(middleDiv);
+  element.append(bottomDiv);
+  return element;
+}
+
+/**
+ * Creates a regular "default" chat message for global chat.
+ * @param {GlobalChatMessage} data The data of the chat message. Contains sender and message.
+ * @param {string} nameColor The color to use for the sender's name. `#ffffff` if not supplied.
+ * @returns A jQuery element (to be appended to the chat box)
+ */
+function createDefaultChatMessage(data: GlobalChatMessage, nameColor?: string) {
+  // fix broken data
+  if (!nameColor) {
+    nameColor = "#ffffff";
+  }
+
+  const CLASS_NAME = "chat-tray__message";
+  const element = $("<div></div>");
+  element.addClass(CLASS_NAME);
+
+  const nameElement = $(`<span>${DOMPurify.sanitize(data.sender)}</span>`);
+  nameElement.css("color", nameColor);
+
+  element.append(nameElement);
+  element.append(`: ${DOMPurify.sanitize(data.message)}`);
   return element;
 }
 
