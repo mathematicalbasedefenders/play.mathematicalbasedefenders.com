@@ -953,7 +953,8 @@ code {
   display: flex;
   flex-direction: column-reverse;
   color: var(--color-text-light);
-  overflow: auto;
+  overflow-y: auto;
+  scroll-behavior: smooth;
   word-wrap: break-word;
 }
 
