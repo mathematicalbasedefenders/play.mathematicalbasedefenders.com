@@ -413,6 +413,17 @@ function checkWebSocketMessageSpeeds(
 // Taken from https://stackoverflow.com/a/39914235
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Calculates the actions per minute (player speed) for the player.
+ * @param {number} actions The actions in game
+ * @param {number} elapsedTime The milliseconds elapsed in the game
+ * @returns APM
+ */
+function calculateAPM(actions: number, elapsedTime: number) {
+  const MILLISECONDS_IN_MINUTES = 60000;
+  return (actions / elapsedTime) * MILLISECONDS_IN_MINUTES;
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -431,5 +442,6 @@ export {
   sleep,
   createGlobalLeaderboardsMessage,
   getWebSocketMessageSpeed,
-  checkWebSocketMessageSpeeds
+  checkWebSocketMessageSpeeds,
+  calculateAPM
 };
