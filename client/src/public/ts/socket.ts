@@ -98,7 +98,6 @@ socket.addEventListener("message", (event: any) => {
       const sanitizedAttribute = DOMPurify.sanitize(message.data.attribute);
       const chatMessage = createChatMessage(
         sanitizedMessage,
-        sanitizedSender,
         sanitizedSenderColor,
         sanitizedAttribute
       );
