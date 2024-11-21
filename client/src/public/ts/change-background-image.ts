@@ -10,7 +10,8 @@ function changeBackgroundImage(url: string | URL) {
     return;
   }
   try {
-    document.body.style.backgroundImage = `url('${url}')`;
+    const sanitizedURL = new URL(url).href;
+    document.body.style.backgroundImage = `url('${sanitizedURL}')`;
   } catch (error) {
     new ToastNotification(`Error while loading image: ${error}`);
   }
