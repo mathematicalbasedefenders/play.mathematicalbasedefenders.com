@@ -53,15 +53,20 @@ function createGameOverScreenText(data: GameData, gameMode: string) {
     {
       value: {
         selector: "#main-content__game-over-screen__stats__actions",
-        newText: `${(
-          (data.actionsPerformed / data.elapsedTime) *
-          60000
-        ).toFixed(3)}`
+        newText: `${calculateAPM(
+          data.actionsPerformed,
+          data.elapsedTime
+        ).toFixed(3)}APM`
       },
       age: 0
     }
   ];
   return toReturn;
+}
+
+function calculateAPM(actions: number, elapsedTime: number) {
+  const MILLISECONDS_IN_MINUTES = 60000;
+  return (actions / elapsedTime) * MILLISECONDS_IN_MINUTES;
 }
 
 export { createGameOverScreenText };
