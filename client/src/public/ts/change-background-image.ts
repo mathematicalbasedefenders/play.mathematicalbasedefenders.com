@@ -1,5 +1,9 @@
 import { ToastNotification } from "./notifications";
 
+/**
+ * Changes the background's body to the image at the specified URL.
+ * @param url The URL of the background image.
+ */
 function changeBackgroundImage(url: string | URL) {
   if (!url) {
     console.warn("No URL found for background image, resetting to #000000...");
