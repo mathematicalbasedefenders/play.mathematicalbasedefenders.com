@@ -51,7 +51,7 @@ function attemptToSendChatMessage(
         log.warn(
           `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
         );
-        return false;
+        return;
       }
       if (!validateMessage(message, connectionID)) {
         log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
