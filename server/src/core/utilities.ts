@@ -52,7 +52,7 @@ const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
 };
 
 // https://stackoverflow.com/questions/52740718/test-if-a-string-is-a-valid-float-in-javascript
-const IS_NUMBER_REGEX = /^\-?[0-9]+(e[0-9]+)?(\.[0-9]+)?$/;
+const IS_NUMBER_REGEX = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
 
 function checkIfPropertyWithValueExists(
   dataset: unknown,
