@@ -7,7 +7,8 @@ import {
   updateSocketUserInformation,
   createGlobalLeaderboardsMessage,
   calculateAPM,
-  formatNumber
+  formatNumber,
+  millisecondsToTime
 } from "../core/utilities";
 import {
   GameSocket,
@@ -210,7 +211,7 @@ function createGlobalChatLeaderboardsMessage(
         rank: rank,
         enemiesKilled: data.enemiesKilled,
         enemiesSpawned: data.enemiesSpawned,
-        timeElapsed: data.elapsedTime
+        timeElapsed: millisecondsToTime(data.elapsedTime)
       },
       attribute: "leaderboards",
       location: "#chat-tray-message-container",
