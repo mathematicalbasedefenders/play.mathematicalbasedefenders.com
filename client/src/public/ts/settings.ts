@@ -192,7 +192,7 @@ function loadSettings(storageString: string) {
       }
       case SettingsType.Text: {
         if (typeof value !== "string") {
-          $(`input[name="${entry.htmlName}"]`).val(value as unknown as string);
+          $(`input[name="${entry.htmlName}"]`).val(value);
         } else {
           $(`input[name="${entry.htmlName}"]`).val(entry.defaultValue);
         }
