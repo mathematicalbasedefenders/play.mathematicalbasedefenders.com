@@ -95,9 +95,9 @@ function render(elapsedMilliseconds: number) {
       elapsedMilliseconds;
     renderBeautifulScoreDisplay();
   } else {
-    stageItems.textSprites.scoreText.text = parseInt(
-      variables.currentGameClientSide.shownScore
-    ).toLocaleString("en-US");
+    const score = variables.currentGameClientSide.shownScore;
+    stageItems.textSprites.scoreText.text =
+      parseInt(score).toLocaleString("en-US") || "0";
   }
 }
 
