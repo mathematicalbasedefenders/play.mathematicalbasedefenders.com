@@ -184,7 +184,9 @@ function renderGameData(data: { [key: string]: any }) {
     variables.currentGameClientSide.beautifulScoreDisplayGoal !== data.score
   ) {
     variables.currentGameClientSide.beautifulScoreDisplayPrevious = Math.round(
-      Number.parseInt(stageItems.textSprites.scoreText.text.replaceAll(",", ""))
+      Number.parseFloat(
+        stageItems.textSprites.scoreText.text.replace(/[^\d.-]/g, "")
+      )
     );
     variables.currentGameClientSide.beautifulScoreDisplayProgress = 0;
   }
