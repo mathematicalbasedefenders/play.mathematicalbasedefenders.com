@@ -606,7 +606,7 @@ code {
 
 #chat-message {
   width: calc(100% - 86px);
-  /* background-color: #000000; */
+  background-color: transparent;
   border: 2px solid #ffffff;
   color: #ffffff;
   font-family: inherit;
@@ -616,7 +616,7 @@ code {
 #message-send-button {
   width: 70px;
   /* background-color: #000000; */
-  border: 2px solid #ffffff;
+  border: 2px solid transparent;
   color: #ffffff;
   font-family: inherit;
 }
