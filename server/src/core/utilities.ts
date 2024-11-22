@@ -198,7 +198,7 @@ function validateCustomGameSettings(
   }
   let ok = true;
   const errors = [];
-  for (let key in settings) {
+  for (const key in settings) {
     const restriction = SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES[key];
     const parsedValue = settings[key];
     // if (typeof parsedValue !== restriction.type) {
