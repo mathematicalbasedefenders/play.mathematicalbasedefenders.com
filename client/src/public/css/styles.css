@@ -76,7 +76,7 @@ code {
   font-size: 200%;
   text-align: left;
   margin: 4px;
-  /* background-color: #000000; */
+  background-color: transparent;
   font-family: inherit;
   transition-duration: var(--transition-duration-short);
   border-top: none;
