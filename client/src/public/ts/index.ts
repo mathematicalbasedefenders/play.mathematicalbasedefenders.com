@@ -497,10 +497,14 @@ function initializeEventListeners() {
     $("#chat-message").val("");
   });
   $(`#chat-tray-input-send-button`).on("click", () => {
+    const message = $("#chat-tray-input").val()?.toString().trim() || "";
+    if (!message) {
+      return;
+    }
     sendSocketMessage({
       message: "sendChatMessage",
       scope: "global",
-      chatMessage: $("#chat-tray-input").val()?.toString() || ""
+      chatMessage: message
     });
     $("#chat-tray-input").val("");
   });
