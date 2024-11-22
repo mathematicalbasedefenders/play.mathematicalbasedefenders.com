@@ -295,7 +295,7 @@ function constructUpDownKeyDirections(ids: Array<string>) {
  * (and the focused element) and the pressed key.
  * The focused element is already stored in `variables.navigation`,
  * so there is no need to pass it as a parameter.
- * @param {string} event The keypress event.
+ * @param {KeyboardEvent} event The keypress event.
  */
 function navigateFocus(event: KeyboardEvent) {
   const keyPressed = event.code;
