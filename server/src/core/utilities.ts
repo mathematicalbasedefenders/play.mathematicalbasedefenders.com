@@ -424,6 +424,17 @@ function calculateAPM(actions: number, elapsedTime: number) {
   return (actions / elapsedTime) * MILLISECONDS_IN_MINUTES;
 }
 
+/**
+ * Formats the number (ideally floats) according to the game's conventions.
+ * en-US locale, 3 decimal places.
+ */
+function formatNumber(n: number) {
+  return n.toLocaleString("en-US", {
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3
+  });
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -443,5 +454,6 @@ export {
   createGlobalLeaderboardsMessage,
   getWebSocketMessageSpeed,
   checkWebSocketMessageSpeeds,
-  calculateAPM
+  calculateAPM,
+  formatNumber
 };
