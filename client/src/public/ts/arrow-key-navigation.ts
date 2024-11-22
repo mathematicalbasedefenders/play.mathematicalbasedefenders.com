@@ -310,7 +310,6 @@ function navigateFocus(event: KeyboardEvent) {
     if (
       input &&
       input.value.length === input.selectionEnd &&
-      element === "#chat-message" &&
       keyPressed === "ArrowRight"
     ) {
       forcedDestination = "#message-send-button";
