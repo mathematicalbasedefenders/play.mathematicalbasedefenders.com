@@ -57,7 +57,7 @@ function attemptToSendChatMessage(
         log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
         return;
       }
-      let room = findRoomWithConnectionID(connectionID, true) as Room;
+      const room = findRoomWithConnectionID(connectionID, true) as Room;
       room.addChatMessage(message, playerName || "");
       log.info(
         `Socket ID ${connectionID} (${playerName}) sent message ${message} to Room ID ${room.id}`
