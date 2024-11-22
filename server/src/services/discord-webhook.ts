@@ -1,13 +1,14 @@
 import fetch from "node-fetch";
 import { GameData, GameMode } from "../game/GameData";
 import { log } from "../core/log";
+import { millisecondsToTime } from "../core/utilities";
 
 const WEBHOOK_USERNAME = "Mathematical Base Defenders Leaderboards Watcher";
 
 function sendDiscordWebhook(data: GameData, rank: number) {
   const parameters: { [key: string]: any } = {};
   const apm = ((data.actionsPerformed / data.elapsedTime) * 60000).toFixed(3);
-  const time = data.elapsedTime;
+  const time = millisecondsToTime(data.elapsedTime);
   const spawned = data.enemiesSpawned;
   const killed = data.enemiesKilled;
   parameters.username = WEBHOOK_USERNAME;
@@ -40,7 +41,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
         } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
           "en-US"
         )} points.`,
-        "description": `${apm}APM, ${killed}/${spawned} enemies, survived for ${time}ms.`,
+        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.`,
         "color": 0xffd700
       }
     ];
@@ -53,7 +54,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
         } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
           "en-US"
         )} points.`,
-        "description": `${apm}APM, ${killed}/${spawned} enemies, survived for ${time}ms.`,
+        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.`,
         "color": 0xc0c0c0
       }
     ];
@@ -66,7 +67,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
         } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
           "en-US"
         )} points.`,
-        "description": `${apm}APM, ${killed}/${spawned} enemies, survived for ${time}ms.`,
+        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.`,
         "color": 0xcd7f32
       }
     ];
