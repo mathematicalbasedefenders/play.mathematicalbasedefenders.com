@@ -165,9 +165,9 @@ function getSettings(storageString: string) {
  * @param {string} storageString The stored string. This should be from `localStorage`.
  */
 function loadSettings(storageString: string) {
-  let settings = JSON.parse(storageString);
-  for (let entry of SETTINGS_KEYS) {
-    let value = settings[entry.storageStringKey];
+  const settings = JSON.parse(storageString);
+  for (const entry of SETTINGS_KEYS) {
+    const value = settings[entry.storageStringKey];
     switch (entry.settingsType) {
       case SettingsType.Radio: {
         if (typeof value !== "undefined") {
@@ -191,7 +191,7 @@ function loadSettings(storageString: string) {
         break;
       }
       case SettingsType.Text: {
-        if (typeof value !== "undefined") {
+        if (typeof value !== "string") {
           $(`input[name="${entry.htmlName}"]`).val(value as unknown as string);
         } else {
           $(`input[name="${entry.htmlName}"]`).val(entry.defaultValue);
