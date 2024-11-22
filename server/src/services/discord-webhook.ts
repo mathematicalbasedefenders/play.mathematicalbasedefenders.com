@@ -11,6 +11,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
   const time = millisecondsToTime(data.elapsedTime);
   const spawned = data.enemiesSpawned.toLocaleString("en-US");
   const killed = data.enemiesKilled.toLocaleString("en-US");
+  const score = data.score.toLocaleString("en-US");
   parameters.username = WEBHOOK_USERNAME;
   let modeName;
   if (!process.env.DISCORD_WEBHOOK_URL) {
@@ -36,11 +37,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
         "color": 0xffd700
       },
       {
-        "title": `${
-          data.ownerName
-        } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
-          "en-US"
-        )} points.`,
+        "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${score} points.`,
         "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.`,
         "color": 0xffd700
       }
@@ -49,11 +46,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
     // Rank 2: Super Special Embed
     parameters.embeds = [
       {
-        "title": `${
-          data.ownerName
-        } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
-          "en-US"
-        )} points.`,
+        "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${score} points.`,
         "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.`,
         "color": 0xc0c0c0
       }
@@ -62,11 +55,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
     // Rank 3: Super Special Embed
     parameters.embeds = [
       {
-        "title": `${
-          data.ownerName
-        } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
-          "en-US"
-        )} points.`,
+        "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${score} points.`,
         "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.`,
         "color": 0xcd7f32
       }
