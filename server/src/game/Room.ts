@@ -850,7 +850,6 @@ function resetDefaultMultiplayerRoomID(room: string) {
  * @param {any} settings The settings to set the room to.
  */
 function setCustomRules(room: Room, settings: { [key: string]: any }) {
-  room.customSettings = {};
   room.customSettings.baseHealth = parseFloat(settings.baseHealth);
   room.customSettings.comboTime = parseFloat(settings.comboTime);
   room.customSettings.enemySpeedCoefficient = parseFloat(
