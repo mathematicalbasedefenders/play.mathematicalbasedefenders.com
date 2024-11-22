@@ -5,7 +5,9 @@ import { User } from "../models/User";
 import {
   sleep,
   updateSocketUserInformation,
-  createGlobalLeaderboardsMessage
+  createGlobalLeaderboardsMessage,
+  calculateAPM,
+  formatNumber
 } from "../core/utilities";
 import {
   GameSocket,
@@ -192,6 +194,10 @@ function createGlobalChatLeaderboardsMessage(
   rank: number,
   nameColor: string | undefined
 ) {
+  const formattedAPM = formatNumber(
+    calculateAPM(data.actionsPerformed, data.elapsedTime)
+  );
+
   const toReturn = {
     message: "addChatMessage",
     data: {
@@ -200,7 +206,7 @@ function createGlobalChatLeaderboardsMessage(
         name: data.ownerName,
         mode: data.mode,
         score: data.score.toLocaleString("en-US"),
-        apm: ((data.actionsPerformed / data.elapsedTime) * 60000).toFixed(3),
+        apm: formattedAPM,
         rank: rank,
         enemiesKilled: data.enemiesKilled,
         enemiesSpawned: data.enemiesSpawned,
