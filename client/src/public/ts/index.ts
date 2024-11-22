@@ -41,7 +41,7 @@ notoFont.load();
 const app = new PIXI.Application({
   width: OPTIMAL_SCREEN_WIDTH,
   height: OPTIMAL_SCREEN_HEIGHT,
-  backgroundAlpha: 0,
+  backgroundAlpha: 0, // because custom backgrounds
   backgroundColor: 0x000000,
   resizeTo: window,
   autoDensity: true,
