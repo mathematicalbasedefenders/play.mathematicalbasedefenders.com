@@ -27,7 +27,7 @@ function createGameOverScreenText(data: GameData, gameMode: string) {
             (data.enemiesKilled / data.elapsedTime) *
             1000
           ).toFixed(3);
-          return `Enemies: ${killed}/${spawned} (${killsPerSecond}/s)`;
+          return `${killed}/${spawned} (${killsPerSecond}/s)`;
         })()
       },
       age: 0
