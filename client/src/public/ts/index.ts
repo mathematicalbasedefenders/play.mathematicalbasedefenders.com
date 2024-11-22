@@ -13,7 +13,11 @@ import {
 import { calculateLevel, millisecondsToTime } from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
-import { PopupNotification, ToastNotification } from "./notifications";
+import {
+  PopupNotification,
+  ToastNotification,
+  ToastNotificationPosition
+} from "./notifications";
 import { changeBackgroundImage } from "./change-background-image";
 let startInitTime: number = Date.now();
 //
@@ -387,6 +391,12 @@ function initializeEventListeners() {
     "click",
     async (event) => {
       const url = $("#settings__background-image-url").val() as string;
+      if (!url) {
+        // TODO: Make border red.
+        new ToastNotification("Please enter a valid image URL!");
+        return;
+      }
+
       changeBackgroundImage(url);
     }
   );
