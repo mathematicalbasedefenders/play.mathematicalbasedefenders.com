@@ -28,6 +28,18 @@ enum GameMode {
 }
 
 /**
+ * Extra interface for `CustomGameData`.
+ */
+interface CustomGameSettings {
+  baseHealth: string | number;
+  comboTime: string | number;
+  enemySpeedCoefficient: string | number;
+  enemySpawnTime: string | number;
+  enemySpawnThreshold: string | number;
+  forcedEnemySpawnTime: string | number;
+}
+
+/**
  * Base class for `GameData`.
  */
 class GameData {
@@ -204,7 +216,7 @@ class CustomSingleplayerGameData extends GameData {
   constructor(
     owner: universal.GameSocket,
     gameMode: GameMode,
-    settings: { [key: string]: any }
+    settings: CustomGameSettings
   ) {
     if (!(gameMode === GameMode.CustomSingleplayer)) {
       log.error(
@@ -214,14 +226,23 @@ class CustomSingleplayerGameData extends GameData {
     }
     super(owner, gameMode);
     // This assumes that data has already been validated.
-    this.baseHealth = parseFloat(settings.baseHealth);
-    this.maximumBaseHealth = parseFloat(settings.baseHealth);
-    this.clocks.comboReset.actionTime = parseFloat(settings.comboTime);
-    this.enemySpeedCoefficient = parseFloat(settings.enemySpeedCoefficient);
-    this.clocks.enemySpawn.actionTime = parseFloat(settings.enemySpawnTime);
-    this.enemySpawnThreshold = parseFloat(settings.enemySpawnThreshold);
-    this.clocks.forcedEnemySpawn.actionTime = parseFloat(
-      settings.forcedEnemySpawnTime
+    // FIXME: Remove unnecessary re-conversion to string from number.
+    this.baseHealth = Number.parseFloat(settings.baseHealth as string);
+    this.maximumBaseHealth = Number.parseFloat(settings.baseHealth as string);
+    this.clocks.comboReset.actionTime = Number.parseFloat(
+      settings.comboTime as string
+    );
+    this.enemySpeedCoefficient = Number.parseFloat(
+      settings.enemySpeedCoefficient as string
+    );
+    this.clocks.enemySpawn.actionTime = Number.parseFloat(
+      settings.enemySpawnTime as string
+    );
+    this.enemySpawnThreshold = Number.parseFloat(
+      settings.enemySpawnThreshold as string
+    );
+    this.clocks.forcedEnemySpawn.actionTime = Number.parseFloat(
+      settings.forcedEnemySpawnTime as string
     );
   }
 }
