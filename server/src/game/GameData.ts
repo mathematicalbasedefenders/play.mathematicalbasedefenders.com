@@ -282,5 +282,6 @@ export {
   CustomSingleplayerGameData,
   GameMode,
   ClockInterface,
-  ActionRecord
+  ActionRecord,
+  CustomGameSettings
 };

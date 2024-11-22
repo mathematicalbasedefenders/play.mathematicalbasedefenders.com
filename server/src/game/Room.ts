@@ -18,7 +18,8 @@ import {
   CustomSingleplayerGameData,
   MultiplayerGameData,
   GameMode,
-  ClockInterface
+  ClockInterface,
+  CustomGameSettings
 } from "./GameData";
 import { updateSingleplayerRoomData } from "./actions/update";
 import {
@@ -59,7 +60,7 @@ class Room {
   chatMessages: Array<unknown> = [];
   updating: boolean = false;
   // custom room exclusive
-  customSettings!: { [key: string]: any };
+  customSettings!: CustomGameSettings;
 
   /**
    * Creates a `Room` instance. This shouldn't be called directly.
