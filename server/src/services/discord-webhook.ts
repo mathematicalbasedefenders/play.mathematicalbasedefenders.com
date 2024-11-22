@@ -9,8 +9,8 @@ function sendDiscordWebhook(data: GameData, rank: number) {
   const parameters: { [key: string]: any } = {};
   const apm = ((data.actionsPerformed / data.elapsedTime) * 60000).toFixed(3);
   const time = millisecondsToTime(data.elapsedTime);
-  const spawned = data.enemiesSpawned;
-  const killed = data.enemiesKilled;
+  const spawned = data.enemiesSpawned.toLocaleString("en-US");
+  const killed = data.enemiesKilled.toLocaleString("en-US");
   parameters.username = WEBHOOK_USERNAME;
   let modeName;
   if (!process.env.DISCORD_WEBHOOK_URL) {
