@@ -5,8 +5,14 @@ import { SingleplayerRoom } from "../Room";
 import { checkSingleplayerRoomClocks } from "./clocks";
 import { GameData } from "../GameData";
 import { createNewEnemy } from "../Enemy";
+import { log } from "../../core/log";
 
 function updateSingleplayerRoomData(room: SingleplayerRoom, deltaTime: number) {
+  if (deltaTime < 0) {
+    log.warn(`Negative deltaTime detected while updating SP: ${deltaTime}`);
+    return;
+  }
+
   for (const data of room.gameData) {
     // Move all the enemies down.
     moveEnemies(data, deltaTime);
@@ -24,6 +30,7 @@ function updateSingleplayerRoomData(room: SingleplayerRoom, deltaTime: number) {
 
 /**
  * Moves every enemy according to the speed and attributes.
+ * The enemy will also attack if it needs to.
  * @param {GameData} data The data of the room.
  * @param {number} deltaTime The time that passed since this function for this room was last called.
  */
