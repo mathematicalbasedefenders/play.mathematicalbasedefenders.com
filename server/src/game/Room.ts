@@ -32,6 +32,7 @@ import {
 } from "./actions/clocks";
 import { createGameOverScreenText } from "./actions/create-text";
 import { performAnticheatCheck } from "../anticheat/anticheat";
+import { createNewEnemy } from "./Enemy";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -531,6 +532,13 @@ class MultiplayerRoom extends Room {
 
         // clocks
         checkPlayerMultiplayerRoomClocks(data, this);
+
+        // forced enemy (when zero)
+        if (data.enemies.length === 0) {
+          const enemy = createNewEnemy(`F${data.enemiesSpawned}`);
+          data.enemies.push(_.clone(enemy));
+          data.enemiesSpawned++;
+        }
 
         // generated enemy
         if (this.globalEnemyToAdd) {
