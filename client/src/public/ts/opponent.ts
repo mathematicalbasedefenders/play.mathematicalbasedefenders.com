@@ -27,7 +27,12 @@ class Opponent {
    */
   constructor() {
     const emptyText = new ExtendedText("", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 20,
+      fill: "#ffffff"
+    });
+    const emptyMathText = new ExtendedText("", {
+      fontFamily: ["Computer Modern Unicode Serif", "serif"],
       fontSize: 20,
       fill: "#ffffff"
     });
@@ -39,7 +44,7 @@ class Opponent {
       },
       textSprites: {
         "statistics": _.cloneDeep(emptyText),
-        "input": _.cloneDeep(emptyText),
+        "input": _.cloneDeep(emptyMathText),
         "name": _.cloneDeep(emptyText)
       }
     };

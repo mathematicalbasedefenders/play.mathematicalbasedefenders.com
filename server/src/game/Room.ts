@@ -18,7 +18,8 @@ import {
   CustomSingleplayerGameData,
   MultiplayerGameData,
   GameMode,
-  ClockInterface
+  ClockInterface,
+  CustomGameSettings
 } from "./GameData";
 import { updateSingleplayerRoomData } from "./actions/update";
 import {
@@ -59,7 +60,7 @@ class Room {
   chatMessages: Array<unknown> = [];
   updating: boolean = false;
   // custom room exclusive
-  customSettings!: { [key: string]: any };
+  customSettings!: CustomGameSettings;
 
   /**
    * Creates a `Room` instance. This shouldn't be called directly.
@@ -849,7 +850,14 @@ function resetDefaultMultiplayerRoomID(room: string) {
  * @param {any} settings The settings to set the room to.
  */
 function setCustomRules(room: Room, settings: { [key: string]: any }) {
-  room.customSettings = {};
+  room.customSettings = {
+    baseHealth: 100,
+    comboTime: 5000,
+    enemySpeedCoefficient: 1,
+    enemySpawnThreshold: 0.1,
+    enemySpawnTime: 100,
+    forcedEnemySpawnTime: 2500
+  };
   room.customSettings.baseHealth = parseFloat(settings.baseHealth);
   room.customSettings.comboTime = parseFloat(settings.comboTime);
   room.customSettings.enemySpeedCoefficient = parseFloat(

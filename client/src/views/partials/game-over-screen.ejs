@@ -1,26 +1,45 @@
 <div id="main-content__game-over-screen-container">
   <div id="main-content__game-over-screen">
     <div id="main-content__game-over-screen__stats" class="background--neutral">
-      <span class="text--centered text--light" style="font-size:min(36px, 4.5vw);">
-        Score
-      </span>
-      <span class="text--centered text--light" style="font-size:120px;" id="main-content__game-over-screen__stats__score"></span>
-      <span class="text--centered text--light" style="font-size:min(36px, 4.5vw);" id="main-content__game-over-screen__stats__score-rank"></span>
+      <div class="main-content__game-over-screen__text">
+        <span class="text--centered text--light" style="font-size:200%;">
+          Score
+        </span>
+        <span class="text--centered text--light" style="font-size:800%;" id="main-content__game-over-screen__stats__score"></span>
+        <span class="text--centered text--light" style="font-size:200%;" id="main-content__game-over-screen__stats__score-rank"></span>
+      </div>
     </div>
     <div id="main-content__game-over-screen__stats--detailed" class="background--neutral">
-      <span style="display:flex;justify-content:center;align-items:center;width:100%;">
-        <p style="width:100%;font-size:min(36px, 4.5vw);text-align:center;margin:0;">
-          <span class="text--centered text--light" id="main-content__game-over-screen__stats__game-mode"></span>
-          <br>
-          <span class="text--centered text--light" id="main-content__game-over-screen__stats__enemies"></span>
-          <br>
-          <span class="text--centered text--light" id="main-content__game-over-screen__stats__time"></span>
-          <br>
-          <span class="text--centered text--light" id="main-content__game-over-screen__stats__level"></span>
-          <br>
-          <span class="text--centered text--light" id="main-content__game-over-screen__stats__actions"></span>
-        </p>
-      </span>
+      <div style="display:flex;justify-content:center;align-items:center;width:100%;">
+        <br>
+        <div class="main-content__game-over-screen__text">
+          <div class="text--centered text--light main-content__game-over-screen--field">
+            <div>Game Mode</div>
+            <div class="text--centered text--light" id="main-content__game-over-screen__stats__game-mode"></div>
+          </div>
+          <hr>
+          <div class="text--centered text--light main-content__game-over-screen--field">
+            <div>Enemies</div>
+            <div class="text--centered text--light" id="main-content__game-over-screen__stats__enemies"></div>
+          </div>
+          <hr>
+          <div class="text--centered text--light main-content__game-over-screen--field">
+            <div>Play Time</div>
+            <div class="text--centered text--light" id="main-content__game-over-screen__stats__time"></div>
+          </div>
+          <hr>
+          <div class="text--centered text--light main-content__game-over-screen--field">
+            <div>Level</div>
+            <div class="text--centered text--light" id="main-content__game-over-screen__stats__level"></div>
+          </div>
+          <hr>
+          <div class="text--centered text--light main-content__game-over-screen--field">
+            <div>Actions Per Minute</div>
+            <div class="text--centered text--light" id="main-content__game-over-screen__stats__actions"></div>
+          </div>
+          <hr>
+        </div>
+      </div>
     </div>
     <div id="main-content__game-over-screen__action-button-container">
       <button class="game-over-screen-button" id="game-over-screen-button--retry">

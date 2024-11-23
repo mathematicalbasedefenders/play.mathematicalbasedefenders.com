@@ -12,9 +12,10 @@ body {
   margin: 0;
   overflow-x: hidden;
   overflow-y: hidden;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: "Noto Sans", sans-serif;
   font-variant-ligatures: none;
   font-size: 100%;
+  background-color: #000000;
 }
 
 :root {
@@ -67,7 +68,7 @@ body {
 
 .text--monospace,
 code {
-  font-family: "JetBrains Mono", monospace;
+  font-family: "Noto Sans Mono", monospace;
 }
 
 .option-button--small {
@@ -75,8 +76,8 @@ code {
   font-size: 200%;
   text-align: left;
   margin: 4px;
-  background-color: #000000;
-  font-family: "Computer Modern Unicode Serif";
+  background-color: transparent;
+  font-family: inherit;
   transition-duration: var(--transition-duration-short);
   border-top: none;
   width: 100%;
@@ -107,7 +108,7 @@ code {
   background-color: #ff0000;
   color: var(--color-text-light);
   font-size: 300%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   width: 750px;
   padding: 8px;
   top: -66.6%;
@@ -115,7 +116,7 @@ code {
 }
 
 .button--arrow-key-focused {
-  z-index: 1003;
+  z-index: 90;
   outline: 8px solid var(--color-arrow-key-focused);
 }
 
@@ -129,7 +130,7 @@ code {
 /* MAIN MENU SCREEN */
 
 #main-content__main-menu-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
   display: grid;
@@ -215,7 +216,7 @@ code {
   color: #ffffff;
   margin: 0 0 0 4px;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 .main-menu-screen-button__description {
   font-size: min(24px, 1.5vw);
@@ -225,7 +226,7 @@ code {
   text-wrap: pretty;
   text-overflow: clip;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 
 .main-menu-screen-button:hover {
@@ -235,7 +236,7 @@ code {
 
 /* SINGLEPLAYER MENU SCREEN */
 #main-content__singleplayer-menu-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
   display: grid;
@@ -308,7 +309,7 @@ code {
   color: #ffffff;
   margin: 0 0 0 4px;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 .singleplayer-menu-screen-button__description {
   font-size: min(24px, 1.5vw);
@@ -317,7 +318,7 @@ code {
   margin: 0 0 0 4px;
   text-overflow: clip;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 
 #singleplayer-menu-screen-button--easy {
@@ -361,7 +362,7 @@ code {
   grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
   height: 100%;
   width: 100%;
-  background-color: #000000;
+  /* background-color: #000000; */
 }
 
 #main-content__custom-singleplayer-intermission-screen-container__sidebar {
@@ -386,6 +387,11 @@ code {
   font-size: 150%;
 }
 
+.custom-singleplayer__content-fieldset legend {
+  background-color: var(--color-neutral);
+  padding: 0 8px;
+}
+
 .custom-singleplayer__content-fieldset label,
 .custom-singleplayer__content-fieldset input {
   margin: 4px 0;
@@ -396,14 +402,14 @@ code {
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 150%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 .custom-singleplayer__content-input--button {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 150%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   transition-duration: var(--transition-duration-short);
 }
 .custom-singleplayer__content-input--button:hover {
@@ -432,7 +438,7 @@ code {
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 100%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 
 #main-content__custom-singleplayer-intermission-screen-container__left
@@ -443,7 +449,7 @@ code {
 
 /* MULTIPLAYER MENU */
 #main-content__multiplayer-menu-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
   display: grid;
@@ -483,7 +489,7 @@ code {
   color: #ffffff;
   margin: 0 0 0 4px;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 .multiplayer-menu-screen-button__description {
   font-size: min(24px, 1.5vw);
@@ -494,7 +500,7 @@ code {
   white-space: nowrap;
   text-overflow: clip;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 
 #multiplayer-menu-screen-button--default {
@@ -552,7 +558,7 @@ code {
 
 /* MULTIPLAYER INTERMISSION */
 #main-content__multiplayer-intermission-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
   display: grid;
@@ -601,27 +607,28 @@ code {
 #main-content__multiplayer-intermission-screen-container__chat__entry {
   height: 5%;
   width: 100%;
+  background-color: transparent;
 }
 
 #chat-message {
   width: calc(100% - 86px);
-  background-color: #000000;
+  background-color: transparent;
   border: 2px solid #ffffff;
   color: #ffffff;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   margin: 0 2px;
 }
 
 #message-send-button {
   width: 70px;
-  background-color: #000000;
-  border: 2px solid #ffffff;
+  background-color: transparent;
+  border: 2px solid transparent;
   color: #ffffff;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 /* GAME OVER SCREEN */
 #main-content__game-over-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
 }
@@ -638,13 +645,13 @@ code {
   border: 1px #ffffff solid;
   grid-row: row2-start / row2-end;
   grid-column: column2-start / column2-end;
-  margin-bottom: 16px;
+  margin: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-items: center;
+  overflow-y: hidden;
   height: 100%;
-  overflow: hidden;
   /* justify-content: space-between; */
 }
 
@@ -652,7 +659,11 @@ code {
   border: 1px #ffffff solid;
   grid-row: row3-start / row3-end;
   grid-column: column2-start / column2-end;
-  margin: 16px 0;
+  margin: 24px 8px 8px 8px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 #main-content__game-over-screen__stats > span {
@@ -665,7 +676,9 @@ code {
   grid-row: row4-start / row4-end;
   grid-column: column2-start / column2-end;
   justify-content: space-between;
-  margin-top: 16px;
+  margin: 40px 8px 8px;
+  height: 12.5vh;
+  min-height: fit-content;
 }
 
 .game-over-screen-button {
@@ -697,7 +710,7 @@ code {
   color: #ffffff;
   margin: 0 0 0 4px;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 .game-over-screen-button__description {
   font-size: min(24px, 1.5vw);
@@ -709,12 +722,34 @@ code {
   overflow: hidden;
   text-overflow: clip;
   text-align: left;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
+}
+
+.main-content__game-over-screen__text {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 95%;
+  margin: 16px 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.main-content__game-over-screen--field {
+  width: 100%;
+  font-size: 175%;
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0 0 0;
+}
+
+#main-content__game-over-screen__stats--detailed hr {
+  width: 100%;
 }
 
 /* SETTINGS SCREEN */
 #main-content__settings-screen-container {
-  background-color: #000000;
+  /* background-color: #000000; */
   width: 100%;
   height: 100%;
 }
@@ -739,9 +774,9 @@ code {
   font-size: 200%;
   text-align: left;
   margin: 4px;
-  background-color: #000000;
+  background-color: transparent;
   border-left: 1px solid #ffffff;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   transition-duration: var(--transition-duration-short);
   border-top: none;
   border-right: none;
@@ -768,7 +803,7 @@ code {
 
 .settings-screen__content-secondary-screen {
   width: 100%;
-  height: 100vh;
+  height: 95vh;
   color: var(--color-text-light);
   font-size: 100%;
   overflow-y: auto;
@@ -781,6 +816,11 @@ code {
   font-size: 150%;
 }
 
+.settings-screen__content-fieldset legend {
+  background-color: var(--color-neutral);
+  padding: 0 8px;
+}
+
 .settings-screen__content-fieldset label,
 .settings-screen__content-fieldset input {
   margin: 4px 0;
@@ -791,7 +831,7 @@ code {
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 100%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
 }
 
 .settings-screen__content-input--button {
@@ -799,7 +839,7 @@ code {
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 150%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   transition-duration: var(--transition-duration-short);
 }
 
@@ -828,7 +868,7 @@ code {
   width: 48px;
   height: 48px;
   font-size: 225%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   word-wrap: break-word;
 }
 
@@ -861,7 +901,7 @@ code {
 
 /* STATUS TRAY */
 #status-tray-container {
-  background: #00000044;
+  background: #000000cc;
   z-index: 99;
   width: 100vw;
   height: 100vh;
@@ -871,7 +911,7 @@ code {
 }
 
 #status-tray {
-  width: max(15%, 240px);
+  width: max(25%, 360px);
   height: 100%;
   background-color: var(--color-neutral);
   border: 1px solid #ffffff;
@@ -883,6 +923,112 @@ code {
   height: 90%;
   font-size: 125%;
   color: var(--color-text-light);
+}
+
+/* CHAT TRAY */
+#chat-tray-container {
+  z-index: 99;
+  width: 100vw;
+  height: 100vh;
+  display: none; /* original value */
+  position: absolute;
+  top: 0;
+}
+
+#chat-tray {
+  width: max(25%, 360px);
+  height: 100%;
+  right: 0;
+  background-color: var(--color-neutral);
+  border: 1px solid #ffffff;
+  position: absolute;
+}
+
+#chat-tray-text-container {
+  width: 90%;
+  margin: auto;
+  font-size: 125%;
+  color: var(--color-text-light);
+}
+
+#chat-tray-message-container {
+  width: 90%;
+  margin: auto;
+  height: 70%;
+  font-size: 125%;
+  display: flex;
+  flex-direction: column-reverse;
+  color: var(--color-text-light);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  word-wrap: break-word;
+}
+
+#chat-tray-input-container {
+  width: 90%;
+  margin: auto;
+  height: 28px;
+  display: flex;
+}
+
+#chat-tray-input {
+  width: 85%;
+  height: 24px;
+}
+
+#chat-tray-input-send-button {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-family: inherit;
+  height: 28px;
+  width: 96px;
+}
+
+#chat-tray-error-container {
+  width: 90%;
+  color: var(--color-text-light);
+  margin: auto;
+  display: flex;
+  font-size: 125%;
+}
+
+#chat-tray-separator {
+  width: 90%;
+  margin: auto;
+}
+
+.chat-tray__message {
+  color: var(--color-text-light);
+}
+
+.chat-tray__message--alert-score {
+  border: 2px #ab93db solid;
+  margin: 4px 0;
+  padding: 4px;
+}
+
+.chat-tray__message-alert-score__top {
+  display: flex;
+  justify-content: space-between;
+}
+
+.chat-tray__message-alert-score__middle {
+  font-size: 200%;
+  text-align: right;
+}
+
+.chat-tray__message-alert-score__bottom {
+  font-size: 100%;
+  text-align: right;
+}
+
+#chat-tray-input {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 125%;
+  font-family: inherit;
 }
 
 /* OTHERS */
@@ -972,7 +1118,7 @@ code {
   border: 1px solid #ffffff;
   color: var(--color-text-light);
   font-size: 200%;
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   transition-duration: var(--transition-duration-short);
 }
 
@@ -1027,7 +1173,7 @@ code {
   background-color: var(--color-neutral);
   color: var(--color-text-light);
   border: 1px solid var(--color-text-light);
-  font-family: "Computer Modern Unicode Serif";
+  font-family: inherit;
   font-size: 3vh;
 }
 
@@ -1071,7 +1217,7 @@ code {
 }
 
 #main-content__user-menu-container {
-  z-index: 999;
+  z-index: 98;
   position: absolute;
   top: 0;
   right: 0;

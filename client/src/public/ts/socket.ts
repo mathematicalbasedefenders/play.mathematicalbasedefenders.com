@@ -7,6 +7,8 @@ import { updateStatusTrayText } from "./status-tray";
 import { changeScreen, renderGameData } from "./game";
 import { ToastNotification } from "./notifications";
 import { updateSystemStatusTrayText } from "./system-status-indicator";
+import { createChatMessage } from "./chat";
+import DOMPurify from "dompurify";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
     window.location.origin === "https://play.mathematicalbasedefenders.com"
@@ -85,6 +87,21 @@ socket.addEventListener("message", (event: any) => {
     case "updateSocketMetadata": {
       variables.serverReportsPlaying = message.data.playing;
       variables.serverReportsInMultiplayer = message.data.inMultiplayerRoom;
+      break;
+    }
+    case "addChatMessage": {
+      const sanitizedMessage = message.data.message;
+      sanitizedMessage.sender = DOMPurify.sanitize(sanitizedMessage.sender);
+      sanitizedMessage.message = DOMPurify.sanitize(sanitizedMessage.message);
+      const sanitizedSender = DOMPurify.sanitize(message.data.sender);
+      const sanitizedSenderColor = DOMPurify.sanitize(message.data.senderColor);
+      const sanitizedAttribute = DOMPurify.sanitize(message.data.attribute);
+      const chatMessage = createChatMessage(
+        sanitizedMessage,
+        sanitizedSenderColor,
+        sanitizedAttribute
+      );
+      $(message.data.location).prepend(chatMessage);
       break;
     }
   }

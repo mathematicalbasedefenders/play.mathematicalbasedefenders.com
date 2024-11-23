@@ -10,7 +10,8 @@ import _, { update } from "lodash";
 import {
   minifySelfGameData,
   findRoomWithConnectionID,
-  checkIfPropertyWithValueExists
+  checkIfPropertyWithValueExists,
+  getRank
 } from "./core/utilities";
 import { log } from "./core/log";
 
@@ -168,6 +169,10 @@ function synchronizeMetadataWithSocket(
   // server metadata
   STATUS.lastDeltaTimeToUpdate = deltaTime;
   const metadataToSend = getServerMetadata(deltaTime, systemStatus);
+  const socketID = socket?.connectionID;
+  if (socketID) {
+    metadataToSend.playerName = getNameFromConnectionID(socketID) ?? "???";
+  }
   socket.send(
     JSON.stringify({
       message: "updateServerMetadata",
@@ -275,7 +280,10 @@ function getServerMetadata(
     osUsageLevel: osUsageLevel,
     osUsageToShow: osUsageToShow,
     updateTimeLevel: updateTimeLevel,
-    updateTimeToShow: updateTimeToShow
+    updateTimeToShow: updateTimeToShow,
+    playerName: "???",
+    playerRank: "???",
+    playerLevel: "???"
   };
 }
 
@@ -303,6 +311,26 @@ function sendGlobalToastNotification(settings: { [key: string]: any }) {
   }
 }
 
+/**
+ * Sends a message to every socket connected, regardless of logged in/out
+ * @param message The message.
+ */
+function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
+  for (const socket of sockets) {
+    if (socket) {
+      if (typeof message === "string") {
+        socket.send(message);
+      } else {
+        socket.send(
+          JSON.stringify({
+            message
+          })
+        );
+      }
+    }
+  }
+}
+
 export {
   GameSocket,
   sockets,
@@ -316,5 +344,6 @@ export {
   synchronizeGameDataWithSocket,
   synchronizeMetadataWithSocket,
   sendGlobalToastNotification,
-  forceDeleteAndCloseSocket
+  forceDeleteAndCloseSocket,
+  sendGlobalWebSocketMessage
 };

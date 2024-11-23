@@ -25,6 +25,7 @@ app.use(
           "pixijs.download",
           "'unsafe-eval'"
         ],
+        "img-src": "*",
         "style-src": ["'unsafe-inline'", "*"],
         "connect-src": [
           "http://localhost:4000",

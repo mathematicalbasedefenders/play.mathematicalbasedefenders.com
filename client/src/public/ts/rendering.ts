@@ -2,7 +2,7 @@ import { stageItems, variables } from ".";
 import { renderBeautifulScoreDisplay } from "./beautiful-score-display";
 import { Enemy, getEnemyFromCache } from "./enemies";
 import { SlidingText } from "./sliding-text";
-import { millisecondsToTime } from "./utilities";
+import { formatNumber, millisecondsToTime } from "./utilities";
 
 /**
  * Renders the game data according to cached data from client-side.
@@ -33,29 +33,34 @@ function render(elapsedMilliseconds: number) {
       elapsedMilliseconds;
     variables.currentGameClientSide.timeSinceLastEnemyKill +=
       elapsedMilliseconds;
-    // time elapsed
-    stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(
-      variables.currentGameClientSide.totalElapsedMilliseconds
-    );
-    // base health
-    stageItems.textSprites.baseHealthText.text = `♥️ ${variables.currentGameClientSide.baseHealth.toFixed(
-      3
-    )}`;
-    // enemies killed (per second)
-    stageItems.textSprites.enemiesText.text = `Enemy Kills: ${
-      variables.currentGameClientSide.enemiesKilled
-    } ≈ ${(
+    // variables
+    const msElapsed = variables.currentGameClientSide.totalElapsedMilliseconds;
+    const health = variables.currentGameClientSide.baseHealth;
+    const enemyKills = variables.currentGameClientSide.enemiesKilled;
+    const enemyKillRate =
       (variables.currentGameClientSide.enemiesKilled /
         variables.currentGameClientSide.totalElapsedMilliseconds) *
-      1000
-    ).toFixed(3)}/s`;
-    // combo text fading
-    stageItems.textSprites.comboText.alpha = Math.max(
+      1000;
+    const comboTextAlpha = Math.max(
       0,
       1 -
         variables.currentGameClientSide.timeSinceLastEnemyKill /
           variables.currentGameClientSide.comboTime
     );
+    // time elapsed
+    stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(msElapsed);
+    // base health
+    stageItems.textSprites.baseHealthText.text = `♥️ ${formatNumber(health)}`;
+    // enemies killed
+    stageItems.textSprites.enemiesText.text = `Enemy Kills: ${enemyKills.toLocaleString(
+      "en-US"
+    )}`;
+    // enemies killed per second
+    stageItems.textSprites.enemiesText.text += ` ≈ ${formatNumber(
+      enemyKillRate
+    )}/s`;
+    // combo text fading
+    stageItems.textSprites.comboText.alpha = comboTextAlpha;
     // input
     stageItems.textSprites.inputText.text =
       variables.currentGameClientSide.currentInput.replaceAll("-", "−");
@@ -95,9 +100,9 @@ function render(elapsedMilliseconds: number) {
       elapsedMilliseconds;
     renderBeautifulScoreDisplay();
   } else {
-    stageItems.textSprites.scoreText.text = parseInt(
-      variables.currentGameClientSide.shownScore
-    );
+    const score = variables.currentGameClientSide.shownScore;
+    stageItems.textSprites.scoreText.text =
+      parseInt(score).toLocaleString("en-US") || "0";
   }
 }
 

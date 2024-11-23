@@ -13,7 +13,12 @@ import {
 import { calculateLevel, millisecondsToTime } from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
-import { PopupNotification } from "./notifications";
+import {
+  PopupNotification,
+  ToastNotification,
+  ToastNotificationPosition
+} from "./notifications";
+import { changeBackgroundImage } from "./change-background-image";
 let startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -23,6 +28,7 @@ const STATISTICS_POSITION: number = 1294;
 // Fonts
 const serifFont = new FontFaceObserver("Computer Modern Unicode Serif");
 const mathFont = new FontFaceObserver("Computer Modern Math Italic");
+const notoFont = new FontFaceObserver("Noto Sans");
 
 class ExtendedSprite extends PIXI.Sprite {
   scalingPolicy!: AS.POLICY;
@@ -34,10 +40,12 @@ class ExtendedText extends PIXI.Text {
 
 serifFont.load();
 mathFont.load();
+notoFont.load();
 
 const app = new PIXI.Application({
   width: OPTIMAL_SCREEN_WIDTH,
   height: OPTIMAL_SCREEN_HEIGHT,
+  backgroundAlpha: 0, // because custom backgrounds
   backgroundColor: 0x000000,
   resizeTo: window,
   autoDensity: true,
@@ -94,7 +102,8 @@ const variables: { [key: string]: any } = {
     currentScreen: "mainMenu",
     currentSecondaryScreen: null,
     focusing: null
-  }
+  },
+  isGuest: true
 };
 
 type stageItemsContainer = {
@@ -112,63 +121,63 @@ const stageItems: stageItemsContainer = {
   },
   textSprites: {
     scoreLabelText: new ExtendedText("Score", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
     }),
     scoreText: new ExtendedText("0", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 80,
       fill: "#ffffff"
     }),
     //
     enemiesText: new ExtendedText("Enemy Kills: 0 ≈ 0.000/s", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
     }),
     inputText: new ExtendedText("0", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Computer Modern Unicode Serif", "serif"],
       fontSize: 48,
       fill: "#ffffff"
     }),
     elapsedTimeText: new ExtendedText("0:00.000", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
     }),
     baseHealthText: new ExtendedText("♥️ 100", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
     }),
     comboText: new ExtendedText("", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
     }),
     enemiesReceivedStockText: new ExtendedText("0", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 64,
       fill: "#ffffff"
     }),
     nameText: new ExtendedText("", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 20,
       fill: "#ffffff"
     }),
     levelText: new ExtendedText("Level", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 32,
       fill: "#ffffff"
     }),
     levelDetailsText: new ExtendedText("Level", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 20,
       fill: "#ffffff"
     }),
     howToPlayText: new ExtendedText("", {
-      fontFamily: "Computer Modern Unicode Serif",
+      fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 20,
       fill: "#ffffff"
     })
@@ -378,6 +387,20 @@ function initializeEventListeners() {
     event.preventDefault();
   });
   //
+  $("#settings-screen__content-save-background-image").on(
+    "click",
+    async (event) => {
+      const url = $("#settings__background-image-url").val() as string;
+      if (!url) {
+        // TODO: Make border red.
+        new ToastNotification("Please enter a valid image URL!");
+        return;
+      }
+
+      changeBackgroundImage(url);
+    }
+  );
+  //
   $("#game-over-screen-button--retry").on("click", () => {
     let settings = JSON.stringify(createCustomSingleplayerGameObject());
     if (variables.cachedSingleplayerMode === "custom") {
@@ -425,7 +448,6 @@ function initializeEventListeners() {
   $("#on-screen-keyboard-button--decrease-size").on("click", () => {
     let onScreenKeyboard = $("#on-screen-keyboard");
     let height = onScreenKeyboard.height() as number;
-    console.debug(height);
     if (height > 90) {
       onScreenKeyboard.css({ "top": "+=10px" });
       onScreenKeyboard.height(height - 10);
@@ -434,7 +456,6 @@ function initializeEventListeners() {
   $("#on-screen-keyboard-button--increase-size").on("click", () => {
     let onScreenKeyboard = $("#on-screen-keyboard");
     let height = onScreenKeyboard.height() as number;
-    console.debug(height);
     if (height < 240) {
       onScreenKeyboard.css({ "top": "-=10px" });
       onScreenKeyboard.height(height + 10);
@@ -475,6 +496,25 @@ function initializeEventListeners() {
     });
     $("#chat-message").val("");
   });
+  $(`#chat-tray-input-send-button`).on("click", () => {
+    const message = $("#chat-tray-input").val()?.toString().trim() || "";
+    if (!message) {
+      return;
+    }
+    sendSocketMessage({
+      message: "sendChatMessage",
+      scope: "global",
+      chatMessage: message
+    });
+    $("#chat-tray-input").val("");
+  });
+  $(`#main-content__user-menu-small-display`).on("click", () => {
+    if (!variables.isGuest) {
+      return;
+    }
+    changeScreen("settingsMenu");
+    changeSettingsSecondaryScreen("online");
+  });
 }
 
 // events
@@ -512,12 +552,19 @@ function updateUserInformationText(data: any) {
     }% to next)`
   );
   $("#user-account-stat--easy-singleplayer-record").text(
-    isNaN(data.records.easy?.score) ? "N/A" : data.records.easy.score
+    Number.isNaN(data.records.easy?.score)
+      ? "N/A"
+      : data.records.easy.score.toLocaleString("en-US")
   );
   $("#user-account-stat--standard-singleplayer-record").text(
-    isNaN(data.records.standard?.score) ? "N/A" : data.records.standard.score
+    Number.isNaN(data.records.standard?.score)
+      ? "N/A"
+      : data.records.standard.score.toLocaleString("en-US")
   );
-  $("#user-account-stat--level").attr("title", `${data.experiencePoints}EXP`);
+  $("#user-account-stat--level").attr(
+    "title",
+    `${data.experiencePoints.toLocaleString("en-US")}EXP`
+  );
   $("#user-account-stat--easy-singleplayer-record").attr(
     "title",
     `${millisecondsToTime(data.records.easy.timeInMilliseconds)}, ${
@@ -548,12 +595,14 @@ function updateUserInformationText(data: any) {
       3
     )}% to next)`
   );
+  // also set in sign in flag to true
+  variables.isGuest = false;
 }
 
 function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__username").text(data.guestName);
   $("#main-content__user-menu-small-display__level").text(
-    `Level 0 (Signed Out)`
+    `Level 0 (Signed out, click to log in!)`
   );
 }
 
@@ -566,7 +615,11 @@ loadSettings(localStorage.getItem("settings") || "{}");
 
 // ======
 window.addEventListener("load", function () {
-  let endInitTime: number = Date.now();
+  const endInitTime: number = Date.now();
+  // initialize some settings
+  if (variables.settings.backgroundImage) {
+    changeBackgroundImage(variables.settings.backgroundImage);
+  }
   console.log(
     `Initialization completed! (Took ${Math.round(
       endInitTime - startInitTime
