@@ -4,11 +4,15 @@ import * as _ from "lodash";
 import { SingleplayerRoom } from "../Room";
 import { checkSingleplayerRoomClocks } from "./clocks";
 
+const BASE_ENEMY_SPEED = 0.1;
+
 function updateSingleplayerRoomData(room: SingleplayerRoom, deltaTime: number) {
   for (let data of room.gameData) {
     // Move all the enemies down.
     for (const enemy of data.enemies) {
-      enemy.move(0.1 * data.enemySpeedCoefficient * (deltaTime / 1000));
+      enemy.move(
+        BASE_ENEMY_SPEED * data.enemySpeedCoefficient * (deltaTime / 1000)
+      );
       if (enemy.sPosition <= 0) {
         enemy.attackBase(data, 10);
       }
