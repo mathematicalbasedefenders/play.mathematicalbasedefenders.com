@@ -3,7 +3,6 @@ import { log } from "../core/log";
 import * as universal from "../universal";
 const bcrypt = require("bcrypt");
 const mongoDBSanitize = require("express-mongo-sanitize");
-
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
@@ -24,6 +23,14 @@ async function authenticate(
         "Database is not available. This is usually on the server-side. Please contact the server's administrator if this persists."
     };
   }
+  // check socket conditions
+  const canBeAuthenticated = checkIfSocketCanBeAuthenticated(
+    socketID as string
+  );
+  if (!canBeAuthenticated.good) {
+    return canBeAuthenticated;
+  }
+
   // validate data
   let dataValidationResult = validateData(username, password, socketID);
   if (!(dataValidationResult.good === true)) {
@@ -146,6 +153,65 @@ function validateData(
   return {
     good: true,
     reason: "All checks passed."
+  };
+}
+
+/**
+ * Checks whether a browser/socket is "eligible" to log in.
+ * i.e., Browser session validation.
+ * @param {string} connectionID The `connectionID` of the socket.
+ * @returns An object with the fields `good` and `reason`. `good` is `true` if socket is eligible to log in, false otherwise with a reason in `reason`.
+ */
+function checkIfSocketCanBeAuthenticated(connectionID: string) {
+  const socket = universal.getSocketFromConnectionID(connectionID as string);
+
+  // socket doesn't exist
+  if (!socket) {
+    log.warn(
+      `A user tried to log in, but the session that sent the credentials isn't tied to a socket.`
+    );
+    return {
+      good: false,
+      reason: "Browser session isn't tied to a socket."
+    };
+  }
+
+  // socket doesn't have a connection id
+  if (!socket.connectionID) {
+    log.warn(
+      `A user tried to log in, but the socket tied to that session doesn't have an identifier.`
+    );
+    return {
+      good: false,
+      reason: "Socket doesn't have an identifier."
+    };
+  }
+
+  // socket's id is in an incorrect format.
+  if (socket.connectionID.length !== 16) {
+    log.warn(`A user tried to log in, but the socket's identifier is invalid.`);
+    return {
+      good: false,
+      reason: "Socket's identifier is invalid."
+    };
+  }
+
+  // socket is current playing
+  const playing = universal.checkIfSocketIsPlaying(socket.connectionID);
+  if (playing) {
+    log.info(
+      `A user tried to log in, but the socket tied to that session is currently in game.`
+    );
+    return {
+      good: false,
+      reason:
+        "Socket is currently in game. Finish the game first before logging in."
+    };
+  }
+
+  return {
+    good: true,
+    reason: "All socket authentication eligibility checks passed."
   };
 }
 
