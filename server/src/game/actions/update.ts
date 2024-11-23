@@ -7,7 +7,7 @@ import { checkSingleplayerRoomClocks } from "./clocks";
 function updateSingleplayerRoomData(room: SingleplayerRoom, deltaTime: number) {
   for (let data of room.gameData) {
     // Move all the enemies down.
-    for (let enemy of data.enemies) {
+    for (const enemy of data.enemies) {
       enemy.move(0.1 * data.enemySpeedCoefficient * (deltaTime / 1000));
       if (enemy.sPosition <= 0) {
         enemy.attackBase(data, 10);
