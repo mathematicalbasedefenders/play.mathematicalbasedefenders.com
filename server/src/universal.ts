@@ -345,5 +345,6 @@ export {
   synchronizeMetadataWithSocket,
   sendGlobalToastNotification,
   forceDeleteAndCloseSocket,
-  sendGlobalWebSocketMessage
+  sendGlobalWebSocketMessage,
+  checkIfSocketIsPlaying
 };
