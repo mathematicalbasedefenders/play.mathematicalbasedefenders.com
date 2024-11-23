@@ -24,6 +24,9 @@ type PlayerRank = {
   title: string;
 };
 
+/**
+ * This represents a socket for a player.
+ */
 type GameSocket = WebSocket<UserData> & {
   /** Owner's username. If exists, overrides `ownerGuestName` */
   ownerUsername?: string;
