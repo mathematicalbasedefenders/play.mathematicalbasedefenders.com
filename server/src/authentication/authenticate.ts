@@ -135,7 +135,7 @@ function validateData(
   }
   if (
     sanitizedPassword !== password ||
-    sanitizedPassword.length > 999 ||
+    sanitizedPassword.length > 48 ||
     sanitizedPassword.length < 8
   ) {
     return {
