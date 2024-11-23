@@ -46,6 +46,7 @@ class GameData {
   score!: number;
   enemiesKilled!: number;
   enemiesSpawned!: number;
+  // current enemies on field
   enemies!: Array<enemy.Enemy>;
   baseHealth!: number;
   combo!: number;
