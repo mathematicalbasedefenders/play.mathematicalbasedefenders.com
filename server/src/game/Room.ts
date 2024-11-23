@@ -497,8 +497,8 @@ class MultiplayerRoom extends Room {
       checkGlobalMultiplayerRoomClocks(this);
 
       // specific to each player
-      for (let data of this.gameData) {
-        let opponentGameData = this.gameData.filter(
+      for (const data of this.gameData) {
+        const opponentGameData = this.gameData.filter(
           (element) => element.ownerConnectionID !== data.ownerConnectionID
         );
 
@@ -506,7 +506,7 @@ class MultiplayerRoom extends Room {
           this.abort(data);
         }
 
-        for (let enemy of data.enemies) {
+        for (const enemy of data.enemies) {
           enemy.move(0.1 * data.enemySpeedCoefficient * (deltaTime / 1000));
           if (enemy.sPosition <= 0) {
             enemy.remove(data, 10);
@@ -514,7 +514,7 @@ class MultiplayerRoom extends Room {
         }
         if (data.baseHealth <= 0) {
           // player is eliminated.
-          let socket = universal.getSocketFromConnectionID(
+          const socket = universal.getSocketFromConnectionID(
             data.ownerConnectionID
           );
           if (socket && !data.aborted) {
