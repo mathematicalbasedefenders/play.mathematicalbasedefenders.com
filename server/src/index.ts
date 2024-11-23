@@ -112,7 +112,7 @@ const WebSocketRateLimit = (limit: number, interval: number) => {
   };
 };
 
-const websocketRateLimit = WebSocketRateLimit(500, 1000);
+const websocketRateLimit = WebSocketRateLimit(2500, 1000);
 
 let initialized = false;
 

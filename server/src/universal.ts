@@ -24,14 +24,25 @@ type PlayerRank = {
   title: string;
 };
 
+/**
+ * This represents a socket for a player.
+ */
 type GameSocket = WebSocket<UserData> & {
+  /** Owner's username. If exists, overrides `ownerGuestName` */
   ownerUsername?: string;
+  /** Owner's USER ID. */
   ownerUserID?: string;
+  /** Owner's guest name. Can be overwritten with username by logging in. */
   ownerGuestName?: string;
+  /** Socket's connectionID, randomly generated between sessions. */
   connectionID?: string;
+  /** Whether a socket is logged in. */
   loggedIn?: boolean;
+  /** Player rank of a socket */
   playerRank?: PlayerRank;
+  /** These are used for rate limiting. */
   accumulatedMessages?: number;
+  /** These are used for rate limiting. */
   rateLimiting?: {
     last: number;
     count: number;
@@ -345,5 +356,6 @@ export {
   synchronizeMetadataWithSocket,
   sendGlobalToastNotification,
   forceDeleteAndCloseSocket,
-  sendGlobalWebSocketMessage
+  sendGlobalWebSocketMessage,
+  checkIfSocketIsPlaying
 };
