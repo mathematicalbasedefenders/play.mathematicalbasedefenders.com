@@ -24,10 +24,10 @@ function renderBeautifulScoreDisplay() {
   );
 
   if (progress >= DURATION) {
-    stageItems.textSprites.scoreText.text =
-      variables.currentGameClientSide.shownScore;
+    const shown = variables.currentGameClientSide.shownScore;
+    stageItems.textSprites.scoreText.text = shown.toLocaleString("en-US");
     variables.currentGameClientSide.beautifulScoreDisplayPrevious = Math.round(
-      parseInt(stageItems.textSprites.scoreText.text, 10)
+      Number.parseInt(shown, 10)
     );
     return;
   }
@@ -36,7 +36,8 @@ function renderBeautifulScoreDisplay() {
   const result = previous + (goal - previous) * position;
   const toShow = Math.max(previous, result);
 
-  stageItems.textSprites.scoreText.text = Math.round(toShow);
+  stageItems.textSprites.scoreText.text =
+    Math.round(toShow).toLocaleString("en-US");
 }
 
 export { renderBeautifulScoreDisplay };

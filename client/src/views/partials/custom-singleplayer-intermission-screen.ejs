@@ -19,33 +19,39 @@
       <br>
       <fieldset class="custom-singleplayer__content-fieldset">
         <legend>Durations</legend>
-        <label for="custom-singleplayer-game__combo-time" title="The time a combo lasts.">Combo Duration:</label> <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__combo-time" id="custom-singleplayer-game__combo-time" type="number" value="5000"> milliseconds
+        <label for="custom-singleplayer-game__combo-time" title="The time a combo lasts.">Combo Duration:</label>
+        <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__combo-time" id="custom-singleplayer-game__combo-time" type="text" pattern="^[0-9]+\.?[0-9]*$" min="0" max="3600000" value="5000"> milliseconds
       </fieldset>
       <br>
       <!-- <fieldset class="custom-singleplayer__content-fieldset">
         <legend>Speed</legend>
-        <label>Global Speed Coefficient:</label> <input id="custom-singleplayer-game__global-speed-coefficient" name="custom-singleplayer-game__global-speed-coefficient" class="custom-singleplayer__content-input--text" type="number" value="1">
+        <label>Global Speed Coefficient:</label> <input id="custom-singleplayer-game__global-speed-coefficient" name="custom-singleplayer-game__global-speed-coefficient" class="custom-singleplayer__content-input--text" type="text" value="1">
       </fieldset> -->
     </div>
     <div class="custom-singleplayer-intermission-screen__content-secondary-screen" id="custom-singleplayer-intermission-screen__content--enemies">
       <fieldset class="custom-singleplayer__content-fieldset">
         <legend>Enemy Creation</legend>
-        <label for="custom-singleplayer-game__enemy-spawn-time" title="The interval of time to pass before an enemy has a chance to spawn.">Enemy Spawn Interval:</label> <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__enemy-spawn-time" id="custom-singleplayer-game__enemy-spawn-time" type="number" value="100"> milliseconds
+        <label for="custom-singleplayer-game__enemy-spawn-time" title="The interval of time to pass before an enemy has a chance to spawn.">Enemy Spawn Chance Interval:</label>
+        <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__enemy-spawn-time" id="custom-singleplayer-game__enemy-spawn-time" type="text" pattern="^0(\.[0-9]+)?|1(\.0+)?$" min="10" value="100"> milliseconds
         <br>
-        <label for="custom-singleplayer-game__enemy-spawn-chance" title="The chance of an enemy spawning every interval of time.">Enemy Spawn Chance:</label> <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__enemy-spawn-chance" id="custom-singleplayer-game__enemy-spawn-chance" type="number" value="0.1">
+        <label for="custom-singleplayer-game__enemy-spawn-chance" title="The chance of an enemy spawning every interval of time.">Enemy Spawn Chance:</label>
+        <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__enemy-spawn-chance" id="custom-singleplayer-game__enemy-spawn-chance" type="text" pattern="^0(\.[0-9]+)?|1(\.0+)?$" min="0" max="1" value="0.1">
         <br>
-        <label for="custom-singleplayer-game__forced-enemy-spawn-time" title="The time to wait before forcibly spawning an enemy after the last enemy has been spawned.">Forced Enemy Spawn Time:</label> <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__forced-enemy-spawn-time" id="custom-singleplayer-game__forced-enemy-spawn-time" type="number" value="2500"> milliseconds
+        <label for="custom-singleplayer-game__forced-enemy-spawn-time" title="The time to wait before forcibly spawning an enemy after the last enemy has been spawned.">Forced Enemy Spawn Time:</label>
+        <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__forced-enemy-spawn-time" id="custom-singleplayer-game__forced-enemy-spawn-time" type="text" pattern="^[0-9]+\.?[0-9]*$" min="10" value="100"> milliseconds
       </fieldset>
       <br>
       <fieldset class="custom-singleplayer__content-fieldset">
         <legend>Enemy Movement</legend>
-        <label for="custom-singleplayer-game__enemy-speed-coefficient" title="The multiplier to apply to every enemy's speed`.">Enemy Speed Coefficient:</label> <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__enemy-speed-coefficient" id="custom-singleplayer-game__enemy-speed-coefficient" type="number" value="1">
+        <label for="custom-singleplayer-game__enemy-speed-coefficient" title="The multiplier to apply to every enemy's speed`.">Enemy Speed Coefficient:</label>
+        <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__enemy-speed-coefficient" id="custom-singleplayer-game__enemy-speed-coefficient" type="text" pattern="[0-9\.]+" value="1">
       </fieldset>
     </div>
     <div class="custom-singleplayer-intermission-screen__content-secondary-screen" id="custom-singleplayer-intermission-screen__content--base">
       <fieldset class="custom-singleplayer__content-fieldset">
         <legend>Base Structure</legend>
-        <label for="custom-singleplayer-game__starting-base-health" title="The health that you will start with.">Starting Base Health:</label> <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__starting-base-health" id="custom-singleplayer-game__starting-base-health" type="number" value="100">
+        <label for="custom-singleplayer-game__starting-base-health" title="The health that you will start with.">Starting Base Health:</label>
+        <input class="custom-singleplayer-game-input--text" name="custom-singleplayer-game__starting-base-health" id="custom-singleplayer-game__starting-base-health" type="text" pattern="[0-9\.]+" value="100">
       </fieldset>
       <br>
     </div>

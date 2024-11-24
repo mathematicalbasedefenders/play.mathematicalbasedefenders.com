@@ -3,7 +3,8 @@ import { variables } from "./index";
 enum SettingsType {
   Radio,
   Custom,
-  Dropdown
+  Dropdown,
+  Text
 }
 
 const SETTINGS_KEYS = [
@@ -23,7 +24,7 @@ const SETTINGS_KEYS = [
     storageStringKey: "enemyColor",
     htmlName: "settings__enemy-color",
     defaultValue: "randomForEach",
-    settingsType: SettingsType.Custom
+    settingsType: SettingsType.Radio
   },
   {
     storageStringKey: "enemyWidthCoefficient",
@@ -67,6 +68,13 @@ const SETTINGS_KEYS = [
     htmlName: "settings-enemy-scale",
     defaultValue: 1,
     settingsType: SettingsType.Radio
+  },
+  {
+    storageStringKey: "backgroundImage",
+    htmlName: "settings__background-image",
+    htmlID: "settings__background-image-url",
+    defaultValue: "",
+    settingsType: SettingsType.Text
   }
 ];
 
@@ -78,7 +86,6 @@ function getSettings(storageString: string) {
   let settings = JSON.parse(storageString);
   for (let entry of SETTINGS_KEYS) {
     let value = settings[entry.storageStringKey];
-
     // special cases
     // color picker
     if (entry.storageStringKey === "enemyColor") {
@@ -106,22 +113,47 @@ function getSettings(storageString: string) {
         variables.settings[entry.storageStringKey] = "randomForEach";
         $("#settings__enemy-color__forced-color").text("#ff0000");
       }
-      continue;
+      // continue;
     }
 
     // normal cases
-    if (typeof value !== "undefined") {
-      variables.settings[entry.storageStringKey] = value;
-      $(`input[name="${entry.htmlName}"][value="${value}"]`).prop(
-        "checked",
-        true
-      );
-    } else {
-      variables.settings[entry.storageStringKey] = entry.defaultValue;
-      $(`input[name="${entry.htmlName}"][value="${entry.defaultValue}"]`).prop(
-        "checked",
-        true
-      );
+    switch (entry.settingsType) {
+      case SettingsType.Radio: {
+        if (typeof value !== "undefined") {
+          $(`input[name="${entry.htmlName}"][value="${value}"]`).prop(
+            "checked",
+            true
+          );
+        } else {
+          $(
+            `input[name="${entry.htmlName}"][value="${entry.defaultValue}"]`
+          ).prop("checked", true);
+        }
+        variables.settings[entry.storageStringKey] = $(
+          `input[name="${entry.htmlName}"]:checked`
+        ).val();
+        break;
+      }
+      case SettingsType.Dropdown: {
+        if (typeof value !== "undefined") {
+          $(`#${entry.htmlID}`).val(value as unknown as string);
+          variables.settings[entry.storageStringKey] = value;
+        } else {
+          $(`#${entry.htmlID}`).val(entry.defaultValue);
+          variables.settings[entry.storageStringKey] = entry.defaultValue;
+        }
+        break;
+      }
+      case SettingsType.Text: {
+        if (typeof value !== "undefined") {
+          $(`input[name="${entry.htmlName}"]`).val(value as unknown as string);
+          variables.settings[entry.storageStringKey] = value;
+        } else {
+          $(`input[name="${entry.htmlName}"]`).val(entry.defaultValue);
+          variables.settings[entry.storageStringKey] = entry.defaultValue;
+        }
+        break;
+      }
     }
   }
   console.log("Got settings!");
@@ -129,22 +161,43 @@ function getSettings(storageString: string) {
 
 /**
  * Gets the stored settings from `localStorage`, then updates the client-side variables with the data.
+ * FIXME: I believe this just copies `getSettings`, I guess we can merge them? -mistertfy64
  * @param {string} storageString The stored string. This should be from `localStorage`.
  */
 function loadSettings(storageString: string) {
-  let settings = JSON.parse(storageString);
-  for (let entry of SETTINGS_KEYS) {
-    let value = settings[entry.storageStringKey];
-    if (typeof value !== "undefined") {
-      $(`input[name="${entry.htmlName}"][value="${value}"]`).prop(
-        "checked",
-        true
-      );
-    } else {
-      $(`input[name="${entry.htmlName}"][value="${entry.defaultValue}"]`).prop(
-        "checked",
-        true
-      );
+  const settings = JSON.parse(storageString);
+  for (const entry of SETTINGS_KEYS) {
+    const value = settings[entry.storageStringKey];
+    switch (entry.settingsType) {
+      case SettingsType.Radio: {
+        if (typeof value !== "undefined") {
+          $(`input[name="${entry.htmlName}"][value="${value}"]`).prop(
+            "checked",
+            true
+          );
+        } else {
+          $(
+            `input[name="${entry.htmlName}"][value="${entry.defaultValue}"]`
+          ).prop("checked", true);
+        }
+        break;
+      }
+      case SettingsType.Dropdown: {
+        if (typeof value !== "undefined") {
+          $(`#${entry.htmlID}`).val(value as unknown as string);
+        } else {
+          $(`#${entry.htmlID}`).val(entry.defaultValue);
+        }
+        break;
+      }
+      case SettingsType.Text: {
+        if (typeof value !== "string") {
+          $(`input[name="${entry.htmlName}"]`).val(value);
+        } else {
+          $(`input[name="${entry.htmlName}"]`).val(entry.defaultValue);
+        }
+        break;
+      }
     }
   }
   console.log("Loaded settings!");
@@ -155,6 +208,9 @@ function loadSettings(storageString: string) {
  */
 function setSettings() {
   let toSave: any = {};
+  // selected palette
+
+  // keys
   for (let entry of SETTINGS_KEYS) {
     // special cases
     // enemy color
@@ -166,16 +222,14 @@ function setSettings() {
           ?.toString();
         variables.settings[entry.storageStringKey] = forcedValue;
         toSave[entry.storageStringKey] = forcedValue;
+        continue;
       } else if (selectValue === "randomFromPalette") {
         variables.settings[entry.storageStringKey] = "randomFromPalette";
         toSave[entry.storageStringKey] = "randomFromPalette";
-        const palette = $("#selected-enemy-color-palette").val();
-        toSave["selectedColorPalette"] = palette;
       } else {
         variables.settings[entry.storageStringKey] = "randomForEach";
         toSave[entry.storageStringKey] = "randomForEach";
       }
-      continue;
     }
 
     // normal cases
@@ -184,7 +238,11 @@ function setSettings() {
       value = $(`input[name="${entry.htmlName}"]:checked`).val();
     } else if (entry.settingsType === SettingsType.Dropdown) {
       value = $(`#${entry.htmlID}`).val();
+    } else if (entry.settingsType === SettingsType.Text) {
+      value = $(`#${entry.htmlID}`).val();
     }
+
+    // default values
     if (typeof value !== "undefined") {
       variables.settings[entry.storageStringKey] = value;
       toSave[entry.storageStringKey] = value;
@@ -193,6 +251,11 @@ function setSettings() {
       toSave[entry.storageStringKey] = entry.defaultValue;
     }
   }
+
+  // TODO: move this into dropdown to make it more cleaner
+  const palette = $("#selected-enemy-color-palette").val();
+  toSave["selectedColorPalette"] = palette;
+
   let newString = JSON.stringify(toSave);
   localStorage.setItem("settings", newString);
   console.log("Saved settings!");

@@ -36,20 +36,23 @@ const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
   },
   enemySpawnTime: {
     type: "number",
-    minimum: 0,
+    minimum: 10,
     maximum: 60 * 1000
   },
   enemySpawnChance: {
     type: "number",
-    minimum: 0,
+    minimum: 0.001,
     maximum: 1
   },
   forcedEnemySpawnTime: {
     type: "number",
-    minimum: 0,
+    minimum: 10,
     maximum: 60 * 1000
   }
 };
+
+// https://stackoverflow.com/questions/52740718/test-if-a-string-is-a-valid-float-in-javascript
+const IS_NUMBER_REGEX = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
 
 function checkIfPropertyWithValueExists(
   dataset: unknown,
@@ -185,7 +188,7 @@ function generatePlayerListText(connections: Array<string>) {
 
 function validateCustomGameSettings(
   mode: string,
-  settings: { [key: string]: string }
+  settings: { [key: string]: string | number }
 ) {
   if (mode !== "singleplayer") {
     return {
@@ -194,24 +197,30 @@ function validateCustomGameSettings(
     };
   }
   let ok = true;
-  let errors = [];
-  for (let key in settings) {
-    let restriction = SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES[key];
-    // FIXME: as any unsafe
-    let parsedValue = !isNaN(settings[key] as any)
-      ? parseFloat(settings[key])
-      : settings[key];
-    if (typeof parsedValue !== restriction.type) {
-      errors.push(
-        `Wrong type in ${key}: got ${typeof parsedValue}, but expected ${
-          restriction.type
-        }`
-      );
-      ok = false;
-      continue;
-    }
+  const errors = [];
+  for (const key in settings) {
+    const restriction = SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES[key];
+    const parsedValue = settings[key];
+    // if (typeof parsedValue !== restriction.type) {
+    //   errors.push(
+    //     `Wrong type in ${key}: got ${typeof parsedValue}, but expected ${
+    //       restriction.type
+    //     }.`
+    //   );
+    //   ok = false;
+    //   continue;
+    // }
     // check numbers
     if (restriction.type === "number") {
+      if (!IS_NUMBER_REGEX.test(parsedValue as string)) {
+        errors.push(
+          `Wrong type in ${key}: got ${typeof parsedValue}, but expected ${
+            restriction.type
+          }.`
+        );
+        ok = false;
+        continue;
+      }
       if (
         !(
           parsedValue >= restriction.minimum &&
@@ -404,6 +413,28 @@ function checkWebSocketMessageSpeeds(
 // Taken from https://stackoverflow.com/a/39914235
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Calculates the actions per minute (player speed) for the player.
+ * @param {number} actions The actions in game
+ * @param {number} elapsedTime The milliseconds elapsed in the game
+ * @returns APM
+ */
+function calculateAPM(actions: number, elapsedTime: number) {
+  const MILLISECONDS_IN_MINUTES = 60000;
+  return (actions / elapsedTime) * MILLISECONDS_IN_MINUTES;
+}
+
+/**
+ * Formats the number (ideally floats) according to the game's conventions.
+ * en-US locale, 3 decimal places.
+ */
+function formatNumber(n: number) {
+  return n.toLocaleString("en-US", {
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3
+  });
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -422,5 +453,7 @@ export {
   sleep,
   createGlobalLeaderboardsMessage,
   getWebSocketMessageSpeed,
-  checkWebSocketMessageSpeeds
+  checkWebSocketMessageSpeeds,
+  calculateAPM,
+  formatNumber
 };

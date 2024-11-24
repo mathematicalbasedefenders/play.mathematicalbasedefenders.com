@@ -10,7 +10,8 @@ import _, { update } from "lodash";
 import {
   minifySelfGameData,
   findRoomWithConnectionID,
-  checkIfPropertyWithValueExists
+  checkIfPropertyWithValueExists,
+  getRank
 } from "./core/utilities";
 import { log } from "./core/log";
 
@@ -23,14 +24,25 @@ type PlayerRank = {
   title: string;
 };
 
+/**
+ * This represents a socket for a player.
+ */
 type GameSocket = WebSocket<UserData> & {
+  /** Owner's username. If exists, overrides `ownerGuestName` */
   ownerUsername?: string;
+  /** Owner's USER ID. */
   ownerUserID?: string;
+  /** Owner's guest name. Can be overwritten with username by logging in. */
   ownerGuestName?: string;
+  /** Socket's connectionID, randomly generated between sessions. */
   connectionID?: string;
+  /** Whether a socket is logged in. */
   loggedIn?: boolean;
+  /** Player rank of a socket */
   playerRank?: PlayerRank;
+  /** These are used for rate limiting. */
   accumulatedMessages?: number;
+  /** These are used for rate limiting. */
   rateLimiting?: {
     last: number;
     count: number;
@@ -168,6 +180,10 @@ function synchronizeMetadataWithSocket(
   // server metadata
   STATUS.lastDeltaTimeToUpdate = deltaTime;
   const metadataToSend = getServerMetadata(deltaTime, systemStatus);
+  const socketID = socket?.connectionID;
+  if (socketID) {
+    metadataToSend.playerName = getNameFromConnectionID(socketID) ?? "???";
+  }
   socket.send(
     JSON.stringify({
       message: "updateServerMetadata",
@@ -275,7 +291,10 @@ function getServerMetadata(
     osUsageLevel: osUsageLevel,
     osUsageToShow: osUsageToShow,
     updateTimeLevel: updateTimeLevel,
-    updateTimeToShow: updateTimeToShow
+    updateTimeToShow: updateTimeToShow,
+    playerName: "???",
+    playerRank: "???",
+    playerLevel: "???"
   };
 }
 
@@ -303,6 +322,26 @@ function sendGlobalToastNotification(settings: { [key: string]: any }) {
   }
 }
 
+/**
+ * Sends a message to every socket connected, regardless of logged in/out
+ * @param message The message.
+ */
+function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
+  for (const socket of sockets) {
+    if (socket) {
+      if (typeof message === "string") {
+        socket.send(message);
+      } else {
+        socket.send(
+          JSON.stringify({
+            message
+          })
+        );
+      }
+    }
+  }
+}
+
 export {
   GameSocket,
   sockets,
@@ -316,5 +355,7 @@ export {
   synchronizeGameDataWithSocket,
   synchronizeMetadataWithSocket,
   sendGlobalToastNotification,
-  forceDeleteAndCloseSocket
+  forceDeleteAndCloseSocket,
+  sendGlobalWebSocketMessage,
+  checkIfSocketIsPlaying
 };

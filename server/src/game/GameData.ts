@@ -28,40 +28,81 @@ enum GameMode {
 }
 
 /**
+ * Extra interface for `CustomGameData`.
+ */
+interface CustomGameSettings {
+  baseHealth: string | number;
+  comboTime: string | number;
+  enemySpeedCoefficient: string | number;
+  enemySpawnTime: string | number;
+  enemySpawnThreshold: string | number;
+  forcedEnemySpawnTime: string | number;
+}
+
+/**
  * Base class for `GameData`.
  */
 class GameData {
+  /**  The current score of the GameData.*/
   score!: number;
+  /**  The number of total enemies killed of the GameData.*/
   enemiesKilled!: number;
+  /**  The number of total spawn killed of the GameData.*/
   enemiesSpawned!: number;
+  /**  An array of the current enemies on the field (through enemy spawn logic.)*/
   enemies!: Array<enemy.Enemy>;
+  /**  The GameData's base health.*/
   baseHealth!: number;
+  /**  The GameData's combo.*/
   combo!: number;
+  /**  The GameData's owner's connection ID.*/
   ownerConnectionID: string;
+  /**  The GameData's clock, see `clocks.ts`.*/
   clocks!: ClockInterface;
+  /**  Enemies to erase from the `GameData`'s `enemies` property.*/
   enemiesToErase!: Array<string>;
+  /**  The current input of the `GameData`.*/
   currentInput!: string;
+  /**  How long this `GameData` has been running for.*/
   elapsedTime!: number;
+  /**  How fast the enemies move in this `GameData`.*/
   enemySpeedCoefficient!: number;
+  /**  The commands for the `GameData`.*/
   commands!: { [key: string]: any };
+  /**  The mode for the `GameData`.*/
   mode: string;
+  /**  The roll that this `GameData` needs to be lower/higher for an enemy to spawn.*/
   enemySpawnThreshold!: number;
+  /**  Whether the `GameData` is aborted.*/
   aborted: boolean;
+  /**  (Multiplayer) Number of enemies sent by this `GameData`.*/
   totalEnemiesSent!: number;
+  /**  (Multiplayer) Number of enemies received by this `GameData`.*/
   totalEnemiesReceived!: number;
+  /**  (Multiplayer) Number of enemies in stock by this `GameData`.*/
   enemiesSentStock!: number;
+  /**  (Multiplayer) References(?) to other `GameData` in this `Room` by this `GameData`.*/
   opponentGameData!: Array<GameData>;
+  /**  The name to display under the playfield of `GameData`.*/
   ownerName!: string;
+  /**  The owner of the `GameData`.*/
   owner: universal.GameSocket;
   // ... (0.4.0)
+  /**  The current level this `GameData` is at.*/
   level: number;
+  /** The number of enemies this `GameData` needs to kill to go to the next level.*/
   enemiesToNextLevel: number;
+  /**  The number of enemies this `GameData` needs to kill to go to the next level.*/
   baseHealthRegeneration: number;
+  /**  The cap of this `GameData`'s base health.*/
   maximumBaseHealth: number;
+  /**  The total number of actions this `GameData` has performed as.*/
   actionsPerformed: number;
-  // ...
+  /**  (Multiplayer) The attack score (total number of enemies sent) of this `GameData`.*/
   attackScore!: number;
+  /**  (Multiplayer) The number of enemies in stock waiting to be spawned for deleted from `GameData`.*/
   receivedEnemiesStock!: number;
+  /**  (Multiplayer) The number of enemies in stock to be spawned from `GameData`.*/
   receivedEnemiesToSpawn!: number;
   // ... (0.4.10, anticheat)
   actionRecords!: Array<ActionRecord>;
@@ -204,7 +245,7 @@ class CustomSingleplayerGameData extends GameData {
   constructor(
     owner: universal.GameSocket,
     gameMode: GameMode,
-    settings: { [key: string]: any }
+    settings: CustomGameSettings
   ) {
     if (!(gameMode === GameMode.CustomSingleplayer)) {
       log.error(
@@ -214,13 +255,24 @@ class CustomSingleplayerGameData extends GameData {
     }
     super(owner, gameMode);
     // This assumes that data has already been validated.
-    this.baseHealth = settings.baseHealth;
-    this.maximumBaseHealth = settings.baseHealth;
-    this.clocks.comboReset.actionTime = settings.comboTime;
-    this.enemySpeedCoefficient = settings.enemySpeedCoefficient;
-    this.clocks.enemySpawn.actionTime = settings.enemySpawnTime;
-    this.enemySpawnThreshold = settings.enemySpawnThreshold;
-    this.clocks.forcedEnemySpawn.actionTime = settings.forcedEnemySpawnTime;
+    // FIXME: Remove unnecessary re-conversion to string from number.
+    this.baseHealth = Number.parseFloat(settings.baseHealth as string);
+    this.maximumBaseHealth = Number.parseFloat(settings.baseHealth as string);
+    this.clocks.comboReset.actionTime = Number.parseFloat(
+      settings.comboTime as string
+    );
+    this.enemySpeedCoefficient = Number.parseFloat(
+      settings.enemySpeedCoefficient as string
+    );
+    this.clocks.enemySpawn.actionTime = Number.parseFloat(
+      settings.enemySpawnTime as string
+    );
+    this.enemySpawnThreshold = Number.parseFloat(
+      settings.enemySpawnThreshold as string
+    );
+    this.clocks.forcedEnemySpawn.actionTime = Number.parseFloat(
+      settings.forcedEnemySpawnTime as string
+    );
   }
 }
 
@@ -259,5 +311,6 @@ export {
   CustomSingleplayerGameData,
   GameMode,
   ClockInterface,
-  ActionRecord
+  ActionRecord,
+  CustomGameSettings
 };

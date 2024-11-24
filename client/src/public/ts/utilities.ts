@@ -56,4 +56,14 @@ function factorial(n: number) {
   return result;
 }
 
-export { millisecondsToTime, calculateLevel, nCr };
+/**
+ * Formats the number (ideally floats) according to the game's conventions.
+ * en-US locale, 3 decimal places.
+ */
+function formatNumber(n: number) {
+  return n.toLocaleString("en-US", {
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3
+  });
+}
+export { millisecondsToTime, calculateLevel, nCr, formatNumber };

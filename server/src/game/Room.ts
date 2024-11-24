@@ -18,7 +18,8 @@ import {
   CustomSingleplayerGameData,
   MultiplayerGameData,
   GameMode,
-  ClockInterface
+  ClockInterface,
+  CustomGameSettings
 } from "./GameData";
 import { updateSingleplayerRoomData } from "./actions/update";
 import {
@@ -31,6 +32,7 @@ import {
 } from "./actions/clocks";
 import { createGameOverScreenText } from "./actions/create-text";
 import { performAnticheatCheck } from "../anticheat/anticheat";
+import { createNewEnemy } from "./Enemy";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -59,7 +61,7 @@ class Room {
   chatMessages: Array<unknown> = [];
   updating: boolean = false;
   // custom room exclusive
-  customSettings!: { [key: string]: any };
+  customSettings!: CustomGameSettings;
 
   /**
    * Creates a `Room` instance. This shouldn't be called directly.
@@ -496,8 +498,8 @@ class MultiplayerRoom extends Room {
       checkGlobalMultiplayerRoomClocks(this);
 
       // specific to each player
-      for (let data of this.gameData) {
-        let opponentGameData = this.gameData.filter(
+      for (const data of this.gameData) {
+        const opponentGameData = this.gameData.filter(
           (element) => element.ownerConnectionID !== data.ownerConnectionID
         );
 
@@ -505,15 +507,18 @@ class MultiplayerRoom extends Room {
           this.abort(data);
         }
 
-        for (let enemy of data.enemies) {
-          enemy.move(0.1 * data.enemySpeedCoefficient * (deltaTime / 1000));
+        for (const enemy of data.enemies) {
+          const BASE_ENEMY_SPEED = 0.1;
+          enemy.move(
+            BASE_ENEMY_SPEED * data.enemySpeedCoefficient * (deltaTime / 1000)
+          );
           if (enemy.sPosition <= 0) {
             enemy.remove(data, 10);
           }
         }
         if (data.baseHealth <= 0) {
           // player is eliminated.
-          let socket = universal.getSocketFromConnectionID(
+          const socket = universal.getSocketFromConnectionID(
             data.ownerConnectionID
           );
           if (socket && !data.aborted) {
@@ -530,6 +535,13 @@ class MultiplayerRoom extends Room {
 
         // clocks
         checkPlayerMultiplayerRoomClocks(data, this);
+
+        // forced enemy (when zero)
+        if (data.enemies.length === 0) {
+          const enemy = createNewEnemy(`F${data.enemiesSpawned}`);
+          data.enemies.push(_.clone(enemy));
+          data.enemiesSpawned++;
+        }
 
         // generated enemy
         if (this.globalEnemyToAdd) {
@@ -849,7 +861,14 @@ function resetDefaultMultiplayerRoomID(room: string) {
  * @param {any} settings The settings to set the room to.
  */
 function setCustomRules(room: Room, settings: { [key: string]: any }) {
-  room.customSettings = {};
+  room.customSettings = {
+    baseHealth: 100,
+    comboTime: 5000,
+    enemySpeedCoefficient: 1,
+    enemySpawnThreshold: 0.1,
+    enemySpawnTime: 100,
+    forcedEnemySpawnTime: 2500
+  };
   room.customSettings.baseHealth = parseFloat(settings.baseHealth);
   room.customSettings.comboTime = parseFloat(settings.comboTime);
   room.customSettings.enemySpeedCoefficient = parseFloat(

@@ -193,13 +193,13 @@ class Enemy {
       return this.calculateSent(
         1,
         variables.currentGameClientSide.currentCombo
-      );
+      ).toLocaleString("en-US");
     }
     return this.calculateScore(
       1,
       variables.currentGameClientSide.currentCombo,
       variables.currentGameClientSide.level
-    );
+    ).toLocaleString("en-US");
   }
 }
 
