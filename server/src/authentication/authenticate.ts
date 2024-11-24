@@ -28,6 +28,7 @@ async function authenticate(
     socketID as string
   );
   if (!canBeAuthenticated.good) {
+    log.info(`A socket failed validation checks  ${canBeAuthenticated.reason}`);
     return canBeAuthenticated;
   }
 
