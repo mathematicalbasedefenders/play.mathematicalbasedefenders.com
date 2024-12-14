@@ -18,7 +18,7 @@ import {
   resetDefaultMultiplayerRoomID
 } from "./game/Room";
 import _ from "lodash";
-import { authenticate } from "./authentication/authenticate";
+import { authenticateForSocket } from "./authentication/authenticate";
 import { User } from "./models/User";
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -29,7 +29,7 @@ const DOMPurify = createDOMPurify(window);
 const mongoDBSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 import rateLimit from "express-rate-limit";
-import { attemptToSendChatMessage } from "./core/chat";
+import { sendChatMessage } from "./core/chat";
 
 import { synchronizeGameDataWithSocket } from "./universal";
 import { updateSystemStatus } from "./core/status-indicators";
@@ -214,19 +214,18 @@ uWS
           break;
         }
         case "authenticate": {
-          attemptAuthentication(
-            parsedMessage.username,
-            parsedMessage.password,
-            parsedMessage.socketID
-          );
+          const username = parsedMessage.username;
+          const password = parsedMessage.password;
+          const socketID = parsedMessage.socketID;
+          // attempt to
+          authenticate(username, password, socketID);
           break;
         }
         case "sendChatMessage": {
-          attemptToSendChatMessage(
-            parsedMessage.scope,
-            parsedMessage.chatMessage,
-            socket || ""
-          );
+          const scope = parsedMessage.scope;
+          const message = parsedMessage.chatMessage;
+          // attempt to
+          sendChatMessage(scope, message, socket);
           break;
         }
         default: {
@@ -365,7 +364,7 @@ const loop = setInterval(() => {
 // app.post(
 //   "/authenticate",
 //   limiter,
-async function attemptAuthentication(
+async function authenticate(
   username: string,
   password: string,
   socketID: string
@@ -374,7 +373,7 @@ async function attemptAuthentication(
     DOMPurify.sanitize(username)
   );
   log.info(`Authentication request requested for account ${sanitizedUsername}`);
-  let result = await authenticate(username, password, socketID);
+  let result = await authenticateForSocket(username, password, socketID);
   let socket = universal.getSocketFromConnectionID(socketID);
   if (!result.good || !socket) {
     result.reason === "All checks passed"
@@ -463,7 +462,7 @@ app.post(
     const username = request.body["username"];
     const password = request.body["password"];
     const socketID = request.body["socketID"];
-    const result = await attemptAuthentication(username, password, socketID);
+    const result = await authenticate(username, password, socketID);
     response.json({ success: result });
   }
 );
