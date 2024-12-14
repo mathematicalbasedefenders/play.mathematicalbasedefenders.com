@@ -11,7 +11,9 @@ import {
   minifySelfGameData,
   findRoomWithConnectionID,
   checkIfPropertyWithValueExists,
-  getRank
+  getRank,
+  generateGuestID,
+  generateConnectionID
 } from "./core/utilities";
 import { log } from "./core/log";
 
@@ -342,6 +344,43 @@ function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
   }
 }
 
+/**
+ * Initializes a socket. This includes adding it subscribing it to `game`.
+ * @param {GameSocket} socket The socket to initialize default values with.
+ */
+function initializeSocket(socket: GameSocket) {
+  socket.connectionID = generateConnectionID(16);
+  socket.ownerGuestName = `Guest ${generateGuestID(8)}`;
+  socket.accumulatedMessages = 0;
+  socket.rateLimiting = {
+    last: 1,
+    count: 0
+  };
+  socket.subscribe("game");
+}
+
+/**
+ * This sends data to the socket's connection to update initial values.
+ * @param {GameSocket} socket The socket to initialize send data to.
+ */
+function sendInitialSocketData(socket: GameSocket) {
+  socket.send(
+    JSON.stringify({
+      message: "changeValueOfInput",
+      selector: "#settings-screen__content--online__socket-id",
+      value: socket.connectionID
+    })
+  );
+  socket.send(
+    JSON.stringify({
+      message: "updateGuestInformationText",
+      data: {
+        guestName: socket.ownerGuestName
+      }
+    })
+  );
+}
+
 export {
   GameSocket,
   sockets,
@@ -357,5 +396,7 @@ export {
   sendGlobalToastNotification,
   forceDeleteAndCloseSocket,
   sendGlobalWebSocketMessage,
-  checkIfSocketIsPlaying
+  checkIfSocketIsPlaying,
+  initializeSocket,
+  sendInitialSocketData
 };

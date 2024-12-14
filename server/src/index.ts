@@ -140,33 +140,16 @@ type WebSocketMessage = ArrayBuffer & {
 uWS
   .App()
   .ws("/", {
+    /**
+     * This handles the open connection for a `GameSocket`.
+     * @param {universal.GameSocket} socket The socket that was connected to.
+     */
     open: (socket: universal.GameSocket) => {
       log.info("Socket connected!");
-      socket.connectionID = utilities.generateConnectionID(16);
-      socket.ownerGuestName = `Guest ${utilities.generateGuestID(8)}`;
-      socket.accumulatedMessages = 0;
-      socket.rateLimiting = {
-        last: 1,
-        count: 0
-      };
+      universal.initializeSocket(socket);
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
-      socket.subscribe("game");
-      socket.send(
-        JSON.stringify({
-          message: "changeValueOfInput",
-          selector: "#settings-screen__content--online__socket-id",
-          value: socket.connectionID
-        })
-      );
-      socket.send(
-        JSON.stringify({
-          message: "updateGuestInformationText",
-          data: {
-            guestName: socket.ownerGuestName
-          }
-        })
-      );
+      universal.sendInitialSocketData(socket);
     },
 
     message: (
