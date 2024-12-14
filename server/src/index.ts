@@ -432,23 +432,19 @@ async function authenticate(
 
 function checkBufferSize(buffer: Buffer, socket: universal.GameSocket) {
   // check if buffer too big, if so, alert socket and instantly disconnect.
-  if (buffer.length > 2048) {
-    const connectionID = socket.connectionID;
-    log.warn(
-      `Disconnecting socket ID ${connectionID} due to sending a large buffer.`
-    );
-    socket?.send(
-      JSON.stringify({
-        message: "createToastNotification",
-        // TODO: Refactor this
-        text: `You're sending a very large message! You have been immediately disconnected.`,
-        borderColor: "#ff0000"
-      })
-    );
-    universal.forceDeleteAndCloseSocket(socket);
-    return false;
+  if (buffer.length <= 2048) {
+    return true;
   }
-  return true;
+  const connectionID = socket.connectionID;
+  log.warn(
+    `Disconnecting socket ID ${connectionID} due to sending a large buffer.`
+  );
+  const MESSAGE =
+    "You're sending a very large message! You have been immediately disconnected.";
+  const COLOR = "#ff0000";
+  universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
+  universal.forceDeleteAndCloseSocket(socket);
+  return false;
 }
 
 function initialize() {
