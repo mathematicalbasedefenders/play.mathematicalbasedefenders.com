@@ -3,9 +3,10 @@ import {
   SingleplayerRoom,
   MultiplayerRoom,
   getOpponentsInformation,
-  Room
+  Room,
+  createSingleplayerRoom
 } from "./game/Room";
-import { GameData, SingleplayerGameData } from "./game/GameData";
+import { GameData, GameMode, SingleplayerGameData } from "./game/GameData";
 import _, { update } from "lodash";
 import {
   minifySelfGameData,
@@ -16,6 +17,7 @@ import {
   generateConnectionID
 } from "./core/utilities";
 import { log } from "./core/log";
+import { validateCustomGameSettings } from "./core/utilities";
 
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
@@ -395,6 +397,85 @@ function sendToastMessageToSocket(
   );
 }
 
+function startGameForSocket(
+  socket: GameSocket,
+  parsedMessage: { [key: string]: string }
+) {
+  switch (parsedMessage.mode) {
+    case "singleplayer": {
+      switch (parsedMessage.modifier) {
+        case "easy": {
+          const room = createSingleplayerRoom(
+            socket,
+            GameMode.EasySingleplayer
+          );
+          room.addMember(socket);
+          room.startPlay();
+          break;
+        }
+        case "standard": {
+          const room = createSingleplayerRoom(
+            socket,
+            GameMode.StandardSingleplayer
+          );
+          room.addMember(socket);
+          room.startPlay();
+          break;
+        }
+        case "custom": {
+          let validationResult = validateCustomGameSettings(
+            parsedMessage.mode,
+            JSON.parse(parsedMessage.settings)
+          );
+          if (!validationResult.success) {
+            // send error message
+            socket.send(
+              JSON.stringify({
+                message: "changeText",
+                selector:
+                  "#main-content__custom-singleplayer-intermission-screen-container__errors",
+                value: validationResult.reason
+              })
+            );
+            return;
+          }
+          const room = createSingleplayerRoom(
+            socket,
+            GameMode.CustomSingleplayer,
+            JSON.parse(parsedMessage.settings)
+          );
+          room.addMember(socket);
+          room.startPlay();
+          socket.send(
+            JSON.stringify({
+              message: "changeText",
+              selector:
+                "#main-content__custom-singleplayer-intermission-screen-container__errors",
+              value: ""
+            })
+          );
+          socket.send(
+            JSON.stringify({
+              message: "changeScreen",
+              newScreen: "canvas"
+            })
+          );
+          break;
+        }
+        default: {
+          log.warn(`Unknown singleplayer game mode: ${parsedMessage.modifier}`);
+          break;
+        }
+      }
+      break;
+    }
+    default: {
+      log.warn(`Unknown game mode: ${parsedMessage.mode}`);
+      break;
+    }
+  }
+}
+
 export {
   GameSocket,
   sockets,
@@ -413,5 +494,6 @@ export {
   checkIfSocketIsPlaying,
   initializeSocket,
   sendInitialSocketData,
-  sendToastMessageToSocket
+  sendToastMessageToSocket,
+  startGameForSocket
 };

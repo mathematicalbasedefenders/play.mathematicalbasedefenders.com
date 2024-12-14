@@ -30,7 +30,7 @@ const mongoDBSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 import rateLimit from "express-rate-limit";
 import { attemptToSendChatMessage } from "./core/chat";
-import { validateCustomGameSettings } from "./core/utilities";
+
 import { synchronizeGameDataWithSocket } from "./universal";
 import { updateSystemStatus } from "./core/status-indicators";
 const limiter = rateLimit({
@@ -183,81 +183,7 @@ uWS
       // FIXME: VALIDATE DATA!!!
       switch (parsedMessage.message) {
         case "startGame": {
-          switch (parsedMessage.mode) {
-            case "singleplayer": {
-              switch (parsedMessage.modifier) {
-                case "easy": {
-                  const room = createSingleplayerRoom(
-                    socket,
-                    GameMode.EasySingleplayer
-                  );
-                  room.addMember(socket);
-                  room.startPlay();
-                  break;
-                }
-                case "standard": {
-                  const room = createSingleplayerRoom(
-                    socket,
-                    GameMode.StandardSingleplayer
-                  );
-                  room.addMember(socket);
-                  room.startPlay();
-                  break;
-                }
-                case "custom": {
-                  let validationResult = validateCustomGameSettings(
-                    parsedMessage.mode,
-                    JSON.parse(parsedMessage.settings)
-                  );
-                  if (!validationResult.success) {
-                    // send error message
-                    socket.send(
-                      JSON.stringify({
-                        message: "changeText",
-                        selector:
-                          "#main-content__custom-singleplayer-intermission-screen-container__errors",
-                        value: validationResult.reason
-                      })
-                    );
-                    return;
-                  }
-                  const room = createSingleplayerRoom(
-                    socket,
-                    GameMode.CustomSingleplayer,
-                    JSON.parse(parsedMessage.settings)
-                  );
-                  room.addMember(socket);
-                  room.startPlay();
-                  socket.send(
-                    JSON.stringify({
-                      message: "changeText",
-                      selector:
-                        "#main-content__custom-singleplayer-intermission-screen-container__errors",
-                      value: ""
-                    })
-                  );
-                  socket.send(
-                    JSON.stringify({
-                      message: "changeScreen",
-                      newScreen: "canvas"
-                    })
-                  );
-                  break;
-                }
-                default: {
-                  log.warn(
-                    `Unknown singleplayer game mode: ${parsedMessage.modifier}`
-                  );
-                  break;
-                }
-              }
-              break;
-            }
-            default: {
-              log.warn(`Unknown game mode: ${parsedMessage.mode}`);
-              break;
-            }
-          }
+          universal.startGameForSocket(socket, parsedMessage);
           break;
         }
         case "joinMultiplayerRoom": {
@@ -397,24 +323,6 @@ function resetOneFrameVariables() {
       }
     }
   }
-}
-
-/**
- * Creates a new singleplayer room.
- * @param {universal.GameSocket} caller The socket that called the function
- * @param {GameMode} gameMode The singleplayer game mode.
- * @param {settings} settings The `settings` for the singleplayer game mode, if it's custom.
- * @returns The newly-created room object.
- */
-function createSingleplayerRoom(
-  caller: universal.GameSocket,
-  gameMode: GameMode,
-  settings?: { [key: string]: string }
-) {
-  let room = new SingleplayerRoom(caller, gameMode, settings);
-
-  universal.rooms.push(room);
-  return room;
 }
 
 function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
