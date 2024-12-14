@@ -381,6 +381,20 @@ function sendInitialSocketData(socket: GameSocket) {
   );
 }
 
+function sendToastMessageToSocket(
+  socket: GameSocket,
+  message: string,
+  color: string
+) {
+  socket?.send(
+    JSON.stringify({
+      message: "createToastNotification",
+      text: message,
+      borderColor: color
+    })
+  );
+}
+
 export {
   GameSocket,
   sockets,
@@ -398,5 +412,6 @@ export {
   sendGlobalWebSocketMessage,
   checkIfSocketIsPlaying,
   initializeSocket,
-  sendInitialSocketData
+  sendInitialSocketData,
+  sendToastMessageToSocket
 };

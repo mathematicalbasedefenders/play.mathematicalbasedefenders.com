@@ -158,14 +158,10 @@ uWS
       isBinary: boolean
     ) => {
       if (websocketRateLimit(socket)) {
-        socket?.send(
-          JSON.stringify({
-            message: "createToastNotification",
-            // TODO: Refactor this
-            text: `You're going too fast! You have been immediately disconnected.`,
-            borderColor: "#ff0000"
-          })
-        );
+        const MESSAGE =
+          "You're going too fast! You have rate-limited and been disconnected.";
+        const COLOR = "#ff0000";
+        universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
         log.warn(`Rate-limited and killing socket ${socket.connectionID}.`);
         universal.forceDeleteAndCloseSocket(socket);
         return;
