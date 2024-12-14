@@ -49,8 +49,8 @@ type GameSocket = WebSocket<UserData> & {
   };
 };
 
-let sockets: Array<GameSocket> = [];
-let rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
+const sockets: Array<GameSocket> = [];
+const rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
 
 const STATUS = {
   databaseAvailable: false,
