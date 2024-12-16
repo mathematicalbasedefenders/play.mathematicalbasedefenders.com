@@ -326,24 +326,20 @@ function resetOneFrameVariables() {
 
 function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
   // or create one if said one doesn't exist
-  if (roomID === "default") {
-    let room;
-    if (
-      !defaultMultiplayerRoomID ||
-      typeof defaultMultiplayerRoomID !== "string"
-    ) {
-      room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer, true);
-      room?.addMember(socket);
-      universal.rooms.push(room);
-    } else {
-      room = universal.rooms.find(
-        (room) => room.id === defaultMultiplayerRoomID
-      );
-      room?.addMember(socket);
-    }
-    // FIXME: may cause problems later
-    socket.subscribe(defaultMultiplayerRoomID as string);
+  if (roomID !== "default") {
+    log.warn(`Unknown roomID, should be default: ${roomID}`);
   }
+  let room;
+  if (!defaultMultiplayerRoomID) {
+    room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer, true);
+    universal.rooms.push(room);
+    socket.subscribe(room.id);
+  } else {
+    const defaultRoom = (room: Room) => room.id === defaultMultiplayerRoomID;
+    room = universal.rooms.find(defaultRoom);
+    socket.subscribe(defaultMultiplayerRoomID);
+  }
+  room?.addMember(socket);
 }
 
 const loop = setInterval(() => {
