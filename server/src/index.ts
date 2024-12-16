@@ -180,7 +180,6 @@ uWS
       }
       // ...
       const parsedMessage = incompleteParsedMessage.message;
-      // FIXME: VALIDATE DATA!!!
       switch (parsedMessage.message) {
         case "startGame": {
           universal.startGameForSocket(socket, parsedMessage);
