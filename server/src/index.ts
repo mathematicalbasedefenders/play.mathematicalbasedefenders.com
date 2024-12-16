@@ -288,10 +288,10 @@ function update(deltaTime: number) {
   }
 }
 
-// TODO: Move these functions somewhere else, and also stop using any already
+// TODO: Move these functions somewhere else
 function synchronizeGameDataWithSockets(
   deltaTime: number,
-  systemStatus: { [key: string]: any }
+  systemStatus: { [key: string]: unknown }
 ) {
   sendDataDeltaTime += deltaTime;
   if (sendDataDeltaTime < SYNCHRONIZATION_INTERVAL) {
