@@ -369,41 +369,43 @@ async function authenticate(
   password: string,
   socketID: string
 ) {
-  let sanitizedUsername = mongoDBSanitize.sanitize(
-    DOMPurify.sanitize(username)
-  );
+  const htmlSanitizedUsername = DOMPurify.sanitize(username);
+  const sanitizedUsername = mongoDBSanitize.sanitize(htmlSanitizedUsername);
   log.info(`Authentication request requested for account ${sanitizedUsername}`);
-  let result = await authenticateForSocket(username, password, socketID);
-  let socket = universal.getSocketFromConnectionID(socketID);
-  if (!result.good || !socket) {
-    result.reason === "All checks passed"
-      ? "Invalid Socket Connection ID"
-      : result.reason;
-    socket?.send(
-      JSON.stringify({
-        message: "createToastNotification",
-        // TODO: Refactor this
-        text: `Failed to log in as ${username} (${result.reason})`,
-        borderColor: "#ff0000"
-      })
-    );
+
+  /** Authenticate. */
+  const result = await authenticateForSocket(username, password, socketID);
+  const socket = universal.getSocketFromConnectionID(socketID);
+
+  /** If can't find socket or socket connection ID is invalid. */
+  if (!socket) {
+    result.reason = `Invalid Socket Connection ID: ${socketID}`;
+    log.warn(`Login attempt for ${username} failed: ${result.reason}`);
     return false;
   }
+
+  /** If failed to log in for other reason. */
+  if (!result.good) {
+    log.warn(`Login attempt for ${username} failed: ${result.reason}`);
+    const MESSAGE = `Failed to login as ${username} (${result.reason})`;
+    const BORDER_COLOR = "#ff0000";
+    universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+    return false;
+  }
+
+  /** Successfully logged in. */
   socket.loggedIn = true;
   socket.ownerUsername = username;
   socket.ownerUserID = result.id;
-  const userData = await User.safeFindByUsername(
-    socket.ownerUsername as string
-  );
+  const userData = await User.safeFindByUsername(socket.ownerUsername);
   utilities.updateSocketUserInformation(socket);
   socket.playerRank = utilities.getRank(userData);
-  socket.send(
-    JSON.stringify({
-      message: "createToastNotification",
-      text: `Successfully logged in as ${username}`,
-      borderColor: "#1fa628"
-    })
-  );
+  const MESSAGE = `Successfully logged in as ${username}`;
+  const COLOR = "#1fa628";
+  universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
+
+  /** Send data. */
+  const statistics = userData.statistics;
   socket.send(
     JSON.stringify({
       message: "updateUserInformationText",
@@ -412,22 +414,21 @@ async function authenticate(
         good: true,
         userData: userData,
         rank: utilities.getRank(userData),
-        experiencePoints: userData.statistics.totalExperiencePoints,
+        experiencePoints: statistics.totalExperiencePoints,
         records: {
-          easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
-          standard:
-            userData.statistics.personalBestScoreOnStandardSingleplayerMode
+          easy: statistics.personalBestScoreOnEasySingleplayerMode,
+          standard: statistics.personalBestScoreOnStandardSingleplayerMode
         },
-        // TODO: Refactor this
         reason: "All checks passed."
       }
     })
   );
+
   // Also add missing keys
   if (socket.ownerUserID) {
     User.addMissingKeys(socket.ownerUserID);
   }
-  return;
+  return true;
 }
 
 function checkBufferSize(buffer: Buffer, socket: universal.GameSocket) {
