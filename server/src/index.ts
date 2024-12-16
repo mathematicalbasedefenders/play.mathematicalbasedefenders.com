@@ -357,13 +357,6 @@ const loop = setInterval(() => {
   lastUpdateTime = Date.now();
 }, UPDATE_INTERVAL);
 
-// app.get("/", limiter, (request: Request, response: Response) => {
-//   response.render("pages/index.ejs");
-// });
-
-// app.post(
-//   "/authenticate",
-//   limiter,
 async function authenticate(
   username: string,
   password: string,
