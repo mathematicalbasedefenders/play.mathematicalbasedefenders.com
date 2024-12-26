@@ -9,7 +9,6 @@ class ToastNotification {
 
   text: string;
   age: number;
-  renderTime!: Date;
   position: ToastNotificationPosition;
   id: number;
   lifespan: number;
@@ -39,8 +38,6 @@ class ToastNotification {
 
   render() {
     ToastNotification.notifications.push(this);
-    this.renderTime = new Date();
-
     this.moveOtherNotifications();
     $("#main-content__toast-notification-container").append(this.createHTML());
     this.startLifespan();
