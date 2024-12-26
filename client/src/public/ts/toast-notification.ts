@@ -35,10 +35,10 @@ class ToastNotification {
     this.backgroundColor = backgroundColor || null;
     this.borderColor = borderColor || null;
     this.render();
-    ToastNotification.notifications.push(this);
   }
 
   render() {
+    ToastNotification.notifications.push(this);
     this.renderTime = new Date();
     const fgColorTag = this.foregroundColor
       ? `color:${this.foregroundColor};`
