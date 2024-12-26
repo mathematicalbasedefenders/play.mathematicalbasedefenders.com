@@ -24,7 +24,7 @@ const clearBadMessageObject = {
  * @param {string} message the message
  * @param {universal.GameSocket} socket the socket of the message sender.
  */
-function sendChatMessage(
+function attemptToSendChatMessage(
   scope: string,
   message: string,
   socket: universal.GameSocket
@@ -135,4 +135,4 @@ function createGlobalMessageObject(
   };
   return toReturn;
 }
-export { sendChatMessage };
+export { attemptToSendChatMessage };
