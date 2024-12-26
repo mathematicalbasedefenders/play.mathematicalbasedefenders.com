@@ -41,14 +41,9 @@ class ToastNotification {
     ToastNotification.notifications.push(this);
     this.renderTime = new Date();
 
-    // TODO: This is only for bottom right (pos 8)
-    for (let toast of ToastNotification.notifications) {
-      if (toast.position !== this.position) {
-        continue;
-      }
-      $(`#toast-notification--${toast.id}`).animate({ bottom: "+=76" }, 500);
-    }
+    this.moveOtherNotifications();
     $("#main-content__toast-notification-container").append(this.createHTML());
+    this.startLifespan();
   }
 
   createHTML() {
@@ -88,6 +83,35 @@ class ToastNotification {
         1
       );
     }, this.lifespan);
+  }
+
+  moveOtherNotifications() {
+    let direction = {};
+
+    switch (this.position) {
+      case ToastNotificationPosition.BOTTOM_RIGHT: {
+        direction = { bottom: "+=76" };
+        break;
+      }
+      case ToastNotificationPosition.TOP_RIGHT: {
+        direction = { top: "+=76" };
+        break;
+      }
+    }
+
+    if (Object.keys(direction).length === 0) {
+      return;
+    }
+
+    for (let toast of ToastNotification.notifications) {
+      if (toast.position !== this.position) {
+        continue;
+      }
+      if (toast.id === this.id) {
+        continue;
+      }
+      $(`#toast-notification--${toast.id}`).animate(direction, 500);
+    }
   }
 }
 
