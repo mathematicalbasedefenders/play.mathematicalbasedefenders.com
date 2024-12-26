@@ -58,9 +58,7 @@ class ToastNotification {
       }
       $(`#toast-notification--${toast.id}`).animate({ bottom: "+=76" }, 500);
     }
-    $("#main-content__toast-notification-container").append(
-      `<div style='display:flex;justify-content:center;align-items:center;${fgColorTag}${bgColorTag}${bdColorTag}'class='text--centered toast-notification toast-notification--position-${this.position}' id='toast-notification--${this.id}'>${this.text}</div>`
-    );
+    $("#main-content__toast-notification-container").append(this.createHTML());
     setTimeout(function () {
       $(`#toast-notification--${id}`).remove();
       ToastNotification.notifications.splice(
@@ -70,6 +68,32 @@ class ToastNotification {
         1
       );
     }, this.lifespan);
+  }
+
+  createHTML() {
+    // create the div...
+    const notification = $("div");
+    // style the notification...
+    notification.css("display", "flex");
+    notification.css("justify-content", "center");
+    notification.css("align-items", "center");
+    if (typeof this.foregroundColor === "string") {
+      notification.css("color", this.foregroundColor);
+    }
+    if (typeof this.backgroundColor === "string") {
+      notification.css("color", this.backgroundColor);
+    }
+    if (typeof this.borderColor === "string") {
+      notification.css("color", this.borderColor);
+    }
+    notification.addClass("text--centered");
+    notification.addClass("toast-notification");
+    notification.addClass(`toast-notification--position-${this.position}`);
+    notification.attr("id", `toast-notification--${this.id}`);
+    // add the text
+    notification.text(`${this.text}`);
+    // return the element
+    return notification;
   }
 }
 
