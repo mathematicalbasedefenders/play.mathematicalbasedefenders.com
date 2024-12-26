@@ -76,12 +76,10 @@ class ToastNotification {
     const id = this.id;
     setTimeout(function () {
       $(`#toast-notification--${id}`).remove();
-      ToastNotification.notifications.splice(
-        ToastNotification.notifications.findIndex(
-          (element) => element.id === id
-        ),
-        1
+      const index = ToastNotification.notifications.findIndex(
+        (element) => element.id === id
       );
+      ToastNotification.notifications.splice(index, 1);
     }, this.lifespan);
   }
 
