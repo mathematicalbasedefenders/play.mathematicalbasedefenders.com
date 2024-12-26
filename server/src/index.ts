@@ -18,7 +18,7 @@ import {
   resetDefaultMultiplayerRoomID
 } from "./game/Room";
 import _ from "lodash";
-import { authenticateForSocket } from "./authentication/authenticate";
+import { authenticate } from "./authentication/authenticate";
 import { User } from "./models/User";
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -29,8 +29,8 @@ const DOMPurify = createDOMPurify(window);
 const mongoDBSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 import rateLimit from "express-rate-limit";
-import { sendChatMessage } from "./core/chat";
-
+import { attemptToSendChatMessage } from "./core/chat";
+import { validateCustomGameSettings } from "./core/utilities";
 import { synchronizeGameDataWithSocket } from "./universal";
 import { updateSystemStatus } from "./core/status-indicators";
 const limiter = rateLimit({
@@ -140,16 +140,33 @@ type WebSocketMessage = ArrayBuffer & {
 uWS
   .App()
   .ws("/", {
-    /**
-     * This handles the open connection for a `GameSocket`.
-     * @param {universal.GameSocket} socket The socket that was connected to.
-     */
     open: (socket: universal.GameSocket) => {
       log.info("Socket connected!");
-      universal.initializeSocket(socket);
+      socket.connectionID = utilities.generateConnectionID(16);
+      socket.ownerGuestName = `Guest ${utilities.generateGuestID(8)}`;
+      socket.accumulatedMessages = 0;
+      socket.rateLimiting = {
+        last: 1,
+        count: 0
+      };
       universal.sockets.push(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
-      universal.sendInitialSocketData(socket);
+      socket.subscribe("game");
+      socket.send(
+        JSON.stringify({
+          message: "changeValueOfInput",
+          selector: "#settings-screen__content--online__socket-id",
+          value: socket.connectionID
+        })
+      );
+      socket.send(
+        JSON.stringify({
+          message: "updateGuestInformationText",
+          data: {
+            guestName: socket.ownerGuestName
+          }
+        })
+      );
     },
 
     message: (
@@ -158,10 +175,14 @@ uWS
       isBinary: boolean
     ) => {
       if (websocketRateLimit(socket)) {
-        const MESSAGE =
-          "You're going too fast! You have rate-limited and been disconnected.";
-        const COLOR = "#ff0000";
-        universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
+        socket?.send(
+          JSON.stringify({
+            message: "createToastNotification",
+            // TODO: Refactor this
+            text: `You're going too fast! You have been immediately disconnected.`,
+            borderColor: "#ff0000"
+          })
+        );
         log.warn(`Rate-limited and killing socket ${socket.connectionID}.`);
         universal.forceDeleteAndCloseSocket(socket);
         return;
@@ -180,9 +201,84 @@ uWS
       }
       // ...
       const parsedMessage = incompleteParsedMessage.message;
+      // FIXME: VALIDATE DATA!!!
       switch (parsedMessage.message) {
         case "startGame": {
-          universal.startGameForSocket(socket, parsedMessage);
+          switch (parsedMessage.mode) {
+            case "singleplayer": {
+              switch (parsedMessage.modifier) {
+                case "easy": {
+                  const room = createSingleplayerRoom(
+                    socket,
+                    GameMode.EasySingleplayer
+                  );
+                  room.addMember(socket);
+                  room.startPlay();
+                  break;
+                }
+                case "standard": {
+                  const room = createSingleplayerRoom(
+                    socket,
+                    GameMode.StandardSingleplayer
+                  );
+                  room.addMember(socket);
+                  room.startPlay();
+                  break;
+                }
+                case "custom": {
+                  let validationResult = validateCustomGameSettings(
+                    parsedMessage.mode,
+                    JSON.parse(parsedMessage.settings)
+                  );
+                  if (!validationResult.success) {
+                    // send error message
+                    socket.send(
+                      JSON.stringify({
+                        message: "changeText",
+                        selector:
+                          "#main-content__custom-singleplayer-intermission-screen-container__errors",
+                        value: validationResult.reason
+                      })
+                    );
+                    return;
+                  }
+                  const room = createSingleplayerRoom(
+                    socket,
+                    GameMode.CustomSingleplayer,
+                    JSON.parse(parsedMessage.settings)
+                  );
+                  room.addMember(socket);
+                  room.startPlay();
+                  socket.send(
+                    JSON.stringify({
+                      message: "changeText",
+                      selector:
+                        "#main-content__custom-singleplayer-intermission-screen-container__errors",
+                      value: ""
+                    })
+                  );
+                  socket.send(
+                    JSON.stringify({
+                      message: "changeScreen",
+                      newScreen: "canvas"
+                    })
+                  );
+                  break;
+                }
+                default: {
+                  log.warn(
+                    `Unknown singleplayer game mode: ${parsedMessage.modifier}`
+                  );
+                  break;
+                }
+              }
+              break;
+            }
+            default: {
+              log.warn(`Unknown game mode: ${parsedMessage.mode}`);
+              break;
+            }
+          }
           break;
         }
         case "joinMultiplayerRoom": {
@@ -213,18 +309,19 @@ uWS
           break;
         }
         case "authenticate": {
-          const username = parsedMessage.username;
-          const password = parsedMessage.password;
-          const socketID = parsedMessage.socketID;
-          // attempt to
-          authenticate(username, password, socketID);
+          attemptAuthentication(
+            parsedMessage.username,
+            parsedMessage.password,
+            parsedMessage.socketID
+          );
           break;
         }
         case "sendChatMessage": {
-          const scope = parsedMessage.scope;
-          const message = parsedMessage.chatMessage;
-          // attempt to
-          sendChatMessage(scope, message, socket);
+          attemptToSendChatMessage(
+            parsedMessage.scope,
+            parsedMessage.chatMessage,
+            socket || ""
+          );
           break;
         }
         default: {
@@ -287,10 +384,10 @@ function update(deltaTime: number) {
   }
 }
 
-// TODO: Move these functions somewhere else
+// TODO: Move these functions somewhere else, and also stop using any already
 function synchronizeGameDataWithSockets(
   deltaTime: number,
-  systemStatus: { [key: string]: unknown }
+  systemStatus: { [key: string]: any }
 ) {
   sendDataDeltaTime += deltaTime;
   if (sendDataDeltaTime < SYNCHRONIZATION_INTERVAL) {
@@ -323,22 +420,44 @@ function resetOneFrameVariables() {
   }
 }
 
+/**
+ * Creates a new singleplayer room.
+ * @param {universal.GameSocket} caller The socket that called the function
+ * @param {GameMode} gameMode The singleplayer game mode.
+ * @param {settings} settings The `settings` for the singleplayer game mode, if it's custom.
+ * @returns The newly-created room object.
+ */
+function createSingleplayerRoom(
+  caller: universal.GameSocket,
+  gameMode: GameMode,
+  settings?: { [key: string]: string }
+) {
+  let room = new SingleplayerRoom(caller, gameMode, settings);
+
+  universal.rooms.push(room);
+  return room;
+}
+
 function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
   // or create one if said one doesn't exist
-  if (roomID !== "default") {
-    log.warn(`Unknown roomID, should be default: ${roomID}`);
+  if (roomID === "default") {
+    let room;
+    if (
+      !defaultMultiplayerRoomID ||
+      typeof defaultMultiplayerRoomID !== "string"
+    ) {
+      room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer, true);
+      room?.addMember(socket);
+      universal.rooms.push(room);
+    } else {
+      room = universal.rooms.find(
+        (room) => room.id === defaultMultiplayerRoomID
+      );
+      room?.addMember(socket);
+    }
+    // FIXME: may cause problems later
+    socket.subscribe(defaultMultiplayerRoomID as string);
   }
-  let room;
-  if (!defaultMultiplayerRoomID) {
-    room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer, true);
-    universal.rooms.push(room);
-    socket.subscribe(room.id);
-  } else {
-    const defaultRoom = (room: Room) => room.id === defaultMultiplayerRoomID;
-    room = universal.rooms.find(defaultRoom);
-    socket.subscribe(defaultMultiplayerRoomID);
-  }
-  room?.addMember(socket);
 }
 
 const loop = setInterval(() => {
@@ -352,48 +471,53 @@ const loop = setInterval(() => {
   lastUpdateTime = Date.now();
 }, UPDATE_INTERVAL);
 
-async function authenticate(
+// app.get("/", limiter, (request: Request, response: Response) => {
+//   response.render("pages/index.ejs");
+// });
+
+// app.post(
+//   "/authenticate",
+//   limiter,
+async function attemptAuthentication(
   username: string,
   password: string,
   socketID: string
 ) {
-  const htmlSanitizedUsername = DOMPurify.sanitize(username);
-  const sanitizedUsername = mongoDBSanitize.sanitize(htmlSanitizedUsername);
+  let sanitizedUsername = mongoDBSanitize.sanitize(
+    DOMPurify.sanitize(username)
+  );
   log.info(`Authentication request requested for account ${sanitizedUsername}`);
-
-  /** Authenticate. */
-  const result = await authenticateForSocket(username, password, socketID);
-  const socket = universal.getSocketFromConnectionID(socketID);
-
-  /** If can't find socket or socket connection ID is invalid. */
-  if (!socket) {
-    result.reason = `Invalid Socket Connection ID: ${socketID}`;
-    log.warn(`Login attempt for ${username} failed: ${result.reason}`);
+  let result = await authenticate(username, password, socketID);
+  let socket = universal.getSocketFromConnectionID(socketID);
+  if (!result.good || !socket) {
+    result.reason === "All checks passed"
+      ? "Invalid Socket Connection ID"
+      : result.reason;
+    socket?.send(
+      JSON.stringify({
+        message: "createToastNotification",
+        // TODO: Refactor this
+        text: `Failed to log in as ${username} (${result.reason})`,
+        borderColor: "#ff0000"
+      })
+    );
     return false;
   }
-
-  /** If failed to log in for other reason. */
-  if (!result.good) {
-    log.warn(`Login attempt for ${username} failed: ${result.reason}`);
-    const MESSAGE = `Failed to login as ${username} (${result.reason})`;
-    const BORDER_COLOR = "#ff0000";
-    universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
-    return false;
-  }
-
-  /** Successfully logged in. */
   socket.loggedIn = true;
   socket.ownerUsername = username;
   socket.ownerUserID = result.id;
-  const userData = await User.safeFindByUsername(socket.ownerUsername);
+  const userData = await User.safeFindByUsername(
+    socket.ownerUsername as string
+  );
   utilities.updateSocketUserInformation(socket);
   socket.playerRank = utilities.getRank(userData);
-  const MESSAGE = `Successfully logged in as ${username}`;
-  const COLOR = "#1fa628";
-  universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
-
-  /** Send data. */
-  const statistics = userData.statistics;
+  socket.send(
+    JSON.stringify({
+      message: "createToastNotification",
+      text: `Successfully logged in as ${username}`,
+      borderColor: "#1fa628"
+    })
+  );
   socket.send(
     JSON.stringify({
       message: "updateUserInformationText",
@@ -402,38 +526,43 @@ async function authenticate(
         good: true,
         userData: userData,
         rank: utilities.getRank(userData),
-        experiencePoints: statistics.totalExperiencePoints,
+        experiencePoints: userData.statistics.totalExperiencePoints,
         records: {
-          easy: statistics.personalBestScoreOnEasySingleplayerMode,
-          standard: statistics.personalBestScoreOnStandardSingleplayerMode
+          easy: userData.statistics.personalBestScoreOnEasySingleplayerMode,
+          standard:
+            userData.statistics.personalBestScoreOnStandardSingleplayerMode
         },
+        // TODO: Refactor this
         reason: "All checks passed."
       }
     })
   );
-
   // Also add missing keys
   if (socket.ownerUserID) {
     User.addMissingKeys(socket.ownerUserID);
   }
-  return true;
+  return;
 }
 
 function checkBufferSize(buffer: Buffer, socket: universal.GameSocket) {
   // check if buffer too big, if so, alert socket and instantly disconnect.
-  if (buffer.length <= 2048) {
-    return true;
+  if (buffer.length > 2048) {
+    const connectionID = socket.connectionID;
+    log.warn(
+      `Disconnecting socket ID ${connectionID} due to sending a large buffer.`
+    );
+    socket?.send(
+      JSON.stringify({
+        message: "createToastNotification",
+        // TODO: Refactor this
+        text: `You're sending a very large message! You have been immediately disconnected.`,
+        borderColor: "#ff0000"
+      })
+    );
+    universal.forceDeleteAndCloseSocket(socket);
+    return false;
   }
-  const connectionID = socket.connectionID;
-  log.warn(
-    `Disconnecting socket ID ${connectionID} due to sending a large buffer.`
-  );
-  const MESSAGE =
-    "You're sending a very large message! You have been immediately disconnected.";
-  const COLOR = "#ff0000";
-  universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
-  universal.forceDeleteAndCloseSocket(socket);
-  return false;
+  return true;
 }
 
 function initialize() {
@@ -447,7 +576,7 @@ app.post(
     const username = request.body["username"];
     const password = request.body["password"];
     const socketID = request.body["socketID"];
-    const result = await authenticate(username, password, socketID);
+    const result = await attemptAuthentication(username, password, socketID);
     response.json({ success: result });
   }
 );

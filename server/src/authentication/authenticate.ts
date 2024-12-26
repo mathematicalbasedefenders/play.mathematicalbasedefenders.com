@@ -8,7 +8,7 @@ const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
 // TODO: Consider moving this to services folder
-async function authenticateForSocket(
+async function authenticate(
   username: unknown | undefined,
   password: unknown | undefined,
   socketID: unknown | undefined,
@@ -216,4 +216,4 @@ function checkIfSocketCanBeAuthenticated(connectionID: string) {
   };
 }
 
-export { authenticateForSocket };
+export { authenticate };
