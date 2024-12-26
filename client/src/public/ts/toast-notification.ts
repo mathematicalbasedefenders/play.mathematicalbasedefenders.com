@@ -40,17 +40,7 @@ class ToastNotification {
   render() {
     ToastNotification.notifications.push(this);
     this.renderTime = new Date();
-    const fgColorTag = this.foregroundColor
-      ? `color:${this.foregroundColor};`
-      : ``;
-    const bgColorTag = this.backgroundColor
-      ? `background-color:${this.backgroundColor};`
-      : ``;
-    const bdColorTag = this.borderColor
-      ? `border-color:${this.borderColor};`
-      : ``;
 
-    let id = this.id;
     // TODO: This is only for bottom right (pos 8)
     for (let toast of ToastNotification.notifications) {
       if (toast.position !== this.position) {
@@ -59,15 +49,6 @@ class ToastNotification {
       $(`#toast-notification--${toast.id}`).animate({ bottom: "+=76" }, 500);
     }
     $("#main-content__toast-notification-container").append(this.createHTML());
-    setTimeout(function () {
-      $(`#toast-notification--${id}`).remove();
-      ToastNotification.notifications.splice(
-        ToastNotification.notifications.findIndex(
-          (element) => element.id === id
-        ),
-        1
-      );
-    }, this.lifespan);
   }
 
   createHTML() {
@@ -94,6 +75,19 @@ class ToastNotification {
     notification.text(`${this.text}`);
     // return the element
     return notification;
+  }
+
+  startLifespan() {
+    const id = this.id;
+    setTimeout(function () {
+      $(`#toast-notification--${id}`).remove();
+      ToastNotification.notifications.splice(
+        ToastNotification.notifications.findIndex(
+          (element) => element.id === id
+        ),
+        1
+      );
+    }, this.lifespan);
   }
 }
 
