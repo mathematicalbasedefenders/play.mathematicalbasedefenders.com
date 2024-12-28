@@ -38,13 +38,28 @@ class ToastNotification {
   render() {
     ToastNotification.notifications.push(this);
     this.moveOtherNotifications();
-    $("#main-content__toast-notification-container").append(this.createHTML());
+
+    // It seems like jQuery doesn't have appendChild...
+    const container = document.getElementById(
+      "main-content__toast-notification-container"
+    );
+    if (!container) {
+      console.warn("Container for toast notification not found...");
+      return;
+    }
+    const html = this.createHTML();
+    if (!html) {
+      console.warn("HTML for toast notification not found...");
+      return;
+    }
+    container.appendChild(html);
+
     this.startLifespan();
   }
 
   createHTML() {
     // create the div...
-    const notification = $("div");
+    const notification = $("<div></div>");
     // style the notification...
     notification.css("display", "flex");
     notification.css("justify-content", "center");
@@ -65,7 +80,7 @@ class ToastNotification {
     // add the text
     notification.text(`${this.text}`);
     // return the element
-    return notification;
+    return notification[0];
   }
 
   startLifespan() {
