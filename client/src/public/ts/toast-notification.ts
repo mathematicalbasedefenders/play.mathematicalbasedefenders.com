@@ -33,7 +33,6 @@ class ToastNotification {
     this.foregroundColor = foregroundColor || null;
     this.backgroundColor = backgroundColor || null;
     this.borderColor = borderColor || null;
-    this.render();
   }
 
   render() {
