@@ -68,10 +68,10 @@ class ToastNotification {
       notification.css("color", this.foregroundColor);
     }
     if (typeof this.backgroundColor === "string") {
-      notification.css("color", this.backgroundColor);
+      notification.css("background-color", this.backgroundColor);
     }
     if (typeof this.borderColor === "string") {
-      notification.css("color", this.borderColor);
+      notification.css("border-color", this.borderColor);
     }
     notification.addClass("text--centered");
     notification.addClass("toast-notification");
