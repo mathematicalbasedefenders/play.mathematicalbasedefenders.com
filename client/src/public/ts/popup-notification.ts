@@ -20,7 +20,6 @@ class PopupNotification {
     this.title = title;
     this.text = text;
     this.buttonStyle = buttonStyle || PopupNotificationButtonStyle.SINGLE;
-    this.render();
   }
 
   // TODO: wtf is this
