@@ -35,7 +35,7 @@ class PopupNotification {
       `<dialog id="popup-notification--${this.id}" class="popup-notification"><div class="popup-notification__title">${this.title}</div><div class="popup-notification__content">${this.text}</div><div class="popup-notification__button-container">${buttons}</div></dialog>`
     );
     $(`#popup-notification--${this.id}__close-button`).on("click", () => {
-      this.close(this.id);
+      this.close();
     });
     if (PopupNotification.activeNotifications > 0) {
       $("#main-content__popup-notification-container").show(0);
@@ -46,7 +46,8 @@ class PopupNotification {
     }
   }
 
-  close(id: number) {
+  close() {
+    const id = this.id;
     $(`#popup-notification--${id}`).hide(250);
     const index = PopupNotification.activeNotificationIDs.indexOf(id);
     PopupNotification.activeNotificationIDs.splice(index, 1);
