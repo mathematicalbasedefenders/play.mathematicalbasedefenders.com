@@ -628,7 +628,7 @@ window.addEventListener("load", function () {
       endInitTime - startInitTime
     )}ms)`
   );
-  new PopupNotification(
+  const notification = new PopupNotification(
     "Hello!",
     `<p style="font-size:20px">Thank you for trying out Mathematical Base Defenders! 
     <br>
@@ -650,6 +650,7 @@ window.addEventListener("load", function () {
     Thank you for playing!</p>`,
     1
   );
+  notification.render();
 });
 
 export {
