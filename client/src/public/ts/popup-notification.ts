@@ -20,23 +20,19 @@ class PopupNotification {
     this.title = title;
     this.text = text;
     this.buttonStyle = buttonStyle || PopupNotificationButtonStyle.SINGLE;
-    this.render();
   }
 
   // TODO: wtf is this
   render() {
     PopupNotification.activeNotifications++;
     PopupNotification.activeNotificationIDs.push(this.id);
-    let buttons = `<button id="popup-notification--${this.id}__close-button">Close</button>`;
-    // FIXME: Never used, consider removing?
-    // if (this.buttonStyle === PopupNotificationButtonStyle.DOUBLE_SELECT) {
-    //   buttons += `&nbsp;&nbsp;<button>OK</button>`;
-    // }
-    $("#main-content__popup-notification-container").append(
-      `<dialog id="popup-notification--${this.id}" class="popup-notification"><div class="popup-notification__title">${this.title}</div><div class="popup-notification__content">${this.text}</div><div class="popup-notification__button-container">${buttons}</div></dialog>`
-    );
+    const html = this.createHTML();
+    if (!html) {
+      console.warn("HTML for popup notification not found...");
+    }
+    $("#main-content__popup-notification-container").append(html);
     $(`#popup-notification--${this.id}__close-button`).on("click", () => {
-      this.close(this.id);
+      this.close();
     });
     if (PopupNotification.activeNotifications > 0) {
       $("#main-content__popup-notification-container").show(0);
@@ -47,7 +43,8 @@ class PopupNotification {
     }
   }
 
-  close(id: number) {
+  close() {
+    const id = this.id;
     $(`#popup-notification--${id}`).hide(250);
     const index = PopupNotification.activeNotificationIDs.indexOf(id);
     PopupNotification.activeNotificationIDs.splice(index, 1);
@@ -60,6 +57,40 @@ class PopupNotification {
         "none"
       );
     }
+  }
+
+  createHTML() {
+    // the notification
+    const notification = $("<dialog></dialog>");
+    notification.attr("id", `popup-notification--${this.id}`);
+    notification.addClass("popup-notification");
+    // the title
+    const title = $("<div></div>");
+    title.addClass("popup-notification__title");
+    title.text(this.title);
+    // the text
+    const text = $("<div></div>");
+    text.addClass("popup-notification__context");
+    text.html(this.text);
+    // the buttons
+    const buttons = $("<div></div>");
+    const buttonHTML = this.createButtonsHTML();
+    if (buttonHTML) {
+      buttons.addClass("popup-notification__button-container");
+      buttons.html(buttonHTML);
+    }
+    // add html
+    notification.append(title);
+    notification.append(text);
+    if (buttonHTML) {
+      notification.append(buttons);
+    }
+    return notification;
+  }
+
+  createButtonsHTML() {
+    const buttons = `<button id="popup-notification--${this.id}__close-button">Close</button>`;
+    return buttons;
   }
 }
 

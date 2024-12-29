@@ -628,7 +628,7 @@ window.addEventListener("load", function () {
       endInitTime - startInitTime
     )}ms)`
   );
-  new PopupNotification(
+  const notification = new PopupNotification(
     "Hello!",
     `<p style="font-size:20px">Thank you for trying out Mathematical Base Defenders! 
     <br>
@@ -645,11 +645,12 @@ window.addEventListener("load", function () {
     <li>To log in to your user account, go to <code>Settings</code>, then <code>Online</code>.</li>
     <li>To register for an account, go to the accompanying website <a class="text--link" href="https://mathematicalbasedefenders.com">here</a>.</li>
     <li>To request a feature, report a bug or to contribute, please do so in the game's communication channels available on the accompanying website.</li>
-    <li><b>As of 0.4.10, to prevent abuse of server resources, please do not mash the keys on your keyboard, as it may lead to anticheat falsely flagging and disconnecting you. A future update will make this anticheat function more accurate. (Don't worry, getting flagging for this reason has no punishment)</b></li>
+    <li><b>As of 0.4.10, to prevent abuse of server resources, please do not mash the keys on your keyboard, as it may lead to anticheat falsely flagging and disconnecting you. A future update will make this anticheat function more accurate. (Don't worry, getting flagged for this reason has no punishment)</b></li>
     </ul>
     Thank you for playing!</p>`,
     1
   );
+  notification.render();
 });
 
 export {
