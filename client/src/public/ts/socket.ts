@@ -43,6 +43,7 @@ socket.addEventListener("message", (event: any) => {
     }
     case "updateGuestInformationText": {
       updateGuestInformationText(message.data);
+      break;
     }
     case "changeText": {
       $(message.selector).text(message.value);
