@@ -1,4 +1,4 @@
-import { ToastNotification } from "./notifications";
+import { ToastNotification } from "./toast-notification";
 
 /**
  * Changes the background's body to the image at the specified URL.

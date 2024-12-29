@@ -5,7 +5,7 @@ import {
 } from "./index";
 import { updateStatusTrayText } from "./status-tray";
 import { changeScreen, renderGameData } from "./game";
-import { ToastNotification } from "./notifications";
+import { ToastNotification } from "./toast-notification";
 import { updateSystemStatusTrayText } from "./system-status-indicator";
 import { createChatMessage } from "./chat";
 import DOMPurify from "dompurify";
@@ -65,7 +65,7 @@ socket.addEventListener("message", (event: any) => {
       break;
     }
     case "createToastNotification": {
-      new ToastNotification(
+      const notification = new ToastNotification(
         message.text,
         message.position,
         message.lifespan || 5000,
@@ -73,6 +73,7 @@ socket.addEventListener("message", (event: any) => {
         message.backgroundColor || null,
         message.borderColor || null
       );
+      notification.render();
       break;
     }
     case "updateUserInformationText": {

@@ -14,10 +14,13 @@ import { calculateLevel, millisecondsToTime } from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
 import {
-  PopupNotification,
   ToastNotification,
   ToastNotificationPosition
-} from "./notifications";
+} from "./toast-notification";
+import {
+  PopupNotification,
+  PopupNotificationButtonStyle
+} from "./popup-notification";
 import { changeBackgroundImage } from "./change-background-image";
 let startInitTime: number = Date.now();
 //
