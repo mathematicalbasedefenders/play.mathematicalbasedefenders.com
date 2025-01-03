@@ -1,3 +1,9 @@
+/**
+ * Logs a message to the console.
+ * This logs the message with a prefix.
+ * If prefix is not wanted, just call the respective
+ * `console` method directly.
+ */
 const log: {
   error: Function;
   warn: Function;
