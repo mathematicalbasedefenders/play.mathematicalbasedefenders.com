@@ -10,17 +10,21 @@ const log: {
   info: Function;
   debug: Function;
 } = {
-  error: (message: string) => {
-    console.error(`${"[" + new Date().toISOString() + " ERROR]"} ${message}`);
+  error: (...message: Array<string>) => {
+    const timestamp = new Date().toISOString();
+    console.error(`${"[" + timestamp + " ERROR]"} ${message.join(" ")}`);
   },
-  warn: (message: string) => {
-    console.warn(`${"[" + new Date().toISOString() + " WARN]"} ${message}`);
+  warn: (...message: Array<string>) => {
+    const timestamp = new Date().toISOString();
+    console.warn(`${"[" + timestamp + " WARN]"} ${message.join(" ")}`);
   },
-  info: (message: string) => {
-    console.info(`${"[" + new Date().toISOString() + " INFO]"} ${message}`);
+  info: (...message: Array<string>) => {
+    const timestamp = new Date().toISOString();
+    console.info(`${"[" + timestamp + " INFO]"} ${message.join(" ")}`);
   },
-  debug: (message: string) => {
-    console.debug(`${"[" + new Date().toISOString() + " DEBUG]"} ${message}`);
+  debug: (...message: Array<string>) => {
+    const timestamp = new Date().toISOString();
+    console.debug(`${"[" + timestamp + " DEBUG]"} ${message.join(" ")}`);
   }
 };
 
