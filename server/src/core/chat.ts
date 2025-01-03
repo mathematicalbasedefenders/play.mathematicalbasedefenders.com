@@ -113,6 +113,16 @@ function validateMessage(message: string, connectionID: string) {
   return true;
 }
 
+/**
+ * Creates a global message object (for global chat).
+ * @param {string} message The message to send.
+ * @param {string} connectionID The socket connection ID of the sender.
+ * This is used to get the sender's username.
+ * @param {string} senderColor The color of the sender's name.
+ * Usually the same as the rank name color of the sender.
+ * @param {string|null} attribute The attribute of the message.
+ * @returns The message object
+ */
 function createGlobalMessageObject(
   message: string,
   connectionID: string,
