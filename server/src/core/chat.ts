@@ -8,12 +8,12 @@ const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
 //
-const badMessageObject = {
+const BAD_MESSAGE_OBJECT = {
   message: "changeText",
   selector: "#chat-tray-error",
   value: "Message not sent: Bad chat validation."
 };
-const clearBadMessageObject = {
+const CLEAR_BAD_MESSAGE_OBJECT = {
   message: "changeText",
   selector: "#chat-tray-error",
   value: ""
@@ -67,7 +67,7 @@ function sendChatMessage(
     case "global": {
       if (!validateMessage(message, connectionID)) {
         log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
-        socket.send(JSON.stringify(badMessageObject));
+        socket.send(JSON.stringify(BAD_MESSAGE_OBJECT));
         return;
       }
       const messageObject = createGlobalMessageObject(
@@ -77,7 +77,7 @@ function sendChatMessage(
       );
       socket.publish("game", JSON.stringify(messageObject));
       socket.send(JSON.stringify(messageObject));
-      socket.send(JSON.stringify(clearBadMessageObject));
+      socket.send(JSON.stringify(CLEAR_BAD_MESSAGE_OBJECT));
       log.info(
         `Socket ID ${connectionID} (${playerName}) sent message ${message} to global chat.`
       );
