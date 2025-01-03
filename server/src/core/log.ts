@@ -4,29 +4,17 @@ const log: {
   info: Function;
   debug: Function;
 } = {
-  error: (message: string, disablePrefix?: boolean) => {
-    console.error(
-      `${
-        disablePrefix || "[" + new Date().toISOString() + " ERROR]"
-      } ${message}`
-    );
+  error: (message: string) => {
+    console.error(`${"[" + new Date().toISOString() + " ERROR]"} ${message}`);
   },
-  warn: (message: string, disablePrefix?: boolean) => {
-    console.warn(
-      `${disablePrefix || "[" + new Date().toISOString() + " WARN]"} ${message}`
-    );
+  warn: (message: string) => {
+    console.warn(`${"[" + new Date().toISOString() + " WARN]"} ${message}`);
   },
-  info: (message: string, disablePrefix?: boolean) => {
-    console.info(
-      `${disablePrefix || "[" + new Date().toISOString() + " INFO]"} ${message}`
-    );
+  info: (message: string) => {
+    console.info(`${"[" + new Date().toISOString() + " INFO]"} ${message}`);
   },
-  debug: (message: string, disablePrefix?: boolean) => {
-    console.debug(
-      `${
-        disablePrefix || "[" + new Date().toISOString() + " DEBUG]"
-      } ${message}`
-    );
+  debug: (message: string) => {
+    console.debug(`${"[" + new Date().toISOString() + " DEBUG]"} ${message}`);
   }
 };
 
