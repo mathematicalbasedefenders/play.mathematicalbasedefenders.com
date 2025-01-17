@@ -378,9 +378,9 @@ function initializeEventListeners() {
     await fetch(url, {
       method: "POST",
       body: JSON.stringify({
-        username: $("#settings-screen__content--online__username").val(),
-        password: $("#settings-screen__content--online__password").val(),
-        socketID: $("#settings-screen__content--online__socket-id").val()
+        username: $("#authentication-modal__username").val(),
+        password: $("#authentication-modal__password").val(),
+        socketID: $("#authentication-modal__socket-id").val()
       }),
       headers: { "Content-Type": "application/json" }
     });

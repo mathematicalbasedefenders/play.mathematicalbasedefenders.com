@@ -369,7 +369,7 @@ function sendInitialSocketData(socket: GameSocket) {
   socket.send(
     JSON.stringify({
       message: "changeValueOfInput",
-      selector: "#settings-screen__content--online__socket-id",
+      selector: "#authentication-modal__socket-id",
       value: socket.connectionID
     })
   );
