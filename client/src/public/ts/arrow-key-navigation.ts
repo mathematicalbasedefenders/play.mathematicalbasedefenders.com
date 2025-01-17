@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { variables } from ".";
-import { PopupNotification } from "./notifications";
+import { PopupNotification } from "./popup-notification";
 
 // Globals
 const settingsSecondaryScreenOrder: { [key: string]: Array<string> } = {

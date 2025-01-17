@@ -160,8 +160,8 @@ uWS
       if (websocketRateLimit(socket)) {
         const MESSAGE =
           "You're going too fast! You have rate-limited and been disconnected.";
-        const COLOR = "#ff0000";
-        universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
+        const BORDER_COLOR = "#ff0000";
+        universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
         log.warn(`Rate-limited and killing socket ${socket.connectionID}.`);
         universal.forceDeleteAndCloseSocket(socket);
         return;
@@ -430,8 +430,8 @@ function checkBufferSize(buffer: Buffer, socket: universal.GameSocket) {
   );
   const MESSAGE =
     "You're sending a very large message! You have been immediately disconnected.";
-  const COLOR = "#ff0000";
-  universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
+  const BORDER_COLOR = "#ff0000";
+  universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
   universal.forceDeleteAndCloseSocket(socket);
   return false;
 }
