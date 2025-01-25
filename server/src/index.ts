@@ -230,6 +230,7 @@ uWS
         case "exitOpeningScreen": {
           log.info(`Socket ${socket.connectionID} exited opening screen.`);
           socket.exitedOpeningScreen = true;
+          break;
         }
         default: {
           console.warn(
