@@ -103,7 +103,8 @@ const variables: { [key: string]: any } = {
     currentSecondaryScreen: null,
     focusing: null
   },
-  isGuest: true
+  isGuest: true,
+  exitedOpeningScreen: false
 };
 
 type stageItemsContainer = {
@@ -518,6 +519,7 @@ function initializeEventListeners() {
   $("#opening-screen__play-as-guest").on("click", () => {
     $("#opening-screen-container").hide(0);
     sendSocketMessage({ message: "exitOpeningScreen" });
+    variables.exitedOpeningScreen = true;
   });
 }
 
