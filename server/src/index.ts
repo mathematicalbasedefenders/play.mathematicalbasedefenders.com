@@ -227,6 +227,9 @@ uWS
           sendChatMessage(scope, message, socket);
           break;
         }
+        case "exitOpeningScreen": {
+          socket.exitedOpeningScreen = true;
+        }
         default: {
           console.warn(
             `Unknown action from socket with connectionID ${socket.connectionID}: ${parsedMessage.message}`
