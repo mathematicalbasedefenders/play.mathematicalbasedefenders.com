@@ -51,6 +51,12 @@ type GameSocket = WebSocket<UserData> & {
     last: number;
     count: number;
   };
+  /**
+   * Whether the owner of the socket exited the opening screen.
+   * Once exited opening screen, no further authentication attempts can be performed.
+   * New in 0.4.13.
+   */
+  exitedOpeningScreen?: boolean;
 };
 
 const sockets: Array<GameSocket> = [];
