@@ -515,6 +515,9 @@ function initializeEventListeners() {
     changeScreen("settingsMenu");
     changeSettingsSecondaryScreen("online");
   });
+  $("#opening-screen__play-as-guest").on("click", () => {
+    $("#opening-screen-container").hide(0);
+  });
 }
 
 // events
