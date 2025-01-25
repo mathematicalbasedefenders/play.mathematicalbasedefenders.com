@@ -357,6 +357,7 @@ function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
  * @param {GameSocket} socket The socket to initialize default values with.
  */
 function initializeSocket(socket: GameSocket) {
+  socket.exitedOpeningScreen = false;
   socket.connectionID = generateConnectionID(16);
   socket.ownerGuestName = `Guest ${generateGuestID(8)}`;
   socket.accumulatedMessages = 0;
