@@ -4,11 +4,11 @@ import { PopupNotification } from "./notifications";
 
 // Globals
 const settingsSecondaryScreenOrder: { [key: string]: Array<string> } = {
-  // "online": [
-  //   "#settings-screen__content--online__username",
-  //   "#settings-screen__content--online__password",
-  //   "#settings-screen__content--online__submit"
-  // ],
+  "online": [
+    //   "#settings-screen__content--online__username",
+    //   "#settings-screen__content--online__password",
+    //   "#settings-screen__content--online__submit"
+  ],
   "video": [
     "#settings-multiplication-sign__times",
     "#settings-multiplication-sign__middle-dot",
