@@ -1038,7 +1038,7 @@ code {
 
 /* TOAST NOTIFICATIONS */
 #main-content__toast-notification-container {
-  z-index: 100;
+  z-index: 2005;
   overflow: hidden;
   width: 100vw;
   height: 100vh;
@@ -1048,7 +1048,7 @@ code {
 }
 
 .main-content__toast-notification {
-  z-index: 100;
+  z-index: 2005;
   overflow: hidden;
 }
 
