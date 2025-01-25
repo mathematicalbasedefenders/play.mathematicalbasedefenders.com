@@ -177,6 +177,17 @@ function checkIfSocketCanBeAuthenticated(connectionID: string) {
     };
   }
 
+  // socket already exited opening screen.
+  if (socket.exitedOpeningScreen) {
+    log.warn(
+      `A user tried to log in, but the socket tied to that session already exited opening screen.`
+    );
+    return {
+      good: false,
+      reason: "Socket already exited opening screen."
+    };
+  }
+
   // socket doesn't have a connection id
   if (!socket.connectionID) {
     log.warn(
