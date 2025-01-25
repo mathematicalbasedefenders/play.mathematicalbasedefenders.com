@@ -371,6 +371,7 @@ function initializeEventListeners() {
   );
   //
   $("#settings-screen__content--online__submit").on("click", async (event) => {
+    event.preventDefault();
     // FIXME: possibly unsafe
     const url = `${location.protocol}//${location.hostname}${
       location.protocol === "http:" ? ":4000" : ""
@@ -384,7 +385,6 @@ function initializeEventListeners() {
       }),
       headers: { "Content-Type": "application/json" }
     });
-    event.preventDefault();
   });
   //
   $("#settings-screen__content-save-background-image").on(
