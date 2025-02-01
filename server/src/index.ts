@@ -183,9 +183,7 @@ uWS
       switch (parsedMessage.message) {
         case "startGame": {
           if (!socket.exitedOpeningScreen) {
-            log.warn(
-              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
-            );
+            blockSocket(socket);
             return;
           }
           universal.startGameForSocket(socket, parsedMessage);
@@ -193,9 +191,7 @@ uWS
         }
         case "joinMultiplayerRoom": {
           if (!socket.exitedOpeningScreen) {
-            log.warn(
-              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
-            );
+            blockSocket(socket);
             return;
           }
           switch (parsedMessage.room) {
@@ -211,9 +207,7 @@ uWS
         }
         case "leaveMultiplayerRoom": {
           if (!socket.exitedOpeningScreen) {
-            log.warn(
-              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
-            );
+            blockSocket(socket);
             return;
           }
           // attempt to
@@ -223,9 +217,7 @@ uWS
         // game input
         case "keypress": {
           if (!socket.exitedOpeningScreen) {
-            log.warn(
-              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
-            );
+            blockSocket(socket);
             return;
           }
           input.processKeypress(socket, parsedMessage.keypress);
@@ -234,9 +226,7 @@ uWS
         }
         case "emulateKeypress": {
           if (!socket.exitedOpeningScreen) {
-            log.warn(
-              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
-            );
+            blockSocket(socket);
             return;
           }
           input.emulateKeypress(socket, parsedMessage.emulatedKeypress);
@@ -252,9 +242,7 @@ uWS
         }
         case "sendChatMessage": {
           if (!socket.exitedOpeningScreen) {
-            log.warn(
-              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
-            );
+            blockSocket(socket);
             return;
           }
           const scope = parsedMessage.scope;
@@ -482,6 +470,21 @@ function checkBufferSize(buffer: Buffer, socket: universal.GameSocket) {
 
 function initialize() {
   sendDataDeltaTime = 0;
+}
+
+/**
+ * Blocks a socket from performing any actions.
+ * Used when socket hasn't properly exited opening screen.
+ * (e.g. using DevTools to remove opening screen)
+ * @param {universal.GameSocket} socket The socket to block
+ */
+function blockSocket(socket: universal.GameSocket) {
+  log.warn(
+    `Blocking socket ${socket.connectionID} from improper opening screen exit.`
+  );
+  const MESSAGE = `Socket blocked. Please refresh and properly exit the opening screen.`;
+  const COLOR = "#ff0000";
+  universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
 }
 
 app.post(
