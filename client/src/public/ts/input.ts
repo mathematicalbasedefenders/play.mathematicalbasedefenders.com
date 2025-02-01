@@ -90,6 +90,26 @@ function handleClientSideEvents(event: KeyboardEvent) {
   }
 }
 
+/**
+ * Determines whether a WebSocket message should be sent in response to a keyboard event.
+ *
+ * This function evaluates the provided keyboard event against several criteria based on the current
+ * game state and input conditions. It checks key codes, UI focus, and input length to decide whether the
+ * event should trigger a WebSocket message. Special conditions include:
+ *
+ * - When the "Tab" key is pressed and the opening screen has been exited, the event's default behavior is prevented,
+ *   and specific UI elements (status and chat trays) are toggled.
+ * - Arrow keys trigger focus navigation via the `navigateFocus` function.
+ * - Only key events whose codes are included in the `WEBSOCKET_MESSAGE_SEND_KEYS` array are considered.
+ * - The function also verifies that the currently focused element is not one of the elements specified in
+ *   `ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE`.
+ * - It checks the game state via `variables.serverReportsPlaying` and input length constraints on
+ *   `variables.currentGameClientSide.currentInput` to validate the conditions.
+ * - In multiplayer mode, abort key events (from `ABORT_KEYS`) explicitly force the sending of a message.
+ *
+ * @param event - The keyboard event to evaluate.
+ * @returns A boolean indicating whether a WebSocket message should be sent (true) or not (false).
+ */
 function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   // overrides: set to false
   let sendWebSocketMessage = true;

@@ -381,6 +381,24 @@ const loop = setInterval(() => {
   lastUpdateTime = Date.now();
 }, UPDATE_INTERVAL);
 
+/**
+ * Authenticates a user and initializes the corresponding socket connection.
+ *
+ * This function sanitizes the provided username using DOMPurify and a MongoDB sanitizer to prevent injection attacks,
+ * then logs the authentication request and delegates the actual authentication to the `authenticateForSocket` function.
+ * It retrieves the associated socket using the given socketID. If the socket is not found or the authentication fails,
+ * the function sends an error toast message to the client and returns false. Upon successful authentication, it updates
+ * the socket's state (marking it as logged in and setting the owner information), fetches additional user data (including
+ * user statistics and rank), sends a success toast message, instructs the client to exit the opening screen, and updates
+ * the client-side user information. Finally, it adds any missing keys to the user's profile.
+ *
+ * @param username - The username of the account attempting to log in.
+ * @param password - The password associated with the account.
+ * @param socketID - The unique identifier for the client's socket connection.
+ *
+ * @returns A promise that resolves to true if authentication is successful and the socket is properly updated,
+ * or false if the authentication fails or the socket is invalid.
+ */
 async function authenticate(
   username: string,
   password: string,
@@ -468,15 +486,25 @@ function checkBufferSize(buffer: Buffer, socket: universal.GameSocket) {
   return false;
 }
 
+/**
+ * Resets the global sendDataDeltaTime variable to zero.
+ *
+ * This function initializes the timer used for tracking the delta time between data transmissions.
+ * It is typically called during the server or game state initialization to ensure timing calculations
+ * start from a consistent base state.
+ */
 function initialize() {
   sendDataDeltaTime = 0;
 }
 
 /**
- * Blocks a socket from performing any actions.
- * Used when socket hasn't properly exited opening screen.
- * (e.g. using DevTools to remove opening screen)
- * @param {universal.GameSocket} socket The socket to block
+ * Blocks a game socket from performing further actions if it has not properly exited the opening screen.
+ *
+ * This function is called when a socket bypasses the normal client flow (e.g., using developer tools to remove the opening screen)
+ * and attempts to interact with the server. It logs a warning identifying the socket and sends a toast notification to the client,
+ * instructing the user to refresh and exit the opening screen properly.
+ *
+ * @param socket - The game socket that will be blocked from further interaction.
  */
 function blockSocket(socket: universal.GameSocket) {
   log.warn(

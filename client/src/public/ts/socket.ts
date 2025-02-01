@@ -112,6 +112,15 @@ socket.addEventListener("message", (event: any) => {
     }
   }
 });
+/**
+ * Sends a message to the WebSocket server and updates the game state if necessary.
+ *
+ * The function serializes the provided message object into JSON and sends it over an existing WebSocket connection.
+ * If the message contains a property `message` with the value "startGame", it sets the playing flag to true,
+ * indicating that the game is in progress.
+ *
+ * @param message - An object containing key-value pairs as strings representing the message to send.
+ */
 function sendSocketMessage(message: { [key: string]: string }) {
   socket.send(
     JSON.stringify({

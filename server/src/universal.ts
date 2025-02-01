@@ -353,8 +353,17 @@ function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
 }
 
 /**
- * Initializes a socket. This includes adding it subscribing it to `game`.
- * @param {GameSocket} socket The socket to initialize default values with.
+ * Initializes and configures a GameSocket with default values.
+ *
+ * This function sets up the provided GameSocket instance by:
+ * - Marking the socket as still on the opening screen (`exitedOpeningScreen` is set to `false`).
+ * - Generating a new 16-character connection ID.
+ * - Assigning a default guest name formatted as "Guest" followed by an 8-digit identifier.
+ * - Resetting the accumulated message count to 0.
+ * - Initializing rate limiting parameters with default values.
+ * - Subscribing the socket to the "game" channel.
+ *
+ * @param socket - The GameSocket instance to initialize.
  */
 function initializeSocket(socket: GameSocket) {
   socket.exitedOpeningScreen = false;
@@ -369,8 +378,16 @@ function initializeSocket(socket: GameSocket) {
 }
 
 /**
- * This sends data to the socket's connection to update initial values.
- * @param {GameSocket} socket The socket to initialize send data to.
+ * Sends initial configuration data to the game socket.
+ *
+ * This function sends two separate messages over the socket connection:
+ * - A message to update an input element (using the selector "#authentication-modal__socket-id")
+ *   with the socket's connection ID.
+ * - A message to update guest information text with the owner's guest name.
+ *
+ * This initialization helps synchronize the client-side interface with the server state.
+ *
+ * @param socket - The game socket to which the initial data is sent.
  */
 function sendInitialSocketData(socket: GameSocket) {
   socket.send(

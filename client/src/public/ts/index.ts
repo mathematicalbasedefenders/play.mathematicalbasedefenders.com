@@ -258,6 +258,35 @@ for (let item in stageItems.textSprites) {
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
 document.getElementById("canvas-container")?.appendChild(app.view);
+/**
+ * Initializes event listeners for all UI elements within the game interface.
+ *
+ * This function attaches various jQuery event handlers to manage navigation between screens,
+ * game mode selection, custom game configuration, settings adjustments, on-screen keyboard interactions,
+ * chat message sending, and guest mode operations. The handlers update local game state, trigger server
+ * communications via socket messages, and invoke UI transitions using helper functions such as `changeScreen`,
+ * `sendSocketMessage`, and `getSettings`.
+ *
+ * The event listeners cover:
+ * - Main menu navigation to singleplayer, multiplayer, and settings screens.
+ * - Singleplayer menu actions including returning to the main menu, starting games in easy, standard, or custom modes, 
+ *   and transitioning to the game canvas.
+ * - Multiplayer room joining and back navigation.
+ * - Settings screen functionality for switching between online, audio, and video panels, saving settings,
+ *   updating enemy color dynamically, and handling background image changes.
+ * - Custom singleplayer intermission options for configuration and game start.
+ * - Authentication form submission with asynchronous requests.
+ * - Game over screen actions for retrying or returning to the main menu.
+ * - Quick menu toggles for quitting, opening settings, and activating/deactivating the on-screen keyboard.
+ * - On-screen keyboard adjustments for resizing and sending keypress emulations.
+ * - Chat message sending in both room and global scopes.
+ * - Exiting the opening screen when playing as a guest.
+ *
+ * @remarks
+ * - Some handlers include FIXMEs for known issues, such as unstable reset of text fields during custom game start
+ *   and potential safety concerns during authentication.
+ * - This function does not take any parameters and returns void.
+ */
 function initializeEventListeners() {
   // other event listeners
   $("#main-menu-screen-button--singleplayer").on("click", () => {

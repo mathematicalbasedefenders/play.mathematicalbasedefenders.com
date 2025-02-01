@@ -158,10 +158,18 @@ function validateData(
 }
 
 /**
- * Checks whether a browser/socket is "eligible" to log in.
- * i.e., Browser session validation.
- * @param {string} connectionID The `connectionID` of the socket.
- * @returns An object with the fields `good` and `reason`. `good` is `true` if socket is eligible to log in, false otherwise with a reason in `reason`.
+ * Determines whether a socket is eligible for authentication.
+ *
+ * This function retrieves the socket associated with the provided connection ID and performs a series of validation checks:
+ * - Verifies that a socket exists for the given connection ID.
+ * - Ensures the socket has not exited the opening screen.
+ * - Confirms that the socket possesses a valid connection identifier of length 16.
+ * - Checks that the socket is not currently in an active game.
+ *
+ * If any validation fails, a corresponding warning or informational message is logged and the function returns an object with `good` set to false alongside a descriptive `reason`. Otherwise, it returns an object indicating that all eligibility checks have passed.
+ *
+ * @param connectionID - The unique identifier of the socket connection.
+ * @returns An object with properties `good` (true if the socket is eligible, false otherwise) and `reason` (a descriptive message for the validation result).
  */
 function checkIfSocketCanBeAuthenticated(connectionID: string) {
   const socket = universal.getSocketFromConnectionID(connectionID as string);
