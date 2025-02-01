@@ -104,6 +104,12 @@ socket.addEventListener("message", (event: any) => {
       $(message.data.location).prepend(chatMessage);
       break;
     }
+    case "exitOpeningScreen": {
+      $("#opening-screen-container").hide(0);
+      sendSocketMessage({ message: "exitOpeningScreen" });
+      variables.exitedOpeningScreen = true;
+      break;
+    }
   }
 });
 function sendSocketMessage(message: { [key: string]: string }) {

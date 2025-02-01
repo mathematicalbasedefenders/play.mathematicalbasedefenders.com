@@ -433,6 +433,9 @@ async function authenticate(
   const COLOR = "#1fa628";
   universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
 
+  /** Exit opening screen */
+  socket.send(JSON.stringify({ message: "exitOpeningScreen" }));
+
   /** Send data. */
   const statistics = userData.statistics;
   socket.send(
