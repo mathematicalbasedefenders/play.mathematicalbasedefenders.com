@@ -182,7 +182,7 @@ uWS
       const parsedMessage = incompleteParsedMessage.message;
       switch (parsedMessage.message) {
         case "startGame": {
-          if (socket.exitedOpeningScreen) {
+          if (!socket.exitedOpeningScreen) {
             console.warn(
               `Ignoring action... (Socket ${socket} is in opening screen).`
             );
@@ -192,7 +192,7 @@ uWS
           break;
         }
         case "joinMultiplayerRoom": {
-          if (socket.exitedOpeningScreen) {
+          if (!socket.exitedOpeningScreen) {
             console.warn(
               `Ignoring action... (Socket ${socket} is in opening screen).`
             );
@@ -210,7 +210,7 @@ uWS
           break;
         }
         case "leaveMultiplayerRoom": {
-          if (socket.exitedOpeningScreen) {
+          if (!socket.exitedOpeningScreen) {
             console.warn(
               `Ignoring action... (Socket ${socket} is in opening screen).`
             );
@@ -222,7 +222,7 @@ uWS
         }
         // game input
         case "keypress": {
-          if (socket.exitedOpeningScreen) {
+          if (!socket.exitedOpeningScreen) {
             console.warn(
               `Ignoring action... (Socket ${socket} is in opening screen).`
             );
@@ -233,7 +233,7 @@ uWS
           break;
         }
         case "emulateKeypress": {
-          if (socket.exitedOpeningScreen) {
+          if (!socket.exitedOpeningScreen) {
             console.warn(
               `Ignoring action... (Socket ${socket} is in opening screen).`
             );
@@ -251,7 +251,7 @@ uWS
           break;
         }
         case "sendChatMessage": {
-          if (socket.exitedOpeningScreen) {
+          if (!socket.exitedOpeningScreen) {
             console.warn(
               `Ignoring action... (Socket ${socket} is in opening screen).`
             );
