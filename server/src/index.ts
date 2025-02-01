@@ -182,10 +182,22 @@ uWS
       const parsedMessage = incompleteParsedMessage.message;
       switch (parsedMessage.message) {
         case "startGame": {
+          if (socket.exitedOpeningScreen) {
+            console.warn(
+              `Ignoring action... (Socket ${socket} is in opening screen).`
+            );
+            return;
+          }
           universal.startGameForSocket(socket, parsedMessage);
           break;
         }
         case "joinMultiplayerRoom": {
+          if (socket.exitedOpeningScreen) {
+            console.warn(
+              `Ignoring action... (Socket ${socket} is in opening screen).`
+            );
+            return;
+          }
           switch (parsedMessage.room) {
             case "default": {
               joinMultiplayerRoom(socket, "default");
@@ -198,17 +210,35 @@ uWS
           break;
         }
         case "leaveMultiplayerRoom": {
+          if (socket.exitedOpeningScreen) {
+            console.warn(
+              `Ignoring action... (Socket ${socket} is in opening screen).`
+            );
+            return;
+          }
           // attempt to
           leaveMultiplayerRoom(socket);
           break;
         }
         // game input
         case "keypress": {
+          if (socket.exitedOpeningScreen) {
+            console.warn(
+              `Ignoring action... (Socket ${socket} is in opening screen).`
+            );
+            return;
+          }
           input.processKeypress(socket, parsedMessage.keypress);
           synchronizeGameDataWithSocket(socket);
           break;
         }
         case "emulateKeypress": {
+          if (socket.exitedOpeningScreen) {
+            console.warn(
+              `Ignoring action... (Socket ${socket} is in opening screen).`
+            );
+            return;
+          }
           input.emulateKeypress(socket, parsedMessage.emulatedKeypress);
           break;
         }
@@ -221,6 +251,12 @@ uWS
           break;
         }
         case "sendChatMessage": {
+          if (socket.exitedOpeningScreen) {
+            console.warn(
+              `Ignoring action... (Socket ${socket} is in opening screen).`
+            );
+            return;
+          }
           const scope = parsedMessage.scope;
           const message = parsedMessage.chatMessage;
           // attempt to
