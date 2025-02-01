@@ -184,7 +184,7 @@ uWS
         case "startGame": {
           if (!socket.exitedOpeningScreen) {
             console.warn(
-              `Ignoring action... (Socket ${socket} is in opening screen).`
+              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
           }
@@ -194,7 +194,7 @@ uWS
         case "joinMultiplayerRoom": {
           if (!socket.exitedOpeningScreen) {
             console.warn(
-              `Ignoring action... (Socket ${socket} is in opening screen).`
+              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
           }
@@ -212,7 +212,7 @@ uWS
         case "leaveMultiplayerRoom": {
           if (!socket.exitedOpeningScreen) {
             console.warn(
-              `Ignoring action... (Socket ${socket} is in opening screen).`
+              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
           }
@@ -224,7 +224,7 @@ uWS
         case "keypress": {
           if (!socket.exitedOpeningScreen) {
             console.warn(
-              `Ignoring action... (Socket ${socket} is in opening screen).`
+              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
           }
@@ -235,7 +235,7 @@ uWS
         case "emulateKeypress": {
           if (!socket.exitedOpeningScreen) {
             console.warn(
-              `Ignoring action... (Socket ${socket} is in opening screen).`
+              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
           }
@@ -253,7 +253,7 @@ uWS
         case "sendChatMessage": {
           if (!socket.exitedOpeningScreen) {
             console.warn(
-              `Ignoring action... (Socket ${socket} is in opening screen).`
+              `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
           }
