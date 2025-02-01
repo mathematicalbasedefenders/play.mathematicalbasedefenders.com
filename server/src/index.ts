@@ -183,7 +183,7 @@ uWS
       switch (parsedMessage.message) {
         case "startGame": {
           if (!socket.exitedOpeningScreen) {
-            console.warn(
+            log.warn(
               `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
@@ -193,7 +193,7 @@ uWS
         }
         case "joinMultiplayerRoom": {
           if (!socket.exitedOpeningScreen) {
-            console.warn(
+            log.warn(
               `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
@@ -211,7 +211,7 @@ uWS
         }
         case "leaveMultiplayerRoom": {
           if (!socket.exitedOpeningScreen) {
-            console.warn(
+            log.warn(
               `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
@@ -223,7 +223,7 @@ uWS
         // game input
         case "keypress": {
           if (!socket.exitedOpeningScreen) {
-            console.warn(
+            log.warn(
               `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
@@ -234,7 +234,7 @@ uWS
         }
         case "emulateKeypress": {
           if (!socket.exitedOpeningScreen) {
-            console.warn(
+            log.warn(
               `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
@@ -252,7 +252,7 @@ uWS
         }
         case "sendChatMessage": {
           if (!socket.exitedOpeningScreen) {
-            console.warn(
+            log.warn(
               `Ignoring action... (Socket ${socket.connectionID} is in opening screen).`
             );
             return;
@@ -269,7 +269,7 @@ uWS
           break;
         }
         default: {
-          console.warn(
+          log.warn(
             `Unknown action from socket with connectionID ${socket.connectionID}: ${parsedMessage.message}`
           );
           break;
