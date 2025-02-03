@@ -378,15 +378,20 @@ function initializeEventListeners() {
     const hostname = location.hostname;
     const port = location.protocol === "http:" ? ":4000" : "";
     const url = `${protocol}//${hostname}${port}/authenticate`;
-    await fetch(url, {
-      method: "POST",
-      body: JSON.stringify({
-        username: $("#authentication-modal__username").val(),
-        password: $("#authentication-modal__password").val(),
-        socketID: $("#authentication-modal__socket-id").val()
-      }),
-      headers: { "Content-Type": "application/json" }
-    });
+    try {
+      await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({
+          username: $("#authentication-modal__username").val(),
+          password: $("#authentication-modal__password").val(),
+          socketID: $("#authentication-modal__socket-id").val()
+        }),
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (error) {
+      new ToastNotification(`Authentication error: ${error}`);
+      console.error(`Authentication error: `, error);
+    }
   });
   //
   $("#settings-screen__content-save-background-image").on(
