@@ -1284,6 +1284,9 @@ code {
   border: 2px solid #ffffff;
   width: 50%;
   padding: 4px;
+  @media (max-width: 1200px) {
+    width: 90%;
+  }
 }
 
 #opening-screen > div {
@@ -1309,8 +1312,14 @@ code {
 
 .authentication-modal__login-form-element {
   margin: 4px 0;
+  @media (max-width: 1200px) {
+    width: 90%;
+  }
 }
 
 .authentication-modal__login-form-element input {
-  width: 60%;
+  width: 80%;
+  @media (max-width: 1200px) {
+    width: 100%;
+  }
 }
