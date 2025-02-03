@@ -105,6 +105,12 @@ socket.addEventListener("message", (event: any) => {
       break;
     }
     case "exitOpeningScreen": {
+      if (!variables.isAuthenticated && !variables.isGuest) {
+        // TODO: Redo ToastNotification parameters
+        new ToastNotification(`Unauthorized attempt to exit opening screen.`);
+        console.error("Unauthorized attempt to exit opening screen.");
+        return;
+      }
       $("#opening-screen-container").hide(0);
       sendSocketMessage({ message: "exitOpeningScreen" });
       variables.exitedOpeningScreen = true;
