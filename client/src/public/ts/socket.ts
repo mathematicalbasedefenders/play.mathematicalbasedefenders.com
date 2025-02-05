@@ -66,15 +66,7 @@ socket.addEventListener("message", (event: any) => {
       break;
     }
     case "createToastNotification": {
-      const notification = new ToastNotification(
-        message.text,
-        // message.position,
-        // message.lifespan || 5000,
-        // message.foregroundColor || null,
-        // message.backgroundColor || null,
-        // message.borderColor || null
-        message.options
-      );
+      const notification = new ToastNotification(message.text, message.options);
       notification.render();
       break;
     }
