@@ -24,15 +24,15 @@ class ToastNotification {
   backgroundColor!: string | null;
   borderColor!: string | null;
 
-  constructor(text: string, options: ToastNotificationOptions) {
+  constructor(text: string, options?: ToastNotificationOptions) {
     this.text = text;
-    this.position = options.position || ToastNotificationPosition.BOTTOM_RIGHT;
+    this.position = options?.position || ToastNotificationPosition.BOTTOM_RIGHT;
     this.id = ToastNotification.nextID;
-    this.lifespan = options.lifespan || 5000;
+    this.lifespan = options?.lifespan || 5000;
     this.age = 0;
-    this.foregroundColor = options.foregroundColor || null;
-    this.backgroundColor = options.backgroundColor || null;
-    this.borderColor = options.borderColor || null;
+    this.foregroundColor = options?.foregroundColor || null;
+    this.backgroundColor = options?.backgroundColor || null;
+    this.borderColor = options?.borderColor || null;
     // add id
     ToastNotification.nextID++;
   }
