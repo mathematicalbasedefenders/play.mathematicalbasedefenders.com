@@ -109,7 +109,11 @@ socket.addEventListener("message", (event: any) => {
     case "exitOpeningScreen": {
       if (!variables.isAuthenticated && !variables.isGuest) {
         // TODO: Redo ToastNotification parameters
-        new ToastNotification(`Unauthorized attempt to exit opening screen.`);
+        const options = { backgroundColor: "#ff0000" };
+        new ToastNotification(
+          `Unauthorized attempt to exit opening screen.`,
+          options
+        );
         console.error("Unauthorized attempt to exit opening screen.");
         return;
       }
