@@ -418,8 +418,8 @@ async function authenticate(
   utilities.updateSocketUserInformation(socket);
   socket.playerRank = utilities.getRank(userData);
   const MESSAGE = `Successfully logged in as ${username}`;
-  const COLOR = "#1fa628";
-  universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
+  const BORDER_COLOR = "#1fa628";
+  universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
 
   /** Exit opening screen */
   socket.send(JSON.stringify({ message: "exitOpeningScreen" }));
@@ -483,8 +483,8 @@ function blockSocket(socket: universal.GameSocket) {
     `Blocking socket ${socket.connectionID} from improper opening screen exit.`
   );
   const MESSAGE = `Socket blocked. Please refresh and properly exit the opening screen.`;
-  const COLOR = "#ff0000";
-  universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
+  const BORDER_COLOR = "#ff0000";
+  universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
 }
 
 app.post(
