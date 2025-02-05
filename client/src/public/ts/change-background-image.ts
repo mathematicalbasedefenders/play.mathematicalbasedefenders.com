@@ -13,8 +13,8 @@ function changeBackgroundImage(url: string | URL) {
     const sanitizedURL = new URL(url).href;
     document.body.style.backgroundImage = `url('${sanitizedURL}')`;
   } catch (error) {
-    // TODO: Make border red.
-    new ToastNotification(`Error while loading image: ${error}`);
+    const options = { backgroundColor: "#ff0000" };
+    new ToastNotification(`Error while loading image: ${error}`, options);
   }
 }
 

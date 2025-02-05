@@ -66,14 +66,7 @@ socket.addEventListener("message", (event: any) => {
       break;
     }
     case "createToastNotification": {
-      const notification = new ToastNotification(
-        message.text,
-        message.position,
-        message.lifespan || 5000,
-        message.foregroundColor || null,
-        message.backgroundColor || null,
-        message.borderColor || null
-      );
+      const notification = new ToastNotification(message.text, message.options);
       notification.render();
       break;
     }
@@ -109,7 +102,11 @@ socket.addEventListener("message", (event: any) => {
     case "exitOpeningScreen": {
       if (!variables.isAuthenticated && !variables.isGuest) {
         // TODO: Redo ToastNotification parameters
-        new ToastNotification(`Unauthorized attempt to exit opening screen.`);
+        const ERROR_NOTIFICATION_OPTIONS = { backgroundColor: "#ff0000" };
+        new ToastNotification(
+          `Unauthorized attempt to exit opening screen.`,
+          ERROR_NOTIFICATION_OPTIONS
+        );
         console.error("Unauthorized attempt to exit opening screen.");
         return;
       }

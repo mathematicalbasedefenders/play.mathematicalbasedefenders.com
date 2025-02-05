@@ -394,7 +394,7 @@ function checkWebSocketMessageSpeeds(
             message: "createToastNotification",
             // TODO: Refactor this
             text: `You're going too fast! You have been immediately disconnected.`,
-            borderColor: "#ff0000"
+            options: { borderColor: "#ff0000" }
           })
         );
         socketsToForceDelete.push(socket);

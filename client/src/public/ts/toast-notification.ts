@@ -1,3 +1,11 @@
+interface ToastNotificationOptions {
+  position?: ToastNotificationPosition;
+  lifespan?: number;
+  foregroundColor?: string;
+  backgroundColor?: string;
+  borderColor?: string;
+}
+
 enum ToastNotificationPosition {
   TOP_RIGHT = 2,
   BOTTOM_RIGHT = 8
@@ -16,23 +24,27 @@ class ToastNotification {
   backgroundColor!: string | null;
   borderColor!: string | null;
 
-  constructor(
-    text: string,
-    position?: ToastNotificationPosition,
-    lifespan?: number,
-    foregroundColor?: string,
-    backgroundColor?: string,
-    borderColor?: string
-  ) {
+  /**
+   * Creates a new toast notification. (copied from coderabbitai suggestion)
+   * @param text The text content of the notification
+   * @param options Configuration options for the notification
+   * @param options.position Position of the notification (defaults to BOTTOM_RIGHT)
+   * @param options.lifespan Duration in milliseconds before the notification disappears (defaults to 5000)
+   * @param options.foregroundColor Text color (optional)
+   * @param options.backgroundColor Background color (optional)
+   * @param options.borderColor Border color (optional)
+   */
+  constructor(text: string, options?: ToastNotificationOptions) {
     this.text = text;
-    this.position = position || ToastNotificationPosition.BOTTOM_RIGHT;
+    this.position = options?.position || ToastNotificationPosition.BOTTOM_RIGHT;
     this.id = ToastNotification.nextID;
-    ToastNotification.nextID++;
-    this.lifespan = lifespan || 5000;
+    this.lifespan = options?.lifespan || 5000;
     this.age = 0;
-    this.foregroundColor = foregroundColor || null;
-    this.backgroundColor = backgroundColor || null;
-    this.borderColor = borderColor || null;
+    this.foregroundColor = options?.foregroundColor || null;
+    this.backgroundColor = options?.backgroundColor || null;
+    this.borderColor = options?.borderColor || null;
+    // add id
+    ToastNotification.nextID++;
   }
 
   render() {

@@ -79,7 +79,7 @@ async function authenticateForSocket(
         message: "createToastNotification",
         // TODO: Refactor this
         text: `Disconnected due to your account being logged in from another location. If this wasn't you, consider changing your password.`,
-        borderColor: "#4f0909"
+        options: { borderColor: "#4f0909" }
       })
     );
     universal.deleteSocket(duplicateSocket);

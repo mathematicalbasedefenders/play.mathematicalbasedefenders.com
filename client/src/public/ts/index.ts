@@ -392,7 +392,8 @@ function initializeEventListeners() {
         headers: { "Content-Type": "application/json" }
       });
     } catch (error) {
-      new ToastNotification(`Authentication error: ${error}`);
+      const options = { backgroundColor: "#ff0000" };
+      new ToastNotification(`Authentication error: ${error}`, options);
       console.error(`Authentication error: `, error);
     }
   });
@@ -402,8 +403,8 @@ function initializeEventListeners() {
     async (event) => {
       const url = $("#settings__background-image-url").val() as string;
       if (!url) {
-        // TODO: Make border red.
-        new ToastNotification("Please enter a valid image URL!");
+        const options = { backgroundColor: "#ff0000" };
+        new ToastNotification("Please enter a valid image URL!", options);
         return;
       }
 

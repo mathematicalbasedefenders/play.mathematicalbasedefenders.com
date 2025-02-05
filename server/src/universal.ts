@@ -312,20 +312,15 @@ function getServerMetadata(
  * Sends a global toast notification to everyone, regardless of logged in/out.
  * @param settings Settings to the sent global toast notification.
  */
-function sendGlobalToastNotification(settings: { [key: string]: any }) {
-  const tns = settings;
+function sendGlobalToastNotification(options: { [key: string]: any }) {
   for (const socket of sockets) {
     if (socket) {
       socket.send(
         // TODO: Refactor this?
         JSON.stringify({
           message: "createToastNotification",
-          text: tns.text,
-          position: tns.position,
-          lifespan: tns.lifespan,
-          foregroundColor: tns.foregroundColor,
-          backgroundColor: tns.backgroundColor,
-          borderColor: tns.borderColor
+          text: options.text,
+          options: options
         })
       );
     }
@@ -390,16 +385,17 @@ function sendInitialSocketData(socket: GameSocket) {
   );
 }
 
+// TODO: This can only set borderColor, which is all we need, I guess...
 function sendToastMessageToSocket(
   socket: GameSocket,
   message: string,
-  color: string
+  borderColor: string
 ) {
   socket?.send(
     JSON.stringify({
       message: "createToastNotification",
       text: message,
-      borderColor: color
+      options: { borderColor: borderColor }
     })
   );
 }
