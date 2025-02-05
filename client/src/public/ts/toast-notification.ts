@@ -24,6 +24,16 @@ class ToastNotification {
   backgroundColor!: string | null;
   borderColor!: string | null;
 
+  /**
+   * Creates a new toast notification. (copied from coderabbitai suggestion)
+   * @param text The text content of the notification
+   * @param options Configuration options for the notification
+   * @param options.position Position of the notification (defaults to BOTTOM_RIGHT)
+   * @param options.lifespan Duration in milliseconds before the notification disappears (defaults to 5000)
+   * @param options.foregroundColor Text color (optional)
+   * @param options.backgroundColor Background color (optional)
+   * @param options.borderColor Border color (optional)
+   */
   constructor(text: string, options?: ToastNotificationOptions) {
     this.text = text;
     this.position = options?.position || ToastNotificationPosition.BOTTOM_RIGHT;
