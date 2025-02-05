@@ -313,15 +313,14 @@ function getServerMetadata(
  * @param settings Settings to the sent global toast notification.
  */
 function sendGlobalToastNotification(options: { [key: string]: any }) {
-  const tns = options;
   for (const socket of sockets) {
     if (socket) {
       socket.send(
         // TODO: Refactor this?
         JSON.stringify({
           message: "createToastNotification",
-          text: tns.text,
-          options: tns
+          text: options.text,
+          options: options
         })
       );
     }
