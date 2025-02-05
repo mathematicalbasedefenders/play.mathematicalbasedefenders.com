@@ -106,7 +106,8 @@ const variables: { [key: string]: any } = {
     currentSecondaryScreen: null,
     focusing: null
   },
-  isGuest: true
+  isGuest: true,
+  exitedOpeningScreen: false
 };
 
 type stageItemsContainer = {
@@ -374,20 +375,26 @@ function initializeEventListeners() {
   );
   //
   $("#settings-screen__content--online__submit").on("click", async (event) => {
-    // FIXME: possibly unsafe
-    const url = `${location.protocol}//${location.hostname}${
-      location.protocol === "http:" ? ":4000" : ""
-    }/authenticate`;
-    await fetch(url, {
-      method: "POST",
-      body: JSON.stringify({
-        username: $("#settings-screen__content--online__username").val(),
-        password: $("#settings-screen__content--online__password").val(),
-        socketID: $("#settings-screen__content--online__socket-id").val()
-      }),
-      headers: { "Content-Type": "application/json" }
-    });
     event.preventDefault();
+    // FIXME: possibly unsafe
+    const protocol = location.protocol;
+    const hostname = location.hostname;
+    const port = location.protocol === "http:" ? ":4000" : "";
+    const url = `${protocol}//${hostname}${port}/authenticate`;
+    try {
+      await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({
+          username: $("#authentication-modal__username").val(),
+          password: $("#authentication-modal__password").val(),
+          socketID: $("#authentication-modal__socket-id").val()
+        }),
+        headers: { "Content-Type": "application/json" }
+      });
+    } catch (error) {
+      new ToastNotification(`Authentication error: ${error}`);
+      console.error(`Authentication error: `, error);
+    }
   });
   //
   $("#settings-screen__content-save-background-image").on(
@@ -517,6 +524,11 @@ function initializeEventListeners() {
     }
     changeScreen("settingsMenu");
     changeSettingsSecondaryScreen("online");
+  });
+  $("#opening-screen__play-as-guest").on("click", () => {
+    $("#opening-screen-container").hide(0);
+    sendSocketMessage({ message: "exitOpeningScreen" });
+    variables.exitedOpeningScreen = true;
   });
 }
 

@@ -182,10 +182,18 @@ uWS
       const parsedMessage = incompleteParsedMessage.message;
       switch (parsedMessage.message) {
         case "startGame": {
+          if (!socket.exitedOpeningScreen) {
+            blockSocket(socket);
+            return;
+          }
           universal.startGameForSocket(socket, parsedMessage);
           break;
         }
         case "joinMultiplayerRoom": {
+          if (!socket.exitedOpeningScreen) {
+            blockSocket(socket);
+            return;
+          }
           switch (parsedMessage.room) {
             case "default": {
               joinMultiplayerRoom(socket, "default");
@@ -198,17 +206,29 @@ uWS
           break;
         }
         case "leaveMultiplayerRoom": {
+          if (!socket.exitedOpeningScreen) {
+            blockSocket(socket);
+            return;
+          }
           // attempt to
           leaveMultiplayerRoom(socket);
           break;
         }
         // game input
         case "keypress": {
+          if (!socket.exitedOpeningScreen) {
+            blockSocket(socket);
+            return;
+          }
           input.processKeypress(socket, parsedMessage.keypress);
           synchronizeGameDataWithSocket(socket);
           break;
         }
         case "emulateKeypress": {
+          if (!socket.exitedOpeningScreen) {
+            blockSocket(socket);
+            return;
+          }
           input.emulateKeypress(socket, parsedMessage.emulatedKeypress);
           break;
         }
@@ -221,14 +241,23 @@ uWS
           break;
         }
         case "sendChatMessage": {
+          if (!socket.exitedOpeningScreen) {
+            blockSocket(socket);
+            return;
+          }
           const scope = parsedMessage.scope;
           const message = parsedMessage.chatMessage;
           // attempt to
           sendChatMessage(scope, message, socket);
           break;
         }
+        case "exitOpeningScreen": {
+          log.info(`Socket ${socket.connectionID} exited opening screen.`);
+          socket.exitedOpeningScreen = true;
+          break;
+        }
         default: {
-          console.warn(
+          log.warn(
             `Unknown action from socket with connectionID ${socket.connectionID}: ${parsedMessage.message}`
           );
           break;
@@ -392,6 +421,9 @@ async function authenticate(
   const COLOR = "#1fa628";
   universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
 
+  /** Exit opening screen */
+  socket.send(JSON.stringify({ message: "exitOpeningScreen" }));
+
   /** Send data. */
   const statistics = userData.statistics;
   socket.send(
@@ -438,6 +470,21 @@ function checkBufferSize(buffer: Buffer, socket: universal.GameSocket) {
 
 function initialize() {
   sendDataDeltaTime = 0;
+}
+
+/**
+ * Blocks a socket from performing any actions.
+ * Used when socket hasn't properly exited opening screen.
+ * (e.g. using DevTools to remove opening screen)
+ * @param {universal.GameSocket} socket The socket to block
+ */
+function blockSocket(socket: universal.GameSocket) {
+  log.warn(
+    `Blocking socket ${socket.connectionID} from improper opening screen exit.`
+  );
+  const MESSAGE = `Socket blocked. Please refresh and properly exit the opening screen.`;
+  const COLOR = "#ff0000";
+  universal.sendToastMessageToSocket(socket, MESSAGE, COLOR);
 }
 
 app.post(

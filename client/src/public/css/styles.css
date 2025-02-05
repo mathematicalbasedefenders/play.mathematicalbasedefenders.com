@@ -1038,7 +1038,7 @@ code {
 
 /* TOAST NOTIFICATIONS */
 #main-content__toast-notification-container {
-  z-index: 100;
+  z-index: 2005;
   overflow: hidden;
   width: 100vw;
   height: 100vh;
@@ -1048,7 +1048,7 @@ code {
 }
 
 .main-content__toast-notification {
-  z-index: 100;
+  z-index: 2005;
   overflow: hidden;
 }
 
@@ -1257,4 +1257,69 @@ code {
   right: 0;
   bottom: 0;
   font-size: 125%;
+}
+
+/* OPENING SCREEN */
+#opening-screen-container {
+  width: 100vw;
+  height: 100vh;
+  z-index: 2000;
+  background-color: #000000;
+  color: #ffffff;
+  position: absolute;
+}
+
+#opening-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  flex-direction: column;
+  height: 100%;
+}
+
+#opening-screen__authentication-modal {
+  font-size: 150%;
+  background-color: var(--color-neutral);
+  border: 2px solid #ffffff;
+  width: 50%;
+  padding: 4px;
+  @media (max-width: 1200px) {
+    width: 90%;
+  }
+}
+
+#opening-screen > div {
+  margin: 8px 0;
+}
+
+#opening-screen img {
+  scale: 0.75;
+}
+
+.link-button {
+  border: none;
+  text-decoration: underline;
+  color: #555555;
+  background-color: #000000;
+  padding: 8px;
+}
+
+.link-button:hover {
+  color: #aaaaaa;
+  cursor: pointer;
+}
+
+.authentication-modal__login-form-element {
+  margin: 4px 0;
+  @media (max-width: 1200px) {
+    width: 90%;
+  }
+}
+
+.authentication-modal__login-form-element input {
+  width: 80%;
+  @media (max-width: 1200px) {
+    width: 100%;
+  }
 }

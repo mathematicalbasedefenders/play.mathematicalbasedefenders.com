@@ -51,6 +51,12 @@ type GameSocket = WebSocket<UserData> & {
     last: number;
     count: number;
   };
+  /**
+   * Whether the owner of the socket exited the opening screen.
+   * Once exited opening screen, no further authentication attempts can be performed.
+   * New in 0.4.13.
+   */
+  exitedOpeningScreen?: boolean;
 };
 
 const sockets: Array<GameSocket> = [];
@@ -351,6 +357,7 @@ function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
  * @param {GameSocket} socket The socket to initialize default values with.
  */
 function initializeSocket(socket: GameSocket) {
+  socket.exitedOpeningScreen = false;
   socket.connectionID = generateConnectionID(16);
   socket.ownerGuestName = `Guest ${generateGuestID(8)}`;
   socket.accumulatedMessages = 0;
@@ -369,7 +376,7 @@ function sendInitialSocketData(socket: GameSocket) {
   socket.send(
     JSON.stringify({
       message: "changeValueOfInput",
-      selector: "#settings-screen__content--online__socket-id",
+      selector: "#authentication-modal__socket-id",
       value: socket.connectionID
     })
   );

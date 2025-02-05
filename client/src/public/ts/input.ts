@@ -93,7 +93,7 @@ function handleClientSideEvents(event: KeyboardEvent) {
 function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   // overrides: set to false
   let sendWebSocketMessage = true;
-  if (event.code === "Tab") {
+  if (event.code === "Tab" && variables.exitedOpeningScreen) {
     event.preventDefault();
     $("#status-tray-container").toggle(0);
     $("#chat-tray-container").toggle(0);
