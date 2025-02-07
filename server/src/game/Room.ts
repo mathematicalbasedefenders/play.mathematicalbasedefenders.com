@@ -404,12 +404,12 @@ class MultiplayerRoom extends Room {
           _.clone(this.ranking)
         );
         const playersSelector =
-          "#main-content__multiplayer-intermission-screen-container__player-list";
+          "#main-content__multiplayer-intermission-screen-container__chat__player-list";
         const playersText = utilities.generatePlayerListText(
           this.memberConnectionIDs
         );
         changeClientSideHTML(socket, rankingSelector, rankingText);
-        // changeClientSideHTML(socket, playersSelector, playersText);
+        changeClientSideHTML(socket, playersSelector, playersText);
       }
     }
 

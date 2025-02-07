@@ -637,6 +637,13 @@ code {
   cursor: pointer;
 }
 
+#main-content__multiplayer-intermission-screen-container__chat__player-list {
+  display: none;
+  height: 95%;
+  overflow-x: hidden;
+  width: 100%;
+}
+
 #chat-message {
   width: calc(100% - 86px);
   background-color: transparent;
@@ -653,6 +660,7 @@ code {
   color: #ffffff;
   font-family: inherit;
 }
+
 /* GAME OVER SCREEN */
 #main-content__game-over-screen-container {
   /* background-color: #000000; */
