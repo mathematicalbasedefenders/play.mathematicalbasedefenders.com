@@ -435,6 +435,22 @@ function formatNumber(n: number) {
   });
 }
 
+function generatePlayerListPayload(connectionIDs: string[]) {
+  const payload = [];
+  for (let connectionID of connectionIDs) {
+    const socket = universal.getSocketFromConnectionID(connectionID);
+    const color = socket?.playerRank?.color || "#ffffff";
+    const userID = socket?.ownerUserID;
+    payload.push({
+      name: universal.getNameFromConnectionID(connectionID),
+      color: color,
+      userID: userID ?? null,
+      isRegistered: userID != null
+    });
+  }
+  return payload;
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -443,7 +459,7 @@ export {
   getRank,
   generateRankingText,
   mutatedArrayFilter,
-  generatePlayerListText,
+  generatePlayerListPayload,
   validateCustomGameSettings,
   minifySelfGameData,
   generateConnectionID,

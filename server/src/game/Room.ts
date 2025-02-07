@@ -403,9 +403,7 @@ class MultiplayerRoom extends Room {
         const rankingText = utilities.generateRankingText(
           _.clone(this.ranking)
         );
-        const playersSelector =
-          "#main-content__multiplayer-intermission-screen-container__chat__player-list";
-        const playersText = utilities.generatePlayerListText(
+        const playersPayload = utilities.generatePlayerListPayload(
           this.memberConnectionIDs
         );
         const playerCountSelector =
@@ -413,7 +411,13 @@ class MultiplayerRoom extends Room {
         const playerCountText = this.memberConnectionIDs.length.toString();
         changeClientSideText(socket, playerCountSelector, playerCountText);
         changeClientSideHTML(socket, rankingSelector, rankingText);
-        changeClientSideHTML(socket, playersSelector, playersText);
+        // changeClientSideHTML(socket, playersSelector, playersText);
+        socket.send(
+          JSON.stringify({
+            message: "modifyPlayerListContent",
+            data: playersPayload
+          })
+        );
       }
     }
 

@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 /**
  * Formats the milliseconds.
  * @param {number} milliseconds The milliseconds.
@@ -66,4 +68,37 @@ function formatNumber(n: number) {
     maximumFractionDigits: 3
   });
 }
-export { millisecondsToTime, calculateLevel, nCr, formatNumber };
+
+function checkPlayerListCacheEquality(
+  oldData: { [key: string]: unknown },
+  data: Array<{ [key: string]: string }>
+) {
+  console.log(oldData.playerCount, data.length);
+  if (oldData.playerCount !== data.length) {
+    console.log("NG 1");
+    return false;
+  }
+  const prefix = "player-lookup-on-click-";
+  const registeredPlayers = data.filter((e) => {
+    return e.isRegistered;
+  });
+  const formattedSelectors = new Set(
+    registeredPlayers.map((e) => {
+      return prefix + e.userID;
+    })
+  );
+  console.log(oldData.registeredPlayers, formattedSelectors);
+  if (!_.isEqual(oldData.registeredPlayers, formattedSelectors)) {
+    console.log("NG 2");
+    return false;
+  }
+  return true;
+}
+
+export {
+  millisecondsToTime,
+  calculateLevel,
+  nCr,
+  formatNumber,
+  checkPlayerListCacheEquality
+};

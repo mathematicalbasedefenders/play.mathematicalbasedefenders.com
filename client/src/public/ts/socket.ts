@@ -9,6 +9,8 @@ import { ToastNotification } from "./toast-notification";
 import { updateSystemStatusTrayText } from "./system-status-indicator";
 import { createChatMessage } from "./chat";
 import DOMPurify from "dompurify";
+import { getDataOfUserID } from "./lookup-user";
+import { checkPlayerListCacheEquality } from "./utilities";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
     window.location.origin === "https://play.mathematicalbasedefenders.com"
@@ -113,6 +115,52 @@ socket.addEventListener("message", (event: any) => {
       $("#opening-screen-container").hide(0);
       sendSocketMessage({ message: "exitOpeningScreen" });
       variables.exitedOpeningScreen = true;
+      break;
+    }
+    case "modifyPlayerListContent": {
+      // check cache first...
+      if (
+        checkPlayerListCacheEquality(
+          variables.multiplayerChat.playerListCache,
+          message.data
+        )
+      ) {
+        return;
+      }
+
+      // if cache doesn't match, redo html
+
+      // clear cache
+      variables.multiplayerChat.playerListCache.playerCount = 0;
+      variables.multiplayerChat.playerListCache.registeredPlayers.clear();
+
+      const playerListSelector =
+        "#main-content__multiplayer-intermission-screen-container__chat__player-list";
+      $(playerListSelector).empty();
+      for (const player of message.data) {
+        const entry = $("<div></div>");
+        const id = `player-lookup-on-click-${player.userID}`;
+        entry.text(player.name);
+        entry.css("color", player.color);
+        // add get data-able for player
+        if (player.isRegistered) {
+          entry.attr("id", id);
+          entry.css("text-decoration", "underline");
+          entry.css("cursor", "pointer");
+          variables.multiplayerChat.playerListCache.registeredPlayers.add(id);
+        }
+        $(playerListSelector).append(entry);
+        variables.multiplayerChat.playerListCache.playerCount++;
+      }
+      // add click event
+      $("[id^=player-lookup-on-click]").each(function () {
+        const substringStart = "player-lookup-on-click-".length;
+        let targetUserID = $(this).attr("id") as string;
+        targetUserID = targetUserID.substring(substringStart);
+        $(this).on("click", function () {
+          getDataOfUserID(targetUserID);
+        });
+      });
       break;
     }
   }

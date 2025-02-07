@@ -109,7 +109,11 @@ const variables: { [key: string]: any } = {
   isGuest: true,
   exitedOpeningScreen: false,
   multiplayerChat: {
-    playerListShown: false
+    playerListShown: false,
+    playerListCache: {
+      registeredPlayers: new Set(),
+      playerCount: 0
+    }
   }
 };
 
