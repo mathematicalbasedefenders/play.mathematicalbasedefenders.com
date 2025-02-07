@@ -107,7 +107,10 @@ const variables: { [key: string]: any } = {
     focusing: null
   },
   isGuest: true,
-  exitedOpeningScreen: false
+  exitedOpeningScreen: false,
+  multiplayerChat: {
+    playerListShown: false
+  }
 };
 
 type stageItemsContainer = {
@@ -530,6 +533,26 @@ function initializeEventListeners() {
     $("#opening-screen-container").hide(0);
     sendSocketMessage({ message: "exitOpeningScreen" });
     variables.exitedOpeningScreen = true;
+  });
+  $(
+    "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list"
+  ).on("click", () => {
+    variables.playerListShown = !variables.playerListShown;
+    const playerListSelector =
+      "#main-content__multiplayer-intermission-screen-container__chat__player-list";
+    const messageListSelector =
+      "#main-content__multiplayer-intermission-screen-container__chat__messages";
+    const toggleListSelector =
+      "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list";
+    if (variables.playerListShown) {
+      $(playerListSelector).show(0);
+      $(messageListSelector).hide(0);
+      $(toggleListSelector).text("Hide Player List");
+    } else {
+      $(messageListSelector).show(0);
+      $(playerListSelector).hide(0);
+      $(toggleListSelector).text("Show Player List");
+    }
   });
 }
 
