@@ -409,7 +409,7 @@ class MultiplayerRoom extends Room {
           this.memberConnectionIDs
         );
         changeClientSideHTML(socket, rankingSelector, rankingText);
-        changeClientSideHTML(socket, playersSelector, playersText);
+        // changeClientSideHTML(socket, playersSelector, playersText);
       }
     }
 
