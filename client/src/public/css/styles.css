@@ -642,6 +642,7 @@ code {
   height: 95%;
   overflow-x: hidden;
   width: 100%;
+  margin-bottom: 2px;
 }
 
 #chat-message {
