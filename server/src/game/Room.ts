@@ -408,6 +408,10 @@ class MultiplayerRoom extends Room {
         const playersText = utilities.generatePlayerListText(
           this.memberConnectionIDs
         );
+        const playerCountSelector =
+          "#main-content__multiplayer-intermission-screen-container__player-count";
+        const playerCountText = this.memberConnectionIDs.length.toString();
+        changeClientSideText(socket, playerCountSelector, playerCountText);
         changeClientSideHTML(socket, rankingSelector, rankingText);
         changeClientSideHTML(socket, playersSelector, playersText);
       }
