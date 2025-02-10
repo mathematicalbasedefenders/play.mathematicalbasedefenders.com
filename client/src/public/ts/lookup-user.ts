@@ -1,10 +1,13 @@
 import fetch from "node-fetch";
 
+function showUserLookupPopUp(userID: string) {
+  const data = getDataOfUserID(userID);
+}
+
 async function getDataOfUserID(userID: string) {
-  alert(`Finding data for userID ${userID}`);
   const data = await fetch(getURLToFetch(userID));
   const json = await data.json();
-  alert(`${JSON.stringify(json)}`);
+  return json;
 }
 
 function getURLToFetch(userID: string) {
@@ -18,4 +21,4 @@ function getURLToFetch(userID: string) {
   return host;
 }
 
-export { getDataOfUserID };
+export { showUserLookupPopUp };
