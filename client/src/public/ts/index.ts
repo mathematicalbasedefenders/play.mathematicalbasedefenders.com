@@ -387,7 +387,7 @@ function initializeEventListeners() {
     const protocol = location.protocol;
     const hostname = location.hostname;
     const port = location.protocol === "http:" ? ":4000" : "";
-    const url = `${protocol}//${hostname}${port}/authenticate`;
+    const url = `${protocol}//${hostname}${port}/api/authenticate`;
     try {
       await fetch(url, {
         method: "POST",

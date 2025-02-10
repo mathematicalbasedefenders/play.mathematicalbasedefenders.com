@@ -36,8 +36,8 @@ app.use(
         ],
         "form-action": [
           "'self'",
-          "http://localhost:4000/authenticate",
-          "https://play.mathematicalbasedefenders.com:4000/authenticate"
+          "http://localhost:4000/api/authenticate",
+          "https://play.mathematicalbasedefenders.com:4000/api/authenticate"
         ]
       }
     },

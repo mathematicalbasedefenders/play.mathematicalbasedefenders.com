@@ -13,7 +13,7 @@ const limiter = rateLimit({
 
 // authentication route
 router.post(
-  "/authenticate",
+  "/api/authenticate",
   limiter,
   jsonParser,
   async (request: Request, response: Response) => {
