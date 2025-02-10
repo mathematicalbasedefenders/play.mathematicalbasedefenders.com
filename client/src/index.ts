@@ -61,7 +61,7 @@ app.get("*", limiter, (request: Request, response: Response) => {
 
 app.listen(PORT, () => {
   log.info(`Client app listening at port ${PORT}`);
-  if (process.env.credentialSetUsed === "TESTING") {
+  if (process.env.CREDENTIAL_SET_USED === "TESTING") {
     log.warn("Using testing credentials.");
   }
 });

@@ -422,7 +422,7 @@ require("fs")
 app.listen(PORT, () => {
   log.info(`Server listening at port ${PORT}`);
   log.info(`Server is using configuration ${JSON.stringify(CONFIGURATION)}`);
-  if (process.env.credentialSetUsed === "TESTING") {
+  if (process.env.CREDENTIAL_SET_USED === "TESTING") {
     log.warn("Using testing credentials.");
   }
 });
