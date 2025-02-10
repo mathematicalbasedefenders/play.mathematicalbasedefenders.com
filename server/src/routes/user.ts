@@ -8,7 +8,7 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 });
-const fetch = require("node-fetch");
+
 import _ from "lodash";
 import { log } from "../core/log";
 import { User, UserInterface } from "../models/User";
@@ -42,7 +42,7 @@ router.get("/api/users/:user", limiter, async (request, response) => {
   // get user data
   const user: any = request.params.user;
   const sanitized: string = mongoDBSanitize.sanitize(user) as string;
-  const host = `${request.protocol}://${request.get("Host")}`;
+
   if (!validateUserQuery(sanitized)) {
     log.warn(`Invalid User Request: Invalid user username/ID. (${sanitized})`);
     response.status(400).json({ error: "Invalid user parameter for lookup." });
