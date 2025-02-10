@@ -252,6 +252,11 @@ UserSchema.static("addMissingKeys", async function (id: string) {
 });
 
 UserSchema.static("findByUserIDUsingAPI", async function (userID: string) {
+  const userIDRegex = /^[0-9a-f]{24}$/;
+  if (!userIDRegex.test(userID)) {
+    log.warn(`Invalid user ID for in-game API fetch: ${userID}`);
+    return {};
+  }
   return this.findOne({ _id: userID })
     .select({
       username: 1,
