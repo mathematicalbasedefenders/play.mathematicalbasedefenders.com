@@ -73,9 +73,7 @@ function checkPlayerListCacheEquality(
   oldData: { [key: string]: unknown },
   data: Array<{ [key: string]: string }>
 ) {
-  console.log(oldData.playerCount, data.length);
   if (oldData.playerCount !== data.length) {
-    console.log("NG 1");
     return false;
   }
   const prefix = "player-lookup-on-click-";
@@ -87,9 +85,7 @@ function checkPlayerListCacheEquality(
       return prefix + e.userID;
     })
   );
-  console.log(oldData.registeredPlayers, formattedSelectors);
   if (!_.isEqual(oldData.registeredPlayers, formattedSelectors)) {
-    console.log("NG 2");
     return false;
   }
   return true;
