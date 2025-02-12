@@ -1360,3 +1360,20 @@ code {
     width: 100%;
   }
 }
+
+/* USER CARD */
+#user-card__container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000;
+  opacity: 0.75;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1999;
+}
+
+#user-card {
+  width: 500px;
+  height: 200px;
+}
