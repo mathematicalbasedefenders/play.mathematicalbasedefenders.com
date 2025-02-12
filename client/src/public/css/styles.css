@@ -1362,18 +1362,55 @@ code {
 }
 
 /* USER CARD */
-#user-card__container {
+#main-content__user-card-container {
   width: 100vw;
   height: 100vh;
-  background-color: #000000;
-  opacity: 0.75;
-  display: flex;
+  background-color: #00000080;
+  display: none;
   justify-content: center;
   align-items: center;
   z-index: 1999;
+  top: 0;
+  position: absolute;
+  left: 0;
 }
 
-#user-card {
-  width: 500px;
-  height: 200px;
+#main-content__user-card {
+  width: 40vw;
+  height: 240px;
+  padding: 8px;
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+
+#user-card__play-data {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#user-card__rank {
+  font-size: 125%;
+}
+
+#user-card__username {
+  font-size: 250%;
+}
+
+#user-card__data__mode {
+  text-align: center;
+}
+
+#user-card__header {
+  display: flex;
+  justify-content: space-between;
+}
+
+#user-card__player-data {
+  text-align: left;
+}
+
+#user-card__close-button {
+  text-align: right;
 }
