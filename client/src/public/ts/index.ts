@@ -558,6 +558,13 @@ function initializeEventListeners() {
       $(toggleListSelector).text("Show Player List");
     }
   });
+  // == USER CARD ==
+  $("#user-card__close-button").on("click", () => {
+    $("#user-card__data").hide(0);
+    $("#user-card__error").hide(0);
+    $("#user-card__loading").show(0);
+    $("#main-content__user-card-container").css("display", "none");
+  });
 }
 
 // events
