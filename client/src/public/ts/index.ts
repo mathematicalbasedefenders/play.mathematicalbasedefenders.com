@@ -559,7 +559,7 @@ function initializeEventListeners() {
     }
   });
   // == USER CARD ==
-  $("#user-card__close-button").on("click", () => {
+  $(".user-card__close-button").on("click", () => {
     $("#user-card__data").hide(0);
     $("#user-card__error").hide(0);
     $("#user-card__loading").show(0);
