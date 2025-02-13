@@ -1428,6 +1428,8 @@ code {
 
 #user-card__close-button {
   text-align: right;
+  max-height: fit-content;
+  cursor: pointer;
 }
 
 .user-card__score {
