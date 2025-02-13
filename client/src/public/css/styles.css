@@ -1409,8 +1409,11 @@ code {
   font-size: 250%;
 }
 
-#user-card__data__mode {
+.user-card__data__mode {
   text-align: center;
+  background-color: var(--color-neutral);
+  border: 1px solid #ffffff;
+  width: 30%;
 }
 
 #user-card__header {
@@ -1425,4 +1428,12 @@ code {
 
 #user-card__close-button {
   text-align: right;
+}
+
+.user-card__score {
+  font-size: 300%;
+}
+
+.user-card__score--detailed {
+  font-size: 100%;
 }
