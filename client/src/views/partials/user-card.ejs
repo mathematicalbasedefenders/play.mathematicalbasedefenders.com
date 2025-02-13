@@ -1,13 +1,33 @@
 <div id="main-content__user-card-container">
   <div id="main-content__user-card">
     <div id="user-card__loading">
-      <p>Fetching data for player...</p>
+      <div class="user-card__header">
+        <div></div>
+        <div class="user-card__close-button">
+          <span class="material-symbols-outlined">
+            close
+          </span>
+        </div>
+      </div>
+      <div class="user-card__diagnostic-message">
+        <p>Fetching data for player...</p>
+      </div>
     </div>
     <div id="user-card__error">
-      <p id="user-card__error__reason">Error while fetching user data: ???</p>
+      <div class="user-card__header">
+        <div></div>
+        <div class="user-card__close-button">
+          <span class="material-symbols-outlined">
+            close
+          </span>
+        </div>
+      </div>
+      <div class="user-card__diagnostic-message">
+        <p id="user-card__error__reason">Error while fetching user data: ???</p>
+      </div>
     </div>
     <div id="user-card__data">
-      <div id="user-card__header">
+      <div class="user-card__header">
         <div id="user-card__player-data">
           <div id="user-card__rank">
             rank
@@ -16,7 +36,7 @@
             username
           </div>
         </div>
-        <div id="user-card__close-button">
+        <div class="user-card__close-button">
           <span class="material-symbols-outlined">
             close
           </span>
