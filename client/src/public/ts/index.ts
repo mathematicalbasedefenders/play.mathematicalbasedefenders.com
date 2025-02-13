@@ -22,6 +22,7 @@ import {
   PopupNotificationButtonStyle
 } from "./popup-notification";
 import { changeBackgroundImage } from "./change-background-image";
+import { showUserLookupPopUp } from "./lookup-user";
 let startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -108,6 +109,7 @@ const variables: { [key: string]: any } = {
   },
   isGuest: true,
   exitedOpeningScreen: false,
+  loggedInUserID: null,
   multiplayerChat: {
     playerListShown: false,
     playerListCache: {
@@ -527,11 +529,14 @@ function initializeEventListeners() {
     $("#chat-tray-input").val("");
   });
   $(`#main-content__user-menu-small-display`).on("click", () => {
-    if (!variables.isGuest || variables.playing) {
+    if (
+      variables.isGuest ||
+      variables.playing ||
+      variables.loggedInUserID == null
+    ) {
       return;
     }
-    changeScreen("settingsMenu");
-    changeSettingsSecondaryScreen("online");
+    showUserLookupPopUp(variables.loggedInUserID);
   });
   $("#opening-screen__play-as-guest").on("click", () => {
     $("#opening-screen-container").hide(0);
@@ -647,6 +652,8 @@ function updateUserInformationText(data: any) {
   );
   // also set in sign in flag to true
   variables.isGuest = false;
+  // also set user id flag
+  variables.loggedInUserID = data.userData._id;
 }
 
 function updateGuestInformationText(data: any) {
