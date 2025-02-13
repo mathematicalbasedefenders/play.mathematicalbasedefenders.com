@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { calculateLevel } from "./utilities";
+import { calculateLevel, formatNumber, millisecondsToTime } from "./utilities";
 
 function showUserLookupPopUp(userID: string) {
   $("#main-content__user-card-container").css("display", "flex");
@@ -27,6 +27,32 @@ async function showUserLookupResults(userID: string) {
     const levelPercentage = (level.progressToNext * 100).toFixed(3);
     const levelText = `Level ${level.level} (${levelPercentage}% to next)`;
     $("#user-card__level").text(levelText);
+
+    // scores
+    const easyPB = data.statistics.personalBestScoreOnEasySingleplayerMode;
+    const standardPB = data.statistics.personalBestScoreOnEasySingleplayerMode;
+    const multiplayerScore =
+      data.statistics.multiplayer.gamesWon /
+      data.statistics.multiplayer.gamesPlayed;
+
+    $("#user-card__score--easy").text(easyPB.score.toLocaleString("en-US"));
+    $("#user-card__score--standard").text(
+      standardPB.score.toLocaleString("en-US")
+    );
+    $("#user-card__score--multiplier").text(`${multiplayerScore.toFixed(3)}%`);
+
+    // detailed stats
+    const easyStats = `${millisecondsToTime(
+      easyPB.timeInMilliseconds
+    )}, ${easyPB.enemiesKilled.toLocaleString("en-US")} killed`;
+    const standardStats = `${millisecondsToTime(
+      standardPB.timeInMilliseconds
+    )}, ${standardPB.enemiesKilled.toLocaleString("en-US")} killed`;
+    const multiplayerStats = `${data.statistics.multiplayer.gamesWon} won from ${data.statistics.multiplayer.gamesPlayed} multiplayer games played`;
+
+    $("#user-card__score--easy--detailed").text(easyStats);
+    $("#user-card__score--standard--detailed").text(standardStats);
+    $("#user-card__score--multiplayer--detailed").text(multiplayerStats);
 
     // only if data is finished setting
     $("#user-card__error").hide(0);
