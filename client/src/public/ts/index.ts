@@ -658,9 +658,7 @@ function updateUserInformationText(data: any) {
 
 function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__username").text(data.guestName);
-  $("#main-content__user-menu-small-display__level").text(
-    `Level 0 (Signed out, click to log in!)`
-  );
+  $("#main-content__user-menu-small-display__level").text(`Guest Player`);
 }
 
 app.ticker.add((deltaTime) => {
