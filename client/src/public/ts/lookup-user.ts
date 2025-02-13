@@ -39,7 +39,9 @@ async function showUserLookupResults(userID: string) {
     $("#user-card__score--standard").text(
       standardPB.score.toLocaleString("en-US")
     );
-    $("#user-card__score--multiplier").text(`${multiplayerScore.toFixed(3)}%`);
+    $("#user-card__score--multiplier").text(
+      `${(multiplayerScore * 100).toFixed(3)}%`
+    );
 
     // detailed stats
     const easyStats = `${millisecondsToTime(
@@ -48,7 +50,7 @@ async function showUserLookupResults(userID: string) {
     const standardStats = `${millisecondsToTime(
       standardPB.timeInMilliseconds
     )}, ${standardPB.enemiesKilled.toLocaleString("en-US")} killed`;
-    const multiplayerStats = `${data.statistics.multiplayer.gamesWon} won from ${data.statistics.multiplayer.gamesPlayed} multiplayer games played`;
+    const multiplayerStats = `${data.statistics.multiplayer.gamesWon}/${data.statistics.multiplayer.gamesPlayed}`;
 
     $("#user-card__score--easy--detailed").text(easyStats);
     $("#user-card__score--standard--detailed").text(standardStats);
