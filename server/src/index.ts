@@ -18,17 +18,11 @@ import {
   resetDefaultMultiplayerRoomID
 } from "./game/Room";
 import _ from "lodash";
-import { authenticateForSocket } from "./authentication/authenticate";
-import { User } from "./models/User";
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
-const DOMPurify = createDOMPurify(window);
-const mongoDBSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
-import rateLimit from "express-rate-limit";
 import { sendChatMessage } from "./core/chat";
 
 import { synchronizeGameDataWithSocket } from "./universal";
@@ -413,11 +407,9 @@ function blockSocket(socket: universal.GameSocket) {
   universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
 }
 
-require("fs")
-  .readdirSync(require("path").join(__dirname, "./routes"))
-  .forEach((file: string) => {
-    app.use(require("./routes/" + file).router);
-  });
+fs.readdirSync(path.join(__dirname, "./routes")).forEach((file: string) => {
+  app.use(require(`./routes/${file}`).router);
+});
 
 app.listen(PORT, () => {
   log.info(`Server listening at port ${PORT}`);
