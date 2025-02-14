@@ -23,7 +23,7 @@ import {
 } from "./popup-notification";
 import { changeBackgroundImage } from "./change-background-image";
 import { showUserLookupPopUp } from "./lookup-user";
-let startInitTime: number = Date.now();
+const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
