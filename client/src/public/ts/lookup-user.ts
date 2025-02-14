@@ -32,17 +32,22 @@ async function showUserLookupResults(userID: string) {
     const easyPB = data.statistics.personalBestScoreOnEasySingleplayerMode;
     const standardPB =
       data.statistics.personalBestScoreOnStandardSingleplayerMode;
-    const multiplayerScore =
-      data.statistics.multiplayer.gamesWon /
-      data.statistics.multiplayer.gamesPlayed;
 
     $("#user-card__score--easy").text(easyPB.score.toLocaleString("en-US"));
     $("#user-card__score--standard").text(
       standardPB.score.toLocaleString("en-US")
     );
-    $("#user-card__score--multiplier").text(
-      `${(multiplayerScore * 100).toFixed(3)}%`
-    );
+
+    if (data.statistics.multiplayer.gamesPlayed <= 0) {
+      $("#user-card__score--multiplier").text(`0.000%`);
+    } else {
+      const multiplayerScore =
+        data.statistics.multiplayer.gamesWon /
+        data.statistics.multiplayer.gamesPlayed;
+      $("#user-card__score--multiplier").text(
+        `${(multiplayerScore * 100).toFixed(3)}%`
+      );
+    }
 
     // detailed stats
     const easyStats = `${millisecondsToTime(
