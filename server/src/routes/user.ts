@@ -1,5 +1,5 @@
 import express from "express";
-var router = express.Router();
+const router = express.Router();
 import rateLimit from "express-rate-limit";
 import mongoDBSanitize from "express-mongo-sanitize";
 const limiter = rateLimit({
