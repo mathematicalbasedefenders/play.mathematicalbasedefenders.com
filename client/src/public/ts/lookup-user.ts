@@ -56,6 +56,14 @@ async function showUserLookupResults(userID: string) {
     $("#user-card__score--standard--detailed").text(standardStats);
     $("#user-card__score--multiplayer--detailed").text(multiplayerStats);
 
+    // open in new
+    $(".user-card__open-in-new-button").off("click");
+    $(".user-card__open-in-new-button").on("click", () => {
+      // TODO: Un-hardcode me
+      const url = `https://mathematicalbasedefenders.com/users/${data.username}`;
+      window.open(url, "_blank");
+    });
+
     // only if data is finished setting
     $("#user-card__error").hide(0);
     $("#user-card__loading").hide(0);
