@@ -40,7 +40,7 @@ async function authenticate(
 
   /** Successfully logged in. */
   socket.loggedIn = true;
-  socket.ownerUsername = username;
+  socket.ownerUsername = sanitizedUsername as string;
   socket.ownerUserID = result.id;
   const userData = await User.safeFindByUsername(socket.ownerUsername);
   utilities.updateSocketUserInformation(socket);
