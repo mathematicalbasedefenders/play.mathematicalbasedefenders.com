@@ -1340,6 +1340,7 @@ code {
   color: #555555;
   background-color: #000000;
   padding: 8px;
+  cursor: pointer;
 }
 
 .link-button:hover {
