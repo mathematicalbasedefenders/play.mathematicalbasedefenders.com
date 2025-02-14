@@ -30,7 +30,8 @@ async function showUserLookupResults(userID: string) {
 
     // scores
     const easyPB = data.statistics.personalBestScoreOnEasySingleplayerMode;
-    const standardPB = data.statistics.personalBestScoreOnEasySingleplayerMode;
+    const standardPB =
+      data.statistics.personalBestScoreOnStandardSingleplayerMode;
     const multiplayerScore =
       data.statistics.multiplayer.gamesWon /
       data.statistics.multiplayer.gamesPlayed;
