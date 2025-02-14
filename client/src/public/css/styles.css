@@ -1427,7 +1427,8 @@ code {
   text-align: left;
 }
 
-.user-card__close-button {
+.user-card__close-button,
+.user-card__open-in-new-button {
   text-align: right;
   max-height: fit-content;
   cursor: pointer;
