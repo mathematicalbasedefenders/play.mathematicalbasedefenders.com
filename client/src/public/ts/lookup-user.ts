@@ -39,12 +39,12 @@ async function showUserLookupResults(userID: string) {
     );
 
     if (data.statistics.multiplayer.gamesPlayed <= 0) {
-      $("#user-card__score--multiplier").text(`0.000%`);
+      $("#user-card__score--multiplayer").text(`0.000%`);
     } else {
       const multiplayerScore =
         data.statistics.multiplayer.gamesWon /
         data.statistics.multiplayer.gamesPlayed;
-      $("#user-card__score--multiplier").text(
+      $("#user-card__score--multiplayer").text(
         `${(multiplayerScore * 100).toFixed(3)}%`
       );
     }
