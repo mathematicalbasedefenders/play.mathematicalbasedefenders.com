@@ -81,6 +81,11 @@ async function showUserLookupResults(userID: string) {
 
 async function getDataOfUserID(userID: string) {
   const data = await fetch(getURLToFetch(userID));
+  if (data.ok === false) {
+    throw new Error(
+      `Failed to get user data. This is probably a network issue. If this persists, contact the developer.`
+    );
+  }
   const json = await data.json();
   return json;
 }
