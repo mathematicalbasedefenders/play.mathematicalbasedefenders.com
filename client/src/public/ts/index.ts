@@ -22,7 +22,8 @@ import {
   PopupNotificationButtonStyle
 } from "./popup-notification";
 import { changeBackgroundImage } from "./change-background-image";
-let startInitTime: number = Date.now();
+import { showUserLookupPopUp } from "./lookup-user";
+const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -108,6 +109,7 @@ const variables: { [key: string]: any } = {
   },
   isGuest: true,
   exitedOpeningScreen: false,
+  loggedInUserID: null,
   multiplayerChat: {
     playerListShown: false,
     playerListCache: {
@@ -387,7 +389,7 @@ function initializeEventListeners() {
     const protocol = location.protocol;
     const hostname = location.hostname;
     const port = location.protocol === "http:" ? ":4000" : "";
-    const url = `${protocol}//${hostname}${port}/authenticate`;
+    const url = `${protocol}//${hostname}${port}/api/authenticate`;
     try {
       await fetch(url, {
         method: "POST",
@@ -527,11 +529,14 @@ function initializeEventListeners() {
     $("#chat-tray-input").val("");
   });
   $(`#main-content__user-menu-small-display`).on("click", () => {
-    if (!variables.isGuest || variables.playing) {
+    if (
+      variables.isGuest ||
+      variables.playing ||
+      variables.loggedInUserID == null
+    ) {
       return;
     }
-    changeScreen("settingsMenu");
-    changeSettingsSecondaryScreen("online");
+    showUserLookupPopUp(variables.loggedInUserID);
   });
   $("#opening-screen__play-as-guest").on("click", () => {
     $("#opening-screen-container").hide(0);
@@ -557,6 +562,13 @@ function initializeEventListeners() {
       $(playerListSelector).hide(0);
       $(toggleListSelector).text("Show Player List");
     }
+  });
+  // == USER CARD ==
+  $(".user-card__close-button").on("click", () => {
+    $("#user-card__data").hide(0);
+    $("#user-card__error").hide(0);
+    $("#user-card__loading").show(0);
+    $("#main-content__user-card-container").css("display", "none");
   });
 }
 
@@ -640,13 +652,13 @@ function updateUserInformationText(data: any) {
   );
   // also set in sign in flag to true
   variables.isGuest = false;
+  // also set user id flag
+  variables.loggedInUserID = data.userData._id;
 }
 
 function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__username").text(data.guestName);
-  $("#main-content__user-menu-small-display__level").text(
-    `Level 0 (Signed out, click to log in!)`
-  );
+  $("#main-content__user-menu-small-display__level").text(`Guest Player`);
 }
 
 app.ticker.add((deltaTime) => {

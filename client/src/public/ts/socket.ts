@@ -9,7 +9,7 @@ import { ToastNotification } from "./toast-notification";
 import { updateSystemStatusTrayText } from "./system-status-indicator";
 import { createChatMessage } from "./chat";
 import DOMPurify from "dompurify";
-import { getDataOfUserID } from "./lookup-user";
+import { showUserLookupPopUp } from "./lookup-user";
 import { checkPlayerListCacheEquality } from "./utilities";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
@@ -158,7 +158,7 @@ socket.addEventListener("message", (event: any) => {
         let targetUserID = $(this).attr("id") as string;
         targetUserID = targetUserID.substring(substringStart);
         $(this).on("click", function () {
-          getDataOfUserID(targetUserID);
+          showUserLookupPopUp(targetUserID);
         });
       });
       break;

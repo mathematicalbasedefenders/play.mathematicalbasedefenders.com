@@ -36,8 +36,8 @@ app.use(
         ],
         "form-action": [
           "'self'",
-          "http://localhost:4000/authenticate",
-          "https://play.mathematicalbasedefenders.com:4000/authenticate"
+          "http://localhost:4000/api/authenticate",
+          "https://play.mathematicalbasedefenders.com:4000/api/authenticate"
         ]
       }
     },
@@ -61,7 +61,7 @@ app.get("*", limiter, (request: Request, response: Response) => {
 
 app.listen(PORT, () => {
   log.info(`Client app listening at port ${PORT}`);
-  if (process.env.credentialSetUsed === "TESTING") {
+  if (process.env.CREDENTIAL_SET_USED === "TESTING") {
     log.warn("Using testing credentials.");
   }
 });
