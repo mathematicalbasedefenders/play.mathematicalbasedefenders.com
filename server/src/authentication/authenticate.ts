@@ -20,7 +20,8 @@ async function authenticateForSocket(
     return {
       good: false,
       reason:
-        "Database is not available. This is usually on the server-side. Please contact the server's administrator if this persists."
+        "Database is not available. This is usually on the server-side. Please contact the server's administrator if this persists.",
+      id: null
     };
   }
   // check socket conditions
@@ -40,7 +41,8 @@ async function authenticateForSocket(
     );
     return {
       good: false,
-      reason: dataValidationResult.reason
+      reason: dataValidationResult.reason,
+      id: null
     };
   }
   // actually compare passwords
@@ -51,7 +53,8 @@ async function authenticateForSocket(
     );
     return {
       good: false,
-      reason: "User not found."
+      reason: "User not found.",
+      id: null
     };
   }
   let passwordResult = await bcrypt.compare(
@@ -64,7 +67,8 @@ async function authenticateForSocket(
     );
     return {
       good: false,
-      reason: "Incorrect password."
+      reason: "Incorrect password.",
+      id: null
     };
   }
   let id = userDocument._id.toString();
