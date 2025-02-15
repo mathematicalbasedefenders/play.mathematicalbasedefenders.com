@@ -86,6 +86,7 @@ async function authenticateForSocket(
     log.warn(
       `Disconnected socket ${duplicateSocket.connectionID} because a new socket logged in with the same credentials. (${username})`
     );
+    duplicateSocket.close();
   }
   return {
     good: true,
