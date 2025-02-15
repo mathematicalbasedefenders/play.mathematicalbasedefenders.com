@@ -570,6 +570,18 @@ function initializeEventListeners() {
     $("#user-card__loading").show(0);
     $("#main-content__user-card-container").css("display", "none");
   });
+  // close user card if clicked on screen anywhere...
+  $("#main-content__user-card-container").on("click", () => {
+    // but don't close if clicked on user card itself
+    if ($("#main-content__user-card").is(":hover")) {
+      console.log("User card itself clicked, not closing user card menu.");
+      return;
+    }
+    $("#user-card__data").hide(0);
+    $("#user-card__error").hide(0);
+    $("#user-card__loading").show(0);
+    $("#main-content__user-card-container").css("display", "none");
+  });
 }
 
 // events
