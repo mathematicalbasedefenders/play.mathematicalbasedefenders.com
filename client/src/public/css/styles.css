@@ -571,7 +571,8 @@ code {
   /* grid-column: column1-start / column3-end; */
   /* grid-row: row1-start / row1-end; */
   width: 25%;
-  font-size: 125%;
+  display: flex;
+  align-items: center;
 }
 
 #main-content__multiplayer-intermission-screen-container__center {
@@ -644,6 +645,14 @@ code {
   overflow-x: hidden;
   width: 100%;
   margin: 2px;
+  border: 2px solid #ffffff;
+}
+
+.main-content__multiplayer-intermission-screen-container__status-indicator:nth-of-type(
+    2
+  ) {
+  /* hacked in */
+  border-top: 2px solid #ffffff;
 }
 
 #chat-message {
@@ -661,6 +670,21 @@ code {
   border: 2px solid white;
   color: #ffffff;
   font-family: inherit;
+}
+
+#main-content__multiplayer-intermission-screen-container__status {
+  height: 75%;
+  overflow: hidden;
+  width: 100%;
+  margin: 2px;
+  border: 2px solid #ffffff;
+}
+
+.main-content__multiplayer-intermission-screen-container__status-indicator {
+  height: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* GAME OVER SCREEN */
