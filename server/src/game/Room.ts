@@ -400,7 +400,7 @@ class MultiplayerRoom extends Room {
       if (socket) {
         const rankingSelector =
           "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
-        const rankingText = utilities.generateRankingText(
+        const rankingText = utilities.generateRankingPayload(
           _.clone(this.ranking)
         );
         const playersPayload = utilities.generatePlayerListPayload(
