@@ -97,7 +97,7 @@ function generateRankingPayload(rankingData: Array<any>) {
   for (let record of reversed) {
     result.push({
       name: record.name,
-      placement: record.rank,
+      placement: record.placement,
       time: record.time,
       sent: record.sent,
       received: record.received

@@ -398,9 +398,7 @@ class MultiplayerRoom extends Room {
     for (let connectionID of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(connectionID);
       if (socket) {
-        const rankingSelector =
-          "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
-        const rankingText = utilities.generateRankingPayload(
+        const rankingPayload = utilities.generateRankingPayload(
           _.clone(this.ranking)
         );
         const playersPayload = utilities.generatePlayerListPayload(
@@ -410,7 +408,13 @@ class MultiplayerRoom extends Room {
           "#main-content__multiplayer-intermission-screen-container__player-count";
         const playerCountText = this.memberConnectionIDs.length.toString();
         changeClientSideText(socket, playerCountSelector, playerCountText);
-        changeClientSideHTML(socket, rankingSelector, rankingText);
+        // changeClientSideHTML(socket, rankingSelector, rankingText);
+        socket.send(
+          JSON.stringify({
+            message: "modifyMultiplayerRankContent",
+            data: rankingPayload
+          })
+        );
         // changeClientSideHTML(socket, playersSelector, playersText);
         socket.send(
           JSON.stringify({
