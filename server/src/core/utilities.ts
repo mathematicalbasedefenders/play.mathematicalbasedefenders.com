@@ -91,12 +91,17 @@ function findGameDataWithConnectionID(connectionID: string, room?: Room) {
   return null;
 }
 
-function generateRankingText(rankingData: Array<any>) {
-  let reversed = rankingData.reverse();
-  let result = "";
+function generateRankingPayload(rankingData: Array<any>) {
+  const reversed = rankingData.reverse();
+  const result = [];
   for (let record of reversed) {
-    result += `#${record.placement} ${record.name} ${record.time}ms ${record.sent}S/${record.received}R`;
-    result += `<br>`;
+    result.push({
+      name: record.name,
+      placement: record.rank,
+      time: record.time,
+      sent: record.sent,
+      received: record.received
+    });
   }
   return result;
 }
@@ -458,7 +463,7 @@ export {
   findGameDataWithConnectionID,
   millisecondsToTime,
   getRank,
-  generateRankingText,
+  generateRankingPayload,
   mutatedArrayFilter,
   generatePlayerListPayload,
   validateCustomGameSettings,

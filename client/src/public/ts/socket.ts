@@ -163,6 +163,8 @@ socket.addEventListener("message", (event: any) => {
       });
       break;
     }
+    case "modifyMultiplayerRankContent": {
+    }
   }
 });
 function sendSocketMessage(message: { [key: string]: string }) {
