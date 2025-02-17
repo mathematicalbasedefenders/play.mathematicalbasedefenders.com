@@ -605,6 +605,7 @@ code {
   min-height: fit-content;
   display: block;
   width: 100%;
+  background-color: var(--color-neutral);
 }
 
 #main-content__multiplayer-intermission-screen-container__chat__messages {
@@ -677,13 +678,21 @@ code {
   width: 100%;
   margin: 2px;
   border: 2px solid #ffffff;
+  background-color: var(--color-neutral);
 }
 
 .main-content__multiplayer-intermission-screen-container__status-indicator {
+  position: relative;
   height: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.status-indicator-label {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 /* GAME OVER SCREEN */
