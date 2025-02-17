@@ -695,6 +695,31 @@ code {
   left: 0;
 }
 
+.ranking-placement {
+  color: #ffffff;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.ranking-placement:nth-of-type(2n) {
+  background-color: #3a3a3a;
+}
+
+.ranking-placement--left {
+  display: flex;
+  flex-direction: column;
+}
+
+.ranking-placement--right {
+  display: flex;
+  flex-direction: column;
+}
+
+#main-content__multiplayer-intermission-screen-container__game-status-ranking {
+  width: 100%;
+}
 /* GAME OVER SCREEN */
 #main-content__game-over-screen-container {
   /* background-color: #000000; */

@@ -10,7 +10,7 @@ import { updateSystemStatusTrayText } from "./system-status-indicator";
 import { createChatMessage } from "./chat";
 import DOMPurify from "dompurify";
 import { showUserLookupPopUp } from "./lookup-user";
-import { checkPlayerListCacheEquality } from "./utilities";
+import { checkPlayerListCacheEquality, millisecondsToTime } from "./utilities";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
     window.location.origin === "https://play.mathematicalbasedefenders.com"
@@ -164,6 +164,32 @@ socket.addEventListener("message", (event: any) => {
       break;
     }
     case "modifyMultiplayerRankContent": {
+      const selector =
+        "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
+      $(selector).empty();
+      const placements = message.data;
+      for (let placement of placements) {
+        const entry = $("<div></div>");
+        entry.addClass("ranking-placement");
+        //
+        const entryLeft = $("<div></div>");
+        entryLeft.addClass("ranking-placement--left");
+        entryLeft.append(
+          `<div>#${placement.placement} ${placement.name}</div>`
+        );
+        //
+        const entryRight = $("<div></div>");
+        entryRight.addClass("ranking-placement--right");
+        const time = millisecondsToTime(parseInt(placement.time));
+        entryRight.append(
+          `<div>+${placement.sent} -${placement.received} ${time}</div>`
+        );
+        //
+        entry.append(entryLeft);
+        entry.append(entryRight);
+        $(selector).append(entry);
+      }
+      break;
     }
   }
 });
