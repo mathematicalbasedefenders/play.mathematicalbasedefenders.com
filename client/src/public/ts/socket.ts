@@ -119,10 +119,15 @@ socket.addEventListener("message", (event: any) => {
     }
     case "modifyPlayerListContent": {
       // check cache first...
+      const prefix = "player-lookup-on-click-";
+      const suffix = "--player-list";
+
       if (
         checkPlayerListCacheEquality(
           variables.multiplayerChat.playerListCache,
-          message.data
+          message.data,
+          prefix,
+          suffix
         )
       ) {
         return;
@@ -167,6 +172,26 @@ socket.addEventListener("message", (event: any) => {
       break;
     }
     case "modifyMultiplayerRankContent": {
+      // check cache first...
+      const prefix = "player-lookup-on-click-";
+      const suffix = "--last-game-rank-list";
+      if (
+        checkPlayerListCacheEquality(
+          variables.multiplayerLastGameRanking.playerListCache,
+          message.data,
+          prefix,
+          suffix
+        )
+      ) {
+        return;
+      }
+
+      // if cache doesn't match, redo html
+
+      // clear cache
+      variables.multiplayerLastGameRanking.playerListCache.playerCount = 0;
+      variables.multiplayerLastGameRanking.playerListCache.registeredPlayers.clear();
+
       const selector =
         "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
       $(selector).empty();
@@ -177,9 +202,23 @@ socket.addEventListener("message", (event: any) => {
         //
         const entryLeft = $("<div></div>");
         entryLeft.addClass("ranking-placement--left");
-        entryLeft.append(
-          `<div>#${placement.placement} ${placement.name}</div>`
-        );
+        entryLeft.append(`<div>#${placement.placement}</div>`);
+        //
+        const entryName = $("<div></div>");
+        const idName = `player-lookup-on-click-${placement.userID}--player-list`;
+        entry.text(placement.name);
+        entry.css("color", placement.nameColor);
+        // add get data-able for player
+        if (placement.isRegistered) {
+          entry.attr("id", idName);
+          entry.css("text-decoration", "underline");
+          entry.css("cursor", "pointer");
+          variables.multiplayerChat.playerListCache.registeredPlayers.add(
+            idName
+          );
+        }
+        entryLeft.append(entryName);
+        variables.multiplayerChat.playerListCache.playerCount++;
         //
         const entryRight = $("<div></div>");
         entryRight.addClass("ranking-placement--right");
