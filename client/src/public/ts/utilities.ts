@@ -71,13 +71,13 @@ function formatNumber(n: number) {
 
 function checkPlayerListCacheEquality(
   oldData: { [key: string]: unknown },
-  data: Array<{ [key: string]: string }>
+  data: Array<{ [key: string]: string }>,
+  prefix: string,
+  suffix: string
 ) {
   if (oldData.playerCount !== data.length) {
     return false;
   }
-  const prefix = "player-lookup-on-click-";
-  const suffix = "--player-list";
   const registeredPlayers = data.filter((e) => {
     return e.isRegistered;
   });
