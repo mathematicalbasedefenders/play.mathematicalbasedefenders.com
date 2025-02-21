@@ -139,7 +139,7 @@ socket.addEventListener("message", (event: any) => {
       $(playerListSelector).empty();
       for (const player of message.data) {
         const entry = $("<div></div>");
-        const id = `player-lookup-on-click-${player.userID}`;
+        const id = `player-lookup-on-click-${player.userID}--player-list`;
         entry.text(player.name);
         entry.css("color", player.color);
         // add get data-able for player
@@ -153,10 +153,13 @@ socket.addEventListener("message", (event: any) => {
         variables.multiplayerChat.playerListCache.playerCount++;
       }
       // add click event
-      $("[id^=player-lookup-on-click]").each(function () {
+      $("[id^=player-lookup-on-click][id$=--player-list]").each(function () {
         const substringStart = "player-lookup-on-click-".length;
         let targetUserID = $(this).attr("id") as string;
-        targetUserID = targetUserID.substring(substringStart);
+        targetUserID = targetUserID.substring(
+          substringStart,
+          substringStart + 24
+        );
         $(this).on("click", function () {
           showUserLookupPopUp(targetUserID);
         });

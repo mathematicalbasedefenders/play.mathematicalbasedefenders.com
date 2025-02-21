@@ -77,12 +77,13 @@ function checkPlayerListCacheEquality(
     return false;
   }
   const prefix = "player-lookup-on-click-";
+  const suffix = "--player-list";
   const registeredPlayers = data.filter((e) => {
     return e.isRegistered;
   });
   const formattedSelectors = new Set(
     registeredPlayers.map((e) => {
-      return prefix + e.userID;
+      return prefix + e.userID + suffix;
     })
   );
   if (!_.isEqual(oldData.registeredPlayers, formattedSelectors)) {
