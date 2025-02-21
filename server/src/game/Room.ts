@@ -594,13 +594,23 @@ class MultiplayerRoom extends Room {
     }
     const place = this.gameData.length;
     if (gameData instanceof GameData) {
-      this.ranking.push({
+      const data = {
         placement: place,
         name: universal.getNameFromConnectionID(connectionID) || "???",
         time: gameData.elapsedTime,
         sent: gameData.totalEnemiesSent,
-        received: gameData.totalEnemiesReceived
-      });
+        received: gameData.totalEnemiesReceived,
+        isRegistered: false,
+        nameColor: "",
+        userID: ""
+      };
+      if (socket?.ownerUserID) {
+        // is registered
+        data.isRegistered = true;
+        data.userID = socket.ownerUserID;
+        data.nameColor = socket.playerRank?.color ?? "#ffffff";
+      }
+      this.ranking.push(data);
     }
     if (socket?.loggedIn && gameData instanceof GameData) {
       const earnedEXP = Math.round(gameData.elapsedTime / 2000);

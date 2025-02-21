@@ -100,7 +100,10 @@ function generateRankingPayload(rankingData: Array<any>) {
       placement: record.placement,
       time: record.time,
       sent: record.sent,
-      received: record.received
+      received: record.received,
+      nameColor: record.nameColor,
+      userID: record.userID,
+      isRegistered: record.isRegistered
     });
   }
   return result;
