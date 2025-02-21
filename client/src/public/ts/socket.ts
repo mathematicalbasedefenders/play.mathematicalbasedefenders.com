@@ -177,7 +177,7 @@ socket.addEventListener("message", (event: any) => {
       const suffix = "--last-game-rank-list";
       if (
         checkPlayerListCacheEquality(
-          variables.multiplayerLastGameRanking.playerListCache,
+          variables.multiplayerLastGameRankings.playerListCache,
           message.data,
           prefix,
           suffix
@@ -189,8 +189,8 @@ socket.addEventListener("message", (event: any) => {
       // if cache doesn't match, redo html
 
       // clear cache
-      variables.multiplayerLastGameRanking.playerListCache.playerCount = 0;
-      variables.multiplayerLastGameRanking.playerListCache.registeredPlayers.clear();
+      variables.multiplayerLastGameRankings.playerListCache.playerCount = 0;
+      variables.multiplayerLastGameRankings.playerListCache.registeredPlayers.clear();
 
       const selector =
         "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
@@ -203,22 +203,23 @@ socket.addEventListener("message", (event: any) => {
         const entryLeft = $("<div></div>");
         entryLeft.addClass("ranking-placement--left");
         entryLeft.append(`<div>#${placement.placement}</div>`);
+        entryLeft.append(`&nbsp;`);
         //
         const entryName = $("<div></div>");
-        const idName = `player-lookup-on-click-${placement.userID}--player-list`;
-        entry.text(placement.name);
-        entry.css("color", placement.nameColor);
+        const idName = `player-lookup-on-click-${placement.userID}--last-game-rank-list`;
+        entryName.text(placement.name);
+        entryName.css("color", placement.nameColor);
         // add get data-able for player
         if (placement.isRegistered) {
-          entry.attr("id", idName);
-          entry.css("text-decoration", "underline");
-          entry.css("cursor", "pointer");
-          variables.multiplayerChat.playerListCache.registeredPlayers.add(
+          entryName.attr("id", idName);
+          entryName.css("text-decoration", "underline");
+          entryName.css("cursor", "pointer");
+          variables.multiplayerLastGameRankings.playerListCache.registeredPlayers.add(
             idName
           );
         }
         entryLeft.append(entryName);
-        variables.multiplayerChat.playerListCache.playerCount++;
+        variables.multiplayerLastGameRankings.playerListCache.playerCount++;
         //
         const entryRight = $("<div></div>");
         entryRight.addClass("ranking-placement--right");
@@ -231,6 +232,20 @@ socket.addEventListener("message", (event: any) => {
         entry.append(entryRight);
         $(selector).append(entry);
       }
+      // add click event
+      $("[id^=player-lookup-on-click][id$=--last-game-rank-list]").each(
+        function () {
+          const substringStart = "player-lookup-on-click-".length;
+          let targetUserID = $(this).attr("id") as string;
+          targetUserID = targetUserID.substring(
+            substringStart,
+            substringStart + 24
+          );
+          $(this).on("click", function () {
+            showUserLookupPopUp(targetUserID);
+          });
+        }
+      );
       break;
     }
   }
