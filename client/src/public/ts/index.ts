@@ -116,6 +116,12 @@ const variables: { [key: string]: any } = {
       registeredPlayers: new Set(),
       playerCount: 0
     }
+  },
+  multiplayerLastGameRankings: {
+    playerListCache: {
+      registeredPlayers: new Set(),
+      playerCount: 0
+    }
   }
 };
 
