@@ -710,7 +710,7 @@ code {
 
 .ranking-placement--left {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 
 .ranking-placement--right {
@@ -720,7 +720,9 @@ code {
 
 #main-content__multiplayer-intermission-screen-container__game-status-ranking {
   width: 100%;
+  padding: 2px;
 }
+
 /* GAME OVER SCREEN */
 #main-content__game-over-screen-container {
   /* background-color: #000000; */
