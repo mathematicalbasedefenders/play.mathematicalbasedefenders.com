@@ -693,6 +693,7 @@ code {
   position: absolute;
   top: 0;
   left: 0;
+  margin: 2px;
 }
 
 .ranking-placement {
