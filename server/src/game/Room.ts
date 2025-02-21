@@ -586,7 +586,7 @@ class MultiplayerRoom extends Room {
   }
 
   eliminateSocketID(connectionID: string, gameData: GameData | object) {
-    let socket = universal.getSocketFromConnectionID(connectionID);
+    const socket = universal.getSocketFromConnectionID(connectionID);
     if (typeof socket === "undefined") {
       log.warn(
         `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
@@ -650,25 +650,35 @@ class MultiplayerRoom extends Room {
             winnerGameData.ownerConnectionID
           )})`
         );
-        let userID = universal.getSocketFromConnectionID(
+        const winnerSocket = universal.getSocketFromConnectionID(
           winnerGameData.ownerConnectionID
-        )?.ownerUserID;
-        if (typeof userID === "string") {
-          if (!universal.STATUS.databaseAvailable) {
-            log.warn(
-              "Database is not available. Not running database operation."
-            );
-          } else {
-            // multiplayer games won
-            User.addMultiplayerGamesWonToUserID(userID as string, 1);
-            // experience (50% bonus for winning)
-            const earnedEXP =
-              Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
-            User.giveExperiencePointsToUserID(userID as string, earnedEXP);
+        );
+
+        // add exp to winner socket
+        if (winnerSocket?.ownerUserID) {
+          if (typeof winnerSocket.ownerUserID === "string") {
+            if (!universal.STATUS.databaseAvailable) {
+              log.warn(
+                "Database is not available. Not running database operation."
+              );
+            } else {
+              // multiplayer games won
+              User.addMultiplayerGamesWonToUserID(
+                winnerSocket.ownerUserID as string,
+                1
+              );
+              // experience (50% bonus for winning)
+              const earnedEXP =
+                Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
+              User.giveExperiencePointsToUserID(
+                winnerSocket.ownerUserID as string,
+                earnedEXP
+              );
+            }
           }
         }
 
-        this.ranking.push({
+        const data = {
           placement: this.gameData.length,
           name:
             universal.getNameFromConnectionID(
@@ -676,8 +686,18 @@ class MultiplayerRoom extends Room {
             ) || "???",
           time: winnerGameData.elapsedTime,
           sent: winnerGameData.totalEnemiesSent,
-          received: winnerGameData.totalEnemiesReceived
-        });
+          received: winnerGameData.totalEnemiesReceived,
+          isRegistered: false,
+          nameColor: "",
+          userID: ""
+        };
+        if (winnerSocket?.ownerUserID) {
+          // is registered
+          data.isRegistered = true;
+          data.userID = winnerSocket.ownerUserID;
+          data.nameColor = winnerSocket.playerRank?.color ?? "#ffffff";
+        }
+        this.ranking.push(data);
       }
       // stop everyone from playing
       this.stopPlay();
