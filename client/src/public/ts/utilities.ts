@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { isEqual } from "lodash";
 
 /**
  * Formats the milliseconds.
@@ -86,7 +86,7 @@ function checkPlayerListCacheEquality(
       return prefix + e.userID + suffix;
     })
   );
-  if (!_.isEqual(oldData.registeredPlayers, formattedSelectors)) {
+  if (!isEqual(oldData.registeredPlayers, formattedSelectors)) {
     return false;
   }
   return true;
