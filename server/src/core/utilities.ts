@@ -93,20 +93,16 @@ function findGameDataWithConnectionID(connectionID: string, room?: Room) {
 
 function generateRankingPayload(rankingData: Array<any>) {
   const reversed = rankingData.reverse();
-  const result = [];
-  for (let record of reversed) {
-    result.push({
-      name: record.name,
-      placement: record.placement,
-      time: record.time,
-      sent: record.sent,
-      received: record.received,
-      nameColor: record.nameColor,
-      userID: record.userID,
-      isRegistered: record.isRegistered
-    });
-  }
-  return result;
+  return reversed.map((record) => ({
+    name: record.name,
+    placement: record.placement,
+    time: record.time,
+    sent: record.sent,
+    received: record.received,
+    nameColor: record.nameColor,
+    userID: record.userID,
+    isRegistered: record.isRegistered
+  }));
 }
 
 function findRoomWithConnectionID(
@@ -445,19 +441,18 @@ function formatNumber(n: number) {
 
 function generatePlayerListPayload(connectionIDs: string[]) {
   const payload = [];
-  for (let connectionID of connectionIDs) {
+  return connectionIDs.map((connectionID) => {
     const socket = universal.getSocketFromConnectionID(connectionID);
     const color = socket?.playerRank?.color || "#ffffff";
     const userID = socket?.ownerUserID;
     const isRegistered = userID != null;
-    payload.push({
+    return {
       name: universal.getNameFromConnectionID(connectionID),
       color: color,
       userID: userID ?? null,
       isRegistered: isRegistered
-    });
-  }
-  return payload;
+    };
+  });
 }
 
 export {

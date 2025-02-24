@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { authenticate } from "../authentication/perform-authentication";
 import rateLimit from "express-rate-limit";
-const bodyParser = require("body-parser");
+import bodyParser from "body-parser";
 const router = express.Router();
 const jsonParser = bodyParser.json();
 const limiter = rateLimit({
@@ -25,13 +25,35 @@ router.post(
     const password = request.body["password"];
     const socketID = request.body["socketID"];
 
+    // Validate required fields
     if (!username || !password || !socketID) {
       return response.status(400).json({ error: "Missing required fields" });
     }
 
-    const result = await authenticate(username, password, socketID);
+    // Validate input format
+    if (
+      typeof username !== "string" ||
+      typeof password !== "string" ||
+      typeof socketID !== "string"
+    ) {
+      return response.status(400).json({ error: "Invalid field types" });
+    }
 
-    response.json({ success: result });
+    // Validate input length
+    if (username.length < 3 || username.length > 20 || password.length < 8) {
+      return response.status(400).json({ error: "Invalid field lengths" });
+    }
+
+    try {
+      const result = await authenticate(username, password, socketID);
+      response.json({ success: result });
+    } catch (error) {
+      console.error("Authentication error:", error);
+      response.status(401).json({
+        success: false,
+        error: "Authentication failed"
+      });
+    }
   }
 );
 

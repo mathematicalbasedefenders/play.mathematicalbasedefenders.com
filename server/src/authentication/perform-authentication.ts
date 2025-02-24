@@ -1,20 +1,17 @@
-const createDOMPurify = require("dompurify");
-const { JSDOM } = require("jsdom");
-const window = new JSDOM("").window;
-const DOMPurify = createDOMPurify(window);
 const mongoDBSanitize = require("express-mongo-sanitize");
 import { log } from "../core/log";
 import { User } from "../models/User";
 import { authenticateForSocket } from "./authenticate";
 import * as utilities from "../core/utilities";
 import * as universal from "../universal";
+import { DOMPurifySanitizer } from "../sanitizer";
 
 async function authenticate(
   username: string,
   password: string,
   socketID: string
 ) {
-  const htmlSanitizedUsername = DOMPurify.sanitize(username);
+  const htmlSanitizedUsername = DOMPurifySanitizer.sanitize(username);
   const sanitizedUsername = mongoDBSanitize.sanitize(htmlSanitizedUsername);
   log.info(`Authentication request requested for account ${sanitizedUsername}`);
 
