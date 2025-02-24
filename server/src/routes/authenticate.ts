@@ -46,7 +46,16 @@ router.post(
 
     const result = await authenticate(username, password, socketID);
 
-    response.json({ success: result });
+    try {
+      const result = await authenticate(username, password, socketID);
+      response.json({ success: result });
+    } catch (error) {
+      console.error("Authentication error:", error);
+      response.status(401).json({
+        success: false,
+        error: "Authentication failed"
+      });
+    }
   }
 );
 
