@@ -196,7 +196,7 @@ socket.addEventListener("message", (event: any) => {
         "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
       $(selector).empty();
       const placements = message.data;
-      for (let placement of placements) {
+      for (const placement of placements) {
         const entry = $("<div></div>");
         entry.addClass("ranking-placement");
         //
