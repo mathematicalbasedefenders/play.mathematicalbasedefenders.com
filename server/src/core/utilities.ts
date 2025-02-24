@@ -93,20 +93,16 @@ function findGameDataWithConnectionID(connectionID: string, room?: Room) {
 
 function generateRankingPayload(rankingData: Array<any>) {
   const reversed = rankingData.reverse();
-  const result = [];
-  for (let record of reversed) {
-    result.push({
-      name: record.name,
-      placement: record.placement,
-      time: record.time,
-      sent: record.sent,
-      received: record.received,
-      nameColor: record.nameColor,
-      userID: record.userID,
-      isRegistered: record.isRegistered
-    });
-  }
-  return result;
+  return reversed.map((record) => ({
+    name: record.name,
+    placement: record.placement,
+    time: record.time,
+    sent: record.sent,
+    received: record.received,
+    nameColor: record.nameColor,
+    userID: record.userID,
+    isRegistered: record.isRegistered
+  }));
 }
 
 function findRoomWithConnectionID(
