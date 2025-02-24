@@ -223,7 +223,7 @@ socket.addEventListener("message", (event: any) => {
         //
         const entryRight = $("<div></div>");
         entryRight.addClass("ranking-placement--right");
-        const time = millisecondsToTime(parseInt(placement.time));
+        const time = millisecondsToTime(Number.parseInt(placement.time));
         entryRight.append(
           `<div>+${placement.sent} -${placement.received} ${time}</div>`
         );
