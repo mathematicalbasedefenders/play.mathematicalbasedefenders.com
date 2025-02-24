@@ -441,19 +441,18 @@ function formatNumber(n: number) {
 
 function generatePlayerListPayload(connectionIDs: string[]) {
   const payload = [];
-  for (let connectionID of connectionIDs) {
+  return connectionIDs.map((connectionID) => {
     const socket = universal.getSocketFromConnectionID(connectionID);
     const color = socket?.playerRank?.color || "#ffffff";
     const userID = socket?.ownerUserID;
     const isRegistered = userID != null;
-    payload.push({
+    return {
       name: universal.getNameFromConnectionID(connectionID),
       color: color,
       userID: userID ?? null,
       isRegistered: isRegistered
-    });
-  }
-  return payload;
+    };
+  });
 }
 
 export {
