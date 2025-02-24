@@ -25,8 +25,23 @@ router.post(
     const password = request.body["password"];
     const socketID = request.body["socketID"];
 
+    // Validate required fields
     if (!username || !password || !socketID) {
       return response.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Validate input format
+    if (
+      typeof username !== "string" ||
+      typeof password !== "string" ||
+      typeof socketID !== "string"
+    ) {
+      return response.status(400).json({ error: "Invalid field types" });
+    }
+
+    // Validate input length
+    if (username.length < 3 || username.length > 20 || password.length < 8) {
+      return response.status(400).json({ error: "Invalid field lengths" });
     }
 
     const result = await authenticate(username, password, socketID);
