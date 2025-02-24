@@ -41,7 +41,7 @@ router.get("/api/users/:user", limiter, async (request, response) => {
 
   // get user data
   const user: any = request.params.user;
-  const sanitized: string = mongoDBSanitize.sanitize(user) as string;
+  const sanitized: string = mongoDBSanitize.sanitize(user).toString();
 
   if (!validateUserQuery(sanitized)) {
     log.warn(`Invalid User Request: Invalid user username/ID. (${sanitized})`);
@@ -53,7 +53,7 @@ router.get("/api/users/:user", limiter, async (request, response) => {
   const data: UserInterface = await getUserData(sanitized);
   if (!data) {
     log.warn(`Invalid User Request: User not found. (${sanitized})`);
-    response.status(404).json("Not Found.");
+    response.status(404).json("Not Found. (User doesn't exist in database.)");
     return;
   }
 
