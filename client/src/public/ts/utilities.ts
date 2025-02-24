@@ -75,11 +75,14 @@ function checkPlayerListCacheEquality(
   prefix: string,
   suffix: string
 ) {
+  if (!oldData || !data || !prefix || !suffix) {
+    return false;
+  }
   if (oldData.playerCount !== data.length) {
     return false;
   }
   const registeredPlayers = data.filter((e) => {
-    return e.isRegistered;
+    return "isRegistered" in e && e.isRegistered;
   });
   const formattedSelectors = new Set(
     registeredPlayers.map((e) => {
