@@ -22,7 +22,8 @@ import {
   PopupNotificationButtonStyle
 } from "./popup-notification";
 import { changeBackgroundImage } from "./change-background-image";
-let startInitTime: number = Date.now();
+import { showUserLookupPopUp } from "./lookup-user";
+const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -107,7 +108,21 @@ const variables: { [key: string]: any } = {
     focusing: null
   },
   isGuest: true,
-  exitedOpeningScreen: false
+  exitedOpeningScreen: false,
+  loggedInUserID: null,
+  multiplayerChat: {
+    playerListShown: false,
+    playerListCache: {
+      registeredPlayers: new Set(),
+      playerCount: 0
+    }
+  },
+  multiplayerLastGameRankings: {
+    playerListCache: {
+      registeredPlayers: new Set(),
+      playerCount: 0
+    }
+  }
 };
 
 type stageItemsContainer = {
@@ -380,7 +395,7 @@ function initializeEventListeners() {
     const protocol = location.protocol;
     const hostname = location.hostname;
     const port = location.protocol === "http:" ? ":4000" : "";
-    const url = `${protocol}//${hostname}${port}/authenticate`;
+    const url = `${protocol}//${hostname}${port}/api/authenticate`;
     try {
       await fetch(url, {
         method: "POST",
@@ -520,16 +535,58 @@ function initializeEventListeners() {
     $("#chat-tray-input").val("");
   });
   $(`#main-content__user-menu-small-display`).on("click", () => {
-    if (!variables.isGuest || variables.playing) {
+    if (
+      variables.isGuest ||
+      variables.playing ||
+      variables.loggedInUserID == null
+    ) {
       return;
     }
-    changeScreen("settingsMenu");
-    changeSettingsSecondaryScreen("online");
+    showUserLookupPopUp(variables.loggedInUserID);
   });
   $("#opening-screen__play-as-guest").on("click", () => {
     $("#opening-screen-container").hide(0);
     sendSocketMessage({ message: "exitOpeningScreen" });
     variables.exitedOpeningScreen = true;
+  });
+  $(
+    "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list"
+  ).on("click", () => {
+    variables.playerListShown = !variables.playerListShown;
+    const playerListSelector =
+      "#main-content__multiplayer-intermission-screen-container__chat__player-list";
+    const messageListSelector =
+      "#main-content__multiplayer-intermission-screen-container__chat__messages";
+    const toggleListSelector =
+      "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list";
+    if (variables.playerListShown) {
+      $(playerListSelector).show(0);
+      $(messageListSelector).hide(0);
+      $(toggleListSelector).text("Hide Player List");
+    } else {
+      $(messageListSelector).show(0);
+      $(playerListSelector).hide(0);
+      $(toggleListSelector).text("Show Player List");
+    }
+  });
+  // == USER CARD ==
+  $(".user-card__close-button").on("click", () => {
+    $("#user-card__data").hide(0);
+    $("#user-card__error").hide(0);
+    $("#user-card__loading").show(0);
+    $("#main-content__user-card-container").css("display", "none");
+  });
+  // close user card if clicked on screen anywhere...
+  $("#main-content__user-card-container").on("click", () => {
+    // but don't close if clicked on user card itself
+    if ($("#main-content__user-card").is(":hover")) {
+      console.log("User card itself clicked, not closing user card menu.");
+      return;
+    }
+    $("#user-card__data").hide(0);
+    $("#user-card__error").hide(0);
+    $("#user-card__loading").show(0);
+    $("#main-content__user-card-container").css("display", "none");
   });
 }
 
@@ -613,13 +670,13 @@ function updateUserInformationText(data: any) {
   );
   // also set in sign in flag to true
   variables.isGuest = false;
+  // also set user id flag
+  variables.loggedInUserID = data.userData._id;
 }
 
 function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__username").text(data.guestName);
-  $("#main-content__user-menu-small-display__level").text(
-    `Level 0 (Signed out, click to log in!)`
-  );
+  $("#main-content__user-menu-small-display__level").text(`Guest Player`);
 }
 
 app.ticker.add((deltaTime) => {

@@ -20,7 +20,8 @@ async function authenticateForSocket(
     return {
       good: false,
       reason:
-        "Database is not available. This is usually on the server-side. Please contact the server's administrator if this persists."
+        "Database is not available. This is usually on the server-side. Please contact the server's administrator if this persists.",
+      id: null
     };
   }
   // check socket conditions
@@ -40,7 +41,8 @@ async function authenticateForSocket(
     );
     return {
       good: false,
-      reason: dataValidationResult.reason
+      reason: dataValidationResult.reason,
+      id: null
     };
   }
   // actually compare passwords
@@ -51,7 +53,8 @@ async function authenticateForSocket(
     );
     return {
       good: false,
-      reason: "User not found."
+      reason: "User not found.",
+      id: null
     };
   }
   let passwordResult = await bcrypt.compare(
@@ -64,7 +67,8 @@ async function authenticateForSocket(
     );
     return {
       good: false,
-      reason: "Incorrect password."
+      reason: "Incorrect password.",
+      id: null
     };
   }
   let id = userDocument._id.toString();
@@ -86,6 +90,7 @@ async function authenticateForSocket(
     log.warn(
       `Disconnected socket ${duplicateSocket.connectionID} because a new socket logged in with the same credentials. (${username})`
     );
+    duplicateSocket.close();
   }
   return {
     good: true,
@@ -103,25 +108,29 @@ function validateData(
   if (universal.getSocketFromConnectionID(socketID as string)?.loggedIn) {
     return {
       good: false,
-      reason: "User is already logged in."
+      reason: "User is already logged in.",
+      id: null
     };
   }
   if (typeof username !== "string" || username === "") {
     return {
       good: false,
-      reason: "Username field is empty."
+      reason: "Username field is empty.",
+      id: null
     };
   }
   if (typeof password !== "string" || password === "") {
     return {
       good: false,
-      reason: "Password field is empty."
+      reason: "Password field is empty.",
+      id: null
     };
   }
   if (typeof socketID !== "string" || password === "") {
     return {
       good: false,
-      reason: "Invalid Socket ID."
+      reason: "Invalid Socket ID.",
+      id: null
     };
   }
   // validate data
@@ -138,7 +147,8 @@ function validateData(
   ) {
     return {
       good: false,
-      reason: "Username is invalid."
+      reason: "Username is invalid.",
+      id: null
     };
   }
   if (
@@ -148,12 +158,14 @@ function validateData(
   ) {
     return {
       good: false,
-      reason: "Password is invalid or contains illegal characters."
+      reason: "Password is invalid or contains illegal characters.",
+      id: null
     };
   }
   return {
     good: true,
-    reason: "All checks passed."
+    reason: "All checks passed.",
+    id: null
   };
 }
 
@@ -173,7 +185,8 @@ function checkIfSocketCanBeAuthenticated(connectionID: string) {
     );
     return {
       good: false,
-      reason: "Browser session isn't tied to a socket."
+      reason: "Browser session isn't tied to a socket.",
+      id: null
     };
   }
 
@@ -184,7 +197,8 @@ function checkIfSocketCanBeAuthenticated(connectionID: string) {
     );
     return {
       good: false,
-      reason: "Socket already exited opening screen."
+      reason: "Socket already exited opening screen.",
+      id: null
     };
   }
 
@@ -195,7 +209,8 @@ function checkIfSocketCanBeAuthenticated(connectionID: string) {
     );
     return {
       good: false,
-      reason: "Socket doesn't have an identifier."
+      reason: "Socket doesn't have an identifier.",
+      id: null
     };
   }
 
@@ -204,7 +219,8 @@ function checkIfSocketCanBeAuthenticated(connectionID: string) {
     log.warn(`A user tried to log in, but the socket's identifier is invalid.`);
     return {
       good: false,
-      reason: "Socket's identifier is invalid."
+      reason: "Socket's identifier is invalid.",
+      id: null
     };
   }
 
@@ -217,7 +233,8 @@ function checkIfSocketCanBeAuthenticated(connectionID: string) {
     return {
       good: false,
       reason:
-        "Socket is currently in game. Finish the game first before logging in."
+        "Socket is currently in game. Finish the game first before logging in.",
+      id: null
     };
   }
 

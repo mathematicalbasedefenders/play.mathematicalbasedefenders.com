@@ -91,12 +91,20 @@ function findGameDataWithConnectionID(connectionID: string, room?: Room) {
   return null;
 }
 
-function generateRankingText(rankingData: Array<any>) {
-  let reversed = rankingData.reverse();
-  let result = "";
+function generateRankingPayload(rankingData: Array<any>) {
+  const reversed = rankingData.reverse();
+  const result = [];
   for (let record of reversed) {
-    result += `#${record.placement} ${record.name} ${record.time}ms ${record.sent}S/${record.received}R`;
-    result += `<br>`;
+    result.push({
+      name: record.name,
+      placement: record.placement,
+      time: record.time,
+      sent: record.sent,
+      received: record.received,
+      nameColor: record.nameColor,
+      userID: record.userID,
+      isRegistered: record.isRegistered
+    });
   }
   return result;
 }
@@ -435,15 +443,32 @@ function formatNumber(n: number) {
   });
 }
 
+function generatePlayerListPayload(connectionIDs: string[]) {
+  const payload = [];
+  for (let connectionID of connectionIDs) {
+    const socket = universal.getSocketFromConnectionID(connectionID);
+    const color = socket?.playerRank?.color || "#ffffff";
+    const userID = socket?.ownerUserID;
+    const isRegistered = userID != null;
+    payload.push({
+      name: universal.getNameFromConnectionID(connectionID),
+      color: color,
+      userID: userID ?? null,
+      isRegistered: isRegistered
+    });
+  }
+  return payload;
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
   findGameDataWithConnectionID,
   millisecondsToTime,
   getRank,
-  generateRankingText,
+  generateRankingPayload,
   mutatedArrayFilter,
-  generatePlayerListText,
+  generatePlayerListPayload,
   validateCustomGameSettings,
   minifySelfGameData,
   generateConnectionID,
