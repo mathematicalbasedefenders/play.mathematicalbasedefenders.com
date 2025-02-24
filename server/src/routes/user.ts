@@ -40,8 +40,8 @@ router.get("/api/users/:user", limiter, async (request, response) => {
   }
 
   // get user data
-  const user: any = request.params.user;
-  const sanitized: string = mongoDBSanitize.sanitize(user).toString();
+  const user = request.params.user as unknown as Record<string, unknown>;
+  const sanitized = mongoDBSanitize.sanitize(user) as unknown as string;
 
   if (!validateUserQuery(sanitized)) {
     log.warn(`Invalid User Request: Invalid user username/ID. (${sanitized})`);
