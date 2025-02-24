@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { authenticate } from "../authentication/perform-authentication";
 import rateLimit from "express-rate-limit";
-const bodyParser = require("body-parser");
+import bodyParser from "body-parser";
 const router = express.Router();
 const jsonParser = bodyParser.json();
 const limiter = rateLimit({
@@ -43,8 +43,6 @@ router.post(
     if (username.length < 3 || username.length > 20 || password.length < 8) {
       return response.status(400).json({ error: "Invalid field lengths" });
     }
-
-    const result = await authenticate(username, password, socketID);
 
     try {
       const result = await authenticate(username, password, socketID);
