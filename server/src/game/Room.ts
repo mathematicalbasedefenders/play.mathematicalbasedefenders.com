@@ -133,7 +133,7 @@ class Room {
     const userID = sender.ownerUserID ?? null;
     this.chatMessages.push({
       message: sanitizedMessage,
-      sender: senderName
+      senderName: senderName
     });
     // send to all sockets
     for (let connectionID of this.memberConnectionIDs) {
@@ -145,8 +145,8 @@ class Room {
             // selector:
             //   "#main-content__multiplayer-intermission-screen-container__chat__messages",
             data: {
-              name: senderName,
-              message: message,
+              name: DOMPurify.sanitize(senderName),
+              message: DOMPurify.sanitize(message),
               nameColor: nameColor,
               userID: userID
             }
