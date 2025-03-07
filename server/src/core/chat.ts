@@ -129,14 +129,17 @@ function createGlobalMessageObject(
   senderColor: string | undefined,
   attribute?: string
 ) {
+  const senderSocket = universal.getSocketFromConnectionID(connectionID);
   const playerName = universal.getNameFromConnectionID(connectionID);
+  const userID = senderSocket?.ownerUserID ?? null;
   const toReturn = {
     message: "addChatMessage",
     data: {
       sender: playerName,
       message: {
         sender: playerName,
-        message: message
+        message: message,
+        senderUserID: userID
       },
       attribute: attribute ?? "",
       location: "#chat-tray-message-container",

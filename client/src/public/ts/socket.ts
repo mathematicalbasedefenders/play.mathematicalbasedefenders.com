@@ -90,6 +90,7 @@ socket.addEventListener("message", (event: any) => {
       const sanitizedMessage = message.data.message;
       sanitizedMessage.sender = DOMPurify.sanitize(sanitizedMessage.sender);
       sanitizedMessage.message = DOMPurify.sanitize(sanitizedMessage.message);
+      sanitizedMessage.userID = DOMPurify.sanitize(sanitizedMessage.userID);
       const sanitizedSender = DOMPurify.sanitize(message.data.sender);
       const sanitizedSenderColor = DOMPurify.sanitize(message.data.senderColor);
       const sanitizedAttribute = DOMPurify.sanitize(message.data.attribute);
