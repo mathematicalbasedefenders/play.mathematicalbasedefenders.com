@@ -155,7 +155,7 @@ const variables: { [key: string]: any } = {
 };
 
 async function initializeTextures() {
-  textures.playfieldBorder = await loadTexture("assets/images/playfield.png");
+  textures.playFieldBorder = await loadTexture("assets/images/playfield.png");
   console.log(textures);
 }
 
@@ -173,8 +173,9 @@ const stageItems: stageItemsContainer = { sprites: {}, textSprites: {} };
 
 function initializeStageItems() {
   stageItems.sprites.playFieldBorder = PIXI.Sprite.from(
-    textures.playfieldBorder
+    textures.playFieldBorder
   );
+  stageItems.sprites.playFieldBorder.label = "playerPlayfield";
   stageItems.sprites.screenTopLeftIndicator = PIXI.Sprite.from(
     PIXI.Texture.WHITE
   );
@@ -797,6 +798,7 @@ export {
   mathFont,
   variables,
   playerContainer,
+  textures,
   updateGuestInformationText,
   updateUserInformationText
 };
