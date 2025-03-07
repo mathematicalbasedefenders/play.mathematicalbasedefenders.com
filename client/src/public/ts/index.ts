@@ -76,8 +76,9 @@ const variables: { [key: string]: any } = {
     multiplicationSign: "dot",
     beautifulScore: false
   },
-  enemyInstancesPerColumn: 2,
-  enemyInstancePositions: {
+  //
+  opponentInstancesPerColumn: 2,
+  opponentInstancePositions: {
     x: {
       initial: 120,
       increment: 240

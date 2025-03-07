@@ -80,15 +80,17 @@ class Opponent {
     let xPosition =
       stageItems.sprites["playFieldBorder"].position.x +
       stageItems.sprites["playFieldBorder"].width +
-      variables.enemyInstancePositions.x.initial +
-      variables.enemyInstancePositions.x.increment *
+      variables.opponentInstancePositions.x.initial +
+      variables.opponentInstancePositions.x.increment *
         Math.floor(
-          this.getInstanceNumberPosition() / variables.enemyInstancesPerColumn
+          this.getInstanceNumberPosition() /
+            variables.opponentInstancesPerColumn
         );
     let yPosition =
-      variables.enemyInstancePositions.y.initial +
-      variables.enemyInstancePositions.y.increment *
-        (this.getInstanceNumberPosition() % variables.enemyInstancesPerColumn);
+      variables.opponentInstancePositions.y.initial +
+      variables.opponentInstancePositions.y.increment *
+        (this.getInstanceNumberPosition() %
+          variables.opponentInstancesPerColumn);
     this.reposition(xPosition, yPosition);
   }
 
@@ -122,12 +124,12 @@ class Opponent {
     this.reposition(
       stageItems.sprites["playFieldBorder"].position.x +
         stageItems.sprites["playFieldBorder"].width +
-        variables.enemyInstancePositions.x.initial +
-        variables.enemyInstancePositions.x.increment *
-          Math.floor(position / variables.enemyInstancesPerColumn),
-      variables.enemyInstancePositions.y.initial +
-        variables.enemyInstancePositions.y.increment *
-          Math.floor(position % variables.enemyInstancesPerColumn)
+        variables.opponentInstancePositions.x.initial +
+        variables.opponentInstancePositions.x.increment *
+          Math.floor(position / variables.opponentInstancesPerColumn),
+      variables.opponentInstancePositions.y.initial +
+        variables.opponentInstancePositions.y.increment *
+          Math.floor(position % variables.opponentInstancesPerColumn)
     );
   }
 
