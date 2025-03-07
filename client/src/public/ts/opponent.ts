@@ -53,7 +53,7 @@ class Opponent {
   constructor() {
     this.instanceNumber = Opponent.instances.length;
     this.container = new Container();
-    this.container.addChild(PIXI.Sprite.from(textures.playFieldBorder));
+    this.container.addChild(PIXI.Sprite.from(textures.playfieldBorder));
 
     // add text
     this.nameText = new PIXI.Text({
@@ -202,7 +202,7 @@ class Opponent {
     if (enemyData) {
       // let enemyRealPosition =
       //   enemyData.xPosition *
-      //   (this.stageItems.sprites["playFieldBorder"].width -
+      //   (this.stageItems.sprites["playfieldBorder"].width -
       //     this.enemies[`enemy${id}`].width);
 
       this.enemies[`enemy${id}`].position.x =

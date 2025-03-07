@@ -155,7 +155,7 @@ const variables: { [key: string]: any } = {
 };
 
 async function initializeTextures() {
-  textures.playFieldBorder = await loadTexture("assets/images/playfield.png");
+  textures.playfieldBorder = await loadTexture("assets/images/playfield.png");
 }
 
 async function loadTexture(path: string) {
@@ -171,10 +171,10 @@ type stageItemsContainer = {
 const stageItems: stageItemsContainer = { sprites: {}, textSprites: {} };
 
 function initializeStageItems() {
-  stageItems.sprites.playFieldBorder = PIXI.Sprite.from(
-    textures.playFieldBorder
+  stageItems.sprites.playfieldBorder = PIXI.Sprite.from(
+    textures.playfieldBorder
   );
-  stageItems.sprites.playFieldBorder.label = "playerPlayfield";
+  stageItems.sprites.playfieldBorder.label = "playerPlayfield";
   stageItems.sprites.screenTopLeftIndicator = PIXI.Sprite.from(
     PIXI.Texture.WHITE
   );
@@ -287,7 +287,7 @@ function setContainerItemProperties() {
   stageItems.sprites.screenBottomRightIndicator.position.set(1920, 1080);
   stageItems.sprites.screenBottomRightIndicator.alpha = 0;
   // playfield
-  stageItems.sprites.playFieldBorder.position.set(640, 160);
+  stageItems.sprites.playfieldBorder.position.set(640, 160);
   // text
   stageItems.textSprites.scoreText.position.set(STATISTICS_POSITION, 706);
   // score label

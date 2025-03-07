@@ -45,7 +45,7 @@ class Opponent {
     });
     this.stageItems = {
       sprites: {
-        "playFieldBorder": new PIXI.Sprite(
+        "playfieldBorder": new PIXI.Sprite(
           PIXI.Texture.from("assets/images/playfield.png")
         )
       },
@@ -55,7 +55,7 @@ class Opponent {
         "name": _.cloneDeep(emptyText)
       }
     };
-    this.stageItems.sprites.playFieldBorder.scale.set(
+    this.stageItems.sprites.playfieldBorder.scale.set(
       Opponent.globalScale,
       Opponent.globalScale
     );
@@ -86,8 +86,8 @@ class Opponent {
       app.stage.addChild(this.stageItems.textSprites[item]);
     }
     let xPosition =
-      stageItems.sprites["playFieldBorder"].position.x +
-      stageItems.sprites["playFieldBorder"].width +
+      stageItems.sprites["playfieldBorder"].position.x +
+      stageItems.sprites["playfieldBorder"].width +
       variables.opponentInstancePositions.x.initial +
       variables.opponentInstancePositions.x.increment *
         Math.floor(
@@ -130,8 +130,8 @@ class Opponent {
   autoReposition() {
     let position = this.getInstanceNumberPosition();
     this.reposition(
-      stageItems.sprites["playFieldBorder"].position.x +
-        stageItems.sprites["playFieldBorder"].width +
+      stageItems.sprites["playfieldBorder"].position.x +
+        stageItems.sprites["playfieldBorder"].width +
         variables.opponentInstancePositions.x.initial +
         variables.opponentInstancePositions.x.increment *
           Math.floor(position / variables.opponentInstancesPerColumn),
@@ -201,11 +201,11 @@ class Opponent {
     if (enemyData) {
       let enemyRealPosition =
         enemyData.xPosition *
-        (this.stageItems.sprites["playFieldBorder"].width -
+        (this.stageItems.sprites["playfieldBorder"].width -
           this.stageItems.sprites[`enemy${id}`].width);
 
       this.stageItems.sprites[`enemy${id}`].position.x =
-        this.stageItems.sprites["playFieldBorder"].position.x +
+        this.stageItems.sprites["playfieldBorder"].position.x +
         enemyRealPosition;
 
       this.stageItems.sprites[`enemy${id}`].position.y =
@@ -277,22 +277,22 @@ class Opponent {
   getPositions() {
     let data: { [key: string]: any } = {
       "sprites": {
-        "playFieldBorder": {
+        "playfieldBorder": {
           x: 0,
           y: 0
         }
       },
       "textSprites": {
         "statistics": {
-          x: this.stageItems.sprites["playFieldBorder"].width / 2,
+          x: this.stageItems.sprites["playfieldBorder"].width / 2,
           y: 240 + 16
         },
         "input": {
-          x: this.stageItems.sprites["playFieldBorder"].width / 2,
+          x: this.stageItems.sprites["playfieldBorder"].width / 2,
           y: 240 + 40
         },
         "name": {
-          x: this.stageItems.sprites["playFieldBorder"].width / 2,
+          x: this.stageItems.sprites["playfieldBorder"].width / 2,
           y: 240 + 64
         }
       },
@@ -323,7 +323,7 @@ class Opponent {
 
   setScale() {
     // CLEAR
-    this.stageItems.sprites.playFieldBorder.scale.set(
+    this.stageItems.sprites.playfieldBorder.scale.set(
       Opponent.globalScale,
       Opponent.globalScale
     );
