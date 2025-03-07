@@ -249,8 +249,37 @@ socket.addEventListener("message", (event: any) => {
       );
       break;
     }
+    case "addRoomChatMessage": {
+      const selector =
+        "#main-content__multiplayer-intermission-screen-container__chat__messages";
+
+      const chatMessage = $("<div></div>");
+      chatMessage.css("display", "flex");
+      chatMessage.css("white-space", "pre");
+
+      const name = $(`<div>${message.data.name}</div>`);
+
+      if (message.data.nameColor) {
+        name.css("color", message.data.nameColor);
+      }
+
+      if (message.data.userID) {
+        name.on("click", function () {
+          showUserLookupPopUp(message.data.userID);
+        });
+        name.css("cursor", "pointer");
+        name.css("text-decoration", "underline");
+      }
+
+      chatMessage.append(name);
+      chatMessage.append("<div>: </div>");
+      chatMessage.append(`<div>${message.data.message}</div>`);
+
+      $(selector).append(chatMessage);
+    }
   }
 });
+
 function sendSocketMessage(message: { [key: string]: string }) {
   socket.send(
     JSON.stringify({
