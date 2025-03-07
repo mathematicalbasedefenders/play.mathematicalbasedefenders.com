@@ -1,4 +1,5 @@
 import { isEqual } from "lodash";
+import { TextStyle } from "pixi.js";
 
 /**
  * Formats the milliseconds.
@@ -95,10 +96,17 @@ function checkPlayerListCacheEquality(
   return true;
 }
 
+function createTextStyle(data: {
+  [key: string]: Array<string> | string | number;
+}) {
+  return new TextStyle(data);
+}
+
 export {
   millisecondsToTime,
   calculateLevel,
   nCr,
   formatNumber,
-  checkPlayerListCacheEquality
+  checkPlayerListCacheEquality,
+  createTextStyle
 };

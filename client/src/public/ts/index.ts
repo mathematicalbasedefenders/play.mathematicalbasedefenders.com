@@ -10,7 +10,11 @@ import {
   createCustomSingleplayerGameObject,
   redrawStage
 } from "./game";
-import { calculateLevel, millisecondsToTime } from "./utilities";
+import {
+  calculateLevel,
+  createTextStyle,
+  millisecondsToTime
+} from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
 import {
@@ -155,12 +159,6 @@ async function initializeTextures() {
 async function loadTexture(path: string) {
   const texture = await PIXI.Assets.load(path);
   return texture;
-}
-
-function createTextStyle(data: {
-  [key: string]: Array<string> | string | number;
-}) {
-  return new TextStyle(data);
 }
 
 type stageItemsContainer = {
