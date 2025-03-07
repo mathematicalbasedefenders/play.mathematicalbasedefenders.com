@@ -46,9 +46,40 @@ serifFont.load();
 mathFont.load();
 notoFont.load();
 
+const textures: { [key: string]: PIXI.Texture } = {};
+
 const app = new PIXI.Application();
 
 const stage = app.stage;
+
+async function initializePIXIApp() {
+  await app.init({
+    width: OPTIMAL_SCREEN_WIDTH,
+    height: OPTIMAL_SCREEN_HEIGHT,
+    backgroundAlpha: 0, // because custom backgrounds
+    backgroundColor: 0x000000,
+    resizeTo: window,
+    autoDensity: true,
+    resolution: devicePixelRatio
+  });
+  await initializeTextures();
+  initializeStageItems();
+  setContainerItemProperties();
+  document.getElementById("canvas-container")?.appendChild(app.canvas);
+  // app.renderer.view.style.position = "absolute";
+  // app.renderer.view.style.display = "block";
+  app.ticker.add((deltaTime) => {
+    render(app.ticker.elapsedMS);
+  });
+  for (let item in stageItems.sprites) {
+    app.stage.addChild(stageItems.sprites[item]);
+  }
+  for (let item in stageItems.textSprites) {
+    app.stage.addChild(stageItems.textSprites[item]);
+  }
+}
+
+initializePIXIApp();
 
 const variables: { [key: string]: any } = {
   onScreenKeyboardActivated: false,
@@ -115,83 +146,99 @@ const variables: { [key: string]: any } = {
   }
 };
 
+async function initializeTextures() {
+  textures.playfieldBorder = await loadTexture("assets/images/playfield.png");
+  console.log(textures);
+}
+
+async function loadTexture(path: string) {
+  const texture = await PIXI.Assets.load(path);
+  return texture;
+}
+
 type stageItemsContainer = {
-  sprites: { [key: string]: ExtendedSprite };
+  sprites: { [key: string]: PIXI.Sprite };
   textSprites: { [key: string]: ExtendedText };
 };
 
-const stageItems: stageItemsContainer = {
-  sprites: {
-    playFieldBorder: new ExtendedSprite(
-      PIXI.Texture.from("assets/images/playfield.png")
-    ),
-    screenTopLeftIndicator: new ExtendedSprite(PIXI.Texture.WHITE),
-    screenBottomRightIndicator: new ExtendedSprite(PIXI.Texture.WHITE)
-  },
-  textSprites: {
-    scoreLabelText: new ExtendedText("Score", {
+const stageItems: stageItemsContainer = { sprites: {}, textSprites: {} };
+
+function initializeStageItems() {
+  stageItems.sprites.playFieldBorder = PIXI.Sprite.from(
+    textures.playfieldBorder
+  );
+  stageItems.sprites.screenTopLeftIndicator = PIXI.Sprite.from(
+    PIXI.Texture.WHITE
+  );
+  stageItems.sprites.screenBottomRightIndicator = PIXI.Sprite.from(
+    PIXI.Texture.WHITE
+  );
+
+  stageItems.textSprites.scoreLabelText = new ExtendedText("Score", {
+    fontFamily: ["Noto Sans", "sans-serif"],
+    fontSize: 24,
+    fill: "#ffffff"
+  });
+  stageItems.textSprites.scoreText = new ExtendedText("0", {
+    fontFamily: ["Noto Sans", "sans-serif"],
+    fontSize: 80,
+    fill: "#ffffff"
+  });
+  //
+  stageItems.textSprites.enemiesText = new ExtendedText(
+    "Enemy Kills: 0 ≈ 0.000/s",
+    {
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }),
-    scoreText: new ExtendedText("0", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 80,
-      fill: "#ffffff"
-    }),
-    //
-    enemiesText: new ExtendedText("Enemy Kills: 0 ≈ 0.000/s", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 24,
-      fill: "#ffffff"
-    }),
-    inputText: new ExtendedText("0", {
-      fontFamily: ["Computer Modern Unicode Serif", "serif"],
-      fontSize: 48,
-      fill: "#ffffff"
-    }),
-    elapsedTimeText: new ExtendedText("0:00.000", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 24,
-      fill: "#ffffff"
-    }),
-    baseHealthText: new ExtendedText("♥️ 100", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 24,
-      fill: "#ffffff"
-    }),
-    comboText: new ExtendedText("", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 24,
-      fill: "#ffffff"
-    }),
-    enemiesReceivedStockText: new ExtendedText("0", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 64,
-      fill: "#ffffff"
-    }),
-    nameText: new ExtendedText("", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 20,
-      fill: "#ffffff"
-    }),
-    levelText: new ExtendedText("Level", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 32,
-      fill: "#ffffff"
-    }),
-    levelDetailsText: new ExtendedText("Level", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 20,
-      fill: "#ffffff"
-    }),
-    howToPlayText: new ExtendedText("", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 20,
-      fill: "#ffffff"
-    })
-  }
-};
+    }
+  );
+  stageItems.textSprites.inputText = new ExtendedText("0", {
+    fontFamily: ["Computer Modern Unicode Serif", "serif"],
+    fontSize: 48,
+    fill: "#ffffff"
+  });
+  stageItems.textSprites.elapsedTimeText = new ExtendedText("0:00.000", {
+    fontFamily: ["Noto Sans", "sans-serif"],
+    fontSize: 24,
+    fill: "#ffffff"
+  });
+  stageItems.textSprites.baseHealthText = new ExtendedText("♥️ 100", {
+    fontFamily: ["Noto Sans", "sans-serif"],
+    fontSize: 24,
+    fill: "#ffffff"
+  });
+  stageItems.textSprites.comboText = new ExtendedText("", {
+    fontFamily: ["Noto Sans", "sans-serif"],
+    fontSize: 24,
+    fill: "#ffffff"
+  });
+  stageItems.textSprites.enemiesReceivedStockText = new ExtendedText("0", {
+    fontFamily: ["Noto Sans", "sans-serif"],
+    fontSize: 64,
+    fill: "#ffffff"
+  });
+  stageItems.textSprites.nameText = new ExtendedText("", {
+    fontFamily: ["Noto Sans", "sans-serif"],
+    fontSize: 20,
+    fill: "#ffffff"
+  });
+  stageItems.textSprites.levelText = new ExtendedText("Level", {
+    fontFamily: ["Noto Sans", "sans-serif"],
+    fontSize: 32,
+    fill: "#ffffff"
+  });
+  stageItems.textSprites.levelDetailsText = new ExtendedText("Level", {
+    fontFamily: ["Noto Sans", "sans-serif"],
+    fontSize: 20,
+    fill: "#ffffff"
+  });
+  stageItems.textSprites.howToPlayText = new ExtendedText("", {
+    fontFamily: ["Noto Sans", "sans-serif"],
+    fontSize: 20,
+    fill: "#ffffff"
+  });
+}
 
 function setContainerItemProperties() {
   stageItems.sprites.screenTopLeftIndicator.position.set(0, 0);
@@ -253,34 +300,6 @@ function setContainerItemProperties() {
   stageItems.textSprites.howToPlayText.text +=
     "You can also turn off this message in the settings.\n";
   stageItems.textSprites.howToPlayText.position.set(STATISTICS_POSITION, 400);
-}
-
-async function initializePIXIApp() {
-  await app.init({
-    width: OPTIMAL_SCREEN_WIDTH,
-    height: OPTIMAL_SCREEN_HEIGHT,
-    backgroundAlpha: 0, // because custom backgrounds
-    backgroundColor: 0x000000,
-    resizeTo: window,
-    autoDensity: true,
-    resolution: devicePixelRatio
-  });
-  document.getElementById("canvas-container")?.appendChild(app.canvas);
-  // app.renderer.view.style.position = "absolute";
-  // app.renderer.view.style.display = "block";
-  app.ticker.add((deltaTime) => {
-    render(app.ticker.elapsedMS);
-  });
-}
-
-setContainerItemProperties();
-initializePIXIApp();
-
-for (let item in stageItems.sprites) {
-  app.stage.addChild(stageItems.sprites[item]);
-}
-for (let item in stageItems.textSprites) {
-  app.stage.addChild(stageItems.textSprites[item]);
 }
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
