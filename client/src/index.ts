@@ -25,20 +25,22 @@ app.use(
           "pixijs.download",
           "'unsafe-eval'"
         ],
-        "img-src": "*",
+        "img-src": ["https:", "data:", "'self'"],
         "style-src": ["'unsafe-inline'", "*"],
         "connect-src": [
           "http://localhost:4000",
           "https://play.mathematicalbasedefenders.com:4000",
           "ws://localhost:5000",
           "wss://play.mathematicalbasedefenders.com:5000",
-          "'self'"
+          "'self'",
+          "data:"
         ],
         "form-action": [
           "'self'",
           "http://localhost:4000/api/authenticate",
           "https://play.mathematicalbasedefenders.com:4000/api/authenticate"
-        ]
+        ],
+        "worker-src": ["'self'", "blob:"]
       }
     },
     crossOriginEmbedderPolicy: false,
