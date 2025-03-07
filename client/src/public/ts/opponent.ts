@@ -19,7 +19,7 @@ class Opponent {
   xPositionOffset: number;
   yPositionOffset: number;
   instanceNumber: number;
-  static globalScale = 0.3;
+  static globalScale = 1 / 4;
   static instances: Array<Opponent> = [];
 
   /**
@@ -55,6 +55,7 @@ class Opponent {
     this.instanceNumber = Opponent.instances.length;
     this.xPositionOffset = 0;
     this.yPositionOffset = 0;
+    Opponent.changeGlobalScale();
     Opponent.instances.push(this);
   }
 
@@ -219,12 +220,16 @@ class Opponent {
   /**
    * Destroys (removes) all the sprites of the Opponent game instance.
    */
-  destroy() {
+  destroy(rescale?: boolean) {
     for (let item in this.stageItems.sprites) {
       app.stage.removeChild(this.stageItems.sprites[item]);
     }
     for (let item in this.stageItems.textSprites) {
       app.stage.removeChild(this.stageItems.textSprites[item]);
+    }
+
+    if (rescale) {
+      Opponent.changeGlobalScale();
     }
   }
 
@@ -292,6 +297,26 @@ class Opponent {
   }
   // TODO: add method for destroying the instance.
   // for now just delete (e.g. splice) it from the static variable instances
+
+  static changeGlobalScale() {
+    const initialScale = 1 / 4;
+    const ratio = 2 / 3;
+    const exponent = Math.min(
+      Math.floor(Math.sqrt(Opponent.instances.length)) - 1,
+      1
+    );
+    Opponent.globalScale = initialScale * ratio ** exponent;
+    for (const instance of Opponent.instances) {
+      instance.setScale();
+    }
+  }
+
+  setScale() {
+    this.stageItems.sprites.playFieldBorder.scale.set(
+      Opponent.globalScale,
+      Opponent.globalScale
+    );
+  }
 }
 
 export { Opponent };
