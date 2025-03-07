@@ -156,6 +156,9 @@ const variables: { [key: string]: any } = {
 
 async function initializeTextures() {
   textures.playfieldBorder = await loadTexture("assets/images/playfield.png");
+  textures.opponentPlayfieldBorder = await loadTexture(
+    "assets/images/opponent-playfield.png"
+  );
 }
 
 async function loadTexture(path: string) {
