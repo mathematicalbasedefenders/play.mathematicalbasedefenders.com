@@ -46,18 +46,7 @@ serifFont.load();
 mathFont.load();
 notoFont.load();
 
-const app = new PIXI.Application({
-  width: OPTIMAL_SCREEN_WIDTH,
-  height: OPTIMAL_SCREEN_HEIGHT,
-  backgroundAlpha: 0, // because custom backgrounds
-  backgroundColor: 0x000000,
-  resizeTo: window,
-  autoDensity: true,
-  resolution: devicePixelRatio
-});
-
-app.renderer.view.style.position = "absolute";
-app.renderer.view.style.display = "block";
+const app = new PIXI.Application();
 
 const stage = app.stage;
 
@@ -266,7 +255,26 @@ function setContainerItemProperties() {
   stageItems.textSprites.howToPlayText.position.set(STATISTICS_POSITION, 400);
 }
 
+async function initializePIXIApp() {
+  await app.init({
+    width: OPTIMAL_SCREEN_WIDTH,
+    height: OPTIMAL_SCREEN_HEIGHT,
+    backgroundAlpha: 0, // because custom backgrounds
+    backgroundColor: 0x000000,
+    resizeTo: window,
+    autoDensity: true,
+    resolution: devicePixelRatio
+  });
+  document.getElementById("canvas-container")?.appendChild(app.canvas);
+  // app.renderer.view.style.position = "absolute";
+  // app.renderer.view.style.display = "block";
+  app.ticker.add((deltaTime) => {
+    render(app.ticker.elapsedMS);
+  });
+}
+
 setContainerItemProperties();
+initializePIXIApp();
 
 for (let item in stageItems.sprites) {
   app.stage.addChild(stageItems.sprites[item]);
@@ -276,7 +284,6 @@ for (let item in stageItems.textSprites) {
 }
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
-document.getElementById("canvas-container")?.appendChild(app.view);
 function initializeEventListeners() {
   // other event listeners
   $("#main-menu-screen-button--singleplayer").on("click", () => {
@@ -680,10 +687,6 @@ function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__username").text(data.guestName);
   $("#main-content__user-menu-small-display__level").text(`Guest Player`);
 }
-
-app.ticker.add((deltaTime) => {
-  render(app.ticker.elapsedMS);
-});
 
 changeScreen("mainMenu");
 loadSettings(localStorage.getItem("settings") || "{}");
