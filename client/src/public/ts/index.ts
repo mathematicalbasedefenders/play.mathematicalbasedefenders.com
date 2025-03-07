@@ -57,6 +57,8 @@ const app = new PIXI.Application();
 
 const stage = app.stage;
 
+const playerContainer = new PIXI.Container();
+
 async function initializePIXIApp() {
   await app.init({
     width: OPTIMAL_SCREEN_WIDTH,
@@ -73,14 +75,15 @@ async function initializePIXIApp() {
   document.getElementById("canvas-container")?.appendChild(app.canvas);
   // app.renderer.view.style.position = "absolute";
   // app.renderer.view.style.display = "block";
+  app.stage.addChild(playerContainer);
   app.ticker.add((deltaTime) => {
     render(app.ticker.elapsedMS);
   });
   for (let item in stageItems.sprites) {
-    app.stage.addChild(stageItems.sprites[item]);
+    playerContainer.addChild(stageItems.sprites[item]);
   }
   for (let item in stageItems.textSprites) {
-    app.stage.addChild(stageItems.textSprites[item]);
+    playerContainer.addChild(stageItems.textSprites[item]);
   }
 }
 
