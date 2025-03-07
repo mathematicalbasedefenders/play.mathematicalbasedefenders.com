@@ -1,4 +1,4 @@
-import { app, ExtendedSprite, ExtendedText, stageItems, variables } from ".";
+import { app, stageItems, variables } from ".";
 import * as PIXI from "pixi.js";
 import {
   getScaledEnemyHeight,
@@ -13,8 +13,8 @@ import _ from "lodash";
 class Opponent {
   boundTo!: string;
   stageItems!: {
-    sprites: { [key: string]: ExtendedSprite };
-    textSprites: { [key: string]: ExtendedText };
+    sprites: { [key: string]: PIXI.Sprite };
+    textSprites: { [key: string]: PIXI.Text };
   };
   xPositionOffset: number;
   yPositionOffset: number;
@@ -26,19 +26,19 @@ class Opponent {
    * This constructor creates a new Opponent game instance.
    */
   constructor() {
-    const emptyText = new ExtendedText("", {
+    const emptyText = new PIXI.Text("", {
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 20,
       fill: "#ffffff"
     });
-    const emptyMathText = new ExtendedText("", {
+    const emptyMathText = new PIXI.Text("", {
       fontFamily: ["Computer Modern Unicode Serif", "serif"],
       fontSize: 20,
       fill: "#ffffff"
     });
     this.stageItems = {
       sprites: {
-        "playFieldBorder": new ExtendedSprite(
+        "playFieldBorder": new PIXI.Sprite(
           PIXI.Texture.from("assets/images/playfield.png")
         )
       },
@@ -180,7 +180,7 @@ class Opponent {
     if (Object.keys(this.stageItems.sprites).indexOf(`enemy${id}`) === -1) {
       // create enemy
       // TODO: temporary.
-      this.stageItems.sprites[`enemy${id}`] = new ExtendedSprite(
+      this.stageItems.sprites[`enemy${id}`] = new PIXI.Sprite(
         PIXI.Texture.WHITE
       );
       this.stageItems.sprites[`enemy${id}`].width =
