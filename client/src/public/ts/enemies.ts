@@ -270,10 +270,10 @@ function deleteEnemy(id: string) {
   const enemy = getCachedEnemy(id);
   const sprite = getCachedEnemy(id)?.sprite;
   if (typeof sprite !== "undefined") {
-    app.stage.removeChild(sprite);
+    playerContainer.removeChild(sprite);
   }
   if (typeof text !== "undefined") {
-    app.stage.removeChild(text);
+    playerContainer.removeChild(text);
   }
   if (typeof enemy !== "undefined") {
     const enemyIndex = Enemy.enemyCache.indexOf(enemy);

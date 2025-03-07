@@ -45,7 +45,7 @@ class SlidingText {
    * Destroys the `SlidingText`, and also stops it from moving.
    */
   delete() {
-    app.stage.removeChild(this.textSprite);
+    playerContainer.removeChild(this.textSprite);
     this.rendering = false;
     SlidingText.slidingTexts.splice(SlidingText.slidingTexts.indexOf(this), 1);
   }
