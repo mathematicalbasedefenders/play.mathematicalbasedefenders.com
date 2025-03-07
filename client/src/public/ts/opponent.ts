@@ -109,7 +109,6 @@ class Opponent {
     this.statsText.text = `♥${health} 🡕${combo} 🞎${stock}`;
 
     // enemies
-    console.log(data.enemies);
     for (let enemy of data.enemies) {
       this.updateEnemy(enemy.id, data);
     }
@@ -216,7 +215,6 @@ class Opponent {
         getScaledEnemyHeight() -
         28;
     }
-    console.log(this.container, enemyData);
   }
 
   /**
