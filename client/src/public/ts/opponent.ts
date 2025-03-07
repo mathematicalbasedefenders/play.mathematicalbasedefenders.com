@@ -53,7 +53,7 @@ class Opponent {
   constructor() {
     this.instanceNumber = Opponent.instances.length;
     this.container = new Container();
-    this.container.addChild(PIXI.Sprite.from(textures.playfieldBorder));
+    this.container.addChild(PIXI.Sprite.from(textures.opponentPlayfieldBorder));
 
     // add text
     this.nameText = new PIXI.Text({
