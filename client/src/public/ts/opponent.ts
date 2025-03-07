@@ -21,7 +21,7 @@ class Opponent {
   nameText: PIXI.Text;
   statsText: PIXI.Text;
   enemies: { [key: string]: PIXI.Sprite };
-  static globalScale = 1 / 4;
+  static globalScale = 1 / 3;
   static instances: Array<Opponent> = [];
   // static emptyText = new PIXI.Text({
   //   text: "",
