@@ -44,8 +44,8 @@ class Opponent {
     fontSize: 64,
     fill: "#ffffff"
   };
-  static gapWidth = 16;
-  static gapHeight = 128;
+  static gapWidth = 32;
+  static gapHeight = 240;
 
   /**
    * This constructor creates a new Opponent game instance.
@@ -154,8 +154,7 @@ class Opponent {
       topPlayerPlayfield +
       (position % divisor) *
         (playerPlayfield.height + Opponent.gapHeight) *
-        Opponent.globalScale +
-      Opponent.gapHeight;
+        Opponent.globalScale;
 
     console.log(
       position,
@@ -214,7 +213,7 @@ class Opponent {
         720 * enemyData.sPosition +
         100 -
         40 -
-        getScaledEnemyHeight() +
+        getScaledEnemyHeight() -
         28;
     }
     console.log(this.container, enemyData);
