@@ -2,7 +2,7 @@
 
 import * as PIXI from "pixi.js";
 import _ from "lodash";
-import { app, mathFont, variables } from "./index";
+import { app, mathFont, playerContainer, variables } from "./index";
 import { playSound } from "./sounds";
 const ENEMY_FONT_SIZE = 24;
 const DEFAULT_ENEMY_WIDTH = 64;
@@ -107,8 +107,8 @@ class Enemy {
    * Renders the enemy.
    */
   render() {
-    app.stage.addChild(this.sprite);
-    app.stage.addChild(this.textSprite);
+    playerContainer.addChild(this.sprite);
+    playerContainer.addChild(this.textSprite);
   }
 
   /**

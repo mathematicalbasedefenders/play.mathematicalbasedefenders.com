@@ -796,6 +796,7 @@ export {
   serifFont,
   mathFont,
   variables,
+  playerContainer,
   updateGuestInformationText,
   updateUserInformationText
 };
