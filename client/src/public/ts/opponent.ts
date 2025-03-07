@@ -45,7 +45,7 @@ class Opponent {
     fill: "#ffffff"
   };
   static gapWidth = 16;
-  static gapHeight = 16;
+  static gapHeight = 40;
 
   /**
    * This constructor creates a new Opponent game instance.
