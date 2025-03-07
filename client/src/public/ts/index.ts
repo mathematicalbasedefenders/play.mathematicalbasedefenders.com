@@ -23,6 +23,7 @@ import {
 } from "./popup-notification";
 import { changeBackgroundImage } from "./change-background-image";
 import { showUserLookupPopUp } from "./lookup-user";
+import { TextStyle } from "pixi.js";
 const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -156,9 +157,15 @@ async function loadTexture(path: string) {
   return texture;
 }
 
+function createTextStyle(data: {
+  [key: string]: Array<string> | string | number;
+}) {
+  return new TextStyle(data);
+}
+
 type stageItemsContainer = {
   sprites: { [key: string]: PIXI.Sprite };
-  textSprites: { [key: string]: ExtendedText };
+  textSprites: { [key: string]: PIXI.Text };
 };
 
 const stageItems: stageItemsContainer = { sprites: {}, textSprites: {} };
@@ -174,69 +181,102 @@ function initializeStageItems() {
     PIXI.Texture.WHITE
   );
 
-  stageItems.textSprites.scoreLabelText = new ExtendedText("Score", {
-    fontFamily: ["Noto Sans", "sans-serif"],
-    fontSize: 24,
-    fill: "#ffffff"
-  });
-  stageItems.textSprites.scoreText = new ExtendedText("0", {
-    fontFamily: ["Noto Sans", "sans-serif"],
-    fontSize: 80,
-    fill: "#ffffff"
-  });
-  //
-  stageItems.textSprites.enemiesText = new ExtendedText(
-    "Enemy Kills: 0 ≈ 0.000/s",
-    {
+  stageItems.textSprites.scoreLabelText = new PIXI.Text({
+    text: "Score",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }
-  );
-  stageItems.textSprites.inputText = new ExtendedText("0", {
-    fontFamily: ["Computer Modern Unicode Serif", "serif"],
-    fontSize: 48,
-    fill: "#ffffff"
+    })
   });
-  stageItems.textSprites.elapsedTimeText = new ExtendedText("0:00.000", {
-    fontFamily: ["Noto Sans", "sans-serif"],
-    fontSize: 24,
-    fill: "#ffffff"
+  stageItems.textSprites.scoreText = new PIXI.Text({
+    text: "0",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 80,
+      fill: "#ffffff"
+    })
   });
-  stageItems.textSprites.baseHealthText = new ExtendedText("♥️ 100", {
-    fontFamily: ["Noto Sans", "sans-serif"],
-    fontSize: 24,
-    fill: "#ffffff"
+  //
+  stageItems.textSprites.enemiesText = new PIXI.Text({
+    text: "Enemy Kills: 0 ≈ 0.000/s",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 24,
+      fill: "#ffffff"
+    })
   });
-  stageItems.textSprites.comboText = new ExtendedText("", {
-    fontFamily: ["Noto Sans", "sans-serif"],
-    fontSize: 24,
-    fill: "#ffffff"
+  stageItems.textSprites.inputText = new PIXI.Text({
+    text: "0",
+    style: createTextStyle({
+      fontFamily: ["Computer Modern Unicode Serif", "serif"],
+      fontSize: 48,
+      fill: "#ffffff"
+    })
   });
-  stageItems.textSprites.enemiesReceivedStockText = new ExtendedText("0", {
-    fontFamily: ["Noto Sans", "sans-serif"],
-    fontSize: 64,
-    fill: "#ffffff"
+  stageItems.textSprites.elapsedTimeText = new PIXI.Text({
+    text: "0:00.000",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 24,
+      fill: "#ffffff"
+    })
   });
-  stageItems.textSprites.nameText = new ExtendedText("", {
-    fontFamily: ["Noto Sans", "sans-serif"],
-    fontSize: 20,
-    fill: "#ffffff"
+  stageItems.textSprites.baseHealthText = new PIXI.Text({
+    text: "♥️ 100",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 24,
+      fill: "#ffffff"
+    })
   });
-  stageItems.textSprites.levelText = new ExtendedText("Level", {
-    fontFamily: ["Noto Sans", "sans-serif"],
-    fontSize: 32,
-    fill: "#ffffff"
+  stageItems.textSprites.comboText = new PIXI.Text({
+    text: "",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 24,
+      fill: "#ffffff"
+    })
   });
-  stageItems.textSprites.levelDetailsText = new ExtendedText("Level", {
-    fontFamily: ["Noto Sans", "sans-serif"],
-    fontSize: 20,
-    fill: "#ffffff"
+  stageItems.textSprites.enemiesReceivedStockText = new PIXI.Text({
+    text: "0",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 64,
+      fill: "#ffffff"
+    })
   });
-  stageItems.textSprites.howToPlayText = new ExtendedText("", {
-    fontFamily: ["Noto Sans", "sans-serif"],
-    fontSize: 20,
-    fill: "#ffffff"
+  stageItems.textSprites.nameText = new PIXI.Text({
+    text: "",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 20,
+      fill: "#ffffff"
+    })
+  });
+  stageItems.textSprites.levelText = new PIXI.Text({
+    text: "Level",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 32,
+      fill: "#ffffff"
+    })
+  });
+  stageItems.textSprites.levelDetailsText = new PIXI.Text({
+    text: "Level",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 20,
+      fill: "#ffffff"
+    })
+  });
+  stageItems.textSprites.howToPlayText = new PIXI.Text({
+    text: "",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 20,
+      fill: "#ffffff"
+    })
   });
 }
 
@@ -752,8 +792,6 @@ export {
   stageItems,
   stage,
   app,
-  ExtendedSprite,
-  ExtendedText,
   serifFont,
   mathFont,
   variables,
