@@ -6,6 +6,7 @@ import {
   getSetEnemyColor
 } from "./enemies";
 import _ from "lodash";
+import { createTextStyle } from "./utilities";
 
 /**
  * This class handles opponent's game instances in Multiplayer mode.
@@ -26,15 +27,21 @@ class Opponent {
    * This constructor creates a new Opponent game instance.
    */
   constructor() {
-    const emptyText = new PIXI.Text("", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 20,
-      fill: "#ffffff"
+    const emptyText = new PIXI.Text({
+      text: "",
+      style: createTextStyle({
+        fontFamily: ["Noto Sans", "san-serif"],
+        fontSize: 20,
+        fill: "#ffffff"
+      })
     });
-    const emptyMathText = new PIXI.Text("", {
-      fontFamily: ["Computer Modern Unicode Serif", "serif"],
-      fontSize: 20,
-      fill: "#ffffff"
+    const emptyMathText = new PIXI.Text({
+      text: "",
+      style: createTextStyle({
+        fontFamily: ["Computer Modern Unicode Serif", "serif"],
+        fontSize: 20,
+        fill: "#ffffff"
+      })
     });
     this.stageItems = {
       sprites: {
