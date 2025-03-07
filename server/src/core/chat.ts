@@ -58,7 +58,7 @@ function sendChatMessage(
         return;
       }
       const room = findRoomWithConnectionID(connectionID, true) as Room;
-      room.addChatMessage(message, playerName || "");
+      room.addChatMessage(message, socket);
       log.info(
         `Socket ID ${connectionID} (${playerName}) sent message ${message} to Room ID ${room.id}`
       );
@@ -129,14 +129,17 @@ function createGlobalMessageObject(
   senderColor: string | undefined,
   attribute?: string
 ) {
+  const senderSocket = universal.getSocketFromConnectionID(connectionID);
   const playerName = universal.getNameFromConnectionID(connectionID);
+  const userID = senderSocket?.ownerUserID ?? null;
   const toReturn = {
     message: "addChatMessage",
     data: {
       sender: playerName,
       message: {
         sender: playerName,
-        message: message
+        message: message,
+        senderUserID: userID
       },
       attribute: attribute ?? "",
       location: "#chat-tray-message-container",

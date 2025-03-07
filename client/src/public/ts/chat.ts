@@ -1,4 +1,5 @@
 import DOMPurify from "dompurify";
+import { showUserLookupPopUp } from "./lookup-user";
 
 interface GlobalChatMessage {
   name?: string;
@@ -11,6 +12,7 @@ interface GlobalChatMessage {
   enemiesSpawned?: number;
   sender: string;
   message: string;
+  senderUserID: string;
 }
 
 /**
@@ -132,6 +134,14 @@ function createDefaultChatMessage(data: GlobalChatMessage, nameColor?: string) {
 
   const nameElement = $(`<span>${DOMPurify.sanitize(data.sender)}</span>`);
   nameElement.css("color", nameColor);
+
+  if (data.senderUserID) {
+    nameElement.on("click", function () {
+      showUserLookupPopUp(data.senderUserID);
+    });
+    nameElement.css("text-decoration", "underline");
+    nameElement.css("cursor", "pointer");
+  }
 
   element.append(nameElement);
   element.append(`: ${DOMPurify.sanitize(data.message)}`);

@@ -90,6 +90,7 @@ socket.addEventListener("message", (event: any) => {
       const sanitizedMessage = message.data.message;
       sanitizedMessage.sender = DOMPurify.sanitize(sanitizedMessage.sender);
       sanitizedMessage.message = DOMPurify.sanitize(sanitizedMessage.message);
+      sanitizedMessage.userID = DOMPurify.sanitize(sanitizedMessage.userID);
       const sanitizedSender = DOMPurify.sanitize(message.data.sender);
       const sanitizedSenderColor = DOMPurify.sanitize(message.data.senderColor);
       const sanitizedAttribute = DOMPurify.sanitize(message.data.attribute);
@@ -248,8 +249,39 @@ socket.addEventListener("message", (event: any) => {
       );
       break;
     }
+    case "addRoomChatMessage": {
+      const selector =
+        "#main-content__multiplayer-intermission-screen-container__chat__messages";
+
+      const chatMessage = $("<div></div>");
+      chatMessage.css("display", "flex");
+      chatMessage.css("white-space", "pre");
+
+      const name = $(`<div>${DOMPurify.sanitize(message.data.name)}</div>`);
+
+      if (message.data.nameColor) {
+        name.css("color", message.data.nameColor);
+      }
+
+      if (message.data.userID) {
+        name.on("click", function () {
+          showUserLookupPopUp(message.data.userID);
+        });
+        name.css("cursor", "pointer");
+        name.css("text-decoration", "underline");
+      }
+
+      chatMessage.append(name);
+      chatMessage.append("<div>: </div>");
+      chatMessage.append(
+        `<div>${DOMPurify.sanitize(message.data.message)}</div>`
+      );
+
+      $(selector).append(chatMessage);
+    }
   }
 });
+
 function sendSocketMessage(message: { [key: string]: string }) {
   socket.send(
     JSON.stringify({
