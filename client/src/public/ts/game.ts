@@ -115,12 +115,6 @@ function renderGameData(data: { [key: string]: any }) {
         let newInstance = new Opponent();
         newInstance.bind(opponentData.owner);
         newInstance.render();
-        // FIXME: remove me
-        for (let i = 0; i < 10; i++) {
-          let ogi = new Opponent();
-          ogi.bind(opponentData.owner);
-          ogi.render();
-        }
         //
       } else {
         if (opponentData.baseHealth > 0) {
