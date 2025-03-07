@@ -20,6 +20,7 @@ class Opponent {
   instanceNumber!: number;
   nameText: PIXI.Text;
   statsText: PIXI.Text;
+  enemies: { [key: string]: PIXI.Sprite };
   static globalScale = 1 / 4;
   static instances: Array<Opponent> = [];
   // static emptyText = new PIXI.Text({
@@ -70,6 +71,8 @@ class Opponent {
     this.container.addChild(this.nameText);
     this.container.addChild(this.statsText);
 
+    this.enemies = {};
+
     Opponent.instances.push(this);
     Opponent.changeGlobalScale();
   }
@@ -96,6 +99,7 @@ class Opponent {
    * @param {any} data The new data.
    */
   update(data: any) {
+    // text
     this.nameText.text = data.ownerName;
 
     const health = data.baseHealth;
@@ -103,6 +107,19 @@ class Opponent {
     const stock = Math.max(data.receivedEnemiesStock, 0);
 
     this.statsText.text = `♥${health} 🡕${combo} 🞎${stock}`;
+
+    // enemies
+    console.log(data.enemies);
+    for (let enemy of data.enemies) {
+      this.updateEnemy(enemy.id, data);
+    }
+    let enemyToDeleteMatches = data.enemiesToErase;
+    for (let enemyID of enemyToDeleteMatches) {
+      let enemyToDelete = this.enemies[`enemy${enemyID}`];
+      if (enemyToDelete) {
+        this.container.removeChild(enemyToDelete);
+      }
+    }
   }
 
   /**
@@ -168,17 +185,61 @@ class Opponent {
    * @param {string} id The ID of the enemy to update.
    * @param {any} data The new data of the enemy.
    */
-  updateEnemy(id: string, data: any) {}
+  updateEnemy(id: string, data: any) {
+    // no enemy, create new
+    if (Object.keys(this.enemies).indexOf(`enemy${id}`) === -1) {
+      // create enemy
+      // TODO: temporary.
+      this.enemies[`enemy${id}`] = createOpponentEnemy();
+      this.container.addChild(this.enemies[`enemy${id}`]);
+    }
+    const enemyData = data.enemies.find((element: any) => element.id === id);
+    const playerPlayfield = playerContainer.getChildByLabel("playerPlayfield");
+
+    if (!playerPlayfield) {
+      console.error("Player's playfield not found!");
+      return;
+    }
+
+    if (enemyData) {
+      // let enemyRealPosition =
+      //   enemyData.xPosition *
+      //   (this.stageItems.sprites["playFieldBorder"].width -
+      //     this.enemies[`enemy${id}`].width);
+
+      this.enemies[`enemy${id}`].position.x =
+        (playerPlayfield.width - this.container.width) * enemyData.xPosition;
+      this.enemies[`enemy${id}`].position.y =
+        720 -
+        720 * enemyData.sPosition +
+        100 -
+        40 -
+        getScaledEnemyHeight() +
+        28;
+    }
+    console.log(this.container, enemyData);
+  }
 
   /**
    * Destroys the Opponent game instance, then renders it again.
    */
-  destroyAndRender() {}
+  destroyAndRender() {
+    this.destroy();
+    // this.reposition(0, 0);
+    this.render();
+  }
 
   /**
    * Destroys (removes) all the sprites of the Opponent game instance.
    */
-  destroy(rescale?: boolean) {}
+  destroy(rescale?: boolean) {
+    while (this.container.children[0]) {
+      this.container.removeChild(this.container.children[0]);
+    }
+    if (rescale) {
+      Opponent.changeGlobalScale();
+    }
+  }
 
   /**
    * Destroys (remove) all Opponent game instances.
@@ -212,6 +273,7 @@ class Opponent {
    * Gets the (x, y) position (on the screen) where the Opponent game instance should be.
    * @returns The (x, y) position (on the screen) where the Opponent game instance should be.
    */
+  // TODO: Unused????
   getPositions() {}
   // TODO: add method for destroying the instance.
   // for now just delete (e.g. splice) it from the static variable instances
@@ -232,6 +294,14 @@ class Opponent {
   setScale() {
     this.container.scale.set(Opponent.globalScale, Opponent.globalScale);
   }
+}
+
+function createOpponentEnemy() {
+  const enemy = new PIXI.Sprite(PIXI.Texture.WHITE);
+  enemy.width = getScaledEnemyWidth();
+  enemy.height = getScaledEnemyHeight();
+  enemy.tint = getSetEnemyColor();
+  return enemy;
 }
 
 export { Opponent };
