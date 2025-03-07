@@ -132,8 +132,6 @@ function createDefaultChatMessage(data: GlobalChatMessage, nameColor?: string) {
   const element = $("<div></div>");
   element.addClass(CLASS_NAME);
 
-  // const clickEvent = data`showUserLookupPopUp(${})`
-
   const nameElement = $(`<span>${DOMPurify.sanitize(data.sender)}</span>`);
   nameElement.css("color", nameColor);
 
