@@ -118,22 +118,38 @@ class Room {
     this.updateNumber++;
   }
 
-  addChatMessage(message: string, sender: string) {
-    let sanitizedMessage = DOMPurify.sanitize(message);
+  // room specific
+  addChatMessage(message: string, sender: universal.GameSocket) {
+    if (!sender || !sender.connectionID) {
+      log.warn(
+        `No sender/connectionID for message: ${message} in room, ignoring.`
+      );
+      return;
+    }
+
+    const sanitizedMessage = DOMPurify.sanitize(message);
+    const senderName = universal.getNameFromConnectionID(sender.connectionID);
+    const nameColor = sender.playerRank?.color;
+    const userID = sender.ownerUserID ?? null;
     this.chatMessages.push({
       message: sanitizedMessage,
-      sender: sender
+      sender: senderName
     });
     // send to all sockets
     for (let connectionID of this.memberConnectionIDs) {
-      let socket = universal.getSocketFromConnectionID(connectionID);
+      const socket = universal.getSocketFromConnectionID(connectionID);
       if (socket) {
         socket.send(
           JSON.stringify({
-            message: "appendHTML",
-            selector:
-              "#main-content__multiplayer-intermission-screen-container__chat__messages",
-            value: `<div>${sender}: ${message}</div>`
+            message: "addRoomChatMessage",
+            // selector:
+            //   "#main-content__multiplayer-intermission-screen-container__chat__messages",
+            data: {
+              name: senderName,
+              message: message,
+              nameColor: nameColor,
+              userID: userID
+            }
           })
         );
       }
