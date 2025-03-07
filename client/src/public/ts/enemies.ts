@@ -224,11 +224,11 @@ function getBestFontSize(decrement: number, text: string, width: number) {
   let size = ENEMY_FONT_SIZE * variables.settings.enemySizeCoefficient;
   let style = _.clone(ENEMY_TEXT_STYLE);
   while (size > 12) {
-    let textMetrics = PIXI.TextMetrics.measureText(text, style);
+    let textMetrics = PIXI.CanvasTextMetrics.measureText(text, style);
     if (textMetrics.width < width * 0.95) {
       return size;
     }
-    style.fontSize = parseInt(style.fontSize as string) - decrement;
+    style.fontSize = parseInt(style.fontSize as unknown as string) - decrement;
     size -= decrement;
   }
   return size;
