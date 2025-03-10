@@ -164,10 +164,17 @@ const variables: { [key: string]: any } = {
 };
 
 async function initializeTextures() {
-  textures.playfieldBorder = await loadTexture("assets/images/playfield.png");
-  textures.opponentPlayfieldBorder = await loadTexture(
-    "assets/images/opponent-playfield.png"
-  );
+  try {
+    textures.playfieldBorder = await loadTexture("assets/images/playfield.png");
+    textures.opponentPlayfieldBorder = await loadTexture(
+      "assets/images/opponent-playfield.png"
+    );
+  } catch (error) {
+    console.error(`Unable to load external image into texture.`);
+    new ToastNotification(`Unable to load external image into texture.`, {
+      borderColor: "#ff0000"
+    });
+  }
 }
 
 async function loadTexture(path: string) {
