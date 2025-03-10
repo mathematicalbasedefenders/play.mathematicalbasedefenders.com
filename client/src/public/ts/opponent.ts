@@ -23,22 +23,6 @@ class Opponent {
   enemies: { [key: string]: PIXI.Sprite };
   static globalScale = 1 / 3;
   static instances: Array<Opponent> = [];
-  // static emptyText = new PIXI.Text({
-  //   text: "",
-  //   style: createTextStyle({
-  //     fontFamily: ["Noto Sans", "san-serif"],
-  //     fontSize: 20,
-  //     fill: "#ffffff"
-  //   })
-  // });
-  // static emptyMathText = new PIXI.Text({
-  //   text: "",
-  //   style: createTextStyle({
-  //     fontFamily: ["Computer Modern Unicode Serif", "serif"],
-  //     fontSize: 20,
-  //     fill: "#ffffff"
-  //   })
-  // });
   static textStyle = {
     fontFamily: ["Noto Sans", "san-serif"],
     fontSize: 64,
