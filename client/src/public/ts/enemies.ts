@@ -228,7 +228,8 @@ function getBestFontSize(decrement: number, text: string, width: number) {
     if (textMetrics.width < width * 0.95) {
       return size;
     }
-    style.fontSize = parseInt(style.fontSize as unknown as string) - decrement;
+    style.fontSize =
+      Number.parseInt(style.fontSize as unknown as string) - decrement;
     size -= decrement;
   }
   return size;
