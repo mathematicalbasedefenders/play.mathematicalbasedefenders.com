@@ -79,13 +79,13 @@ class Opponent {
    * Renders the Opponent game instance with respect to its position.
    */
   render() {
-    for (let item in this.stageItems.sprites) {
+    for (const item in this.stageItems.sprites) {
       app.stage.addChild(this.stageItems.sprites[item]);
     }
-    for (let item in this.stageItems.textSprites) {
+    for (const item in this.stageItems.textSprites) {
       app.stage.addChild(this.stageItems.textSprites[item]);
     }
-    let xPosition =
+    const xPosition =
       stageItems.sprites["playfieldBorder"].position.x +
       stageItems.sprites["playfieldBorder"].width +
       variables.opponentInstancePositions.x.initial +
@@ -94,7 +94,7 @@ class Opponent {
           this.getInstanceNumberPosition() /
             variables.opponentInstancesPerColumn
         );
-    let yPosition =
+    const yPosition =
       variables.opponentInstancePositions.y.initial +
       variables.opponentInstancePositions.y.increment *
         (this.getInstanceNumberPosition() %
@@ -112,11 +112,11 @@ class Opponent {
     } ${Math.max(data.combo, 0)}C ${Math.max(data.receivedEnemiesStock, 0)}ST`;
     this.stageItems.textSprites.input.text = `${data.currentInput || ""}`;
     this.stageItems.textSprites.name.text = `${data.ownerName}`;
-    for (let enemy of data.enemies) {
+    for (const enemy of data.enemies) {
       this.updateEnemy(enemy.id, data);
     }
-    let enemyToDeleteMatches = data.enemiesToErase;
-    for (let enemyID of enemyToDeleteMatches) {
+    const enemyToDeleteMatches = data.enemiesToErase;
+    for (const enemyID of enemyToDeleteMatches) {
       let enemyToDelete = this.stageItems.sprites[`enemy${enemyID}`];
       if (enemyToDelete) {
         app.stage.removeChild(enemyToDelete);
@@ -128,7 +128,7 @@ class Opponent {
    * (Attempts to) automatically reposition the Opponent game instance according to its "index".
    */
   autoReposition() {
-    let position = this.getInstanceNumberPosition();
+    const position = this.getInstanceNumberPosition();
     this.reposition(
       stageItems.sprites["playfieldBorder"].position.x +
         stageItems.sprites["playfieldBorder"].width +
@@ -150,7 +150,7 @@ class Opponent {
     this.xPositionOffset = xPosition;
     this.yPositionOffset = yPosition;
     let instanceOffsets = this.getPositions();
-    for (let sprite in this.stageItems.sprites) {
+    for (const sprite in this.stageItems.sprites) {
       if (sprite.indexOf("enemy") > -1) {
         continue;
       }
@@ -171,7 +171,7 @@ class Opponent {
       }
     }
 
-    let centered = ["statistics", "input", "name"];
+    const centered = ["statistics", "input", "name"];
     for (let element of centered) {
       this.stageItems.textSprites[element].anchor.set(0.5, 0.5);
     }
@@ -197,7 +197,7 @@ class Opponent {
       this.stageItems.sprites[`enemy${id}`].tint = getSetEnemyColor();
       app.stage.addChild(this.stageItems.sprites[`enemy${id}`]);
     }
-    let enemyData = data.enemies.find((element: any) => element.id === id);
+    const enemyData = data.enemies.find((element: any) => element.id === id);
     if (enemyData) {
       let enemyRealPosition =
         enemyData.xPosition *
@@ -228,10 +228,10 @@ class Opponent {
    * Destroys (removes) all the sprites of the Opponent game instance.
    */
   destroy(rescale?: boolean) {
-    for (let item in this.stageItems.sprites) {
+    for (const item in this.stageItems.sprites) {
       app.stage.removeChild(this.stageItems.sprites[item]);
     }
-    for (let item in this.stageItems.textSprites) {
+    for (const item in this.stageItems.textSprites) {
       app.stage.removeChild(this.stageItems.textSprites[item]);
     }
 
@@ -262,7 +262,7 @@ class Opponent {
     // lowest index comes first, then higher
     // made to fill in "blank spaces"
     // TODO: might need caching so this doesn't get called every update
-    let sorted = Opponent.instances.sort(
+    const sorted = Opponent.instances.sort(
       (a, b) => a.instanceNumber - b.instanceNumber
     );
     return sorted.findIndex(
@@ -275,7 +275,7 @@ class Opponent {
    * @returns The (x, y) position (on the screen) where the Opponent game instance should be.
    */
   getPositions() {
-    let data: { [key: string]: any } = {
+    const data: { [key: string]: any } = {
       "sprites": {
         "playfieldBorder": {
           x: 0,
