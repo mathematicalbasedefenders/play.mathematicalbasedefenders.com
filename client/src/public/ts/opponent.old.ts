@@ -191,9 +191,9 @@ class Opponent {
         PIXI.Texture.WHITE
       );
       this.stageItems.sprites[`enemy${id}`].width =
-        getScaledEnemyWidth() * (getScaledEnemyWidth() / Math.min(640, 800));
+        getScaledEnemyWidth() * (getScaledEnemyWidth() / 640);
       this.stageItems.sprites[`enemy${id}`].height =
-        getScaledEnemyHeight() * (getScaledEnemyHeight() / Math.min(800, 640));
+        getScaledEnemyHeight() * (getScaledEnemyHeight() / 640);
       this.stageItems.sprites[`enemy${id}`].tint = getSetEnemyColor();
       app.stage.addChild(this.stageItems.sprites[`enemy${id}`]);
     }
