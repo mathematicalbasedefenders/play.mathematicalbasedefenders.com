@@ -214,9 +214,7 @@ class Opponent {
    * Destroys (removes) all the sprites of the Opponent game instance.
    */
   destroy(rescale?: boolean) {
-    while (this.container.children[0]) {
-      this.container.removeChild(this.container.children[0]);
-    }
+    this.container.removeChildren();
     if (rescale) {
       Opponent.changeGlobalScale();
     }
