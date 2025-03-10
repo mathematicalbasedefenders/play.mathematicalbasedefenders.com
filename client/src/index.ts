@@ -26,7 +26,12 @@ app.use(
           "'unsafe-eval'"
         ],
         "img-src": ["https:", "data:", "'self'"],
-        "style-src": ["'unsafe-inline'", "*"],
+        "style-src": [
+          "'unsafe-inline'",
+          "'self'",
+          "fonts.googleapis.com",
+          "cdn.jsdelivr.net"
+        ],
         "connect-src": [
           "http://localhost:4000",
           "https://play.mathematicalbasedefenders.com:4000",
