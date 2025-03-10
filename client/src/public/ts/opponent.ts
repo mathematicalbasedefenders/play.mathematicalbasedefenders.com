@@ -93,11 +93,11 @@ class Opponent {
     this.statsText.text = `♥${health} 🡕${combo} 🞎${stock}`;
 
     // enemies
-    for (let enemy of data.enemies) {
+    for (const enemy of data.enemies) {
       this.updateEnemy(enemy.id, data);
     }
-    let enemyToDeleteMatches = data.enemiesToErase;
-    for (let enemyID of enemyToDeleteMatches) {
+    const enemyToDeleteMatches = data.enemiesToErase;
+    for (const enemyID of enemyToDeleteMatches) {
       let enemyToDelete = this.enemies[`enemy${enemyID}`];
       if (enemyToDelete) {
         this.container.removeChild(enemyToDelete);
