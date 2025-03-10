@@ -10,7 +10,11 @@ import {
   createCustomSingleplayerGameObject,
   redrawStage
 } from "./game";
-import { calculateLevel, millisecondsToTime } from "./utilities";
+import {
+  calculateLevel,
+  createTextStyle,
+  millisecondsToTime
+} from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
 import {
@@ -23,6 +27,7 @@ import {
 } from "./popup-notification";
 import { changeBackgroundImage } from "./change-background-image";
 import { showUserLookupPopUp } from "./lookup-user";
+import { TextStyle } from "pixi.js";
 const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -46,20 +51,52 @@ serifFont.load();
 mathFont.load();
 notoFont.load();
 
-const app = new PIXI.Application({
-  width: OPTIMAL_SCREEN_WIDTH,
-  height: OPTIMAL_SCREEN_HEIGHT,
-  backgroundAlpha: 0, // because custom backgrounds
-  backgroundColor: 0x000000,
-  resizeTo: window,
-  autoDensity: true,
-  resolution: devicePixelRatio
-});
+const textures: { [key: string]: PIXI.Texture } = {};
 
-app.renderer.view.style.position = "absolute";
-app.renderer.view.style.display = "block";
+const app = new PIXI.Application();
 
 const stage = app.stage;
+
+const playerContainer = new PIXI.Container();
+
+async function initializePIXIApp() {
+  await app.init({
+    width: OPTIMAL_SCREEN_WIDTH,
+    height: OPTIMAL_SCREEN_HEIGHT,
+    backgroundAlpha: 0, // because custom backgrounds
+    backgroundColor: 0x000000,
+    resizeTo: window,
+    autoDensity: true,
+    resolution: devicePixelRatio
+  });
+  await initializeTextures();
+  initializeStageItems();
+  setContainerItemProperties();
+  document.getElementById("canvas-container")?.appendChild(app.canvas);
+  // app.renderer.view.style.position = "absolute";
+  // app.renderer.view.style.display = "block";
+  app.stage.addChild(playerContainer);
+  app.ticker.add((deltaTime) => {
+    render(app.ticker.elapsedMS);
+  });
+  for (let item in stageItems.sprites) {
+    playerContainer.addChild(stageItems.sprites[item]);
+  }
+  for (let item in stageItems.textSprites) {
+    playerContainer.addChild(stageItems.textSprites[item]);
+  }
+}
+
+try {
+  initializePIXIApp();
+} catch (error) {
+  console.error(
+    "Unable to start pixi.js app, please refresh! If this persists, please contact the administrator."
+  );
+  new ToastNotification("Unable to start pixi.js app, please refresh!", {
+    borderColor: "#ff0000"
+  });
+}
 
 const variables: { [key: string]: any } = {
   onScreenKeyboardActivated: false,
@@ -76,8 +113,9 @@ const variables: { [key: string]: any } = {
     multiplicationSign: "dot",
     beautifulScore: false
   },
-  enemyInstancesPerColumn: 2,
-  enemyInstancePositions: {
+  //
+  opponentInstancesPerColumn: 2,
+  opponentInstancePositions: {
     x: {
       initial: 120,
       increment: 240
@@ -125,83 +163,149 @@ const variables: { [key: string]: any } = {
   }
 };
 
+async function initializeTextures() {
+  try {
+    textures.playfieldBorder = await loadTexture("assets/images/playfield.png");
+    textures.opponentPlayfieldBorder = await loadTexture(
+      "assets/images/opponent-playfield.png"
+    );
+  } catch (error) {
+    console.error(`Unable to load external image into texture.`);
+    new ToastNotification(`Unable to load external image into texture.`, {
+      borderColor: "#ff0000"
+    });
+  }
+}
+
+async function loadTexture(path: string) {
+  try {
+    const texture = await PIXI.Assets.load(path);
+    return texture;
+  } catch {
+    console.error(`Unable to load texture: ${path}.`);
+    new ToastNotification(`Unable to load texture: ${path}.`, {
+      borderColor: "#ff0000"
+    });
+  }
+}
+
 type stageItemsContainer = {
-  sprites: { [key: string]: ExtendedSprite };
-  textSprites: { [key: string]: ExtendedText };
+  sprites: { [key: string]: PIXI.Sprite };
+  textSprites: { [key: string]: PIXI.Text };
 };
 
-const stageItems: stageItemsContainer = {
-  sprites: {
-    playFieldBorder: new ExtendedSprite(
-      PIXI.Texture.from("assets/images/playfield.png")
-    ),
-    screenTopLeftIndicator: new ExtendedSprite(PIXI.Texture.WHITE),
-    screenBottomRightIndicator: new ExtendedSprite(PIXI.Texture.WHITE)
-  },
-  textSprites: {
-    scoreLabelText: new ExtendedText("Score", {
+const stageItems: stageItemsContainer = { sprites: {}, textSprites: {} };
+
+function initializeStageItems() {
+  stageItems.sprites.playfieldBorder = PIXI.Sprite.from(
+    textures.playfieldBorder
+  );
+  stageItems.sprites.playfieldBorder.label = "playerPlayfield";
+  stageItems.sprites.screenTopLeftIndicator = PIXI.Sprite.from(
+    PIXI.Texture.WHITE
+  );
+  stageItems.sprites.screenBottomRightIndicator = PIXI.Sprite.from(
+    PIXI.Texture.WHITE
+  );
+
+  stageItems.textSprites.scoreLabelText = new PIXI.Text({
+    text: "Score",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }),
-    scoreText: new ExtendedText("0", {
+    })
+  });
+  stageItems.textSprites.scoreText = new PIXI.Text({
+    text: "0",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 80,
       fill: "#ffffff"
-    }),
-    //
-    enemiesText: new ExtendedText("Enemy Kills: 0 ≈ 0.000/s", {
+    })
+  });
+  //
+  stageItems.textSprites.enemiesText = new PIXI.Text({
+    text: "Enemy Kills: 0 ≈ 0.000/s",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }),
-    inputText: new ExtendedText("0", {
+    })
+  });
+  stageItems.textSprites.inputText = new PIXI.Text({
+    text: "0",
+    style: createTextStyle({
       fontFamily: ["Computer Modern Unicode Serif", "serif"],
       fontSize: 48,
       fill: "#ffffff"
-    }),
-    elapsedTimeText: new ExtendedText("0:00.000", {
+    })
+  });
+  stageItems.textSprites.elapsedTimeText = new PIXI.Text({
+    text: "0:00.000",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }),
-    baseHealthText: new ExtendedText("♥️ 100", {
+    })
+  });
+  stageItems.textSprites.baseHealthText = new PIXI.Text({
+    text: "♥️ 100",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }),
-    comboText: new ExtendedText("", {
+    })
+  });
+  stageItems.textSprites.comboText = new PIXI.Text({
+    text: "",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }),
-    enemiesReceivedStockText: new ExtendedText("0", {
+    })
+  });
+  stageItems.textSprites.enemiesReceivedStockText = new PIXI.Text({
+    text: "0",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 64,
       fill: "#ffffff"
-    }),
-    nameText: new ExtendedText("", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 20,
-      fill: "#ffffff"
-    }),
-    levelText: new ExtendedText("Level", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 32,
-      fill: "#ffffff"
-    }),
-    levelDetailsText: new ExtendedText("Level", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 20,
-      fill: "#ffffff"
-    }),
-    howToPlayText: new ExtendedText("", {
+    })
+  });
+  stageItems.textSprites.nameText = new PIXI.Text({
+    text: "",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 20,
       fill: "#ffffff"
     })
-  }
-};
+  });
+  stageItems.textSprites.levelText = new PIXI.Text({
+    text: "Level",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 32,
+      fill: "#ffffff"
+    })
+  });
+  stageItems.textSprites.levelDetailsText = new PIXI.Text({
+    text: "Level",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 20,
+      fill: "#ffffff"
+    })
+  });
+  stageItems.textSprites.howToPlayText = new PIXI.Text({
+    text: "",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 20,
+      fill: "#ffffff"
+    })
+  });
+}
 
 function setContainerItemProperties() {
   stageItems.sprites.screenTopLeftIndicator.position.set(0, 0);
@@ -209,7 +313,7 @@ function setContainerItemProperties() {
   stageItems.sprites.screenBottomRightIndicator.position.set(1920, 1080);
   stageItems.sprites.screenBottomRightIndicator.alpha = 0;
   // playfield
-  stageItems.sprites.playFieldBorder.position.set(640, 160);
+  stageItems.sprites.playfieldBorder.position.set(640, 160);
   // text
   stageItems.textSprites.scoreText.position.set(STATISTICS_POSITION, 706);
   // score label
@@ -265,17 +369,7 @@ function setContainerItemProperties() {
   stageItems.textSprites.howToPlayText.position.set(STATISTICS_POSITION, 400);
 }
 
-setContainerItemProperties();
-
-for (let item in stageItems.sprites) {
-  app.stage.addChild(stageItems.sprites[item]);
-}
-for (let item in stageItems.textSprites) {
-  app.stage.addChild(stageItems.textSprites[item]);
-}
-
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
-document.getElementById("canvas-container")?.appendChild(app.view);
 function initializeEventListeners() {
   // other event listeners
   $("#main-menu-screen-button--singleplayer").on("click", () => {
@@ -680,10 +774,6 @@ function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__level").text(`Guest Player`);
 }
 
-app.ticker.add((deltaTime) => {
-  render(app.ticker.elapsedMS);
-});
-
 changeScreen("mainMenu");
 loadSettings(localStorage.getItem("settings") || "{}");
 
@@ -729,11 +819,11 @@ export {
   stageItems,
   stage,
   app,
-  ExtendedSprite,
-  ExtendedText,
   serifFont,
   mathFont,
   variables,
+  playerContainer,
+  textures,
   updateGuestInformationText,
   updateUserInformationText
 };

@@ -1,4 +1,6 @@
 import { isEqual } from "lodash";
+import { TextStyle, TextStyleOptions } from "pixi.js";
+import { ToastNotification } from "./toast-notification";
 
 /**
  * Formats the milliseconds.
@@ -95,10 +97,21 @@ function checkPlayerListCacheEquality(
   return true;
 }
 
+function createTextStyle(data: Partial<TextStyleOptions>) {
+  if (!data || typeof data !== "object") {
+    console.error("Invalid data provided to createTextStyle");
+    new ToastNotification("Invalid data provided to createTextStyle", {
+      borderColor: "#ff0000"
+    });
+  }
+  return new TextStyle(data);
+}
+
 export {
   millisecondsToTime,
   calculateLevel,
   nCr,
   formatNumber,
-  checkPlayerListCacheEquality
+  checkPlayerListCacheEquality,
+  createTextStyle
 };

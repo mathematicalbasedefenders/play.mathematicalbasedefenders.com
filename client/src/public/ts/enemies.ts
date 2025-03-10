@@ -2,7 +2,7 @@
 
 import * as PIXI from "pixi.js";
 import _ from "lodash";
-import { app, mathFont, variables } from "./index";
+import { app, mathFont, playerContainer, variables } from "./index";
 import { playSound } from "./sounds";
 const ENEMY_FONT_SIZE = 24;
 const DEFAULT_ENEMY_WIDTH = 64;
@@ -107,8 +107,8 @@ class Enemy {
    * Renders the enemy.
    */
   render() {
-    app.stage.addChild(this.sprite);
-    app.stage.addChild(this.textSprite);
+    playerContainer.addChild(this.sprite);
+    playerContainer.addChild(this.textSprite);
   }
 
   /**
@@ -224,11 +224,12 @@ function getBestFontSize(decrement: number, text: string, width: number) {
   let size = ENEMY_FONT_SIZE * variables.settings.enemySizeCoefficient;
   let style = _.clone(ENEMY_TEXT_STYLE);
   while (size > 12) {
-    let textMetrics = PIXI.TextMetrics.measureText(text, style);
+    const textMetrics = PIXI.CanvasTextMetrics.measureText(text, style);
     if (textMetrics.width < width * 0.95) {
       return size;
     }
-    style.fontSize = parseInt(style.fontSize as string) - decrement;
+    style.fontSize =
+      Number.parseInt(style.fontSize as unknown as string) - decrement;
     size -= decrement;
   }
   return size;
@@ -270,10 +271,10 @@ function deleteEnemy(id: string) {
   const enemy = getCachedEnemy(id);
   const sprite = getCachedEnemy(id)?.sprite;
   if (typeof sprite !== "undefined") {
-    app.stage.removeChild(sprite);
+    playerContainer.removeChild(sprite);
   }
   if (typeof text !== "undefined") {
-    app.stage.removeChild(text);
+    playerContainer.removeChild(text);
   }
   if (typeof enemy !== "undefined") {
     const enemyIndex = Enemy.enemyCache.indexOf(enemy);
