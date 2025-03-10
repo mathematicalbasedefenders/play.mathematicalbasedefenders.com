@@ -171,8 +171,15 @@ async function initializeTextures() {
 }
 
 async function loadTexture(path: string) {
-  const texture = await PIXI.Assets.load(path);
-  return texture;
+  try {
+    const texture = await PIXI.Assets.load(path);
+    return texture;
+  } catch {
+    console.error(`Unable to load texture: ${path}.`);
+    new ToastNotification(`Unable to load texture: ${path}.`, {
+      borderColor: "#ff0000"
+    });
+  }
 }
 
 type stageItemsContainer = {
