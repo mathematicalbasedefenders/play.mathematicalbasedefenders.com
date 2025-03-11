@@ -701,6 +701,11 @@ function initializeEventListeners() {
   });
   // == MULTIPLAYER ==
   $("#multiplayer-screen__sidebar-item--back").on("click", () => {
+    variables.playing = false;
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: "Escape"
+    });
     changeScreen("mainMenu");
   });
 }
