@@ -699,6 +699,10 @@ function initializeEventListeners() {
     $("#user-card__loading").show(0);
     $("#main-content__user-card-container").css("display", "none");
   });
+  // == MULTIPLAYER ==
+  $("#multiplayer-screen__sidebar-item--back").on("click", () => {
+    changeScreen("mainMenu");
+  });
 }
 
 // events
