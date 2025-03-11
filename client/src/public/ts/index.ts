@@ -141,7 +141,7 @@ const variables: { [key: string]: any } = {
     beautifulScoreDisplayPrevious: 0
   },
   navigation: {
-    currentScreen: "mainMenu",
+    currentScreen: "openingScreen",
     currentSecondaryScreen: null,
     focusing: null
   },
@@ -799,7 +799,7 @@ function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__level").text(`Guest Player`);
 }
 
-changeScreen("mainMenu");
+changeScreen("openingScreen");
 loadSettings(localStorage.getItem("settings") || "{}");
 
 // ======
