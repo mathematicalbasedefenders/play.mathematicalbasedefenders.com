@@ -51,6 +51,7 @@ interface UserModel extends mongoose.Model<UserInterface> {
   safeFindByUsername(
     username: string
   ): Promise<HydratedDocument<UserInterface>>;
+  findByUserIDUsingAPI(userID: string): Promise<UserInterface>;
   safeFindByUserID(userID: string): Promise<HydratedDocument<UserInterface>>;
   safeLeanedFindByUserID(userID: string): Promise<object>;
   getAllEasySingleplayerBestScores(): Promise<Array<object>>;
@@ -248,6 +249,22 @@ UserSchema.static("addMissingKeys", async function (id: string) {
   }
   await playerData.save();
   log.info(`Added ${keysAdded} keys to User ID ${id}.`);
+});
+
+UserSchema.static("findByUserIDUsingAPI", async function (userID: string) {
+  const userIDRegex = /^[0-9a-f]{24}$/;
+  if (!userIDRegex.test(userID)) {
+    log.warn(`Invalid user ID for in-game API fetch: ${userID}`);
+    return {};
+  }
+  return this.findOne({ _id: userID })
+    .select({
+      username: 1,
+      creationDateAndTime: 1,
+      statistics: 1,
+      membership: 1
+    })
+    .clone();
 });
 
 const User = mongoose.model<UserInterface, UserModel>(

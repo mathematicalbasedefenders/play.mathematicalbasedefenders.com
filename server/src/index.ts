@@ -18,27 +18,17 @@ import {
   resetDefaultMultiplayerRoomID
 } from "./game/Room";
 import _ from "lodash";
-import { authenticateForSocket } from "./authentication/authenticate";
-import { User } from "./models/User";
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
-const DOMPurify = createDOMPurify(window);
-const mongoDBSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
-import rateLimit from "express-rate-limit";
 import { sendChatMessage } from "./core/chat";
 
 import { synchronizeGameDataWithSocket } from "./universal";
 import { updateSystemStatus } from "./core/status-indicators";
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false
-});
+import { authenticate } from "./authentication/perform-authentication";
+
 const app = express();
 const corsOptions = {
   origin: [
@@ -74,7 +64,7 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" }
   })
 );
-const jsonParser = bodyParser.json();
+
 // get configuration
 const configurationLocation = path.join(
   __dirname,
@@ -381,76 +371,6 @@ const loop = setInterval(() => {
   lastUpdateTime = Date.now();
 }, UPDATE_INTERVAL);
 
-async function authenticate(
-  username: string,
-  password: string,
-  socketID: string
-) {
-  const htmlSanitizedUsername = DOMPurify.sanitize(username);
-  const sanitizedUsername = mongoDBSanitize.sanitize(htmlSanitizedUsername);
-  log.info(`Authentication request requested for account ${sanitizedUsername}`);
-
-  /** Authenticate. */
-  const result = await authenticateForSocket(username, password, socketID);
-  const socket = universal.getSocketFromConnectionID(socketID);
-
-  /** If can't find socket or socket connection ID is invalid. */
-  if (!socket) {
-    result.reason = `Invalid Socket Connection ID: ${socketID}`;
-    log.warn(`Login attempt for ${username} failed: ${result.reason}`);
-    return false;
-  }
-
-  /** If failed to log in for other reason. */
-  if (!result.good) {
-    log.warn(`Login attempt for ${username} failed: ${result.reason}`);
-    const MESSAGE = `Failed to login as ${username} (${result.reason})`;
-    const BORDER_COLOR = "#ff0000";
-    universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
-    return false;
-  }
-
-  /** Successfully logged in. */
-  socket.loggedIn = true;
-  socket.ownerUsername = username;
-  socket.ownerUserID = result.id;
-  const userData = await User.safeFindByUsername(socket.ownerUsername);
-  utilities.updateSocketUserInformation(socket);
-  socket.playerRank = utilities.getRank(userData);
-  const MESSAGE = `Successfully logged in as ${username}`;
-  const BORDER_COLOR = "#1fa628";
-  universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
-
-  /** Exit opening screen */
-  socket.send(JSON.stringify({ message: "exitOpeningScreen" }));
-
-  /** Send data. */
-  const statistics = userData.statistics;
-  socket.send(
-    JSON.stringify({
-      message: "updateUserInformationText",
-      data: {
-        username: username,
-        good: true,
-        userData: userData,
-        rank: utilities.getRank(userData),
-        experiencePoints: statistics.totalExperiencePoints,
-        records: {
-          easy: statistics.personalBestScoreOnEasySingleplayerMode,
-          standard: statistics.personalBestScoreOnStandardSingleplayerMode
-        },
-        reason: "All checks passed."
-      }
-    })
-  );
-
-  // Also add missing keys
-  if (socket.ownerUserID) {
-    User.addMissingKeys(socket.ownerUserID);
-  }
-  return true;
-}
-
 function checkBufferSize(buffer: Buffer, socket: universal.GameSocket) {
   // check if buffer too big, if so, alert socket and instantly disconnect.
   if (buffer.length <= 2048) {
@@ -487,22 +407,14 @@ function blockSocket(socket: universal.GameSocket) {
   universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
 }
 
-app.post(
-  "/authenticate",
-  jsonParser,
-  async (request: Request, response: Response) => {
-    const username = request.body["username"];
-    const password = request.body["password"];
-    const socketID = request.body["socketID"];
-    const result = await authenticate(username, password, socketID);
-    response.json({ success: result });
-  }
-);
+fs.readdirSync(path.join(__dirname, "./routes")).forEach((file: string) => {
+  app.use(require(`./routes/${file}`).router);
+});
 
 app.listen(PORT, () => {
   log.info(`Server listening at port ${PORT}`);
   log.info(`Server is using configuration ${JSON.stringify(CONFIGURATION)}`);
-  if (process.env.credentialSetUsed === "TESTING") {
+  if (process.env.CREDENTIAL_SET_USED === "TESTING") {
     log.warn("Using testing credentials.");
   }
 });

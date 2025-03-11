@@ -1,3 +1,7 @@
+import { isEqual } from "lodash";
+import { TextStyle, TextStyleOptions } from "pixi.js";
+import { ToastNotification } from "./toast-notification";
+
 /**
  * Formats the milliseconds.
  * @param {number} milliseconds The milliseconds.
@@ -66,4 +70,48 @@ function formatNumber(n: number) {
     maximumFractionDigits: 3
   });
 }
-export { millisecondsToTime, calculateLevel, nCr, formatNumber };
+
+function checkPlayerListCacheEquality(
+  oldData: { [key: string]: unknown },
+  data: Array<{ [key: string]: string }>,
+  prefix: string,
+  suffix: string
+) {
+  if (!oldData || !data || !prefix || !suffix) {
+    return false;
+  }
+  if (oldData.playerCount !== data.length) {
+    return false;
+  }
+  const registeredPlayers = data.filter((e) => {
+    return "isRegistered" in e && e.isRegistered;
+  });
+  const formattedSelectors = new Set(
+    registeredPlayers.map((e) => {
+      return prefix + e.userID + suffix;
+    })
+  );
+  if (!isEqual(oldData.registeredPlayers, formattedSelectors)) {
+    return false;
+  }
+  return true;
+}
+
+function createTextStyle(data: Partial<TextStyleOptions>) {
+  if (!data || typeof data !== "object") {
+    console.error("Invalid data provided to createTextStyle");
+    new ToastNotification("Invalid data provided to createTextStyle", {
+      borderColor: "#ff0000"
+    });
+  }
+  return new TextStyle(data);
+}
+
+export {
+  millisecondsToTime,
+  calculateLevel,
+  nCr,
+  formatNumber,
+  checkPlayerListCacheEquality,
+  createTextStyle
+};

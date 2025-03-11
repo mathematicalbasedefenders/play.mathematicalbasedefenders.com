@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { BezierCurve } from "./bezier";
-import { app } from ".";
+import { app, playerContainer } from ".";
 
 /**
  * Handles all SlidingText instances.
@@ -36,7 +36,7 @@ class SlidingText {
    * Adds the `SlidingText`, then allows it to render (e.g. slide).
    */
   render() {
-    app.stage.addChild(this.textSprite);
+    playerContainer.addChild(this.textSprite);
     this.rendering = true;
     this.timeSinceFirstRender = 0;
   }
@@ -45,7 +45,7 @@ class SlidingText {
    * Destroys the `SlidingText`, and also stops it from moving.
    */
   delete() {
-    app.stage.removeChild(this.textSprite);
+    playerContainer.removeChild(this.textSprite);
     this.rendering = false;
     SlidingText.slidingTexts.splice(SlidingText.slidingTexts.indexOf(this), 1);
   }
