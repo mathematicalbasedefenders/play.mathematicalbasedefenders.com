@@ -491,7 +491,7 @@ function initializeEventListeners() {
     const port = location.protocol === "http:" ? ":4000" : "";
     const url = `${protocol}//${hostname}${port}/api/authenticate`;
     try {
-      await fetch(url, {
+      const response = await fetch(url, {
         method: "POST",
         body: JSON.stringify({
           username: $("#authentication-modal__username").val(),
@@ -500,9 +500,25 @@ function initializeEventListeners() {
         }),
         headers: { "Content-Type": "application/json" }
       });
+      if (!response.ok) {
+        const options = { borderColor: "#ff0000" };
+        const toast = new ToastNotification(
+          `Authentication error: Error Code ${response.status}`,
+          options
+        );
+        toast.render();
+        console.error(
+          `Authentication error: `,
+          `Error Code ${response.status}`
+        );
+      }
     } catch (error) {
-      const options = { backgroundColor: "#ff0000" };
-      new ToastNotification(`Authentication error: ${error}`, options);
+      const options = { borderColor: "#ff0000" };
+      const toast = new ToastNotification(
+        `Authentication error: ${error}`,
+        options
+      );
+      toast.render();
       console.error(`Authentication error: `, error);
     }
   });
