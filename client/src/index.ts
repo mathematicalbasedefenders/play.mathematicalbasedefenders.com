@@ -59,7 +59,8 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.get("/", limiter, (request: Request, response: Response) => {
-  response.render("pages/index.ejs");
+  const isProduction = process.env.NODE_ENV === "production";
+  response.render("pages/index.ejs", { optimizeForProduction: isProduction });
 });
 
 app.get("*", limiter, (request: Request, response: Response) => {
@@ -70,5 +71,12 @@ app.listen(PORT, () => {
   log.info(`Client app listening at port ${PORT}`);
   if (process.env.CREDENTIAL_SET_USED === "TESTING") {
     log.warn("Using testing credentials.");
+  }
+  if (process.env.NODE_ENV === "production") {
+    log.info("Using NODE_ENV=production.");
+    log.info("If not on production, set it to something else.");
+  } else {
+    log.warn("Environment variable NODE_ENV is not set to production.");
+    log.warn("Using testing configurations.");
   }
 });
