@@ -1,3 +1,8 @@
+> [!NOTE]
+> Before this commit, this document was more than 1 year old.
+> Although some information may still be true regarding contributing, there will be incompleteness and inaccuracy with this document, especially in the [Contributing by Helping Development](#contributing-by-helping-development) because new practices were adopted during that time.
+> This document will be rewritten in the future.
+
 # Mathematical Base Defenders Contributing Handbook
 
 Want to contribute to the development of Mathematical Base Defenders? Then you'll probably need to read this handbook.

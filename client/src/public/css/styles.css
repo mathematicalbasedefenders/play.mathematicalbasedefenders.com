@@ -1063,9 +1063,6 @@ input[type="radio"] {
   color: var(--color-text-light);
 }
 
-#status-tray-text__playing-on {
-  word-wrap: break-word;
-}
 /* CHAT TRAY */
 #chat-tray-container {
   z-index: 99;
