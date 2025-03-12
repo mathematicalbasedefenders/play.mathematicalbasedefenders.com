@@ -941,6 +941,24 @@ function setCustomRules(room: Room, settings: { [key: string]: any }) {
   );
 }
 
+/**
+ * Creates a new singleplayer room.
+ * @param {universal.GameSocket} caller The socket that called the function
+ * @param {GameMode} gameMode The singleplayer game mode.
+ * @param {settings} settings The `settings` for the singleplayer game mode, if it's custom.
+ * @returns The newly-created room object.
+ */
+function createSingleplayerRoom(
+  caller: universal.GameSocket,
+  gameMode: GameMode,
+  settings?: { [key: string]: string }
+) {
+  let room = new SingleplayerRoom(caller, gameMode, settings);
+
+  universal.rooms.push(room);
+  return room;
+}
+
 export {
   SingleplayerRoom,
   MultiplayerRoom,
@@ -950,5 +968,6 @@ export {
   defaultMultiplayerRoomID,
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
-  getOpponentsInformation
+  getOpponentsInformation,
+  createSingleplayerRoom
 };
