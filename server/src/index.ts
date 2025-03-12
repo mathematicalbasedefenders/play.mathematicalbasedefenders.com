@@ -74,6 +74,7 @@ const configurationLocation = path.join(
 const CONFIGURATION = JSON.parse(
   fs.readFileSync(configurationLocation, "utf-8")
 );
+
 const PORT: number = 4000;
 const WEBSOCKET_PORT: number = 5000;
 const DESIRED_SYNCHRONIZATIONS_PER_SECOND: number = 5;
@@ -416,5 +417,11 @@ app.listen(PORT, () => {
   log.info(`Server is using configuration ${JSON.stringify(CONFIGURATION)}`);
   if (process.env.CREDENTIAL_SET_USED === "TESTING") {
     log.warn("Using testing credentials.");
+  }
+  if (
+    process.env.NODE_ENV !== "production" &&
+    CONFIGURATION.useTestingStatesIfDevelopmentEnvironment
+  ) {
+    log.warn("Using testing values. Turn this off in production.");
   }
 });
