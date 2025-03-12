@@ -126,12 +126,25 @@ function getArrowKeyDirections() {
     },
     "multiplayerIntermission": {
       destinations: {
+        "#multiplayer-screen__sidebar-item--back": {
+          "ArrowDown": "#chat-message"
+        },
         "#chat-message": {
-          "ArrowRight": "#message-send-button"
+          "ArrowUp": "#multiplayer-screen__sidebar-item--back",
+          "ArrowRight": "#message-send-button",
+          "ArrowDown":
+            "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list"
         },
         "#message-send-button": {
-          "ArrowLeft": "#chat-message"
-        }
+          "ArrowUp": "#multiplayer-screen__sidebar-item--back",
+          "ArrowLeft": "#chat-message",
+          "ArrowDown":
+            "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list"
+        },
+        "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list":
+          {
+            "ArrowUp": "#chat-message"
+          }
       },
       defaultFocused: "#chat-message"
     },
