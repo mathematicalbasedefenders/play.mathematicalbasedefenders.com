@@ -18,7 +18,8 @@ import {
 } from "./core/utilities";
 import { log } from "./core/log";
 import { validateCustomGameSettings } from "./core/utilities";
-
+import fs from "fs";
+import path from "path";
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
 interface UserData {}
@@ -479,6 +480,24 @@ function startGameForSocket(
   }
 }
 
+// get configuration
+const configurationLocation = path.join(
+  __dirname,
+  "..",
+  "mathematical-base-defenders-server-configuration.json"
+);
+const CONFIGURATION = JSON.parse(
+  fs.readFileSync(configurationLocation, "utf-8")
+);
+/**
+ * Use testing values (e.g. fixed numbers) if BOTH
+ * process.env.NODE_ENV is NOT production and flag
+ * in configuration file is turned on.
+ */
+const USE_TESTING_VALUES =
+  process.env.NODE_ENV !== "production" &&
+  CONFIGURATION.useTestingStatesIfDevelopmentEnvironment;
+
 export {
   GameSocket,
   sockets,
@@ -498,5 +517,6 @@ export {
   initializeSocket,
   sendInitialSocketData,
   sendToastMessageToSocket,
-  startGameForSocket
+  startGameForSocket,
+  USE_TESTING_VALUES
 };
