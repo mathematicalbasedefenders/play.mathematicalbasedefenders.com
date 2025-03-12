@@ -1430,6 +1430,7 @@ code {
   color: #555555;
   background-color: #000000;
   padding: 8px;
+  margin: 8px;
   cursor: pointer;
 }
 
