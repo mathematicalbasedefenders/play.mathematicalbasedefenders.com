@@ -1,4 +1,4 @@
 {
   "useDatabase": true,
-  "useTestingStatesIfDevelopmentEnvironment": true
+  "useTestingStatesIfDevelopmentEnvironment": false
 }
