@@ -127,6 +127,9 @@ code {
   align-items: flex-start;
 }
 
+.pointer-cursor {
+  cursor: pointer;
+}
 /* MAIN MENU SCREEN */
 
 #main-content__main-menu-screen-container {
