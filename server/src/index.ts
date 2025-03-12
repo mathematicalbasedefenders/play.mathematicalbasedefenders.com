@@ -69,7 +69,7 @@ app.use(
 const configurationLocation = path.join(
   __dirname,
   "..",
-  "mbd-server-configuration.json"
+  "mathematical-base-defenders-server-configuration.json"
 );
 const CONFIGURATION = JSON.parse(
   fs.readFileSync(configurationLocation, "utf-8")
