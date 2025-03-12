@@ -90,7 +90,7 @@ class Opponent {
     const combo = Math.max(data.combo, 0);
     const stock = Math.max(data.receivedEnemiesStock, 0);
 
-    this.statsText.text = `♥${health} 🡕${combo} 🞎${stock}`;
+    this.statsText.text = `♥︎${health} 🡕${combo} 🞎${stock}`;
 
     // enemies
     for (const enemy of data.enemies) {

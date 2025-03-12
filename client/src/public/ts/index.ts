@@ -250,7 +250,7 @@ function initializeStageItems() {
     })
   });
   stageItems.textSprites.baseHealthText = new PIXI.Text({
-    text: "♥️ 100",
+    text: "♥︎ 100",
     style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
@@ -326,7 +326,7 @@ function setContainerItemProperties() {
   stageItems.textSprites.elapsedTimeText.text = "0:00.000";
   stageItems.textSprites.elapsedTimeText.position.set(STATISTICS_POSITION, 814);
   // base health
-  stageItems.textSprites.baseHealthText.text = "♥️ 100";
+  stageItems.textSprites.baseHealthText.text = "♥︎ 100";
   stageItems.textSprites.baseHealthText.position.set(STATISTICS_POSITION, 840);
   // combo
   stageItems.textSprites.comboText.text = "";
