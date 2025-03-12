@@ -65,7 +65,8 @@ class ToastNotification {
       return;
     }
     container.appendChild(html);
-
+    $(`#toast-notification--${this.id}`).css("right", "-132px");
+    $(`#toast-notification--${this.id}`).animate({ right: "+=132px" }, 500);
     this.startLifespan();
   }
 
@@ -131,7 +132,7 @@ class ToastNotification {
       if (toast.id === this.id) {
         continue;
       }
-      $(`#toast-notification--${toast.id}`).animate(direction, 500);
+      $(`#toast-notification--${toast.id}`).animate(direction, 150);
     }
   }
 }
