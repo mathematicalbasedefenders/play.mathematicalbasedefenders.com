@@ -130,6 +130,14 @@ code {
 .pointer-cursor {
   cursor: pointer;
 }
+
+button {
+  cursor: pointer;
+}
+
+input[type="radio"] {
+  cursor: pointer;
+}
 /* MAIN MENU SCREEN */
 
 #main-content__main-menu-screen-container {
