@@ -127,6 +127,17 @@ code {
   align-items: flex-start;
 }
 
+.pointer-cursor {
+  cursor: pointer;
+}
+
+button {
+  cursor: pointer;
+}
+
+input[type="radio"] {
+  cursor: pointer;
+}
 /* MAIN MENU SCREEN */
 
 #main-content__main-menu-screen-container {
@@ -1430,6 +1441,7 @@ code {
   color: #555555;
   background-color: #000000;
   padding: 8px;
+  margin: 8px;
   cursor: pointer;
 }
 
@@ -1439,7 +1451,7 @@ code {
 }
 
 .authentication-modal__login-form-element {
-  margin: 4px 0;
+  margin: 8px 0;
   @media (max-width: 1200px) {
     width: 90%;
   }

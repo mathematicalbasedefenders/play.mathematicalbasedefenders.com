@@ -89,7 +89,7 @@ class PopupNotification {
   }
 
   createButtonsHTML() {
-    const buttons = `<button id="popup-notification--${this.id}__close-button">Close</button>`;
+    const buttons = `<button class="pointer-cursor" id="popup-notification--${this.id}__close-button">Close</button>`;
     return buttons;
   }
 }

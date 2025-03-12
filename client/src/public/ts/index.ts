@@ -141,7 +141,7 @@ const variables: { [key: string]: any } = {
     beautifulScoreDisplayPrevious: 0
   },
   navigation: {
-    currentScreen: "mainMenu",
+    currentScreen: "openingScreen",
     currentSecondaryScreen: null,
     focusing: null
   },
@@ -656,6 +656,7 @@ function initializeEventListeners() {
   });
   $("#opening-screen__play-as-guest").on("click", () => {
     $("#opening-screen-container").hide(0);
+    changeScreen("mainMenu");
     sendSocketMessage({ message: "exitOpeningScreen" });
     variables.exitedOpeningScreen = true;
   });
@@ -799,7 +800,7 @@ function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__level").text(`Guest Player`);
 }
 
-changeScreen("mainMenu");
+changeScreen("openingScreen");
 loadSettings(localStorage.getItem("settings") || "{}");
 
 // ======

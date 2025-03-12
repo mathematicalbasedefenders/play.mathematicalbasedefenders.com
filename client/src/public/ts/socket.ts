@@ -114,6 +114,7 @@ socket.addEventListener("message", (event: any) => {
         return;
       }
       $("#opening-screen-container").hide(0);
+      changeScreen("mainMenu");
       sendSocketMessage({ message: "exitOpeningScreen" });
       variables.exitedOpeningScreen = true;
       break;

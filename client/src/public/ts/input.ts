@@ -103,6 +103,11 @@ function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
     navigateFocus(event);
     sendWebSocketMessage = false;
   }
+  if (event.code === "Tab" && !variables.exitedOpeningScreen) {
+    event.preventDefault();
+    const fakeEvent = new KeyboardEvent("keypress", { code: "ArrowDown" });
+    navigateFocus(fakeEvent);
+  }
   if (!WEBSOCKET_MESSAGE_SEND_KEYS.includes(event.code)) {
     sendWebSocketMessage = false;
   }
