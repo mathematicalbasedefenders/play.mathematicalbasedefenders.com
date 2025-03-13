@@ -264,7 +264,14 @@ UserSchema.static("findByUserIDUsingAPI", async function (userID: string) {
       statistics: 1,
       membership: 1
     })
-    .clone();
+    .maxTimeMS(5000)
+    .clone()
+    .catch((error) => {
+      log.error(
+        `Database error when looking up user ${userID}: ${error.message}`
+      );
+      return {};
+    });
 });
 
 const User = mongoose.model<UserInterface, UserModel>(
