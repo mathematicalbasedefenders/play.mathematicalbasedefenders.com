@@ -18,7 +18,9 @@ router.post(
   jsonParser,
   async (request: Request, response: Response) => {
     if (!request.body || typeof request.body !== "object") {
-      return response.status(400).json({ error: "Invalid request body" });
+      return response
+        .status(400)
+        .json({ success: false, error: "Invalid request body" });
     }
 
     const username = request.body["username"];
@@ -27,7 +29,9 @@ router.post(
 
     // Validate required fields
     if (!username || !password || !socketID) {
-      return response.status(400).json({ error: "Missing required fields" });
+      return response
+        .status(400)
+        .json({ success: false, error: "Missing required fields" });
     }
 
     // Validate input format
@@ -36,17 +40,21 @@ router.post(
       typeof password !== "string" ||
       typeof socketID !== "string"
     ) {
-      return response.status(400).json({ error: "Invalid field types" });
+      return response
+        .status(400)
+        .json({ success: false, error: "Invalid field types" });
     }
 
     // Validate input length
     if (username.length < 3 || username.length > 20 || password.length < 8) {
-      return response.status(400).json({ error: "Invalid field lengths" });
+      return response
+        .status(400)
+        .json({ success: false, error: "Invalid field lengths" });
     }
 
     try {
       const result = await authenticate(username, password, socketID);
-      response.json({ success: result });
+      response.json({ success: result, error: "None" });
     } catch (error) {
       console.error("Authentication error:", error);
       response.status(401).json({
