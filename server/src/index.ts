@@ -308,6 +308,12 @@ function update(deltaTime: number) {
 }
 
 // TODO: Move these functions somewhere else
+/**
+ * Synchronizes a socket's game data from the server
+ * to the socket in the client side.
+ * @param deltaTime How much time to pass (in milliseconds).
+ * @param systemStatus The system status (RAM, updateTime).
+ */
 function synchronizeGameDataWithSockets(
   deltaTime: number,
   systemStatus: { [key: string]: unknown }
