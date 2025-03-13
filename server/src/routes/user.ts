@@ -52,8 +52,11 @@ router.get("/api/users/:user", limiter, async (request, response) => {
   // get data
   const data: UserInterface = await getUserData(sanitized);
   if (!data) {
-    log.warn(`Invalid User Request: User not found. (${sanitized})`);
-    response.status(404).json("Not Found. (User doesn't exist in database.)");
+    log.warn(`Invalid User Request: Unable to get user. (${sanitized})`);
+    // has many reasons why
+    response
+      .status(400)
+      .json("Invalid User Request: Unable to get user. (${sanitized})");
     return;
   }
 
