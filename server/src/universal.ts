@@ -18,8 +18,8 @@ import {
 } from "./core/utilities";
 import { log } from "./core/log";
 import { validateCustomGameSettings } from "./core/utilities";
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
 interface UserData {}
