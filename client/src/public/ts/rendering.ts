@@ -50,7 +50,7 @@ function render(elapsedMilliseconds: number) {
     // time elapsed
     stageItems.textSprites.elapsedTimeText.text = millisecondsToTime(msElapsed);
     // base health
-    stageItems.textSprites.baseHealthText.text = `♥️ ${formatNumber(health)}`;
+    stageItems.textSprites.baseHealthText.text = `♥︎ ${formatNumber(health)}`;
     // enemies killed
     stageItems.textSprites.enemiesText.text = `Enemy Kills: ${enemyKills.toLocaleString(
       "en-US"

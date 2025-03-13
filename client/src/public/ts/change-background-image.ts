@@ -1,4 +1,4 @@
-import { ToastNotification } from "./notifications";
+import { ToastNotification } from "./toast-notification";
 
 /**
  * Changes the background's body to the image at the specified URL.
@@ -13,8 +13,12 @@ function changeBackgroundImage(url: string | URL) {
     const sanitizedURL = new URL(url).href;
     document.body.style.backgroundImage = `url('${sanitizedURL}')`;
   } catch (error) {
-    // TODO: Make border red.
-    new ToastNotification(`Error while loading image: ${error}`);
+    const options = { borderColor: "#ff0000" };
+    const toast = new ToastNotification(
+      `Error while loading image: ${error}`,
+      options
+    );
+    toast.render();
   }
 }
 

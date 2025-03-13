@@ -6,6 +6,8 @@ import {
   MultiplayerGameData,
   ActionRecord
 } from "./GameData";
+import { USE_TESTING_VALUES } from "../universal";
+import { TESTING_VALUES } from "../testing-configuration/values";
 
 const MINIMUM_GENERABLE_NUMBER = -100;
 const POSSIBLE_FACTORS = [2, 3, 4, 5, 6, 8, 9, 10, 11];
@@ -137,6 +139,17 @@ function removeEnemyWithIDInGameData(id: string, gameData: GameData) {
 function createNewEnemy(id: string, attributes?: EnemyAttributes) {
   // TODO: Change this algorithm (line below)
   let generatedValue: number = Math.round(Math.random() * 200 - 100);
+  /**
+   * If testing mode is used, then ignore generated value and use set value
+   * So the app can behave deterministically.
+   */
+  if (USE_TESTING_VALUES) {
+    if (TESTING_VALUES && typeof TESTING_VALUES.forcedEnemyValue === "number") {
+      generatedValue = TESTING_VALUES.forcedEnemyValue;
+    } else {
+      console.warn("Testing value faulty, using original value instead.");
+    }
+  }
   let enemy: Enemy = new Enemy(
     generatedValue,
     createProblem(generatedValue),

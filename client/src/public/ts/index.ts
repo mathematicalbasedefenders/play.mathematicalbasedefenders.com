@@ -10,16 +10,25 @@ import {
   createCustomSingleplayerGameObject,
   redrawStage
 } from "./game";
-import { calculateLevel, millisecondsToTime } from "./utilities";
+import {
+  calculateLevel,
+  createTextStyle,
+  millisecondsToTime
+} from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
 import {
-  PopupNotification,
   ToastNotification,
   ToastNotificationPosition
-} from "./notifications";
+} from "./toast-notification";
+import {
+  PopupNotification,
+  PopupNotificationButtonStyle
+} from "./popup-notification";
 import { changeBackgroundImage } from "./change-background-image";
-let startInitTime: number = Date.now();
+import { showUserLookupPopUp } from "./lookup-user";
+import { TextStyle } from "pixi.js";
+const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
 const OPTIMAL_SCREEN_HEIGHT: number = 1080;
@@ -42,20 +51,52 @@ serifFont.load();
 mathFont.load();
 notoFont.load();
 
-const app = new PIXI.Application({
-  width: OPTIMAL_SCREEN_WIDTH,
-  height: OPTIMAL_SCREEN_HEIGHT,
-  backgroundAlpha: 0, // because custom backgrounds
-  backgroundColor: 0x000000,
-  resizeTo: window,
-  autoDensity: true,
-  resolution: devicePixelRatio
-});
+const textures: { [key: string]: PIXI.Texture } = {};
 
-app.renderer.view.style.position = "absolute";
-app.renderer.view.style.display = "block";
+const app = new PIXI.Application();
 
 const stage = app.stage;
+
+const playerContainer = new PIXI.Container();
+
+async function initializePIXIApp() {
+  await app.init({
+    width: OPTIMAL_SCREEN_WIDTH,
+    height: OPTIMAL_SCREEN_HEIGHT,
+    backgroundAlpha: 0, // because custom backgrounds
+    backgroundColor: 0x000000,
+    resizeTo: window,
+    autoDensity: true,
+    resolution: devicePixelRatio
+  });
+  await initializeTextures();
+  initializeStageItems();
+  setContainerItemProperties();
+  document.getElementById("canvas-container")?.appendChild(app.canvas);
+  // app.renderer.view.style.position = "absolute";
+  // app.renderer.view.style.display = "block";
+  app.stage.addChild(playerContainer);
+  app.ticker.add((deltaTime) => {
+    render(app.ticker.elapsedMS);
+  });
+  for (const item in stageItems.sprites) {
+    playerContainer.addChild(stageItems.sprites[item]);
+  }
+  for (const item in stageItems.textSprites) {
+    playerContainer.addChild(stageItems.textSprites[item]);
+  }
+}
+
+try {
+  initializePIXIApp();
+} catch (error) {
+  console.error(
+    "Unable to start pixi.js app, please refresh! If this persists, please contact the administrator."
+  );
+  new ToastNotification("Unable to start pixi.js app, please refresh!", {
+    borderColor: "#ff0000"
+  });
+}
 
 const variables: { [key: string]: any } = {
   onScreenKeyboardActivated: false,
@@ -72,8 +113,9 @@ const variables: { [key: string]: any } = {
     multiplicationSign: "dot",
     beautifulScore: false
   },
-  enemyInstancesPerColumn: 2,
-  enemyInstancePositions: {
+  //
+  opponentInstancesPerColumn: 2,
+  opponentInstancePositions: {
     x: {
       initial: 120,
       increment: 240
@@ -99,90 +141,171 @@ const variables: { [key: string]: any } = {
     beautifulScoreDisplayPrevious: 0
   },
   navigation: {
-    currentScreen: "mainMenu",
+    currentScreen: "openingScreen",
     currentSecondaryScreen: null,
     focusing: null
   },
-  isGuest: true
+  isGuest: true,
+  exitedOpeningScreen: false,
+  loggedInUserID: null,
+  multiplayerChat: {
+    playerListShown: false,
+    playerListCache: {
+      registeredPlayers: new Set(),
+      playerCount: 0
+    }
+  },
+  multiplayerLastGameRankings: {
+    playerListCache: {
+      registeredPlayers: new Set(),
+      playerCount: 0
+    }
+  }
 };
+
+async function initializeTextures() {
+  try {
+    textures.playfieldBorder = await loadTexture("assets/images/playfield.png");
+    textures.opponentPlayfieldBorder = await loadTexture(
+      "assets/images/opponent-playfield.png"
+    );
+  } catch (error) {
+    console.error(`Unable to load external image into texture.`);
+    new ToastNotification(`Unable to load external image into texture.`, {
+      borderColor: "#ff0000"
+    });
+  }
+}
+
+async function loadTexture(path: string) {
+  try {
+    const texture = await PIXI.Assets.load(path);
+    return texture;
+  } catch {
+    console.error(`Unable to load texture: ${path}.`);
+    new ToastNotification(`Unable to load texture: ${path}.`, {
+      borderColor: "#ff0000"
+    });
+  }
+}
 
 type stageItemsContainer = {
-  sprites: { [key: string]: ExtendedSprite };
-  textSprites: { [key: string]: ExtendedText };
+  sprites: { [key: string]: PIXI.Sprite };
+  textSprites: { [key: string]: PIXI.Text };
 };
 
-const stageItems: stageItemsContainer = {
-  sprites: {
-    playFieldBorder: new ExtendedSprite(
-      PIXI.Texture.from("assets/images/playfield.png")
-    ),
-    screenTopLeftIndicator: new ExtendedSprite(PIXI.Texture.WHITE),
-    screenBottomRightIndicator: new ExtendedSprite(PIXI.Texture.WHITE)
-  },
-  textSprites: {
-    scoreLabelText: new ExtendedText("Score", {
+const stageItems: stageItemsContainer = { sprites: {}, textSprites: {} };
+
+function initializeStageItems() {
+  stageItems.sprites.playfieldBorder = PIXI.Sprite.from(
+    textures.playfieldBorder
+  );
+  stageItems.sprites.playfieldBorder.label = "playerPlayfield";
+  stageItems.sprites.screenTopLeftIndicator = PIXI.Sprite.from(
+    PIXI.Texture.WHITE
+  );
+  stageItems.sprites.screenBottomRightIndicator = PIXI.Sprite.from(
+    PIXI.Texture.WHITE
+  );
+
+  stageItems.textSprites.scoreLabelText = new PIXI.Text({
+    text: "Score",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }),
-    scoreText: new ExtendedText("0", {
+    })
+  });
+  stageItems.textSprites.scoreText = new PIXI.Text({
+    text: "0",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 80,
       fill: "#ffffff"
-    }),
-    //
-    enemiesText: new ExtendedText("Enemy Kills: 0 ≈ 0.000/s", {
+    })
+  });
+  //
+  stageItems.textSprites.enemiesText = new PIXI.Text({
+    text: "Enemy Kills: 0 ≈ 0.000/s",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }),
-    inputText: new ExtendedText("0", {
+    })
+  });
+  stageItems.textSprites.inputText = new PIXI.Text({
+    text: "0",
+    style: createTextStyle({
       fontFamily: ["Computer Modern Unicode Serif", "serif"],
       fontSize: 48,
       fill: "#ffffff"
-    }),
-    elapsedTimeText: new ExtendedText("0:00.000", {
+    })
+  });
+  stageItems.textSprites.elapsedTimeText = new PIXI.Text({
+    text: "0:00.000",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }),
-    baseHealthText: new ExtendedText("♥️ 100", {
+    })
+  });
+  stageItems.textSprites.baseHealthText = new PIXI.Text({
+    text: "♥︎ 100",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }),
-    comboText: new ExtendedText("", {
+    })
+  });
+  stageItems.textSprites.comboText = new PIXI.Text({
+    text: "",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 24,
       fill: "#ffffff"
-    }),
-    enemiesReceivedStockText: new ExtendedText("0", {
+    })
+  });
+  stageItems.textSprites.enemiesReceivedStockText = new PIXI.Text({
+    text: "0",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 64,
       fill: "#ffffff"
-    }),
-    nameText: new ExtendedText("", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 20,
-      fill: "#ffffff"
-    }),
-    levelText: new ExtendedText("Level", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 32,
-      fill: "#ffffff"
-    }),
-    levelDetailsText: new ExtendedText("Level", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 20,
-      fill: "#ffffff"
-    }),
-    howToPlayText: new ExtendedText("", {
+    })
+  });
+  stageItems.textSprites.nameText = new PIXI.Text({
+    text: "",
+    style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
       fontSize: 20,
       fill: "#ffffff"
     })
-  }
-};
+  });
+  stageItems.textSprites.levelText = new PIXI.Text({
+    text: "Level",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 32,
+      fill: "#ffffff"
+    })
+  });
+  stageItems.textSprites.levelDetailsText = new PIXI.Text({
+    text: "Level",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 20,
+      fill: "#ffffff"
+    })
+  });
+  stageItems.textSprites.howToPlayText = new PIXI.Text({
+    text: "",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 20,
+      fill: "#ffffff"
+    })
+  });
+}
 
 function setContainerItemProperties() {
   stageItems.sprites.screenTopLeftIndicator.position.set(0, 0);
@@ -190,7 +313,7 @@ function setContainerItemProperties() {
   stageItems.sprites.screenBottomRightIndicator.position.set(1920, 1080);
   stageItems.sprites.screenBottomRightIndicator.alpha = 0;
   // playfield
-  stageItems.sprites.playFieldBorder.position.set(640, 160);
+  stageItems.sprites.playfieldBorder.position.set(640, 160);
   // text
   stageItems.textSprites.scoreText.position.set(STATISTICS_POSITION, 706);
   // score label
@@ -203,7 +326,7 @@ function setContainerItemProperties() {
   stageItems.textSprites.elapsedTimeText.text = "0:00.000";
   stageItems.textSprites.elapsedTimeText.position.set(STATISTICS_POSITION, 814);
   // base health
-  stageItems.textSprites.baseHealthText.text = "♥️ 100";
+  stageItems.textSprites.baseHealthText.text = "♥︎ 100";
   stageItems.textSprites.baseHealthText.position.set(STATISTICS_POSITION, 840);
   // combo
   stageItems.textSprites.comboText.text = "";
@@ -246,17 +369,7 @@ function setContainerItemProperties() {
   stageItems.textSprites.howToPlayText.position.set(STATISTICS_POSITION, 400);
 }
 
-setContainerItemProperties();
-
-for (let item in stageItems.sprites) {
-  app.stage.addChild(stageItems.sprites[item]);
-}
-for (let item in stageItems.textSprites) {
-  app.stage.addChild(stageItems.textSprites[item]);
-}
-
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
-document.getElementById("canvas-container")?.appendChild(app.view);
 function initializeEventListeners() {
   // other event listeners
   $("#main-menu-screen-button--singleplayer").on("click", () => {
@@ -371,20 +484,43 @@ function initializeEventListeners() {
   );
   //
   $("#settings-screen__content--online__submit").on("click", async (event) => {
-    // FIXME: possibly unsafe
-    const url = `${location.protocol}//${location.hostname}${
-      location.protocol === "http:" ? ":4000" : ""
-    }/authenticate`;
-    await fetch(url, {
-      method: "POST",
-      body: JSON.stringify({
-        username: $("#settings-screen__content--online__username").val(),
-        password: $("#settings-screen__content--online__password").val(),
-        socketID: $("#settings-screen__content--online__socket-id").val()
-      }),
-      headers: { "Content-Type": "application/json" }
-    });
     event.preventDefault();
+    // FIXME: possibly unsafe
+    const protocol = location.protocol;
+    const hostname = location.hostname;
+    const port = location.protocol === "http:" ? ":4000" : "";
+    const url = `${protocol}//${hostname}${port}/api/authenticate`;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({
+          username: $("#authentication-modal__username").val(),
+          password: $("#authentication-modal__password").val(),
+          socketID: $("#authentication-modal__socket-id").val()
+        }),
+        headers: { "Content-Type": "application/json" }
+      });
+      if (!response.ok) {
+        const options = { borderColor: "#ff0000" };
+        const toast = new ToastNotification(
+          `Authentication error: Error Code ${response.status}`,
+          options
+        );
+        toast.render();
+        console.error(
+          `Authentication error: `,
+          `Error Code ${response.status}`
+        );
+      }
+    } catch (error) {
+      const options = { borderColor: "#ff0000" };
+      const toast = new ToastNotification(
+        `Authentication error: ${error}`,
+        options
+      );
+      toast.render();
+      console.error(`Authentication error: `, error);
+    }
   });
   //
   $("#settings-screen__content-save-background-image").on(
@@ -392,8 +528,8 @@ function initializeEventListeners() {
     async (event) => {
       const url = $("#settings__background-image-url").val() as string;
       if (!url) {
-        // TODO: Make border red.
-        new ToastNotification("Please enter a valid image URL!");
+        const options = { backgroundColor: "#ff0000" };
+        new ToastNotification("Please enter a valid image URL!", options);
         return;
       }
 
@@ -509,11 +645,69 @@ function initializeEventListeners() {
     $("#chat-tray-input").val("");
   });
   $(`#main-content__user-menu-small-display`).on("click", () => {
-    if (!variables.isGuest || variables.playing) {
+    if (
+      variables.isGuest ||
+      variables.playing ||
+      variables.loggedInUserID == null
+    ) {
       return;
     }
-    changeScreen("settingsMenu");
-    changeSettingsSecondaryScreen("online");
+    showUserLookupPopUp(variables.loggedInUserID);
+  });
+  $("#opening-screen__play-as-guest").on("click", () => {
+    $("#opening-screen-container").hide(0);
+    changeScreen("mainMenu");
+    sendSocketMessage({ message: "exitOpeningScreen" });
+    variables.exitedOpeningScreen = true;
+  });
+  $(
+    "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list"
+  ).on("click", () => {
+    variables.multiplayerChat.playerListShown =
+      !variables.multiplayerChat.playerListShown;
+    const playerListSelector =
+      "#main-content__multiplayer-intermission-screen-container__chat__player-list";
+    const messageListSelector =
+      "#main-content__multiplayer-intermission-screen-container__chat__messages";
+    const toggleListSelector =
+      "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list";
+    if (variables.multiplayerChat.playerListShown) {
+      $(playerListSelector).show(0);
+      $(messageListSelector).hide(0);
+      $(toggleListSelector).text("Hide Player List");
+    } else {
+      $(messageListSelector).show(0);
+      $(playerListSelector).hide(0);
+      $(toggleListSelector).text("Show Player List");
+    }
+  });
+  // == USER CARD ==
+  $(".user-card__close-button").on("click", () => {
+    $("#user-card__data").hide(0);
+    $("#user-card__error").hide(0);
+    $("#user-card__loading").show(0);
+    $("#main-content__user-card-container").css("display", "none");
+  });
+  // close user card if clicked on screen anywhere...
+  $("#main-content__user-card-container").on("click", () => {
+    // but don't close if clicked on user card itself
+    if ($("#main-content__user-card").is(":hover")) {
+      console.log("User card itself clicked, not closing user card menu.");
+      return;
+    }
+    $("#user-card__data").hide(0);
+    $("#user-card__error").hide(0);
+    $("#user-card__loading").show(0);
+    $("#main-content__user-card-container").css("display", "none");
+  });
+  // == MULTIPLAYER ==
+  $("#multiplayer-screen__sidebar-item--back").on("click", () => {
+    variables.playing = false;
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: "Escape"
+    });
+    changeScreen("mainMenu");
   });
 }
 
@@ -597,20 +791,16 @@ function updateUserInformationText(data: any) {
   );
   // also set in sign in flag to true
   variables.isGuest = false;
+  // also set user id flag
+  variables.loggedInUserID = data.userData._id;
 }
 
 function updateGuestInformationText(data: any) {
   $("#main-content__user-menu-small-display__username").text(data.guestName);
-  $("#main-content__user-menu-small-display__level").text(
-    `Level 0 (Signed out, click to log in!)`
-  );
+  $("#main-content__user-menu-small-display__level").text(`Guest Player`);
 }
 
-app.ticker.add((deltaTime) => {
-  render(app.ticker.elapsedMS);
-});
-
-changeScreen("mainMenu");
+changeScreen("openingScreen");
 loadSettings(localStorage.getItem("settings") || "{}");
 
 // ======
@@ -625,7 +815,7 @@ window.addEventListener("load", function () {
       endInitTime - startInitTime
     )}ms)`
   );
-  new PopupNotification(
+  const notification = new PopupNotification(
     "Hello!",
     `<p style="font-size:20px">Thank you for trying out Mathematical Base Defenders! 
     <br>
@@ -642,11 +832,12 @@ window.addEventListener("load", function () {
     <li>To log in to your user account, go to <code>Settings</code>, then <code>Online</code>.</li>
     <li>To register for an account, go to the accompanying website <a class="text--link" href="https://mathematicalbasedefenders.com">here</a>.</li>
     <li>To request a feature, report a bug or to contribute, please do so in the game's communication channels available on the accompanying website.</li>
-    <li><b>As of 0.4.10, to prevent abuse of server resources, please do not mash the keys on your keyboard, as it may lead to anticheat falsely flagging and disconnecting you. A future update will make this anticheat function more accurate. (Don't worry, getting flagging for this reason has no punishment)</b></li>
+    <li><b>As of 0.4.10, to prevent abuse of server resources, please do not mash the keys on your keyboard, as it may lead to anticheat falsely flagging and disconnecting you. A future update will make this anticheat function more accurate. (Don't worry, getting flagged for this reason has no punishment)</b></li>
     </ul>
     Thank you for playing!</p>`,
     1
   );
+  notification.render();
 });
 
 export {
@@ -654,11 +845,11 @@ export {
   stageItems,
   stage,
   app,
-  ExtendedSprite,
-  ExtendedText,
   serifFont,
   mathFont,
   variables,
+  playerContainer,
+  textures,
   updateGuestInformationText,
   updateUserInformationText
 };

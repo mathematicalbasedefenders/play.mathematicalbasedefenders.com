@@ -1,4 +1,4 @@
-import { app, ExtendedSprite, ExtendedText, stageItems, variables } from ".";
+import { app, playerContainer, stageItems, textures, variables } from ".";
 import * as PIXI from "pixi.js";
 import {
   getScaledEnemyHeight,
@@ -6,56 +6,59 @@ import {
   getSetEnemyColor
 } from "./enemies";
 import _ from "lodash";
+import { createTextStyle } from "./utilities";
+import { Container } from "pixi.js";
 
 /**
  * This class handles opponent's game instances in Multiplayer mode.
  */
 class Opponent {
   boundTo!: string;
-  stageItems!: {
-    sprites: { [key: string]: ExtendedSprite };
-    textSprites: { [key: string]: ExtendedText };
-  };
-  xPositionOffset: number;
-  yPositionOffset: number;
-  instanceNumber: number;
-  static globalScale = 0.3;
+  container: Container;
+  xPositionOffset!: number;
+  yPositionOffset!: number;
+  instanceNumber!: number;
+  nameText: PIXI.Text;
+  statsText: PIXI.Text;
+  enemies: { [key: string]: PIXI.Sprite };
+  static globalScale = 1 / 3;
   static instances: Array<Opponent> = [];
+  static textStyle = {
+    fontFamily: ["Noto Sans", "san-serif"],
+    fontSize: 64,
+    fill: "#ffffff"
+  };
+  static gapWidth = 32;
+  static gapHeight = 240;
 
   /**
    * This constructor creates a new Opponent game instance.
    */
   constructor() {
-    const emptyText = new ExtendedText("", {
-      fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 20,
-      fill: "#ffffff"
-    });
-    const emptyMathText = new ExtendedText("", {
-      fontFamily: ["Computer Modern Unicode Serif", "serif"],
-      fontSize: 20,
-      fill: "#ffffff"
-    });
-    this.stageItems = {
-      sprites: {
-        "playFieldBorder": new ExtendedSprite(
-          PIXI.Texture.from("assets/images/playfield.png")
-        )
-      },
-      textSprites: {
-        "statistics": _.cloneDeep(emptyText),
-        "input": _.cloneDeep(emptyMathText),
-        "name": _.cloneDeep(emptyText)
-      }
-    };
-    this.stageItems.sprites.playFieldBorder.scale.set(
-      Opponent.globalScale,
-      Opponent.globalScale
-    );
     this.instanceNumber = Opponent.instances.length;
-    this.xPositionOffset = 0;
-    this.yPositionOffset = 0;
+    this.container = new Container();
+    this.container.addChild(PIXI.Sprite.from(textures.opponentPlayfieldBorder));
+
+    // add text
+    this.nameText = new PIXI.Text({
+      text: "",
+      style: createTextStyle(Opponent.textStyle)
+    });
+    this.nameText.y = 804 + 4 + 64;
+
+    this.statsText = new PIXI.Text({
+      text: "",
+      style: createTextStyle(Opponent.textStyle)
+    });
+    this.statsText.y = 804;
+
+    this.container.addChild(this.nameText);
+    this.container.addChild(this.statsText);
+
+    this.enemies = {};
+
     Opponent.instances.push(this);
+    Opponent.changeGlobalScale();
   }
 
   /**
@@ -71,25 +74,8 @@ class Opponent {
    * Renders the Opponent game instance with respect to its position.
    */
   render() {
-    for (let item in this.stageItems.sprites) {
-      app.stage.addChild(this.stageItems.sprites[item]);
-    }
-    for (let item in this.stageItems.textSprites) {
-      app.stage.addChild(this.stageItems.textSprites[item]);
-    }
-    let xPosition =
-      stageItems.sprites["playFieldBorder"].position.x +
-      stageItems.sprites["playFieldBorder"].width +
-      variables.enemyInstancePositions.x.initial +
-      variables.enemyInstancePositions.x.increment *
-        Math.floor(
-          this.getInstanceNumberPosition() / variables.enemyInstancesPerColumn
-        );
-    let yPosition =
-      variables.enemyInstancePositions.y.initial +
-      variables.enemyInstancePositions.y.increment *
-        (this.getInstanceNumberPosition() % variables.enemyInstancesPerColumn);
-    this.reposition(xPosition, yPosition);
+    app.stage.addChild(this.container);
+    this.autoRepositionAll();
   }
 
   /**
@@ -97,19 +83,25 @@ class Opponent {
    * @param {any} data The new data.
    */
   update(data: any) {
-    this.stageItems.textSprites.statistics.text = `♥${
-      data.baseHealth
-    } ${Math.max(data.combo, 0)}C ${Math.max(data.receivedEnemiesStock, 0)}ST`;
-    this.stageItems.textSprites.input.text = `${data.currentInput || ""}`;
-    this.stageItems.textSprites.name.text = `${data.ownerName}`;
-    for (let enemy of data.enemies) {
+    // text
+    this.nameText.text = data.ownerName;
+
+    const health = data.baseHealth;
+    const combo = Math.max(data.combo, 0);
+    const stock = Math.max(data.receivedEnemiesStock, 0);
+
+    this.statsText.text = `♥︎${health} 🡕${combo} 🞎${stock}`;
+
+    // enemies
+    for (const enemy of data.enemies) {
       this.updateEnemy(enemy.id, data);
     }
-    let enemyToDeleteMatches = data.enemiesToErase;
-    for (let enemyID of enemyToDeleteMatches) {
-      let enemyToDelete = this.stageItems.sprites[`enemy${enemyID}`];
+    const enemyToDeleteMatches = data.enemiesToErase;
+    for (const enemyID of enemyToDeleteMatches) {
+      let enemyToDelete = this.enemies[`enemy${enemyID}`];
       if (enemyToDelete) {
-        app.stage.removeChild(enemyToDelete);
+        this.container.removeChild(enemyToDelete);
+        delete this.enemies[`enemy${enemyID}`];
       }
     }
   }
@@ -118,54 +110,58 @@ class Opponent {
    * (Attempts to) automatically reposition the Opponent game instance according to its "index".
    */
   autoReposition() {
-    let position = this.getInstanceNumberPosition();
-    this.reposition(
-      stageItems.sprites["playFieldBorder"].position.x +
-        stageItems.sprites["playFieldBorder"].width +
-        variables.enemyInstancePositions.x.initial +
-        variables.enemyInstancePositions.x.increment *
-          Math.floor(position / variables.enemyInstancesPerColumn),
-      variables.enemyInstancePositions.y.initial +
-        variables.enemyInstancePositions.y.increment *
-          Math.floor(position % variables.enemyInstancesPerColumn)
+    const position = this.getInstanceNumberPosition();
+    const divisor = Math.max(
+      Math.floor(Math.sqrt(Opponent.instances.length)) - 1,
+      1
     );
+    const playerPlayfield = playerContainer.getChildByLabel("playerPlayfield");
+
+    if (!playerPlayfield) {
+      console.error("Player's playfield not found!");
+      return;
+    }
+
+    const topPlayerPlayfield = 160;
+    const rightPlayerPlayfield = 640 + playerPlayfield.width;
+
+    // ...
+
+    this.container.x =
+      rightPlayerPlayfield +
+      Math.floor(position / divisor) *
+        (playerPlayfield.width + Opponent.gapWidth) *
+        Opponent.globalScale +
+      Opponent.gapWidth +
+      40;
+    this.container.y =
+      topPlayerPlayfield +
+      (position % divisor) *
+        (playerPlayfield.height + Opponent.gapHeight) *
+        Opponent.globalScale;
+
+    console.log(
+      position,
+      divisor,
+      this.container.x,
+      this.container.y,
+      Math.floor(position / divisor),
+      position % divisor
+    );
+  }
+
+  autoRepositionAll() {
+    for (const instance of Opponent.instances) {
+      instance.autoReposition();
+    }
   }
 
   /**
    * Repositions the Opponent game instance according to its arguments (given new positions)
-   * @param {number} xPosition The xPosition on the screen to reposition too.
-   * @param {number} yPosition The yPosition on the screen to reposition too.
+   * @param {number} xPosition The xPosition on the screen to reposition to.
+   * @param {number} yPosition The yPosition on the screen to reposition to.
    */
-  reposition(xPosition: number, yPosition: number) {
-    this.xPositionOffset = xPosition;
-    this.yPositionOffset = yPosition;
-    let instanceOffsets = this.getPositions();
-    for (let sprite in this.stageItems.sprites) {
-      if (sprite.indexOf("enemy") > -1) {
-        continue;
-      }
-
-      if (this.stageItems.sprites[sprite]) {
-        this.stageItems.sprites[sprite].x =
-          instanceOffsets["sprites"][sprite].x + xPosition;
-        this.stageItems.sprites[sprite].y =
-          instanceOffsets["sprites"][sprite].y + yPosition;
-      }
-    }
-    for (let sprite in this.stageItems.textSprites) {
-      if (this.stageItems.textSprites[sprite]) {
-        this.stageItems.textSprites[sprite].x =
-          instanceOffsets["textSprites"][sprite].x + xPosition;
-        this.stageItems.textSprites[sprite].y =
-          instanceOffsets["textSprites"][sprite].y + yPosition;
-      }
-    }
-
-    let centered = ["statistics", "input", "name"];
-    for (let element of centered) {
-      this.stageItems.textSprites[element].anchor.set(0.5, 0.5);
-    }
-  }
+  reposition(xPosition: number, yPosition: number) {}
 
   /**
    * Updates the enemy with the ID `id` with `data`.
@@ -173,35 +169,36 @@ class Opponent {
    * @param {any} data The new data of the enemy.
    */
   updateEnemy(id: string, data: any) {
-    // create enemy if none exists
-    if (Object.keys(this.stageItems.sprites).indexOf(`enemy${id}`) === -1) {
+    // no enemy, create new
+    if (Object.keys(this.enemies).indexOf(`enemy${id}`) === -1) {
       // create enemy
       // TODO: temporary.
-      this.stageItems.sprites[`enemy${id}`] = new ExtendedSprite(
-        PIXI.Texture.WHITE
-      );
-      this.stageItems.sprites[`enemy${id}`].width =
-        getScaledEnemyWidth() * (getScaledEnemyWidth() / Math.min(640, 800));
-      this.stageItems.sprites[`enemy${id}`].height =
-        getScaledEnemyHeight() * (getScaledEnemyHeight() / Math.min(800, 640));
-      this.stageItems.sprites[`enemy${id}`].tint = getSetEnemyColor();
-      app.stage.addChild(this.stageItems.sprites[`enemy${id}`]);
+      this.enemies[`enemy${id}`] = createOpponentEnemy();
+      this.container.addChild(this.enemies[`enemy${id}`]);
     }
-    let enemyData = data.enemies.find((element: any) => element.id === id);
+    const enemyData = data.enemies.find((element: any) => element.id === id);
+    const playerPlayfield = playerContainer.getChildByLabel("playerPlayfield");
+
+    if (!playerPlayfield) {
+      console.error("Player's playfield not found!");
+      return;
+    }
+
     if (enemyData) {
-      let enemyRealPosition =
-        enemyData.xPosition *
-        (this.stageItems.sprites["playFieldBorder"].width -
-          this.stageItems.sprites[`enemy${id}`].width);
+      // let enemyRealPosition =
+      //   enemyData.xPosition *
+      //   (this.stageItems.sprites["playfieldBorder"].width -
+      //     this.enemies[`enemy${id}`].width);
 
-      this.stageItems.sprites[`enemy${id}`].position.x =
-        this.stageItems.sprites["playFieldBorder"].position.x +
-        enemyRealPosition;
-
-      this.stageItems.sprites[`enemy${id}`].position.y =
-        (720 - 720 * enemyData.sPosition + 100 - 40 - getScaledEnemyHeight()) *
-          Opponent.globalScale +
-        this.yPositionOffset;
+      this.enemies[`enemy${id}`].position.x =
+        (playerPlayfield.width - this.container.width) * enemyData.xPosition;
+      this.enemies[`enemy${id}`].position.y =
+        720 -
+        720 * enemyData.sPosition +
+        100 -
+        40 -
+        getScaledEnemyHeight() -
+        28;
     }
   }
 
@@ -217,12 +214,10 @@ class Opponent {
   /**
    * Destroys (removes) all the sprites of the Opponent game instance.
    */
-  destroy() {
-    for (let item in this.stageItems.sprites) {
-      app.stage.removeChild(this.stageItems.sprites[item]);
-    }
-    for (let item in this.stageItems.textSprites) {
-      app.stage.removeChild(this.stageItems.textSprites[item]);
+  destroy(rescale?: boolean) {
+    this.container.removeChildren();
+    if (rescale) {
+      Opponent.changeGlobalScale();
     }
   }
 
@@ -258,38 +253,35 @@ class Opponent {
    * Gets the (x, y) position (on the screen) where the Opponent game instance should be.
    * @returns The (x, y) position (on the screen) where the Opponent game instance should be.
    */
-  getPositions() {
-    let data: { [key: string]: any } = {
-      "sprites": {
-        "playFieldBorder": {
-          x: 0,
-          y: 0
-        }
-      },
-      "textSprites": {
-        "statistics": {
-          x: this.stageItems.sprites["playFieldBorder"].width / 2,
-          y: 240 + 16
-        },
-        "input": {
-          x: this.stageItems.sprites["playFieldBorder"].width / 2,
-          y: 240 + 40
-        },
-        "name": {
-          x: this.stageItems.sprites["playFieldBorder"].width / 2,
-          y: 240 + 64
-        }
-      },
-      // depends on enemies position
-      "enemies": {
-        x: 0,
-        y: 0
-      }
-    };
-    return data;
-  }
+  // TODO: Unused????
+  getPositions() {}
   // TODO: add method for destroying the instance.
   // for now just delete (e.g. splice) it from the static variable instances
+
+  static changeGlobalScale() {
+    const initialScale = 1 / 3;
+    const ratio = 4 / 5;
+    const exponent = Math.max(
+      Math.floor(Math.sqrt(Opponent.instances.length)) - 1,
+      1
+    );
+    Opponent.globalScale = initialScale * ratio ** exponent;
+    for (const instance of Opponent.instances) {
+      instance.setScale();
+    }
+  }
+
+  setScale() {
+    this.container.scale.set(Opponent.globalScale, Opponent.globalScale);
+  }
+}
+
+function createOpponentEnemy() {
+  const enemy = new PIXI.Sprite(PIXI.Texture.WHITE);
+  enemy.width = getScaledEnemyWidth();
+  enemy.height = getScaledEnemyHeight();
+  enemy.tint = getSetEnemyColor();
+  return enemy;
 }
 
 export { Opponent };

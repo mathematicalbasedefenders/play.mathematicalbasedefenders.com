@@ -118,22 +118,38 @@ class Room {
     this.updateNumber++;
   }
 
-  addChatMessage(message: string, sender: string) {
-    let sanitizedMessage = DOMPurify.sanitize(message);
+  // room specific
+  addChatMessage(message: string, sender: universal.GameSocket) {
+    if (!sender || !sender.connectionID) {
+      log.warn(
+        `No sender/connectionID for message: ${message} in room, ignoring.`
+      );
+      return;
+    }
+
+    const sanitizedMessage = DOMPurify.sanitize(message);
+    const senderName = universal.getNameFromConnectionID(sender.connectionID);
+    const nameColor = sender.playerRank?.color;
+    const userID = sender.ownerUserID ?? null;
     this.chatMessages.push({
       message: sanitizedMessage,
-      sender: sender
+      senderName: senderName
     });
     // send to all sockets
-    for (let connectionID of this.memberConnectionIDs) {
-      let socket = universal.getSocketFromConnectionID(connectionID);
+    for (const connectionID of this.memberConnectionIDs) {
+      const socket = universal.getSocketFromConnectionID(connectionID);
       if (socket) {
         socket.send(
           JSON.stringify({
-            message: "appendHTML",
-            selector:
-              "#main-content__multiplayer-intermission-screen-container__chat__messages",
-            value: `<div>${sender}: ${message}</div>`
+            message: "addRoomChatMessage",
+            // selector:
+            //   "#main-content__multiplayer-intermission-screen-container__chat__messages",
+            data: {
+              name: DOMPurify.sanitize(senderName),
+              message: DOMPurify.sanitize(message),
+              nameColor: nameColor,
+              userID: userID
+            }
           })
         );
       }
@@ -395,21 +411,33 @@ class MultiplayerRoom extends Room {
     this.lastUpdateTime = now;
 
     // other global stuff
-    for (let connectionID of this.memberConnectionIDs) {
+    for (const connectionID of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(connectionID);
       if (socket) {
-        const rankingSelector =
-          "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
-        const rankingText = utilities.generateRankingText(
+        const rankingPayload = utilities.generateRankingPayload(
           _.clone(this.ranking)
         );
-        const playersSelector =
-          "#main-content__multiplayer-intermission-screen-container__player-list";
-        const playersText = utilities.generatePlayerListText(
+        const playersPayload = utilities.generatePlayerListPayload(
           this.memberConnectionIDs
         );
-        changeClientSideHTML(socket, rankingSelector, rankingText);
-        changeClientSideHTML(socket, playersSelector, playersText);
+        const playerCountSelector =
+          "#main-content__multiplayer-intermission-screen-container__player-count";
+        const playerCountText = this.memberConnectionIDs.length.toString();
+        changeClientSideText(socket, playerCountSelector, playerCountText);
+        // changeClientSideHTML(socket, rankingSelector, rankingText);
+        socket.send(
+          JSON.stringify({
+            message: "modifyMultiplayerRankContent",
+            data: rankingPayload
+          })
+        );
+        // changeClientSideHTML(socket, playersSelector, playersText);
+        socket.send(
+          JSON.stringify({
+            message: "modifyPlayerListContent",
+            data: playersPayload
+          })
+        );
       }
     }
 
@@ -437,7 +465,7 @@ class MultiplayerRoom extends Room {
         if (new Date() >= this.nextGameStartTime) {
           this.startPlay();
           this.playersAtStart = this.memberConnectionIDs.length;
-          for (let connectionID of this.memberConnectionIDs) {
+          for (const connectionID of this.memberConnectionIDs) {
             let socket = universal.getSocketFromConnectionID(connectionID);
             if (socket) {
               socket.send(
@@ -463,7 +491,7 @@ class MultiplayerRoom extends Room {
         }
       }
       // Update Text
-      for (let connectionID of this.memberConnectionIDs) {
+      for (const connectionID of this.memberConnectionIDs) {
         const socket = universal.getSocketFromConnectionID(connectionID);
         if (socket) {
           const selector =
@@ -481,7 +509,7 @@ class MultiplayerRoom extends Room {
       }
     } else {
       // playing
-      for (let connectionID of this.memberConnectionIDs) {
+      for (const connectionID of this.memberConnectionIDs) {
         const socket = universal.getSocketFromConnectionID(connectionID);
         if (socket) {
           const selector =
@@ -574,7 +602,7 @@ class MultiplayerRoom extends Room {
   }
 
   eliminateSocketID(connectionID: string, gameData: GameData | object) {
-    let socket = universal.getSocketFromConnectionID(connectionID);
+    const socket = universal.getSocketFromConnectionID(connectionID);
     if (typeof socket === "undefined") {
       log.warn(
         `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
@@ -582,13 +610,23 @@ class MultiplayerRoom extends Room {
     }
     const place = this.gameData.length;
     if (gameData instanceof GameData) {
-      this.ranking.push({
+      const data = {
         placement: place,
         name: universal.getNameFromConnectionID(connectionID) || "???",
         time: gameData.elapsedTime,
         sent: gameData.totalEnemiesSent,
-        received: gameData.totalEnemiesReceived
-      });
+        received: gameData.totalEnemiesReceived,
+        isRegistered: false,
+        nameColor: "",
+        userID: ""
+      };
+      if (socket?.ownerUserID) {
+        // is registered
+        data.isRegistered = true;
+        data.userID = socket.ownerUserID;
+        data.nameColor = socket.playerRank?.color ?? "#ffffff";
+      }
+      this.ranking.push(data);
     }
     if (socket?.loggedIn && gameData instanceof GameData) {
       const earnedEXP = Math.round(gameData.elapsedTime / 2000);
@@ -628,25 +666,35 @@ class MultiplayerRoom extends Room {
             winnerGameData.ownerConnectionID
           )})`
         );
-        let userID = universal.getSocketFromConnectionID(
+        const winnerSocket = universal.getSocketFromConnectionID(
           winnerGameData.ownerConnectionID
-        )?.ownerUserID;
-        if (typeof userID === "string") {
-          if (!universal.STATUS.databaseAvailable) {
-            log.warn(
-              "Database is not available. Not running database operation."
-            );
-          } else {
-            // multiplayer games won
-            User.addMultiplayerGamesWonToUserID(userID as string, 1);
-            // experience (50% bonus for winning)
-            const earnedEXP =
-              Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
-            User.giveExperiencePointsToUserID(userID as string, earnedEXP);
+        );
+
+        // add exp to winner socket
+        if (winnerSocket?.ownerUserID) {
+          if (typeof winnerSocket.ownerUserID === "string") {
+            if (!universal.STATUS.databaseAvailable) {
+              log.warn(
+                "Database is not available. Not running database operation."
+              );
+            } else {
+              // multiplayer games won
+              User.addMultiplayerGamesWonToUserID(
+                winnerSocket.ownerUserID as string,
+                1
+              );
+              // experience (50% bonus for winning)
+              const earnedEXP =
+                Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
+              User.giveExperiencePointsToUserID(
+                winnerSocket.ownerUserID as string,
+                earnedEXP
+              );
+            }
           }
         }
 
-        this.ranking.push({
+        const data = {
           placement: this.gameData.length,
           name:
             universal.getNameFromConnectionID(
@@ -654,8 +702,18 @@ class MultiplayerRoom extends Room {
             ) || "???",
           time: winnerGameData.elapsedTime,
           sent: winnerGameData.totalEnemiesSent,
-          received: winnerGameData.totalEnemiesReceived
-        });
+          received: winnerGameData.totalEnemiesReceived,
+          isRegistered: false,
+          nameColor: "",
+          userID: ""
+        };
+        if (winnerSocket?.ownerUserID) {
+          // is registered
+          data.isRegistered = true;
+          data.userID = winnerSocket.ownerUserID;
+          data.nameColor = winnerSocket.playerRank?.color ?? "#ffffff";
+        }
+        this.ranking.push(data);
       }
       // stop everyone from playing
       this.stopPlay();
@@ -700,7 +758,7 @@ class MultiplayerRoom extends Room {
 
   summonEveryoneToIntermission() {
     // TODO: Add spectators once they get implemented
-    for (let connectionID of this.memberConnectionIDs) {
+    for (const connectionID of this.memberConnectionIDs) {
       let socket = universal.getSocketFromConnectionID(connectionID);
       if (typeof socket === "undefined") {
         log.warn(
@@ -883,6 +941,23 @@ function setCustomRules(room: Room, settings: { [key: string]: any }) {
   );
 }
 
+/**
+ * Creates a new singleplayer room.
+ * @param {universal.GameSocket} caller The socket that called the function
+ * @param {GameMode} gameMode The singleplayer game mode.
+ * @param {settings} settings The `settings` for the singleplayer game mode, if it's custom.
+ * @returns The newly-created room object.
+ */
+function createSingleplayerRoom(
+  caller: universal.GameSocket,
+  gameMode: GameMode,
+  settings?: { [key: string]: string }
+): SingleplayerRoom {
+  const room = new SingleplayerRoom(caller, gameMode, settings);
+  universal.rooms.push(room);
+  return room;
+}
+
 export {
   SingleplayerRoom,
   MultiplayerRoom,
@@ -892,5 +967,6 @@ export {
   defaultMultiplayerRoomID,
   leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
-  getOpponentsInformation
+  getOpponentsInformation,
+  createSingleplayerRoom
 };

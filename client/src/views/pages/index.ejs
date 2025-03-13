@@ -20,6 +20,11 @@
 </head>
 
 <body>
+
+  <div id="opening-screen-container">
+    <%- include("../partials/opening-screen") %>
+  </div>
+
   <div id="main-content-container">
     <%- include("../partials/main-menu-screen") %>
     <%- include("../partials/singleplayer-menu-screen") %>
@@ -32,8 +37,9 @@
     <%- include("../partials/user-menu") %>
     <%- include("../partials/status-indicator-menu") %>
     <div id="canvas-container"></div>
-
   </div>
+
+  <%- include("../partials/user-card") %>
   <%- include("../partials/status-tray") %>
   <%- include("../partials/chat-tray") %>
   <%- include("../partials/on-screen-keyboard") %>
@@ -42,13 +48,13 @@
   <%- include("../partials/version-number") %>
 
 </body>
-<script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdn.jsdelivr.net/npm/adaptive-scale@1.0.0/_bundles/adaptive-scale.js"></script>
-<script src="https://pixijs.download/v6.5.10/pixi.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.1/purify.min.js" integrity="sha512-PBUtfPzExa/FxBEi6tr884CPkb9Wh0kjchdWPECubdH16+G0JjkGQHgWCO7zgINZlXtmVnpII7KnZctAPUAZWg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="lib/fontfaceobserver.js"></script>
+
+<% if (optimizeForProduction) { %>
+<%- include("../partials/production-scripts.ejs") %>
+<% } else { %>
+<%- include("../partials/development-scripts.ejs") %>
+<% } %>
+
 <script src="mathematicalbasedefenders.js"></script>
 
 </html>

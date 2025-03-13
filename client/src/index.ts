@@ -25,20 +25,27 @@ app.use(
           "pixijs.download",
           "'unsafe-eval'"
         ],
-        "img-src": "*",
-        "style-src": ["'unsafe-inline'", "*"],
+        "img-src": ["https:", "data:", "'self'"],
+        "style-src": [
+          "'unsafe-inline'",
+          "'self'",
+          "fonts.googleapis.com",
+          "cdn.jsdelivr.net"
+        ],
         "connect-src": [
           "http://localhost:4000",
           "https://play.mathematicalbasedefenders.com:4000",
           "ws://localhost:5000",
           "wss://play.mathematicalbasedefenders.com:5000",
-          "'self'"
+          "'self'",
+          "data:"
         ],
         "form-action": [
           "'self'",
-          "http://localhost:4000/authenticate",
-          "https://play.mathematicalbasedefenders.com:4000/authenticate"
-        ]
+          "http://localhost:4000/api/authenticate",
+          "https://play.mathematicalbasedefenders.com:4000/api/authenticate"
+        ],
+        "worker-src": ["'self'", "blob:"]
       }
     },
     crossOriginEmbedderPolicy: false,
@@ -52,7 +59,8 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.get("/", limiter, (request: Request, response: Response) => {
-  response.render("pages/index.ejs");
+  const isProduction = process.env.NODE_ENV === "production";
+  response.render("pages/index.ejs", { optimizeForProduction: isProduction });
 });
 
 app.get("*", limiter, (request: Request, response: Response) => {
@@ -61,7 +69,14 @@ app.get("*", limiter, (request: Request, response: Response) => {
 
 app.listen(PORT, () => {
   log.info(`Client app listening at port ${PORT}`);
-  if (process.env.credentialSetUsed === "TESTING") {
+  if (process.env.CREDENTIAL_SET_USED === "TESTING") {
     log.warn("Using testing credentials.");
+  }
+  if (process.env.NODE_ENV === "production") {
+    log.info("Using NODE_ENV=production.");
+    log.info("If not on production, set it to something else.");
+  } else {
+    log.warn("Environment variable NODE_ENV is not set to production.");
+    log.warn("Using testing configurations.");
   }
 });

@@ -93,7 +93,7 @@ function handleClientSideEvents(event: KeyboardEvent) {
 function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   // overrides: set to false
   let sendWebSocketMessage = true;
-  if (event.code === "Tab") {
+  if (event.code === "Tab" && variables.exitedOpeningScreen) {
     event.preventDefault();
     $("#status-tray-container").toggle(0);
     $("#chat-tray-container").toggle(0);
@@ -102,6 +102,11 @@ function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   if (ARROW_KEYS.indexOf(event.code) > -1) {
     navigateFocus(event);
     sendWebSocketMessage = false;
+  }
+  if (event.code === "Tab" && !variables.exitedOpeningScreen) {
+    event.preventDefault();
+    const fakeEvent = new KeyboardEvent("keypress", { code: "ArrowDown" });
+    navigateFocus(fakeEvent);
   }
   if (!WEBSOCKET_MESSAGE_SEND_KEYS.includes(event.code)) {
     sendWebSocketMessage = false;

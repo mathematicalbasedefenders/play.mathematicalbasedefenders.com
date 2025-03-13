@@ -3,18 +3,23 @@ import {
   SingleplayerRoom,
   MultiplayerRoom,
   getOpponentsInformation,
-  Room
+  Room,
+  createSingleplayerRoom
 } from "./game/Room";
-import { GameData, SingleplayerGameData } from "./game/GameData";
+import { GameData, GameMode, SingleplayerGameData } from "./game/GameData";
 import _, { update } from "lodash";
 import {
   minifySelfGameData,
   findRoomWithConnectionID,
   checkIfPropertyWithValueExists,
-  getRank
+  getRank,
+  generateGuestID,
+  generateConnectionID
 } from "./core/utilities";
 import { log } from "./core/log";
-
+import { validateCustomGameSettings } from "./core/utilities";
+import fs from "node:fs";
+import path from "node:path";
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
 interface UserData {}
@@ -47,10 +52,16 @@ type GameSocket = WebSocket<UserData> & {
     last: number;
     count: number;
   };
+  /**
+   * Whether the owner of the socket exited the opening screen.
+   * Once exited opening screen, no further authentication attempts can be performed.
+   * New in 0.4.13.
+   */
+  exitedOpeningScreen?: boolean;
 };
 
-let sockets: Array<GameSocket> = [];
-let rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
+const sockets: Array<GameSocket> = [];
+const rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
 
 const STATUS = {
   databaseAvailable: false,
@@ -302,20 +313,15 @@ function getServerMetadata(
  * Sends a global toast notification to everyone, regardless of logged in/out.
  * @param settings Settings to the sent global toast notification.
  */
-function sendGlobalToastNotification(settings: { [key: string]: any }) {
-  const tns = settings;
+function sendGlobalToastNotification(options: { [key: string]: any }) {
   for (const socket of sockets) {
     if (socket) {
       socket.send(
         // TODO: Refactor this?
         JSON.stringify({
           message: "createToastNotification",
-          text: tns.text,
-          position: tns.position,
-          lifespan: tns.lifespan,
-          foregroundColor: tns.foregroundColor,
-          backgroundColor: tns.backgroundColor,
-          borderColor: tns.borderColor
+          text: options.text,
+          options: options
         })
       );
     }
@@ -342,6 +348,156 @@ function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
   }
 }
 
+/**
+ * Initializes a socket. This includes adding it subscribing it to `game`.
+ * @param {GameSocket} socket The socket to initialize default values with.
+ */
+function initializeSocket(socket: GameSocket) {
+  socket.exitedOpeningScreen = false;
+  socket.connectionID = generateConnectionID(16);
+  socket.ownerGuestName = `Guest ${generateGuestID(8)}`;
+  socket.accumulatedMessages = 0;
+  socket.rateLimiting = {
+    last: 1,
+    count: 0
+  };
+  socket.subscribe("game");
+}
+
+/**
+ * This sends data to the socket's connection to update initial values.
+ * @param {GameSocket} socket The socket to initialize send data to.
+ */
+function sendInitialSocketData(socket: GameSocket) {
+  socket.send(
+    JSON.stringify({
+      message: "changeValueOfInput",
+      selector: "#authentication-modal__socket-id",
+      value: socket.connectionID
+    })
+  );
+  socket.send(
+    JSON.stringify({
+      message: "updateGuestInformationText",
+      data: {
+        guestName: socket.ownerGuestName
+      }
+    })
+  );
+}
+
+// TODO: This can only set borderColor, which is all we need, I guess...
+function sendToastMessageToSocket(
+  socket: GameSocket,
+  message: string,
+  borderColor: string
+) {
+  socket?.send(
+    JSON.stringify({
+      message: "createToastNotification",
+      text: message,
+      options: { borderColor: borderColor }
+    })
+  );
+}
+
+function startGameForSocket(
+  socket: GameSocket,
+  parsedMessage: { [key: string]: string }
+) {
+  switch (parsedMessage.mode) {
+    case "singleplayer": {
+      switch (parsedMessage.modifier) {
+        case "easy": {
+          const room = createSingleplayerRoom(
+            socket,
+            GameMode.EasySingleplayer
+          );
+          room.addMember(socket);
+          room.startPlay();
+          break;
+        }
+        case "standard": {
+          const room = createSingleplayerRoom(
+            socket,
+            GameMode.StandardSingleplayer
+          );
+          room.addMember(socket);
+          room.startPlay();
+          break;
+        }
+        case "custom": {
+          const validationResult = validateCustomGameSettings(
+            parsedMessage.mode,
+            JSON.parse(parsedMessage.settings)
+          );
+          if (!validationResult.success) {
+            // send error message
+            socket.send(
+              JSON.stringify({
+                message: "changeText",
+                selector:
+                  "#main-content__custom-singleplayer-intermission-screen-container__errors",
+                value: validationResult.reason
+              })
+            );
+            return;
+          }
+          const room = createSingleplayerRoom(
+            socket,
+            GameMode.CustomSingleplayer,
+            JSON.parse(parsedMessage.settings)
+          );
+          room.addMember(socket);
+          room.startPlay();
+          socket.send(
+            JSON.stringify({
+              message: "changeText",
+              selector:
+                "#main-content__custom-singleplayer-intermission-screen-container__errors",
+              value: ""
+            })
+          );
+          socket.send(
+            JSON.stringify({
+              message: "changeScreen",
+              newScreen: "canvas"
+            })
+          );
+          break;
+        }
+        default: {
+          log.warn(`Unknown singleplayer game mode: ${parsedMessage.modifier}`);
+          break;
+        }
+      }
+      break;
+    }
+    default: {
+      log.warn(`Unknown game mode: ${parsedMessage.mode}`);
+      break;
+    }
+  }
+}
+
+// get configuration
+const configurationLocation = path.join(
+  __dirname,
+  "..",
+  "mathematical-base-defenders-server-configuration.json"
+);
+const CONFIGURATION = JSON.parse(
+  fs.readFileSync(configurationLocation, "utf-8")
+);
+/**
+ * Use testing values (e.g. fixed numbers) if BOTH
+ * process.env.NODE_ENV is NOT production and flag
+ * in configuration file is turned on.
+ */
+const USE_TESTING_VALUES =
+  process.env.NODE_ENV !== "production" &&
+  CONFIGURATION.useTestingStatesIfDevelopmentEnvironment;
+
 export {
   GameSocket,
   sockets,
@@ -357,5 +513,10 @@ export {
   sendGlobalToastNotification,
   forceDeleteAndCloseSocket,
   sendGlobalWebSocketMessage,
-  checkIfSocketIsPlaying
+  checkIfSocketIsPlaying,
+  initializeSocket,
+  sendInitialSocketData,
+  sendToastMessageToSocket,
+  startGameForSocket,
+  USE_TESTING_VALUES
 };

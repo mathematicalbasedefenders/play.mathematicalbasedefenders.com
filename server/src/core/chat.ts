@@ -8,12 +8,12 @@ const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
 //
-const badMessageObject = {
+const BAD_MESSAGE_OBJECT = {
   message: "changeText",
   selector: "#chat-tray-error",
   value: "Message not sent: Bad chat validation."
 };
-const clearBadMessageObject = {
+const CLEAR_BAD_MESSAGE_OBJECT = {
   message: "changeText",
   selector: "#chat-tray-error",
   value: ""
@@ -24,7 +24,7 @@ const clearBadMessageObject = {
  * @param {string} message the message
  * @param {universal.GameSocket} socket the socket of the message sender.
  */
-function attemptToSendChatMessage(
+function sendChatMessage(
   scope: string,
   message: string,
   socket: universal.GameSocket
@@ -58,7 +58,7 @@ function attemptToSendChatMessage(
         return;
       }
       const room = findRoomWithConnectionID(connectionID, true) as Room;
-      room.addChatMessage(message, playerName || "");
+      room.addChatMessage(message, socket);
       log.info(
         `Socket ID ${connectionID} (${playerName}) sent message ${message} to Room ID ${room.id}`
       );
@@ -67,7 +67,7 @@ function attemptToSendChatMessage(
     case "global": {
       if (!validateMessage(message, connectionID)) {
         log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
-        socket.send(JSON.stringify(badMessageObject));
+        socket.send(JSON.stringify(BAD_MESSAGE_OBJECT));
         return;
       }
       const messageObject = createGlobalMessageObject(
@@ -77,7 +77,7 @@ function attemptToSendChatMessage(
       );
       socket.publish("game", JSON.stringify(messageObject));
       socket.send(JSON.stringify(messageObject));
-      socket.send(JSON.stringify(clearBadMessageObject));
+      socket.send(JSON.stringify(CLEAR_BAD_MESSAGE_OBJECT));
       log.info(
         `Socket ID ${connectionID} (${playerName}) sent message ${message} to global chat.`
       );
@@ -113,20 +113,33 @@ function validateMessage(message: string, connectionID: string) {
   return true;
 }
 
+/**
+ * Creates a global message object (for global chat).
+ * @param {string} message The message to send.
+ * @param {string} connectionID The socket connection ID of the sender.
+ * This is used to get the sender's username.
+ * @param {string} senderColor The color of the sender's name.
+ * Usually the same as the rank name color of the sender.
+ * @param {string|null} attribute The attribute of the message.
+ * @returns The message object
+ */
 function createGlobalMessageObject(
   message: string,
   connectionID: string,
   senderColor: string | undefined,
   attribute?: string
 ) {
+  const senderSocket = universal.getSocketFromConnectionID(connectionID);
   const playerName = universal.getNameFromConnectionID(connectionID);
+  const userID = senderSocket?.ownerUserID ?? null;
   const toReturn = {
     message: "addChatMessage",
     data: {
       sender: playerName,
       message: {
         sender: playerName,
-        message: message
+        message: message,
+        senderUserID: userID
       },
       attribute: attribute ?? "",
       location: "#chat-tray-message-container",
@@ -135,4 +148,4 @@ function createGlobalMessageObject(
   };
   return toReturn;
 }
-export { attemptToSendChatMessage };
+export { sendChatMessage };

@@ -1,13 +1,13 @@
 import _ from "lodash";
 import { variables } from ".";
-import { PopupNotification } from "./notifications";
+import { PopupNotification } from "./popup-notification";
 
 // Globals
 const settingsSecondaryScreenOrder: { [key: string]: Array<string> } = {
   "online": [
-    "#settings-screen__content--online__username",
-    "#settings-screen__content--online__password",
-    "#settings-screen__content--online__submit"
+    //   "#settings-screen__content--online__username",
+    //   "#settings-screen__content--online__password",
+    //   "#settings-screen__content--online__submit"
   ],
   "video": [
     "#settings-multiplication-sign__times",
@@ -126,16 +126,30 @@ function getArrowKeyDirections() {
     },
     "multiplayerIntermission": {
       destinations: {
+        "#multiplayer-screen__sidebar-item--back": {
+          "ArrowDown": "#chat-message"
+        },
         "#chat-message": {
-          "ArrowRight": "#message-send-button"
+          "ArrowUp": "#multiplayer-screen__sidebar-item--back",
+          "ArrowRight": "#message-send-button",
+          "ArrowDown":
+            "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list"
         },
         "#message-send-button": {
-          "ArrowLeft": "#chat-message"
-        }
+          "ArrowUp": "#multiplayer-screen__sidebar-item--back",
+          "ArrowLeft": "#chat-message",
+          "ArrowDown":
+            "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list"
+        },
+        "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list":
+          {
+            "ArrowUp": "#chat-message"
+          }
       },
       defaultFocused: "#chat-message"
     },
     "globalChatTray": getGlobalChatTrayDirections(),
+    "openingScreen": getOpeningScreenDirections(),
     "canvas": null
   };
   return directions;
@@ -261,6 +275,23 @@ function getGlobalChatTrayDirections() {
   return result;
 }
 
+function getOpeningScreenDirections() {
+  const elements = [
+    "#authentication-modal__username",
+    "#authentication-modal__password",
+    "#settings-screen__content--online__submit",
+    "#opening-screen__register",
+    "#opening-screen__play-as-guest"
+  ];
+  const result = _.merge(
+    { destinations: constructUpDownKeyDirections(elements) },
+    {
+      defaultFocused: "#authentication-modal__username"
+    }
+  );
+  return result;
+}
+
 /**
  * Utility function which constructs a object for easy `ArrowUp/ArrowDown` navigation.
  * @param {Array<string>} ids The ids of each element in order.
@@ -362,9 +393,13 @@ function navigateFocus(event: KeyboardEvent) {
   if ($(element).is("input[type=radio]") && keyPressed === "ArrowRight") {
     event.preventDefault();
   }
-  if (PopupNotification.activeNotifications > 0) {
-    // DESTRUCTIVE OVERWRITES
+  // DESTRUCTIVE OVERWRITES
+  if (
+    PopupNotification.activeNotifications > 0 &&
+    variables.exitedOpeningScreen
+  ) {
     // overwrite: if there is a popup notification active, give it priority.
+    // but only if the opening screen isn't gone.
     // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.
     // currently, later notifications are given priority when dealing with arrow keys.
     event.preventDefault();
