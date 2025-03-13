@@ -952,9 +952,8 @@ function createSingleplayerRoom(
   caller: universal.GameSocket,
   gameMode: GameMode,
   settings?: { [key: string]: string }
-) {
-  let room = new SingleplayerRoom(caller, gameMode, settings);
-
+): SingleplayerRoom {
+  const room = new SingleplayerRoom(caller, gameMode, settings);
   universal.rooms.push(room);
   return room;
 }
