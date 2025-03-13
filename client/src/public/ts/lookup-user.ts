@@ -102,7 +102,8 @@ function getURLToFetch(userID: string) {
   //   return `http://play.mathematicalbasedefenders:4000/api/users/${userID}`;
   // }
   const location = window.location;
-  const host = `${location.protocol}//${location.hostname}:4000/api/users/${userID}`;
+  const port = location.protocol === "http:" ? ":4000" : "";
+  const host = `${location.protocol}//${location.hostname}${port}/api/users/${userID}`;
   return host;
 }
 
