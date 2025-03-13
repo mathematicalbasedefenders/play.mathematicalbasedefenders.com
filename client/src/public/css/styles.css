@@ -600,15 +600,6 @@ input[type="radio"] {
   justify-content: end;
 }
 
-/* #main-content__multiplayer-intermission-screen-container__player-list {
-  border: 2px solid #ffffff;
-  padding: 4px;
-  width: 95%;
-  display: block;
-  height: 120px;
-  overflow: auto;
-} */
-
 #main-content__multiplayer-intermission-screen-container__chat {
   border: 2px solid #ffffff;
   /* padding: 4px; */
