@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import { showUserLookupPopUp } from "./lookup-user";
+import { ToastNotification } from "./toast-notification";
 
 interface GlobalChatMessage {
   name?: string;
@@ -137,7 +138,17 @@ function createDefaultChatMessage(data: GlobalChatMessage, nameColor?: string) {
 
   if (data.senderUserID) {
     nameElement.on("click", function () {
-      showUserLookupPopUp(data.senderUserID);
+      try {
+        showUserLookupPopUp(data.senderUserID);
+      } catch (error) {
+        console.error("Failed to show user lookup:", error);
+        const options = { backgroundColor: "#ff0000" };
+        const toast = new ToastNotification(
+          `Failed to show user lookup: ${error}`,
+          options
+        );
+        toast.render();
+      }
     });
     nameElement.css("text-decoration", "underline");
     nameElement.css("cursor", "pointer");
