@@ -142,7 +142,7 @@ function createDefaultChatMessage(data: GlobalChatMessage, nameColor?: string) {
         showUserLookupPopUp(data.senderUserID);
       } catch (error) {
         console.error("Failed to show user lookup:", error);
-        const options = { backgroundColor: "#ff0000" };
+        const options = { borderColor: "#ff0000" };
         const toast = new ToastNotification(
           `Failed to show user lookup: ${error}`,
           options
