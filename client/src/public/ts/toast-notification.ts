@@ -13,7 +13,7 @@ enum ToastNotificationPosition {
 
 class ToastNotification {
   static notifications: Array<ToastNotification> = [];
-  static nextID: number = 1;
+  static nextID = 1;
 
   text: string;
   age: number;
