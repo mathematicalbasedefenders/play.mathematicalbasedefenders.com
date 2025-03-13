@@ -1,3 +1,5 @@
+import DOMPurify from "dompurify";
+
 enum PopupNotificationButtonStyle {
   SINGLE = 1,
   DOUBLE_SELECT = 2
@@ -70,7 +72,7 @@ class PopupNotification {
     // the text
     const text = $("<div></div>");
     text.addClass("popup-notification__context");
-    text.html(this.text);
+    text.html(DOMPurify.sanitize(this.text));
     // the buttons
     const buttons = $("<div></div>");
     const buttonHTML = this.createButtonsHTML();
