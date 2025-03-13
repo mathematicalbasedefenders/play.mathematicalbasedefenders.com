@@ -79,10 +79,10 @@ async function initializePIXIApp() {
   app.ticker.add((deltaTime) => {
     render(app.ticker.elapsedMS);
   });
-  for (let item in stageItems.sprites) {
+  for (const item in stageItems.sprites) {
     playerContainer.addChild(stageItems.sprites[item]);
   }
-  for (let item in stageItems.textSprites) {
+  for (const item in stageItems.textSprites) {
     playerContainer.addChild(stageItems.textSprites[item]);
   }
 }
