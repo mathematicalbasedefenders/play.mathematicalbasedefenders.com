@@ -662,7 +662,6 @@ input[type="radio"] {
 .main-content__multiplayer-intermission-screen-container__status-indicator:nth-of-type(
     2
   ) {
-  /* hacked in */
   border-top: 2px solid #ffffff;
 }
 
