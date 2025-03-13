@@ -141,7 +141,11 @@ function createNewEnemy(id: string, attributes?: EnemyAttributes) {
   let generatedValue: number = Math.round(Math.random() * 200 - 100);
   // if testing mode is used, then ignore generated value and use set value
   if (USE_TESTING_VALUES) {
-    generatedValue = TESTING_VALUES.forcedEnemyValue;
+    if (TESTING_VALUES && typeof TESTING_VALUES.forcedEnemyValue === "number") {
+      generatedValue = TESTING_VALUES.forcedEnemyValue;
+    } else {
+      console.warn("Testing value faulty, using original value instead.");
+    }
   }
   let enemy: Enemy = new Enemy(
     generatedValue,
