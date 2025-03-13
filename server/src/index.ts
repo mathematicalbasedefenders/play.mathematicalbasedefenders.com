@@ -380,7 +380,7 @@ const loop = setInterval(() => {
 
 function checkBufferSize(buffer: Buffer, socket: universal.GameSocket) {
   // check if buffer big, if so, log it.
-  if (buffer.length <= 1024) {
+  if (buffer.length >= 1024) {
     log.warn(`Buffer length of size ${buffer.length} sent to server.`);
   }
   // check if buffer too big, if so, alert socket and instantly disconnect.
