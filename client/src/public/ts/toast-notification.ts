@@ -125,7 +125,7 @@ class ToastNotification {
       return;
     }
 
-    for (let toast of ToastNotification.notifications) {
+    for (const toast of ToastNotification.notifications) {
       if (toast.position !== this.position) {
         continue;
       }
