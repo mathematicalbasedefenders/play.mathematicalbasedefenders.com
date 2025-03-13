@@ -427,7 +427,7 @@ function startGameForSocket(
           break;
         }
         case "custom": {
-          let validationResult = validateCustomGameSettings(
+          const validationResult = validateCustomGameSettings(
             parsedMessage.mode,
             JSON.parse(parsedMessage.settings)
           );
