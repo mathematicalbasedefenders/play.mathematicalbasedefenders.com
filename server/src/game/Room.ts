@@ -136,7 +136,7 @@ class Room {
       senderName: senderName
     });
     // send to all sockets
-    for (let connectionID of this.memberConnectionIDs) {
+    for (const connectionID of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(connectionID);
       if (socket) {
         socket.send(
@@ -411,7 +411,7 @@ class MultiplayerRoom extends Room {
     this.lastUpdateTime = now;
 
     // other global stuff
-    for (let connectionID of this.memberConnectionIDs) {
+    for (const connectionID of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(connectionID);
       if (socket) {
         const rankingPayload = utilities.generateRankingPayload(
@@ -465,7 +465,7 @@ class MultiplayerRoom extends Room {
         if (new Date() >= this.nextGameStartTime) {
           this.startPlay();
           this.playersAtStart = this.memberConnectionIDs.length;
-          for (let connectionID of this.memberConnectionIDs) {
+          for (const connectionID of this.memberConnectionIDs) {
             let socket = universal.getSocketFromConnectionID(connectionID);
             if (socket) {
               socket.send(
@@ -491,7 +491,7 @@ class MultiplayerRoom extends Room {
         }
       }
       // Update Text
-      for (let connectionID of this.memberConnectionIDs) {
+      for (const connectionID of this.memberConnectionIDs) {
         const socket = universal.getSocketFromConnectionID(connectionID);
         if (socket) {
           const selector =
@@ -509,7 +509,7 @@ class MultiplayerRoom extends Room {
       }
     } else {
       // playing
-      for (let connectionID of this.memberConnectionIDs) {
+      for (const connectionID of this.memberConnectionIDs) {
         const socket = universal.getSocketFromConnectionID(connectionID);
         if (socket) {
           const selector =
@@ -758,7 +758,7 @@ class MultiplayerRoom extends Room {
 
   summonEveryoneToIntermission() {
     // TODO: Add spectators once they get implemented
-    for (let connectionID of this.memberConnectionIDs) {
+    for (const connectionID of this.memberConnectionIDs) {
       let socket = universal.getSocketFromConnectionID(connectionID);
       if (typeof socket === "undefined") {
         log.warn(
