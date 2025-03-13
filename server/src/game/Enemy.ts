@@ -139,7 +139,10 @@ function removeEnemyWithIDInGameData(id: string, gameData: GameData) {
 function createNewEnemy(id: string, attributes?: EnemyAttributes) {
   // TODO: Change this algorithm (line below)
   let generatedValue: number = Math.round(Math.random() * 200 - 100);
-  // if testing mode is used, then ignore generated value and use set value
+  /**
+   * If testing mode is used, then ignore generated value and use set value
+   * So the app can behave deterministically.
+   */
   if (USE_TESTING_VALUES) {
     if (TESTING_VALUES && typeof TESTING_VALUES.forcedEnemyValue === "number") {
       generatedValue = TESTING_VALUES.forcedEnemyValue;
