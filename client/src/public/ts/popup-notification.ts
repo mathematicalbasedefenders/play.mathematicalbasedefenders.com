@@ -22,7 +22,6 @@ class PopupNotification {
     this.buttonStyle = buttonStyle || PopupNotificationButtonStyle.SINGLE;
   }
 
-  // TODO: wtf is this
   render() {
     PopupNotification.activeNotifications++;
     PopupNotification.activeNotificationIDs.push(this.id);
