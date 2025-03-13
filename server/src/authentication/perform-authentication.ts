@@ -42,7 +42,7 @@ async function authenticate(
   const userData = await User.safeFindByUsername(socket.ownerUsername);
   utilities.updateSocketUserInformation(socket);
   socket.playerRank = utilities.getRank(userData);
-  const MESSAGE = `Successfully logged in as ${username}`;
+  const MESSAGE = `Successfully logged in as ${sanitizedUsername}`;
   const BORDER_COLOR = "#1fa628";
   universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
 
@@ -55,7 +55,7 @@ async function authenticate(
     JSON.stringify({
       message: "updateUserInformationText",
       data: {
-        username: username,
+        username: sanitizedUsername,
         good: true,
         userData: userData,
         rank: utilities.getRank(userData),
