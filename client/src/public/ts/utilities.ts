@@ -99,10 +99,18 @@ function checkPlayerListCacheEquality(
 
 function createTextStyle(data: Partial<TextStyleOptions>) {
   if (!data || typeof data !== "object") {
-    console.error("Invalid data provided to createTextStyle");
-    new ToastNotification("Invalid data provided to createTextStyle", {
+    const options = {
       borderColor: "#ff0000"
-    });
+    };
+    console.error(
+      "Invalid data provided to createTextStyle, using fallback empty TextStyle"
+    );
+    new ToastNotification(
+      "Invalid data provided to createTextStyle, using fallback empty TextStyle",
+      options
+    );
+    // Return default style instead of using invalid data
+    return new TextStyle({});
   }
   return new TextStyle(data);
 }
