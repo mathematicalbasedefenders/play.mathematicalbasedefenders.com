@@ -101,6 +101,7 @@ class Opponent {
       let enemyToDelete = this.enemies[`enemy${enemyID}`];
       if (enemyToDelete) {
         this.container.removeChild(enemyToDelete);
+        delete this.enemies[`enemy${enemyID}`];
       }
     }
   }
