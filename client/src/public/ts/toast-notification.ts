@@ -20,9 +20,9 @@ class ToastNotification {
   position: ToastNotificationPosition;
   id: number;
   lifespan: number;
-  foregroundColor!: string | null;
-  backgroundColor!: string | null;
-  borderColor!: string | null;
+  foregroundColor: string | null;
+  backgroundColor: string | null;
+  borderColor: string | null;
 
   /**
    * Creates a new toast notification. (copied from coderabbitai suggestion)
