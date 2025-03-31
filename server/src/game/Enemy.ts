@@ -3,8 +3,7 @@ import { log } from "../core/log";
 import {
   GameData,
   SingleplayerGameData,
-  MultiplayerGameData,
-  ActionRecord
+  MultiplayerGameData
 } from "./GameData";
 import { USE_TESTING_VALUES } from "../universal";
 import { TESTING_VALUES } from "../testing-configuration/values";
@@ -109,7 +108,7 @@ class Enemy {
       gameData.combo += 1;
       gameData.clocks.comboReset.currentTime = 0;
     }
-    gameData.addAction(constructEnemyKillRecord(this));
+    // gameData.addAction(constructEnemyKillRecord(this));
     removeEnemyWithIDInGameData(this.id, gameData);
   }
 
@@ -235,17 +234,6 @@ function getFactorsOf(number: number): Array<number> {
     }
   }
   return factors;
-}
-
-function constructEnemyKillRecord(enemy: Enemy) {
-  const record: ActionRecord = {
-    action: "enemyKill",
-    timestamp: Date.now(),
-    data: {
-      sPositionOnKill: enemy.sPosition
-    }
-  };
-  return record;
 }
 
 export { createNewEnemy, createNewReceivedEnemy, Enemy, EnemyAttributes };
