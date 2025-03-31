@@ -64,4 +64,13 @@ interface ActionRecord {
   data: { [key: string]: any };
 }
 
-export { GameActionRecord, Action, ActionRecord };
+function getUserDataFromSocket(socket: GameSocket) {
+  return {
+    userID: socket.loggedIn ? socket.ownerUserID : null,
+    name: socket.loggedIn ? socket.ownerUsername : socket.ownerGuestName,
+    isAuthenticated: socket.loggedIn,
+    connectionID: socket.connectionID
+  };
+}
+
+export { GameActionRecord, Action, ActionRecord, getUserDataFromSocket };
