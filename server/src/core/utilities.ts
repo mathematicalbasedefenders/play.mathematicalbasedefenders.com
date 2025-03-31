@@ -455,6 +455,21 @@ function generatePlayerListPayload(connectionIDs: string[]) {
   });
 }
 
+/**
+ * Use this for replays.
+ * TODO: Expand
+ * @param socket The socket.
+ * @returns The parsed data.
+ */
+function getUserDataFromSocket(socket: universal.GameSocket) {
+  return {
+    userID: socket.loggedIn ? socket.ownerUserID : null,
+    name: socket.loggedIn ? socket.ownerUsername : socket.ownerGuestName,
+    isAuthenticated: socket.loggedIn,
+    connectionID: socket.connectionID
+  };
+}
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
