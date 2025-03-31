@@ -50,17 +50,18 @@ class GameActionRecord {
   }
 
   addAction(action: ActionRecord) {
-    this.actionRecords.push();
+    this.actionRecords.push(action);
   }
 }
 
+// TODO: remove or `undefined`s
 interface ActionRecord {
   scope: "room" | "player";
   user?: {
-    userID: string | null;
-    name: string;
-    isAuthenticated: boolean;
-    connectionID: string;
+    userID: string | null | undefined;
+    name: string | undefined;
+    isAuthenticated: boolean | undefined;
+    connectionID: string | undefined;
     socket?: GameSocket;
   };
   action: Action;
