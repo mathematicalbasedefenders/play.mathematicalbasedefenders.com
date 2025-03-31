@@ -6,13 +6,13 @@ import {
   processKeypressForRoom
 } from "../game/Room";
 import {
-  ActionRecord,
   GameData,
   GameMode,
   MultiplayerGameData,
   SingleplayerGameData
 } from "../game/GameData";
-import { findRoomWithConnectionID } from "./utilities";
+import { findRoomWithConnectionID, getUserDataFromSocket } from "./utilities";
+import { Action } from "../replay/recording/ActionRecord";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -110,6 +110,21 @@ function processKeypress(
     log.warn("A keypress event that isn't a string has been fired.");
     return;
   }
+  // room
+  const room = findRoomWithConnectionID(connectionID, false);
+  if (room) {
+    room.gameActionRecord.addAction({
+      scope: "player",
+      action: Action.Keypress,
+      timestamp: Date.now(),
+      user: getUserDataFromSocket(socket),
+      data: {
+        code: code,
+        emulated: emulated ?? false
+      }
+    });
+  }
+
   processKeypressForRoom(connectionID, code, emulated);
   // non-room interactions
   if (code === "Escape") {
@@ -138,8 +153,6 @@ function processInputInformation(
   gameDataToProcess: GameData,
   emulated?: boolean
 ) {
-  // add action to record
-  gameDataToProcess.addAction(constructInputRecord(inputInformation, emulated));
   // also increment actionsPerformed
   gameDataToProcess.actionsPerformed++;
   switch (inputInformation.action) {
@@ -249,21 +262,6 @@ function getInputInformation(code: string) {
     action: InputAction.Unknown,
     argument: "" // no need
   };
-}
-
-function constructInputRecord(
-  inputRecord: InputActionInterface,
-  emulated?: boolean
-) {
-  const record: ActionRecord = {
-    action: "keypress",
-    timestamp: Date.now(),
-    data: {
-      keyCode: inputRecord.keyPressed?.toString(),
-      emulated: emulated ?? false
-    }
-  };
-  return record;
 }
 
 export {
