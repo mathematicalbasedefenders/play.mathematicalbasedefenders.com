@@ -21,7 +21,7 @@ enum Action {
   GameOver = "gameOver"
 }
 
-class GameActionLog {
+class GameActionRecord {
   actionRecords: Array<ActionRecord>;
   version: number;
   constructor() {
@@ -55,10 +55,11 @@ interface ActionRecord {
     userID: string | null;
     name: string;
     isAuthenticated: boolean;
+    socket: GameSocket;
   };
   action: Action;
   timestamp: number;
   data: { [key: string]: any };
 }
 
-export { GameActionLog, Action, ActionRecord };
+export { GameActionRecord, Action, ActionRecord };
