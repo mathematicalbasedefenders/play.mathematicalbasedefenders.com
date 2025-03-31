@@ -2,7 +2,7 @@ import { GameSocket } from "../../universal";
 
 enum Action {
   /** Direct by player */
-  Input = "input",
+  Keypress = "keypress",
   Submission = "submission",
 
   /** Indirect by player */
