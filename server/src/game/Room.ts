@@ -290,6 +290,7 @@ class SingleplayerRoom extends Room {
       }
     }
     this.updating = true;
+    this.gameActionRecord.initialize();
     log.info(`Room ${this.id} has started play!`);
   }
 
