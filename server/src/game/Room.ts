@@ -407,6 +407,7 @@ class MultiplayerRoom extends Room {
     this.ranking = [];
     this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
     this.playing = true;
+    this.gameActionRecord.initialize();
     log.info(`Room ${this.id} has started play!`);
   }
 
