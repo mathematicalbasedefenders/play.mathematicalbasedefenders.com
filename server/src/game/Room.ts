@@ -7,6 +7,7 @@ import * as input from "../core/input";
 import { addToStatistics, submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
 import {
+  convertGameSettingsToReplayActions,
   findRoomWithConnectionID,
   getUserDataFromSocket,
   sleep
@@ -311,6 +312,21 @@ class SingleplayerRoom extends Room {
         }
       }
     }
+
+    // add game settings
+    const gameSettings = convertGameSettingsToReplayActions(this.gameData[0]);
+    for (const setting in gameSettings) {
+      this.gameActionRecord.addAction({
+        scope: "room",
+        action: Action.SetGameData,
+        timestamp: Date.now(),
+        data: {
+          key: setting,
+          value: gameSettings[setting]
+        }
+      });
+    }
+
     this.updating = true;
 
     this.gameActionRecord.initialize();
@@ -437,6 +453,20 @@ class MultiplayerRoom extends Room {
         });
       }
     }
+    // FIXME: may not be the same
+    const gameSettings = convertGameSettingsToReplayActions(this.gameData[0]);
+    for (const setting in gameSettings) {
+      this.gameActionRecord.addAction({
+        scope: "room",
+        action: Action.SetGameData,
+        timestamp: Date.now(),
+        data: {
+          key: setting,
+          value: gameSettings[setting]
+        }
+      });
+    }
+
     this.ranking = [];
     this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
     this.playing = true;
