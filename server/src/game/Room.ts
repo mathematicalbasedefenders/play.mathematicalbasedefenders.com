@@ -426,6 +426,15 @@ class MultiplayerRoom extends Room {
       const socket = universal.getSocketFromConnectionID(member);
       if (socket) {
         this.gameData.push(new MultiplayerGameData(socket, this.mode));
+        // add add user to record
+        this.gameActionRecord.addAction({
+          scope: "room",
+          action: Action.AddUser,
+          timestamp: Date.now(),
+          data: {
+            playerAdded: getUserDataFromSocket(socket)
+          }
+        });
       }
     }
     this.ranking = [];
