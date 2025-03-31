@@ -510,5 +510,6 @@ export {
   checkWebSocketMessageSpeeds,
   calculateAPM,
   formatNumber,
-  getUserDataFromSocket
+  getUserDataFromSocket,
+  convertGameSettingsToReplayActions
 };
