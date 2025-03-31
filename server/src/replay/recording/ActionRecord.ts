@@ -19,7 +19,8 @@ enum Action {
   /** "Meta" events */
   GameStart = "gameStart",
   GameOver = "gameOver",
-  AddUser = "addUser"
+  AddUser = "addUser",
+  SetGameSetting = "setGameSetting"
 }
 
 class GameActionRecord {
