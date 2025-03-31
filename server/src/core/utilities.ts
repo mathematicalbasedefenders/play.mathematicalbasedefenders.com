@@ -490,5 +490,6 @@ export {
   getWebSocketMessageSpeed,
   checkWebSocketMessageSpeeds,
   calculateAPM,
-  formatNumber
+  formatNumber,
+  getUserDataFromSocket
 };
