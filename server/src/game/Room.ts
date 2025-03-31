@@ -33,7 +33,11 @@ import {
 import { createGameOverScreenText } from "./actions/create-text";
 import { performAnticheatCheck } from "../anticheat/anticheat";
 import { createNewEnemy } from "./Enemy";
-import { GameActionRecord } from "../replay/recording/ActionRecord";
+import {
+  Action,
+  GameActionRecord,
+  getUserDataFromSocket
+} from "../replay/recording/ActionRecord";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -273,6 +277,15 @@ class SingleplayerRoom extends Room {
         const socket = getSocketFromConnectionID(member);
         if (socket) {
           this.gameData.push(new SingleplayerGameData(socket, this.mode));
+          // add add user to record
+          this.gameActionRecord.addAction({
+            scope: "room",
+            action: Action.AddUser,
+            timestamp: Date.now(),
+            data: {
+              playerAdded: getUserDataFromSocket(socket)
+            }
+          });
         }
       }
     } else if (this.mode === GameMode.CustomSingleplayer) {
@@ -286,11 +299,22 @@ class SingleplayerRoom extends Room {
               this.customSettings
             )
           );
+          // add add user to record
+          this.gameActionRecord.addAction({
+            scope: "room",
+            action: Action.AddUser,
+            timestamp: Date.now(),
+            data: {
+              playerAdded: getUserDataFromSocket(socket)
+            }
+          });
         }
       }
     }
     this.updating = true;
+
     this.gameActionRecord.initialize();
+
     log.info(`Room ${this.id} has started play!`);
   }
 
