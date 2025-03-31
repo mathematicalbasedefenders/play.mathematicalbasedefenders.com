@@ -33,6 +33,7 @@ import {
 import { createGameOverScreenText } from "./actions/create-text";
 import { performAnticheatCheck } from "../anticheat/anticheat";
 import { createNewEnemy } from "./Enemy";
+import { GameActionRecord } from "../replay/recording/ActionRecord";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -63,6 +64,9 @@ class Room {
   // custom room exclusive
   customSettings!: CustomGameSettings;
 
+  // new update 2025-03-31
+  gameActionRecord: GameActionRecord;
+
   /**
    * Creates a `Room` instance. This shouldn't be called directly.
    * Instead it should be called from a `super()` call from either
@@ -88,6 +92,8 @@ class Room {
     }
     this.connectionIDsThisRound = [];
     this.lastUpdateTime = Date.now();
+
+    this.gameActionRecord = new GameActionRecord();
 
     // special for default multiplayer
     // check if default multiplayer room already exists
