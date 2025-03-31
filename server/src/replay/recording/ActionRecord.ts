@@ -20,7 +20,7 @@ enum Action {
   GameStart = "gameStart",
   GameOver = "gameOver",
   AddUser = "addUser",
-  SetGameSetting = "setGameSetting"
+  SetGameData = "setGameData"
 }
 
 class GameActionRecord {
