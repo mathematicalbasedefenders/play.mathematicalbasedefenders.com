@@ -25,9 +25,12 @@ enum Action {
 
 class GameActionRecord {
   actionRecords: Array<ActionRecord>;
-  version: number;
+  replayVersion: number;
+  gameVersion: string;
   constructor() {
-    this.version = 1;
+    this.replayVersion = 1;
+    // TODO: temp
+    this.gameVersion = "0.5.0";
     this.actionRecords = [];
     this.initialize();
   }
