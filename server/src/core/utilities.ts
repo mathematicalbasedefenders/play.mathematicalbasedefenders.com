@@ -458,6 +458,7 @@ function generatePlayerListPayload(connectionIDs: string[]) {
 /**
  * Use this for replays.
  * TODO: Expand
+ * TODO: Change function name
  * @param socket The socket.
  * @returns The parsed data.
  */
@@ -469,6 +470,24 @@ function getUserDataFromSocket(socket: universal.GameSocket) {
     connectionID: socket.connectionID
   };
 }
+
+function convertGameSettingsToReplayActions(data: GameData) {
+  const result: { [key: string]: any } = {};
+  const keys = keyify(GameData);
+  for (const key of keys) {
+    result[key] = _.get(data, key);
+  }
+  return result;
+}
+
+// from: https://stackoverflow.com/a/47063174
+const keyify = (obj: any, prefix = ""): any =>
+  Object.keys(obj).reduce((res: any, el: any) => {
+    if (typeof obj[el] === "object" && obj[el] !== null) {
+      return [...res, ...keyify(obj[el], prefix + el + ".")];
+    }
+    return [...res, prefix + el];
+  }, []);
 
 export {
   checkIfPropertyWithValueExists,
