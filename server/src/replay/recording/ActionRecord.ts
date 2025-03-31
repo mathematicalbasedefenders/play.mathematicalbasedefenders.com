@@ -56,6 +56,7 @@ interface ActionRecord {
     userID: string | null;
     name: string;
     isAuthenticated: boolean;
+    connectionID: string;
     socket?: GameSocket;
   };
   action: Action;
