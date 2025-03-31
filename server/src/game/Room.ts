@@ -6,7 +6,11 @@ import { log } from "../core/log";
 import * as input from "../core/input";
 import { addToStatistics, submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
-import { findRoomWithConnectionID, sleep } from "../core/utilities";
+import {
+  findRoomWithConnectionID,
+  getUserDataFromSocket,
+  sleep
+} from "../core/utilities";
 import { User } from "../models/User";
 import {
   getSocketFromConnectionID,
@@ -33,11 +37,7 @@ import {
 import { createGameOverScreenText } from "./actions/create-text";
 import { performAnticheatCheck } from "../anticheat/anticheat";
 import { createNewEnemy } from "./Enemy";
-import {
-  Action,
-  GameActionRecord,
-  getUserDataFromSocket
-} from "../replay/recording/ActionRecord";
+import { Action, GameActionRecord } from "../replay/recording/ActionRecord";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
