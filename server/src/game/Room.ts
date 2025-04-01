@@ -367,6 +367,13 @@ class SingleplayerRoom extends Room {
     // check anticheat and submit score
     if (socket) {
       if (true) {
+        // FIXME: remove this on production
+        log.debug(JSON.stringify(this.gameActionRecord.actionRecords));
+        log.debug(
+          `Length: ${
+            JSON.stringify(this.gameActionRecord.actionRecords).length
+          }`
+        );
         submitSingleplayerGame(data, socket);
       } else {
         log.warn("Anticheat may have detected cheating.");
