@@ -88,6 +88,18 @@ class GameActionRecord {
     });
   }
 
+  addEnemyReachedBaseAction(enemy: Enemy, data: GameData) {
+    this.addAction({
+      action: Action.EnemyKill,
+      scope: "player",
+      user: getUserDataFromSocket(data.owner),
+      timestamp: Date.now(),
+      data: {
+        enemyID: enemy.id
+      }
+    });
+  }
+
   addSetGameDataAction(
     data: GameData,
     scope: "room" | "player",
