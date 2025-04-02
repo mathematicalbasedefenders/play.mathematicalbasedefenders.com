@@ -45,6 +45,7 @@ class GameActionRecord {
    * Should be called when a game starts.
    */
   initialize() {
+    this.empty();
     const startActionRecord: ActionRecord = {
       scope: "room",
       action: Action.GameStart,
@@ -139,6 +140,10 @@ class GameActionRecord {
       timestamp: Date.now(),
       data: {}
     });
+  }
+
+  empty() {
+    this.actionRecords = [];
   }
 }
 
