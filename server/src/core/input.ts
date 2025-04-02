@@ -13,6 +13,7 @@ import {
 } from "../game/GameData";
 import { findRoomWithConnectionID, getUserDataFromSocket } from "./utilities";
 import { Action } from "../replay/recording/ActionRecord";
+import _ from "lodash";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -192,6 +193,25 @@ function processInputInformation(
             gameDataToProcess.enemiesToNextLevel -= 1;
             if (gameDataToProcess.enemiesToNextLevel <= 0) {
               gameDataToProcess.increaseLevel(1);
+
+              // update replay data
+              const keys = [
+                "clocks.enemySpawn.actionTime",
+                "enemySpeedCoefficient",
+                "baseHealthRegeneration",
+                "level"
+              ];
+
+              if (room) {
+                for (const key of keys) {
+                  room.gameActionRecord.addSetGameDataAction(
+                    gameDataToProcess,
+                    "player",
+                    key,
+                    _.get(gameDataToProcess, key)
+                  );
+                }
+              }
             }
           }
           enemy.kill(gameDataToProcess, true, true);
