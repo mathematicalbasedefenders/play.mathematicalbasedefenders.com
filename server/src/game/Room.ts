@@ -645,6 +645,7 @@ class MultiplayerRoom extends Room {
         // forced enemy (when zero)
         if (data.enemies.length === 0) {
           const enemy = createNewEnemy(`F${data.enemiesSpawned}`);
+          this.gameActionRecord.addEnemySpawnAction(enemy, data);
           data.enemies.push(_.clone(enemy));
           data.enemiesSpawned++;
         }
@@ -653,6 +654,10 @@ class MultiplayerRoom extends Room {
         if (this.globalEnemyToAdd) {
           data.enemiesSpawned++;
           data.enemies.push(_.clone(this.globalEnemyToAdd as enemy.Enemy));
+          this.gameActionRecord.addEnemySpawnAction(
+            this.globalEnemyToAdd,
+            data
+          );
         }
 
         // received enemy
@@ -662,9 +667,12 @@ class MultiplayerRoom extends Room {
           const attributes = {
             speed: 0.1 * data.enemySpeedCoefficient
           };
-          data.enemies.push(
-            enemy.createNewReceivedEnemy(`R${data.enemiesSpawned}`, attributes)
+          const receivedEnemy = enemy.createNewReceivedEnemy(
+            `R${data.enemiesSpawned}`,
+            attributes
           );
+          data.enemies.push(_.clone(receivedEnemy));
+          this.gameActionRecord.addEnemySpawnAction(receivedEnemy, data);
         }
 
         if (data.enemiesSentStock > 0) {

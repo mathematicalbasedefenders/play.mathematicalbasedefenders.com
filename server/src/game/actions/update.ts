@@ -6,6 +6,7 @@ import { checkSingleplayerRoomClocks } from "./clocks";
 import { GameData } from "../GameData";
 import { createNewEnemy } from "../Enemy";
 import { log } from "../../core/log";
+import { Action } from "../../replay/recording/ActionRecord";
 
 function updateSingleplayerRoomData(room: SingleplayerRoom, deltaTime: number) {
   if (deltaTime < 0) {
@@ -75,8 +76,11 @@ function checkForceSpawnEnemyCondition(data: GameData, room: SingleplayerRoom) {
   }
 
   const enemy = createNewEnemy(`F${room.updateNumber}`);
+  room.gameActionRecord.addEnemySpawnAction(enemy, data);
+
   data.enemies.push(_.clone(enemy));
   data.enemiesSpawned++;
+
   return true;
 }
 

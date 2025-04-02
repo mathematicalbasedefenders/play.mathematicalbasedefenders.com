@@ -68,6 +68,7 @@ function checkEnemyTimeClocks(data: GameData, room: Room) {
   if (forcedEnemySpawnClock.currentTime >= forcedEnemySpawnClock.actionTime) {
     // forcibly spawn enemy
     data.enemies.push(_.clone(enemyToAdd));
+    room.gameActionRecord.addEnemySpawnAction(enemyToAdd, data);
     forcedSpawned = true;
     // reset time
     forcedEnemySpawnClock.currentTime = 0;
@@ -79,6 +80,7 @@ function checkEnemyTimeClocks(data: GameData, room: Room) {
     const roll = Math.random();
     if (roll < data.enemySpawnThreshold && !forcedSpawned) {
       data.enemies.push(_.clone(enemyToAdd));
+      room.gameActionRecord.addEnemySpawnAction(enemyToAdd, data);
       data.enemiesSpawned++;
     }
     enemySpawnClock.currentTime -= enemySpawnClock.actionTime;
