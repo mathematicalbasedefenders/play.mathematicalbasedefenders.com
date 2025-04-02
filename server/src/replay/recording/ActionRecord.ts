@@ -22,6 +22,7 @@ enum Action {
   /** "Meta" events */
   GameStart = "gameStart",
   GameOver = "gameOver",
+  Elimination = "elimination",
   AddUser = "addUser",
   SetGameData = "setGameData"
 }
