@@ -12,6 +12,7 @@ enum Action {
   EnemyKill = "enemyKill",
   EnemySend = "enemySend",
   StockCancel = "stockCancel",
+  StockAdd = "stockAdd",
   StockRelease = "stockRelease",
 
   /** Events from server */
@@ -81,6 +82,43 @@ class GameActionRecord {
       data: {
         enemyID: enemy.id
       }
+    });
+  }
+
+  /* For multiplayer */
+  addStockAddAction(receiverData: GameData, amount: number) {
+    this.addAction({
+      action: Action.StockAdd,
+      scope: "player",
+      user: getUserDataFromSocket(receiverData.owner),
+      timestamp: Date.now(),
+      data: {
+        amount: amount
+      }
+    });
+  }
+
+  /* For multiplayer */
+  addStockCancelAction(receiverData: GameData, amount: number) {
+    this.addAction({
+      action: Action.StockCancel,
+      scope: "player",
+      user: getUserDataFromSocket(receiverData.owner),
+      timestamp: Date.now(),
+      data: {
+        amount: amount
+      }
+    });
+  }
+
+  /* For multiplayer */
+  addStockReleaseAction(releaserData: GameData) {
+    this.addAction({
+      action: Action.StockRelease,
+      scope: "player",
+      user: getUserDataFromSocket(releaserData.owner),
+      timestamp: Date.now(),
+      data: {}
     });
   }
 }
