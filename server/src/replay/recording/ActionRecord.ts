@@ -71,6 +71,18 @@ class GameActionRecord {
       }
     });
   }
+
+  addEnemyKillAction(enemy: Enemy, data: GameData) {
+    this.addAction({
+      action: Action.EnemyKill,
+      scope: "player",
+      user: getUserDataFromSocket(data.owner),
+      timestamp: Date.now(),
+      data: {
+        enemyID: enemy.id
+      }
+    });
+  }
 }
 
 // TODO: remove or `undefined`s
