@@ -1,3 +1,6 @@
+import { getUserDataFromSocket } from "../../core/utilities";
+import { Enemy } from "../../game/Enemy";
+import { GameData } from "../../game/GameData";
 import { GameSocket } from "../../universal";
 
 enum Action {
@@ -51,6 +54,22 @@ class GameActionRecord {
 
   addAction(action: ActionRecord) {
     this.actionRecords.push(action);
+  }
+
+  addEnemySpawnAction(enemy: Enemy, data: GameData) {
+    this.addAction({
+      action: Action.EnemySpawn,
+      scope: "player",
+      user: getUserDataFromSocket(data.owner),
+      timestamp: Date.now(),
+      data: {
+        xPosition: enemy.xPosition,
+        sPosition: enemy.sPosition,
+        speed: enemy.speed,
+        displayedText: enemy.displayedText,
+        id: enemy.id
+      }
+    });
   }
 }
 
