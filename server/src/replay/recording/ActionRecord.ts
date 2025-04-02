@@ -23,6 +23,7 @@ enum Action {
   GameStart = "gameStart",
   GameOver = "gameOver",
   Elimination = "elimination",
+  DeclareWinner = "declareWinner",
   AddUser = "addUser",
   SetGameData = "setGameData"
 }
