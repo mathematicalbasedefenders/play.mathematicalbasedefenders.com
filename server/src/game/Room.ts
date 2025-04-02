@@ -38,7 +38,11 @@ import {
 import { createGameOverScreenText } from "./actions/create-text";
 import { performAnticheatCheck } from "../anticheat/anticheat";
 import { createNewEnemy } from "./Enemy";
-import { Action, GameActionRecord } from "../replay/recording/ActionRecord";
+import {
+  Action,
+  ActionRecord,
+  GameActionRecord
+} from "../replay/recording/ActionRecord";
 const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -649,6 +653,15 @@ class MultiplayerRoom extends Room {
           }
 
           this.eliminateSocketID(data.ownerConnectionID, data);
+          const eliminationActionRecord: ActionRecord = {
+            scope: "room",
+            action: Action.Elimination,
+            timestamp: Date.now(),
+            data: {
+              eliminated: getUserDataFromSocket(data.owner)
+            }
+          };
+          this.gameActionRecord.addAction(eliminationActionRecord);
         }
 
         // clocks
