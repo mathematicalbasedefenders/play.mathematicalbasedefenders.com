@@ -56,9 +56,9 @@ class GameActionRecord {
     this.actionRecords.push(action);
   }
 
-  addEnemySpawnAction(enemy: Enemy, data: GameData) {
+  addEnemySpawnAction(enemy: Enemy, data: GameData, isReceived?: boolean) {
     this.addAction({
-      action: Action.EnemySpawn,
+      action: isReceived ? Action.EnemyReceive : Action.EnemySpawn,
       scope: "player",
       user: getUserDataFromSocket(data.owner),
       timestamp: Date.now(),
