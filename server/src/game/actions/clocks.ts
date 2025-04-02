@@ -4,6 +4,7 @@ import _ from "lodash";
 import { Enemy, createNewEnemy } from "../Enemy";
 import { GameData } from "../GameData";
 import { Room, MultiplayerRoom } from "../Room";
+import { findRoomWithConnectionID } from "../../core/utilities";
 
 /**
  * Check all Singleplayer room clocks.
@@ -110,7 +111,14 @@ function checkBaseHealthRegenerationClock(data: GameData) {
     baseHealthHealClock.currentTime >= baseHealthHealClock.actionTime &&
     data.baseHealth > 0
   ) {
-    addToBaseHealth(data);
+    const baseHealthNow = addToBaseHealth(data);
+    const room = findRoomWithConnectionID(data.owner.connectionID);
+    room?.gameActionRecord.addSetGameDataAction(
+      data,
+      "player",
+      "baseHealth",
+      baseHealthNow
+    );
     baseHealthHealClock.currentTime -= baseHealthHealClock.actionTime;
   }
 }
@@ -120,6 +128,7 @@ function addToBaseHealth(data: GameData) {
     data.baseHealth + data.baseHealthRegeneration,
     data.maximumBaseHealth
   );
+  return data.baseHealth;
 }
 
 export {
