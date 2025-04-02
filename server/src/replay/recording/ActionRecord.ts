@@ -90,7 +90,7 @@ class GameActionRecord {
 
   addEnemyReachedBaseAction(enemy: Enemy, data: GameData) {
     this.addAction({
-      action: Action.EnemyKill,
+      action: Action.EnemyReachedBase,
       scope: "player",
       user: getUserDataFromSocket(data.owner),
       timestamp: Date.now(),
