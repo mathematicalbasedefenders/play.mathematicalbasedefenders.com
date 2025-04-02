@@ -179,6 +179,9 @@ function processInputInformation(
     }
     case InputAction.SendAnswer: {
       let enemyKilled = false;
+      const room = findRoomWithConnectionID(
+        gameDataToProcess.ownerConnectionID
+      );
       for (let enemy of gameDataToProcess.enemies) {
         // TODO: Data validation
         if (enemy.check(parseInt(gameDataToProcess.currentInput))) {
@@ -192,6 +195,9 @@ function processInputInformation(
             }
           }
           enemy.kill(gameDataToProcess, true, true);
+          if (room) {
+            room.gameActionRecord.addEnemyKillAction(enemy, gameDataToProcess);
+          }
         }
       }
       // reset input
