@@ -18,6 +18,7 @@ enum Action {
   /** Events from server */
   EnemyReceive = "enemyReceive",
   EnemySpawn = "enemySpawn",
+  EnemyReachedBase = "enemyReachedBase",
 
   /** "Meta" events */
   GameStart = "gameStart",
