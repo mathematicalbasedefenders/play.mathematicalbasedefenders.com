@@ -18,7 +18,6 @@ enum Action {
   /** Events from server */
   EnemyReceive = "enemyReceive",
   EnemySpawn = "enemySpawn",
-  LevelUp = "levelUp",
 
   /** "Meta" events */
   GameStart = "gameStart",
@@ -82,16 +81,6 @@ class GameActionRecord {
       data: {
         enemyID: enemy.id
       }
-    });
-  }
-
-  addLevelUpAction(data: GameData) {
-    this.addAction({
-      action: Action.LevelUp,
-      scope: "player",
-      user: getUserDataFromSocket(data.owner),
-      timestamp: Date.now(),
-      data: {}
     });
   }
 
