@@ -316,15 +316,21 @@ class SingleplayerRoom extends Room {
     // add game settings
     const gameSettings = convertGameSettingsToReplayActions(this.gameData[0]);
     for (const setting in gameSettings) {
-      this.gameActionRecord.addAction({
-        scope: "room",
-        action: Action.SetGameData,
-        timestamp: Date.now(),
-        data: {
-          key: setting,
-          value: gameSettings[setting]
-        }
-      });
+      // this.gameActionRecord.addAction({
+      //   scope: "room",
+      //   action: Action.SetGameData,
+      //   timestamp: Date.now(),
+      //   data: {
+      //     key: setting,
+      //     value: gameSettings[setting]
+      //   }
+      // });
+      this.gameActionRecord.addSetGameDataAction(
+        this.gameData[0],
+        "player",
+        setting,
+        gameSettings[setting]
+      );
     }
 
     this.updating = true;
@@ -463,15 +469,21 @@ class MultiplayerRoom extends Room {
     // FIXME: may not be the same
     const gameSettings = convertGameSettingsToReplayActions(this.gameData[0]);
     for (const setting in gameSettings) {
-      this.gameActionRecord.addAction({
-        scope: "room",
-        action: Action.SetGameData,
-        timestamp: Date.now(),
-        data: {
-          key: setting,
-          value: gameSettings[setting]
-        }
-      });
+      // this.gameActionRecord.addAction({
+      //   scope: "room",
+      //   action: Action.SetGameData,
+      //   timestamp: Date.now(),
+      //   data: {
+      //     key: setting,
+      //     value: gameSettings[setting]
+      //   }
+      // });
+      this.gameActionRecord.addSetGameDataAction(
+        this.gameData[0],
+        "player",
+        setting,
+        gameSettings[setting]
+      );
     }
 
     this.ranking = [];

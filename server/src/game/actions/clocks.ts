@@ -110,12 +110,16 @@ function checkBaseHealthRegenerationClock(data: GameData) {
     baseHealthHealClock.currentTime >= baseHealthHealClock.actionTime &&
     data.baseHealth > 0
   ) {
-    data.baseHealth = Math.min(
-      data.baseHealth + data.baseHealthRegeneration,
-      data.maximumBaseHealth
-    );
+    addToBaseHealth(data);
     baseHealthHealClock.currentTime -= baseHealthHealClock.actionTime;
   }
+}
+
+function addToBaseHealth(data: GameData) {
+  data.baseHealth = Math.min(
+    data.baseHealth + data.baseHealthRegeneration,
+    data.maximumBaseHealth
+  );
 }
 
 export {
