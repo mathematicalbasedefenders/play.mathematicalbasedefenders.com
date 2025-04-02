@@ -672,7 +672,7 @@ class MultiplayerRoom extends Room {
             attributes
           );
           data.enemies.push(_.clone(receivedEnemy));
-          this.gameActionRecord.addEnemySpawnAction(receivedEnemy, data);
+          this.gameActionRecord.addEnemySpawnAction(receivedEnemy, data, true);
         }
 
         if (data.enemiesSentStock > 0) {
