@@ -473,7 +473,7 @@ function getUserDataFromSocket(socket: universal.GameSocket) {
 
 function convertGameSettingsToReplayActions(data: GameData) {
   const result: { [key: string]: any } = {};
-  const keys = keyify(GameData);
+  const keys = keyify(data);
   for (const key of keys) {
     result[key] = _.get(data, key);
   }
