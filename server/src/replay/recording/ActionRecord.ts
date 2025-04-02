@@ -85,6 +85,16 @@ class GameActionRecord {
     });
   }
 
+  addLevelUpAction(releaserData: GameData) {
+    this.addAction({
+      action: Action.LevelUp,
+      scope: "player",
+      user: getUserDataFromSocket(releaserData.owner),
+      timestamp: Date.now(),
+      data: {}
+    });
+  }
+
   /* For multiplayer */
   addStockAddAction(receiverData: GameData, amount: number) {
     this.addAction({
