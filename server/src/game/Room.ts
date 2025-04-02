@@ -470,30 +470,34 @@ class MultiplayerRoom extends Room {
         });
       }
     }
-    // FIXME: may not be the same
-    const gameSettings = convertGameSettingsToReplayActions(this.gameData[0]);
-    for (const setting in gameSettings) {
-      // this.gameActionRecord.addAction({
-      //   scope: "room",
-      //   action: Action.SetGameData,
-      //   timestamp: Date.now(),
-      //   data: {
-      //     key: setting,
-      //     value: gameSettings[setting]
-      //   }
-      // });
-      this.gameActionRecord.addSetGameDataAction(
-        this.gameData[0],
-        "player",
-        setting,
-        gameSettings[setting]
-      );
-    }
 
     this.ranking = [];
     this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
     this.playing = true;
     this.gameActionRecord.initialize();
+
+    // FIXME: may not be the same
+    for (const playerData of this.gameData) {
+      const gameSettings = convertGameSettingsToReplayActions(playerData);
+      for (const setting in gameSettings) {
+        // this.gameActionRecord.addAction({
+        //   scope: "room",
+        //   action: Action.SetGameData,
+        //   timestamp: Date.now(),
+        //   data: {
+        //     key: setting,
+        //     value: gameSettings[setting]
+        //   }
+        // });
+        this.gameActionRecord.addSetGameDataAction(
+          playerData,
+          "player",
+          setting,
+          gameSettings[setting]
+        );
+      }
+    }
+
     log.info(`Room ${this.id} has started play!`);
   }
 
@@ -799,6 +803,14 @@ class MultiplayerRoom extends Room {
           timestamp: Date.now(),
           data: {}
         };
+
+        // FIXME: remove this on production
+        log.debug(JSON.stringify(this.gameActionRecord.actionRecords));
+        log.debug(
+          `Length: ${
+            JSON.stringify(this.gameActionRecord.actionRecords).length
+          }`
+        );
         this.gameActionRecord.addAction(gameOverActionRecord);
 
         // add exp to winner socket
