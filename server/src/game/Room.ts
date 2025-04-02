@@ -455,6 +455,8 @@ class MultiplayerRoom extends Room {
   }
 
   startPlay() {
+    this.gameActionRecord.initialize();
+
     for (let member of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(member);
       if (socket) {
@@ -474,7 +476,6 @@ class MultiplayerRoom extends Room {
     this.ranking = [];
     this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
     this.playing = true;
-    this.gameActionRecord.initialize();
 
     // FIXME: may not be the same
     for (const playerData of this.gameData) {
