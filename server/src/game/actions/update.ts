@@ -6,7 +6,7 @@ import { checkSingleplayerRoomClocks } from "./clocks";
 import { GameData } from "../GameData";
 import { createNewEnemy } from "../Enemy";
 import { log } from "../../core/log";
-import { Action } from "../../replay/recording/ActionRecord";
+import { Action, ActionRecord } from "../../replay/recording/ActionRecord";
 
 function updateSingleplayerRoomData(room: SingleplayerRoom, deltaTime: number) {
   if (deltaTime < 0) {
@@ -60,6 +60,13 @@ function moveEnemies(data: GameData, deltaTime: number) {
 function checkGameOverCondition(data: GameData, room: SingleplayerRoom) {
   if (data.baseHealth <= 0) {
     room.startGameOverProcess(data);
+    const gameOverActionRecord: ActionRecord = {
+      scope: "room",
+      action: Action.GameOver,
+      timestamp: Date.now(),
+      data: {}
+    };
+    room.gameActionRecord.addAction(gameOverActionRecord);
   }
 }
 
