@@ -781,6 +781,26 @@ class MultiplayerRoom extends Room {
           winnerGameData.ownerConnectionID
         );
 
+        // add winner action
+        if (winnerSocket) {
+          const winnerActionRecord: ActionRecord = {
+            scope: "room",
+            action: Action.DeclareWinner,
+            timestamp: Date.now(),
+            data: {
+              winner: getUserDataFromSocket(winnerSocket)
+            }
+          };
+          this.gameActionRecord.addAction(winnerActionRecord);
+        }
+        const gameOverActionRecord: ActionRecord = {
+          scope: "room",
+          action: Action.GameOver,
+          timestamp: Date.now(),
+          data: {}
+        };
+        this.gameActionRecord.addAction(gameOverActionRecord);
+
         // add exp to winner socket
         if (winnerSocket?.ownerUserID) {
           if (typeof winnerSocket.ownerUserID === "string") {
