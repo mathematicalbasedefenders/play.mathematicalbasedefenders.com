@@ -19,6 +19,8 @@ enum Action {
   EnemyReceive = "enemyReceive",
   EnemySpawn = "enemySpawn",
   LevelUp = "levelUp",
+  BaseHealthLoss = "baseHealthLoss",
+  BaseHealthGain = "baseHealthGain",
 
   /** "Meta" events */
   GameStart = "gameStart",
@@ -85,13 +87,37 @@ class GameActionRecord {
     });
   }
 
-  addLevelUpAction(releaserData: GameData) {
+  addLevelUpAction(data: GameData) {
     this.addAction({
       action: Action.LevelUp,
       scope: "player",
-      user: getUserDataFromSocket(releaserData.owner),
+      user: getUserDataFromSocket(data.owner),
       timestamp: Date.now(),
       data: {}
+    });
+  }
+
+  addBaseHealthLossAction(data: GameData, amount: number) {
+    this.addAction({
+      action: Action.BaseHealthLoss,
+      scope: "player",
+      user: getUserDataFromSocket(data.owner),
+      timestamp: Date.now(),
+      data: {
+        amount: amount
+      }
+    });
+  }
+
+  addBaseHealthGainAction(data: GameData, amount: number) {
+    this.addAction({
+      action: Action.BaseHealthGain,
+      scope: "player",
+      user: getUserDataFromSocket(data.owner),
+      timestamp: Date.now(),
+      data: {
+        amount: amount
+      }
     });
   }
 
