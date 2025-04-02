@@ -121,6 +121,24 @@ class GameActionRecord {
     });
   }
 
+  addSetGameDataAction(
+    data: GameData,
+    scope: "room" | "player",
+    key: string,
+    value: string | number
+  ) {
+    this.addAction({
+      action: Action.SetGameData,
+      scope: scope,
+      user: getUserDataFromSocket(data.owner),
+      timestamp: Date.now(),
+      data: {
+        key: key,
+        value: value
+      }
+    });
+  }
+
   /* For multiplayer */
   addStockAddAction(receiverData: GameData, amount: number) {
     this.addAction({
