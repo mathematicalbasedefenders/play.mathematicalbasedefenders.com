@@ -802,13 +802,12 @@ class MultiplayerRoom extends Room {
           data: {}
         };
 
-        // FIXME: remove this on production
-        log.debug(JSON.stringify(this.gameActionRecord.actionRecords));
-        log.debug(
-          `Length: ${
-            JSON.stringify(this.gameActionRecord.actionRecords).length
-          }`
-        );
+        // FIXME: change it to it only submits if there is at least 1 registered player
+        // submit replay here.
+        if (false) {
+          this.gameActionRecord.save();
+        }
+
         this.gameActionRecord.addAction(gameOverActionRecord);
 
         // add exp to winner socket
