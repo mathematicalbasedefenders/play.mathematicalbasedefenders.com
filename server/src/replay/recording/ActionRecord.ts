@@ -36,7 +36,7 @@ class GameActionRecord {
   actionRecords: Array<ActionRecord>;
   recordingVersion: number;
   gameVersion: string;
-  owner: GameSocket | null;
+  owner: GameSocket | null | undefined;
 
   constructor() {
     this.recordingVersion = 1;
@@ -184,7 +184,7 @@ class GameActionRecord {
     databaseGameActionRecord.recordingVersion = this.recordingVersion;
     databaseGameActionRecord.gameVersion = this.gameVersion;
     databaseGameActionRecord.owner =
-      this.owner === null
+      this.owner === null || this.owner === undefined
         ? null
         : new mongoose.Schema.Types.ObjectId(this.owner.connectionID as string);
     databaseGameActionRecord.name = `Game on timestamp ${new Date()}`;
