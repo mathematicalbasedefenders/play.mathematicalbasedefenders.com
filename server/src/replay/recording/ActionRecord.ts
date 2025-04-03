@@ -4,6 +4,7 @@ import { GameData } from "../../game/GameData";
 import { GameSocket } from "../../universal";
 import { GameActionRecord as DatabaseGameActionRecord } from "../../models/GameActionRecord";
 import mongoose from "mongoose";
+import { log } from "../../core/log";
 
 enum Action {
   /** Direct by player */
@@ -187,7 +188,19 @@ class GameActionRecord {
         ? null
         : new mongoose.Schema.Types.ObjectId(this.owner.connectionID as string);
     databaseGameActionRecord.name = `Game on timestamp ${new Date()}`;
-    await databaseGameActionRecord.save();
+
+    try {
+      await databaseGameActionRecord.save();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        log.error(`Error while saving game recording: ${error.stack}`);
+      } else {
+        log.error(`Error while saving game recording: ${error}`);
+      }
+    }
+
+    const size = Buffer.byteLength(JSON.stringify(databaseGameActionRecord));
+    log.info(`Saved game replay with size ${size} bytes.`);
   }
 }
 
