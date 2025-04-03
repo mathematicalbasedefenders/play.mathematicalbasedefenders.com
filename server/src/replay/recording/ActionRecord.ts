@@ -177,7 +177,7 @@ class GameActionRecord {
     this.actionRecords = [];
   }
 
-  save() {
+  async save() {
     const databaseGameActionRecord = new DatabaseGameActionRecord();
     databaseGameActionRecord.actionRecords = this.actionRecords;
     databaseGameActionRecord.recordingVersion = this.recordingVersion;
@@ -187,6 +187,7 @@ class GameActionRecord {
         ? null
         : new mongoose.Schema.Types.ObjectId(this.owner.connectionID as string);
     databaseGameActionRecord.name = `Game on timestamp ${new Date()}`;
+    await databaseGameActionRecord.save();
   }
 }
 
