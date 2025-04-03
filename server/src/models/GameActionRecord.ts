@@ -4,7 +4,7 @@ import { ActionRecord } from "../replay/recording/ActionRecord";
 
 interface GameActionRecordInterface {
   _id: ObjectId;
-  data: Array<ActionRecord>;
+  actionRecords: Array<ActionRecord>;
   replayVersion: number;
   gameVersion: string;
   owner: ObjectId;
@@ -18,7 +18,7 @@ const GameActionRecordSchema = new mongoose.Schema<
   GameActionRecordInterface,
   GameActionRecordModel
 >({
-  data: Array<ActionRecord>,
+  actionRecords: Array<ActionRecord>,
   replayVersion: Number,
   gameVersion: String,
   owner: SchemaTypes.ObjectId,
@@ -30,4 +30,4 @@ const GameActionRecord = mongoose.model<
   GameActionRecordModel
 >("GameActionRecord", GameActionRecordSchema, "gameActionRecords");
 
-export { GameActionRecord, GameActionRecordInterface };
+export { GameActionRecord, GameActionRecordInterface, GameActionRecordModel };
