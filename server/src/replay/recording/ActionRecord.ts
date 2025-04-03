@@ -119,6 +119,19 @@ class GameActionRecord {
   }
 
   /* For multiplayer */
+  addAttackAction(attackerData: GameData, amount: number) {
+    this.addAction({
+      action: Action.Attack,
+      scope: "player",
+      user: getUserDataFromSocket(attackerData.owner),
+      timestamp: Date.now(),
+      data: {
+        amount: amount
+      }
+    });
+  }
+
+  /* For multiplayer */
   addStockAddAction(receiverData: GameData, amount: number) {
     this.addAction({
       action: Action.StockAdd,
