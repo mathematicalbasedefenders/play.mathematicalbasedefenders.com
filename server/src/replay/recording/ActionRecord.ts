@@ -197,6 +197,7 @@ class GameActionRecord {
       } else {
         log.error(`Error while saving game recording: ${error}`);
       }
+      return;
     }
 
     const size = Buffer.byteLength(JSON.stringify(databaseGameActionRecord));
