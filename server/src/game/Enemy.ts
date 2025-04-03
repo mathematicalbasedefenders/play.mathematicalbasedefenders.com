@@ -7,6 +7,7 @@ import {
 } from "./GameData";
 import { USE_TESTING_VALUES } from "../universal";
 import { TESTING_VALUES } from "../testing-configuration/values";
+import { findRoomWithConnectionID } from "../core/utilities";
 
 const MINIMUM_GENERABLE_NUMBER = -100;
 const POSSIBLE_FACTORS = [2, 3, 4, 5, 6, 8, 9, 10, 11];
@@ -86,6 +87,10 @@ class Enemy {
       // TODO: move this somewhere else
       if (gameData instanceof MultiplayerGameData) {
         let attack = this.calculateSent(1, gameData.combo);
+        const room = findRoomWithConnectionID(gameData.ownerConnectionID);
+        if (room) {
+          room.gameActionRecord.addAttackAction(gameData, attack);
+        }
         gameData.totalEnemiesSent += attack;
         gameData.attackScore += attack;
         // gameData.enemiesSentStock += attack;
