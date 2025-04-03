@@ -2,6 +2,8 @@ import { getUserDataFromSocket } from "../../core/utilities";
 import { Enemy } from "../../game/Enemy";
 import { GameData } from "../../game/GameData";
 import { GameSocket } from "../../universal";
+import { GameActionRecord as DatabaseGameActionRecord } from "../../models/GameActionRecord";
+import mongoose from "mongoose";
 
 enum Action {
   /** Direct by player */
@@ -33,11 +35,14 @@ class GameActionRecord {
   actionRecords: Array<ActionRecord>;
   recordingVersion: number;
   gameVersion: string;
+  owner: GameSocket | null;
+
   constructor() {
     this.recordingVersion = 1;
     // TODO: temp
     this.gameVersion = "0.5.0";
     this.actionRecords = [];
+    this.owner = null;
     this.initialize();
   }
 
@@ -170,6 +175,18 @@ class GameActionRecord {
 
   empty() {
     this.actionRecords = [];
+  }
+
+  save() {
+    const databaseGameActionRecord = new DatabaseGameActionRecord();
+    databaseGameActionRecord.actionRecords = this.actionRecords;
+    databaseGameActionRecord.recordingVersion = this.recordingVersion;
+    databaseGameActionRecord.gameVersion = this.gameVersion;
+    databaseGameActionRecord.owner =
+      this.owner === null
+        ? null
+        : new mongoose.Schema.Types.ObjectId(this.owner.connectionID as string);
+    databaseGameActionRecord.name = `Game on timestamp ${new Date()}`;
   }
 }
 
