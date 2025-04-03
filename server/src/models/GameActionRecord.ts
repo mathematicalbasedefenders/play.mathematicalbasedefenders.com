@@ -5,9 +5,9 @@ import { ActionRecord } from "../replay/recording/ActionRecord";
 interface GameActionRecordInterface {
   _id: ObjectId;
   actionRecords: Array<ActionRecord>;
-  replayVersion: number;
+  recordingVersion: number;
   gameVersion: string;
-  owner: ObjectId;
+  owner: ObjectId | null | undefined;
   name: string;
 }
 
@@ -19,7 +19,7 @@ const GameActionRecordSchema = new mongoose.Schema<
   GameActionRecordModel
 >({
   actionRecords: Array<ActionRecord>,
-  replayVersion: Number,
+  recordingVersion: Number,
   gameVersion: String,
   owner: SchemaTypes.ObjectId,
   name: String
