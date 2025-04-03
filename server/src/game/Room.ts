@@ -340,6 +340,10 @@ class SingleplayerRoom extends Room {
     this.updating = true;
 
     this.gameActionRecord.initialize();
+    //TODO: unsafe?
+    this.gameActionRecord.owner = getSocketFromConnectionID(
+      this.memberConnectionIDs[0]
+    );
 
     log.info(`Room ${this.id} has started play!`);
   }
