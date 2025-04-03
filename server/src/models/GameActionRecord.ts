@@ -7,7 +7,8 @@ interface GameActionRecordInterface {
   data: Array<ActionRecord>;
   replayVersion: number;
   gameVersion: string;
-  replayOwner: ObjectId;
+  owner: ObjectId;
+  name: string;
 }
 
 interface GameActionRecordModel
@@ -20,7 +21,8 @@ const GameActionRecordSchema = new mongoose.Schema<
   data: Array<ActionRecord>,
   replayVersion: Number,
   gameVersion: String,
-  replayOwner: SchemaTypes.ObjectId
+  owner: SchemaTypes.ObjectId,
+  name: String
 });
 
 const GameActionRecord = mongoose.model<
