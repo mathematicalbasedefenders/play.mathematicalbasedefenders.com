@@ -31,10 +31,10 @@ enum Action {
 
 class GameActionRecord {
   actionRecords: Array<ActionRecord>;
-  replayVersion: number;
+  recordingVersion: number;
   gameVersion: string;
   constructor() {
-    this.replayVersion = 1;
+    this.recordingVersion = 1;
     // TODO: temp
     this.gameVersion = "0.5.0";
     this.actionRecords = [];
