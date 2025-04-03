@@ -10,7 +10,7 @@ enum Action {
 
   /** Indirect by player */
   EnemyKill = "enemyKill",
-  EnemySend = "enemySend",
+  Attack = "Attack",
   StockCancel = "stockCancel",
   StockAdd = "stockAdd",
   StockRelease = "stockRelease",
