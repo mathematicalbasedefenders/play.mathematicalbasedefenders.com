@@ -186,7 +186,7 @@ class GameActionRecord {
     databaseGameActionRecord.owner =
       this.owner === null || this.owner === undefined
         ? null
-        : new mongoose.Schema.Types.ObjectId(this.owner.ownerUserID as string);
+        : new mongoose.Types.ObjectId(this.owner.ownerUserID as string);
     databaseGameActionRecord.name = `Game on timestamp ${new Date()}`;
 
     try {

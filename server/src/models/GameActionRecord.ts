@@ -7,7 +7,7 @@ interface GameActionRecordInterface {
   actionRecords: Array<ActionRecord>;
   recordingVersion: number;
   gameVersion: string;
-  owner: ObjectId | null | undefined;
+  owner: mongoose.Types.ObjectId | null | undefined;
   name: string;
 }
 
