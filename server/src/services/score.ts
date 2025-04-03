@@ -17,8 +17,13 @@ import {
   sendGlobalWebSocketMessage
 } from "../universal";
 import { sendDiscordWebhook } from "./discord-webhook";
+import { GameActionRecord } from "../replay/recording/ActionRecord";
 // TODO: make this DRY
-async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
+async function submitSingleplayerGame(
+  data: GameData,
+  owner: GameSocket,
+  gameActionRecord: GameActionRecord
+) {
   let wordedGameMode: string = "";
   let dataKey: string = "";
   let personalBestBeaten = false;
@@ -52,6 +57,9 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
     log.info(`Ignoring guest score of ${data.score} on ${data.mode} mode`);
     return;
   }
+
+  // save replay
+  gameActionRecord.save();
 
   // announce
   log.info(
