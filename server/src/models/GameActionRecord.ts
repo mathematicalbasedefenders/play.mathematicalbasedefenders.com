@@ -1,11 +1,5 @@
-import mongoose, {
-  HydratedDocument,
-  ObjectId,
-  Schema,
-  SchemaTypes
-} from "mongoose";
+import mongoose, { ObjectId, SchemaTypes } from "mongoose";
 import _ from "lodash";
-import { log } from "../core/log";
 import { ActionRecord } from "../replay/recording/ActionRecord";
 
 interface GameActionRecordInterface {
