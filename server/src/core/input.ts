@@ -12,7 +12,7 @@ import {
   SingleplayerGameData
 } from "../game/GameData";
 import { findRoomWithConnectionID, getUserDataFromSocket } from "./utilities";
-import { Action } from "../replay/recording/ActionRecord";
+import { Action, ActionRecord } from "../replay/recording/ActionRecord";
 import _ from "lodash";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
@@ -183,6 +183,18 @@ function processInputInformation(
       const room = findRoomWithConnectionID(
         gameDataToProcess.ownerConnectionID
       );
+
+      if (room) {
+        const submissionRecord: ActionRecord = {
+          action: Action.Submit,
+          scope: "player",
+          user: getUserDataFromSocket(gameDataToProcess.owner),
+          data: {},
+          timestamp: Date.now()
+        };
+        room.gameActionRecord.addAction(submissionRecord);
+      }
+
       for (let enemy of gameDataToProcess.enemies) {
         // TODO: Data validation
         if (enemy.check(parseInt(gameDataToProcess.currentInput))) {
