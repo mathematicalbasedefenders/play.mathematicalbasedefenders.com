@@ -802,10 +802,16 @@ class MultiplayerRoom extends Room {
           data: {}
         };
 
-        // FIXME: change it to it only submits if there is at least 1 registered player
         // submit replay here.
-        if (false) {
+
+        if (
+          this.memberConnectionIDs.filter(
+            (e) => getSocketFromConnectionID(e)?.loggedIn
+          ).length >= 1
+        ) {
           this.gameActionRecord.save();
+        } else {
+          log.info("Not saving multiplayer game because no one is logged in.");
         }
 
         this.gameActionRecord.addAction(gameOverActionRecord);
