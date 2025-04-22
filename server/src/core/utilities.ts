@@ -471,6 +471,13 @@ function getUserDataFromSocket(socket: universal.GameSocket) {
   };
 }
 
+/**
+ * Converts game settings to "replay actions"
+ * This is so that when opening a replay, the game settings (e.g. enemy speed) match up
+ * for more accurate replays.
+ * @param {GameData} data The data of the game to convert.
+ * @returns Replay actions, one for each setting. e.g., enemySpeed is now 1
+ */
 function convertGameSettingsToReplayActions(data: GameData) {
   const result: { [key: string]: any } = {};
   const keys = keyify(data);
