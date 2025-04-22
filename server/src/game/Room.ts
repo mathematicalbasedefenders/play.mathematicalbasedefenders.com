@@ -793,13 +793,8 @@ class MultiplayerRoom extends Room {
           };
           this.gameActionRecord.addAction(winnerActionRecord);
         }
-        const gameOverActionRecord: ActionRecord = {
-          scope: "room",
-          action: Action.GameOver,
-          timestamp: Date.now(),
-          data: {}
-        };
 
+        this.gameActionRecord.addGameOverAction();
         // submit replay here.
 
         if (
@@ -811,8 +806,6 @@ class MultiplayerRoom extends Room {
         } else {
           log.info("Not saving multiplayer game because no one is logged in.");
         }
-
-        this.gameActionRecord.addAction(gameOverActionRecord);
 
         // add exp to winner socket
         if (winnerSocket?.ownerUserID) {
