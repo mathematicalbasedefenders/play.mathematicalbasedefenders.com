@@ -192,7 +192,9 @@ function processInputInformation(
           action: Action.Submit,
           scope: "player",
           user: getUserReplayDataFromSocket(gameDataToProcess.owner),
-          data: {},
+          data: {
+            submitted: gameDataToProcess.currentInput
+          },
           timestamp: Date.now()
         };
         room.gameActionRecord.addAction(submissionRecord);
