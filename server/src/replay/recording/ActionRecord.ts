@@ -44,7 +44,6 @@ class GameActionRecord {
     this.gameVersion = "0.5.0";
     this.actionRecords = [];
     this.owner = null;
-    this.initialize();
   }
 
   /**
