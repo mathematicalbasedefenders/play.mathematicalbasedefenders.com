@@ -9,7 +9,7 @@ import { InputAction } from "../core/input";
 import {
   convertGameSettingsToReplayActions,
   findRoomWithConnectionID,
-  getUserDataFromSocket,
+  getUserReplayDataFromSocket,
   sleep
 } from "../core/utilities";
 import { User } from "../models/User";
@@ -288,7 +288,7 @@ class SingleplayerRoom extends Room {
             action: Action.AddUser,
             timestamp: Date.now(),
             data: {
-              playerAdded: getUserDataFromSocket(socket)
+              playerAdded: getUserReplayDataFromSocket(socket)
             }
           });
         }
@@ -310,7 +310,7 @@ class SingleplayerRoom extends Room {
             action: Action.AddUser,
             timestamp: Date.now(),
             data: {
-              playerAdded: getUserDataFromSocket(socket)
+              playerAdded: getUserReplayDataFromSocket(socket)
             }
           });
         }
@@ -464,7 +464,7 @@ class MultiplayerRoom extends Room {
           action: Action.AddUser,
           timestamp: Date.now(),
           data: {
-            playerAdded: getUserDataFromSocket(socket)
+            playerAdded: getUserReplayDataFromSocket(socket)
           }
         });
       }
@@ -660,7 +660,7 @@ class MultiplayerRoom extends Room {
             action: Action.Elimination,
             timestamp: Date.now(),
             data: {
-              eliminated: getUserDataFromSocket(data.owner)
+              eliminated: getUserReplayDataFromSocket(data.owner)
             }
           };
           this.gameActionRecord.addAction(eliminationActionRecord);
@@ -790,7 +790,7 @@ class MultiplayerRoom extends Room {
             action: Action.DeclareWinner,
             timestamp: Date.now(),
             data: {
-              winner: getUserDataFromSocket(winnerSocket)
+              winner: getUserReplayDataFromSocket(winnerSocket)
             }
           };
           this.gameActionRecord.addAction(winnerActionRecord);

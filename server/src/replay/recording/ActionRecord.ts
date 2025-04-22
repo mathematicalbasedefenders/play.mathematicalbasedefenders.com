@@ -1,4 +1,4 @@
-import { getUserDataFromSocket } from "../../core/utilities";
+import { getUserReplayDataFromSocket } from "../../core/utilities";
 import { Enemy } from "../../game/Enemy";
 import { GameData } from "../../game/GameData";
 import { GameSocket } from "../../universal";
@@ -70,7 +70,7 @@ class GameActionRecord {
     this.addAction({
       action: isReceived ? Action.EnemyReceive : Action.EnemySpawn,
       scope: "player",
-      user: getUserDataFromSocket(data.owner),
+      user: getUserReplayDataFromSocket(data.owner),
       timestamp: Date.now(),
       data: {
         xPosition: enemy.xPosition,
@@ -86,7 +86,7 @@ class GameActionRecord {
     this.addAction({
       action: Action.EnemyKill,
       scope: "player",
-      user: getUserDataFromSocket(data.owner),
+      user: getUserReplayDataFromSocket(data.owner),
       timestamp: Date.now(),
       data: {
         enemyID: enemy.id
@@ -98,7 +98,7 @@ class GameActionRecord {
     this.addAction({
       action: Action.EnemyReachedBase,
       scope: "player",
-      user: getUserDataFromSocket(data.owner),
+      user: getUserReplayDataFromSocket(data.owner),
       timestamp: Date.now(),
       data: {
         enemyID: enemy.id
@@ -115,7 +115,7 @@ class GameActionRecord {
     this.addAction({
       action: Action.SetGameData,
       scope: scope,
-      user: getUserDataFromSocket(data.owner),
+      user: getUserReplayDataFromSocket(data.owner),
       timestamp: Date.now(),
       data: {
         key: key,
@@ -129,7 +129,7 @@ class GameActionRecord {
     this.addAction({
       action: Action.Attack,
       scope: "player",
-      user: getUserDataFromSocket(attackerData.owner),
+      user: getUserReplayDataFromSocket(attackerData.owner),
       timestamp: Date.now(),
       data: {
         amount: amount
@@ -142,7 +142,7 @@ class GameActionRecord {
     this.addAction({
       action: Action.StockAdd,
       scope: "player",
-      user: getUserDataFromSocket(receiverData.owner),
+      user: getUserReplayDataFromSocket(receiverData.owner),
       timestamp: Date.now(),
       data: {
         amount: amount
@@ -155,7 +155,7 @@ class GameActionRecord {
     this.addAction({
       action: Action.StockCancel,
       scope: "player",
-      user: getUserDataFromSocket(receiverData.owner),
+      user: getUserReplayDataFromSocket(receiverData.owner),
       timestamp: Date.now(),
       data: {
         amount: amount
@@ -168,7 +168,7 @@ class GameActionRecord {
     this.addAction({
       action: Action.StockRelease,
       scope: "player",
-      user: getUserDataFromSocket(releaserData.owner),
+      user: getUserReplayDataFromSocket(releaserData.owner),
       timestamp: Date.now(),
       data: {}
     });

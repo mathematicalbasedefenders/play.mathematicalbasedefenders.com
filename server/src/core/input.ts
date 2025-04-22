@@ -11,7 +11,10 @@ import {
   MultiplayerGameData,
   SingleplayerGameData
 } from "../game/GameData";
-import { findRoomWithConnectionID, getUserDataFromSocket } from "./utilities";
+import {
+  findRoomWithConnectionID,
+  getUserReplayDataFromSocket
+} from "./utilities";
 import { Action, ActionRecord } from "../replay/recording/ActionRecord";
 import _ from "lodash";
 // kind of a hacky way to do this...
@@ -118,7 +121,7 @@ function processKeypress(
       scope: "player",
       action: Action.Keypress,
       timestamp: Date.now(),
-      user: getUserDataFromSocket(socket),
+      user: getUserReplayDataFromSocket(socket),
       data: {
         code: code,
         emulated: emulated ?? false
@@ -188,7 +191,7 @@ function processInputInformation(
         const submissionRecord: ActionRecord = {
           action: Action.Submit,
           scope: "player",
-          user: getUserDataFromSocket(gameDataToProcess.owner),
+          user: getUserReplayDataFromSocket(gameDataToProcess.owner),
           data: {},
           timestamp: Date.now()
         };
