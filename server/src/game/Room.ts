@@ -381,11 +381,8 @@ class SingleplayerRoom extends Room {
 
     // check anticheat and submit score
     if (socket) {
-      if (true) {
-        submitSingleplayerGame(data, socket, this.gameActionRecord);
-      } else {
-        log.warn("Anticheat may have detected cheating.");
-      }
+      //TODO: Implement anticheat
+      submitSingleplayerGame(data, socket, this.gameActionRecord);
     }
 
     if (socket) {
