@@ -195,7 +195,9 @@ class GameActionRecord {
     databaseGameActionRecord.owner = this.owner?.ownerUserID
       ? new mongoose.Types.ObjectId(this.owner.ownerUserID as string)
       : null;
-    databaseGameActionRecord.name = `Game on timestamp ${new Date()}`;
+    databaseGameActionRecord.name = `Game on timestamp ${new Date()} played by ${
+      this.owner?.ownerUsername
+    }`;
 
     try {
       await databaseGameActionRecord.save();
