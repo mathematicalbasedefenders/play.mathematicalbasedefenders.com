@@ -174,6 +174,15 @@ class GameActionRecord {
     });
   }
 
+  addGameOverAction() {
+    this.addAction({
+      scope: "room",
+      action: Action.GameOver,
+      timestamp: Date.now(),
+      data: {}
+    });
+  }
+
   empty() {
     this.actionRecords = [];
   }
