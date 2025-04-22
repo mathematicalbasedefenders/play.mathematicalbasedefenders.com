@@ -456,13 +456,13 @@ function generatePlayerListPayload(connectionIDs: string[]) {
 }
 
 /**
+ * This function returns only necessary data to construct a replay
+ * file from player data from a socket.
  * Use this for replays.
- * TODO: Expand
- * TODO: Change function name
  * @param socket The socket.
  * @returns The parsed data.
  */
-function getUserDataFromSocket(socket: universal.GameSocket) {
+function getUserReplayDataFromSocket(socket: universal.GameSocket) {
   return {
     userID: socket.loggedIn ? socket.ownerUserID : null,
     name: socket.loggedIn ? socket.ownerUsername : socket.ownerGuestName,
@@ -520,6 +520,6 @@ export {
   checkWebSocketMessageSpeeds,
   calculateAPM,
   formatNumber,
-  getUserDataFromSocket,
+  getUserReplayDataFromSocket,
   convertGameSettingsToReplayActions
 };
