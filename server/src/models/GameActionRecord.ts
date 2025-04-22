@@ -17,13 +17,16 @@ interface GameActionRecordModel
 const GameActionRecordSchema = new mongoose.Schema<
   GameActionRecordInterface,
   GameActionRecordModel
->({
-  actionRecords: Array<ActionRecord>,
-  recordingVersion: Number,
-  gameVersion: String,
-  owner: SchemaTypes.ObjectId,
-  name: String
-});
+>(
+  {
+    actionRecords: Array<ActionRecord>,
+    recordingVersion: Number,
+    gameVersion: String,
+    owner: SchemaTypes.ObjectId,
+    name: String
+  },
+  { timestamps: true }
+);
 
 const GameActionRecord = mongoose.model<
   GameActionRecordInterface,
