@@ -113,7 +113,6 @@ class Enemy {
       gameData.combo += 1;
       gameData.clocks.comboReset.currentTime = 0;
     }
-    // gameData.addAction(constructEnemyKillRecord(this));
     removeEnemyWithIDInGameData(this.id, gameData);
   }
 
