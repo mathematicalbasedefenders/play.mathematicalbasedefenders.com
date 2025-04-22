@@ -274,6 +274,8 @@ class SingleplayerRoom extends Room {
   }
 
   startPlay() {
+    this.gameActionRecord.initialize();
+
     if (
       this.mode === GameMode.EasySingleplayer ||
       this.mode === GameMode.StandardSingleplayer
@@ -339,7 +341,6 @@ class SingleplayerRoom extends Room {
 
     this.updating = true;
 
-    this.gameActionRecord.initialize();
     //TODO: unsafe?
     this.gameActionRecord.owner = getSocketFromConnectionID(
       this.memberConnectionIDs[0]
