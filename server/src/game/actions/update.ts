@@ -65,13 +65,7 @@ function moveEnemies(data: GameData, deltaTime: number) {
  */
 function checkGameOverCondition(data: GameData, room: SingleplayerRoom) {
   if (data.baseHealth <= 0) {
-    const gameOverActionRecord: ActionRecord = {
-      scope: "room",
-      action: Action.GameOver,
-      timestamp: Date.now(),
-      data: {}
-    };
-    room.gameActionRecord.addAction(gameOverActionRecord);
+    room.gameActionRecord.addGameOverAction();
     room.startGameOverProcess(data);
   }
 }
