@@ -98,7 +98,7 @@ class GameData {
   receivedEnemiesStock!: number;
   /**  (Multiplayer) The number of enemies in stock to be spawned from `GameData`.*/
   receivedEnemiesToSpawn!: number;
-  // ... (0.4.10, anticheat, replay system)
+
   constructor(owner: universal.GameSocket, mode: GameMode) {
     this.mode = mode;
     this.score = 0;
