@@ -487,14 +487,17 @@ function convertGameSettingsToReplayActions(data: GameData) {
   return result;
 }
 
-// from: https://stackoverflow.com/a/47063174
-const keyify = (obj: any, prefix = ""): any =>
-  Object.keys(obj).reduce((res: any, el: any) => {
+const keyify = (obj: any, prefix = ""): string[] => {
+  const keys: string[] = [];
+  Object.keys(obj).forEach((el) => {
     if (typeof obj[el] === "object" && obj[el] !== null) {
-      return [...res, ...keyify(obj[el], prefix + el + ".")];
+      keys.push(...keyify(obj[el], `${prefix}${el}.`));
+    } else {
+      keys.push(`${prefix}${el}`);
     }
-    return [...res, prefix + el];
-  }, []);
+  });
+  return keys;
+};
 
 export {
   checkIfPropertyWithValueExists,
