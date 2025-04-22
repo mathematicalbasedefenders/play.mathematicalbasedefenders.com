@@ -192,10 +192,9 @@ class GameActionRecord {
     databaseGameActionRecord.actionRecords = this.actionRecords;
     databaseGameActionRecord.recordingVersion = this.recordingVersion;
     databaseGameActionRecord.gameVersion = this.gameVersion;
-    databaseGameActionRecord.owner =
-      this.owner === null || this.owner === undefined
-        ? null
-        : new mongoose.Types.ObjectId(this.owner.ownerUserID as string);
+    databaseGameActionRecord.owner = this.owner?.ownerUserID
+      ? new mongoose.Types.ObjectId(this.owner.ownerUserID as string)
+      : null;
     databaseGameActionRecord.name = `Game on timestamp ${new Date()}`;
 
     try {
