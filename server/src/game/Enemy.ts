@@ -84,7 +84,6 @@ class Enemy {
   // TODO: Might need to find a different method for conciseness.
   kill(gameData: GameData, giveScore: boolean, giveCombo: boolean) {
     if (giveScore) {
-      // TODO: move this somewhere else
       if (gameData instanceof MultiplayerGameData) {
         let attack = this.calculateSent(1, gameData.combo);
         const room = findRoomWithConnectionID(gameData.ownerConnectionID);
