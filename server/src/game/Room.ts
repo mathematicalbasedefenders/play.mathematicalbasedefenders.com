@@ -452,7 +452,7 @@ class MultiplayerRoom extends Room {
   startPlay() {
     this.gameActionRecord.initialize();
 
-    for (let member of this.memberConnectionIDs) {
+    for (const member of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(member);
       if (socket) {
         this.gameData.push(new MultiplayerGameData(socket, this.mode));
