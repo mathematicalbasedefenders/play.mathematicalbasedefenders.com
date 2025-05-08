@@ -507,6 +507,42 @@ input[type="radio"] {
   margin-left: 48px;
 }
 
+.archive__content-fieldset {
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  background-color: var(--color-neutral);
+  font-size: 150%;
+}
+
+.archive__content-fieldset legend {
+  background-color: var(--color-neutral);
+  padding: 0 8px;
+}
+
+.archive__content-fieldset label,
+.archive__content-fieldset input {
+  margin: 4px 0;
+}
+
+.archive__content-input--text {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 150%;
+  font-family: inherit;
+}
+.archive__content-input--button {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 150%;
+  font-family: inherit;
+  transition-duration: var(--transition-duration-short);
+}
+.archive__content-input--button:hover {
+  filter: brightness(1.05);
+  transform: scale(1.05);
+}
 /* MULTIPLAYER MENU */
 #main-content__multiplayer-menu-screen-container {
   /* background-color: #000000; */
