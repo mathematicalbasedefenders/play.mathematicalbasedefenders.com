@@ -482,6 +482,31 @@ input[type="radio"] {
   margin-top: 40px;
 }
 
+/* ARCHIVES MENU */
+#main-content__archive-screen-container {
+  display: grid;
+  grid-template-columns: [column1-start] 80px [column1-end column2-start] 120px [column2-end column3-start] auto [column3-end column4-start] 80px [column4-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
+  height: 100%;
+  width: 100%;
+  /* background-color: #000000; */
+}
+
+#main-content__archive-screen-container__sidebar {
+  grid-column: column2-start / column2-end;
+  grid-row: row2-start / row2-end;
+}
+
+#main-content__archive-screen-container__sidebar.option-button--left-bordered {
+  width: 100%;
+}
+
+#main-content__archive-screen-container__content {
+  grid-column: column3-start / column3-end;
+  grid-row: row2-start / row2-end;
+  margin-left: 48px;
+}
+
 /* MULTIPLAYER MENU */
 #main-content__multiplayer-menu-screen-container {
   /* background-color: #000000; */
