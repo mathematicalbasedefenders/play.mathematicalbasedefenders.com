@@ -486,6 +486,10 @@ function initializeEventListeners() {
     }
   );
   //
+  $("#archive-screen-container__back-button").on("click", () => {
+    changeScreen("mainMenu");
+  });
+  //
   $("#settings-screen__content--online__submit").on("click", async (event) => {
     event.preventDefault();
     // FIXME: possibly unsafe
