@@ -528,7 +528,7 @@ input[type="radio"] {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
-  font-size: 150%;
+  font-size: 100%;
   font-family: inherit;
 }
 .archive__content-input--button {
@@ -543,6 +543,13 @@ input[type="radio"] {
   filter: brightness(1.05);
   transform: scale(1.05);
 }
+
+#main-content__archive-screen-container__content {
+  grid-column: column3-start / column3-end;
+  grid-row: row2-start / row2-end;
+  margin-left: 48px;
+}
+
 /* MULTIPLAYER MENU */
 #main-content__multiplayer-menu-screen-container {
   /* background-color: #000000; */
