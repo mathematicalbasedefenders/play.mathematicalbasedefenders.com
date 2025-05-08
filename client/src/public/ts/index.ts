@@ -378,6 +378,9 @@ function initializeEventListeners() {
   $("#main-menu-screen-button--multiplayer").on("click", () => {
     changeScreen("multiplayerMenu");
   });
+  $("#main-menu-screen-button--archive").on("click", () => {
+    changeScreen("archivesMenu");
+  });
   $("#main-menu-screen-button--settings").on("click", () => {
     getSettings(localStorage.getItem("settings") || "{}");
     changeScreen("settingsMenu");
