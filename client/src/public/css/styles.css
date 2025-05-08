@@ -195,6 +195,7 @@ input[type="radio"] {
     flex-direction: row;
     width: 90%;
     column-gap: 16px;
+    margin: 8px 0 0 0 !important;
   }
 
   #main-menu-screen-button--archive,
