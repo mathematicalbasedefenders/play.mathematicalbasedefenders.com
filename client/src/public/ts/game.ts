@@ -284,6 +284,7 @@ function changeScreen(
   $("#main-content__multiplayer-intermission-screen-container").hide(0);
   $("#main-content__game-over-screen-container").hide(0);
   $("#main-content__settings-screen-container").hide(0);
+  $("#main-content__archive-screen-container").hide(0);
   $("#canvas-container").hide(0);
   // other stuff
   if (alsoRedrawStage) {
@@ -354,6 +355,10 @@ function changeScreen(
       $("#canvas-container").show(0);
       // TODO: move this somewhere else
       variables.playing = true;
+      break;
+    }
+    case "archiveMenu": {
+      $("#main-content__archive-screen-container").show(0);
       break;
     }
   }
