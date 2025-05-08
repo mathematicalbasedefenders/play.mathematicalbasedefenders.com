@@ -379,7 +379,7 @@ function initializeEventListeners() {
     changeScreen("multiplayerMenu");
   });
   $("#main-menu-screen-button--archive").on("click", () => {
-    changeScreen("archivesMenu");
+    changeScreen("archiveMenu");
   });
   $("#main-menu-screen-button--settings").on("click", () => {
     getSettings(localStorage.getItem("settings") || "{}");
