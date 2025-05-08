@@ -21,6 +21,7 @@ body {
 :root {
   --color-singleplayer: #00a032;
   --color-multiplayer: #00a06b;
+  --color-archive: #a55616;
 
   --color-singleplayer-menu-easy: #00851d;
   --color-singleplayer-menu-standard: #b62a00;
@@ -219,7 +220,6 @@ input[type="radio"] {
 #main-menu-screen-button--settings {
   background-color: var(--color-neutral);
   background-position: 0 70%;
-  height: 10%;
 }
 
 .main-menu-screen-button__title {
@@ -364,6 +364,16 @@ input[type="radio"] {
 .singleplayer-menu-screen-button:hover {
   filter: brightness(1.05);
   transform: scale(1.05);
+}
+
+#main-content__main-menu-screen-button-container__bottom {
+  display: flex;
+  flex-direction: row;
+  margin: 0 -16px;
+}
+
+#main-menu-screen-button--archive {
+  background-color: var(--color-archive);
 }
 
 /* (CUSTOM) SINGLEPLAYER INTERMISSION SCREEN */
