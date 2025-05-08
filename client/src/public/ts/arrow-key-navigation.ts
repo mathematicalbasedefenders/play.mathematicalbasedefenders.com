@@ -63,10 +63,15 @@ function getArrowKeyDirections() {
         },
         "#main-menu-screen-button--multiplayer": {
           "ArrowUp": "#main-menu-screen-button--singleplayer",
-          "ArrowDown": "#main-menu-screen-button--settings"
+          "ArrowDown": "#main-menu-screen-button--archive"
+        },
+        "#main-menu-screen-button--archive": {
+          "ArrowUp": "#main-menu-screen-button--multiplayer",
+          "ArrowRight": "#main-menu-screen-button--settings"
         },
         "#main-menu-screen-button--settings": {
-          "ArrowUp": "#main-menu-screen-button--multiplayer"
+          "ArrowUp": "#main-menu-screen-button--multiplayer",
+          "ArrowLeft": "#main-menu-screen-button--archive"
         }
       },
       defaultFocused: "#main-menu-screen-button--singleplayer"
