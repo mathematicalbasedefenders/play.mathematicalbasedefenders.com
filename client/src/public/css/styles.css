@@ -189,6 +189,12 @@ input[type="radio"] {
   #main-menu-screen-button--singleplayer {
     background-position: 0 70% !important;
   }
+
+  #main-content__main-menu-screen-button-container__bottom {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+  }
 }
 
 .main-menu-screen-button {
