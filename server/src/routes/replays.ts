@@ -15,7 +15,7 @@ const limiter = rateLimit({
   legacyHeaders: false
 });
 
-router.get("/api/replay/:replayID", limiter, async (request, response) => {
+router.get("/api/replays/:replayID", limiter, async (request, response) => {
   const replayID = request.params.replayID ?? "";
 
   if (!validateReplayID(replayID)) {
