@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { changeScreen, renderGameData } from "./game";
 import { resetClientSideVariables } from "./rendering";
 
@@ -141,7 +142,7 @@ function updateReplayGameData(
       break;
     }
     case "setGameData": {
-      replayGameData[actionRecord.data.key] = actionRecord.data.value;
+      _.set(replayGameData, actionRecord.data.key, actionRecord.data.value);
       break;
     }
   }
