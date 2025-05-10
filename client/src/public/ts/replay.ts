@@ -1,3 +1,5 @@
+import { changeScreen } from "./game";
+
 interface Replay {
   ok: boolean;
   reason: string;
@@ -12,6 +14,7 @@ async function fetchReplay(replayID: string) {
 
 function playReplay(replayData: Replay) {
   const data = replayData.data;
+  changeScreen("canvas");
 }
 
 export { fetchReplay, playReplay, Replay };
