@@ -28,7 +28,7 @@ import {
 import { changeBackgroundImage } from "./change-background-image";
 import { showUserLookupPopUp } from "./lookup-user";
 import { TextStyle } from "pixi.js";
-import { fetchReplay } from "./replay";
+import { fetchReplay, playReplay, Replay } from "./replay";
 const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -492,7 +492,22 @@ function initializeEventListeners() {
   });
   $("#archive__start-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
-    await fetchReplay(replayID);
+    const replayData = await fetchReplay(replayID);
+    if (!replayData.ok) {
+      const options = { borderColor: "#ff0000" };
+      const toast = new ToastNotification(
+        `Replay fetching error: Error Code ${replayData.status}`,
+        options
+      );
+      toast.render();
+      console.error(
+        `Replay fetching error: `,
+        `Error Code ${replayData.status}`
+      );
+      return;
+    }
+    const replayDataJSON = await replayData.json();
+    playReplay(replayDataJSON);
   });
   //
   $("#settings-screen__content--online__submit").on("click", async (event) => {
