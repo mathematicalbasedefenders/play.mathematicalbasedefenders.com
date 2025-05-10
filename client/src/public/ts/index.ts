@@ -490,9 +490,9 @@ function initializeEventListeners() {
   $("#archive-screen-container__back-button").on("click", () => {
     changeScreen("mainMenu");
   });
-  $("#archive__start-button").on("click", () => {
+  $("#archive__start-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
-    fetchReplay(replayID);
+    await fetchReplay(replayID);
   });
   //
   $("#settings-screen__content--online__submit").on("click", async (event) => {
