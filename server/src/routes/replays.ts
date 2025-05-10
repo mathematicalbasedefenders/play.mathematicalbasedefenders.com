@@ -38,7 +38,8 @@ router.get("/api/replays/:replayID", limiter, async (request, response) => {
     }
 
     const formattedData = await formatReplayData(data);
-    return formattedData;
+    response.status(200).json(formattedData);
+    return;
   } catch (error: unknown) {
     if (error instanceof Error) {
       log.error(`Error while getting game recording: ${error.stack}`);
