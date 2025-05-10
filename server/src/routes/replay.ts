@@ -66,3 +66,5 @@ async function formatReplayData(data: GameActionRecordInterface) {
   };
   return result;
 }
+
+export { router };
