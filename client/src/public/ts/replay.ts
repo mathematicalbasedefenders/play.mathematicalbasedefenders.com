@@ -1,12 +1,38 @@
 import _ from "lodash";
 import { changeScreen, renderGameData } from "./game";
 import { resetClientSideVariables } from "./rendering";
+import { Enemy } from "./enemies";
 
 interface Replay {
   ok: boolean;
   reason: string;
   data: { [key: string]: any };
 }
+
+const KEY_MAPPINGS: { [key: string]: string } = {
+  "Digit0": "0",
+  "Digit1": "1",
+  "Digit2": "2",
+  "Digit3": "3",
+  "Digit4": "4",
+  "Digit5": "5",
+  "Digit6": "6",
+  "Digit7": "7",
+  "Digit8": "8",
+  "Digit9": "9",
+  "Numpad0": "0",
+  "Numpad1": "1",
+  "Numpad2": "2",
+  "Numpad3": "3",
+  "Numpad4": "4",
+  "Numpad5": "5",
+  "Numpad6": "6",
+  "Numpad7": "7",
+  "Numpad8": "8",
+  "Numpad9": "9",
+  "Minus": "-",
+  "Subtract": "-"
+};
 
 async function fetchReplay(replayID: string) {
   const location = window.location;
@@ -16,7 +42,7 @@ async function fetchReplay(replayID: string) {
   return data;
 }
 
-function playReplay(replayData: Replay) {
+async function playReplay(replayData: Replay) {
   const data = replayData.data;
   changeScreen("canvas", true, true);
   const replayGameData: { [key: string]: any } = {
@@ -30,6 +56,12 @@ function playReplay(replayData: Replay) {
   replayGameData.mode = "standardSingleplayer";
 
   for (let actionNumber = 0; actionNumber < dataLength; actionNumber++) {
+    if (actionNumber > 0) {
+      const deltaTime =
+        data.actionRecords[actionNumber].timestamp -
+        data.actionRecords[actionNumber - 1].timestamp;
+      await sleep(deltaTime);
+    }
     updateReplayGameData(replayGameData, data, actionNumber);
     console.log(replayGameData);
     renderGameData(replayGameData);
@@ -55,12 +87,22 @@ function updateReplayGameData(
 
   switch (actionRecord.action) {
     case "keypress": {
+      const code = actionRecord.data.code;
+      if (["NumpadAdd", "Backspace", "Space"].indexOf(code) > -1) {
+        replayGameData.currentInput = replayGameData.currentInput.slice(0, -1);
+      } else {
+        replayGameData.currentInput += KEY_MAPPINGS[code];
+      }
       break;
     }
     case "submit": {
       break;
     }
     case "enemyKill": {
+      // enemy killed = input correct, so remove
+      replayGameData.currentInput = "";
+      replayGameData.enemiesToErase.push(actionRecord.data.enemyID);
+      // ...
       break;
     }
     case "attack": {
@@ -146,6 +188,10 @@ function updateReplayGameData(
       break;
     }
   }
+}
+
+function sleep(milliseconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 export { fetchReplay, playReplay, Replay };
