@@ -7,8 +7,10 @@ interface Replay {
 }
 
 async function fetchReplay(replayID: string) {
-  const url = `/api/replay/${replayID}`;
-  const data = await fetch(url);
+  const location = window.location;
+  const port = location.protocol === "http:" ? ":4000" : "";
+  const host = `${location.protocol}//${location.hostname}${port}/api/replays/${replayID}`;
+  const data = await fetch(host);
   return data;
 }
 
