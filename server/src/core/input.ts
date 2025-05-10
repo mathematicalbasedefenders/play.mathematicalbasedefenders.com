@@ -233,6 +233,24 @@ function processInputInformation(
           }
           enemy.kill(gameDataToProcess, true, true);
           if (room) {
+            if (
+              gameDataToProcess.mode === "easySingleplayer" ||
+              gameDataToProcess.mode === "standardSingleplayer"
+            ) {
+              room.gameActionRecord.addSetGameDataAction(
+                gameDataToProcess,
+                "player",
+                "score",
+                gameDataToProcess.score
+              );
+            } else if (gameDataToProcess.mode === "defaultMultiplayer") {
+              room.gameActionRecord.addSetGameDataAction(
+                gameDataToProcess,
+                "player",
+                "attackScore",
+                gameDataToProcess.score
+              );
+            }
             room.gameActionRecord.addEnemyKillAction(enemy, gameDataToProcess);
           }
         }
