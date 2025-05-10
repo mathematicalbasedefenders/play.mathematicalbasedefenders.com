@@ -28,6 +28,7 @@ import {
 import { changeBackgroundImage } from "./change-background-image";
 import { showUserLookupPopUp } from "./lookup-user";
 import { TextStyle } from "pixi.js";
+import { fetchReplay } from "./replay";
 const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -488,6 +489,10 @@ function initializeEventListeners() {
   //
   $("#archive-screen-container__back-button").on("click", () => {
     changeScreen("mainMenu");
+  });
+  $("#archive__start-button").on("click", () => {
+    const replayID = $("#archive__replay-id").val()?.toString() ?? "";
+    fetchReplay(replayID);
   });
   //
   $("#settings-screen__content--online__submit").on("click", async (event) => {
