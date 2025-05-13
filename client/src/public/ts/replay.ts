@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { changeScreen, renderGameData } from "./game";
 import { resetClientSideVariables } from "./rendering";
-import { Enemy } from "./enemies";
+import { Enemy, getScaledEnemyHeight, getScaledEnemyWidth } from "./enemies";
 import { variables } from ".";
 import { formatNumber, millisecondsToTime } from "./utilities";
 
@@ -138,7 +138,17 @@ function updateReplayGameData(
     }
     case "enemySpawn": {
       const enemyData = actionRecord.data;
-      replayGameData.enemies.push(enemyData);
+      // replayGameData.enemies.push(enemyData);
+      const newEnemy = new Enemy(
+        enemyData.sPosition,
+        enemyData.displayedText,
+        enemyData.id,
+        getScaledEnemyWidth(),
+        getScaledEnemyHeight(),
+        enemyData.speed,
+        enemyData.xPosition
+      );
+      newEnemy.render();
       break;
     }
     case "enemyReachedBase": {
