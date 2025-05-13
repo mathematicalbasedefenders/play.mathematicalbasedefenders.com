@@ -39,6 +39,9 @@ class SlidingText {
    * Adds the `SlidingText`, then allows it to render (e.g. slide).
    */
   render() {
+    if (this.rendering) {
+      return;
+    }
     playerContainer.addChild(this.textSprite);
     this.rendering = true;
     this.timeSinceFirstRender = 0;
