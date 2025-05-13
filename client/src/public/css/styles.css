@@ -550,6 +550,11 @@ input[type="radio"] {
   margin-left: 48px;
 }
 
+#main-content__archive-screen-container__content__replay-details {
+  white-space: pre-line;
+  display: none;
+}
+
 /* MULTIPLAYER MENU */
 #main-content__multiplayer-menu-screen-container {
   /* background-color: #000000; */
