@@ -224,7 +224,7 @@ function formatReplayStatisticsText(data: { [key: string]: any }) {
       const apm = (statistics.actionsPerformed / ms) * 60000;
       let text = ``;
       text += `${data.name}\n`;
-      text += `Score: ${formatNumber(statistics.score)}\n`;
+      text += `Score: ${statistics.score.toLocaleString("en-US")}\n`;
       text += `Enemies: ${statistics.enemiesKilled}/${statistics.enemiesCreated}\n`;
       text += `Elapsed Time: ${millisecondsToTime(ms)}\n`;
       text += `Actions Per Minute: ${formatNumber(apm)}\n`;
