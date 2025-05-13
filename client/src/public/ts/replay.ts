@@ -59,6 +59,9 @@ async function playReplay(replayData: Replay) {
 
   for (let actionNumber = 0; actionNumber < dataLength; actionNumber++) {
     if (!variables.watchingReplay) {
+      replayGameData.enemies = [];
+      replayGameData.enemiesToErase = [];
+      variables.watchingReplay = false;
       break;
     }
     if (actionNumber > 0) {
