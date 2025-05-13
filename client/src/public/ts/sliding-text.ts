@@ -15,7 +15,7 @@ class SlidingText {
   duration!: number;
   enemyID!: string;
   timeSinceFirstRender!: number;
-  static slidingTexts: { [key: string]: SlidingText };
+  static slidingTexts: { [key: string]: SlidingText } = {};
   constructor(
     text: string,
     textStyle: PIXI.TextStyle,
