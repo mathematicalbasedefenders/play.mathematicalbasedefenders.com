@@ -10,12 +10,14 @@ interface GameActionRecordInterface {
   owner: mongoose.Types.ObjectId | null | undefined;
   name: string;
   statistics: {
-    score: number;
-    timeInMilliseconds: number;
-    scoreSubmissionDateAndTime: Date;
-    actionsPerformed: number;
-    enemiesKilled: number;
-    enemiesCreated: number;
+    singleplayer: {
+      score: number;
+      timeInMilliseconds: number;
+      scoreSubmissionDateAndTime: Date;
+      actionsPerformed: number;
+      enemiesKilled: number;
+      enemiesCreated: number;
+    };
   };
 }
 
@@ -33,12 +35,14 @@ const GameActionRecordSchema = new mongoose.Schema<
     owner: SchemaTypes.ObjectId,
     name: String,
     statistics: {
-      score: Number,
-      timeInMilliseconds: Number,
-      scoreSubmissionDateAndTime: Date,
-      actionsPerformed: Number,
-      enemiesKilled: Number,
-      enemiesCreated: Number
+      singleplayer: {
+        score: Number,
+        timeInMilliseconds: Number,
+        scoreSubmissionDateAndTime: Date,
+        actionsPerformed: Number,
+        enemiesKilled: Number,
+        enemiesCreated: Number
+      }
     }
   },
   { timestamps: true }
