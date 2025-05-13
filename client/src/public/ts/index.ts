@@ -629,7 +629,11 @@ function initializeEventListeners() {
   //
   $("#quick-menu__content-button--quit").on("click", () => {
     variables.playing = false;
-    variables.watchingReplay = false;
+    if (variables.watchingReplay) {
+      variables.watchingReplay = false;
+      changeScreen("archiveMenu", true, true);
+      return;
+    }
     sendSocketMessage({
       message: "emulateKeypress",
       emulatedKeypress: "Escape"
