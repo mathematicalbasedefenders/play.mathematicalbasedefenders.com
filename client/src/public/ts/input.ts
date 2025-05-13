@@ -55,8 +55,11 @@ const ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE = [
 function initializeKeypressEventListener() {
   window.addEventListener("keydown", (event) => {
     // other client-side events start
-    handleClientSideEvents(event);
     const sendWebSocketMessage = checkIfShouldSendWebSocketMessage(event);
+    // override:
+    if (variables.watchingReplay && ABORT_KEYS.includes(event.code)) {
+      variables.watchingReplay = false;
+    }
     // see if a websocket message should be sent
     if (!sendWebSocketMessage) {
       return;
@@ -66,6 +69,7 @@ function initializeKeypressEventListener() {
       message: "keypress",
       keypress: event.code
     });
+    handleClientSideEvents(event);
     // main client-side events end
   });
 }
