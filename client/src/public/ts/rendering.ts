@@ -70,10 +70,11 @@ function render(elapsedMilliseconds: number) {
    * Updates the rendering of the `SlidingText`s.
    */
   function renderSlidingTexts() {
-    const slidingTexts = SlidingText.slidingTexts.filter(
-      (element) => element.rendering
+    const activeSlidingTexts = Object.keys(SlidingText.slidingTexts).filter(
+      (element) => SlidingText.slidingTexts[element].rendering
     );
-    for (const slidingText of slidingTexts) {
+    for (const id of activeSlidingTexts) {
+      const slidingText = SlidingText.slidingTexts[id];
       slidingText.timeSinceFirstRender += elapsedMilliseconds;
       const point = slidingText.slideBezier.calculatePoint(
         slidingText.timeSinceFirstRender
