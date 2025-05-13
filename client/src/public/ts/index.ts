@@ -509,12 +509,18 @@ function initializeEventListeners() {
         `Replay fetching error: `,
         `Error Code ${replayData.status}`
       );
+      $(
+        "#main-content__archive-screen-container__content__replay-details"
+      ).hide(0);
       return;
     }
     const replayDataJSON = await replayData.json();
     $(
       "#main-content__archive-screen-container__content__replay-statistics"
     ).text(formatReplayStatisticsText(replayDataJSON.data));
+    $("#main-content__archive-screen-container__content__replay-details").show(
+      0
+    );
   });
   $("#archive__start-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
@@ -530,6 +536,9 @@ function initializeEventListeners() {
         `Replay fetching error: `,
         `Error Code ${replayData.status}`
       );
+      $(
+        "#main-content__archive-screen-container__content__replay-details"
+      ).hide(0);
       return;
     }
     const replayDataJSON = await replayData.json();
