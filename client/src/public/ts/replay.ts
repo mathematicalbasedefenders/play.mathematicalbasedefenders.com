@@ -69,9 +69,10 @@ async function playReplay(replayData: Replay) {
         data.actionRecords[actionNumber].timestamp -
         data.actionRecords[actionNumber - 1].timestamp;
       await sleep(deltaTime);
+      // also add to clocks
+      replayGameData.clocks.comboReset.currentTime += deltaTime;
     }
     updateReplayGameData(replayGameData, data, actionNumber);
-    console.log(replayGameData);
     renderGameData(replayGameData);
   }
 }
@@ -110,6 +111,12 @@ function updateReplayGameData(
       // enemy killed = input correct, so remove
       replayGameData.currentInput = "";
       replayGameData.enemiesToErase.push(actionRecord.data.enemyID);
+      // add enemy killed
+      replayGameData.enemiesKilled++;
+      // reset combo time
+      replayGameData.clocks.comboReset.currentTime = 0;
+      // add combo
+      replayGameData.combo++;
       // ...
       break;
     }
