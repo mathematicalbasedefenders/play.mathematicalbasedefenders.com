@@ -55,6 +55,7 @@ const ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE = [
 function initializeKeypressEventListener() {
   window.addEventListener("keydown", (event) => {
     // other client-side events start
+    handleClientSideEvents(event);
     const sendWebSocketMessage = checkIfShouldSendWebSocketMessage(event);
     // see if a websocket message should be sent
     if (!sendWebSocketMessage) {
@@ -65,7 +66,6 @@ function initializeKeypressEventListener() {
       message: "keypress",
       keypress: event.code
     });
-    handleClientSideEvents(event);
     // main client-side events end
   });
 }
@@ -89,7 +89,7 @@ function handleClientSideEvents(event: KeyboardEvent) {
     variables.currentGameClientSide.currentInput =
       variables.currentGameClientSide.currentInput.substring(0, newLength);
   }
-  if (variables.playing && ABORT_KEYS.includes(event.code)) {
+  if (variables.watchingReplay && ABORT_KEYS.includes(event.code)) {
     variables.watchingReplay = false;
     changeScreen("archiveMenu", true, true);
   }
