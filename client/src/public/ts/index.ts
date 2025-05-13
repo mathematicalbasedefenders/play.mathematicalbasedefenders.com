@@ -514,7 +514,7 @@ function initializeEventListeners() {
     const replayDataJSON = await replayData.json();
     $(
       "#main-content__archive-screen-container__content__replay-statistics"
-    ).text(formatReplayStatisticsText(replayDataJSON));
+    ).text(formatReplayStatisticsText(replayDataJSON.data));
   });
   $("#archive__start-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
