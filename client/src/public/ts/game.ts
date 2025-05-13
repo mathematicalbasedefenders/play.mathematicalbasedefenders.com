@@ -78,7 +78,8 @@ function renderGameData(data: { [key: string]: any }) {
         }),
         slideBezier,
         fadeBezier,
-        1000
+        1000,
+        enemyID as string
       );
       slidingText.render();
     }
