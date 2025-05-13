@@ -208,6 +208,16 @@ function processInputInformation(
           gameDataToProcess.enemiesKilled += 1;
           if (gameDataToProcess instanceof SingleplayerGameData) {
             gameDataToProcess.enemiesToNextLevel -= 1;
+
+            if (room) {
+              room.gameActionRecord.addSetGameDataAction(
+                gameDataToProcess,
+                "player",
+                "enemiesToNextLevel",
+                _.get(gameDataToProcess, "enemiesToNextLevel")
+              );
+            }
+
             if (gameDataToProcess.enemiesToNextLevel <= 0) {
               gameDataToProcess.increaseLevel(1);
 
