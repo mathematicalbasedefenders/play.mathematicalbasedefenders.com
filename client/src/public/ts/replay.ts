@@ -46,6 +46,7 @@ async function fetchReplay(replayID: string) {
 async function playReplay(replayData: Replay) {
   const data = replayData.data;
   changeScreen("canvas", true, true);
+  variables.watchingReplay = true;
   const replayGameData: { [key: string]: any } = {
     commands: {},
     aborted: false
