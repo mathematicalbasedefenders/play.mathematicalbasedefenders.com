@@ -203,10 +203,11 @@ function formatReplayStatisticsText(data: { [key: string]: any }) {
       const apm =
         (statistics.actionsPerformed / statistics.timeInMilliseconds) * 60000;
       let text = ``;
+      text += `${data.name}\n`;
       text += `Score: ${statistics.score}\n`;
-      text += `Enemies: ${statistics.enemiesCreated}/${statistics.enemiesKilled}\n`;
+      text += `Enemies: ${statistics.enemiesKilled}/${statistics.enemiesCreated}\n`;
       text += `Actions Per Minute: ${apm}`;
-      text += `Replay Upload Time: ${statistics.scoreSubmissionDateAndTime.toISOString()}`;
+      text += `Replay Upload Time: ${statistics.scoreSubmissionDateAndTime}`;
       return text;
     }
     case "defaultMultiplayer": {
