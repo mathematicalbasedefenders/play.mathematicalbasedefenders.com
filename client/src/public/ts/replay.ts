@@ -3,6 +3,7 @@ import { changeScreen, renderGameData } from "./game";
 import { resetClientSideVariables } from "./rendering";
 import { Enemy } from "./enemies";
 import { variables } from ".";
+import { millisecondsToTime } from "./utilities";
 
 interface Replay {
   ok: boolean;
@@ -219,12 +220,13 @@ function formatReplayStatisticsText(data: { [key: string]: any }) {
     case "easySingleplayer":
     case "standardSingleplayer": {
       const statistics = data.statistics.singleplayer;
-      const apm =
-        (statistics.actionsPerformed / statistics.timeInMilliseconds) * 60000;
+      const ms = statistics.timeInMilliseconds;
+      const apm = (statistics.actionsPerformed / ms) * 60000;
       let text = ``;
       text += `${data.name}\n`;
       text += `Score: ${statistics.score}\n`;
       text += `Enemies: ${statistics.enemiesKilled}/${statistics.enemiesCreated}\n`;
+      text += `Elapsed Time: ${millisecondsToTime(ms)}\n`;
       text += `Actions Per Minute: ${apm.toFixed(3)}\n`;
       text += `Replay Upload Time: ${statistics.scoreSubmissionDateAndTime}`;
       return text;
