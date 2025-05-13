@@ -173,6 +173,7 @@ function updateReplayGameData(
       // "kill" (remove) all enemies to prevent enemies overflowing
       replayGameData.enemies = [];
       replayGameData.enemiesToErase = [];
+      variables.watchingReplay = false;
       changeScreen("archiveMenu", true, true);
       break;
     }
