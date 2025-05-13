@@ -207,12 +207,13 @@ function formatReplayStatisticsText(data: { [key: string]: any }) {
       text += `Enemies: ${statistics.enemiesCreated}/${statistics.enemiesKilled}\n`;
       text += `Actions Per Minute: ${apm}`;
       text += `Replay Upload Time: ${statistics.scoreSubmissionDateAndTime.toISOString()}`;
-      break;
+      return text;
     }
     case "defaultMultiplayer": {
-      break;
+      return "";
     }
   }
+  return "";
 }
 
 export { fetchReplay, playReplay, Replay, formatReplayStatisticsText };
