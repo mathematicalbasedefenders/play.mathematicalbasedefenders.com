@@ -1,4 +1,5 @@
 import { navigateFocus } from "./arrow-key-navigation";
+import { changeScreen } from "./game";
 import { variables } from "./index";
 import { sendSocketMessage, socket } from "./socket";
 const NUMBER_ROW_KEYS = [
@@ -87,6 +88,10 @@ function handleClientSideEvents(event: KeyboardEvent) {
     const newLength = variables.currentGameClientSide.currentInput.length - 1;
     variables.currentGameClientSide.currentInput =
       variables.currentGameClientSide.currentInput.substring(0, newLength);
+  }
+  if (variables.playing && ABORT_KEYS.includes(event.code)) {
+    variables.watchingReplay = false;
+    changeScreen("archiveMenu", true, true);
   }
 }
 
