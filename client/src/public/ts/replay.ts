@@ -206,7 +206,7 @@ function formatReplayStatisticsText(data: { [key: string]: any }) {
       text += `${data.name}\n`;
       text += `Score: ${statistics.score}\n`;
       text += `Enemies: ${statistics.enemiesKilled}/${statistics.enemiesCreated}\n`;
-      text += `Actions Per Minute: ${apm}`;
+      text += `Actions Per Minute: ${apm.toFixed(3)}\n`;
       text += `Replay Upload Time: ${statistics.scoreSubmissionDateAndTime}`;
       return text;
     }
