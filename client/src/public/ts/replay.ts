@@ -57,6 +57,9 @@ async function playReplay(replayData: Replay) {
   replayGameData.mode = "standardSingleplayer";
 
   for (let actionNumber = 0; actionNumber < dataLength; actionNumber++) {
+    if (!variables.watchingReplay) {
+      break;
+    }
     if (actionNumber > 0) {
       const deltaTime =
         data.actionRecords[actionNumber].timestamp -
