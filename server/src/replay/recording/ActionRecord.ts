@@ -186,7 +186,9 @@ class GameActionRecord {
     this.actionRecords = [];
   }
 
-  async save() {
+  async save(mode: string, data: GameData | Array<any>) {
+    const timestamp = new Date();
+
     const databaseGameActionRecord = new DatabaseGameActionRecord();
     databaseGameActionRecord.actionRecords = this.actionRecords;
     databaseGameActionRecord.recordingVersion = this.recordingVersion;
@@ -194,9 +196,45 @@ class GameActionRecord {
     databaseGameActionRecord.owner = this.owner?.ownerUserID
       ? new mongoose.Types.ObjectId(this.owner.ownerUserID as string)
       : null;
-    databaseGameActionRecord.name = `Game on timestamp ${new Date()} played by ${
+    databaseGameActionRecord.name = `Game on timestamp ${timestamp.toISOString()} played by ${
       this.owner?.ownerUsername
     }`;
+    databaseGameActionRecord.mode = mode;
+
+    switch (mode) {
+      case "easySingleplayer":
+      case "standardSingleplayer": {
+        if (!(data instanceof GameData)) {
+          log.error(
+            `Expected type GameData of singleplayer for data argument, got: ${typeof data}`
+          );
+          log.warn(`Game details of replay aren't saved.`);
+          break;
+        }
+        databaseGameActionRecord.statistics.singleplayer = {
+          score: data.score,
+          timeInMilliseconds: data.elapsedTime,
+          scoreSubmissionDateAndTime: timestamp,
+          enemiesCreated: data.enemiesSpawned,
+          enemiesKilled: data.enemiesKilled,
+          actionsPerformed: data.actionsPerformed
+        };
+        break;
+      }
+      case "defaultMultiplayer": {
+        if (!(data instanceof Array)) {
+          log.error(
+            `Expected type Array of multiplayer game ranks for data argument, got: ${typeof data}`
+          );
+          log.warn(`Game details of replay aren't saved.`);
+          break;
+        }
+        databaseGameActionRecord.statistics.multiplayer = {
+          ranking: data
+        };
+        break;
+      }
+    }
 
     try {
       await databaseGameActionRecord.save();
