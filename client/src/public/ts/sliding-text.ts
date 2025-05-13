@@ -13,14 +13,16 @@ class SlidingText {
   rendering!: boolean;
   textSprite!: PIXI.Text;
   duration!: number;
+  enemyID!: string;
   timeSinceFirstRender!: number;
-  static slidingTexts: Array<SlidingText> = [];
+  static slidingTexts: { [key: string]: SlidingText };
   constructor(
     text: string,
     textStyle: PIXI.TextStyle,
     slideBezier: BezierCurve,
     fadeBezier: BezierCurve,
-    duration: number
+    duration: number,
+    enemyID: string
   ) {
     this.duration = duration;
     this.text = text;
@@ -28,8 +30,9 @@ class SlidingText {
     this.slideBezier = slideBezier;
     this.fadeBezier = fadeBezier;
     this.rendering = false;
+    this.enemyID = enemyID;
     this.textSprite = new PIXI.Text(this.text, this.textStyle);
-    SlidingText.slidingTexts.push(this);
+    SlidingText.slidingTexts[enemyID] = this;
   }
 
   /**
@@ -47,7 +50,7 @@ class SlidingText {
   delete() {
     playerContainer.removeChild(this.textSprite);
     this.rendering = false;
-    SlidingText.slidingTexts.splice(SlidingText.slidingTexts.indexOf(this), 1);
+    delete SlidingText.slidingTexts[this.enemyID];
   }
 }
 export { SlidingText };
