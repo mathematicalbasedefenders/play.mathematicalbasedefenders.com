@@ -170,7 +170,7 @@ function updateReplayGameData(
       break;
     }
     case "gameOver": {
-      changeScreen("archiveMenu");
+      changeScreen("archiveMenu", true, true);
       break;
     }
     case "elimination": {
