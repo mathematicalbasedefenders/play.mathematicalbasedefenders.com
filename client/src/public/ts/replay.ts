@@ -2,6 +2,7 @@ import _ from "lodash";
 import { changeScreen, renderGameData } from "./game";
 import { resetClientSideVariables } from "./rendering";
 import { Enemy } from "./enemies";
+import { variables } from ".";
 
 interface Replay {
   ok: boolean;
