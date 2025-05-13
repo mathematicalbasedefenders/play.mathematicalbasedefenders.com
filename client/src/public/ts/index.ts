@@ -166,7 +166,8 @@ const variables: { [key: string]: any } = {
       registeredPlayers: new Set(),
       playerCount: 0
     }
-  }
+  },
+  watchingReplay: false
 };
 
 async function initializeTextures() {
