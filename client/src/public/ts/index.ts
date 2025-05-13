@@ -629,6 +629,7 @@ function initializeEventListeners() {
   //
   $("#quick-menu__content-button--quit").on("click", () => {
     variables.playing = false;
+    variables.watchingReplay = false;
     sendSocketMessage({
       message: "emulateKeypress",
       emulatedKeypress: "Escape"
