@@ -61,7 +61,7 @@ async function playReplay(replayData: Replay) {
     if (!variables.watchingReplay) {
       replayGameData.enemies = [];
       replayGameData.enemiesToErase = [];
-      variables.watchingReplay = false;
+      changeScreen("archiveMenu", true, true);
       break;
     }
     if (actionNumber > 0) {

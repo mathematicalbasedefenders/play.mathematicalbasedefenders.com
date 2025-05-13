@@ -91,7 +91,6 @@ function handleClientSideEvents(event: KeyboardEvent) {
   }
   if (variables.watchingReplay && ABORT_KEYS.includes(event.code)) {
     variables.watchingReplay = false;
-    changeScreen("archiveMenu", true, true);
   }
 }
 
