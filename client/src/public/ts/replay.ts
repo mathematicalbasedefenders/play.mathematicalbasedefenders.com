@@ -170,6 +170,9 @@ function updateReplayGameData(
       break;
     }
     case "gameOver": {
+      // "kill" (remove) all enemies to prevent enemies overflowing
+      replayGameData.enemies = [];
+      replayGameData.enemiesToErase = [];
       changeScreen("archiveMenu", true, true);
       break;
     }
