@@ -195,4 +195,24 @@ function sleep(milliseconds: number) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-export { fetchReplay, playReplay, Replay };
+function formatReplayStatisticsText(data: { [key: string]: any }) {
+  switch (data.mode) {
+    case "easySingleplayer":
+    case "standardSingleplayer": {
+      const statistics = data.statistics.singleplayer;
+      const apm =
+        (statistics.actionsPerformed / statistics.timeInMilliseconds) * 60000;
+      let text = ``;
+      text += `Score: ${statistics.score}\n`;
+      text += `Enemies: ${statistics.enemiesCreated}/${statistics.enemiesKilled}\n`;
+      text += `Actions Per Minute: ${apm}`;
+      text += `Replay Upload Time: ${statistics.scoreSubmissionDateAndTime.toISOString()}`;
+      break;
+    }
+    case "defaultMultiplayer": {
+      break;
+    }
+  }
+}
+
+export { fetchReplay, playReplay, Replay, formatReplayStatisticsText };
