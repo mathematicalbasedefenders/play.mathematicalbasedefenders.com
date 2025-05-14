@@ -243,7 +243,7 @@ function formatReplayStatisticsText(data: { [key: string]: any }) {
     case "defaultMultiplayer": {
       const statistics = data.statistics.multiplayer;
       let text = ``;
-      text += `Multiplayer game played on ${data.timestamp}`;
+      text += `Multiplayer game played on ${data.timestamp} `;
       text += `with ${statistics.ranking.length} players.`;
       return text;
     }
@@ -251,4 +251,25 @@ function formatReplayStatisticsText(data: { [key: string]: any }) {
   return "";
 }
 
-export { fetchReplay, playReplay, Replay, formatReplayStatisticsText };
+function getPlayerListOptions(data: any) {
+  const options = [];
+  const ranking = data.statistics.multiplayer.ranking;
+  ranking.reverse();
+  let rank = 0;
+  for (const player of ranking) {
+    rank++;
+    const playerName = player.name;
+    const playerConnectionID = player.connectionID;
+    const option = new Option(`${playerName} (#${rank})`, playerConnectionID);
+    options.push(option);
+  }
+  return options;
+}
+
+export {
+  fetchReplay,
+  playReplay,
+  Replay,
+  formatReplayStatisticsText,
+  getPlayerListOptions
+};

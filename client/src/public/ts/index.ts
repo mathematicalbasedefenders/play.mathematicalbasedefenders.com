@@ -31,6 +31,7 @@ import { TextStyle } from "pixi.js";
 import {
   fetchReplay,
   formatReplayStatisticsText,
+  getPlayerListOptions,
   playReplay,
   Replay
 } from "./replay";
@@ -522,6 +523,36 @@ function initializeEventListeners() {
     $("#main-content__archive-screen-container__content__replay-details").show(
       0
     );
+    $(
+      "#main-content__archive-screen-container__content__replay-selector__wrapper"
+    ).empty();
+    if (replayDataJSON.data.mode === "defaultMultiplayer") {
+      // TODO: ???????
+      const options = getPlayerListOptions(replayDataJSON.data);
+      console.log(options);
+      $(
+        "#main-content__archive-screen-container__content__replay-selector__wrapper"
+      ).append("View replay as: ");
+      const selector = $(
+        `<select id="main-content__archive-screen-container__content__replay-selector"></select>`
+      );
+      $(
+        "#main-content__archive-screen-container__content__replay-selector__wrapper"
+      ).append(selector);
+      for (const option of options) {
+        $(option).html(option.text);
+        $(
+          "#main-content__archive-screen-container__content__replay-selector"
+        ).append(option);
+      }
+      $(
+        "#main-content__archive-screen-container__content__replay-selector__wrapper"
+      ).show(0);
+    } else {
+      $(
+        "#main-content__archive-screen-container__content__replay-selector__wrapper"
+      ).hide(0);
+    }
   });
   $("#archive__start-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
