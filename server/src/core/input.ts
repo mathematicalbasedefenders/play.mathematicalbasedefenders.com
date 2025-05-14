@@ -258,7 +258,7 @@ function processInputInformation(
                 gameDataToProcess,
                 "player",
                 "attackScore",
-                gameDataToProcess.score
+                gameDataToProcess.attackScore
               );
             }
             room.gameActionRecord.addEnemyKillAction(enemy, gameDataToProcess);
