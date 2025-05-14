@@ -112,7 +112,7 @@ class Opponent {
   autoReposition() {
     const position = this.getInstanceNumberPosition();
     const divisor = Math.max(
-      Math.floor(Math.sqrt(Opponent.instances.length)) - 1,
+      Math.floor(Math.sqrt(Opponent.instances.length)),
       1
     );
     const playerPlayfield = playerContainer.getChildByLabel("playerPlayfield");
@@ -271,7 +271,7 @@ class Opponent {
     const initialScale = 1 / 3;
     const ratio = 4 / 5;
     const exponent = Math.max(
-      Math.floor(Math.sqrt(Opponent.instances.length)) - 1,
+      Math.floor(Math.sqrt(Opponent.instances.length)),
       1
     );
     Opponent.globalScale = initialScale * ratio ** exponent;
