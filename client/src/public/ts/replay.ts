@@ -76,6 +76,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
       replayGameData.clocks.comboReset.currentTime += deltaTime;
     }
     updateReplayGameData(replayGameData, data, actionNumber);
+    console.log(replayGameData);
     renderGameData(replayGameData);
   }
 }
@@ -96,6 +97,19 @@ function updateReplayGameData(
   }
 
   const actionRecord = data.actionRecords[actionNumber];
+
+  // returns in connectionID
+  if (data.mode === "defaultMultiplayer") {
+    const updateOpponent =
+      getWhoseDataToUpdate(actionRecord) !== replayGameData.viewAs;
+    const isAddUserAction = actionRecord.action === "addUser";
+    const isRoomScoped = actionRecord.scope === "room";
+    if (!isAddUserAction && updateOpponent && !isRoomScoped) {
+      // update someone else...
+      updateOpponentGameData(actionRecord, replayGameData);
+      return;
+    }
+  }
 
   switch (actionRecord.action) {
     case "keypress": {
@@ -219,7 +233,14 @@ function updateReplayGameData(
         replayGameData.connectionID = actionRecord.data.connectionID;
       } else {
         // is multiplayer
-        if (replayGameData.viewAs === actionRecord.data.connectionID) {
+        console.log(
+          "viewAs",
+          replayGameData.viewAs,
+          actionRecord.data.playerAdded.connectionID
+        );
+        if (
+          replayGameData.viewAs === actionRecord.data.playerAdded.connectionID
+        ) {
           replayGameData.owner = actionRecord.data.playerAdded.name;
           replayGameData.userID = actionRecord.data.playerAdded.userID;
           replayGameData.connectionID =
@@ -241,6 +262,80 @@ function updateReplayGameData(
     }
     case "setGameData": {
       _.set(replayGameData, actionRecord.data.key, actionRecord.data.value);
+      break;
+    }
+  }
+}
+
+/**
+ * Use this in multiplayer replays where the action record owner isn't the main viewer.
+ * @param actionRecord
+ * @param replayGameData
+ */
+function updateOpponentGameData(actionRecord: any, replayGameData: any) {
+  console.log(actionRecord);
+  const connectionID = actionRecord.user.connectionID;
+  const opponentGameData = replayGameData.opponentGameData.find(
+    (element: any) => element.owner === connectionID
+  );
+  console.log(opponentGameData);
+  switch (actionRecord.action) {
+    case "keypress": {
+      break;
+    }
+    case "submit": {
+      break;
+    }
+    case "enemyKill": {
+      opponentGameData.enemiesToErase.push(actionRecord.data.enemyID);
+      opponentGameData.combo++;
+      // ...
+      break;
+    }
+    case "attack": {
+      break;
+    }
+    case "stockCancel": {
+      break;
+    }
+    case "stockAdd": {
+      break;
+    }
+    case "stockRelease": {
+      break;
+    }
+    case "enemyReceive": {
+      break;
+    }
+    case "enemySpawn": {
+      opponentGameData.enemies.push({
+        "requestedValue": "",
+        "displayedText": actionRecord.data.displayedText,
+        "xPosition": actionRecord.data.xPosition,
+        "sPosition": actionRecord.data.sPosition,
+        "speed": actionRecord.data.speed,
+        "id": actionRecord.data.id
+      });
+      break;
+    }
+    case "enemyReachedBase": {
+      break;
+    }
+    case "gameStart": {
+      break;
+    }
+    case "gameOver": {
+      //TODO: this
+      break;
+    }
+    case "elimination": {
+      break;
+    }
+    case "declareWinner": {
+      break;
+    }
+    case "setGameData": {
+      // _.set(replayGameData, actionRecord.data.key, actionRecord.data.value);
       break;
     }
   }
@@ -290,6 +385,10 @@ function getPlayerListOptions(data: any) {
     options.push(option);
   }
   return options;
+}
+
+function getWhoseDataToUpdate(actionRecord: any) {
+  return actionRecord?.user?.connectionID ?? "";
 }
 
 export {
