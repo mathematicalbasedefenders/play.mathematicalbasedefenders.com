@@ -729,7 +729,8 @@ class MultiplayerRoom extends Room {
         received: gameData.totalEnemiesReceived,
         isRegistered: false,
         nameColor: "",
-        userID: ""
+        userID: "",
+        connectionID: gameData.ownerConnectionID
       };
       if (socket?.ownerUserID) {
         // is registered
@@ -831,7 +832,8 @@ class MultiplayerRoom extends Room {
           received: winnerGameData.totalEnemiesReceived,
           isRegistered: false,
           nameColor: "",
-          userID: ""
+          userID: "",
+          connectionID: winnerGameData.ownerConnectionID
         };
         if (winnerSocket?.ownerUserID) {
           // is registered
