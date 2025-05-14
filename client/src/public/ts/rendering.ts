@@ -15,6 +15,7 @@ function render(elapsedMilliseconds: number) {
    * Update replay data as well
    */
   if (variables.watchingReplay) {
+    renderEnemies();
     updateReplayGameDataLikeServer(elapsedMilliseconds);
     renderGameData(replayGameData);
   }

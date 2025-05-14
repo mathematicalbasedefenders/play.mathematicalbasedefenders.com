@@ -1,7 +1,12 @@
 import _ from "lodash";
 import { changeScreen, renderGameData } from "./game";
 import { resetClientSideVariables } from "./rendering";
-import { Enemy, getScaledEnemyHeight, getScaledEnemyWidth } from "./enemies";
+import {
+  Enemy,
+  getScaledEnemyHeight,
+  getScaledEnemyWidth,
+  deleteAllEnemies
+} from "./enemies";
 import { variables } from ".";
 import { formatNumber, millisecondsToTime } from "./utilities";
 import { Opponent } from "./opponent";
@@ -66,6 +71,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
       replayGameData.enemiesToErase = [];
       changeScreen("archiveMenu", true, true);
       Opponent.destroyAllInstances();
+      deleteAllEnemies();
       break;
     }
     if (actionNumber > 0) {
