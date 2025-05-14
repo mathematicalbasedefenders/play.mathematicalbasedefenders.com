@@ -225,7 +225,7 @@ class Opponent {
    * Destroys (remove) all Opponent game instances.
    * This just calls `.destroy()` on every Opponent game instance.
    */
-  destroyAllInstances() {
+  static destroyAllInstances() {
     for (let instance of Opponent.instances) {
       instance.destroy();
     }
