@@ -574,7 +574,14 @@ function initializeEventListeners() {
       return;
     }
     const replayDataJSON = await replayData.json();
-    playReplay(replayDataJSON);
+    if (replayDataJSON.data.mode === "defaultMultiplayer") {
+      const viewAs = $(
+        "#main-content__archive-screen-container__content__replay-selector"
+      ).val();
+      playReplay(replayDataJSON, viewAs as string);
+    } else {
+      playReplay(replayDataJSON);
+    }
   });
   //
   $("#settings-screen__content--online__submit").on("click", async (event) => {
