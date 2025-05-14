@@ -1,6 +1,8 @@
 import { stageItems, variables } from ".";
 import { renderBeautifulScoreDisplay } from "./beautiful-score-display";
 import { Enemy, getEnemyFromCache } from "./enemies";
+import { renderGameData } from "./game";
+import { replayGameData, updateReplayGameDataLikeServer } from "./replay";
 import { SlidingText } from "./sliding-text";
 import { formatNumber, millisecondsToTime } from "./utilities";
 
@@ -9,6 +11,14 @@ import { formatNumber, millisecondsToTime } from "./utilities";
  * This should be overwritten by server data.
  */
 function render(elapsedMilliseconds: number) {
+  /**
+   * Update replay data as well
+   */
+  if (variables.watchingReplay) {
+    updateReplayGameDataLikeServer(elapsedMilliseconds);
+    renderGameData(replayGameData);
+  }
+
   /**
    * Updates the shown client-side `Enemy`s.
    */

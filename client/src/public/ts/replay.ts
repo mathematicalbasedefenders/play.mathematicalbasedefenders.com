@@ -5,6 +5,7 @@ import { Enemy, getScaledEnemyHeight, getScaledEnemyWidth } from "./enemies";
 import { variables } from ".";
 import { formatNumber, millisecondsToTime } from "./utilities";
 
+const replayGameData: { [key: string]: any } = {};
 interface Replay {
   ok: boolean;
   reason: string;
@@ -48,10 +49,8 @@ async function playReplay(replayData: Replay, viewAs?: string) {
   const data = replayData.data;
   changeScreen("canvas", true, true);
   variables.watchingReplay = true;
-  const replayGameData: { [key: string]: any } = {
-    commands: {},
-    aborted: false
-  };
+  replayGameData.commands = {};
+  replayGameData.aborted = false;
   const dataLength = data.actionRecords.length;
 
   // TODO: actionNumber == 0 ?
@@ -73,11 +72,8 @@ async function playReplay(replayData: Replay, viewAs?: string) {
         data.actionRecords[actionNumber - 1].timestamp;
       await sleep(deltaTime);
       // also add to clocks
-      replayGameData.clocks.comboReset.currentTime += deltaTime;
     }
     updateReplayGameData(replayGameData, data, actionNumber);
-    console.log(replayGameData);
-    renderGameData(replayGameData);
   }
 }
 
@@ -391,10 +387,30 @@ function getWhoseDataToUpdate(actionRecord: any) {
   return actionRecord?.user?.connectionID ?? "";
 }
 
+/**
+ * Updates the replay game data while mimicking the server's replay game data update process.
+ * @param replayGameData
+ * @param deltaTime
+ */
+function updateReplayGameDataLikeServer(deltaTime: number) {
+  // clocks
+  replayGameData.clocks.comboReset.currentTime += deltaTime;
+  // opponents
+  const opponentGameData = replayGameData.opponentGameData;
+  for (const opponentData of opponentGameData) {
+    // enemies
+    for (const enemy of opponentData.enemies) {
+      enemy.sPosition -= (deltaTime / 1000) * enemy.speed;
+    }
+  }
+}
+
 export {
   fetchReplay,
   playReplay,
   Replay,
   formatReplayStatisticsText,
-  getPlayerListOptions
+  getPlayerListOptions,
+  updateReplayGameDataLikeServer,
+  replayGameData
 };
