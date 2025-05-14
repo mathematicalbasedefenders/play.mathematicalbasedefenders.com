@@ -4,6 +4,7 @@ import { resetClientSideVariables } from "./rendering";
 import { Enemy, getScaledEnemyHeight, getScaledEnemyWidth } from "./enemies";
 import { variables } from ".";
 import { formatNumber, millisecondsToTime } from "./utilities";
+import { Opponent } from "./opponent";
 
 const replayGameData: { [key: string]: any } = {};
 interface Replay {
@@ -64,6 +65,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
       replayGameData.enemies = [];
       replayGameData.enemiesToErase = [];
       changeScreen("archiveMenu", true, true);
+      Opponent.destroyAllInstances();
       break;
     }
     if (actionNumber > 0) {
@@ -314,6 +316,7 @@ function updateOpponentGameData(actionRecord: any, replayGameData: any) {
       break;
     }
     case "enemyReachedBase": {
+      opponentData.enemiesToErase.push(actionRecord.data.enemyID);
       break;
     }
     case "gameStart": {
