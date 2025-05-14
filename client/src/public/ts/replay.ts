@@ -44,7 +44,7 @@ async function fetchReplay(replayID: string) {
   return data;
 }
 
-async function playReplay(replayData: Replay) {
+async function playReplay(replayData: Replay, viewAs?: string) {
   const data = replayData.data;
   changeScreen("canvas", true, true);
   variables.watchingReplay = true;
@@ -56,6 +56,9 @@ async function playReplay(replayData: Replay) {
 
   // TODO: actionNumber == 0 ?
   replayGameData.mode = data.mode;
+
+  // only for multiplayer
+  replayGameData.viewAs = viewAs ?? "";
 
   for (let actionNumber = 0; actionNumber < dataLength; actionNumber++) {
     if (!variables.watchingReplay) {
@@ -192,6 +195,7 @@ function updateReplayGameData(
       };
       replayGameData.enemySpeedCoefficient = 1;
       replayGameData.enemySpawnThreshold = 0.1;
+      replayGameData.opponentGameData = [];
       break;
     }
     case "gameOver": {
@@ -209,8 +213,30 @@ function updateReplayGameData(
       break;
     }
     case "addUser": {
-      replayGameData.owner = actionRecord.data.name;
-      replayGameData.userID = actionRecord.data.userID;
+      if (data.mode.indexOf("Singleplayer") > -1) {
+        replayGameData.owner = actionRecord.data.name;
+        replayGameData.userID = actionRecord.data.userID;
+        replayGameData.connectionID = actionRecord.data.connectionID;
+      } else {
+        // is multiplayer
+        if (replayGameData.viewAs === actionRecord.data.connectionID) {
+          replayGameData.owner = actionRecord.data.playerAdded.name;
+          replayGameData.userID = actionRecord.data.playerAdded.userID;
+          replayGameData.connectionID =
+            actionRecord.data.playerAdded.connectionID;
+        } else {
+          replayGameData.opponentGameData.push({
+            baseHealth: 100,
+            combo: -1,
+            currentInput: "",
+            receivedEnemiesStock: 0,
+            owner: actionRecord.data.playerAdded.connectionID,
+            ownerName: actionRecord.data.playerAdded.name,
+            enemies: [],
+            enemiesToErase: []
+          });
+        }
+      }
       break;
     }
     case "setGameData": {
