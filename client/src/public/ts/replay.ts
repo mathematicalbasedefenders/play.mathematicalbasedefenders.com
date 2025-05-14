@@ -55,7 +55,6 @@ async function playReplay(replayData: Replay) {
   const dataLength = data.actionRecords.length;
 
   // TODO: actionNumber == 0 ?
-  // FIXME: also get mode from server (this is a placeholder)
   replayGameData.mode = data.mode;
 
   for (let actionNumber = 0; actionNumber < dataLength; actionNumber++) {
