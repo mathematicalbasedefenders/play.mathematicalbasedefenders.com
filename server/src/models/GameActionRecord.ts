@@ -19,7 +19,9 @@ interface GameActionRecordInterface {
       enemiesKilled: number;
       enemiesCreated: number;
     };
-    multiplayer?: {};
+    multiplayer?: {
+      ranking: any;
+    };
   };
 }
 
@@ -45,6 +47,9 @@ const GameActionRecordSchema = new mongoose.Schema<
         actionsPerformed: Number,
         enemiesKilled: Number,
         enemiesCreated: Number
+      },
+      multiplayer: {
+        ranking: Array<any>
       }
     }
   },
