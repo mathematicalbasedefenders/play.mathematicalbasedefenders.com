@@ -274,6 +274,7 @@ function processInputInformation(
           gameDataToProcess.receivedEnemiesToSpawn +=
             gameDataToProcess.receivedEnemiesStock;
           gameDataToProcess.receivedEnemiesStock = 0;
+          room?.gameActionRecord.addStockReleaseAction(gameDataToProcess);
         }
       }
       break;
