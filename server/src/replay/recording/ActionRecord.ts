@@ -200,6 +200,7 @@ class GameActionRecord {
       this.owner?.ownerUsername
     }`;
     databaseGameActionRecord.mode = mode;
+    databaseGameActionRecord.timestamp = timestamp;
 
     switch (mode) {
       case "easySingleplayer":

@@ -10,6 +10,7 @@ interface GameActionRecordInterface {
   owner: mongoose.Types.ObjectId | null | undefined;
   name: string;
   mode: string;
+  timestamp: Date;
   statistics: {
     singleplayer?: {
       score: number;
@@ -39,6 +40,7 @@ const GameActionRecordSchema = new mongoose.Schema<
     owner: SchemaTypes.ObjectId,
     name: String,
     mode: String,
+    timestamp: Date,
     statistics: {
       singleplayer: {
         score: Number,
