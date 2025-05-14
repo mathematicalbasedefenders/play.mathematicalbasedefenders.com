@@ -309,12 +309,12 @@ function updateOpponentGameData(actionRecord: any, replayGameData: any) {
     }
     case "enemySpawn": {
       opponentGameData.enemies.push({
-        "requestedValue": "",
-        "displayedText": actionRecord.data.displayedText,
-        "xPosition": actionRecord.data.xPosition,
-        "sPosition": actionRecord.data.sPosition,
-        "speed": actionRecord.data.speed,
-        "id": actionRecord.data.id
+        requestedValue: "",
+        displayedText: actionRecord.data.displayedText,
+        xPosition: actionRecord.data.xPosition,
+        sPosition: actionRecord.data.sPosition,
+        speed: actionRecord.data.speed,
+        id: actionRecord.data.id
       });
       break;
     }
