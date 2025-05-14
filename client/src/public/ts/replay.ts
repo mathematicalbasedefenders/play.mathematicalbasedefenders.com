@@ -56,7 +56,7 @@ async function playReplay(replayData: Replay) {
 
   // TODO: actionNumber == 0 ?
   // FIXME: also get mode from server (this is a placeholder)
-  replayGameData.mode = "standardSingleplayer";
+  replayGameData.mode = data.mode;
 
   for (let actionNumber = 0; actionNumber < dataLength; actionNumber++) {
     if (!variables.watchingReplay) {
