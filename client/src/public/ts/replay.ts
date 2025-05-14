@@ -145,12 +145,15 @@ function updateReplayGameData(
       break;
     }
     case "stockCancel": {
+      replayGameData.receivedEnemiesStock -= actionRecord.data.amount;
       break;
     }
     case "stockAdd": {
+      replayGameData.receivedEnemiesStock += actionRecord.data.amount;
       break;
     }
     case "stockRelease": {
+      replayGameData.receivedEnemiesStock = 0;
       break;
     }
     case "enemyReceive": {
@@ -197,6 +200,7 @@ function updateReplayGameData(
       replayGameData.baseHealthRegeneration = 2;
       replayGameData.maximumBaseHealth = 100;
       replayGameData.actionsPerformed = 0;
+      replayGameData.receivedEnemiesStock = 0;
       replayGameData.clocks = {
         enemySpawn: {
           actionTime: 0,
@@ -299,12 +303,15 @@ function updateOpponentGameData(actionRecord: any, replayGameData: any) {
       break;
     }
     case "stockCancel": {
+      replayGameData.receivedEnemiesStock -= actionRecord.data.amount;
       break;
     }
     case "stockAdd": {
+      opponentData.receivedEnemiesStock += actionRecord.data.amount;
       break;
     }
     case "stockRelease": {
+      opponentData.receivedEnemiesStock = 0;
       break;
     }
     case "enemyReceive": {
