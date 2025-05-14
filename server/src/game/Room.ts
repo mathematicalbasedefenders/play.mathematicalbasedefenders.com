@@ -635,7 +635,14 @@ class MultiplayerRoom extends Room {
             BASE_ENEMY_SPEED * data.enemySpeedCoefficient * (deltaTime / 1000)
           );
           if (enemy.sPosition <= 0) {
+            this.gameActionRecord.addEnemyReachedBaseAction(enemy, data);
             enemy.remove(data, 10);
+            this.gameActionRecord.addSetGameDataAction(
+              data,
+              "player",
+              "baseHealth",
+              data.baseHealth
+            );
           }
         }
         if (data.baseHealth <= 0) {
