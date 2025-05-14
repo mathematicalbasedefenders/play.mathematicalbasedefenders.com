@@ -269,12 +269,11 @@ function updateReplayGameData(
  * @param replayGameData
  */
 function updateOpponentGameData(actionRecord: any, replayGameData: any) {
-  console.log(actionRecord);
   const connectionID = actionRecord.user.connectionID;
-  const opponentGameData = replayGameData.opponentGameData.find(
+  const opponentData = replayGameData.opponentGameData.find(
     (element: any) => element.owner === connectionID
   );
-  console.log(opponentGameData);
+  console.log(opponentData);
   switch (actionRecord.action) {
     case "keypress": {
       break;
@@ -283,8 +282,8 @@ function updateOpponentGameData(actionRecord: any, replayGameData: any) {
       break;
     }
     case "enemyKill": {
-      opponentGameData.enemiesToErase.push(actionRecord.data.enemyID);
-      opponentGameData.combo++;
+      opponentData.enemiesToErase.push(actionRecord.data.enemyID);
+      opponentData.combo++;
       // ...
       break;
     }
@@ -304,7 +303,7 @@ function updateOpponentGameData(actionRecord: any, replayGameData: any) {
       break;
     }
     case "enemySpawn": {
-      opponentGameData.enemies.push({
+      opponentData.enemies.push({
         requestedValue: "",
         displayedText: actionRecord.data.displayedText,
         xPosition: actionRecord.data.xPosition,
@@ -331,7 +330,11 @@ function updateOpponentGameData(actionRecord: any, replayGameData: any) {
       break;
     }
     case "setGameData": {
-      // _.set(replayGameData, actionRecord.data.key, actionRecord.data.value);
+      if (actionRecord.data.key.indexOf("owner.") > -1) {
+        // this messes everything up, and its already set in the main update function
+        return;
+      }
+      _.set(opponentData, actionRecord.data.key, actionRecord.data.value);
       break;
     }
   }
