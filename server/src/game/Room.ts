@@ -713,6 +713,15 @@ class MultiplayerRoom extends Room {
           if (targetedOpponentGameData) {
             targetedOpponentGameData.receivedEnemiesStock += 1;
             targetedOpponentGameData.totalEnemiesReceived += 1;
+            const room = findRoomWithConnectionID(
+              targetedOpponentGameData.ownerConnectionID
+            );
+            if (room) {
+              room.gameActionRecord.addStockAddAction(
+                targetedOpponentGameData,
+                1
+              );
+            }
           }
         }
       }
