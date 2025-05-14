@@ -309,9 +309,7 @@ function changeScreen(
   }
   variables.navigation.focusing = null;
   // TODO: temporary
-  for (let opponent of Opponent.instances) {
-    opponent.destroyAllInstances();
-  }
+  Opponent.destroyAllInstances();
   enemies.deleteAllEnemies();
   enemies.Enemy.enemiesDrawn = []; // TODO: Consider moving this to specific screens only.
   // actually change screen
