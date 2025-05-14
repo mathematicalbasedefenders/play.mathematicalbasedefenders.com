@@ -242,7 +242,11 @@ function formatReplayStatisticsText(data: { [key: string]: any }) {
       return text;
     }
     case "defaultMultiplayer": {
-      return "";
+      const statistics = data.statistics.multiplayer;
+      let text = ``;
+      text += `Multiplayer game played on ${data.timestamp}`;
+      text += `with ${statistics.ranking.length} players.`;
+      return text;
     }
   }
   return "";
