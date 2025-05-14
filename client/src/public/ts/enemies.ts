@@ -201,6 +201,17 @@ class Enemy {
       variables.currentGameClientSide.level
     ).toLocaleString("en-US");
   }
+
+  deleteSprite() {
+    const text = getCachedEnemy(this.id)?.textSprite;
+    const sprite = getCachedEnemy(this.id)?.sprite;
+    if (typeof sprite !== "undefined") {
+      playerContainer.removeChild(sprite);
+    }
+    if (typeof text !== "undefined") {
+      playerContainer.removeChild(text);
+    }
+  }
 }
 
 /**

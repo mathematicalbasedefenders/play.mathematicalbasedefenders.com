@@ -199,6 +199,15 @@ class Opponent {
         40 -
         getScaledEnemyHeight() -
         28;
+
+      if (enemyData.sPosition < 0) {
+        // delete just the sprite
+        if (this.enemies[`enemy${id}`].parent) {
+          this.enemies[`enemy${id}`].parent.removeChild(
+            this.enemies[`enemy${id}`]
+          );
+        }
+      }
     }
   }
 
