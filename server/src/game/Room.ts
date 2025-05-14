@@ -795,17 +795,6 @@ class MultiplayerRoom extends Room {
         }
 
         this.gameActionRecord.addGameOverAction();
-        // submit replay here.
-
-        if (
-          this.memberConnectionIDs.filter(
-            (e) => getSocketFromConnectionID(e)?.loggedIn
-          ).length >= 1
-        ) {
-          this.gameActionRecord.save(this.mode, this.ranking);
-        } else {
-          log.info("Not saving multiplayer game because no one is logged in.");
-        }
 
         // add exp to winner socket
         if (winnerSocket?.ownerUserID) {
@@ -851,6 +840,17 @@ class MultiplayerRoom extends Room {
           data.nameColor = winnerSocket.playerRank?.color ?? "#ffffff";
         }
         this.ranking.push(data);
+        // submit replay here.
+
+        if (
+          this.memberConnectionIDs.filter(
+            (e) => getSocketFromConnectionID(e)?.loggedIn
+          ).length >= 1
+        ) {
+          this.gameActionRecord.save(this.mode, this.ranking);
+        } else {
+          log.info("Not saving multiplayer game because no one is logged in.");
+        }
       }
       // stop everyone from playing
       this.stopPlay();
