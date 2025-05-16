@@ -249,12 +249,12 @@ class GameActionRecord {
       } else {
         log.error(`Error while saving game recording: ${error}`);
       }
-      return false;
+      return { ok: false, id: "" };
     }
 
     const size = Buffer.byteLength(JSON.stringify(databaseGameActionRecord));
     log.info(`Saved game replay with size ${size} bytes with ID ${replayID}.`);
-    return true;
+    return { ok: true, id: replayID };
   }
 }
 
