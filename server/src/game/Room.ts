@@ -865,7 +865,7 @@ class MultiplayerRoom extends Room {
             (e) => getSocketFromConnectionID(e)?.loggedIn
           ).length >= 1
         ) {
-          this.gameActionRecord.save(this.mode, this.ranking);
+          const replay = this.gameActionRecord.save(this.mode, this.ranking);
         } else {
           log.info("Not saving multiplayer game because no one is logged in.");
         }

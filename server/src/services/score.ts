@@ -59,7 +59,7 @@ async function submitSingleplayerGame(
   }
 
   // save replay
-  gameActionRecord.save(data.mode, data);
+  const replay = await gameActionRecord.save(data.mode, data);
 
   // announce
   log.info(
