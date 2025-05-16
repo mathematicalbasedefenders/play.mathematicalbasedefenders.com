@@ -134,21 +134,41 @@ class Room {
   }
 
   // room specific
-  addChatMessage(message: string, sender: universal.GameSocket) {
-    if (!sender || !sender.connectionID) {
+  addChatMessage(
+    message: string,
+    sender: universal.GameSocket | null,
+    isSystemMessage?: boolean
+  ) {
+    if (!isSystemMessage && (!sender || !sender.connectionID)) {
       log.warn(
         `No sender/connectionID for message: ${message} in room, ignoring.`
       );
       return;
     }
 
-    const sanitizedMessage = DOMPurify.sanitize(message);
-    const senderName = universal.getNameFromConnectionID(sender.connectionID);
-    const nameColor = sender.playerRank?.color;
-    const userID = sender.ownerUserID ?? null;
+    const messageToSend = {
+      sanitizedMessage: "",
+      senderName: "",
+      nameColor: "",
+      userID: ""
+    };
+
+    if (isSystemMessage) {
+      messageToSend.sanitizedMessage = message;
+      messageToSend.senderName = "(System)";
+      messageToSend.nameColor = "#06aa06";
+      messageToSend.userID = "";
+    } else if (sender) {
+      messageToSend.sanitizedMessage = DOMPurify.sanitize(message);
+      messageToSend.senderName =
+        universal.getNameFromConnectionID(sender.connectionID || "") || "";
+      messageToSend.nameColor = sender.playerRank?.color ?? "#000000";
+      messageToSend.userID = sender.ownerUserID ?? "";
+    }
+
     this.chatMessages.push({
-      message: sanitizedMessage,
-      senderName: senderName
+      message: messageToSend.sanitizedMessage,
+      senderName: messageToSend.senderName
     });
     // send to all sockets
     for (const connectionID of this.memberConnectionIDs) {
@@ -160,10 +180,10 @@ class Room {
             // selector:
             //   "#main-content__multiplayer-intermission-screen-container__chat__messages",
             data: {
-              name: DOMPurify.sanitize(senderName),
+              name: DOMPurify.sanitize(messageToSend.senderName),
               message: DOMPurify.sanitize(message),
-              nameColor: nameColor,
-              userID: userID
+              nameColor: messageToSend.nameColor,
+              userID: messageToSend.userID
             }
           })
         );
@@ -865,7 +885,17 @@ class MultiplayerRoom extends Room {
             (e) => getSocketFromConnectionID(e)?.loggedIn
           ).length >= 1
         ) {
-          const replay = this.gameActionRecord.save(this.mode, this.ranking);
+          const replay = await this.gameActionRecord.save(
+            this.mode,
+            this.ranking
+          );
+          if (replay.ok) {
+            this.addChatMessage(
+              `Default Multiplayer game replay saved with Replay ID ${replay.id}.`,
+              null,
+              true
+            );
+          }
         } else {
           log.info("Not saving multiplayer game because no one is logged in.");
         }
