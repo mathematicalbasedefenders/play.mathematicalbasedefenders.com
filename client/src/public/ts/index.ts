@@ -171,6 +171,8 @@ const variables: { [key: string]: any } = {
   watchingReplay: false
 };
 
+const replayCache: { [key: string]: any } = {};
+
 async function initializeTextures() {
   try {
     textures.playfieldBorder = await loadTexture("assets/images/playfield.png");
@@ -502,24 +504,37 @@ function initializeEventListeners() {
   });
   $("#archive__search-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
-    const replayData = await fetchReplay(replayID);
-    if (!replayData.ok) {
-      const options = { borderColor: "#ff0000" };
-      const toast = new ToastNotification(
-        `Replay fetching error: Error Code ${replayData.status}`,
-        options
+    let replayDataJSON;
+    if (replayID in replayCache) {
+      console.log(
+        "Replay data already found in cache, using replay data from cache."
       );
-      toast.render();
-      console.error(
-        `Replay fetching error: `,
-        `Error Code ${replayData.status}`
-      );
-      $(
-        "#main-content__archive-screen-container__content__replay-details"
-      ).hide(0);
-      return;
+      replayDataJSON = replayCache[replayID];
+    } else {
+      console.log("Replay data not found in cache, fetching replay.");
+      let fetchData = await fetchReplay(replayID);
+      let replayData = fetchData;
+      if (!replayData.ok) {
+        const options = { borderColor: "#ff0000" };
+        const toast = new ToastNotification(
+          `Replay fetching error: Error Code ${replayData.status}`,
+          options
+        );
+        toast.render();
+        console.error(
+          `Replay fetching error: `,
+          `Error Code ${replayData.status}`
+        );
+        $(
+          "#main-content__archive-screen-container__content__replay-details"
+        ).hide(0);
+        return;
+      }
+      const data = await replayData.json();
+      replayCache[replayID] = data;
+      replayDataJSON = data;
     }
-    const replayDataJSON = await replayData.json();
+
     $(
       "#main-content__archive-screen-container__content__replay-statistics"
     ).text(formatReplayStatisticsText(replayDataJSON.data));
