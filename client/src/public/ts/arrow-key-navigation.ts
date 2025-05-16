@@ -155,7 +155,25 @@ function getArrowKeyDirections() {
     },
     "globalChatTray": getGlobalChatTrayDirections(),
     "openingScreen": getOpeningScreenDirections(),
-    "canvas": null
+    "canvas": null,
+    "archiveMenu": {
+      destinations: {
+        "#archive-screen-container__back-button": {
+          "ArrowRight": "#archive__search-button"
+        },
+        "#archive__search-button": {
+          "ArrowLeft": "#archive-screen-container__back-button",
+          "ArrowDown": $("#archive__start-button").is(":visible")
+            ? "#archive__start-button"
+            : "#archive__search-button"
+        },
+        "#archive__start-button": {
+          "ArrowUp": "#archive__search-button",
+          "ArrowLeft": "#archive-screen-container__back-button"
+        }
+      },
+      defaultFocused: "#archive-screen-container__back-button"
+    }
   };
   return directions;
 }
