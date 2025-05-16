@@ -387,6 +387,9 @@ function initializeEventListeners() {
     changeScreen("multiplayerMenu");
   });
   $("#main-menu-screen-button--archive").on("click", () => {
+    $("#main-content__archive-screen-container__content__replay-details").hide(
+      0
+    );
     changeScreen("archiveMenu");
   });
   $("#main-menu-screen-button--settings").on("click", () => {
