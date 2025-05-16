@@ -61,6 +61,24 @@ async function submitSingleplayerGame(
   // save replay
   const replay = await gameActionRecord.save(data.mode, data);
 
+  if (replay.ok) {
+    owner.send(
+      JSON.stringify({
+        message: "changeText",
+        selector: "#main-content__game-over-screen__stats__score-replay-id",
+        value: `Replay saved with ID ${replay.id}`
+      })
+    );
+  } else {
+    owner.send(
+      JSON.stringify({
+        message: "changeText",
+        selector: "#main-content__game-over-screen__stats__score-replay-id",
+        value: `Replay not saved.`
+      })
+    );
+  }
+
   // announce
   log.info(
     `${owner.ownerUsername} submitted a score of ${data.score} on ${wordedGameMode}`
