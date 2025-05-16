@@ -196,9 +196,6 @@ class GameActionRecord {
     databaseGameActionRecord.owner = this.owner?.ownerUserID
       ? new mongoose.Types.ObjectId(this.owner.ownerUserID as string)
       : null;
-    databaseGameActionRecord.name = `Game on timestamp ${timestamp.toISOString()} played by ${
-      this.owner?.ownerUsername
-    }`;
     databaseGameActionRecord.mode = mode;
     databaseGameActionRecord.timestamp = timestamp;
 
@@ -212,6 +209,9 @@ class GameActionRecord {
           log.warn(`Game details of replay aren't saved.`);
           break;
         }
+        databaseGameActionRecord.name = `Game on timestamp ${timestamp.toISOString()} played by ${
+          this.owner?.ownerUsername
+        }`;
         databaseGameActionRecord.statistics.singleplayer = {
           score: data.score,
           timeInMilliseconds: data.elapsedTime,
@@ -230,6 +230,7 @@ class GameActionRecord {
           log.warn(`Game details of replay aren't saved.`);
           break;
         }
+        databaseGameActionRecord.name = `Default Multiplayer game on timestamp ${timestamp.toISOString()}`;
         databaseGameActionRecord.statistics.multiplayer = {
           ranking: data
         };
