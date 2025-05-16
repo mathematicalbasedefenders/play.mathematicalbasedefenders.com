@@ -275,7 +275,9 @@ socket.addEventListener("message", (event: any) => {
       chatMessage.append(name);
       chatMessage.append("<div>: </div>");
       chatMessage.append(
-        `<div>${DOMPurify.sanitize(message.data.message)}</div>`
+        `<div style="word-break: break-all;">${DOMPurify.sanitize(
+          message.data.message
+        )}</div>`
       );
 
       $(selector).append(chatMessage);
