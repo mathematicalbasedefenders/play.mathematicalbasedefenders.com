@@ -238,8 +238,11 @@ class GameActionRecord {
       }
     }
 
+    let replayID = "";
+
     try {
-      await databaseGameActionRecord.save();
+      const result = await databaseGameActionRecord.save();
+      replayID = result._id.toString();
     } catch (error: unknown) {
       if (error instanceof Error) {
         log.error(`Error while saving game recording: ${error.stack}`);
@@ -250,7 +253,7 @@ class GameActionRecord {
     }
 
     const size = Buffer.byteLength(JSON.stringify(databaseGameActionRecord));
-    log.info(`Saved game replay with size ${size} bytes.`);
+    log.info(`Saved game replay with size ${size} bytes with ID ${replayID}.`);
     return true;
   }
 }
