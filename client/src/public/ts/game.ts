@@ -59,8 +59,8 @@ function renderGameData(data: { [key: string]: any }) {
       const slideBezier = new BezierCurve(
         1000,
         [x, y],
-        [x, y - 50],
-        [x, y - 75],
+        [x, y - 70],
+        [x, y - 95],
         [x, y - 100]
       );
       const fadeBezier = new BezierCurve(
