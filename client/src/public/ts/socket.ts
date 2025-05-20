@@ -273,6 +273,7 @@ socket.addEventListener("message", (event: any) => {
         });
         name.css("cursor", "pointer");
         name.css("text-decoration", "underline");
+        name.css("height", "fit-content");
       }
       nameWrapper.append(name);
       nameWrapper.append("<div>:&nbsp;</div>");
