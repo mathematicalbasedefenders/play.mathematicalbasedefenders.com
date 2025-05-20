@@ -360,30 +360,33 @@ input[type="radio"] {
 
 #singleplayer-menu-screen-button--easy {
   background-color: var(--color-singleplayer-menu-easy);
-  background-image: url("../assets/images/easysingleplayerbuttonbackground.png");
-  background-position: 0 120%;
-  background-size: 110%;
+  background-image: url("../assets/images/easy.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   width: 48%;
 }
 
 #singleplayer-menu-screen-button--standard {
   background-color: var(--color-singleplayer-menu-standard);
-  background-image: url("../assets/images/standardsingleplayerbuttonbackground.png");
-  background-position: 0 120%;
-  background-size: 110%;
+  background-image: url("../assets/images/standard.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   height: 60%;
 }
 
 #singleplayer-menu-screen-button--custom {
   background-color: var(--color-singleplayer-menu-custom);
-  /* background-image: url("../assets/images/standardsingleplayerbuttonbackground.png"); */
-  background-position: 0 70%;
+  background-image: url("../assets/images/custom.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   width: 48%;
 }
 
 #singleplayer-menu-screen-button--back {
   background-color: var(--color-neutral);
-  background-position: 0 70%;
+  background-image: url("../assets/images/back.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   height: 10%;
 }
 
