@@ -24,11 +24,6 @@ class SlidingText {
     duration: number,
     enemyID: string
   ) {
-    // use the sliding text if it already exists
-    if (Object.keys(SlidingText.slidingTexts).includes(enemyID)) {
-      return SlidingText.slidingTexts[enemyID];
-    }
-
     this.duration = duration;
     this.text = text;
     this.textStyle = textStyle;
@@ -63,6 +58,33 @@ class SlidingText {
     this.textSprite.destroy();
     this.rendering = false;
     delete SlidingText.slidingTexts[this.enemyID];
+  }
+
+  /**
+   * Gets or create a SlidingText instance.
+   * Gets it if it already exists for the enemyID.
+   * Creates a new one if it doesn't exist for the enemyID.
+   * @returns A SlidingText instance, new if it hasn't existed for the enemyID before.
+   */
+  static getOrCreate(
+    text: string,
+    textStyle: TextStyle,
+    slideBezier: BezierCurve,
+    fadeBezier: BezierCurve,
+    duration: number,
+    enemyID: string
+  ): SlidingText {
+    return (
+      SlidingText.slidingTexts[enemyID] ??
+      new SlidingText(
+        text,
+        textStyle,
+        slideBezier,
+        fadeBezier,
+        duration,
+        enemyID
+      )
+    );
   }
 }
 export { SlidingText };
