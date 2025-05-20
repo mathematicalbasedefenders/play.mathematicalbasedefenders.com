@@ -89,6 +89,9 @@ class Enemy {
         const room = findRoomWithConnectionID(gameData.ownerConnectionID);
         if (room) {
           room.gameActionRecord.addAttackAction(gameData, attack);
+        } else {
+          log.warn(`No room found for ${gameData.ownerConnectionID}`);
+          log.warn(`Dropping enemy kill action.`);
         }
         gameData.totalEnemiesSent += attack;
         gameData.attackScore += attack;
