@@ -527,8 +527,8 @@ function initializeEventListeners() {
       replayDataJSON = replayCache[replayID];
     } else {
       console.log("Replay data not found in cache, fetching replay.");
-      let fetchData = await fetchReplay(replayID);
-      let replayData = fetchData;
+      const fetchData = await fetchReplay(replayID);
+      const replayData = fetchData;
       if (!replayData.ok) {
         const options = { borderColor: "#ff0000" };
         const toast = new ToastNotification(
