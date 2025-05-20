@@ -240,6 +240,10 @@ class GameActionRecord {
         };
         break;
       }
+      default: {
+        log.warn(`Unhandled replay mode: ${mode}. Statistics not saved.`);
+        break;
+      }
     }
 
     let replayID = "";
