@@ -889,12 +889,16 @@ class MultiplayerRoom extends Room {
             this.mode,
             this.ranking
           );
-          if (replay.ok) {
-            this.addChatMessage(
-              `Default Multiplayer game replay saved with Replay ID ${replay.id}.`,
-              null,
-              true
-            );
+          if (!universal.STATUS.databaseAvailable) {
+            log.warn("Not saving multiplayer because database is unavailable.");
+          } else {
+            if (replay.ok) {
+              this.addChatMessage(
+                `Default Multiplayer game replay saved with Replay ID ${replay.id}.`,
+                null,
+                true
+              );
+            }
           }
         } else {
           log.info("Not saving multiplayer game because no one is logged in.");
