@@ -219,25 +219,33 @@ input[type="radio"] {
 
 #main-menu-screen-button--singleplayer {
   background-color: var(--color-singleplayer);
-  background-image: url("../assets/images/singleplayerbuttonbackground.png");
-  background-position: 0 130%;
+  background-image: url("../assets/images/singleplayer.svg");
   height: 60%;
+  background-size: auto 100%;
+  background-position-x: 32px;
 }
 
 #main-menu-screen-button--multiplayer {
   background-color: var(--color-multiplayer);
-  background-image: url("../assets/images/multiplayerbuttonbackground.png");
-  background-position: 0 70%;
+  background-image: url("../assets/images/multiplayer.svg");
   height: 30%;
+  background-size: auto 100%;
+  background-position-x: 32px;
 }
 
 #main-menu-screen-button--archive {
   background-color: var(--color-archive);
+  background-image: url("../assets/images/archive.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
 }
 
 #main-menu-screen-button--settings {
   background-color: var(--color-neutral);
   background-position: 0 70%;
+  background-image: url("../assets/images/settings.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
 }
 
 .main-menu-screen-button__title {
