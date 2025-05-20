@@ -528,24 +528,10 @@ function initializeEventListeners() {
     } else {
       console.log("Replay data not found in cache, fetching replay.");
       const fetchData = await fetchReplay(replayID);
-      const replayData = fetchData;
-      if (!replayData.ok) {
-        const options = { borderColor: "#ff0000" };
-        const toast = new ToastNotification(
-          `Replay fetching error: Error Code ${replayData.status}`,
-          options
-        );
-        toast.render();
-        console.error(
-          `Replay fetching error: `,
-          `Error Code ${replayData.status}`
-        );
-        $(
-          "#main-content__archive-screen-container__content__replay-details"
-        ).hide(0);
+      if (!fetchData) {
         return;
       }
-      const data = await replayData.json();
+      const data = await fetchData.json();
       replayCache[replayID] = data;
       replayDataJSON = data;
     }
@@ -590,20 +576,7 @@ function initializeEventListeners() {
   $("#archive__start-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
     const replayData = await fetchReplay(replayID);
-    if (!replayData.ok) {
-      const options = { borderColor: "#ff0000" };
-      const toast = new ToastNotification(
-        `Replay fetching error: Error Code ${replayData.status}`,
-        options
-      );
-      toast.render();
-      console.error(
-        `Replay fetching error: `,
-        `Error Code ${replayData.status}`
-      );
-      $(
-        "#main-content__archive-screen-container__content__replay-details"
-      ).hide(0);
+    if (!replayData) {
       return;
     }
     const replayDataJSON = await replayData.json();
