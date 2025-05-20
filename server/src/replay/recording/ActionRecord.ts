@@ -266,7 +266,6 @@ interface ActionRecord {
     name: string | undefined;
     isAuthenticated: boolean | undefined;
     connectionID: string | undefined;
-    socket?: GameSocket;
   };
   action: Action;
   timestamp: number;
