@@ -81,11 +81,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
 
   for (let actionNumber = 0; actionNumber < dataLength; actionNumber++) {
     if (!variables.watchingReplay) {
-      replayGameData.enemies = [];
-      replayGameData.enemiesToErase = [];
-      changeScreen("archiveMenu", true, true);
-      Opponent.destroyAllInstances();
-      deleteAllEnemies();
+      stopReplay();
       break;
     }
     if (actionNumber > 0) {
@@ -252,6 +248,8 @@ function updateReplayGameData(
       // "kill" (remove) all enemies to prevent enemies overflowing
       replayGameData.enemies = [];
       replayGameData.enemiesToErase = [];
+      // stop replay
+      stopReplay();
       variables.watchingReplay = false;
       changeScreen("archiveMenu", true, true);
       break;
@@ -458,6 +456,14 @@ function updateReplayGameDataLikeServer(deltaTime: number) {
   }
 }
 
+function stopReplay() {
+  replayGameData.enemies = [];
+  replayGameData.enemiesToErase = [];
+  changeScreen("archiveMenu", true, true);
+  Opponent.destroyAllInstances();
+  deleteAllEnemies();
+}
+
 export {
   fetchReplay,
   playReplay,
@@ -465,5 +471,6 @@ export {
   formatReplayStatisticsText,
   getPlayerListOptions,
   updateReplayGameDataLikeServer,
-  replayGameData
+  replayGameData,
+  stopReplay
 };

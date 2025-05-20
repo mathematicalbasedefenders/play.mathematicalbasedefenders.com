@@ -33,7 +33,8 @@ import {
   formatReplayStatisticsText,
   getPlayerListOptions,
   playReplay,
-  Replay
+  Replay,
+  stopReplay
 } from "./replay";
 const startInitTime: number = Date.now();
 //
@@ -674,6 +675,7 @@ function initializeEventListeners() {
   $("#quick-menu__content-button--quit").on("click", () => {
     variables.playing = false;
     if (variables.watchingReplay) {
+      stopReplay();
       variables.watchingReplay = false;
       changeScreen("archiveMenu", true, true);
       return;
