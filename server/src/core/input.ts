@@ -254,8 +254,8 @@ function processInputInformation(
           enemy.kill(gameDataToProcess, true, true);
           if (room) {
             if (
-              gameDataToProcess.mode === "easySingleplayer" ||
-              gameDataToProcess.mode === "standardSingleplayer"
+              gameDataToProcess.mode === GameMode.EasySingleplayer ||
+              gameDataToProcess.mode === GameMode.StandardSingleplayer
             ) {
               room.gameActionRecord.addSetGameDataAction(
                 gameDataToProcess,
@@ -263,7 +263,7 @@ function processInputInformation(
                 "score",
                 gameDataToProcess.score
               );
-            } else if (gameDataToProcess.mode === "defaultMultiplayer") {
+            } else if (gameDataToProcess.mode === GameMode.DefaultMultiplayer) {
               room.gameActionRecord.addSetGameDataAction(
                 gameDataToProcess,
                 "player",
