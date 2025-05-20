@@ -320,7 +320,7 @@ function initializeStageItems() {
     text: "",
     style: createTextStyle({
       fontFamily: ["Noto Sans", "sans-serif"],
-      fontSize: 64,
+      fontSize: 128,
       fill: {
         color: "#ffffff",
         alpha: 0.2
