@@ -121,7 +121,10 @@ function updateReplayGameData(
       if (["NumpadAdd", "Backspace", "Space"].indexOf(code) > -1) {
         replayGameData.currentInput = replayGameData.currentInput.slice(0, -1);
       } else {
-        replayGameData.currentInput += KEY_MAPPINGS[code];
+        const character = KEY_MAPPINGS[code];
+        if (character) {
+          replayGameData.currentInput += character;
+        }
       }
       break;
     }
