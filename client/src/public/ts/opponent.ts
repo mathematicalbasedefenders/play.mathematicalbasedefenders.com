@@ -139,15 +139,6 @@ class Opponent {
       (position % divisor) *
         (playerPlayfield.height + Opponent.gapHeight) *
         Opponent.globalScale;
-
-    console.log(
-      position,
-      divisor,
-      this.container.x,
-      this.container.y,
-      Math.floor(position / divisor),
-      position % divisor
-    );
   }
 
   autoRepositionAll() {

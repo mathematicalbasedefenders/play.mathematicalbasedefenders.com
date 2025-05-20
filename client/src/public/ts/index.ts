@@ -549,7 +549,6 @@ function initializeEventListeners() {
     if (replayDataJSON.data.mode === "defaultMultiplayer") {
       // TODO: ???????
       const options = getPlayerListOptions(replayDataJSON.data);
-      console.log(options);
       $(
         "#main-content__archive-screen-container__content__replay-selector__wrapper"
       ).append("View replay as: ");
