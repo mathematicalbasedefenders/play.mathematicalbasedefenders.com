@@ -203,13 +203,11 @@ class Enemy {
   }
 
   deleteSprite() {
-    const text = getCachedEnemy(this.id)?.textSprite;
-    const sprite = getCachedEnemy(this.id)?.sprite;
-    if (typeof sprite !== "undefined") {
-      playerContainer.removeChild(sprite);
+    if (this.sprite) {
+      playerContainer.removeChild(this.sprite);
     }
-    if (typeof text !== "undefined") {
-      playerContainer.removeChild(text);
+    if (this.textSprite) {
+      playerContainer.removeChild(this.textSprite);
     }
   }
 }
