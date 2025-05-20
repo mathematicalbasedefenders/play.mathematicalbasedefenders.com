@@ -136,6 +136,7 @@ function getArrowKeyDirections() {
           "ArrowDown": "#chat-message"
         },
         "#chat-message": {
+          "ArrowLeft": "#multiplayer-screen__sidebar-item--back",
           "ArrowUp": "#multiplayer-screen__sidebar-item--back",
           "ArrowRight": "#message-send-button",
           "ArrowDown":
