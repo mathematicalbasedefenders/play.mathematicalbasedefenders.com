@@ -60,6 +60,7 @@ class SlidingText {
    */
   delete() {
     playerContainer.removeChild(this.textSprite);
+    this.textSprite.destroy();
     this.rendering = false;
     delete SlidingText.slidingTexts[this.enemyID];
   }
