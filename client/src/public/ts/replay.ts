@@ -10,6 +10,7 @@ import {
 import { variables } from ".";
 import { formatNumber, millisecondsToTime } from "./utilities";
 import { Opponent } from "./opponent";
+import { ToastNotification } from "./toast-notification";
 
 const replayGameData: { [key: string]: any } = {};
 interface Replay {
@@ -47,8 +48,21 @@ async function fetchReplay(replayID: string) {
   const location = window.location;
   const port = location.protocol === "http:" ? ":4000" : "";
   const host = `${location.protocol}//${location.hostname}${port}/api/replays/${replayID}`;
-  const data = await fetch(host);
-  return data;
+  const replayData = await fetch(host);
+  if (!replayData.ok) {
+    const options = { borderColor: "#ff0000" };
+    const toast = new ToastNotification(
+      `Replay fetching error: Error Code ${replayData.status}`,
+      options
+    );
+    toast.render();
+    console.error(`Replay fetching error: `, `Error Code ${replayData.status}`);
+    $("#main-content__archive-screen-container__content__replay-details").hide(
+      0
+    );
+    return;
+  }
+  return replayData;
 }
 
 async function playReplay(replayData: Replay, viewAs?: string) {
