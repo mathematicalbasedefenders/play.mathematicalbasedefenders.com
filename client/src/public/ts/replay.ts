@@ -294,6 +294,10 @@ function updateOpponentGameData(actionRecord: any, replayGameData: any) {
   const opponentData = replayGameData.opponentGameData.find(
     (element: any) => element.owner === connectionID
   );
+  if (!opponentData) {
+    console.warn("Cant find opponent data, not rendering for opponent...");
+    return;
+  }
   switch (actionRecord.action) {
     case "keypress": {
       break;
