@@ -65,10 +65,10 @@ function renderGameData(data: { [key: string]: any }) {
       );
       const fadeBezier = new BezierCurve(
         1000,
-        [x, y],
-        [x + 1, y],
-        [x + 0.75, y - 1],
-        [x, y - 0.1]
+        [1.5, 1.5],
+        [0.666, 0.666],
+        [0.333, 0.333],
+        [0, 0]
       );
       const slidingText = SlidingText.getOrCreate(
         `+${textToDisplay}`,
