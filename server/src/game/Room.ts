@@ -154,7 +154,7 @@ class Room {
     };
 
     if (isSystemMessage) {
-      messageToSend.sanitizedMessage = message;
+      messageToSend.sanitizedMessage = DOMPurify.sanitize(message);
       messageToSend.senderName = "(System)";
       messageToSend.nameColor = "#06aa06";
       messageToSend.userID = "";
