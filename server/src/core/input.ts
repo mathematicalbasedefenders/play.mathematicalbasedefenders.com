@@ -188,10 +188,20 @@ function processInputInformation(
       );
 
       if (room) {
+        const ownerSocket = universal.getSocketFromConnectionID(
+          gameDataToProcess.ownerConnectionID
+        );
         const submissionRecord: ActionRecord = {
           action: Action.Submit,
           scope: "player",
-          user: getUserReplayDataFromSocket(gameDataToProcess.owner),
+          user: ownerSocket
+            ? getUserReplayDataFromSocket(ownerSocket)
+            : {
+                userID: null,
+                name: "(unknown)",
+                isAuthenticated: false,
+                connectionID: ""
+              },
           data: {
             submitted: gameDataToProcess.currentInput
           },
