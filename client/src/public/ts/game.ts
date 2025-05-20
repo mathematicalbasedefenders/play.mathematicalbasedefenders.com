@@ -70,7 +70,7 @@ function renderGameData(data: { [key: string]: any }) {
         [x + 0.75, y - 1],
         [x, y - 0.1]
       );
-      const slidingText = new SlidingText(
+      const slidingText = SlidingText.getOrCreate(
         `+${textToDisplay}`,
         new PIXI.TextStyle({
           fontFamily: ["Noto Sans", "sans-serif"],
