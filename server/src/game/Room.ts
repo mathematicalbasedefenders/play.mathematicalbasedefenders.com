@@ -162,7 +162,7 @@ class Room {
       messageToSend.sanitizedMessage = DOMPurify.sanitize(message);
       messageToSend.senderName =
         universal.getNameFromConnectionID(sender.connectionID || "") || "";
-      messageToSend.nameColor = sender.playerRank?.color ?? "#000000";
+      messageToSend.nameColor = sender.playerRank?.color ?? "#ffffff";
       messageToSend.userID = sender.ownerUserID ?? "";
     }
 
