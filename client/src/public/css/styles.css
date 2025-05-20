@@ -937,12 +937,16 @@ input[type="radio"] {
 
 #game-over-screen-button--retry {
   background-color: var(--color-neutral);
-  background-position: 0 70%;
+  background-image: url("../assets/images/retry.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
 }
 
 #game-over-screen-button--back {
   background-color: var(--color-neutral);
-  background-position: 0 70%;
+  background-image: url("../assets/images/back.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
 }
 
 .game-over-screen-button__title {
