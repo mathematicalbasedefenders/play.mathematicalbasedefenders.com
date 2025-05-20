@@ -1,5 +1,4 @@
 import { navigateFocus } from "./arrow-key-navigation";
-import { changeScreen } from "./game";
 import { variables } from "./index";
 import { sendSocketMessage, socket } from "./socket";
 const NUMBER_ROW_KEYS = [
