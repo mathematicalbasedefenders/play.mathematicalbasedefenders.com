@@ -280,7 +280,6 @@ function updateOpponentGameData(actionRecord: any, replayGameData: any) {
   const opponentData = replayGameData.opponentGameData.find(
     (element: any) => element.owner === connectionID
   );
-  console.log(opponentData);
   switch (actionRecord.action) {
     case "keypress": {
       break;
