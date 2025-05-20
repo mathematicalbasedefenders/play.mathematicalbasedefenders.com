@@ -160,10 +160,15 @@ function getArrowKeyDirections() {
     "archiveMenu": {
       destinations: {
         "#archive-screen-container__back-button": {
-          "ArrowRight": "#archive__search-button"
+          "ArrowRight": "#archive__replay-id"
+        },
+        "#archive__replay-id": {
+          "ArrowLeft": "#archive-screen-container__back-button",
+          "ArrowDown": "#archive__search-button"
         },
         "#archive__search-button": {
-          "ArrowLeft": "#archive-screen-container__back-button",
+          "ArrowLeft": "#archive__replay-id",
+          "ArrowUp": "#archive__replay-id",
           "ArrowDown": $("#archive__start-button").is(":visible")
             ? "#archive__start-button"
             : "#archive__search-button"
