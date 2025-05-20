@@ -624,13 +624,17 @@ input[type="radio"] {
 
 #multiplayer-menu-screen-button--default {
   background-color: var(--color-multiplayer-menu-default);
-  background-position: 0 70%;
+  background-image: url("../assets/images/default.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   height: 60%;
 }
 
 #multiplayer-menu-screen-button--custom {
   background-color: var(--color-multiplayer-menu-custom);
-  background-position: 0 70%;
+  background-image: url("../assets/images/custom2.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   height: 30%;
   cursor: not-allowed;
 }
