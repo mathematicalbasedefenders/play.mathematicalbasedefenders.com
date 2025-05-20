@@ -160,6 +160,17 @@ function updateReplayGameData(
       break;
     }
     case "enemyReceive": {
+      const enemyData = actionRecord.data;
+      const newEnemy = new Enemy(
+        enemyData.sPosition,
+        enemyData.displayedText,
+        enemyData.id,
+        getScaledEnemyWidth(),
+        getScaledEnemyHeight(),
+        enemyData.speed,
+        enemyData.xPosition
+      );
+      newEnemy.render();
       break;
     }
     case "enemySpawn": {
@@ -312,6 +323,14 @@ function updateOpponentGameData(actionRecord: any, replayGameData: any) {
       break;
     }
     case "enemyReceive": {
+      opponentData.enemies.push({
+        requestedValue: "",
+        displayedText: actionRecord.data.displayedText,
+        xPosition: actionRecord.data.xPosition,
+        sPosition: actionRecord.data.sPosition,
+        speed: actionRecord.data.speed,
+        id: actionRecord.data.id
+      });
       break;
     }
     case "enemySpawn": {
