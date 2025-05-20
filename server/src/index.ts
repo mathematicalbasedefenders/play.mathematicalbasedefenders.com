@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
 import uWS from "uWebSockets.js";
-require("dotenv").config({ path: "../credentials/.env" });
+require("@dotenvx/dotenvx").config({ path: "../credentials/.env" });
 import express, { Request, Response } from "express";
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
