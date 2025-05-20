@@ -29,6 +29,7 @@
   "license": "AGPL-3.0-or-later",
   "dependencies": {
     "@cypress/request": "^3.0.1",
+    "@dotenvx/dotenvx": "^1.44.1",
     "@types/dompurify": "^3.0.2",
     "@types/jsdom": "^21.1.1",
     "adaptive-scale": "^1.0.0",
