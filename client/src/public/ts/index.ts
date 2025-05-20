@@ -28,6 +28,14 @@ import {
 import { changeBackgroundImage } from "./change-background-image";
 import { showUserLookupPopUp } from "./lookup-user";
 import { TextStyle } from "pixi.js";
+import {
+  fetchReplay,
+  formatReplayStatisticsText,
+  getPlayerListOptions,
+  playReplay,
+  Replay,
+  stopReplay
+} from "./replay";
 const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -160,8 +168,11 @@ const variables: { [key: string]: any } = {
       registeredPlayers: new Set(),
       playerCount: 0
     }
-  }
+  },
+  watchingReplay: false
 };
+
+const replayCache: { [key: string]: Replay } = {};
 
 async function initializeTextures() {
   try {
@@ -305,6 +316,17 @@ function initializeStageItems() {
       fill: "#ffffff"
     })
   });
+  stageItems.textSprites.replayIndicatorText = new PIXI.Text({
+    text: "",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 64,
+      fill: {
+        color: "#ffffff",
+        alpha: 0.2
+      }
+    })
+  });
 }
 
 function setContainerItemProperties() {
@@ -367,6 +389,10 @@ function setContainerItemProperties() {
   stageItems.textSprites.howToPlayText.text +=
     "You can also turn off this message in the settings.\n";
   stageItems.textSprites.howToPlayText.position.set(STATISTICS_POSITION, 400);
+  // replay indicator
+  stageItems.textSprites.replayIndicatorText.text = "REPLAY";
+  stageItems.textSprites.replayIndicatorText.anchor.set(0.5, 0.5);
+  stageItems.textSprites.replayIndicatorText.position.set(960, 320);
 }
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);
@@ -377,6 +403,12 @@ function initializeEventListeners() {
   });
   $("#main-menu-screen-button--multiplayer").on("click", () => {
     changeScreen("multiplayerMenu");
+  });
+  $("#main-menu-screen-button--archive").on("click", () => {
+    $("#main-content__archive-screen-container__content__replay-details").hide(
+      0
+    );
+    changeScreen("archiveMenu");
   });
   $("#main-menu-screen-button--settings").on("click", () => {
     getSettings(localStorage.getItem("settings") || "{}");
@@ -483,6 +515,82 @@ function initializeEventListeners() {
     }
   );
   //
+  $("#archive-screen-container__back-button").on("click", () => {
+    changeScreen("mainMenu");
+  });
+  $("#archive__search-button").on("click", async () => {
+    const replayID = $("#archive__replay-id").val()?.toString() ?? "";
+    let replayDataJSON;
+    if (replayID in replayCache) {
+      console.log(
+        "Replay data already found in cache, using replay data from cache."
+      );
+      replayDataJSON = replayCache[replayID];
+    } else {
+      console.log("Replay data not found in cache, fetching replay.");
+      const fetchData = await fetchReplay(replayID);
+      if (!fetchData) {
+        return;
+      }
+      const data = await fetchData.json();
+      replayCache[replayID] = data;
+      replayDataJSON = data;
+    }
+
+    $(
+      "#main-content__archive-screen-container__content__replay-statistics"
+    ).text(formatReplayStatisticsText(replayDataJSON.data));
+    $("#main-content__archive-screen-container__content__replay-details").show(
+      0
+    );
+    $(
+      "#main-content__archive-screen-container__content__replay-selector__wrapper"
+    ).empty();
+    if (replayDataJSON.data.mode === "defaultMultiplayer") {
+      // TODO: ???????
+      const options = getPlayerListOptions(replayDataJSON.data);
+      console.log(options);
+      $(
+        "#main-content__archive-screen-container__content__replay-selector__wrapper"
+      ).append("View replay as: ");
+      const selector = $(
+        `<select id="main-content__archive-screen-container__content__replay-selector"></select>`
+      );
+      $(
+        "#main-content__archive-screen-container__content__replay-selector__wrapper"
+      ).append(selector);
+      for (const option of options) {
+        $(option).html(option.text);
+        $(
+          "#main-content__archive-screen-container__content__replay-selector"
+        ).append(option);
+      }
+      $(
+        "#main-content__archive-screen-container__content__replay-selector__wrapper"
+      ).show(0);
+    } else {
+      $(
+        "#main-content__archive-screen-container__content__replay-selector__wrapper"
+      ).hide(0);
+    }
+  });
+  $("#archive__start-button").on("click", async () => {
+    const replayID = $("#archive__replay-id").val()?.toString() ?? "";
+    const replayData = await fetchReplay(replayID);
+    if (!replayData) {
+      return;
+    }
+    const replayDataJSON = await replayData.json();
+    if (replayDataJSON.data.mode === "defaultMultiplayer") {
+      const viewAs = $(
+        "#main-content__archive-screen-container__content__replay-selector"
+      ).val();
+      playReplay(replayDataJSON, viewAs as string);
+    } else {
+      playReplay(replayDataJSON);
+    }
+  });
+  //
   $("#settings-screen__content--online__submit").on("click", async (event) => {
     event.preventDefault();
     // FIXME: possibly unsafe
@@ -566,6 +674,12 @@ function initializeEventListeners() {
   //
   $("#quick-menu__content-button--quit").on("click", () => {
     variables.playing = false;
+    if (variables.watchingReplay) {
+      stopReplay();
+      variables.watchingReplay = false;
+      changeScreen("archiveMenu", true, true);
+      return;
+    }
     sendSocketMessage({
       message: "emulateKeypress",
       emulatedKeypress: "Escape"

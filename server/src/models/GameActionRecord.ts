@@ -9,6 +9,21 @@ interface GameActionRecordInterface {
   gameVersion: string;
   owner: mongoose.Types.ObjectId | null | undefined;
   name: string;
+  mode: string;
+  timestamp: Date;
+  statistics: {
+    singleplayer?: {
+      score: number;
+      timeInMilliseconds: number;
+      scoreSubmissionDateAndTime: Date;
+      actionsPerformed: number;
+      enemiesKilled: number;
+      enemiesCreated: number;
+    };
+    multiplayer?: {
+      ranking: any;
+    };
+  };
 }
 
 interface GameActionRecordModel
@@ -23,7 +38,22 @@ const GameActionRecordSchema = new mongoose.Schema<
     recordingVersion: Number,
     gameVersion: String,
     owner: SchemaTypes.ObjectId,
-    name: String
+    name: String,
+    mode: String,
+    timestamp: Date,
+    statistics: {
+      singleplayer: {
+        score: Number,
+        timeInMilliseconds: Number,
+        scoreSubmissionDateAndTime: Date,
+        actionsPerformed: Number,
+        enemiesKilled: Number,
+        enemiesCreated: Number
+      },
+      multiplayer: {
+        ranking: Array<any>
+      }
+    }
   },
   { timestamps: true }
 );

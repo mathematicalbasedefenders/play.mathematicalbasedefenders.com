@@ -13,7 +13,7 @@ enum Action {
 
   /** Indirect by player */
   EnemyKill = "enemyKill",
-  Attack = "Attack",
+  Attack = "attack",
   StockCancel = "stockCancel",
   StockAdd = "stockAdd",
   StockRelease = "stockRelease",
@@ -65,7 +65,11 @@ class GameActionRecord {
     this.actionRecords.push(action);
   }
 
-  addEnemySpawnAction(enemy: Enemy, data: GameData, isReceived?: boolean) {
+  addEnemySpawnAction(
+    enemy: Enemy,
+    data: GameData,
+    isReceived: boolean = false
+  ) {
     this.addAction({
       action: isReceived ? Action.EnemyReceive : Action.EnemySpawn,
       scope: "player",
@@ -186,7 +190,9 @@ class GameActionRecord {
     this.actionRecords = [];
   }
 
-  async save() {
+  async save(mode: string, data: GameData | Array<any>) {
+    const timestamp = new Date();
+
     const databaseGameActionRecord = new DatabaseGameActionRecord();
     databaseGameActionRecord.actionRecords = this.actionRecords;
     databaseGameActionRecord.recordingVersion = this.recordingVersion;
@@ -194,23 +200,69 @@ class GameActionRecord {
     databaseGameActionRecord.owner = this.owner?.ownerUserID
       ? new mongoose.Types.ObjectId(this.owner.ownerUserID as string)
       : null;
-    databaseGameActionRecord.name = `Game on timestamp ${new Date()} played by ${
-      this.owner?.ownerUsername
-    }`;
+    databaseGameActionRecord.mode = mode;
+    databaseGameActionRecord.timestamp = timestamp;
+
+    switch (mode) {
+      case "easySingleplayer":
+      case "standardSingleplayer": {
+        if (!(data instanceof GameData)) {
+          log.error(
+            `Expected type GameData of singleplayer for data argument, got: ${typeof data}`
+          );
+          log.warn(`Game details of replay aren't saved.`);
+          break;
+        }
+        databaseGameActionRecord.name = `Game on timestamp ${timestamp.toISOString()} played by ${
+          this.owner?.ownerUsername
+        }`;
+        databaseGameActionRecord.statistics.singleplayer = {
+          score: data.score,
+          timeInMilliseconds: data.elapsedTime,
+          scoreSubmissionDateAndTime: timestamp,
+          enemiesCreated: data.enemiesSpawned,
+          enemiesKilled: data.enemiesKilled,
+          actionsPerformed: data.actionsPerformed
+        };
+        break;
+      }
+      case "defaultMultiplayer": {
+        if (!Array.isArray(data)) {
+          log.error(
+            `Expected type Array of multiplayer game ranks for data argument, got: ${typeof data}`
+          );
+          log.warn(`Game details of replay aren't saved.`);
+          break;
+        }
+        databaseGameActionRecord.name = `Default Multiplayer game on timestamp ${timestamp.toISOString()}`;
+        databaseGameActionRecord.statistics.multiplayer = {
+          ranking: data
+        };
+        break;
+      }
+      default: {
+        log.warn(`Unhandled replay mode: ${mode}. Statistics not saved.`);
+        break;
+      }
+    }
+
+    let replayID = "";
 
     try {
-      await databaseGameActionRecord.save();
+      const result = await databaseGameActionRecord.save();
+      replayID = result._id.toString();
     } catch (error: unknown) {
       if (error instanceof Error) {
         log.error(`Error while saving game recording: ${error.stack}`);
       } else {
         log.error(`Error while saving game recording: ${error}`);
       }
-      return;
+      return { ok: false, id: "" };
     }
 
     const size = Buffer.byteLength(JSON.stringify(databaseGameActionRecord));
-    log.info(`Saved game replay with size ${size} bytes.`);
+    log.info(`Saved game replay with size ${size} bytes with ID ${replayID}.`);
+    return { ok: true, id: replayID };
   }
 }
 
@@ -222,7 +274,6 @@ interface ActionRecord {
     name: string | undefined;
     isAuthenticated: boolean | undefined;
     connectionID: string | undefined;
-    socket?: GameSocket;
   };
   action: Action;
   timestamp: number;

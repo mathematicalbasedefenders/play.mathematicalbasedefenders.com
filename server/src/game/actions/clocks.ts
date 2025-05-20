@@ -4,7 +4,10 @@ import _ from "lodash";
 import { Enemy, createNewEnemy } from "../Enemy";
 import { GameData } from "../GameData";
 import { Room, MultiplayerRoom } from "../Room";
-import { findRoomWithConnectionID } from "../../core/utilities";
+import {
+  findGameDataWithConnectionID,
+  findRoomWithConnectionID
+} from "../../core/utilities";
 
 /**
  * Check all Singleplayer room clocks.
@@ -98,6 +101,11 @@ function checkComboTimeClock(data: GameData) {
   if (comboResetClock.currentTime >= comboResetClock.actionTime) {
     data.combo = -1;
     comboResetClock.currentTime -= comboResetClock.actionTime;
+    // send game data as well
+    const room = findRoomWithConnectionID(data.ownerConnectionID);
+    if (room) {
+      room.gameActionRecord.addSetGameDataAction(data, "player", "combo", -1);
+    }
   }
 }
 

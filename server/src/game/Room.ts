@@ -134,21 +134,41 @@ class Room {
   }
 
   // room specific
-  addChatMessage(message: string, sender: universal.GameSocket) {
-    if (!sender || !sender.connectionID) {
+  addChatMessage(
+    message: string,
+    sender: universal.GameSocket | null,
+    isSystemMessage?: boolean
+  ) {
+    if (!isSystemMessage && (!sender || !sender.connectionID)) {
       log.warn(
         `No sender/connectionID for message: ${message} in room, ignoring.`
       );
       return;
     }
 
-    const sanitizedMessage = DOMPurify.sanitize(message);
-    const senderName = universal.getNameFromConnectionID(sender.connectionID);
-    const nameColor = sender.playerRank?.color;
-    const userID = sender.ownerUserID ?? null;
+    const messageToSend = {
+      sanitizedMessage: "",
+      senderName: "",
+      nameColor: "",
+      userID: ""
+    };
+
+    if (isSystemMessage) {
+      messageToSend.sanitizedMessage = DOMPurify.sanitize(message);
+      messageToSend.senderName = "(System)";
+      messageToSend.nameColor = "#06aa06";
+      messageToSend.userID = "";
+    } else if (sender) {
+      messageToSend.sanitizedMessage = DOMPurify.sanitize(message);
+      messageToSend.senderName =
+        universal.getNameFromConnectionID(sender.connectionID || "") || "";
+      messageToSend.nameColor = sender.playerRank?.color ?? "#ffffff";
+      messageToSend.userID = sender.ownerUserID ?? "";
+    }
+
     this.chatMessages.push({
-      message: sanitizedMessage,
-      senderName: senderName
+      message: messageToSend.sanitizedMessage,
+      senderName: messageToSend.senderName
     });
     // send to all sockets
     for (const connectionID of this.memberConnectionIDs) {
@@ -160,10 +180,10 @@ class Room {
             // selector:
             //   "#main-content__multiplayer-intermission-screen-container__chat__messages",
             data: {
-              name: DOMPurify.sanitize(senderName),
+              name: DOMPurify.sanitize(messageToSend.senderName),
               message: DOMPurify.sanitize(message),
-              nameColor: nameColor,
-              userID: userID
+              nameColor: messageToSend.nameColor,
+              userID: messageToSend.userID
             }
           })
         );
@@ -635,7 +655,14 @@ class MultiplayerRoom extends Room {
             BASE_ENEMY_SPEED * data.enemySpeedCoefficient * (deltaTime / 1000)
           );
           if (enemy.sPosition <= 0) {
+            this.gameActionRecord.addEnemyReachedBaseAction(enemy, data);
             enemy.remove(data, 10);
+            this.gameActionRecord.addSetGameDataAction(
+              data,
+              "player",
+              "baseHealth",
+              data.baseHealth
+            );
           }
         }
         if (data.baseHealth <= 0) {
@@ -706,6 +733,15 @@ class MultiplayerRoom extends Room {
           if (targetedOpponentGameData) {
             targetedOpponentGameData.receivedEnemiesStock += 1;
             targetedOpponentGameData.totalEnemiesReceived += 1;
+            const room = findRoomWithConnectionID(
+              targetedOpponentGameData.ownerConnectionID
+            );
+            if (room) {
+              room.gameActionRecord.addStockAddAction(
+                targetedOpponentGameData,
+                1
+              );
+            }
           }
         }
       }
@@ -729,7 +765,8 @@ class MultiplayerRoom extends Room {
         received: gameData.totalEnemiesReceived,
         isRegistered: false,
         nameColor: "",
-        userID: ""
+        userID: "",
+        connectionID: gameData.ownerConnectionID
       };
       if (socket?.ownerUserID) {
         // is registered
@@ -795,17 +832,6 @@ class MultiplayerRoom extends Room {
         }
 
         this.gameActionRecord.addGameOverAction();
-        // submit replay here.
-
-        if (
-          this.memberConnectionIDs.filter(
-            (e) => getSocketFromConnectionID(e)?.loggedIn
-          ).length >= 1
-        ) {
-          this.gameActionRecord.save();
-        } else {
-          log.info("Not saving multiplayer game because no one is logged in.");
-        }
 
         // add exp to winner socket
         if (winnerSocket?.ownerUserID) {
@@ -842,7 +868,8 @@ class MultiplayerRoom extends Room {
           received: winnerGameData.totalEnemiesReceived,
           isRegistered: false,
           nameColor: "",
-          userID: ""
+          userID: "",
+          connectionID: winnerGameData.ownerConnectionID
         };
         if (winnerSocket?.ownerUserID) {
           // is registered
@@ -851,6 +878,31 @@ class MultiplayerRoom extends Room {
           data.nameColor = winnerSocket.playerRank?.color ?? "#ffffff";
         }
         this.ranking.push(data);
+        // submit replay here.
+
+        if (
+          this.memberConnectionIDs.filter(
+            (e) => getSocketFromConnectionID(e)?.loggedIn
+          ).length >= 1
+        ) {
+          const replay = await this.gameActionRecord.save(
+            this.mode,
+            this.ranking
+          );
+          if (!universal.STATUS.databaseAvailable) {
+            log.warn("Not saving multiplayer because database is unavailable.");
+          } else {
+            if (replay.ok) {
+              this.addChatMessage(
+                `Default Multiplayer game replay saved with Replay ID ${replay.id}.`,
+                null,
+                true
+              );
+            }
+          }
+        } else {
+          log.info("Not saving multiplayer game because no one is logged in.");
+        }
       }
       // stop everyone from playing
       this.stopPlay();

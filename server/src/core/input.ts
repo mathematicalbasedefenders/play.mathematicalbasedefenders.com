@@ -188,10 +188,20 @@ function processInputInformation(
       );
 
       if (room) {
+        const ownerSocket = universal.getSocketFromConnectionID(
+          gameDataToProcess.ownerConnectionID
+        );
         const submissionRecord: ActionRecord = {
           action: Action.Submit,
           scope: "player",
-          user: getUserReplayDataFromSocket(gameDataToProcess.owner),
+          user: ownerSocket
+            ? getUserReplayDataFromSocket(ownerSocket)
+            : {
+                userID: null,
+                name: "(unknown)",
+                isAuthenticated: false,
+                connectionID: ""
+              },
           data: {
             submitted: gameDataToProcess.currentInput
           },
@@ -208,6 +218,16 @@ function processInputInformation(
           gameDataToProcess.enemiesKilled += 1;
           if (gameDataToProcess instanceof SingleplayerGameData) {
             gameDataToProcess.enemiesToNextLevel -= 1;
+
+            if (room) {
+              room.gameActionRecord.addSetGameDataAction(
+                gameDataToProcess,
+                "player",
+                "enemiesToNextLevel",
+                _.get(gameDataToProcess, "enemiesToNextLevel")
+              );
+            }
+
             if (gameDataToProcess.enemiesToNextLevel <= 0) {
               gameDataToProcess.increaseLevel(1);
 
@@ -233,6 +253,24 @@ function processInputInformation(
           }
           enemy.kill(gameDataToProcess, true, true);
           if (room) {
+            if (
+              gameDataToProcess.mode === GameMode.EasySingleplayer ||
+              gameDataToProcess.mode === GameMode.StandardSingleplayer
+            ) {
+              room.gameActionRecord.addSetGameDataAction(
+                gameDataToProcess,
+                "player",
+                "score",
+                gameDataToProcess.score
+              );
+            } else if (gameDataToProcess.mode === GameMode.DefaultMultiplayer) {
+              room.gameActionRecord.addSetGameDataAction(
+                gameDataToProcess,
+                "player",
+                "attackScore",
+                gameDataToProcess.attackScore
+              );
+            }
             room.gameActionRecord.addEnemyKillAction(enemy, gameDataToProcess);
           }
         }
@@ -246,6 +284,7 @@ function processInputInformation(
           gameDataToProcess.receivedEnemiesToSpawn +=
             gameDataToProcess.receivedEnemiesStock;
           gameDataToProcess.receivedEnemiesStock = 0;
+          room?.gameActionRecord.addStockReleaseAction(gameDataToProcess);
         }
       }
       break;

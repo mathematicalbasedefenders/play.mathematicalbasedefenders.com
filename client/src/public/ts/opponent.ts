@@ -112,7 +112,7 @@ class Opponent {
   autoReposition() {
     const position = this.getInstanceNumberPosition();
     const divisor = Math.max(
-      Math.floor(Math.sqrt(Opponent.instances.length)) - 1,
+      Math.floor(Math.sqrt(Opponent.instances.length)),
       1
     );
     const playerPlayfield = playerContainer.getChildByLabel("playerPlayfield");
@@ -199,6 +199,15 @@ class Opponent {
         40 -
         getScaledEnemyHeight() -
         28;
+
+      if (enemyData.sPosition < 0) {
+        // delete just the sprite
+        if (this.enemies[`enemy${id}`].parent) {
+          this.enemies[`enemy${id}`].parent.removeChild(
+            this.enemies[`enemy${id}`]
+          );
+        }
+      }
     }
   }
 
@@ -225,7 +234,7 @@ class Opponent {
    * Destroys (remove) all Opponent game instances.
    * This just calls `.destroy()` on every Opponent game instance.
    */
-  destroyAllInstances() {
+  static destroyAllInstances() {
     for (let instance of Opponent.instances) {
       instance.destroy();
     }
@@ -262,7 +271,7 @@ class Opponent {
     const initialScale = 1 / 3;
     const ratio = 4 / 5;
     const exponent = Math.max(
-      Math.floor(Math.sqrt(Opponent.instances.length)) - 1,
+      Math.floor(Math.sqrt(Opponent.instances.length)),
       1
     );
     Opponent.globalScale = initialScale * ratio ** exponent;

@@ -89,18 +89,36 @@ class Enemy {
         const room = findRoomWithConnectionID(gameData.ownerConnectionID);
         if (room) {
           room.gameActionRecord.addAttackAction(gameData, attack);
+        } else {
+          log.warn(`No room found for ${gameData.ownerConnectionID}`);
+          log.warn(`Dropping enemy kill action.`);
         }
         gameData.totalEnemiesSent += attack;
         gameData.attackScore += attack;
         // gameData.enemiesSentStock += attack;
+        let enemiesCancelled = 0;
+        let enemiesSent = 0;
         while (attack > 0) {
           if (gameData.receivedEnemiesStock > 0) {
             gameData.receivedEnemiesStock -= 1;
+            enemiesCancelled++;
           } else {
             // no received enemies in stock
             gameData.enemiesSentStock += 1;
+            enemiesSent++;
           }
           attack -= 1;
+        }
+        if (room) {
+          if (enemiesCancelled > 0) {
+            room.gameActionRecord.addStockCancelAction(
+              gameData,
+              enemiesCancelled
+            );
+          }
+          if (enemiesSent > 0) {
+            room.gameActionRecord.addAttackAction(gameData, enemiesSent);
+          }
         }
       }
       gameData.score += this.calculateScore(
