@@ -315,6 +315,17 @@ function initializeStageItems() {
       fill: "#ffffff"
     })
   });
+  stageItems.textSprites.replayIndicatorText = new PIXI.Text({
+    text: "",
+    style: createTextStyle({
+      fontFamily: ["Noto Sans", "sans-serif"],
+      fontSize: 64,
+      fill: {
+        color: "#ffffff",
+        alpha: 0.2
+      }
+    })
+  });
 }
 
 function setContainerItemProperties() {
@@ -377,6 +388,10 @@ function setContainerItemProperties() {
   stageItems.textSprites.howToPlayText.text +=
     "You can also turn off this message in the settings.\n";
   stageItems.textSprites.howToPlayText.position.set(STATISTICS_POSITION, 400);
+  // replay indicator
+  stageItems.textSprites.replayIndicatorText.text = "REPLAY";
+  stageItems.textSprites.replayIndicatorText.anchor.set(0.5, 0.5);
+  stageItems.textSprites.replayIndicatorText.position.set(960, 320);
 }
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);

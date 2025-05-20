@@ -18,6 +18,9 @@ function render(elapsedMilliseconds: number) {
     renderEnemies();
     updateReplayGameDataLikeServer(elapsedMilliseconds);
     renderGameData(replayGameData);
+    showReplayIndicatorText();
+  } else {
+    hideReplayIndicatorText();
   }
 
   /**
@@ -140,6 +143,14 @@ function setClientSideRendering(data: { [key: string]: any }) {
   if (data.baseHealth) {
     variables.currentGameClientSide.baseHealth = parseFloat(data.baseHealth);
   }
+}
+
+function showReplayIndicatorText() {
+  stageItems.textSprites.replayIndicatorText.visible = true;
+}
+
+function hideReplayIndicatorText() {
+  stageItems.textSprites.replayIndicatorText.visible = false;
 }
 
 export { render, resetClientSideVariables, setClientSideRendering };
