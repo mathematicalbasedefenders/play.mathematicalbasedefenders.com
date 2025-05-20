@@ -227,7 +227,7 @@ class GameActionRecord {
         break;
       }
       case "defaultMultiplayer": {
-        if (!(data instanceof Array)) {
+        if (!Array.isArray(data)) {
           log.error(
             `Expected type Array of multiplayer game ranks for data argument, got: ${typeof data}`
           );
