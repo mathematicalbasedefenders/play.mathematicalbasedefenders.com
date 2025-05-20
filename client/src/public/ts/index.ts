@@ -171,7 +171,7 @@ const variables: { [key: string]: any } = {
   watchingReplay: false
 };
 
-const replayCache: { [key: string]: any } = {};
+const replayCache: { [key: string]: Replay } = {};
 
 async function initializeTextures() {
   try {
