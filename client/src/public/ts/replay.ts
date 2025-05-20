@@ -241,11 +241,6 @@ function updateReplayGameData(
         replayGameData.connectionID = actionRecord.data.connectionID;
       } else {
         // is multiplayer
-        console.log(
-          "viewAs",
-          replayGameData.viewAs,
-          actionRecord.data.playerAdded.connectionID
-        );
         if (
           replayGameData.viewAs === actionRecord.data.playerAdded.connectionID
         ) {
