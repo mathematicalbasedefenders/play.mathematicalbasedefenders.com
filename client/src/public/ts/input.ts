@@ -1,5 +1,6 @@
 import { navigateFocus } from "./arrow-key-navigation";
 import { variables } from "./index";
+import { stopReplay } from "./replay";
 import { sendSocketMessage, socket } from "./socket";
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -57,6 +58,7 @@ function initializeKeypressEventListener() {
     const sendWebSocketMessage = checkIfShouldSendWebSocketMessage(event);
     // override:
     if (variables.watchingReplay && ABORT_KEYS.includes(event.code)) {
+      stopReplay();
       variables.watchingReplay = false;
     }
     // see if a websocket message should be sent
@@ -95,6 +97,7 @@ function handleClientSideEvents(event: KeyboardEvent) {
     }
   }
   if (variables.watchingReplay && ABORT_KEYS.includes(event.code)) {
+    stopReplay();
     variables.watchingReplay = false;
   }
 }
