@@ -460,6 +460,11 @@ function stopReplay() {
   replayGameData.enemies = [];
   replayGameData.enemiesToErase = [];
   changeScreen("archiveMenu", true, true);
+  for (const enemy in Enemy.enemiesDrawn) {
+    if (Enemy.enemyCache[enemy]) {
+      Enemy.enemyCache[enemy].deleteSprite();
+    }
+  }
   Opponent.destroyAllInstances();
   deleteAllEnemies();
 }
