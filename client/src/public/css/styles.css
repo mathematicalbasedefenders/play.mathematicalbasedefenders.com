@@ -223,6 +223,7 @@ input[type="radio"] {
   height: 60%;
   background-size: auto 100%;
   background-position-x: 32px;
+  background-repeat: no-repeat;
 }
 
 #main-menu-screen-button--multiplayer {
@@ -231,6 +232,7 @@ input[type="radio"] {
   height: 30%;
   background-size: auto 100%;
   background-position-x: 32px;
+  background-repeat: no-repeat;
 }
 
 #main-menu-screen-button--archive {
@@ -238,6 +240,7 @@ input[type="radio"] {
   background-image: url("../assets/images/archive.svg");
   background-size: auto 100%;
   background-position-x: 32px;
+  background-repeat: no-repeat;
 }
 
 #main-menu-screen-button--settings {
@@ -246,6 +249,7 @@ input[type="radio"] {
   background-image: url("../assets/images/settings.svg");
   background-size: auto 100%;
   background-position-x: 32px;
+  background-repeat: no-repeat;
 }
 
 .main-menu-screen-button__title {
@@ -364,6 +368,7 @@ input[type="radio"] {
   background-size: auto 100%;
   background-position-x: 32px;
   width: 48%;
+  background-repeat: no-repeat;
 }
 
 #singleplayer-menu-screen-button--standard {
@@ -372,6 +377,7 @@ input[type="radio"] {
   background-size: auto 100%;
   background-position-x: 32px;
   height: 60%;
+  background-repeat: no-repeat;
 }
 
 #singleplayer-menu-screen-button--custom {
@@ -380,6 +386,7 @@ input[type="radio"] {
   background-size: auto 100%;
   background-position-x: 32px;
   width: 48%;
+  background-repeat: no-repeat;
 }
 
 #singleplayer-menu-screen-button--back {
@@ -388,6 +395,7 @@ input[type="radio"] {
   background-size: auto 100%;
   background-position-x: 32px;
   height: 10%;
+  background-repeat: no-repeat;
 }
 
 .singleplayer-menu-screen-button:hover {
@@ -628,6 +636,7 @@ input[type="radio"] {
   background-size: auto 100%;
   background-position-x: 32px;
   height: 60%;
+  background-repeat: no-repeat;
 }
 
 #multiplayer-menu-screen-button--custom {
@@ -637,6 +646,7 @@ input[type="radio"] {
   background-position-x: 32px;
   height: 30%;
   cursor: not-allowed;
+  background-repeat: no-repeat;
 }
 
 #multiplayer-menu-screen-button--back {
@@ -940,6 +950,7 @@ input[type="radio"] {
   background-image: url("../assets/images/retry.svg");
   background-size: auto 100%;
   background-position-x: 32px;
+  background-repeat: no-repeat;
 }
 
 #game-over-screen-button--back {
@@ -947,6 +958,7 @@ input[type="radio"] {
   background-image: url("../assets/images/back.svg");
   background-size: auto 100%;
   background-position-x: 32px;
+  background-repeat: no-repeat;
 }
 
 .game-over-screen-button__title {
