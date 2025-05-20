@@ -70,7 +70,7 @@ function renderGameData(data: { [key: string]: any }) {
         [x + 0.75, y - 1],
         [x, y - 0.1]
       );
-      const slidingText = new SlidingText(
+      const slidingText = SlidingText.getOrCreate(
         `+${textToDisplay}`,
         new PIXI.TextStyle({
           fontFamily: ["Noto Sans", "sans-serif"],
@@ -78,7 +78,8 @@ function renderGameData(data: { [key: string]: any }) {
         }),
         slideBezier,
         fadeBezier,
-        1000
+        1000,
+        enemyID as string
       );
       slidingText.render();
     }
@@ -284,6 +285,7 @@ function changeScreen(
   $("#main-content__multiplayer-intermission-screen-container").hide(0);
   $("#main-content__game-over-screen-container").hide(0);
   $("#main-content__settings-screen-container").hide(0);
+  $("#main-content__archive-screen-container").hide(0);
   $("#canvas-container").hide(0);
   // other stuff
   if (alsoRedrawStage) {
@@ -307,9 +309,7 @@ function changeScreen(
   }
   variables.navigation.focusing = null;
   // TODO: temporary
-  for (let opponent of Opponent.instances) {
-    opponent.destroyAllInstances();
-  }
+  Opponent.destroyAllInstances();
   enemies.deleteAllEnemies();
   enemies.Enemy.enemiesDrawn = []; // TODO: Consider moving this to specific screens only.
   // actually change screen
@@ -354,6 +354,10 @@ function changeScreen(
       $("#canvas-container").show(0);
       // TODO: move this somewhere else
       variables.playing = true;
+      break;
+    }
+    case "archiveMenu": {
+      $("#main-content__archive-screen-container").show(0);
       break;
     }
   }

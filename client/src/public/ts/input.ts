@@ -1,5 +1,6 @@
 import { navigateFocus } from "./arrow-key-navigation";
 import { variables } from "./index";
+import { stopReplay } from "./replay";
 import { sendSocketMessage, socket } from "./socket";
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -55,6 +56,11 @@ function initializeKeypressEventListener() {
   window.addEventListener("keydown", (event) => {
     // other client-side events start
     const sendWebSocketMessage = checkIfShouldSendWebSocketMessage(event);
+    // override:
+    if (variables.watchingReplay && ABORT_KEYS.includes(event.code)) {
+      stopReplay();
+      variables.watchingReplay = false;
+    }
     // see if a websocket message should be sent
     if (!sendWebSocketMessage) {
       return;
@@ -75,18 +81,24 @@ function handleClientSideEvents(event: KeyboardEvent) {
   const numberPadKeyIndex = NUMBER_PAD_KEYS.indexOf(event.code);
   const removeDigitKeyIndex = REMOVE_DIGIT_KEYS.indexOf(event.code);
   const subtractionSignKeyIndex = SUBTRACTION_SIGN_KEYS.indexOf(event.code);
-  if (numberRowKeyIndex > -1) {
-    variables.currentGameClientSide.currentInput +=
-      numberRowKeyIndex.toString();
-  } else if (numberPadKeyIndex > -1) {
-    variables.currentGameClientSide.currentInput +=
-      numberPadKeyIndex.toString();
-  } else if (subtractionSignKeyIndex > -1) {
-    variables.currentGameClientSide.currentInput += "-";
-  } else if (removeDigitKeyIndex > -1) {
-    const newLength = variables.currentGameClientSide.currentInput.length - 1;
-    variables.currentGameClientSide.currentInput =
-      variables.currentGameClientSide.currentInput.substring(0, newLength);
+  if (!variables.watchingReplay) {
+    if (numberRowKeyIndex > -1) {
+      variables.currentGameClientSide.currentInput +=
+        numberRowKeyIndex.toString();
+    } else if (numberPadKeyIndex > -1) {
+      variables.currentGameClientSide.currentInput +=
+        numberPadKeyIndex.toString();
+    } else if (subtractionSignKeyIndex > -1) {
+      variables.currentGameClientSide.currentInput += "-";
+    } else if (removeDigitKeyIndex > -1) {
+      const newLength = variables.currentGameClientSide.currentInput.length - 1;
+      variables.currentGameClientSide.currentInput =
+        variables.currentGameClientSide.currentInput.substring(0, newLength);
+    }
+  }
+  if (variables.watchingReplay && ABORT_KEYS.includes(event.code)) {
+    stopReplay();
+    variables.watchingReplay = false;
   }
 }
 

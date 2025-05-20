@@ -6,13 +6,17 @@ import {
   processKeypressForRoom
 } from "../game/Room";
 import {
-  ActionRecord,
   GameData,
   GameMode,
   MultiplayerGameData,
   SingleplayerGameData
 } from "../game/GameData";
-import { findRoomWithConnectionID } from "./utilities";
+import {
+  findRoomWithConnectionID,
+  getUserReplayDataFromSocket
+} from "./utilities";
+import { Action, ActionRecord } from "../replay/recording/ActionRecord";
+import _ from "lodash";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -110,6 +114,21 @@ function processKeypress(
     log.warn("A keypress event that isn't a string has been fired.");
     return;
   }
+  // room
+  const room = findRoomWithConnectionID(connectionID, false);
+  if (room) {
+    room.gameActionRecord.addAction({
+      scope: "player",
+      action: Action.Keypress,
+      timestamp: Date.now(),
+      user: getUserReplayDataFromSocket(socket),
+      data: {
+        code: code,
+        emulated: emulated ?? false
+      }
+    });
+  }
+
   processKeypressForRoom(connectionID, code, emulated);
   // non-room interactions
   if (code === "Escape") {
@@ -138,8 +157,6 @@ function processInputInformation(
   gameDataToProcess: GameData,
   emulated?: boolean
 ) {
-  // add action to record
-  gameDataToProcess.addAction(constructInputRecord(inputInformation, emulated));
   // also increment actionsPerformed
   gameDataToProcess.actionsPerformed++;
   switch (inputInformation.action) {
@@ -166,6 +183,33 @@ function processInputInformation(
     }
     case InputAction.SendAnswer: {
       let enemyKilled = false;
+      const room = findRoomWithConnectionID(
+        gameDataToProcess.ownerConnectionID
+      );
+
+      if (room) {
+        const ownerSocket = universal.getSocketFromConnectionID(
+          gameDataToProcess.ownerConnectionID
+        );
+        const submissionRecord: ActionRecord = {
+          action: Action.Submit,
+          scope: "player",
+          user: ownerSocket
+            ? getUserReplayDataFromSocket(ownerSocket)
+            : {
+                userID: null,
+                name: "(unknown)",
+                isAuthenticated: false,
+                connectionID: ""
+              },
+          data: {
+            submitted: gameDataToProcess.currentInput
+          },
+          timestamp: Date.now()
+        };
+        room.gameActionRecord.addAction(submissionRecord);
+      }
+
       for (let enemy of gameDataToProcess.enemies) {
         // TODO: Data validation
         if (enemy.check(parseInt(gameDataToProcess.currentInput))) {
@@ -174,11 +218,61 @@ function processInputInformation(
           gameDataToProcess.enemiesKilled += 1;
           if (gameDataToProcess instanceof SingleplayerGameData) {
             gameDataToProcess.enemiesToNextLevel -= 1;
+
+            if (room) {
+              room.gameActionRecord.addSetGameDataAction(
+                gameDataToProcess,
+                "player",
+                "enemiesToNextLevel",
+                _.get(gameDataToProcess, "enemiesToNextLevel")
+              );
+            }
+
             if (gameDataToProcess.enemiesToNextLevel <= 0) {
               gameDataToProcess.increaseLevel(1);
+
+              // update replay data
+              const keys = [
+                "clocks.enemySpawn.actionTime",
+                "enemySpeedCoefficient",
+                "baseHealthRegeneration",
+                "level"
+              ];
+
+              if (room) {
+                for (const key of keys) {
+                  room.gameActionRecord.addSetGameDataAction(
+                    gameDataToProcess,
+                    "player",
+                    key,
+                    _.get(gameDataToProcess, key)
+                  );
+                }
+              }
             }
           }
           enemy.kill(gameDataToProcess, true, true);
+          if (room) {
+            if (
+              gameDataToProcess.mode === GameMode.EasySingleplayer ||
+              gameDataToProcess.mode === GameMode.StandardSingleplayer
+            ) {
+              room.gameActionRecord.addSetGameDataAction(
+                gameDataToProcess,
+                "player",
+                "score",
+                gameDataToProcess.score
+              );
+            } else if (gameDataToProcess.mode === GameMode.DefaultMultiplayer) {
+              room.gameActionRecord.addSetGameDataAction(
+                gameDataToProcess,
+                "player",
+                "attackScore",
+                gameDataToProcess.attackScore
+              );
+            }
+            room.gameActionRecord.addEnemyKillAction(enemy, gameDataToProcess);
+          }
         }
       }
       // reset input
@@ -190,6 +284,7 @@ function processInputInformation(
           gameDataToProcess.receivedEnemiesToSpawn +=
             gameDataToProcess.receivedEnemiesStock;
           gameDataToProcess.receivedEnemiesStock = 0;
+          room?.gameActionRecord.addStockReleaseAction(gameDataToProcess);
         }
       }
       break;
@@ -249,21 +344,6 @@ function getInputInformation(code: string) {
     action: InputAction.Unknown,
     argument: "" // no need
   };
-}
-
-function constructInputRecord(
-  inputRecord: InputActionInterface,
-  emulated?: boolean
-) {
-  const record: ActionRecord = {
-    action: "keypress",
-    timestamp: Date.now(),
-    data: {
-      keyCode: inputRecord.keyPressed?.toString(),
-      emulated: emulated ?? false
-    }
-  };
-  return record;
 }
 
 export {

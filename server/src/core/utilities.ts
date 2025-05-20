@@ -455,6 +455,50 @@ function generatePlayerListPayload(connectionIDs: string[]) {
   });
 }
 
+/**
+ * This function returns only necessary data to construct a replay
+ * file from player data from a socket.
+ * Use this for replays.
+ * @param socket The socket.
+ * @returns The parsed data.
+ */
+function getUserReplayDataFromSocket(socket: universal.GameSocket) {
+  return {
+    userID: socket.loggedIn ? socket.ownerUserID : null,
+    name: socket.loggedIn ? socket.ownerUsername : socket.ownerGuestName,
+    isAuthenticated: socket.loggedIn,
+    connectionID: socket.connectionID
+  };
+}
+
+/**
+ * Converts game settings to "replay actions"
+ * This is so that when opening a replay, the game settings (e.g. enemy speed) match up
+ * for more accurate replays.
+ * @param {GameData} data The data of the game to convert.
+ * @returns Replay actions, one for each setting. e.g., enemySpeed is now 1
+ */
+function convertGameSettingsToReplayActions(data: GameData) {
+  const result: { [key: string]: any } = {};
+  const keys = keyify(data);
+  for (const key of keys) {
+    result[key] = _.get(data, key);
+  }
+  return result;
+}
+
+const keyify = (obj: any, prefix = ""): string[] => {
+  const keys: string[] = [];
+  Object.keys(obj).forEach((el) => {
+    if (typeof obj[el] === "object" && obj[el] !== null) {
+      keys.push(...keyify(obj[el], `${prefix}${el}.`));
+    } else {
+      keys.push(`${prefix}${el}`);
+    }
+  });
+  return keys;
+};
+
 export {
   checkIfPropertyWithValueExists,
   findRoomWithConnectionID,
@@ -475,5 +519,7 @@ export {
   getWebSocketMessageSpeed,
   checkWebSocketMessageSpeeds,
   calculateAPM,
-  formatNumber
+  formatNumber,
+  getUserReplayDataFromSocket,
+  convertGameSettingsToReplayActions
 };
