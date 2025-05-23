@@ -118,7 +118,7 @@ async function submitSingleplayerGame(
     rankMessage += `Global Rank #${rank}`;
     // for webhook sends, also check if record holder beat pb
     if (personalBestBeaten) {
-      sendDiscordWebhook(data, rank);
+      sendDiscordWebhook(data, rank, replay.id);
       const notification = createGlobalLeaderboardsMessage(data, rank);
       sendGlobalToastNotification(notification);
       const chatAlert = createGlobalChatLeaderboardsMessage(
