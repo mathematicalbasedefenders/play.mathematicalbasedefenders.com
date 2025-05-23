@@ -111,7 +111,7 @@ function getRankOfPlayer(membership: { [key: string]: boolean }) {
     return { title: "Developer", color: "#ff0000" };
   }
   if (membership.isAdministrator) {
-    return { title: "Administrator", color: "#da1717" };
+    return { title: "Administrator", color: "#ff0000" };
   }
   if (membership.isModerator) {
     return { title: "Moderator", color: "#ff7f00" };

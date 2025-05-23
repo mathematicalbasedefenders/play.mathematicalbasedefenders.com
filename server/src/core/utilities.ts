@@ -153,7 +153,7 @@ function getRank(data: UserInterface | string | undefined) {
     return { title: "Developer", color: "#ff0000" };
   }
   if (data.membership.isAdministrator) {
-    return { title: "Administrator", color: "#da1717" };
+    return { title: "Administrator", color: "#ff0000" };
   }
   if (data.membership.isModerator) {
     return { title: "Moderator", color: "#ff7f00" };
