@@ -21,6 +21,7 @@ body {
 :root {
   --color-singleplayer: #00a032;
   --color-multiplayer: #00a06b;
+  --color-archive: #a55616;
 
   --color-singleplayer-menu-easy: #00851d;
   --color-singleplayer-menu-standard: #b62a00;
@@ -188,6 +189,20 @@ input[type="radio"] {
   #main-menu-screen-button--singleplayer {
     background-position: 0 70% !important;
   }
+
+  #main-content__main-menu-screen-button-container__bottom {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    column-gap: 16px;
+    margin: 8px 0 0 0 !important;
+  }
+
+  #main-menu-screen-button--archive,
+  #main-menu-screen-button--settings {
+    margin: 0;
+    height: max-content !important;
+  }
 }
 
 .main-menu-screen-button {
@@ -204,22 +219,37 @@ input[type="radio"] {
 
 #main-menu-screen-button--singleplayer {
   background-color: var(--color-singleplayer);
-  background-image: url("../assets/images/singleplayerbuttonbackground.png");
-  background-position: 0 130%;
+  background-image: url("../assets/images/singleplayer.svg");
   height: 60%;
+  background-size: auto 100%;
+  background-position-x: 32px;
+  background-repeat: no-repeat;
 }
 
 #main-menu-screen-button--multiplayer {
   background-color: var(--color-multiplayer);
-  background-image: url("../assets/images/multiplayerbuttonbackground.png");
-  background-position: 0 70%;
+  background-image: url("../assets/images/multiplayer.svg");
   height: 30%;
+  background-size: auto 100%;
+  background-position-x: 32px;
+  background-repeat: no-repeat;
+}
+
+#main-menu-screen-button--archive {
+  background-color: var(--color-archive);
+  background-image: url("../assets/images/archive.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
+  background-repeat: no-repeat;
 }
 
 #main-menu-screen-button--settings {
   background-color: var(--color-neutral);
   background-position: 0 70%;
-  height: 10%;
+  background-image: url("../assets/images/settings.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
+  background-repeat: no-repeat;
 }
 
 .main-menu-screen-button__title {
@@ -334,36 +364,49 @@ input[type="radio"] {
 
 #singleplayer-menu-screen-button--easy {
   background-color: var(--color-singleplayer-menu-easy);
-  background-image: url("../assets/images/easysingleplayerbuttonbackground.png");
-  background-position: 0 120%;
-  background-size: 110%;
+  background-image: url("../assets/images/easy.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   width: 48%;
+  background-repeat: no-repeat;
 }
 
 #singleplayer-menu-screen-button--standard {
   background-color: var(--color-singleplayer-menu-standard);
-  background-image: url("../assets/images/standardsingleplayerbuttonbackground.png");
-  background-position: 0 120%;
-  background-size: 110%;
+  background-image: url("../assets/images/standard.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   height: 60%;
+  background-repeat: no-repeat;
 }
 
 #singleplayer-menu-screen-button--custom {
   background-color: var(--color-singleplayer-menu-custom);
-  /* background-image: url("../assets/images/standardsingleplayerbuttonbackground.png"); */
-  background-position: 0 70%;
+  background-image: url("../assets/images/custom.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   width: 48%;
+  background-repeat: no-repeat;
 }
 
 #singleplayer-menu-screen-button--back {
   background-color: var(--color-neutral);
-  background-position: 0 70%;
+  background-image: url("../assets/images/back.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   height: 10%;
+  background-repeat: no-repeat;
 }
 
 .singleplayer-menu-screen-button:hover {
   filter: brightness(1.05);
   transform: scale(1.05);
+}
+
+#main-content__main-menu-screen-button-container__bottom {
+  display: flex;
+  flex-direction: row;
+  margin: 0 -16px;
 }
 
 /* (CUSTOM) SINGLEPLAYER INTERMISSION SCREEN */
@@ -458,6 +501,79 @@ input[type="radio"] {
   margin-top: 40px;
 }
 
+/* ARCHIVES MENU */
+#main-content__archive-screen-container {
+  display: grid;
+  grid-template-columns: [column1-start] 80px [column1-end column2-start] 120px [column2-end column3-start] auto [column3-end column4-start] 80px [column4-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
+  height: 100%;
+  width: 100%;
+  /* background-color: #000000; */
+}
+
+#main-content__archive-screen-container__sidebar {
+  grid-column: column2-start / column2-end;
+  grid-row: row2-start / row2-end;
+}
+
+#main-content__archive-screen-container__sidebar.option-button--left-bordered {
+  width: 100%;
+}
+
+#main-content__archive-screen-container__content {
+  grid-column: column3-start / column3-end;
+  grid-row: row2-start / row2-end;
+  margin-left: 48px;
+}
+
+.archive__content-fieldset {
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  background-color: var(--color-neutral);
+  font-size: 150%;
+}
+
+.archive__content-fieldset legend {
+  background-color: var(--color-neutral);
+  padding: 0 8px;
+}
+
+.archive__content-fieldset label,
+.archive__content-fieldset input {
+  margin: 4px 0;
+}
+
+.archive__content-input--text {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 100%;
+  font-family: inherit;
+}
+.archive__content-input--button {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 150%;
+  font-family: inherit;
+  transition-duration: var(--transition-duration-short);
+}
+.archive__content-input--button:hover {
+  filter: brightness(1.05);
+  transform: scale(1.05);
+}
+
+#main-content__archive-screen-container__content {
+  grid-column: column3-start / column3-end;
+  grid-row: row2-start / row2-end;
+  margin-left: 48px;
+}
+
+#main-content__archive-screen-container__content__replay-details {
+  white-space: pre-line;
+  display: none;
+}
+
 /* MULTIPLAYER MENU */
 #main-content__multiplayer-menu-screen-container {
   /* background-color: #000000; */
@@ -516,15 +632,21 @@ input[type="radio"] {
 
 #multiplayer-menu-screen-button--default {
   background-color: var(--color-multiplayer-menu-default);
-  background-position: 0 70%;
+  background-image: url("../assets/images/default.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   height: 60%;
+  background-repeat: no-repeat;
 }
 
 #multiplayer-menu-screen-button--custom {
   background-color: var(--color-multiplayer-menu-custom);
-  background-position: 0 70%;
+  background-image: url("../assets/images/custom2.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
   height: 30%;
   cursor: not-allowed;
+  background-repeat: no-repeat;
 }
 
 #multiplayer-menu-screen-button--back {
@@ -764,7 +886,7 @@ input[type="radio"] {
 #main-content__game-over-screen {
   display: grid;
   grid-template-columns: [column1-start] 80px [column1-end column2-start] auto [column2-end column3-start] 80px [column3-end];
-  grid-template-rows: [row1-start] 40px [row1-end row2-start] 25vh [row2-end row3-start] 30vh [row3-end row4-start] 10vw [row4-end row5-start] auto [row5-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] 35vh [row2-end row3-start] 30vh [row3-end row4-start] 10vw [row4-end row5-start] auto [row5-end];
   height: 100%;
   width: 100%;
 }
@@ -825,12 +947,18 @@ input[type="radio"] {
 
 #game-over-screen-button--retry {
   background-color: var(--color-neutral);
-  background-position: 0 70%;
+  background-image: url("../assets/images/retry.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
+  background-repeat: no-repeat;
 }
 
 #game-over-screen-button--back {
   background-color: var(--color-neutral);
-  background-position: 0 70%;
+  background-image: url("../assets/images/back.svg");
+  background-size: auto 100%;
+  background-position-x: 32px;
+  background-repeat: no-repeat;
 }
 
 .game-over-screen-button__title {

@@ -4,6 +4,10 @@ import _ from "lodash";
 import { Enemy, createNewEnemy } from "../Enemy";
 import { GameData } from "../GameData";
 import { Room, MultiplayerRoom } from "../Room";
+import {
+  findGameDataWithConnectionID,
+  findRoomWithConnectionID
+} from "../../core/utilities";
 
 /**
  * Check all Singleplayer room clocks.
@@ -68,6 +72,7 @@ function checkEnemyTimeClocks(data: GameData, room: Room) {
   if (forcedEnemySpawnClock.currentTime >= forcedEnemySpawnClock.actionTime) {
     // forcibly spawn enemy
     data.enemies.push(_.clone(enemyToAdd));
+    room.gameActionRecord.addEnemySpawnAction(enemyToAdd, data);
     forcedSpawned = true;
     // reset time
     forcedEnemySpawnClock.currentTime = 0;
@@ -79,6 +84,7 @@ function checkEnemyTimeClocks(data: GameData, room: Room) {
     const roll = Math.random();
     if (roll < data.enemySpawnThreshold && !forcedSpawned) {
       data.enemies.push(_.clone(enemyToAdd));
+      room.gameActionRecord.addEnemySpawnAction(enemyToAdd, data);
       data.enemiesSpawned++;
     }
     enemySpawnClock.currentTime -= enemySpawnClock.actionTime;
@@ -95,6 +101,11 @@ function checkComboTimeClock(data: GameData) {
   if (comboResetClock.currentTime >= comboResetClock.actionTime) {
     data.combo = -1;
     comboResetClock.currentTime -= comboResetClock.actionTime;
+    // send game data as well
+    const room = findRoomWithConnectionID(data.ownerConnectionID);
+    if (room) {
+      room.gameActionRecord.addSetGameDataAction(data, "player", "combo", -1);
+    }
   }
 }
 
@@ -108,12 +119,24 @@ function checkBaseHealthRegenerationClock(data: GameData) {
     baseHealthHealClock.currentTime >= baseHealthHealClock.actionTime &&
     data.baseHealth > 0
   ) {
-    data.baseHealth = Math.min(
-      data.baseHealth + data.baseHealthRegeneration,
-      data.maximumBaseHealth
+    const baseHealthNow = addToBaseHealth(data);
+    const room = findRoomWithConnectionID(data.owner.connectionID);
+    room?.gameActionRecord.addSetGameDataAction(
+      data,
+      "player",
+      "baseHealth",
+      baseHealthNow
     );
     baseHealthHealClock.currentTime -= baseHealthHealClock.actionTime;
   }
+}
+
+function addToBaseHealth(data: GameData) {
+  data.baseHealth = Math.min(
+    data.baseHealth + data.baseHealthRegeneration,
+    data.maximumBaseHealth
+  );
+  return data.baseHealth;
 }
 
 export {

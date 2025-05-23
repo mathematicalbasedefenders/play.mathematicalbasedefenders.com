@@ -6,6 +6,11 @@ import { checkSingleplayerRoomClocks } from "./clocks";
 import { GameData } from "../GameData";
 import { createNewEnemy } from "../Enemy";
 import { log } from "../../core/log";
+import { Action, ActionRecord } from "../../replay/recording/ActionRecord";
+import {
+  findGameDataWithConnectionID,
+  findRoomWithConnectionID
+} from "../../core/utilities";
 
 function updateSingleplayerRoomData(room: SingleplayerRoom, deltaTime: number) {
   if (deltaTime < 0) {
@@ -47,6 +52,8 @@ function moveEnemies(data: GameData, deltaTime: number) {
     enemy.move(distance);
     if (enemy.sPosition <= 0) {
       enemy.attackBase(data, BASE_ENEMY_ATTACK);
+      const room = findRoomWithConnectionID(data.owner.connectionID);
+      room?.gameActionRecord.addEnemyReachedBaseAction(enemy, data);
     }
   }
 }
@@ -58,6 +65,7 @@ function moveEnemies(data: GameData, deltaTime: number) {
  */
 function checkGameOverCondition(data: GameData, room: SingleplayerRoom) {
   if (data.baseHealth <= 0) {
+    room.gameActionRecord.addGameOverAction();
     room.startGameOverProcess(data);
   }
 }
@@ -75,8 +83,11 @@ function checkForceSpawnEnemyCondition(data: GameData, room: SingleplayerRoom) {
   }
 
   const enemy = createNewEnemy(`F${room.updateNumber}`);
+  room.gameActionRecord.addEnemySpawnAction(enemy, data);
+
   data.enemies.push(_.clone(enemy));
   data.enemiesSpawned++;
+
   return true;
 }
 

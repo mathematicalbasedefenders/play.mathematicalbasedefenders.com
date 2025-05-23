@@ -3,11 +3,11 @@ import { log } from "../core/log";
 import {
   GameData,
   SingleplayerGameData,
-  MultiplayerGameData,
-  ActionRecord
+  MultiplayerGameData
 } from "./GameData";
 import { USE_TESTING_VALUES } from "../universal";
 import { TESTING_VALUES } from "../testing-configuration/values";
+import { findRoomWithConnectionID } from "../core/utilities";
 
 const MINIMUM_GENERABLE_NUMBER = -100;
 const POSSIBLE_FACTORS = [2, 3, 4, 5, 6, 8, 9, 10, 11];
@@ -86,17 +86,39 @@ class Enemy {
     if (giveScore) {
       if (gameData instanceof MultiplayerGameData) {
         let attack = this.calculateSent(1, gameData.combo);
+        const room = findRoomWithConnectionID(gameData.ownerConnectionID);
+        if (room) {
+          room.gameActionRecord.addAttackAction(gameData, attack);
+        } else {
+          log.warn(`No room found for ${gameData.ownerConnectionID}`);
+          log.warn(`Dropping enemy kill action.`);
+        }
         gameData.totalEnemiesSent += attack;
         gameData.attackScore += attack;
         // gameData.enemiesSentStock += attack;
+        let enemiesCancelled = 0;
+        let enemiesSent = 0;
         while (attack > 0) {
           if (gameData.receivedEnemiesStock > 0) {
             gameData.receivedEnemiesStock -= 1;
+            enemiesCancelled++;
           } else {
             // no received enemies in stock
             gameData.enemiesSentStock += 1;
+            enemiesSent++;
           }
           attack -= 1;
+        }
+        if (room) {
+          if (enemiesCancelled > 0) {
+            room.gameActionRecord.addStockCancelAction(
+              gameData,
+              enemiesCancelled
+            );
+          }
+          if (enemiesSent > 0) {
+            room.gameActionRecord.addAttackAction(gameData, enemiesSent);
+          }
         }
       }
       gameData.score += this.calculateScore(
@@ -109,7 +131,6 @@ class Enemy {
       gameData.combo += 1;
       gameData.clocks.comboReset.currentTime = 0;
     }
-    gameData.addAction(constructEnemyKillRecord(this));
     removeEnemyWithIDInGameData(this.id, gameData);
   }
 
@@ -235,17 +256,6 @@ function getFactorsOf(number: number): Array<number> {
     }
   }
   return factors;
-}
-
-function constructEnemyKillRecord(enemy: Enemy) {
-  const record: ActionRecord = {
-    action: "enemyKill",
-    timestamp: Date.now(),
-    data: {
-      sPositionOnKill: enemy.sPosition
-    }
-  };
-  return record;
 }
 
 export { createNewEnemy, createNewReceivedEnemy, Enemy, EnemyAttributes };

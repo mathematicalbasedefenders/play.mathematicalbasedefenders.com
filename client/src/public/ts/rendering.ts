@@ -1,6 +1,8 @@
 import { stageItems, variables } from ".";
 import { renderBeautifulScoreDisplay } from "./beautiful-score-display";
 import { Enemy, getEnemyFromCache } from "./enemies";
+import { renderGameData } from "./game";
+import { replayGameData, updateReplayGameDataLikeServer } from "./replay";
 import { SlidingText } from "./sliding-text";
 import { formatNumber, millisecondsToTime } from "./utilities";
 
@@ -9,6 +11,18 @@ import { formatNumber, millisecondsToTime } from "./utilities";
  * This should be overwritten by server data.
  */
 function render(elapsedMilliseconds: number) {
+  /**
+   * Update replay data as well
+   */
+  if (variables.watchingReplay) {
+    renderEnemies();
+    updateReplayGameDataLikeServer(elapsedMilliseconds);
+    renderGameData(replayGameData);
+    showReplayIndicatorText();
+  } else {
+    hideReplayIndicatorText();
+  }
+
   /**
    * Updates the shown client-side `Enemy`s.
    */
@@ -70,10 +84,11 @@ function render(elapsedMilliseconds: number) {
    * Updates the rendering of the `SlidingText`s.
    */
   function renderSlidingTexts() {
-    const slidingTexts = SlidingText.slidingTexts.filter(
-      (element) => element.rendering
+    const activeSlidingTexts = Object.keys(SlidingText.slidingTexts).filter(
+      (element) => SlidingText.slidingTexts[element].rendering
     );
-    for (const slidingText of slidingTexts) {
+    for (const id of activeSlidingTexts) {
+      const slidingText = SlidingText.slidingTexts[id];
       slidingText.timeSinceFirstRender += elapsedMilliseconds;
       const point = slidingText.slideBezier.calculatePoint(
         slidingText.timeSinceFirstRender
@@ -128,6 +143,14 @@ function setClientSideRendering(data: { [key: string]: any }) {
   if (data.baseHealth) {
     variables.currentGameClientSide.baseHealth = parseFloat(data.baseHealth);
   }
+}
+
+function showReplayIndicatorText() {
+  stageItems.textSprites.replayIndicatorText.visible = true;
+}
+
+function hideReplayIndicatorText() {
+  stageItems.textSprites.replayIndicatorText.visible = false;
 }
 
 export { render, resetClientSideVariables, setClientSideRendering };

@@ -256,8 +256,11 @@ socket.addEventListener("message", (event: any) => {
 
       const chatMessage = $("<div></div>");
       chatMessage.css("display", "flex");
-      chatMessage.css("white-space", "pre");
 
+      const nameWrapper = $(`<div></div>`);
+      nameWrapper.css("display", "flex");
+      nameWrapper.css("flex-direction", "row");
+      nameWrapper.css("white-space", "nowrap");
       const name = $(`<div>${DOMPurify.sanitize(message.data.name)}</div>`);
 
       if (message.data.nameColor) {
@@ -270,12 +273,15 @@ socket.addEventListener("message", (event: any) => {
         });
         name.css("cursor", "pointer");
         name.css("text-decoration", "underline");
+        name.css("height", "fit-content");
       }
-
-      chatMessage.append(name);
-      chatMessage.append("<div>: </div>");
+      nameWrapper.append(name);
+      nameWrapper.append("<div>:&nbsp;</div>");
+      chatMessage.append(nameWrapper);
       chatMessage.append(
-        `<div>${DOMPurify.sanitize(message.data.message)}</div>`
+        `<div style="word-break: break-all;">${DOMPurify.sanitize(
+          message.data.message
+        )}</div>`
       );
 
       $(selector).append(chatMessage);

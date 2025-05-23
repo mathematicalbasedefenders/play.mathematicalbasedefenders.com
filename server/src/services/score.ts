@@ -17,8 +17,13 @@ import {
   sendGlobalWebSocketMessage
 } from "../universal";
 import { sendDiscordWebhook } from "./discord-webhook";
+import { GameActionRecord } from "../replay/recording/ActionRecord";
 // TODO: make this DRY
-async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
+async function submitSingleplayerGame(
+  data: GameData,
+  owner: GameSocket,
+  gameActionRecord: GameActionRecord
+) {
   let wordedGameMode: string = "";
   let dataKey: string = "";
   let personalBestBeaten = false;
@@ -51,6 +56,27 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
     // guest user - ignore score
     log.info(`Ignoring guest score of ${data.score} on ${data.mode} mode`);
     return;
+  }
+
+  // save replay
+  const replay = await gameActionRecord.save(data.mode, data);
+
+  if (replay.ok) {
+    owner.send(
+      JSON.stringify({
+        message: "changeText",
+        selector: "#main-content__game-over-screen__stats__score-replay-id",
+        value: `Replay saved with ID ${replay.id}`
+      })
+    );
+  } else {
+    owner.send(
+      JSON.stringify({
+        message: "changeText",
+        selector: "#main-content__game-over-screen__stats__score-replay-id",
+        value: `Replay not saved.`
+      })
+    );
   }
 
   // announce
@@ -92,7 +118,7 @@ async function submitSingleplayerGame(data: GameData, owner: GameSocket) {
     rankMessage += `Global Rank #${rank}`;
     // for webhook sends, also check if record holder beat pb
     if (personalBestBeaten) {
-      sendDiscordWebhook(data, rank);
+      sendDiscordWebhook(data, rank, replay.id);
       const notification = createGlobalLeaderboardsMessage(data, rank);
       sendGlobalToastNotification(notification);
       const chatAlert = createGlobalChatLeaderboardsMessage(

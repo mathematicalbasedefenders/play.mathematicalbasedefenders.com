@@ -5,7 +5,7 @@ import { millisecondsToTime } from "../core/utilities";
 
 const WEBHOOK_USERNAME = "Mathematical Base Defenders Leaderboards Watcher";
 
-function sendDiscordWebhook(data: GameData, rank: number) {
+function sendDiscordWebhook(data: GameData, rank: number, replayID: string) {
   const parameters: { [key: string]: any } = {};
   const apm = ((data.actionsPerformed / data.elapsedTime) * 60000).toFixed(3);
   const time = millisecondsToTime(data.elapsedTime);
@@ -38,7 +38,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
       },
       {
         "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${score} points.`,
-        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.`,
+        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`,
         "color": 0xffd700
       }
     ];
@@ -47,7 +47,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
     parameters.embeds = [
       {
         "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${score} points.`,
-        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.`,
+        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`,
         "color": 0xc0c0c0
       }
     ];
@@ -56,7 +56,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
     parameters.embeds = [
       {
         "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${score} points.`,
-        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.`,
+        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`,
         "color": 0xcd7f32
       }
     ];
@@ -69,6 +69,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
         } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
           "en-US"
         )} points.`,
+        "description": `Watch the replay of this game by using Replay ID \`${replayID}\`.`,
         "color": 0x8b1ed
       }
     ];
@@ -78,7 +79,7 @@ function sendDiscordWebhook(data: GameData, rank: number) {
       data.ownerName
     } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
       "en-US"
-    )} points.`;
+    )} points.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`;
   }
   fetch(process.env.DISCORD_WEBHOOK_URL, {
     method: "POST",
