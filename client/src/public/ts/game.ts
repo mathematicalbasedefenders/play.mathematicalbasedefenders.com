@@ -21,7 +21,6 @@ const OPTIMAL_SCREEN_RATIO: number =
 // TODO: Change `any` to something else.
 function renderGameData(data: { [key: string]: any }) {
   // pre actions go here.
-  const timestampOfFunctionCall = Date.now();
   if (data.aborted) {
     variables.playing = false;
   }
@@ -146,18 +145,6 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   // text
-  if (
-    data.timestampOfSynchronization > timestampOfFunctionCall ||
-    variables.watchingReplay
-  ) {
-    stageItems.textSprites.inputText.text = data.currentInput.replaceAll(
-      "-",
-      "−"
-    );
-  } else {
-    stageItems.textSprites.inputText.text =
-      variables.currentGameClientSide.currentInput.replaceAll("-", "−");
-  }
 
   stageItems.textSprites.enemiesText.text = `Enemy Kills: ${data.enemiesKilled.toLocaleString(
     "en-US"
@@ -206,12 +193,14 @@ function renderGameData(data: { [key: string]: any }) {
   variables.currentGameClientSide.timeSinceLastEnemyKill =
     data.clocks.comboReset.currentTime;
   variables.currentGameClientSide.baseHealth = data.baseHealth;
-  variables.currentGameClientSide.currentInput = data.currentInput;
   variables.currentGameClientSide.level = data.level;
   variables.currentGameClientSide.enemySpeedCoefficient =
     data.enemySpeedCoefficient;
   variables.currentGameClientSide.beautifulScoreDisplayGoal = data.score;
   variables.currentGameClientSide.shownScore = data.score;
+  variables.currentGameClientSide.timestampOfSynchronization =
+    data.timestampOfSynchronization;
+  variables.currentGameClientSide.synchronizedInput = data.currentInput;
 
   // level display for singleplayer
   if (
