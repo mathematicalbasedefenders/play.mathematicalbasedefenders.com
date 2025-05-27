@@ -144,6 +144,8 @@ function resetClientSideVariables() {
   variables.currentGameClientSide.beautifulScoreDisplayGoal = 0;
   variables.currentGameClientSide.beautifulScoreDisplayProgress = 0;
   variables.currentGameClientSide.beautifulScoreDisplayPrevious = 0;
+  variables.currentGameClientSide.currentInput = "";
+  variables.currentGameClientSide.synchronizedInput = "";
 }
 
 /**
