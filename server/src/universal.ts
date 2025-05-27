@@ -228,6 +228,7 @@ function synchronizeGameDataWithSocket(socket: GameSocket) {
   );
   const clonedSocketGameData = _.cloneDeep(socketGameData);
   if (clonedSocketGameData) {
+    clonedSocketGameData.timestampOfSynchronization = Date.now();
     // remove some game data
     minifySelfGameData(clonedSocketGameData);
     // add some game data (extra information)
