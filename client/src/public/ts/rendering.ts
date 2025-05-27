@@ -89,14 +89,6 @@ function render(elapsedMilliseconds: number) {
       stageItems.textSprites.inputText.text =
         variables.currentGameClientSide.currentInput.replaceAll("-", "−");
     }
-
-    console.log(
-      variables.currentGameClientSide.timestampOfSynchronization,
-      timestampOfFunctionCall,
-      variables.currentGameClientSide.timestampOfSynchronization >
-        timestampOfFunctionCall,
-      variables.currentGameClientSide.currentInput
-    );
   }
 
   /**
