@@ -285,6 +285,24 @@ socket.addEventListener("message", (event: any) => {
       );
 
       $(selector).append(chatMessage);
+      break;
+    }
+    case "clearInput": {
+      for (
+        let character = 0;
+        character < message.data.toClear.length;
+        character++
+      ) {
+        if (
+          variables.currentGameClientSide.currentInput[0] ===
+          message.data.toClear[character]
+        ) {
+          variables.currentGameClientSide.currentInput =
+            variables.currentGameClientSide.currentInput.substr(1);
+        } else {
+          break;
+        }
+      }
     }
   }
 });
