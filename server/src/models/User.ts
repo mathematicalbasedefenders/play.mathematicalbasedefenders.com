@@ -1,4 +1,4 @@
-import mongoose, { HydratedDocument, ObjectId } from "mongoose";
+import mongoose, { HydratedDocument, ObjectId, SchemaTypes } from "mongoose";
 import _ from "lodash";
 import { log } from "../core/log";
 interface UserInterface {
@@ -10,8 +10,6 @@ interface UserInterface {
   userNumber: number;
   creationDateAndTime: Date;
   statistics: {
-    easyModePersonalBestScore: number;
-    standardModePersonalBestScore: number;
     gamesPlayed: number;
     totalExperiencePoints: number;
     personalBestScoreOnEasySingleplayerMode: {
@@ -21,6 +19,7 @@ interface UserInterface {
       actionsPerformed: number;
       enemiesKilled: number;
       enemiesCreated: number;
+      replayID: mongoose.Types.ObjectId;
     };
     personalBestScoreOnStandardSingleplayerMode: {
       score: number;
@@ -29,6 +28,7 @@ interface UserInterface {
       actionsPerformed: number;
       enemiesKilled: number;
       enemiesCreated: number;
+      replayID: mongoose.Types.ObjectId;
     };
     multiplayer: {
       gamesPlayed: number;
@@ -71,8 +71,6 @@ const UserSchema = new mongoose.Schema<UserInterface, UserModel>({
   userNumber: Number,
   creationDateAndTime: Date,
   statistics: {
-    easyModePersonalBestScore: Number,
-    standardModePersonalBestScore: Number,
     gamesPlayed: Number,
     totalExperiencePoints: Number,
     personalBestScoreOnEasySingleplayerMode: {
@@ -81,7 +79,8 @@ const UserSchema = new mongoose.Schema<UserInterface, UserModel>({
       scoreSubmissionDateAndTime: Date,
       actionsPerformed: Number,
       enemiesKilled: Number,
-      enemiesCreated: Number
+      enemiesCreated: Number,
+      replayID: SchemaTypes.ObjectId
     },
     personalBestScoreOnStandardSingleplayerMode: {
       score: Number,
@@ -89,7 +88,8 @@ const UserSchema = new mongoose.Schema<UserInterface, UserModel>({
       scoreSubmissionDateAndTime: Date,
       actionsPerformed: Number,
       enemiesKilled: Number,
-      enemiesCreated: Number
+      enemiesCreated: Number,
+      replayID: SchemaTypes.ObjectId
     },
     multiplayer: {
       gamesPlayed: Number,
