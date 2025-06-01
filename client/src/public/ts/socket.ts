@@ -298,7 +298,7 @@ socket.addEventListener("message", (event: any) => {
           message.data.toClear[character]
         ) {
           variables.currentGameClientSide.currentInput =
-            variables.currentGameClientSide.currentInput.substr(1);
+            variables.currentGameClientSide.currentInput.substring(1);
         } else {
           break;
         }
