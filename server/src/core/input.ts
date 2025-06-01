@@ -275,6 +275,21 @@ function processInputInformation(
           }
         }
       }
+      if (enemyKilled) {
+        const ownerSocket = universal.getSocketFromConnectionID(
+          gameDataToProcess.ownerConnectionID
+        );
+        if (ownerSocket) {
+          ownerSocket.send(
+            JSON.stringify({
+              message: "clearInput",
+              data: {
+                toClear: gameDataToProcess.currentInput.toString()
+              }
+            })
+          );
+        }
+      }
       // reset input
       if (enemyKilled) {
         gameDataToProcess.currentInput = "";

@@ -138,17 +138,12 @@ function renderGameData(data: { [key: string]: any }) {
         }
       }
     }
-    // hide how to play text regardless
-    formatHowToPlayText(variables.howToPlayGamesRemaining, true);
   } else {
     stageItems.textSprites.scoreLabelText.text = "Score";
   }
 
   // text
-  stageItems.textSprites.inputText.text = data.currentInput.replaceAll(
-    "-",
-    "−"
-  );
+
   stageItems.textSprites.enemiesText.text = `Enemy Kills: ${data.enemiesKilled.toLocaleString(
     "en-US"
   )} ≈ ${((data.enemiesKilled / data.elapsedTime) * 1000).toFixed(3)}/s`;
@@ -178,6 +173,11 @@ function renderGameData(data: { [key: string]: any }) {
   } else {
     stageItems.textSprites.enemiesReceivedStockText.text = "";
   }
+  // hide how to play text regardless
+  formatHowToPlayText(
+    variables.howToPlayGamesRemaining,
+    data.mode.indexOf("Multiplayer") > -1 || variables.watchingReplay
+  );
 
   // update values
   if (
@@ -196,12 +196,14 @@ function renderGameData(data: { [key: string]: any }) {
   variables.currentGameClientSide.timeSinceLastEnemyKill =
     data.clocks.comboReset.currentTime;
   variables.currentGameClientSide.baseHealth = data.baseHealth;
-  variables.currentGameClientSide.currentInput = data.currentInput;
   variables.currentGameClientSide.level = data.level;
   variables.currentGameClientSide.enemySpeedCoefficient =
     data.enemySpeedCoefficient;
   variables.currentGameClientSide.beautifulScoreDisplayGoal = data.score;
   variables.currentGameClientSide.shownScore = data.score;
+  variables.currentGameClientSide.timestampOfSynchronization =
+    data.timestampOfSynchronization;
+  variables.currentGameClientSide.synchronizedInput = data.currentInput;
 
   // level display for singleplayer
   if (

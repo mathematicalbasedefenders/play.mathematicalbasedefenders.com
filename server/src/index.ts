@@ -30,6 +30,7 @@ import { updateSystemStatus } from "./core/status-indicators";
 import { authenticate } from "./authentication/perform-authentication";
 
 const app = express();
+app.set("trust proxy", 2);
 const corsOptions = {
   origin: [
     "http://localhost:3000",

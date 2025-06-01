@@ -13,6 +13,8 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 });
+app.set("trust proxy", 2);
+
 app.use(
   helmet({
     contentSecurityPolicy: {
