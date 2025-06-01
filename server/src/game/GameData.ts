@@ -98,6 +98,12 @@ class GameData {
   receivedEnemiesStock!: number;
   /**  (Multiplayer) The number of enemies in stock to be spawned from `GameData`.*/
   receivedEnemiesToSpawn!: number;
+  // ... (0.5.0-rc.2)
+  /**
+   * The timestamp of the last action before sending to socket.
+   * Only used for client and server synchronization, never used for internal server calculations.
+   */
+  timestampOfSynchronization!: number;
 
   constructor(owner: universal.GameSocket, mode: GameMode) {
     this.mode = mode;
@@ -169,6 +175,7 @@ class GameData {
       this.enemySpeedCoefficient = 1; // +0.05 every level
       this.enemySpawnThreshold = 0.1;
     }
+    this.timestampOfSynchronization = Date.now();
   }
 }
 class SingleplayerGameData extends GameData {

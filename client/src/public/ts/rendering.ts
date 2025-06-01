@@ -11,6 +11,8 @@ import { formatNumber, millisecondsToTime } from "./utilities";
  * This should be overwritten by server data.
  */
 function render(elapsedMilliseconds: number) {
+  const timestampOfFunctionCall = Date.now();
+
   /**
    * Update replay data as well
    */
@@ -76,8 +78,17 @@ function render(elapsedMilliseconds: number) {
     // combo text fading
     stageItems.textSprites.comboText.alpha = comboTextAlpha;
     // input
-    stageItems.textSprites.inputText.text =
-      variables.currentGameClientSide.currentInput.replaceAll("-", "−");
+    if (
+      variables.currentGameClientSide.timestampOfSynchronization >
+        timestampOfFunctionCall ||
+      variables.watchingReplay
+    ) {
+      stageItems.textSprites.inputText.text =
+        variables.currentGameClientSide.synchronizedInput;
+    } else {
+      stageItems.textSprites.inputText.text =
+        variables.currentGameClientSide.currentInput.replaceAll("-", "−");
+    }
   }
 
   /**
@@ -133,6 +144,8 @@ function resetClientSideVariables() {
   variables.currentGameClientSide.beautifulScoreDisplayGoal = 0;
   variables.currentGameClientSide.beautifulScoreDisplayProgress = 0;
   variables.currentGameClientSide.beautifulScoreDisplayPrevious = 0;
+  variables.currentGameClientSide.currentInput = "";
+  variables.currentGameClientSide.synchronizedInput = "";
 }
 
 /**
