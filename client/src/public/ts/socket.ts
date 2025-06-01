@@ -303,6 +303,7 @@ socket.addEventListener("message", (event: any) => {
           break;
         }
       }
+      break;
     }
   }
 });
