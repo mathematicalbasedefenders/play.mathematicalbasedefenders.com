@@ -18,6 +18,8 @@ import {
 } from "../universal";
 import { sendDiscordWebhook } from "./discord-webhook";
 import { GameActionRecord } from "../replay/recording/ActionRecord";
+import mongoose from "mongoose";
+
 // TODO: make this DRY
 async function submitSingleplayerGame(
   data: GameData,
@@ -90,7 +92,7 @@ async function submitSingleplayerGame(
     case GameMode.EasySingleplayer: {
       const key = "personalBestScoreOnEasySingleplayerMode";
       if (data.score > (statistics.statistics[key].score || -1)) {
-        await updatePersonalBest(owner, data);
+        await updatePersonalBest(owner, data, replay.id);
         log.info(`New Easy Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
         personalBestBeaten = true;
@@ -100,7 +102,7 @@ async function submitSingleplayerGame(
     case GameMode.StandardSingleplayer: {
       const key = "personalBestScoreOnStandardSingleplayerMode";
       if (data.score > (statistics.statistics[key].score || -1)) {
-        await updatePersonalBest(owner, data);
+        await updatePersonalBest(owner, data, replay.id);
         log.info(`New Standard Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
         personalBestBeaten = true;
@@ -174,7 +176,11 @@ async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
  * @param {GameSocket} owner The socket of the GameData's owner.
  * @param {GameData} newData The GameData of which the new personal best was acquired.
  */
-async function updatePersonalBest(owner: GameSocket, newData: GameData) {
+async function updatePersonalBest(
+  owner: GameSocket,
+  newData: GameData,
+  replayID: string
+) {
   let playerData = await User.safeFindByUserID(owner.ownerUserID as string);
   switch (newData.mode) {
     case GameMode.EasySingleplayer: {
@@ -185,6 +191,8 @@ async function updatePersonalBest(owner: GameSocket, newData: GameData) {
       playerData.statistics[key].enemiesCreated = newData.enemiesSpawned;
       playerData.statistics[key].enemiesKilled = newData.enemiesKilled;
       playerData.statistics[key].actionsPerformed = newData.actionsPerformed;
+      playerData.statistics[key].replayID =
+        mongoose.Types.ObjectId.createFromHexString(replayID);
       break;
     }
     case GameMode.StandardSingleplayer: {
@@ -195,6 +203,8 @@ async function updatePersonalBest(owner: GameSocket, newData: GameData) {
       playerData.statistics[key].enemiesCreated = newData.enemiesSpawned;
       playerData.statistics[key].enemiesKilled = newData.enemiesKilled;
       playerData.statistics[key].actionsPerformed = newData.actionsPerformed;
+      playerData.statistics[key].replayID =
+        mongoose.Types.ObjectId.createFromHexString(replayID);
       break;
     }
   }
