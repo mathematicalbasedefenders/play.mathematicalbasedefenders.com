@@ -10,8 +10,6 @@ interface UserInterface {
   userNumber: number;
   creationDateAndTime: Date;
   statistics: {
-    easyModePersonalBestScore: number;
-    standardModePersonalBestScore: number;
     gamesPlayed: number;
     totalExperiencePoints: number;
     personalBestScoreOnEasySingleplayerMode: {
@@ -73,8 +71,6 @@ const UserSchema = new mongoose.Schema<UserInterface, UserModel>({
   userNumber: Number,
   creationDateAndTime: Date,
   statistics: {
-    easyModePersonalBestScore: Number,
-    standardModePersonalBestScore: Number,
     gamesPlayed: Number,
     totalExperiencePoints: Number,
     personalBestScoreOnEasySingleplayerMode: {
