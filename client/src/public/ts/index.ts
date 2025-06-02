@@ -927,7 +927,7 @@ window.addEventListener("load", function () {
   const quickLink = checkQuickLink(false);
   if (quickLink.ok) {
     const message = `Opening Quick Link ${quickLink.parameter}:${quickLink.value}`;
-    $("#opening-screen__authentication-modal").prepend(message);
+    $("#opening-screen__quick-link").text(message);
   }
   // initialize some settings
   if (variables.settings.backgroundImage) {
