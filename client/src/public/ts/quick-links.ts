@@ -6,6 +6,7 @@ function checkQuickLink() {
   for (let parameter of QUICK_LINKS) {
     if (parameters.get(parameter)) {
       activateLink(parameter, parameters.get(parameter));
+      break;
     }
   }
 }
