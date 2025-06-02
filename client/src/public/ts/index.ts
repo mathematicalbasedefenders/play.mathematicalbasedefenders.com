@@ -773,6 +773,7 @@ function initializeEventListeners() {
   $("#opening-screen__play-as-guest").on("click", () => {
     $("#opening-screen-container").hide(0);
     changeScreen("mainMenu");
+    checkQuickLink();
     sendSocketMessage({ message: "exitOpeningScreen" });
     variables.exitedOpeningScreen = true;
   });
@@ -922,7 +923,6 @@ loadSettings(localStorage.getItem("settings") || "{}");
 // ======
 window.addEventListener("load", function () {
   const endInitTime: number = Date.now();
-  checkQuickLink();
   // initialize some settings
   if (variables.settings.backgroundImage) {
     changeBackgroundImage(variables.settings.backgroundImage);
