@@ -1550,6 +1550,10 @@ input[type="radio"] {
   transform: scale(0.75);
 }
 
+#opening-screen__quick-link {
+  margin: 0;
+}
+
 .link-button {
   border: none;
   text-decoration: underline;
