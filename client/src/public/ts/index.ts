@@ -36,6 +36,7 @@ import {
   Replay,
   stopReplay
 } from "./replay";
+import { checkQuickLink } from "./quick-links";
 const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -772,6 +773,7 @@ function initializeEventListeners() {
   $("#opening-screen__play-as-guest").on("click", () => {
     $("#opening-screen-container").hide(0);
     changeScreen("mainMenu");
+    checkQuickLink(true);
     sendSocketMessage({ message: "exitOpeningScreen" });
     variables.exitedOpeningScreen = true;
   });
@@ -921,6 +923,12 @@ loadSettings(localStorage.getItem("settings") || "{}");
 // ======
 window.addEventListener("load", function () {
   const endInitTime: number = Date.now();
+  // quick link
+  const quickLink = checkQuickLink(false);
+  if (quickLink.ok) {
+    const message = `Opening Quick Link ${quickLink.parameter}:${quickLink.value}`;
+    $("#opening-screen__quick-link").text(message);
+  }
   // initialize some settings
   if (variables.settings.backgroundImage) {
     changeBackgroundImage(variables.settings.backgroundImage);

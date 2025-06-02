@@ -1550,6 +1550,19 @@ input[type="radio"] {
   transform: scale(0.75);
 }
 
+#opening-screen__quick-link {
+  margin: 0;
+}
+
+.opening-screen__input--text {
+  width: 100%;
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 100%;
+  font-family: inherit;
+}
+
 .link-button {
   border: none;
   text-decoration: underline;
@@ -1567,16 +1580,11 @@ input[type="radio"] {
 
 .authentication-modal__login-form-element {
   margin: 8px 0;
-  @media (max-width: 1200px) {
-    width: 90%;
-  }
+  width: calc(100% - 4px);
 }
 
 .authentication-modal__login-form-element input {
-  width: 80%;
-  @media (max-width: 1200px) {
-    width: 100%;
-  }
+  width: calc(100% - 4px);
 }
 
 /* USER CARD */

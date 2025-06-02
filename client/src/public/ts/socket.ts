@@ -11,6 +11,7 @@ import { createChatMessage } from "./chat";
 import DOMPurify from "dompurify";
 import { showUserLookupPopUp } from "./lookup-user";
 import { checkPlayerListCacheEquality, millisecondsToTime } from "./utilities";
+import { checkQuickLink } from "./quick-links";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
     window.location.origin === "https://play.mathematicalbasedefenders.com"
@@ -116,6 +117,7 @@ socket.addEventListener("message", (event: any) => {
       $("#opening-screen-container").hide(0);
       changeScreen("mainMenu");
       sendSocketMessage({ message: "exitOpeningScreen" });
+      checkQuickLink(true);
       variables.exitedOpeningScreen = true;
       break;
     }

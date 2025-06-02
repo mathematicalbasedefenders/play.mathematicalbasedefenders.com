@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /api/users
+Disallow: /api/authenticate
+Disallow: /api/replays
+Disallow: /api/users/
+Disallow: /api/authenticate/
+Disallow: /api/replays/
+Disallow: /api/
+Disallow: /api
+Allow: /
