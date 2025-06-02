@@ -26,7 +26,7 @@ function activateLink(parameter: string, value: string | null) {
   if (!value) {
     return;
   }
-  console.log(`Activating click link ${parameter}:${value}`);
+  console.log(`Activating quick link ${parameter}:${value}`);
   switch (parameter) {
     case "replayID": {
       const REPLAY_REGEX = /[0-9a-f]{24}/;
