@@ -84,7 +84,7 @@ function render(elapsedMilliseconds: number) {
       variables.watchingReplay
     ) {
       stageItems.textSprites.inputText.text =
-        variables.currentGameClientSide.synchronizedInput;
+        variables.currentGameClientSide.synchronizedInput.replaceAll("-", "−");
     } else {
       stageItems.textSprites.inputText.text =
         variables.currentGameClientSide.currentInput.replaceAll("-", "−");
