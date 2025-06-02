@@ -36,6 +36,7 @@ import {
   Replay,
   stopReplay
 } from "./replay";
+import { checkQuickLink } from "./quick-links";
 const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -921,6 +922,7 @@ loadSettings(localStorage.getItem("settings") || "{}");
 // ======
 window.addEventListener("load", function () {
   const endInitTime: number = Date.now();
+  checkQuickLink();
   // initialize some settings
   if (variables.settings.backgroundImage) {
     changeBackgroundImage(variables.settings.backgroundImage);
