@@ -1,14 +1,25 @@
 import { changeScreen } from "./game";
 
-function checkQuickLink() {
+function checkQuickLink(activate?: boolean) {
   const QUICK_LINKS = ["replayID"];
   const parameters = new URLSearchParams(window.location.search);
   for (let parameter of QUICK_LINKS) {
     if (parameters.get(parameter)) {
-      activateLink(parameter, parameters.get(parameter));
-      break;
+      if (activate) {
+        activateLink(parameter, parameters.get(parameter));
+      }
+      return {
+        ok: true,
+        parameter: parameter,
+        value: parameters.get(parameter)
+      };
     }
   }
+  return {
+    ok: false,
+    parameter: null,
+    value: null
+  };
 }
 
 function activateLink(parameter: string, value: string | null) {
