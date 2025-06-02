@@ -923,6 +923,12 @@ loadSettings(localStorage.getItem("settings") || "{}");
 // ======
 window.addEventListener("load", function () {
   const endInitTime: number = Date.now();
+  // quick link
+  const quickLink = checkQuickLink(false);
+  if (quickLink.ok) {
+    const message = `Opening Quick Link ${quickLink.parameter}:${quickLink.value}`;
+    $("#opening-screen__authentication-modal").prepend(message);
+  }
   // initialize some settings
   if (variables.settings.backgroundImage) {
     changeBackgroundImage(variables.settings.backgroundImage);
