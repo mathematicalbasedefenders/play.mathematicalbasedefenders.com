@@ -773,7 +773,7 @@ function initializeEventListeners() {
   $("#opening-screen__play-as-guest").on("click", () => {
     $("#opening-screen-container").hide(0);
     changeScreen("mainMenu");
-    checkQuickLink();
+    checkQuickLink(true);
     sendSocketMessage({ message: "exitOpeningScreen" });
     variables.exitedOpeningScreen = true;
   });
