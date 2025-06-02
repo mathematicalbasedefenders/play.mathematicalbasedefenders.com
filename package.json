@@ -5,7 +5,6 @@
   "description": "Fun math game",
   "main": "server.js",
   "scripts": {
-    "test-jest": "jest",
     "test-cypress": "cypress run",
     "test-cypress-headed": "cypress run --headed",
     "build": "webpack --config ./webpack.config.production.js",
