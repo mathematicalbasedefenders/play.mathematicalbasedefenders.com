@@ -403,7 +403,7 @@ function setContainerItemProperties() {
   stageItems.textSprites.replayIndicatorText.anchor.set(0.5, 0.5);
   stageItems.textSprites.replayIndicatorText.position.set(960, 320);
   // flash input
-  stageItems.sprites.inputFlash.tint = 0x00ff00;
+  stageItems.sprites.inputFlash.tint = 0x00cc00;
   stageItems.sprites.inputFlash.position.set(640 + 4, 160 + 719);
   stageItems.sprites.inputFlash.setSize(632, 77);
   stageItems.sprites.inputFlash.alpha = 0;
