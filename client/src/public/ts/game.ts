@@ -101,6 +101,13 @@ function renderGameData(data: { [key: string]: any }) {
         playSound("assets/sounds/attack.mp3", true);
       }
     }
+    let enemiesKilled = 0;
+    if (positionOfDeletion > 0.0001 && typeof positionOfKill !== "undefined") {
+      enemiesKilled++;
+    }
+    if (enemiesKilled > 0) {
+      flashInputArea();
+    }
     enemies.deleteEnemy(enemyID as string);
   }
 
