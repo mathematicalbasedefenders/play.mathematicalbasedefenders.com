@@ -130,6 +130,9 @@ function render(elapsedMilliseconds: number) {
     stageItems.textSprites.scoreText.text =
       parseInt(score).toLocaleString("en-US") || "0";
   }
+
+  const inputFlashAlpha = getInputFlashAlpha();
+  stageItems.sprites.inputFlash.alpha = inputFlashAlpha;
 }
 
 /**
@@ -169,6 +172,19 @@ function hideReplayIndicatorText() {
 
 function flashInputArea() {
   variables.currentGameClientSide.inputFlashStart = Date.now();
+}
+
+function getInputFlashAlpha() {
+  const FLOOR = 0;
+  const DURATION = 250;
+  const timeFromStart =
+    Date.now() - variables.currentGameClientSide.inputFlashStart;
+  if (timeFromStart > DURATION) {
+    return 0;
+  }
+  const value = Math.sin((timeFromStart / DURATION) * Math.PI);
+  console.log(value);
+  return Math.max(FLOOR, value);
 }
 
 export {
