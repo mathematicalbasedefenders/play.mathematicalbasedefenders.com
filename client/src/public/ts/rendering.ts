@@ -176,7 +176,7 @@ function flashInputArea() {
 
 function getInputFlashAlpha() {
   const FLOOR = 0;
-  const DURATION = 250;
+  const DURATION = 500;
   const timeFromStart =
     Date.now() - variables.currentGameClientSide.inputFlashStart;
   if (timeFromStart > DURATION) {
