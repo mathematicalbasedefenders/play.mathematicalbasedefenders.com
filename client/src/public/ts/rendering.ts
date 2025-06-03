@@ -167,7 +167,9 @@ function hideReplayIndicatorText() {
   stageItems.textSprites.replayIndicatorText.visible = false;
 }
 
-function flashInputArea() {}
+function flashInputArea() {
+  variables.currentGameClientSide.inputFlashStart = Date.now();
+}
 
 export {
   render,
