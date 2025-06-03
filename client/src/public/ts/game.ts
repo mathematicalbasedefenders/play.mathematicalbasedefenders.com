@@ -55,7 +55,7 @@ function renderGameData(data: { [key: string]: any }) {
     // only for killed enemies AND score display on
     if (
       variables.settings.displayScore === "on" &&
-      positionOfDeletion > 0.01 &&
+      positionOfDeletion > 0.0001 &&
       typeof positionOfKill !== "undefined"
     ) {
       const x = positionOfKill.x;
@@ -94,7 +94,10 @@ function renderGameData(data: { [key: string]: any }) {
       !enemyToDelete?.attackedBase
     ) {
       // only for killed enemies
-      if (positionOfDeletion > 0.01 && typeof positionOfKill !== "undefined") {
+      if (
+        positionOfDeletion > 0.0001 &&
+        typeof positionOfKill !== "undefined"
+      ) {
         playSound("assets/sounds/attack.mp3", true);
       }
     }
