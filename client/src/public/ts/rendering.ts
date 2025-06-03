@@ -166,4 +166,11 @@ function hideReplayIndicatorText() {
   stageItems.textSprites.replayIndicatorText.visible = false;
 }
 
-export { render, resetClientSideVariables, setClientSideRendering };
+function flashInputArea() {}
+
+export {
+  render,
+  resetClientSideVariables,
+  setClientSideRendering,
+  flashInputArea
+};

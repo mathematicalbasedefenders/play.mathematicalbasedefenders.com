@@ -4,7 +4,11 @@ import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 import { millisecondsToTime } from "./utilities";
 import { variables } from "./index";
 import { Opponent } from "./opponent";
-import { resetClientSideVariables, setClientSideRendering } from "./rendering";
+import {
+  flashInputArea,
+  resetClientSideVariables,
+  setClientSideRendering
+} from "./rendering";
 import { SlidingText } from "./sliding-text";
 import { BezierCurve } from "./bezier";
 import * as PIXI from "pixi.js";
@@ -39,6 +43,11 @@ function renderGameData(data: { [key: string]: any }) {
       changeScreen(data.commands.changeScreenTo[command].value);
       return;
     }
+  }
+
+  // flash bar on enemy kill
+  if (Object.values(data.enemiesToErase).length >= 1) {
+    flashInputArea();
   }
 
   // erase killed enemies
