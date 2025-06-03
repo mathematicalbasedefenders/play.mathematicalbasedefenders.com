@@ -183,7 +183,6 @@ function getInputFlashAlpha() {
     return 0;
   }
   const value = Math.sin((timeFromStart / DURATION) * Math.PI);
-  console.log(value);
   return Math.max(FLOOR, value);
 }
 
