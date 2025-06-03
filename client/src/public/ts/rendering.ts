@@ -146,6 +146,7 @@ function resetClientSideVariables() {
   variables.currentGameClientSide.beautifulScoreDisplayPrevious = 0;
   variables.currentGameClientSide.currentInput = "";
   variables.currentGameClientSide.synchronizedInput = "";
+  variables.currentGameClientSide.inputFlashStart = 0;
 }
 
 /**

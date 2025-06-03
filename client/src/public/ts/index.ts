@@ -149,7 +149,8 @@ const variables: { [key: string]: any } = {
     beautifulScoreDisplayProgress: 0,
     beautifulScoreDisplayPrevious: 0,
     timestampOfSynchronization: 0,
-    synchronizedInput: ""
+    synchronizedInput: "",
+    inputFlashStart: 0
   },
   navigation: {
     currentScreen: "openingScreen",
