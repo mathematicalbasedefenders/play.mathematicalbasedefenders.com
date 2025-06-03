@@ -105,7 +105,10 @@ function renderGameData(data: { [key: string]: any }) {
     if (positionOfDeletion > 0.0001 && typeof positionOfKill !== "undefined") {
       enemiesKilled++;
     }
-    if (enemiesKilled > 0) {
+    if (
+      enemiesKilled > 0 &&
+      variables.settings.flashInputAreaOnEnemyKill === "on"
+    ) {
       flashInputArea();
     }
     enemies.deleteEnemy(enemyID as string);
