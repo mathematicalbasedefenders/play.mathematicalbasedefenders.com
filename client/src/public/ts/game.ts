@@ -45,11 +45,6 @@ function renderGameData(data: { [key: string]: any }) {
     }
   }
 
-  // flash bar on enemy kill
-  if (Object.values(data.enemiesToErase).length >= 1) {
-    flashInputArea();
-  }
-
   // erase killed enemies
   for (let enemyID of Object.values(data.enemiesToErase)) {
     const enemyToDelete = enemies.getEnemyFromCache(enemyID as string);
@@ -92,7 +87,7 @@ function renderGameData(data: { [key: string]: any }) {
       );
       slidingText.render();
     }
-    // only for enemies who hasn't had their sound played yet
+    // only for enemies who hasn't had their kill counted yet
     if (
       typeof enemyToDelete !== "undefined" &&
       !enemyToDelete?.addedKill &&
