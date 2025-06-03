@@ -33,7 +33,8 @@ const settingsSecondaryScreenOrder: { [key: string]: Array<string> } = {
     "#settings-flash-input-area-on-enemy-kill__off",
     "#settings-force-hide-tutorial-text__on",
     "#settings-force-hide-tutorial-text__off",
-    "#settings__background-image-url"
+    "#settings__background-image-url",
+    "#settings-screen__content-save-background-image"
   ],
   "audio": ["#settings-sound__on", "#settings-sound__off"]
 };
