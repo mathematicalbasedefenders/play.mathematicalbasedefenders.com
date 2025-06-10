@@ -15,33 +15,25 @@ async function getScoresOfAllPlayers(gameMode: GameMode | string) {
   switch (gameMode) {
     case GameMode.EasySingleplayer: {
       key = "Easy";
-      players = await User.getAllEasySingleplayerBestScores();
+      players = await User.getEasySingleplayerBestScores(100);
       break;
     }
     case GameMode.StandardSingleplayer: {
       key = "Standard";
-      players = await User.getAllStandardSingleplayerBestScores();
+      players = await User.getStandardSingleplayerBestScores(100);
       break;
     }
   }
   log.info(`Starting ${key} score querying.`);
-  let sorted = players
-    .filter(
-      // TODO: For now, but it works, so don't touch it!
-      (element: any) =>
-        typeof element[`statistics`][
-          `personalBestScoreOn${key}SingleplayerMode`
-        ] !== "undefined"
-    )
-    .sort(
-      (a, b) =>
-        a[`statistics`][`personalBestScoreOn${key}SingleplayerMode`].score -
-        b[`statistics`][`personalBestScoreOn${key}SingleplayerMode`].score
-    )
-    .reverse()
-    .slice(0, 100);
+  const filtered = players.filter(
+    // TODO: For now, but it works, so don't touch it!
+    (element: any) =>
+      typeof element[`statistics`][
+        `personalBestScoreOn${key}SingleplayerMode`
+      ] !== "undefined"
+  );
   log.info(`${key} score querying took ${Date.now() - startTime}ms`);
-  return sorted;
+  return filtered;
 }
 
 export { getScoresOfAllPlayers };

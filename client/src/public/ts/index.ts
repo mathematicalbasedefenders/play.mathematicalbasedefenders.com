@@ -149,7 +149,8 @@ const variables: { [key: string]: any } = {
     beautifulScoreDisplayProgress: 0,
     beautifulScoreDisplayPrevious: 0,
     timestampOfSynchronization: 0,
-    synchronizedInput: ""
+    synchronizedInput: "",
+    inputFlashStart: 0
   },
   navigation: {
     currentScreen: "openingScreen",
@@ -208,7 +209,10 @@ type stageItemsContainer = {
   textSprites: { [key: string]: PIXI.Text };
 };
 
-const stageItems: stageItemsContainer = { sprites: {}, textSprites: {} };
+const stageItems: stageItemsContainer = {
+  sprites: {},
+  textSprites: {}
+};
 
 function initializeStageItems() {
   stageItems.sprites.playfieldBorder = PIXI.Sprite.from(
@@ -221,6 +225,8 @@ function initializeStageItems() {
   stageItems.sprites.screenBottomRightIndicator = PIXI.Sprite.from(
     PIXI.Texture.WHITE
   );
+
+  stageItems.sprites.inputFlash = PIXI.Sprite.from(PIXI.Texture.WHITE);
 
   stageItems.textSprites.scoreLabelText = new PIXI.Text({
     text: "Score",
@@ -396,6 +402,12 @@ function setContainerItemProperties() {
   stageItems.textSprites.replayIndicatorText.text = "REPLAY";
   stageItems.textSprites.replayIndicatorText.anchor.set(0.5, 0.5);
   stageItems.textSprites.replayIndicatorText.position.set(960, 320);
+  // flash input
+  stageItems.sprites.inputFlash.tint = 0x00cc00;
+  stageItems.sprites.inputFlash.position.set(640 + 4, 160 + 719);
+  stageItems.sprites.inputFlash.setSize(632, 77);
+  stageItems.sprites.inputFlash.alpha = 0;
+  stageItems.sprites.inputFlash.zIndex = 10;
 }
 
 // const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight);

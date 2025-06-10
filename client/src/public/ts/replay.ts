@@ -151,6 +151,7 @@ function updateReplayGameData(
       replayGameData.clocks.comboReset.currentTime = 0;
       // add combo
       replayGameData.combo++;
+      /** flashing input area not needed due to it already being in enemy kill code */
       // ...
       break;
     }

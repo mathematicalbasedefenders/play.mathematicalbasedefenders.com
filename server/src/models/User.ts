@@ -54,8 +54,8 @@ interface UserModel extends mongoose.Model<UserInterface> {
   findByUserIDUsingAPI(userID: string): Promise<UserInterface>;
   safeFindByUserID(userID: string): Promise<HydratedDocument<UserInterface>>;
   safeLeanedFindByUserID(userID: string): Promise<object>;
-  getAllEasySingleplayerBestScores(): Promise<Array<object>>;
-  getAllStandardSingleplayerBestScores(): Promise<Array<object>>;
+  getEasySingleplayerBestScores(amount: number): Promise<Array<object>>;
+  getStandardSingleplayerBestScores(amount: number): Promise<Array<object>>;
   addMultiplayerGamesWonToUserID(userID: string, amount: number): void;
   addMultiplayerGamesPlayedToUserID(userID: string, amount: number): void;
   addGamesPlayedToUserID(userID: string, amount: number): void;
@@ -147,40 +147,51 @@ UserSchema.static("safeLeanedFindByUserID", async function (userID: string) {
 // Leaderboards
 
 // TODO: This thing isn't DRY lol
-UserSchema.static("getAllEasySingleplayerBestScores", async function () {
-  let loaded: Array<object> = [];
-  let cursor = this.find({})
-    .select({
-      _id: 1,
-      "username": 1,
-      "statistics.personalBestScoreOnEasySingleplayerMode": 1
-    })
-    .clone()
-    .lean(true)
-    .cursor();
-  for await (let player of cursor) {
-    loaded.push(player);
+UserSchema.static(
+  "getEasySingleplayerBestScores",
+  async function (amount: number) {
+    const loaded: Array<UserInterface> = [];
+    const cursor = this.find({})
+      .select({
+        _id: 1,
+        "username": 1,
+        "statistics.personalBestScoreOnEasySingleplayerMode": 1
+      })
+      .sort({ "statistics.personalBestScoreOnEasySingleplayerMode.score": -1 })
+      .limit(amount)
+      .clone()
+      .lean(true)
+      .cursor();
+    for await (const player of cursor) {
+      loaded.push(player);
+    }
+    return loaded;
   }
-  return loaded;
-});
+);
 
-UserSchema.static("getAllStandardSingleplayerBestScores", async function () {
-  let players: Array<object> = [];
-  let loaded: Array<object> = [];
-  let cursor = this.find({})
-    .select({
-      _id: 1,
-      "username": 1,
-      "statistics.personalBestScoreOnStandardSingleplayerMode": 1
-    })
-    .clone()
-    .lean(true)
-    .cursor();
-  for await (let player of cursor) {
-    loaded.push(player);
+UserSchema.static(
+  "getStandardSingleplayerBestScores",
+  async function (amount: number) {
+    const loaded: Array<UserInterface> = [];
+    const cursor = this.find({})
+      .select({
+        _id: 1,
+        "username": 1,
+        "statistics.personalBestScoreOnStandardSingleplayerMode": 1
+      })
+      .sort({
+        "statistics.personalBestScoreOnStandardSingleplayerMode.score": -1
+      })
+      .limit(amount)
+      .clone()
+      .lean(true)
+      .cursor();
+    for await (const player of cursor) {
+      loaded.push(player);
+    }
+    return loaded;
   }
-  return loaded;
-});
+);
 
 UserSchema.static(
   "giveExperiencePointsToUserID",

@@ -92,7 +92,6 @@ async function submitSingleplayerGame(
     case GameMode.EasySingleplayer: {
       const key = "personalBestScoreOnEasySingleplayerMode";
       if (data.score > (statistics.statistics[key].score || -1)) {
-        await updatePersonalBest(owner, data, replay.id);
         log.info(`New Easy Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
         personalBestBeaten = true;
@@ -102,7 +101,6 @@ async function submitSingleplayerGame(
     case GameMode.StandardSingleplayer: {
       const key = "personalBestScoreOnStandardSingleplayerMode";
       if (data.score > (statistics.statistics[key].score || -1)) {
-        await updatePersonalBest(owner, data, replay.id);
         log.info(`New Standard Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
         personalBestBeaten = true;
@@ -131,6 +129,12 @@ async function submitSingleplayerGame(
       sendRankToGlobalChat(chatAlert);
     }
   }
+
+  /** Update personal bests AFTER announcing leaderboards score */
+  if (personalBestBeaten) {
+    await updatePersonalBest(owner, data, replay.id);
+  }
+
   // send data to user
   await sendDataToUser(owner, rankMessage);
   // update data on screen
@@ -152,17 +156,40 @@ async function addToStatistics(owner: GameSocket, data: GameData) {
 
 /**
  * Announces the owner's rank on the leaderboards to the owner of the score and the logs.
- * Leaderboard ranks are announced if the player made top 100, regardless if the score was a new PB.
+ * Leaderboard ranks are announced if the player made top 100, regardless if the score was a new personal best.
  * @param {GameSocket} owner The socket of the GameData's owner.
  * @param {GameData} data The GameData of which the new personal best was acquired.
  * @returns -1 if not in Top 100 of game mode, rank number otherwise.
  */
 async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
   const records = await getScoresOfAllPlayers(data.mode);
-  const globalRank = records.findIndex(
-    (r) => r._id.toString() === owner.ownerUserID
-  );
-  if (globalRank > -1) {
+  let globalRank = -1;
+  let key = "";
+  switch (data.mode) {
+    case GameMode.EasySingleplayer: {
+      key = "Easy";
+      break;
+    }
+    case GameMode.StandardSingleplayer: {
+      key = "Standard";
+      break;
+    }
+  }
+  for (let rank = 0; rank < records.length; rank++) {
+    const currentRankScore =
+      records[rank][`statistics`][`personalBestScoreOn${key}SingleplayerMode`]
+        .score;
+    if (data.score > currentRankScore) {
+      globalRank = rank;
+      break;
+    }
+  }
+  /** if not all 100 spots filled yet, give the new spot */
+  if (globalRank === -1 && records.length < 100) {
+    /** no +1 here because it gets +1'ed in the return statement */
+    globalRank = records.length;
+  }
+  if (globalRank > -1 && globalRank < 100) {
     log.info(`${owner.ownerUsername} got #${globalRank + 1} on ${data.mode}.`);
     return globalRank + 1;
   }
@@ -209,6 +236,7 @@ async function updatePersonalBest(
     }
   }
   await playerData.save();
+  log.info(`Updated PB for user ${owner.ownerUsername} on ${newData.mode}.`);
 }
 
 /**

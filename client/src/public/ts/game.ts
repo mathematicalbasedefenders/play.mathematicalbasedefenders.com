@@ -4,7 +4,11 @@ import { POLICY, Size, getScaledRect } from "adaptive-scale/lib-esm";
 import { millisecondsToTime } from "./utilities";
 import { variables } from "./index";
 import { Opponent } from "./opponent";
-import { resetClientSideVariables, setClientSideRendering } from "./rendering";
+import {
+  flashInputArea,
+  resetClientSideVariables,
+  setClientSideRendering
+} from "./rendering";
 import { SlidingText } from "./sliding-text";
 import { BezierCurve } from "./bezier";
 import * as PIXI from "pixi.js";
@@ -41,6 +45,7 @@ function renderGameData(data: { [key: string]: any }) {
     }
   }
 
+  let enemiesKilled = 0;
   // erase killed enemies
   for (let enemyID of Object.values(data.enemiesToErase)) {
     const enemyToDelete = enemies.getEnemyFromCache(enemyID as string);
@@ -51,7 +56,7 @@ function renderGameData(data: { [key: string]: any }) {
     // only for killed enemies AND score display on
     if (
       variables.settings.displayScore === "on" &&
-      positionOfDeletion > 0.01 &&
+      positionOfDeletion > 0.0001 &&
       typeof positionOfKill !== "undefined"
     ) {
       const x = positionOfKill.x;
@@ -83,18 +88,31 @@ function renderGameData(data: { [key: string]: any }) {
       );
       slidingText.render();
     }
-    // only for enemies who hasn't had their sound played yet
+    // only for enemies who hasn't had their kill counted yet
     if (
       typeof enemyToDelete !== "undefined" &&
       !enemyToDelete?.addedKill &&
       !enemyToDelete?.attackedBase
     ) {
       // only for killed enemies
-      if (positionOfDeletion > 0.01 && typeof positionOfKill !== "undefined") {
+      if (
+        positionOfDeletion > 0.0001 &&
+        typeof positionOfKill !== "undefined"
+      ) {
         playSound("assets/sounds/attack.mp3", true);
       }
     }
+
+    if (positionOfDeletion > 0.0001 && typeof positionOfKill !== "undefined") {
+      enemiesKilled++;
+    }
+
     enemies.deleteEnemy(enemyID as string);
+  }
+
+  const flashAreaOn = variables.settings.flashInputAreaOnEnemyKill === "on";
+  if (enemiesKilled > 0 && flashAreaOn) {
+    flashInputArea();
   }
 
   for (let enemy of data.enemies) {

@@ -75,6 +75,12 @@ const SETTINGS_KEYS = [
     htmlID: "settings__background-image-url",
     defaultValue: "",
     settingsType: SettingsType.Text
+  },
+  {
+    storageStringKey: "flashInputAreaOnEnemyKill",
+    htmlName: "settings__flash-input-area-on-enemy-kill",
+    defaultValue: "on",
+    settingsType: SettingsType.Radio
   }
 ];
 

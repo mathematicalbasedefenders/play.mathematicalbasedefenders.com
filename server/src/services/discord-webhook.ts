@@ -38,7 +38,7 @@ function sendDiscordWebhook(data: GameData, rank: number, replayID: string) {
       },
       {
         "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${score} points.`,
-        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`,
+        "description": `Survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`,
         "color": 0xffd700
       }
     ];
@@ -47,7 +47,7 @@ function sendDiscordWebhook(data: GameData, rank: number, replayID: string) {
     parameters.embeds = [
       {
         "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${score} points.`,
-        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`,
+        "description": `Survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`,
         "color": 0xc0c0c0
       }
     ];
@@ -56,7 +56,7 @@ function sendDiscordWebhook(data: GameData, rank: number, replayID: string) {
     parameters.embeds = [
       {
         "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${score} points.`,
-        "description": `survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`,
+        "description": `Survived for ${time}, killed ${killed}/${spawned} enemies at ${apm}APM.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`,
         "color": 0xcd7f32
       }
     ];
@@ -64,22 +64,14 @@ function sendDiscordWebhook(data: GameData, rank: number, replayID: string) {
     // Up to Rank 10: Embed Message
     parameters.embeds = [
       {
-        "title": `${
-          data.ownerName
-        } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
-          "en-US"
-        )} points.`,
+        "title": `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${score} points.`,
         "description": `Watch the replay of this game by using Replay ID \`${replayID}\`.`,
         "color": 0x8b1ed
       }
     ];
   } else if (rank <= 100) {
     // Up to Rank 100: Regular Message
-    parameters.content = `${
-      data.ownerName
-    } placed #${rank} on the ${modeName} leaderboards with a score of ${data.score.toLocaleString(
-      "en-US"
-    )} points.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`;
+    parameters.content = `${data.ownerName} placed #${rank} on the ${modeName} leaderboards with a score of ${score} points.\nWatch the replay of this game by using Replay ID \`${replayID}\`.`;
   }
   fetch(process.env.DISCORD_WEBHOOK_URL, {
     method: "POST",

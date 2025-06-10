@@ -84,7 +84,7 @@ function render(elapsedMilliseconds: number) {
       variables.watchingReplay
     ) {
       stageItems.textSprites.inputText.text =
-        variables.currentGameClientSide.synchronizedInput;
+        variables.currentGameClientSide.synchronizedInput.replaceAll("-", "−");
     } else {
       stageItems.textSprites.inputText.text =
         variables.currentGameClientSide.currentInput.replaceAll("-", "−");
@@ -130,6 +130,9 @@ function render(elapsedMilliseconds: number) {
     stageItems.textSprites.scoreText.text =
       parseInt(score).toLocaleString("en-US") || "0";
   }
+
+  const inputFlashAlpha = getInputFlashAlpha();
+  stageItems.sprites.inputFlash.alpha = inputFlashAlpha;
 }
 
 /**
@@ -146,6 +149,7 @@ function resetClientSideVariables() {
   variables.currentGameClientSide.beautifulScoreDisplayPrevious = 0;
   variables.currentGameClientSide.currentInput = "";
   variables.currentGameClientSide.synchronizedInput = "";
+  variables.currentGameClientSide.inputFlashStart = 0;
 }
 
 /**
@@ -166,4 +170,25 @@ function hideReplayIndicatorText() {
   stageItems.textSprites.replayIndicatorText.visible = false;
 }
 
-export { render, resetClientSideVariables, setClientSideRendering };
+function flashInputArea() {
+  variables.currentGameClientSide.inputFlashStart = Date.now();
+}
+
+function getInputFlashAlpha() {
+  const FLOOR = 0;
+  const DURATION = 500;
+  const timeFromStart =
+    Date.now() - variables.currentGameClientSide.inputFlashStart;
+  if (timeFromStart > DURATION) {
+    return 0;
+  }
+  const value = Math.sin((timeFromStart / DURATION) * Math.PI);
+  return Math.max(FLOOR, value);
+}
+
+export {
+  render,
+  resetClientSideVariables,
+  setClientSideRendering,
+  flashInputArea
+};
