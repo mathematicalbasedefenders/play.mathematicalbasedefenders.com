@@ -157,7 +157,7 @@ UserSchema.static(
         "username": 1,
         "statistics.personalBestScoreOnEasySingleplayerMode": 1
       })
-      .sort({ "statistics.personalBestScoreOnEasySingleplayerMode": -1 })
+      .sort({ "statistics.personalBestScoreOnEasySingleplayerMode.score": -1 })
       .limit(amount)
       .clone()
       .lean(true)
@@ -180,7 +180,9 @@ UserSchema.static(
         "username": 1,
         "statistics.personalBestScoreOnStandardSingleplayerMode": 1
       })
-      .sort({ "statistics.personalBestScoreOnStandardSingleplayerMode": -1 })
+      .sort({
+        "statistics.personalBestScoreOnStandardSingleplayerMode.score": -1
+      })
       .limit(amount)
       .clone()
       .lean(true)
