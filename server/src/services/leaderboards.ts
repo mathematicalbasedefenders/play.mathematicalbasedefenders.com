@@ -15,12 +15,12 @@ async function getScoresOfAllPlayers(gameMode: GameMode | string) {
   switch (gameMode) {
     case GameMode.EasySingleplayer: {
       key = "Easy";
-      players = await User.getEasySingleplayerBestScores();
+      players = await User.getEasySingleplayerBestScores(100);
       break;
     }
     case GameMode.StandardSingleplayer: {
       key = "Standard";
-      players = await User.getStandardSingleplayerBestScores();
+      players = await User.getStandardSingleplayerBestScores(100);
       break;
     }
   }
