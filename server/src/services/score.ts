@@ -153,14 +153,15 @@ async function addToStatistics(owner: GameSocket, data: GameData) {
 /**
  * Announces the owner's rank on the leaderboards to the owner of the score and the logs.
  * Leaderboard ranks are announced if the player made top 100, regardless if the score was a new personal best.
- * Note that ranks here are zero-indexed. (#1 returns 0, #2 returns 1, etc.)
  * @param {GameSocket} owner The socket of the GameData's owner.
  * @param {GameData} data The GameData of which the new personal best was acquired.
  * @returns -1 if not in Top 100 of game mode, rank number otherwise.
  */
 async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
   const records = await getScoresOfAllPlayers(data.mode);
-  console.log(records);
+  console.log(
+    records.map((e) => e.statistics.personalBestScoreOnStandardSingleplayerMode)
+  );
   let globalRank = -1;
   let key = "";
   switch (data.mode) {
@@ -175,11 +176,18 @@ async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
   }
   for (let rank = 0; rank < records.length; rank++) {
     const currentRankScore =
-      records[rank][`statistics`][`personalBestScoreOn${key}SingleplayerMode`];
+      records[rank][`statistics`][`personalBestScoreOn${key}SingleplayerMode`]
+        .score;
+    console.log(rank, data.score, currentRankScore);
     if (data.score > currentRankScore) {
       globalRank = rank;
       break;
     }
+  }
+  /** if not all 100 spots filled yet, give the new spot */
+  if (globalRank === -1 && records.length < 100) {
+    /** no +1 here because it gets +1'ed in the return statement */
+    globalRank = records.length;
   }
   if (globalRank > -1 && globalRank < 100) {
     log.info(`${owner.ownerUsername} got #${globalRank + 1} on ${data.mode}.`);
