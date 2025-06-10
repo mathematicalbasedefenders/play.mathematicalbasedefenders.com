@@ -45,6 +45,7 @@ function renderGameData(data: { [key: string]: any }) {
     }
   }
 
+  let enemiesKilled = 0;
   // erase killed enemies
   for (let enemyID of Object.values(data.enemiesToErase)) {
     const enemyToDelete = enemies.getEnemyFromCache(enemyID as string);
@@ -101,17 +102,17 @@ function renderGameData(data: { [key: string]: any }) {
         playSound("assets/sounds/attack.mp3", true);
       }
     }
-    let enemiesKilled = 0;
+
     if (positionOfDeletion > 0.0001 && typeof positionOfKill !== "undefined") {
       enemiesKilled++;
     }
-    if (
-      enemiesKilled > 0 &&
-      variables.settings.flashInputAreaOnEnemyKill === "on"
-    ) {
-      flashInputArea();
-    }
+
     enemies.deleteEnemy(enemyID as string);
+  }
+
+  const flashAreaOn = variables.settings.flashInputAreaOnEnemyKill === "on";
+  if (enemiesKilled > 0 && flashAreaOn) {
+    flashInputArea();
   }
 
   for (let enemy of data.enemies) {
