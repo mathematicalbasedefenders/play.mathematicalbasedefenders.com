@@ -92,7 +92,6 @@ async function submitSingleplayerGame(
     case GameMode.EasySingleplayer: {
       const key = "personalBestScoreOnEasySingleplayerMode";
       if (data.score > (statistics.statistics[key].score || -1)) {
-        await updatePersonalBest(owner, data, replay.id);
         log.info(`New Easy Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
         personalBestBeaten = true;
@@ -102,7 +101,6 @@ async function submitSingleplayerGame(
     case GameMode.StandardSingleplayer: {
       const key = "personalBestScoreOnStandardSingleplayerMode";
       if (data.score > (statistics.statistics[key].score || -1)) {
-        await updatePersonalBest(owner, data, replay.id);
         log.info(`New Standard Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
         personalBestBeaten = true;
@@ -131,6 +129,12 @@ async function submitSingleplayerGame(
       sendRankToGlobalChat(chatAlert);
     }
   }
+
+  /** Update personal bests AFTER announcing leaderboards score */
+  if (personalBestBeaten) {
+    await updatePersonalBest(owner, data, replay.id);
+  }
+
   // send data to user
   await sendDataToUser(owner, rankMessage);
   // update data on screen
@@ -236,6 +240,7 @@ async function updatePersonalBest(
     }
   }
   await playerData.save();
+  log.info(`Updated PB for user ${owner.ownerUsername} on ${newData.mode}.`);
 }
 
 /**
