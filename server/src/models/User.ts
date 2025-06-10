@@ -150,7 +150,7 @@ UserSchema.static("safeLeanedFindByUserID", async function (userID: string) {
 UserSchema.static(
   "getEasySingleplayerBestScores",
   async function (amount: number) {
-    let loaded: Array<object> = [];
+    const loaded: Array<UserInterface> = [];
     let cursor = this.find({})
       .select({
         _id: 1,
