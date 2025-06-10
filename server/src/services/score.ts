@@ -163,9 +163,6 @@ async function addToStatistics(owner: GameSocket, data: GameData) {
  */
 async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
   const records = await getScoresOfAllPlayers(data.mode);
-  console.log(
-    records.map((e) => e.statistics.personalBestScoreOnStandardSingleplayerMode)
-  );
   let globalRank = -1;
   let key = "";
   switch (data.mode) {
@@ -182,7 +179,6 @@ async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
     const currentRankScore =
       records[rank][`statistics`][`personalBestScoreOn${key}SingleplayerMode`]
         .score;
-    console.log(rank, data.score, currentRankScore);
     if (data.score > currentRankScore) {
       globalRank = rank;
       break;
