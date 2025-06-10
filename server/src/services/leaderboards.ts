@@ -25,21 +25,13 @@ async function getScoresOfAllPlayers(gameMode: GameMode | string) {
     }
   }
   log.info(`Starting ${key} score querying.`);
-  let sorted = players
-    .filter(
-      // TODO: For now, but it works, so don't touch it!
-      (element: any) =>
-        typeof element[`statistics`][
-          `personalBestScoreOn${key}SingleplayerMode`
-        ] !== "undefined"
-    )
-    .sort(
-      (a, b) =>
-        a[`statistics`][`personalBestScoreOn${key}SingleplayerMode`].score -
-        b[`statistics`][`personalBestScoreOn${key}SingleplayerMode`].score
-    )
-    .reverse()
-    .slice(0, 100);
+  let sorted = players.filter(
+    // TODO: For now, but it works, so don't touch it!
+    (element: any) =>
+      typeof element[`statistics`][
+        `personalBestScoreOn${key}SingleplayerMode`
+      ] !== "undefined"
+  );
   log.info(`${key} score querying took ${Date.now() - startTime}ms`);
   return sorted;
 }
