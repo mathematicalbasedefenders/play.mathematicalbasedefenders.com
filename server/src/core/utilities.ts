@@ -354,7 +354,8 @@ function createGlobalLeaderboardsMessage(data: GameData, rank: number) {
       break;
     }
   }
-  toReturn.text = `${data.ownerName} has achieved #${rank} on the ${modeName} leaderboards with a score of ${data.score} points.`;
+  const score = data.score.toLocaleString("en-US");
+  toReturn.text = `${data.ownerName} has achieved #${rank} on the ${modeName} leaderboards with a score of ${score} points.`;
   toReturn.borderColor = "#ab93db";
   return toReturn;
 }
