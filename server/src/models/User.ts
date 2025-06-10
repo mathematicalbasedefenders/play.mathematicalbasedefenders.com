@@ -172,9 +172,8 @@ UserSchema.static(
 UserSchema.static(
   "getStandardSingleplayerBestScores",
   async function (amount: number) {
-    let players: Array<object> = [];
-    let loaded: Array<object> = [];
-    let cursor = this.find({})
+    const loaded: Array<UserInterface> = [];
+    const cursor = this.find({})
       .select({
         _id: 1,
         "username": 1,
@@ -187,7 +186,7 @@ UserSchema.static(
       .clone()
       .lean(true)
       .cursor();
-    for await (let player of cursor) {
+    for await (const player of cursor) {
       loaded.push(player);
     }
     return loaded;
