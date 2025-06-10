@@ -152,7 +152,7 @@ async function addToStatistics(owner: GameSocket, data: GameData) {
 
 /**
  * Announces the owner's rank on the leaderboards to the owner of the score and the logs.
- * Leaderboard ranks are announced if the player made top 100, regardless if the score was a new PB.
+ * Leaderboard ranks are announced if the player made top 100, regardless if the score was a new personal best.
  * @param {GameSocket} owner The socket of the GameData's owner.
  * @param {GameData} data The GameData of which the new personal best was acquired.
  * @returns -1 if not in Top 100 of game mode, rank number otherwise.
