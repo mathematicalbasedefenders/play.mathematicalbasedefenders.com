@@ -80,10 +80,13 @@ class Enemy {
 
     this.text = text;
     // text-related
-    this.textSprite = new PIXI.Text(
-      beautifyMathText(text, variables.settings.multiplicationSign === "times"),
-      _.clone(ENEMY_TEXT_STYLE)
-    );
+    this.textSprite = new PIXI.Text({
+      text: beautifyMathText(
+        text,
+        variables.settings.multiplicationSign === "times"
+      ),
+      style: _.clone(ENEMY_TEXT_STYLE)
+    });
     this.textSprite.style.fill =
       getLuminance(this.sprite.tint) > 0.5 ? 0x000000 : 0xffffff;
     this.textSprite.x =
