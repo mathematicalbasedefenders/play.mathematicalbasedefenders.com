@@ -54,8 +54,8 @@ interface UserModel extends mongoose.Model<UserInterface> {
   findByUserIDUsingAPI(userID: string): Promise<UserInterface>;
   safeFindByUserID(userID: string): Promise<HydratedDocument<UserInterface>>;
   safeLeanedFindByUserID(userID: string): Promise<object>;
-  getAllEasySingleplayerBestScores(): Promise<Array<object>>;
-  getAllStandardSingleplayerBestScores(): Promise<Array<object>>;
+  getEasySingleplayerBestScores(): Promise<Array<object>>;
+  getStandardSingleplayerBestScores(): Promise<Array<object>>;
   addMultiplayerGamesWonToUserID(userID: string, amount: number): void;
   addMultiplayerGamesPlayedToUserID(userID: string, amount: number): void;
   addGamesPlayedToUserID(userID: string, amount: number): void;
@@ -147,7 +147,7 @@ UserSchema.static("safeLeanedFindByUserID", async function (userID: string) {
 // Leaderboards
 
 // TODO: This thing isn't DRY lol
-UserSchema.static("getAllEasySingleplayerBestScores", async function () {
+UserSchema.static("getEasySingleplayerBestScores", async function () {
   let loaded: Array<object> = [];
   let cursor = this.find({})
     .select({
@@ -164,7 +164,7 @@ UserSchema.static("getAllEasySingleplayerBestScores", async function () {
   return loaded;
 });
 
-UserSchema.static("getAllStandardSingleplayerBestScores", async function () {
+UserSchema.static("getStandardSingleplayerBestScores", async function () {
   let players: Array<object> = [];
   let loaded: Array<object> = [];
   let cursor = this.find({})
