@@ -25,7 +25,7 @@ async function getScoresOfAllPlayers(gameMode: GameMode | string) {
     }
   }
   log.info(`Starting ${key} score querying.`);
-  let sorted = players.filter(
+  const filtered = players.filter(
     // TODO: For now, but it works, so don't touch it!
     (element: any) =>
       typeof element[`statistics`][
@@ -33,7 +33,7 @@ async function getScoresOfAllPlayers(gameMode: GameMode | string) {
       ] !== "undefined"
   );
   log.info(`${key} score querying took ${Date.now() - startTime}ms`);
-  return sorted;
+  return filtered;
 }
 
 export { getScoresOfAllPlayers };
