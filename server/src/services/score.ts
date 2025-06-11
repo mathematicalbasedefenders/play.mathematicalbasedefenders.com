@@ -91,7 +91,8 @@ async function submitSingleplayerGame(
   switch (data.mode) {
     case GameMode.EasySingleplayer: {
       const key = "personalBestScoreOnEasySingleplayerMode";
-      if (data.score > (statistics.statistics[key].score || -1)) {
+      const previousBest = statistics?.statistics[key]?.score;
+      if (data.score > (previousBest ?? -1)) {
         log.info(`New Easy Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
         personalBestBeaten = true;
@@ -100,7 +101,8 @@ async function submitSingleplayerGame(
     }
     case GameMode.StandardSingleplayer: {
       const key = "personalBestScoreOnStandardSingleplayerMode";
-      if (data.score > (statistics.statistics[key].score || -1)) {
+      const previousBest = statistics?.statistics[key]?.score;
+      if (data.score > (previousBest ?? -1)) {
         log.info(`New Standard Singleplayer PB for ${owner.ownerUsername}.`);
         rankMessage += "Personal Best! ";
         personalBestBeaten = true;
