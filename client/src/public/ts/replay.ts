@@ -41,7 +41,7 @@ const KEY_MAPPINGS: { [key: string]: string } = {
   "Numpad8": "8",
   "Numpad9": "9",
   "Minus": "-",
-  "Subtract": "-"
+  "NumpadSubtract": "-"
 };
 
 async function fetchReplay(replayID: string) {
