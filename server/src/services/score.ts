@@ -72,9 +72,17 @@ async function submitSingleplayerGame(
     sendDataToUser(owner, "Score not saved. (No database)");
     return;
   }
+
   if (!owner.loggedIn) {
     // guest user - ignore score
     log.info(`Ignoring guest score of ${data.score} on ${data.mode} mode`);
+    owner.send(
+      JSON.stringify({
+        message: "changeText",
+        selector: "#main-content__game-over-screen__stats__score-replay-id",
+        value: `Replay not saved. (Played as a guest, authenticate to save your replays!)`
+      })
+    );
     return;
   }
 
