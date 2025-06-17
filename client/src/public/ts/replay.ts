@@ -574,8 +574,12 @@ function getInGameTime(data: Replay) {
     }
     case "defaultMultiplayer": {
       const statistics = data.data.statistics.multiplayer;
-      const ms = statistics.timeInMilliseconds;
-      return ms;
+      if (statistics.timeInMilliseconds) {
+        return statistics.timeInMilliseconds;
+      } else {
+        // fallback for older replays: return how long the winner lasted
+        return statistics.ranking[statistics.ranking.length - 1].time;
+      }
     }
   }
 }
