@@ -16,6 +16,27 @@ const replayGameData: { [key: string]: any } = {};
 interface Replay {
   ok: boolean;
   reason: string;
+  data: {
+    _id: string;
+    mode: string;
+    actionRecords: Array<ActionRecord>;
+    statistics: {
+      singleplayer: { [key: string]: any };
+      multiplayer: { [key: string]: any };
+    };
+  } & { [key: string]: any };
+}
+
+interface ActionRecord {
+  scope: "room" | "player";
+  user?: {
+    userID: string | null | undefined;
+    name: string | undefined;
+    isAuthenticated: boolean | undefined;
+    connectionID: string | undefined;
+  };
+  action: string;
+  timestamp: number;
   data: { [key: string]: any };
 }
 
@@ -66,9 +87,11 @@ async function fetchReplay(replayID: string) {
 }
 
 async function playReplay(replayData: Replay, viewAs?: string) {
+  const INTERVAL = 1000 / 60;
+
   const data = replayData.data;
   changeScreen("canvas", true, true);
-  variables.watchingReplay = true;
+
   replayGameData.commands = {};
   replayGameData.aborted = false;
   const dataLength = data.actionRecords.length;
@@ -79,20 +102,78 @@ async function playReplay(replayData: Replay, viewAs?: string) {
   // only for multiplayer
   replayGameData.viewAs = viewAs ?? "";
 
-  for (let actionNumber = 0; actionNumber < dataLength; actionNumber++) {
+  // initialize starting timestamp
+  const startingActionRecord = data.actionRecords.find(
+    (element: ActionRecord) => element.action === "gameStart"
+  ) as ActionRecord;
+  const startingTimestamp = startingActionRecord.timestamp;
+  let elapsedTime = 0;
+
+  /* "Initialize" replay by initializing variables 
+  (action record at index 0 is always gameStart) */
+  const inGameTime = getInGameTime(replayData);
+  updateReplayGameData(replayGameData, data, 0);
+
+  /* Start replay (this variable assignment puts the game in "replay viewing" mode) */
+  variables.watchingReplay = true;
+
+  while (elapsedTime <= inGameTime) {
+    const timestamp = startingTimestamp + elapsedTime;
+    const actionNumbers = getActionNumbers(
+      data.actionRecords,
+      timestamp,
+      INTERVAL
+    );
+
     if (!variables.watchingReplay) {
       stopReplay();
       break;
     }
-    if (actionNumber > 0) {
-      const deltaTime =
-        data.actionRecords[actionNumber].timestamp -
-        data.actionRecords[actionNumber - 1].timestamp;
-      await sleep(deltaTime);
-      // also add to clocks
+
+    for (const actionNumber of actionNumbers) {
+      if (actionNumber >= dataLength) {
+        stopReplay();
+        break;
+      }
+
+      updateReplayGameData(replayGameData, data, actionNumber);
     }
-    updateReplayGameData(replayGameData, data, actionNumber);
+
+    await sleep(INTERVAL);
+    elapsedTime += INTERVAL;
   }
+}
+
+/**
+ * Gets every action number where the action has timestamp
+ * in the range `[timestamp, timestamp+limit)`
+ * @param {number} timestamp The timestamp
+ * @param {number} limit How way off the timestamp is allowed to exceed by
+ */
+function getActionNumbers(
+  actionRecords: Array<ActionRecord>,
+  timestamp: number,
+  limit: number
+) {
+  let start = 0;
+  let end = 0;
+  for (let current = 0; current < actionRecords.length; current++) {
+    if (timestamp <= actionRecords[current].timestamp) {
+      start = current;
+      break;
+    }
+  }
+  for (let current = start; current < actionRecords.length; current++) {
+    if (timestamp + limit < actionRecords[current].timestamp) {
+      break;
+    }
+    end = current;
+  }
+  const numbers = [];
+  for (let current = start; current <= end; current++) {
+    numbers.push(current);
+  }
+  return numbers;
 }
 
 function updateReplayGameData(
@@ -446,9 +527,22 @@ function getWhoseDataToUpdate(actionRecord: any) {
  */
 function updateReplayGameDataLikeServer(deltaTime: number) {
   // clocks
-  replayGameData.clocks.comboReset.currentTime += deltaTime;
+  updateReplayClockData(deltaTime);
   // opponents
+  updateReplayOpponentGameData(deltaTime);
+}
+
+function updateReplayClockData(deltaTime: number) {
+  if (replayGameData?.clocks?.comboReset?.currentTime) {
+    replayGameData.clocks.comboReset.currentTime += deltaTime;
+  }
+}
+
+function updateReplayOpponentGameData(deltaTime: number) {
   const opponentGameData = replayGameData.opponentGameData;
+  if (!opponentGameData) {
+    return;
+  }
   for (const opponentData of opponentGameData) {
     // enemies
     for (const enemy of opponentData.enemies) {
@@ -468,6 +562,22 @@ function stopReplay() {
   }
   Opponent.destroyAllInstances();
   deleteAllEnemies();
+}
+
+function getInGameTime(data: Replay) {
+  switch (data.data.mode) {
+    case "easySingleplayer":
+    case "standardSingleplayer": {
+      const statistics = data.data.statistics.singleplayer;
+      const ms = statistics.timeInMilliseconds;
+      return ms;
+    }
+    case "defaultMultiplayer": {
+      const statistics = data.data.statistics.multiplayer;
+      const ms = statistics.timeInMilliseconds;
+      return ms;
+    }
+  }
 }
 
 export {
