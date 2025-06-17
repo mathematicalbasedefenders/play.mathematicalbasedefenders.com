@@ -42,8 +42,26 @@ async function submitSingleplayerGame(
       dataKey = "standard";
       break;
     }
+    case GameMode.CustomSingleplayer: {
+      owner.send(
+        JSON.stringify({
+          message: "changeText",
+          selector: "#main-content__game-over-screen__stats__score-replay-id",
+          value: `Replay not saved. (Game was on Custom Mode)`
+        })
+      );
+      log.info(`Ignoring score submission on Custom Singleplayer mode.`);
+      return;
+    }
     default: {
       // unknown mode - ignore score
+      owner.send(
+        JSON.stringify({
+          message: "changeText",
+          selector: "#main-content__game-over-screen__stats__score-replay-id",
+          value: `Replay not saved. (Game was on unknown mode)`
+        })
+      );
       log.info(`Ignoring score submission on ${data.mode} Singleplayer mode.`);
       return;
     }
