@@ -1,6 +1,7 @@
 import { navigateFocus } from "./arrow-key-navigation";
 import { variables } from "./index";
 import { stopReplay } from "./replay";
+import { controlReplay } from "./replay-control";
 import { sendSocketMessage, socket } from "./socket";
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -99,6 +100,9 @@ function handleClientSideEvents(event: KeyboardEvent) {
   if (variables.watchingReplay && ABORT_KEYS.includes(event.code)) {
     stopReplay();
     variables.watchingReplay = false;
+  }
+  if (variables.watchingReplay) {
+    controlReplay(event.code);
   }
 }
 
