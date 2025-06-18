@@ -63,16 +63,16 @@ function initializeKeypressEventListener() {
       variables.watchingReplay = false;
     }
     // see if a websocket message should be sent
+    // main client-side events start
+    handleClientSideEvents(event);
     if (!sendWebSocketMessage) {
       return;
     }
-    // main client-side events start
+    // main client-side events end
     sendSocketMessage({
       message: "keypress",
       keypress: event.code
     });
-    handleClientSideEvents(event);
-    // main client-side events end
   });
 }
 
