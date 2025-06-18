@@ -173,9 +173,11 @@ const variables: { [key: string]: any } = {
       playerCount: 0
     }
   },
-  watchingReplay: false,
-  elapsedReplayTime: 0,
-  inGameReplayTime: 0
+  replay: {
+    watchingReplay: false,
+    elapsedReplayTime: 0,
+    inGameReplayTime: 0
+  }
 };
 
 const replayCache: { [key: string]: Replay } = {};
