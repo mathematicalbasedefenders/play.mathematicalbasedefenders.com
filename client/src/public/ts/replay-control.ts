@@ -1,3 +1,5 @@
+import { variables } from ".";
+
 function controlReplay(code: string) {
   switch (code) {
     case "ArrowLeft": {
@@ -7,7 +9,10 @@ function controlReplay(code: string) {
     }
     case "ArrowRight": {
       const TO_JUMP = 5 * 1000;
-      const destination = Math.max(0, variables.elapsedReplayTime + TO_JUMP);
+      const destination = Math.max(
+        variables.inGameReplayTime,
+        variables.elapsedReplayTime + TO_JUMP
+      );
       break;
     }
   }
