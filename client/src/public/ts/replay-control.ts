@@ -33,6 +33,7 @@ function controlReplay(code: string) {
  */
 function jumpToTimeInReplay(destination: number) {
   variables.replay.elapsedReplayTime = destination;
+  variables.replay.jumped = true;
 }
 
 export { controlReplay };
