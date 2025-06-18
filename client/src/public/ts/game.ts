@@ -194,7 +194,7 @@ function renderGameData(data: { [key: string]: any }) {
   // hide how to play text regardless
   formatHowToPlayText(
     variables.howToPlayGamesRemaining,
-    data.mode.indexOf("Multiplayer") > -1 || variables.watchingReplay
+    data.mode.indexOf("Multiplayer") > -1 || variables.replay.watchingReplay
   );
 
   // update values

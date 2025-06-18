@@ -107,26 +107,26 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     (element: ActionRecord) => element.action === "gameStart"
   ) as ActionRecord;
   const startingTimestamp = startingActionRecord.timestamp;
-  variables.elapsedReplayTime = 0;
+  variables.replay.elapsedReplayTime = 0;
 
   /* "Initialize" replay by initializing variables 
   (action record at index 0 is always gameStart) */
   const inGameTime = getInGameTime(replayData);
   updateReplayGameData(replayGameData, data, 0);
-  variables.inGameReplayTime = inGameTime;
+  variables.replay.inGameReplayTime = inGameTime;
 
   /* Start replay (this variable assignment puts the game in "replay viewing" mode) */
-  variables.watchingReplay = true;
+  variables.replay.watchingReplay = true;
 
-  while (variables.elapsedReplayTime <= inGameTime) {
-    const timestamp = startingTimestamp + variables.elapsedReplayTime;
+  while (variables.replay.elapsedReplayTime <= inGameTime) {
+    const timestamp = startingTimestamp + variables.replay.elapsedReplayTime;
     const actionNumbers = getActionNumbers(
       data.actionRecords,
       timestamp,
       INTERVAL
     );
 
-    if (!variables.watchingReplay) {
+    if (!variables.replay.watchingReplay) {
       stopReplay();
       break;
     }
@@ -141,7 +141,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     }
 
     await sleep(INTERVAL);
-    variables.elapsedReplayTime += INTERVAL;
+    variables.replay.elapsedReplayTime += INTERVAL;
   }
 }
 
@@ -333,7 +333,7 @@ function updateReplayGameData(
       replayGameData.enemiesToErase = [];
       // stop replay
       stopReplay();
-      variables.watchingReplay = false;
+      variables.replay.watchingReplay = false;
       changeScreen("archiveMenu", true, true);
       break;
     }

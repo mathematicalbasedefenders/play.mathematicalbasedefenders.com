@@ -4,8 +4,11 @@ function controlReplay(code: string) {
   switch (code) {
     case "ArrowLeft": {
       const TO_JUMP = 5 * 1000;
-      const destination = Math.max(0, variables.elapsedReplayTime - TO_JUMP);
-      variables.elapsedReplayTime = destination;
+      const destination = Math.max(
+        0,
+        variables.replay.elapsedReplayTime - TO_JUMP
+      );
+      variables.replay.elapsedReplayTime = destination;
       console.log("new destination after -5", destination);
       jumpToTimeInReplay(destination);
       break;
@@ -13,11 +16,11 @@ function controlReplay(code: string) {
     case "ArrowRight": {
       const TO_JUMP = 5 * 1000;
       const destination = Math.min(
-        variables.inGameReplayTime,
-        variables.elapsedReplayTime + TO_JUMP
+        variables.replay.inGameReplayTime,
+        variables.replay.elapsedReplayTime + TO_JUMP
       );
       console.log("new destination after +5", destination);
-      variables.elapsedReplayTime = destination;
+      variables.replay.elapsedReplayTime = destination;
       jumpToTimeInReplay(destination);
       break;
     }
@@ -29,7 +32,7 @@ function controlReplay(code: string) {
  * @param {number} destination The time since start in milliseconds.
  */
 function jumpToTimeInReplay(destination: number) {
-  variables.elapsedReplayTime = destination;
+  variables.replay.elapsedReplayTime = destination;
 }
 
 export { controlReplay };

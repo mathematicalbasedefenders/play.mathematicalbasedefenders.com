@@ -58,9 +58,9 @@ function initializeKeypressEventListener() {
     // other client-side events start
     const sendWebSocketMessage = checkIfShouldSendWebSocketMessage(event);
     // override:
-    if (variables.watchingReplay && ABORT_KEYS.includes(event.code)) {
+    if (variables.replay.watchingReplay && ABORT_KEYS.includes(event.code)) {
       stopReplay();
-      variables.watchingReplay = false;
+      variables.replay.watchingReplay = false;
     }
     // see if a websocket message should be sent
     // main client-side events start
@@ -82,7 +82,7 @@ function handleClientSideEvents(event: KeyboardEvent) {
   const numberPadKeyIndex = NUMBER_PAD_KEYS.indexOf(event.code);
   const removeDigitKeyIndex = REMOVE_DIGIT_KEYS.indexOf(event.code);
   const subtractionSignKeyIndex = SUBTRACTION_SIGN_KEYS.indexOf(event.code);
-  if (!variables.watchingReplay) {
+  if (!variables.replay.watchingReplay) {
     if (numberRowKeyIndex > -1) {
       variables.currentGameClientSide.currentInput +=
         numberRowKeyIndex.toString();
@@ -97,11 +97,11 @@ function handleClientSideEvents(event: KeyboardEvent) {
         variables.currentGameClientSide.currentInput.substring(0, newLength);
     }
   }
-  if (variables.watchingReplay && ABORT_KEYS.includes(event.code)) {
+  if (variables.replay.watchingReplay && ABORT_KEYS.includes(event.code)) {
     stopReplay();
-    variables.watchingReplay = false;
+    variables.replay.watchingReplay = false;
   }
-  if (variables.watchingReplay) {
+  if (variables.replay.watchingReplay) {
     controlReplay(event.code);
   }
 }

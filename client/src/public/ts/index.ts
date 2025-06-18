@@ -692,9 +692,9 @@ function initializeEventListeners() {
   //
   $("#quick-menu__content-button--quit").on("click", () => {
     variables.playing = false;
-    if (variables.watchingReplay) {
+    if (variables.replay.watchingReplay) {
       stopReplay();
-      variables.watchingReplay = false;
+      variables.replay.watchingReplay = false;
       changeScreen("archiveMenu", true, true);
       return;
     }

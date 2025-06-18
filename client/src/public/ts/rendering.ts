@@ -16,7 +16,7 @@ function render(elapsedMilliseconds: number) {
   /**
    * Update replay data as well
    */
-  if (variables.watchingReplay) {
+  if (variables.replay.watchingReplay) {
     renderEnemies();
     updateReplayGameDataLikeServer(elapsedMilliseconds);
     renderGameData(replayGameData);
@@ -81,7 +81,7 @@ function render(elapsedMilliseconds: number) {
     if (
       variables.currentGameClientSide.timestampOfSynchronization >
         timestampOfFunctionCall ||
-      variables.watchingReplay
+      variables.replay.watchingReplay
     ) {
       stageItems.textSprites.inputText.text =
         variables.currentGameClientSide.synchronizedInput.replaceAll("-", "−");
