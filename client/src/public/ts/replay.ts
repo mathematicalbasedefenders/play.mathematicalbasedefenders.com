@@ -296,7 +296,7 @@ function updateReplayGameData(
     }
     case "gameStart": {
       resetClientSideVariables();
-      setReplayGameDataToInitialState(replayGameData);
+      resetReplayGameData(replayGameData);
       break;
     }
     case "gameOver": {
@@ -561,9 +561,7 @@ function getInGameTime(data: Replay) {
   }
 }
 
-function setReplayGameDataToInitialState(replayGameData: {
-  [key: string]: any;
-}) {
+function resetReplayGameData(replayGameData: { [key: string]: any }) {
   replayGameData.score = 0;
   replayGameData.enemiesKilled = 0;
   replayGameData.enemiesSpawned = 0;
