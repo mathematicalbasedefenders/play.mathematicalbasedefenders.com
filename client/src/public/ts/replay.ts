@@ -130,9 +130,10 @@ async function playReplay(replayData: Replay, viewAs?: string) {
         variables.replay.elapsedReplayTime;
       replayGameData.elapsedTime = variables.replay.elapsedReplayTime;
       clearReplayScreen();
-      variables.replay.jumped = false;
       timestamp = startingTimestamp;
       timestampWindow = variables.replay.elapsedReplayTime;
+      variables.replay.jumped = false;
+      variables.replay.finishedJumping = true;
     }
 
     const actionNumbers = getActionNumbers(
@@ -151,7 +152,6 @@ async function playReplay(replayData: Replay, viewAs?: string) {
         stopReplay();
         break;
       }
-
       updateReplayGameData(replayGameData, data, actionNumber);
     }
 
@@ -202,9 +202,12 @@ function updateReplayGameData(
   if (actionNumber === 0) {
     replayGameData.elapsedTime = 0;
   } else {
-    replayGameData.elapsedTime +=
-      data.actionRecords[actionNumber].timestamp -
-      data.actionRecords[actionNumber - 1].timestamp;
+    const startingActionRecord = data.actionRecords.find(
+      (element: ActionRecord) => element.action === "gameStart"
+    ) as ActionRecord;
+    const startingTimestamp = startingActionRecord.timestamp;
+    replayGameData.elapsedTime =
+      data.actionRecords[actionNumber].timestamp - startingTimestamp;
   }
 
   const actionRecord = data.actionRecords[actionNumber];
@@ -300,6 +303,9 @@ function updateReplayGameData(
       break;
     }
     case "gameStart": {
+      if (variables.replay.finishedJumping) {
+        break;
+      }
       resetClientSideVariables();
       resetReplayGameData(replayGameData);
       break;
