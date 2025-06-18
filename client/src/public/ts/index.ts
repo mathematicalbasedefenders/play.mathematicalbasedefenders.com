@@ -176,7 +176,8 @@ const variables: { [key: string]: any } = {
   replay: {
     watchingReplay: false,
     elapsedReplayTime: 0,
-    inGameReplayTime: 0
+    inGameReplayTime: 0,
+    jumped: false
   }
 };
 
