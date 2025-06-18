@@ -125,7 +125,9 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     if (variables.replay.jumped) {
       resetClientSideVariables();
       clearReplayScreen();
-      variables.replayed.jumped = false;
+      variables.replay.jumped = false;
+      timestamp = startingTimestamp;
+      timestampWindow = variables.replay.elapsedReplayTime;
     }
 
     const actionNumbers = getActionNumbers(
@@ -294,45 +296,7 @@ function updateReplayGameData(
     }
     case "gameStart": {
       resetClientSideVariables();
-      replayGameData.score = 0;
-      replayGameData.enemiesKilled = 0;
-      replayGameData.enemiesSpawned = 0;
-      replayGameData.baseHealth = 100;
-      replayGameData.owner = {};
-      replayGameData.ownerConnectionID = "";
-      replayGameData.ownerName = "";
-      replayGameData.enemies = [];
-      replayGameData.enemiesToErase = [];
-      replayGameData.currentInput = "";
-      replayGameData.elapsedTime = 0;
-      replayGameData.combo = -1;
-      replayGameData.commands = {};
-      replayGameData.aborted = false;
-      replayGameData.enemiesSentStock = 0;
-      replayGameData.attackScore = 0;
-      replayGameData.level = 1;
-      replayGameData.enemiesToNextLevel = 10;
-      replayGameData.baseHealthRegeneration = 2;
-      replayGameData.maximumBaseHealth = 100;
-      replayGameData.actionsPerformed = 0;
-      replayGameData.receivedEnemiesStock = 0;
-      replayGameData.clocks = {
-        enemySpawn: {
-          actionTime: 0,
-          currentTime: 0
-        },
-        comboReset: {
-          actionTime: 0,
-          currentTime: 0
-        },
-        forcedEnemySpawn: {
-          actionTime: 0,
-          currentTime: 0
-        }
-      };
-      replayGameData.enemySpeedCoefficient = 1;
-      replayGameData.enemySpawnThreshold = 0.1;
-      replayGameData.opponentGameData = [];
+      setReplayGameDataToInitialState(replayGameData);
       break;
     }
     case "gameOver": {
@@ -595,6 +559,50 @@ function getInGameTime(data: Replay) {
       }
     }
   }
+}
+
+function setReplayGameDataToInitialState(replayGameData: {
+  [key: string]: any;
+}) {
+  replayGameData.score = 0;
+  replayGameData.enemiesKilled = 0;
+  replayGameData.enemiesSpawned = 0;
+  replayGameData.baseHealth = 100;
+  replayGameData.owner = {};
+  replayGameData.ownerConnectionID = "";
+  replayGameData.ownerName = "";
+  replayGameData.enemies = [];
+  replayGameData.enemiesToErase = [];
+  replayGameData.currentInput = "";
+  replayGameData.elapsedTime = 0;
+  replayGameData.combo = -1;
+  replayGameData.commands = {};
+  replayGameData.aborted = false;
+  replayGameData.enemiesSentStock = 0;
+  replayGameData.attackScore = 0;
+  replayGameData.level = 1;
+  replayGameData.enemiesToNextLevel = 10;
+  replayGameData.baseHealthRegeneration = 2;
+  replayGameData.maximumBaseHealth = 100;
+  replayGameData.actionsPerformed = 0;
+  replayGameData.receivedEnemiesStock = 0;
+  replayGameData.clocks = {
+    enemySpawn: {
+      actionTime: 0,
+      currentTime: 0
+    },
+    comboReset: {
+      actionTime: 0,
+      currentTime: 0
+    },
+    forcedEnemySpawn: {
+      actionTime: 0,
+      currentTime: 0
+    }
+  };
+  replayGameData.enemySpeedCoefficient = 1;
+  replayGameData.enemySpawnThreshold = 0.1;
+  replayGameData.opponentGameData = [];
 }
 
 export {
