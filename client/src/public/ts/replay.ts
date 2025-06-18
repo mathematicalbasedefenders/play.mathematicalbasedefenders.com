@@ -113,6 +113,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
   (action record at index 0 is always gameStart) */
   const inGameTime = getInGameTime(replayData);
   updateReplayGameData(replayGameData, data, 0);
+  variables.inGameReplayTime = inGameTime;
 
   /* Start replay (this variable assignment puts the game in "replay viewing" mode) */
   variables.watchingReplay = true;
