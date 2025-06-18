@@ -5,6 +5,7 @@ function controlReplay(code: string) {
     case "ArrowLeft": {
       const TO_JUMP = 5 * 1000;
       const destination = Math.min(0, variables.elapsedReplayTime - TO_JUMP);
+      jumpToTimeInReplay(destination);
       break;
     }
     case "ArrowRight": {
@@ -13,8 +14,12 @@ function controlReplay(code: string) {
         variables.inGameReplayTime,
         variables.elapsedReplayTime + TO_JUMP
       );
+      jumpToTimeInReplay(destination);
       break;
     }
   }
 }
+
+function jumpToTimeInReplay(destination: number) {}
+
 export { controlReplay };
