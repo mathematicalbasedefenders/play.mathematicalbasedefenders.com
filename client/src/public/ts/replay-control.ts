@@ -12,7 +12,7 @@ function controlReplay(code: string) {
     }
     case "ArrowRight": {
       const TO_JUMP = 5 * 1000;
-      const destination = Math.max(
+      const destination = Math.min(
         variables.inGameReplayTime,
         variables.elapsedReplayTime + TO_JUMP
       );
