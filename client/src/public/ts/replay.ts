@@ -124,6 +124,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
 
     if (variables.replay.jumped) {
       resetClientSideVariables();
+      resetReplayGameData(replayGameData);
       clearReplayScreen();
       variables.replay.jumped = false;
       timestamp = startingTimestamp;
