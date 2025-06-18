@@ -107,7 +107,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     (element: ActionRecord) => element.action === "gameStart"
   ) as ActionRecord;
   const startingTimestamp = startingActionRecord.timestamp;
-  let elapsedTime = 0;
+  let elapsedReplayTime = 0;
 
   /* "Initialize" replay by initializing variables 
   (action record at index 0 is always gameStart) */
@@ -117,8 +117,8 @@ async function playReplay(replayData: Replay, viewAs?: string) {
   /* Start replay (this variable assignment puts the game in "replay viewing" mode) */
   variables.watchingReplay = true;
 
-  while (elapsedTime <= inGameTime) {
-    const timestamp = startingTimestamp + elapsedTime;
+  while (elapsedReplayTime <= inGameTime) {
+    const timestamp = startingTimestamp + elapsedReplayTime;
     const actionNumbers = getActionNumbers(
       data.actionRecords,
       timestamp,
@@ -140,7 +140,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     }
 
     await sleep(INTERVAL);
-    elapsedTime += INTERVAL;
+    elapsedReplayTime += INTERVAL;
   }
 }
 
