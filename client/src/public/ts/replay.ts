@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { changeScreen, renderGameData } from "./game";
+import { changeScreen } from "./game";
 import { resetClientSideVariables } from "./rendering";
 import {
   Enemy,
@@ -125,6 +125,10 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     if (variables.replay.jumped) {
       resetClientSideVariables();
       resetReplayGameData(replayGameData);
+      // set variables
+      variables.currentGameClientSide.totalElapsedMilliseconds =
+        variables.replay.elapsedReplayTime;
+      replayGameData.elapsedTime = variables.replay.elapsedReplayTime;
       clearReplayScreen();
       variables.replay.jumped = false;
       timestamp = startingTimestamp;
