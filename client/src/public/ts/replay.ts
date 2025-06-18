@@ -119,17 +119,19 @@ async function playReplay(replayData: Replay, viewAs?: string) {
   variables.replay.watchingReplay = true;
 
   while (variables.replay.elapsedReplayTime <= inGameTime) {
+    let timestamp = startingTimestamp + variables.replay.elapsedReplayTime;
+    let timestampWindow = INTERVAL;
+
     if (variables.replay.jumped) {
       resetClientSideVariables();
-
+      clearReplayScreen();
       variables.replayed.jumped = false;
     }
 
-    const timestamp = startingTimestamp + variables.replay.elapsedReplayTime;
     const actionNumbers = getActionNumbers(
       data.actionRecords,
       timestamp,
-      INTERVAL
+      timestampWindow
     );
 
     if (!variables.replay.watchingReplay) {
