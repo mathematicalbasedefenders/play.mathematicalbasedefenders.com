@@ -157,6 +157,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
 
     await sleep(INTERVAL);
     variables.replay.elapsedReplayTime += INTERVAL;
+    variables.replay.finishedJumping = false;
   }
 }
 
