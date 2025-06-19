@@ -164,10 +164,6 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     }
 
     for (const actionNumber of actionNumbers) {
-      if (actionNumber >= dataLength) {
-        stopReplay();
-        break;
-      }
       if (variables.replay.finishedJumping) {
         updateReplayGameData(
           replayGameData,
@@ -183,6 +179,11 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     await sleep(INTERVAL);
     variables.replay.elapsedReplayTime += INTERVAL;
     variables.replay.finishedJumping = false;
+
+    if (variables.replay.elapsedReplayTime >= inGameTime) {
+      stopReplay();
+      break;
+    }
   }
 }
 
