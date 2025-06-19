@@ -11,10 +11,9 @@ import { variables } from ".";
 import { formatNumber, millisecondsToTime } from "./utilities";
 import { Opponent } from "./opponent";
 import { ToastNotification } from "./toast-notification";
+import { getReplayContext, ReplayContext } from "./replay-control";
 
 const replayGameData: { [key: string]: any } = {};
-
-interface ReplayContext {}
 
 interface Replay {
   ok: boolean;
@@ -124,6 +123,12 @@ async function playReplay(replayData: Replay, viewAs?: string) {
   while (variables.replay.elapsedReplayTime <= inGameTime) {
     let timestamp = startingTimestamp + variables.replay.elapsedReplayTime;
     let timestampWindow = INTERVAL;
+    let additionalReplayContext: ReplayContext = {
+      enemies: {
+        ignored: [],
+        ages: {}
+      }
+    };
 
     if (variables.replay.jumped) {
       resetClientSideVariables();
@@ -145,6 +150,14 @@ async function playReplay(replayData: Replay, viewAs?: string) {
       timestampWindow
     );
 
+    if (variables.replay.finishedJumping) {
+      additionalReplayContext = getReplayContext(
+        data.actionRecords,
+        actionNumbers,
+        variables.replay.elapsedReplayTime
+      );
+    }
+
     if (!variables.replay.watchingReplay) {
       stopReplay();
       break;
@@ -155,7 +168,16 @@ async function playReplay(replayData: Replay, viewAs?: string) {
         stopReplay();
         break;
       }
-      updateReplayGameData(replayGameData, data, actionNumber);
+      if (variables.replay.finishedJumping) {
+        updateReplayGameData(
+          replayGameData,
+          data,
+          actionNumber,
+          additionalReplayContext
+        );
+      } else {
+        updateReplayGameData(replayGameData, data, actionNumber);
+      }
     }
 
     await sleep(INTERVAL);
@@ -247,6 +269,14 @@ function updateReplayGameData(
       break;
     }
     case "enemyKill": {
+      if (
+        additionalReplayContext?.enemies.ignored.includes(
+          actionRecord.data.enemyID
+        )
+      ) {
+        replayGameData.currentInput = "";
+        break;
+      }
       // enemy killed = input correct, so remove
       replayGameData.currentInput = "";
       replayGameData.enemiesToErase.push(actionRecord.data.enemyID);
@@ -292,6 +322,10 @@ function updateReplayGameData(
     case "enemySpawn": {
       const enemyData = actionRecord.data;
       // replayGameData.enemies.push(enemyData);
+      if (additionalReplayContext?.enemies.ignored.includes(enemyData.id)) {
+        replayGameData.currentInput = "";
+        break;
+      }
       const newEnemy = new Enemy(
         enemyData.sPosition,
         enemyData.displayedText,
@@ -301,6 +335,10 @@ function updateReplayGameData(
         enemyData.speed,
         enemyData.xPosition
       );
+      if (additionalReplayContext?.enemies.ages[enemyData.id]) {
+        newEnemy.ageOffset =
+          additionalReplayContext?.enemies.ages[enemyData.id];
+      }
       newEnemy.render();
       break;
     }
@@ -627,5 +665,6 @@ export {
   getPlayerListOptions,
   updateReplayGameDataLikeServer,
   replayGameData,
-  stopReplay
+  stopReplay,
+  ActionRecord
 };
