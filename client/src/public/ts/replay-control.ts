@@ -88,7 +88,9 @@ function getEnemiesReplayContext(
     // already killed
     if (
       actionRecords[actionNumber].action === "enemyKill" &&
-      Object.keys(aliveEnemies).find(actionRecords[actionNumber].data.enemyID)
+      Object.keys(aliveEnemies).includes(
+        actionRecords[actionNumber].data.enemyID
+      )
     ) {
       enemies.ignored.push(actionRecords[actionNumber].data.enemyID);
       delete aliveEnemies[actionRecords[actionNumber].data.enemyID];
@@ -97,7 +99,9 @@ function getEnemiesReplayContext(
     // already reached base
     if (
       actionRecords[actionNumber].action === "enemyReachedBase" &&
-      Object.keys(aliveEnemies).find(actionRecords[actionNumber].data.enemyID)
+      Object.keys(aliveEnemies).includes(
+        actionRecords[actionNumber].data.enemyID
+      )
     ) {
       enemies.ignored.push(actionRecords[actionNumber].data.enemyID);
       delete aliveEnemies[actionRecords[actionNumber].data.enemyID];
