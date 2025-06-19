@@ -125,7 +125,7 @@ function getEnemiesReplayContext(
   for (const enemy of Object.keys(aliveEnemies)) {
     const timeElapsed =
       time - (aliveEnemies[enemy].spawnTimestamp - startTimestamp);
-    enemies.ages[enemy] = 1 - (timeElapsed / 1000) * aliveEnemies[enemy].speed;
+    enemies.ages[enemy] = timeElapsed;
   }
   return enemies;
 }
