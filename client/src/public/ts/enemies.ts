@@ -48,6 +48,7 @@ class Enemy {
   sPosition!: number;
   xPosition!: number;
   yPosition!: number;
+  ageOffset!: number;
   id!: string;
   text!: string;
   creationTime: number;
