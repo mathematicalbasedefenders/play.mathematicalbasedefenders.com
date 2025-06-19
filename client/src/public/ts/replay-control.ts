@@ -126,4 +126,4 @@ function getEnemiesReplayContext(
   return enemies;
 }
 
-export { controlReplay, getReplayContext };
+export { controlReplay, getReplayContext, ReplayContext };
