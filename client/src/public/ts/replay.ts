@@ -200,7 +200,7 @@ function updateReplayGameData(
   replayGameData: { [key: string]: any },
   data: { [key: string]: any },
   actionNumber: number,
-  additionalReplayContext: ReplayContext
+  additionalReplayContext?: ReplayContext
 ) {
   // set time
 
