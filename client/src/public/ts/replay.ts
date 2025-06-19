@@ -467,13 +467,16 @@ function updateOpponentGameData(
       break;
     }
     case "enemySpawn": {
-      opponentData.enemies.push({
+      const enemyData = {
         requestedValue: "",
         displayedText: actionRecord.data.displayedText,
         xPosition: actionRecord.data.xPosition,
         sPosition: actionRecord.data.sPosition,
         speed: actionRecord.data.speed,
         id: actionRecord.data.id
+      };
+      opponentData.enemies.push({
+        enemyData
       });
       break;
     }
