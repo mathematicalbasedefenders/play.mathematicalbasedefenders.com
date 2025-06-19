@@ -580,6 +580,7 @@ function updateReplayOpponentGameData(deltaTime: number) {
 
 function stopReplay() {
   clearReplayScreen();
+  variables.replay.enemyColors = {};
   changeScreen("archiveMenu", true, true);
 }
 
