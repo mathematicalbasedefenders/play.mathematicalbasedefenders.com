@@ -11,7 +11,11 @@ import { variables } from ".";
 import { formatNumber, millisecondsToTime } from "./utilities";
 import { Opponent } from "./opponent";
 import { ToastNotification } from "./toast-notification";
-import { getReplayContext, ReplayContext } from "./replay-control";
+import {
+  forceSetScore,
+  getReplayContext,
+  ReplayContext
+} from "./replay-control";
 
 const replayGameData: { [key: string]: any } = {};
 
@@ -156,6 +160,18 @@ async function playReplay(replayData: Replay, viewAs?: string) {
         actionNumbers,
         variables.replay.elapsedReplayTime
       );
+      // TODO: 2025-06-19 set score for multiplayer
+      const scores = data.actionRecords
+        .filter(
+          (element, index) =>
+            element.action === "setGameData" &&
+            element.data.key === "score" &&
+            Math.min(...actionNumbers) <= index &&
+            index <= Math.max(...actionNumbers)
+        )
+        .map((element) => element.data.value);
+      const newScore = Math.max(...scores);
+      forceSetScore(newScore);
     }
 
     if (!variables.replay.watchingReplay) {
