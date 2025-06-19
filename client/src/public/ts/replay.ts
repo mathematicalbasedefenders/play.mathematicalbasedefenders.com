@@ -455,6 +455,7 @@ function updateOpponentGameData(
       opponentData.receivedEnemiesStock = 0;
       break;
     }
+    /** TODO: 2025-06-19 something like `ReplayEnemyContext` for multiplayer */
     case "enemyReceive": {
       opponentData.enemies.push({
         requestedValue: "",
@@ -466,6 +467,7 @@ function updateOpponentGameData(
       });
       break;
     }
+    /** TODO: 2025-06-19 something like `ReplayEnemyContext` for multiplayer */
     case "enemySpawn": {
       const enemyData = {
         requestedValue: "",
