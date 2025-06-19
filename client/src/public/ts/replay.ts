@@ -247,7 +247,11 @@ function updateReplayGameData(
     const isRoomScoped = actionRecord.scope === "room";
     if (!isAddUserAction && updateOpponent && !isRoomScoped) {
       // update someone else...
-      updateOpponentGameData(actionRecord, replayGameData);
+      updateOpponentGameData(
+        actionRecord,
+        replayGameData,
+        additionalReplayContext
+      );
       return;
     }
   }
@@ -410,7 +414,11 @@ function updateReplayGameData(
  * @param actionRecord
  * @param replayGameData
  */
-function updateOpponentGameData(actionRecord: any, replayGameData: any) {
+function updateOpponentGameData(
+  actionRecord: any,
+  replayGameData: any,
+  additionalReplayContext?: ReplayContext
+) {
   const connectionID = actionRecord.user.connectionID;
   const opponentData = replayGameData.opponentGameData.find(
     (element: any) => element.owner === connectionID
