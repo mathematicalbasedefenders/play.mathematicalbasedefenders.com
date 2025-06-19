@@ -178,7 +178,8 @@ const variables: { [key: string]: any } = {
     elapsedReplayTime: 0,
     inGameReplayTime: 0,
     jumped: false,
-    finishedJumping: false
+    finishedJumping: false,
+    enemyColors: {}
   }
 };
 
