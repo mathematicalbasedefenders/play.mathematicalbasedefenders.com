@@ -125,7 +125,8 @@ function getEnemiesReplayContext(
   for (const enemy of Object.keys(aliveEnemies)) {
     const timeElapsed =
       time - (aliveEnemies[enemy].spawnTimestamp - startTimestamp);
-    enemies.setPositions[enemy] = 1 - timeElapsed * aliveEnemies[enemy].speed;
+    enemies.setPositions[enemy] =
+      1 - (timeElapsed / 1000) * aliveEnemies[enemy].speed;
   }
   return enemies;
 }
