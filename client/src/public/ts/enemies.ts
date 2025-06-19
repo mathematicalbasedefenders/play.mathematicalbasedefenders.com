@@ -71,8 +71,16 @@ class Enemy {
     this.creationTime = Date.now();
     // sprite-related
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
-    // ...
-    this.sprite.tint = getSetEnemyColor();
+
+    // set enemy color if it appeared before
+    if (variables.replay.enemyColors[this.id]) {
+      this.sprite.tint = variables.replay.enemyColors[this.id];
+    } else {
+      const color = getSetEnemyColor();
+      this.sprite.tint = color;
+      variables.replay.enemyColors[this.id] = color;
+    }
+
     this.sprite.width = width || getScaledEnemyWidth();
 
     this.sprite.height = height || getScaledEnemyHeight();
