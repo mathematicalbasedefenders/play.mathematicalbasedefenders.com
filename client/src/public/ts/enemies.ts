@@ -119,7 +119,7 @@ class Enemy {
    * TODO: Enemy will damage the base and get deleted if new sPosition <= 0
    * @param {number} sPosition The sPosition to render the enemy at.
    */
-  reposition(sPosition: number) {
+  reposition(sPosition: number, ignoreAttack?: boolean) {
     const traveled = MAXIMUM_Y_POSITION * (1 - sPosition);
     this.sprite.y = traveled - getScaledEnemyHeight();
     this.textSprite.x =
@@ -132,7 +132,7 @@ class Enemy {
       this.sprite.width
     );
     this.sPosition = sPosition;
-    if (sPosition <= 0) {
+    if (!ignoreAttack && sPosition <= 0) {
       deleteEnemy(this.id);
       if (!this.attackedBase) {
         playSound("assets/sounds/damaged.mp3", true);
