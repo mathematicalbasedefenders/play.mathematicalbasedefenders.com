@@ -165,6 +165,14 @@ class Opponent {
       // create enemy
       // TODO: temporary.
       this.enemies[`enemy${id}`] = createOpponentEnemy();
+      if (variables.replay.enemyColors[`enemy${id}`]) {
+        this.enemies[`enemy${id}`].tint =
+          variables.replay.enemyColors[`enemy${id}`];
+      } else {
+        const color = getSetEnemyColor();
+        this.enemies[`enemy${id}`].tint = color;
+        variables.replay.enemyColors[`enemy${id}`] = color;
+      }
       this.container.addChild(this.enemies[`enemy${id}`]);
     }
     const enemyData = data.enemies.find((element: any) => element.id === id);
@@ -280,7 +288,7 @@ function createOpponentEnemy() {
   const enemy = new PIXI.Sprite(PIXI.Texture.WHITE);
   enemy.width = getScaledEnemyWidth();
   enemy.height = getScaledEnemyHeight();
-  enemy.tint = getSetEnemyColor();
+  // enemy.tint = getSetEnemyColor();
   return enemy;
 }
 
