@@ -13,6 +13,9 @@ import { Opponent } from "./opponent";
 import { ToastNotification } from "./toast-notification";
 
 const replayGameData: { [key: string]: any } = {};
+
+interface ReplayContext {}
+
 interface Replay {
   ok: boolean;
   reason: string;
@@ -196,7 +199,8 @@ function getActionNumbers(
 function updateReplayGameData(
   replayGameData: { [key: string]: any },
   data: { [key: string]: any },
-  actionNumber: number
+  actionNumber: number,
+  additionalReplayContext: ReplayContext
 ) {
   // set time
 
