@@ -3,7 +3,7 @@ import { ActionRecord, Replay } from "./replay";
 
 interface ReplayEnemyContext {
   ignored: Array<string>;
-  setPositions: { [key: string]: number };
+  ages: { [key: string]: number };
 }
 
 interface ReplayContext {
@@ -61,7 +61,7 @@ function getReplayContext(
   const context: ReplayContext = {
     enemies: {
       ignored: [],
-      setPositions: {}
+      ages: {}
     }
   };
   context.enemies = getEnemiesReplayContext(actionRecords, actionNumbers, time);
@@ -78,7 +78,7 @@ function getEnemiesReplayContext(
   } = {};
   const enemies: ReplayEnemyContext = {
     ignored: [],
-    setPositions: {}
+    ages: {}
   };
   /**
    * An enemy is ignored when it was already killed/reached base between the range of actions.
@@ -125,8 +125,7 @@ function getEnemiesReplayContext(
   for (const enemy of Object.keys(aliveEnemies)) {
     const timeElapsed =
       time - (aliveEnemies[enemy].spawnTimestamp - startTimestamp);
-    enemies.setPositions[enemy] =
-      1 - (timeElapsed / 1000) * aliveEnemies[enemy].speed;
+    enemies.ages[enemy] = 1 - (timeElapsed / 1000) * aliveEnemies[enemy].speed;
   }
   return enemies;
 }
