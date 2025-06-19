@@ -66,8 +66,12 @@ class Enemy {
   ) {
     // meta-related
     const maxXPosition = 600 + PLAYFIELD_WIDTH - getScaledEnemyWidth();
+    // metadata
+    this.id = id;
+    this.creationTime = Date.now();
     // sprite-related
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
+    // ...
     this.sprite.tint = getSetEnemyColor();
     this.sprite.width = width || getScaledEnemyWidth();
 
@@ -99,9 +103,7 @@ class Enemy {
     this.sPosition = sPosition;
     this.attackedBase = false;
     this.addedKill = false;
-    // metadata
-    this.id = id;
-    this.creationTime = Date.now();
+
     // functions
     Enemy.enemiesDrawn.push(id);
     Enemy.enemyCache.push(this);
