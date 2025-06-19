@@ -1,5 +1,6 @@
-import { variables } from ".";
+import { stageItems, variables } from ".";
 import { ActionRecord, Replay } from "./replay";
+import { ToastNotification } from "./toast-notification";
 
 interface ReplayEnemyContext {
   ignored: Array<string>;
@@ -19,7 +20,11 @@ function controlReplay(code: string) {
         variables.replay.elapsedReplayTime - TO_JUMP
       );
       variables.replay.elapsedReplayTime = destination;
-      console.log("new destination after -5", destination);
+      // TODO: testing purposes, remove
+      const toast = new ToastNotification(
+        `Replay jumped backward by 5 seconds! Current time of replay is ${destination}ms`
+      );
+      toast.render();
       jumpToTimeInReplay(destination);
       break;
     }
@@ -29,12 +34,29 @@ function controlReplay(code: string) {
         variables.replay.inGameReplayTime,
         variables.replay.elapsedReplayTime + TO_JUMP
       );
-      console.log("new destination after +5", destination);
+      // TODO: testing purposes, remove
+      const toast = new ToastNotification(
+        `Replay jumped forward by 5 seconds! Current time of replay is ${destination}ms`
+      );
+      toast.render();
       variables.replay.elapsedReplayTime = destination;
       jumpToTimeInReplay(destination);
       break;
     }
   }
+}
+
+/**
+ * Forces a score value/the score text to be of a certain value.
+ * @param score
+ */
+function forceSetScore(score: number) {
+  variables.currentGameClientSide.shownScore = score;
+  variables.currentGameClientSide.beautifulScoreDisplayGoal = score;
+  variables.currentGameClientSide.beautifulScoreDisplayProgress = score;
+  variables.currentGameClientSide.beautifulScoreDisplayPrevious = score;
+  stageItems.textSprites.scoreText.text =
+    parseInt(score.toString()).toLocaleString("en-US") || "0";
 }
 
 /**
@@ -130,4 +152,4 @@ function getEnemiesReplayContext(
   return enemies;
 }
 
-export { controlReplay, getReplayContext, ReplayContext };
+export { controlReplay, getReplayContext, ReplayContext, forceSetScore };
