@@ -34,7 +34,8 @@ function render(elapsedMilliseconds: number) {
     for (let enemyID of enemiesDrawn) {
       let enemy = getEnemyFromCache(enemyID);
       if (typeof enemy !== "undefined") {
-        let age = Date.now() - enemy.creationTime;
+        const ageOffset = enemy.ageOffset ?? 0;
+        const age = Date.now() - enemy.creationTime + ageOffset;
         const speed = variables.currentGameClientSide.enemySpeedCoefficient;
         enemy.reposition(1 - enemy.speed * speed * (age / 1000));
       }
