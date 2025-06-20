@@ -120,6 +120,9 @@ class Enemy {
     }
 
     if (Enemy.enemyCache.filter((e) => e.id === this.id).length > 0) {
+      while (Enemy.enemyCache.find((e) => e.id === this.id)) {
+        deleteEnemy(this.id);
+      }
       Enemy.enemyCache = Enemy.enemyCache.filter((e) => e.id !== this.id);
     }
     Enemy.enemyCache.push(this);
