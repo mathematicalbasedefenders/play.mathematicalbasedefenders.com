@@ -19,18 +19,20 @@ import {
 
 const replayGameData: { [key: string]: any } = {};
 
+interface ReplayData {
+  _id: string;
+  mode: string;
+  actionRecords: Array<ActionRecord>;
+  statistics: {
+    singleplayer: { [key: string]: any };
+    multiplayer: { [key: string]: any };
+  };
+}
+
 interface Replay {
   ok: boolean;
   reason: string;
-  data: {
-    _id: string;
-    mode: string;
-    actionRecords: Array<ActionRecord>;
-    statistics: {
-      singleplayer: { [key: string]: any };
-      multiplayer: { [key: string]: any };
-    };
-  } & { [key: string]: any };
+  data: ReplayData & { [key: string]: any };
 }
 
 interface ActionRecord {
@@ -162,15 +164,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
         data
       );
       // TODO: 2025-06-19 set score for multiplayer
-      const scores = data.actionRecords
-        .filter(
-          (element, index) =>
-            element.action === "setGameData" &&
-            element.data.key === "score" &&
-            Math.min(...actionNumbers) <= index &&
-            index <= Math.max(...actionNumbers)
-        )
-        .map((element) => element.data.value);
+      const scores = getPastScores(data, actionNumbers);
       const newScore = Math.max(...scores);
       forceSetScore(newScore);
     }
@@ -682,6 +676,32 @@ function getInGameTime(data: Replay) {
         return statistics.ranking[statistics.ranking.length - 1].time;
       }
     }
+  }
+}
+
+function getPastScores(data: ReplayData, actionNumbers: Array<number>) {
+  if (data.mode === "defaultMultiplayer") {
+    const scores = data.actionRecords
+      .filter(
+        (element, index) =>
+          element.action === "setGameData" &&
+          element.data.key === "attackScore" &&
+          Math.min(...actionNumbers) <= index &&
+          index <= Math.max(...actionNumbers)
+      )
+      .map((element) => element.data.value);
+    return scores;
+  } else {
+    const scores = data.actionRecords
+      .filter(
+        (element, index) =>
+          element.action === "setGameData" &&
+          element.data.key === "score" &&
+          Math.min(...actionNumbers) <= index &&
+          index <= Math.max(...actionNumbers)
+      )
+      .map((element) => element.data.value);
+    return scores;
   }
 }
 
