@@ -158,7 +158,8 @@ async function playReplay(replayData: Replay, viewAs?: string) {
       additionalReplayContext = getReplayContext(
         data.actionRecords,
         actionNumbers,
-        variables.replay.elapsedReplayTime
+        variables.replay.elapsedReplayTime,
+        replayData
       );
       // TODO: 2025-06-19 set score for multiplayer
       const scores = data.actionRecords
@@ -474,6 +475,7 @@ function updateOpponentGameData(
     }
     /** TODO: 2025-06-19 something like `ReplayEnemyContext` for multiplayer */
     case "enemyReceive": {
+      console.log(additionalReplayContext?.enemies);
       const enemyData = {
         requestedValue: "",
         displayedText: actionRecord.data.displayedText,
@@ -489,6 +491,7 @@ function updateOpponentGameData(
     }
     /** TODO: 2025-06-19 something like `ReplayEnemyContext` for multiplayer */
     case "enemySpawn": {
+      console.log(additionalReplayContext?.enemies);
       const enemyData = {
         requestedValue: "",
         displayedText: actionRecord.data.displayedText,
