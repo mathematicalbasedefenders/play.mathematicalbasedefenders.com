@@ -119,6 +119,7 @@ class Enemy {
       Enemy.enemiesDrawn.push(id);
     }
 
+    // prevent and delete duplicates which may be causing replay problems
     if (Enemy.enemyCache.filter((e) => e.id === this.id).length > 0) {
       while (Enemy.enemyCache.find((e) => e.id === this.id)) {
         deleteEnemy(this.id);
