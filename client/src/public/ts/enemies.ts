@@ -113,7 +113,15 @@ class Enemy {
     this.addedKill = false;
 
     // functions
-    Enemy.enemiesDrawn.push(id);
+
+    // prevent duplicates which may be causing replay problems
+    if (!Enemy.enemiesDrawn.includes(id)) {
+      Enemy.enemiesDrawn.push(id);
+    }
+
+    if (Enemy.enemyCache.filter((e) => e.id === this.id).length > 0) {
+      Enemy.enemyCache = Enemy.enemyCache.filter((e) => e.id !== this.id);
+    }
     Enemy.enemyCache.push(this);
   }
 
