@@ -474,13 +474,16 @@ function updateOpponentGameData(
     }
     /** TODO: 2025-06-19 something like `ReplayEnemyContext` for multiplayer */
     case "enemyReceive": {
-      opponentData.enemies.push({
+      const enemyData = {
         requestedValue: "",
         displayedText: actionRecord.data.displayedText,
         xPosition: actionRecord.data.xPosition,
         sPosition: actionRecord.data.sPosition,
         speed: actionRecord.data.speed,
         id: actionRecord.data.id
+      };
+      opponentData.enemies.push({
+        enemyData
       });
       break;
     }
