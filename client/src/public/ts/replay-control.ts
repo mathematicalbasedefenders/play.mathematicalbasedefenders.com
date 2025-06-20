@@ -93,17 +93,21 @@ function getReplayContext(
     }
   };
   context.enemies = getEnemiesReplayContext(actionRecords, actionNumbers, time);
+
   if (replayData.mode === "defaultMultiplayer") {
-    const opponents: Array<string> =
-      replayData.statistics.multiplayer.ranking.filter(
-        (e: any) => e.playerConnectionID !== replayData.viewAs
-      );
+    const opponents = replayData.statistics.multiplayer.ranking.filter(
+      (e: any) => e.connectionID !== replayData.viewAs
+    );
     context.multiplayer = {};
     context.multiplayer.players = {};
     for (const opponent of opponents) {
-      context.multiplayer.players[opponent].enemies =
+      const connectionID = opponent.connectionID;
+      context.multiplayer.players[connectionID] = {
+        enemies: { ignored: [], ages: {} }
+      };
+      context.multiplayer.players[connectionID].enemies =
         getMultiplayerEnemiesReplayContext(
-          replayData.viewAs,
+          connectionID,
           actionRecords,
           actionNumbers,
           time
@@ -199,7 +203,7 @@ function getMultiplayerEnemiesReplayContext(
       Object.keys(aliveEnemies).includes(
         actionRecords[actionNumber].data.enemyID
       ) &&
-      actionRecords[actionNumber].data.connectionID === connectionID
+      actionRecords[actionNumber].user?.connectionID === connectionID
     ) {
       enemies.ignored.push(actionRecords[actionNumber].data.enemyID);
       delete aliveEnemies[actionRecords[actionNumber].data.enemyID];
@@ -211,7 +215,7 @@ function getMultiplayerEnemiesReplayContext(
       Object.keys(aliveEnemies).includes(
         actionRecords[actionNumber].data.enemyID
       ) &&
-      actionRecords[actionNumber].data.connectionID === connectionID
+      actionRecords[actionNumber].user?.connectionID === connectionID
     ) {
       enemies.ignored.push(actionRecords[actionNumber].data.enemyID);
       delete aliveEnemies[actionRecords[actionNumber].data.enemyID];
@@ -221,7 +225,7 @@ function getMultiplayerEnemiesReplayContext(
     if (
       (actionRecords[actionNumber].action === "enemySpawn" ||
         actionRecords[actionNumber].action === "enemyReceive") &&
-      actionRecords[actionNumber].data.connectionID === connectionID
+      actionRecords[actionNumber].user?.connectionID === connectionID
     ) {
       aliveEnemies[actionRecords[actionNumber].data.id] = {
         spawnTimestamp: actionRecords[actionNumber].timestamp,

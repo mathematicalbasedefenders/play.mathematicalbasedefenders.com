@@ -159,7 +159,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
         data.actionRecords,
         actionNumbers,
         variables.replay.elapsedReplayTime,
-        replayData
+        data
       );
       // TODO: 2025-06-19 set score for multiplayer
       const scores = data.actionRecords
@@ -437,7 +437,7 @@ function updateOpponentGameData(
   replayGameData: any,
   additionalReplayContext?: ReplayContext
 ) {
-  const connectionID = actionRecord.user.connectionID;
+  const connectionID = actionRecord.user.connectionID as string;
   const opponentData = replayGameData.opponentGameData.find(
     (element: any) => element.owner === connectionID
   );
@@ -475,7 +475,11 @@ function updateOpponentGameData(
     }
     /** TODO: 2025-06-19 something like `ReplayEnemyContext` for multiplayer */
     case "enemyReceive": {
-      console.log(additionalReplayContext?.enemies);
+      // console.log(additionalReplayContext);
+      const multiplayerContext = additionalReplayContext?.multiplayer?.players;
+      if (!multiplayerContext) {
+        break;
+      }
       const enemyData = {
         requestedValue: "",
         displayedText: actionRecord.data.displayedText,
@@ -484,14 +488,32 @@ function updateOpponentGameData(
         speed: actionRecord.data.speed,
         id: actionRecord.data.id
       };
-      opponentData.enemies.push({
-        enemyData
-      });
+      if (
+        multiplayerContext[connectionID].enemies.ignored.includes(
+          actionRecord.data.id
+        )
+      ) {
+        break;
+      }
+      if (multiplayerContext[connectionID].enemies.ages[actionRecord.data.id]) {
+        const age =
+          multiplayerContext[connectionID].enemies.ages[actionRecord.data.id];
+        const newPosition = 1 - (age / 1000) * enemyData.speed;
+
+        enemyData.sPosition = newPosition;
+      }
+
+      opponentData.enemies.push(enemyData);
+
       break;
     }
     /** TODO: 2025-06-19 something like `ReplayEnemyContext` for multiplayer */
     case "enemySpawn": {
-      console.log(additionalReplayContext?.enemies);
+      // console.log(additionalReplayContext);
+      const multiplayerContext = additionalReplayContext?.multiplayer?.players;
+      if (!multiplayerContext) {
+        break;
+      }
       const enemyData = {
         requestedValue: "",
         displayedText: actionRecord.data.displayedText,
@@ -500,9 +522,20 @@ function updateOpponentGameData(
         speed: actionRecord.data.speed,
         id: actionRecord.data.id
       };
-      opponentData.enemies.push({
-        enemyData
-      });
+      if (
+        multiplayerContext[connectionID].enemies.ignored.includes(
+          actionRecord.data.id
+        )
+      ) {
+        break;
+      }
+      if (multiplayerContext[connectionID].enemies.ages[actionRecord.data.id]) {
+        const age =
+          multiplayerContext[connectionID].enemies.ages[actionRecord.data.id];
+        const newPosition = 1 - (age / 1000) * enemyData.speed;
+        enemyData.sPosition = newPosition;
+      }
+      opponentData.enemies.push(enemyData);
       break;
     }
     case "enemyReachedBase": {
