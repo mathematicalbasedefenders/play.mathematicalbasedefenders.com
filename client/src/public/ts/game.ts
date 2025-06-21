@@ -330,6 +330,7 @@ function changeScreen(
     oldElement.removeClass("button--arrow-key-focused");
   }
   variables.navigation.focusing = null;
+  variables.replay.paused = false;
   // TODO: temporary
   Opponent.destroyAllInstances();
   enemies.deleteAllEnemies();
