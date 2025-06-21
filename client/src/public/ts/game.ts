@@ -306,6 +306,9 @@ function changeScreen(
   $("#main-content__settings-screen-container").hide(0);
   $("#main-content__archive-screen-container").hide(0);
   $("#canvas-container").hide(0);
+
+  $("#replay-controller-container").hide(0);
+
   // other stuff
   if (alsoRedrawStage) {
     redrawStage();
