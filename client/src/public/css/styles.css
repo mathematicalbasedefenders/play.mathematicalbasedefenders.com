@@ -1705,3 +1705,11 @@ input[type="radio"] {
   width: 16px;
   background-color: var(--color-archive);
 }
+
+#replay-controller__bar {
+  position: relative;
+  top: -24px;
+  height: 16px;
+  width: 100%;
+  opacity: 0;
+}
