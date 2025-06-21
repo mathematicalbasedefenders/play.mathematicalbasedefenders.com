@@ -18,11 +18,12 @@ function render(elapsedMilliseconds: number) {
    */
   if (variables.replay.watchingReplay) {
     // ...but don't update if its paused,
-    // in fact, stop updating of everything altogether.
+    // but do update enemies due to implementation
+    renderEnemies();
+    // in fact, stop updating of everything else altogether.
     if (variables.replay.paused) {
       return;
     }
-    renderEnemies();
     updateReplayGameDataLikeServer(elapsedMilliseconds);
     renderGameData(replayGameData);
     showReplayIndicatorText();
@@ -40,7 +41,11 @@ function render(elapsedMilliseconds: number) {
       let enemy = getEnemyFromCache(enemyID);
       if (typeof enemy !== "undefined") {
         const ageOffset = enemy.ageOffset ?? 0;
-        const age = Date.now() - enemy.creationTime + ageOffset;
+        const age =
+          variables.replay.elapsedReplayTime -
+          enemy.relativeReplayCreationTime +
+          ageOffset;
+
         const speed = variables.currentGameClientSide.enemySpeedCoefficient;
         enemy.reposition(1 - enemy.speed * speed * (age / 1000));
       }

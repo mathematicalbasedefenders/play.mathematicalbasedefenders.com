@@ -71,6 +71,10 @@ function forceSetScore(score: number) {
 function jumpToTimeInReplay(destination: number) {
   variables.replay.elapsedReplayTime = destination;
   variables.replay.jumped = true;
+  if (variables.replay.paused) {
+    variables.replay.timestampOnPause =
+      variables.replay.startingTimestamp + destination;
+  }
 }
 
 function jumpToProgressInReplay(destination: number) {
@@ -258,5 +262,6 @@ export {
   getReplayContext,
   ReplayContext,
   forceSetScore,
-  jumpToProgressInReplay
+  jumpToProgressInReplay,
+  jumpToTimeInReplay
 };

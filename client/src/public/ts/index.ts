@@ -37,7 +37,7 @@ import {
   stopReplay
 } from "./replay";
 import { checkQuickLink } from "./quick-links";
-import { jumpToProgressInReplay } from "./replay-control";
+import { jumpToProgressInReplay, jumpToTimeInReplay } from "./replay-control";
 const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -862,6 +862,7 @@ function initializeEventListeners() {
   });
   $("#replay-controller__pause").on("click", () => {
     variables.replay.paused = true;
+    jumpToTimeInReplay(variables.replay.elapsedReplayTime);
   });
 }
 

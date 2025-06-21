@@ -118,6 +118,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     (element: ActionRecord) => element.action === "gameStart"
   ) as ActionRecord;
   const startingTimestamp = startingActionRecord.timestamp;
+  variables.replay.startingTimestamp = startingActionRecord.timestamp;
   variables.replay.elapsedReplayTime = 0;
 
   /* "Initialize" replay by initializing variables 
@@ -160,12 +161,6 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     );
 
     if (variables.replay.finishedJumping) {
-      additionalReplayContext = getReplayContext(
-        data.actionRecords,
-        actionNumbers,
-        variables.replay.elapsedReplayTime,
-        data
-      );
       // TODO: 2025-06-19 set score for multiplayer
       const scores = getPastScores(data, actionNumbers);
       const newScore = Math.max(...scores);
@@ -179,6 +174,15 @@ async function playReplay(replayData: Replay, viewAs?: string) {
 
     for (const actionNumber of actionNumbers) {
       if (variables.replay.finishedJumping) {
+        const timeOfActionNumber =
+          replayData.data.actionRecords[actionNumber].timestamp -
+          variables.replay.startingTimestamp;
+        additionalReplayContext = getReplayContext(
+          data.actionRecords,
+          actionNumbers,
+          timeOfActionNumber,
+          data
+        );
         updateReplayGameData(
           replayGameData,
           data,
@@ -370,6 +374,7 @@ function updateReplayGameData(
         enemyData.speed,
         enemyData.xPosition
       );
+      newEnemy.relativeReplayCreationTime = replayGameData.elapsedTime;
       if (additionalReplayContext?.enemies.ages[enemyData.id]) {
         newEnemy.ageOffset =
           additionalReplayContext?.enemies.ages[enemyData.id];
