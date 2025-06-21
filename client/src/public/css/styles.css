@@ -43,6 +43,7 @@ body {
 
 /* GLOBAL */
 #main-content-container {
+  z-index: 1;
   width: 100vw;
   height: 100vh;
 }
@@ -273,6 +274,12 @@ input[type="radio"] {
 .main-menu-screen-button:hover {
   filter: brightness(1.05);
   transform: scale(1.05);
+}
+
+/* CANVAS SCREEN */
+#canvas-container {
+  z-index: 1;
+  position: relative;
 }
 
 /* SINGLEPLAYER MENU SCREEN */
@@ -1510,6 +1517,7 @@ input[type="radio"] {
   right: 0;
   bottom: 0;
   font-size: 125%;
+  z-index: 1001;
 }
 
 /* OPENING SCREEN */
@@ -1682,16 +1690,14 @@ input[type="radio"] {
   align-items: end;
   position: absolute;
   width: 100vw;
-  height: 100vh;
+  height: 10%;
   z-index: 300;
-  top: 0;
-  pointer-events: none;
-  touch-action: none;
+  bottom: 0;
 }
 
 #replay-controller {
   width: 100%;
-  height: 10%;
+  height: 100%;
   background-color: #000000;
   border-top: 2px solid var(--color-archive);
 }
@@ -1712,4 +1718,6 @@ input[type="radio"] {
   height: 16px;
   width: 100%;
   opacity: 0;
+  cursor: pointer;
+  display: block;
 }

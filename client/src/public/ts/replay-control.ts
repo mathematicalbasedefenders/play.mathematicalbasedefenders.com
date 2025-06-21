@@ -73,6 +73,11 @@ function jumpToTimeInReplay(destination: number) {
   variables.replay.jumped = true;
 }
 
+function jumpToProgressInReplay(destination: number) {
+  const time = variables.replay.inGameReplayTime * destination;
+  jumpToTimeInReplay(time);
+}
+
 /**
  * Gets additional replay context
  * TODO: Expand what the above sentence means.
@@ -248,4 +253,10 @@ function getMultiplayerEnemiesReplayContext(
   return enemies;
 }
 
-export { controlReplay, getReplayContext, ReplayContext, forceSetScore };
+export {
+  controlReplay,
+  getReplayContext,
+  ReplayContext,
+  forceSetScore,
+  jumpToProgressInReplay
+};
