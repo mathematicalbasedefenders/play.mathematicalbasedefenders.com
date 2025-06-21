@@ -192,6 +192,9 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     variables.replay.elapsedReplayTime += INTERVAL;
     variables.replay.finishedJumping = false;
 
+    const progress = variables.replay.elapsedReplayTime / inGameTime;
+    $("#replay-controller__indicator").css("left", `${progress * 100}%`);
+
     if (variables.replay.elapsedReplayTime >= inGameTime) {
       stopReplay();
       break;
