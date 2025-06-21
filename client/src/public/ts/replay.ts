@@ -130,15 +130,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
   variables.replay.watchingReplay = true;
 
   while (variables.replay.elapsedReplayTime <= inGameTime) {
-    let timestamp = startingTimestamp + variables.replay.elapsedReplayTime;
-    let timestampWindow = INTERVAL;
-    let additionalReplayContext: ReplayContext = {
-      enemies: {
-        ignored: [],
-        ages: {}
-      }
-    };
-
+    // check if replay is paused. if so, don;t do anything
     const currentTime = millisecondsToTime(variables.replay.elapsedReplayTime);
     const totalTime = millisecondsToTime(inGameTime);
     const pausedText = variables.replay.paused ? "(paused)" : "";
@@ -149,6 +141,15 @@ async function playReplay(replayData: Replay, viewAs?: string) {
       await sleep(INTERVAL);
       continue;
     }
+
+    let timestamp = startingTimestamp + variables.replay.elapsedReplayTime;
+    let timestampWindow = INTERVAL;
+    let additionalReplayContext: ReplayContext = {
+      enemies: {
+        ignored: [],
+        ages: {}
+      }
+    };
 
     if (variables.replay.jumped) {
       resetClientSideVariables();
