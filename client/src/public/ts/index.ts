@@ -855,8 +855,12 @@ function initializeEventListeners() {
     const progress = event.pageX / window.innerWidth;
     jumpToProgressInReplay(progress);
   });
-  $("#replay-controller__resume").on("click", () => {});
-  $("#replay-controller__pause").on("click", () => {});
+  $("#replay-controller__resume").on("click", () => {
+    variables.replay.paused = false;
+  });
+  $("#replay-controller__pause").on("click", () => {
+    variables.replay.paused = true;
+  });
 }
 
 // events
