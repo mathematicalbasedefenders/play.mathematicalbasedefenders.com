@@ -37,6 +37,7 @@ import {
   stopReplay
 } from "./replay";
 import { checkQuickLink } from "./quick-links";
+import { jumpToProgressInReplay } from "./replay-control";
 const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -844,6 +845,14 @@ function initializeEventListeners() {
       emulatedKeypress: "Escape"
     });
     changeScreen("mainMenu");
+  });
+  // === REPLAY CONTROL ===
+  $("#replay-controller__bar").on("click", (event) => {
+    if (!variables.replay.watchingReplay) {
+      return;
+    }
+    const progress = event.pageX / window.innerWidth;
+    jumpToProgressInReplay(progress);
   });
 }
 
