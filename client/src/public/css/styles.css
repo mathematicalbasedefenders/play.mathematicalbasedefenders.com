@@ -1695,3 +1695,13 @@ input[type="radio"] {
   background-color: #000000;
   border-top: 2px solid var(--color-archive);
 }
+
+#replay-controller__indicator {
+  position: relative;
+  top: -8px;
+  left: 0%;
+  border-radius: 50%;
+  height: 16px;
+  width: 16px;
+  background-color: var(--color-archive);
+}
