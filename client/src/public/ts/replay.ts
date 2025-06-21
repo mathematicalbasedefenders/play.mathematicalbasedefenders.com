@@ -204,6 +204,8 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     const timeText = `${currentTime} of ${totalTime} ${pausedText}`;
     $("#replay-controller__current-time").text(timeText);
 
+    variables.replay.finishedJumping = false;
+
     // check if replay is paused. if so, don;t do anything
     if (variables.replay.paused) {
       await sleep(INTERVAL);
@@ -212,7 +214,6 @@ async function playReplay(replayData: Replay, viewAs?: string) {
 
     await sleep(INTERVAL);
     variables.replay.elapsedReplayTime += INTERVAL;
-    variables.replay.finishedJumping = false;
   }
 }
 
