@@ -130,18 +130,6 @@ async function playReplay(replayData: Replay, viewAs?: string) {
   variables.replay.watchingReplay = true;
 
   while (variables.replay.elapsedReplayTime <= inGameTime) {
-    // check if replay is paused. if so, don;t do anything
-    const currentTime = millisecondsToTime(variables.replay.elapsedReplayTime);
-    const totalTime = millisecondsToTime(inGameTime);
-    const pausedText = variables.replay.paused ? "(paused)" : "";
-    const timeText = `${currentTime} of ${totalTime} ${pausedText}`;
-    $("#replay-controller__current-time").text(timeText);
-
-    if (variables.replay.paused) {
-      await sleep(INTERVAL);
-      continue;
-    }
-
     let timestamp = startingTimestamp + variables.replay.elapsedReplayTime;
     let timestampWindow = INTERVAL;
     let additionalReplayContext: ReplayContext = {
@@ -202,17 +190,29 @@ async function playReplay(replayData: Replay, viewAs?: string) {
       }
     }
 
-    await sleep(INTERVAL);
-    variables.replay.elapsedReplayTime += INTERVAL;
-    variables.replay.finishedJumping = false;
-
-    const progress = variables.replay.elapsedReplayTime / inGameTime;
-    $("#replay-controller__indicator").css("left", `${progress * 100}%`);
-
     if (variables.replay.elapsedReplayTime >= inGameTime) {
       stopReplay();
       break;
     }
+
+    // update text
+    const progress = variables.replay.elapsedReplayTime / inGameTime;
+    $("#replay-controller__indicator").css("left", `${progress * 100}%`);
+    const currentTime = millisecondsToTime(variables.replay.elapsedReplayTime);
+    const totalTime = millisecondsToTime(inGameTime);
+    const pausedText = variables.replay.paused ? "(paused)" : "";
+    const timeText = `${currentTime} of ${totalTime} ${pausedText}`;
+    $("#replay-controller__current-time").text(timeText);
+
+    // check if replay is paused. if so, don;t do anything
+    if (variables.replay.paused) {
+      await sleep(INTERVAL);
+      continue;
+    }
+
+    await sleep(INTERVAL);
+    variables.replay.elapsedReplayTime += INTERVAL;
+    variables.replay.finishedJumping = false;
   }
 }
 
