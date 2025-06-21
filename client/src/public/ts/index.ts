@@ -183,7 +183,7 @@ const variables: { [key: string]: any } = {
     enemyColors: {},
     paused: false,
     timestampOnPause: 0,
-    timestampAtStart: 0
+    startingTimestamp: 0
   }
 };
 
