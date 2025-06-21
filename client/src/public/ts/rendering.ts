@@ -17,6 +17,11 @@ function render(elapsedMilliseconds: number) {
    * Update replay data as well
    */
   if (variables.replay.watchingReplay) {
+    // ...but don't update if its paused,
+    // in fact, stop updating of everything altogether.
+    if (variables.replay.paused) {
+      return;
+    }
     renderEnemies();
     updateReplayGameDataLikeServer(elapsedMilliseconds);
     renderGameData(replayGameData);
