@@ -99,6 +99,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
 
   const data = replayData.data;
   changeScreen("canvas", true, true);
+  $("#replay-controller-container").show(0);
 
   replayGameData.commands = {};
   replayGameData.aborted = false;
@@ -644,6 +645,7 @@ function updateReplayOpponentGameData(deltaTime: number) {
 function stopReplay() {
   clearReplayScreen();
   variables.replay.enemyColors = {};
+  $("#replay-controller-container").hide(0);
   changeScreen("archiveMenu", true, true);
 }
 
