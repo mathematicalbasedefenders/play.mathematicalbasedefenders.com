@@ -180,7 +180,8 @@ const variables: { [key: string]: any } = {
     inGameReplayTime: 0,
     jumped: false,
     finishedJumping: false,
-    enemyColors: {}
+    enemyColors: {},
+    paused: false
   }
 };
 
@@ -854,6 +855,8 @@ function initializeEventListeners() {
     const progress = event.pageX / window.innerWidth;
     jumpToProgressInReplay(progress);
   });
+  $("#replay-controller__resume").on("click", () => {});
+  $("#replay-controller__pause").on("click", () => {});
 }
 
 // events
