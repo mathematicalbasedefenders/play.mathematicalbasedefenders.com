@@ -194,9 +194,10 @@ async function playReplay(replayData: Replay, viewAs?: string) {
 
     const progress = variables.replay.elapsedReplayTime / inGameTime;
     $("#replay-controller__indicator").css("left", `${progress * 100}%`);
-    const timeText = `${millisecondsToTime(
-      variables.replay.elapsedReplayTime
-    )} of ${millisecondsToTime(inGameTime)}`;
+    const currentTime = millisecondsToTime(variables.replay.elapsedReplayTime);
+    const totalTime = millisecondsToTime(inGameTime);
+    const pausedText = variables.replay.paused ? "(paused)" : "";
+    const timeText = `${currentTime} of ${totalTime} ${pausedText}`;
     $("#replay-controller__current-time").text(timeText);
 
     if (variables.replay.elapsedReplayTime >= inGameTime) {
