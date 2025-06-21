@@ -1721,3 +1721,13 @@ input[type="radio"] {
   cursor: pointer;
   display: block;
 }
+
+#replay-controller__current-time {
+  font-size: 150%;
+  padding: 0 4px;
+  margin-top: -24px;
+}
+
+.replay-controller-text {
+  color: var(--color-archive);
+}
