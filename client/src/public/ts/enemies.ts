@@ -55,6 +55,7 @@ class Enemy {
   speed: number;
   attackedBase: boolean;
   addedKill: boolean;
+  relativeReplayCreationTime!: number;
   constructor(
     sPosition: number,
     text: string,
