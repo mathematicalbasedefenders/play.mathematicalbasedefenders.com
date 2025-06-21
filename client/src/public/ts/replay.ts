@@ -383,6 +383,8 @@ function updateReplayGameData(
       break;
     }
     case "enemyReachedBase": {
+      //TODO: temporary workaround, will get replaced by `setGameData` action anyway...
+      replayGameData.baseHealth -= 10;
       break;
     }
     case "gameStart": {
