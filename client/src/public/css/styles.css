@@ -1725,7 +1725,18 @@ input[type="radio"] {
 #replay-controller__current-time {
   font-size: 150%;
   padding: 0 4px;
+}
+
+#replay-controller__control-zone {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   margin-top: -24px;
+}
+
+#replay-controller__control-buttons {
+  display: flex;
+  flex-direction: row;
 }
 
 .replay-controller-text {
