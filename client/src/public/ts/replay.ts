@@ -95,6 +95,8 @@ async function fetchReplay(replayID: string) {
 }
 
 async function playReplay(replayData: Replay, viewAs?: string) {
+  variables.replay.paused = false;
+
   const INTERVAL = 1000 / 60;
 
   const data = replayData.data;
