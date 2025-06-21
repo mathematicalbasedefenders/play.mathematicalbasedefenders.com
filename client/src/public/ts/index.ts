@@ -182,7 +182,8 @@ const variables: { [key: string]: any } = {
     finishedJumping: false,
     enemyColors: {},
     paused: false,
-    pausedAt: 0
+    timestampOnPause: 0,
+    timestampAtStart: 0
   }
 };
 
