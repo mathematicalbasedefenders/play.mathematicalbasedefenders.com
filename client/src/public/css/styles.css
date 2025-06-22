@@ -1725,6 +1725,8 @@ input[type="radio"] {
 #replay-controller__current-time {
   font-size: 150%;
   padding: 0 4px;
+  cursor: default;
+  user-select: none;
 }
 
 #replay-controller__control-zone {
@@ -1737,6 +1739,8 @@ input[type="radio"] {
 #replay-controller__control-buttons {
   display: flex;
   flex-direction: row;
+  cursor: pointer;
+  user-select: none;
 }
 
 .replay-controller-text {
