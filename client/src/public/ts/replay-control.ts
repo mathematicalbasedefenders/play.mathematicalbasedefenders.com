@@ -9,11 +9,14 @@ interface MultiplayerReplayEnemyContext {
 interface ReplayEnemyContext {
   ignored: Array<string>;
   ages: { [key: string]: number };
+  // workaround for multiplayer replay
+  spawnTimes: { [key: string]: number };
 }
 
 interface ReplayContext {
   enemies: ReplayEnemyContext;
   multiplayer?: MultiplayerReplayEnemyContext;
+  actionNumbersInPeriod?: Array<number>;
 }
 
 function controlReplay(code: string) {
@@ -98,7 +101,8 @@ function getReplayContext(
   const context: ReplayContext = {
     enemies: {
       ignored: [],
-      ages: {}
+      ages: {},
+      spawnTimes: {}
     }
   };
   context.enemies = getEnemiesReplayContext(actionRecords, actionNumbers, time);
@@ -112,7 +116,7 @@ function getReplayContext(
     for (const opponent of opponents) {
       const connectionID = opponent.connectionID;
       context.multiplayer.players[connectionID] = {
-        enemies: { ignored: [], ages: {} }
+        enemies: { ignored: [], ages: {}, spawnTimes: {} }
       };
       context.multiplayer.players[connectionID].enemies =
         getMultiplayerEnemiesReplayContext(
@@ -136,7 +140,8 @@ function getEnemiesReplayContext(
   } = {};
   const enemies: ReplayEnemyContext = {
     ignored: [],
-    ages: {}
+    ages: {},
+    spawnTimes: {}
   };
   /**
    * An enemy is ignored when it was already killed/reached base between the range of actions.
@@ -184,6 +189,8 @@ function getEnemiesReplayContext(
     const timeElapsed =
       time - (aliveEnemies[enemy].spawnTimestamp - startTimestamp);
     enemies.ages[enemy] = timeElapsed;
+    enemies.spawnTimes[enemy] =
+      aliveEnemies[enemy].spawnTimestamp - startTimestamp;
   }
   return enemies;
 }
@@ -199,7 +206,8 @@ function getMultiplayerEnemiesReplayContext(
   } = {};
   const enemies: ReplayEnemyContext = {
     ignored: [],
-    ages: {}
+    ages: {},
+    spawnTimes: {}
   };
   /**
    * An enemy is ignored when it was already killed/reached base between the range of actions.
@@ -253,6 +261,8 @@ function getMultiplayerEnemiesReplayContext(
     const timeElapsed =
       time - (aliveEnemies[enemy].spawnTimestamp - startTimestamp);
     enemies.ages[enemy] = timeElapsed;
+    enemies.spawnTimes[enemy] =
+      aliveEnemies[enemy].spawnTimestamp - startTimestamp;
   }
   return enemies;
 }

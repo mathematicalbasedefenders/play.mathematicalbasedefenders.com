@@ -136,7 +136,8 @@ async function playReplay(replayData: Replay, viewAs?: string) {
     let additionalReplayContext: ReplayContext = {
       enemies: {
         ignored: [],
-        ages: {}
+        ages: {},
+        spawnTimes: {}
       }
     };
 
@@ -529,7 +530,13 @@ function updateOpponentGameData(
       }
 
       opponentData.enemies.push(enemyData);
-
+      for (const enemy of opponentData.enemies) {
+        const age =
+          variables.replay.elapsedReplayTime -
+          multiplayerContext[connectionID].enemies.spawnTimes[enemy.id];
+        const newPosition = 1 - (age / 1000) * enemy.speed;
+        enemy.sPosition = newPosition;
+      }
       break;
     }
     /** TODO: 2025-06-19 something like `ReplayEnemyContext` for multiplayer */
@@ -561,6 +568,13 @@ function updateOpponentGameData(
         enemyData.sPosition = newPosition;
       }
       opponentData.enemies.push(enemyData);
+      for (const enemy of opponentData.enemies) {
+        const age =
+          variables.replay.elapsedReplayTime -
+          multiplayerContext[connectionID].enemies.spawnTimes[enemy.id];
+        const newPosition = 1 - (age / 1000) * enemy.speed;
+        enemy.sPosition = newPosition;
+      }
       break;
     }
     case "enemyReachedBase": {
