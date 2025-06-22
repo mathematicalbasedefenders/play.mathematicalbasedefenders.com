@@ -713,6 +713,7 @@ function getPastScores(data: ReplayData, actionNumbers: Array<number>) {
         (element, index) =>
           element.action === "setGameData" &&
           element.data.key === "attackScore" &&
+          element.user?.connectionID === replayGameData.viewAs &&
           Math.min(...actionNumbers) <= index &&
           index <= Math.max(...actionNumbers)
       )
