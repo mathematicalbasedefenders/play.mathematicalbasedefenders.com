@@ -355,6 +355,11 @@ function updateReplayGameData(
         enemyData.speed,
         enemyData.xPosition
       );
+      newEnemy.relativeReplayCreationTime = replayGameData.elapsedTime;
+      if (additionalReplayContext?.enemies.ages[enemyData.id]) {
+        newEnemy.ageOffset =
+          additionalReplayContext?.enemies.ages[enemyData.id];
+      }
       newEnemy.render();
       break;
     }
