@@ -28,11 +28,6 @@ function controlReplay(code: string) {
         variables.replay.elapsedReplayTime - TO_JUMP
       );
       variables.replay.elapsedReplayTime = destination;
-      // TODO: testing purposes, remove
-      const toast = new ToastNotification(
-        `Replay jumped backward by 5 seconds! Current time of replay is ${destination}ms`
-      );
-      toast.render();
       jumpToTimeInReplay(destination);
       break;
     }
@@ -42,11 +37,6 @@ function controlReplay(code: string) {
         variables.replay.inGameReplayTime,
         variables.replay.elapsedReplayTime + TO_JUMP
       );
-      // TODO: testing purposes, remove
-      const toast = new ToastNotification(
-        `Replay jumped forward by 5 seconds! Current time of replay is ${destination}ms`
-      );
-      toast.render();
       variables.replay.elapsedReplayTime = destination;
       jumpToTimeInReplay(destination);
       break;
