@@ -20,12 +20,12 @@ function render(elapsedMilliseconds: number) {
     // ...but don't update if its paused,
     // but do update enemies due to implementation
     renderEnemies();
+    renderGameData(replayGameData);
     // in fact, stop updating of everything else altogether.
     if (variables.replay.paused) {
       return;
     }
     updateReplayGameDataLikeServer(elapsedMilliseconds);
-    renderGameData(replayGameData);
     showReplayIndicatorText();
   } else {
     hideReplayIndicatorText();
