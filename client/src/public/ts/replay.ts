@@ -161,8 +161,14 @@ async function playReplay(replayData: Replay, viewAs?: string) {
       timestampWindow
     );
 
+    // apparently multiplayer enemy receives doesn't work if context not given.
+    const actionNumbersUpToTime = getActionNumbers(
+      data.actionRecords,
+      startingTimestamp,
+      variables.replay.elapsedReplayTime
+    );
+
     if (variables.replay.finishedJumping) {
-      // TODO: 2025-06-19 set score for multiplayer
       const scores = getPastScores(data, actionNumbers);
       const newScore = Math.max(...scores);
       forceSetScore(newScore);
@@ -191,7 +197,21 @@ async function playReplay(replayData: Replay, viewAs?: string) {
           additionalReplayContext
         );
       } else {
-        updateReplayGameData(replayGameData, data, actionNumber);
+        const timeOfActionNumber =
+          replayData.data.actionRecords[actionNumber].timestamp -
+          variables.replay.startingTimestamp;
+        additionalReplayContext = getReplayContext(
+          data.actionRecords,
+          actionNumbersUpToTime,
+          timeOfActionNumber,
+          data
+        );
+        updateReplayGameData(
+          replayGameData,
+          data,
+          actionNumber,
+          additionalReplayContext
+        );
       }
     }
 
