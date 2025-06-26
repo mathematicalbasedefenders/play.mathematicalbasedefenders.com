@@ -499,7 +499,6 @@ function updateOpponentGameData(
       opponentData.receivedEnemiesStock = 0;
       break;
     }
-    /** TODO: 2025-06-19 something like `ReplayEnemyContext` for multiplayer */
     case "enemyReceive": {
       // console.log(additionalReplayContext);
       const multiplayerContext = additionalReplayContext?.multiplayer?.players;
@@ -539,7 +538,6 @@ function updateOpponentGameData(
       }
       break;
     }
-    /** TODO: 2025-06-19 something like `ReplayEnemyContext` for multiplayer */
     case "enemySpawn": {
       // console.log(additionalReplayContext);
       const multiplayerContext = additionalReplayContext?.multiplayer?.players;
