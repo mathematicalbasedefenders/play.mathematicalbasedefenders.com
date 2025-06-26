@@ -309,6 +309,7 @@ function updateReplayGameData(
       break;
     }
     case "enemyKill": {
+      replayGameData.enemiesKilled++;
       if (
         additionalReplayContext?.enemies.ignored.includes(
           actionRecord.data.enemyID
@@ -321,7 +322,6 @@ function updateReplayGameData(
       replayGameData.currentInput = "";
       replayGameData.enemiesToErase.push(actionRecord.data.enemyID);
       // add enemy killed
-      replayGameData.enemiesKilled++;
       // reset combo time
       replayGameData.clocks.comboReset.currentTime = 0;
       // add combo
