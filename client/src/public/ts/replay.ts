@@ -639,7 +639,7 @@ function formatReplayStatisticsText(data: { [key: string]: any }) {
 function getPlayerListOptions(data: any) {
   const options = [];
   const ranking = data.statistics.multiplayer.ranking;
-  ranking.sort((a: any, b: any) => b.placement - a.placement);
+  ranking.sort((a: any, b: any) => a.placement - b.placement);
   let rank = 0;
   for (const player of ranking) {
     rank++;
