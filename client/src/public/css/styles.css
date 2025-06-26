@@ -1734,6 +1734,7 @@ input[type="radio"] {
   flex-direction: row;
   justify-content: space-between;
   margin-top: -24px;
+  user-select: none;
 }
 
 #replay-controller__control-buttons {
