@@ -310,6 +310,8 @@ function updateReplayGameData(
     }
     case "enemyKill": {
       replayGameData.enemiesKilled++;
+      replayGameData.combo++;
+      // ignore rendering functions
       if (
         additionalReplayContext?.enemies.ignored.includes(
           actionRecord.data.enemyID
@@ -325,7 +327,6 @@ function updateReplayGameData(
       // reset combo time
       replayGameData.clocks.comboReset.currentTime = 0;
       // add combo
-      replayGameData.combo++;
       /** flashing input area not needed due to it already being in enemy kill code */
       // ...
       break;
