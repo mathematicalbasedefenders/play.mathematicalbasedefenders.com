@@ -161,7 +161,6 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   // text
-
   stageItems.textSprites.enemiesText.text = `Enemy Kills: ${data.enemiesKilled.toLocaleString(
     "en-US"
   )} ≈ ${((data.enemiesKilled / data.elapsedTime) * 1000).toFixed(3)}/s`;
