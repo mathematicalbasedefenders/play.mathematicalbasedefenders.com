@@ -601,11 +601,22 @@ function initializeEventListeners() {
   });
   $("#archive__start-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
-    const replayData = await fetchReplay(replayID);
-    if (!replayData) {
-      return;
+    let replayDataJSON;
+    if (replayID in replayCache) {
+      console.log(
+        "Replay data already found in cache, using replay data from cache."
+      );
+      replayDataJSON = replayCache[replayID];
+    } else {
+      console.log("Replay data not found in cache, fetching replay.");
+      const fetchData = await fetchReplay(replayID);
+      if (!fetchData) {
+        return;
+      }
+      const data = await fetchData.json();
+      replayCache[replayID] = data;
+      replayDataJSON = data;
     }
-    const replayDataJSON = await replayData.json();
     if (replayDataJSON.data.mode === "defaultMultiplayer") {
       const viewAs = $(
         "#main-content__archive-screen-container__content__replay-selector"
