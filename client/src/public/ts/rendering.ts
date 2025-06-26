@@ -138,8 +138,12 @@ function render(elapsedMilliseconds: number) {
     renderBeautifulScoreDisplay();
   } else {
     const score = variables.currentGameClientSide.shownScore;
-    stageItems.textSprites.scoreText.text =
-      parseInt(score).toLocaleString("en-US") || "0";
+    if (isNaN(score)) {
+      stageItems.textSprites.scoreText.text = "0";
+    } else {
+      stageItems.textSprites.scoreText.text =
+        parseInt(score.toString()).toLocaleString("en-US") || "0";
+    }
   }
 
   const inputFlashAlpha = getInputFlashAlpha();

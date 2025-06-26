@@ -53,8 +53,13 @@ function forceSetScore(score: number) {
   variables.currentGameClientSide.beautifulScoreDisplayGoal = score;
   variables.currentGameClientSide.beautifulScoreDisplayProgress = score;
   variables.currentGameClientSide.beautifulScoreDisplayPrevious = score;
-  stageItems.textSprites.scoreText.text =
-    parseInt(score.toString()).toLocaleString("en-US") || "0";
+
+  if (isNaN(score)) {
+    stageItems.textSprites.scoreText.text = "0";
+  } else {
+    stageItems.textSprites.scoreText.text =
+      parseInt(score.toString()).toLocaleString("en-US") || "0";
+  }
 }
 
 /**
