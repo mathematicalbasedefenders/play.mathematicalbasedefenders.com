@@ -231,7 +231,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
 
     variables.replay.finishedJumping = false;
 
-    // check if replay is paused. if so, don;t do anything
+    // check if replay is paused. if so, don't do anything
     if (variables.replay.paused) {
       await sleep(INTERVAL);
       continue;
