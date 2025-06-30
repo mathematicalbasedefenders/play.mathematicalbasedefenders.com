@@ -41,6 +41,14 @@ function controlReplay(code: string) {
       jumpToTimeInReplay(destination);
       break;
     }
+    case "Space": {
+      if (variables.replay.paused) {
+        variables.replay.paused = false;
+      } else {
+        variables.replay.paused = true;
+        jumpToTimeInReplay(variables.replay.elapsedReplayTime);
+      }
+    }
   }
 }
 
