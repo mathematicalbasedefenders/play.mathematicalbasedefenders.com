@@ -12,7 +12,7 @@ function playSound(path: string, check: boolean) {
     return;
   }
   const sound = new Howl({
-    src: [`${window.location.href}/${path}`]
+    src: [`${window.location.origin}/${path}`]
   });
 
   sound.play();

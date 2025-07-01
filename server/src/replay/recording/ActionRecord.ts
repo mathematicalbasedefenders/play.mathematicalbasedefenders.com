@@ -65,6 +65,8 @@ class GameActionRecord {
     this.actionRecords.push(action);
   }
 
+  // FIXME: For some reason the id here and the one on kill/reached base doesn't match lmfao
+  // -mistertfy64 2025-06-19
   addEnemySpawnAction(
     enemy: Enemy,
     data: GameData,

@@ -37,6 +37,7 @@ import {
   stopReplay
 } from "./replay";
 import { checkQuickLink } from "./quick-links";
+import { jumpToProgressInReplay, jumpToTimeInReplay } from "./replay-control";
 const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -173,7 +174,17 @@ const variables: { [key: string]: any } = {
       playerCount: 0
     }
   },
-  watchingReplay: false
+  replay: {
+    watchingReplay: false,
+    elapsedReplayTime: 0,
+    inGameReplayTime: 0,
+    jumped: false,
+    finishedJumping: false,
+    enemyColors: {},
+    paused: false,
+    timestampOnPause: 0,
+    startingTimestamp: 0
+  }
 };
 
 const replayCache: { [key: string]: Replay } = {};
@@ -590,11 +601,22 @@ function initializeEventListeners() {
   });
   $("#archive__start-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
-    const replayData = await fetchReplay(replayID);
-    if (!replayData) {
-      return;
+    let replayDataJSON;
+    if (replayID in replayCache) {
+      console.log(
+        "Replay data already found in cache, using replay data from cache."
+      );
+      replayDataJSON = replayCache[replayID];
+    } else {
+      console.log("Replay data not found in cache, fetching replay.");
+      const fetchData = await fetchReplay(replayID);
+      if (!fetchData) {
+        return;
+      }
+      const data = await fetchData.json();
+      replayCache[replayID] = data;
+      replayDataJSON = data;
     }
-    const replayDataJSON = await replayData.json();
     if (replayDataJSON.data.mode === "defaultMultiplayer") {
       const viewAs = $(
         "#main-content__archive-screen-container__content__replay-selector"
@@ -688,9 +710,9 @@ function initializeEventListeners() {
   //
   $("#quick-menu__content-button--quit").on("click", () => {
     variables.playing = false;
-    if (variables.watchingReplay) {
+    if (variables.replay.watchingReplay) {
       stopReplay();
-      variables.watchingReplay = false;
+      variables.replay.watchingReplay = false;
       changeScreen("archiveMenu", true, true);
       return;
     }
@@ -837,6 +859,21 @@ function initializeEventListeners() {
       emulatedKeypress: "Escape"
     });
     changeScreen("mainMenu");
+  });
+  // === REPLAY CONTROL ===
+  $("#replay-controller__bar").on("click", (event) => {
+    if (!variables.replay.watchingReplay) {
+      return;
+    }
+    const progress = event.pageX / window.innerWidth;
+    jumpToProgressInReplay(progress);
+  });
+  $("#replay-controller__resume").on("click", () => {
+    variables.replay.paused = false;
+  });
+  $("#replay-controller__pause").on("click", () => {
+    variables.replay.paused = true;
+    jumpToTimeInReplay(variables.replay.elapsedReplayTime);
   });
 }
 

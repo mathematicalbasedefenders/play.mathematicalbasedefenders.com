@@ -36,8 +36,12 @@ function renderBeautifulScoreDisplay() {
   const result = previous + (goal - previous) * position;
   const toShow = Math.max(previous, result);
 
-  stageItems.textSprites.scoreText.text =
-    Math.round(toShow).toLocaleString("en-US");
+  if (isNaN(toShow)) {
+    stageItems.textSprites.scoreText.text = "0";
+  } else {
+    stageItems.textSprites.scoreText.text =
+      parseInt(toShow.toString()).toLocaleString("en-US") || "0";
+  }
 }
 
 export { renderBeautifulScoreDisplay };

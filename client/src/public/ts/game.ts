@@ -161,7 +161,6 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   // text
-
   stageItems.textSprites.enemiesText.text = `Enemy Kills: ${data.enemiesKilled.toLocaleString(
     "en-US"
   )} ≈ ${((data.enemiesKilled / data.elapsedTime) * 1000).toFixed(3)}/s`;
@@ -182,7 +181,9 @@ function renderGameData(data: { [key: string]: any }) {
   }
 
   // text
-  stageItems.textSprites.baseHealthText.text = `♥ ${data.baseHealth}`;
+  stageItems.textSprites.baseHealthText.text = `♥ ${data.baseHealth.toFixed(
+    3
+  )}`;
   stageItems.textSprites.nameText.text = data.ownerName;
   // text: multiplayer
   if (data.mode.indexOf("Multiplayer") > -1) {
@@ -194,7 +195,7 @@ function renderGameData(data: { [key: string]: any }) {
   // hide how to play text regardless
   formatHowToPlayText(
     variables.howToPlayGamesRemaining,
-    data.mode.indexOf("Multiplayer") > -1 || variables.watchingReplay
+    data.mode.indexOf("Multiplayer") > -1 || variables.replay.watchingReplay
   );
 
   // update values
@@ -306,6 +307,9 @@ function changeScreen(
   $("#main-content__settings-screen-container").hide(0);
   $("#main-content__archive-screen-container").hide(0);
   $("#canvas-container").hide(0);
+
+  $("#replay-controller-container").hide(0);
+
   // other stuff
   if (alsoRedrawStage) {
     redrawStage();
@@ -327,6 +331,7 @@ function changeScreen(
     oldElement.removeClass("button--arrow-key-focused");
   }
   variables.navigation.focusing = null;
+  variables.replay.paused = false;
   // TODO: temporary
   Opponent.destroyAllInstances();
   enemies.deleteAllEnemies();
