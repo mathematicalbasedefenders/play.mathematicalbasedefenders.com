@@ -286,7 +286,7 @@ function renderEnemy(enemy: ServerSideEnemy) {
     enemy.xPosition
   );
   Enemy.enemyCache.push(newEnemy);
-  getCachedEnemy(newEnemy.id)?.render();
+  newEnemy.render();
 }
 
 /**
