@@ -555,13 +555,11 @@ function updateOpponentGameData(
       }
 
       opponentData.enemies.push(enemyData);
-      for (const enemy of opponentData.enemies) {
-        const age =
-          variables.replay.elapsedReplayTime -
-          multiplayerContext[connectionID].enemies.spawnTimes[enemy.id];
-        const newPosition = 1 - (age / 1000) * enemy.speed;
-        enemy.sPosition = newPosition;
-      }
+      updateOpponentEnemyPositions(
+        opponentData.enemies,
+        multiplayerContext[connectionID].enemies.spawnTimes,
+        variables.replay.elapsedReplayTime
+      );
       break;
     }
     case "enemySpawn": {
@@ -592,13 +590,11 @@ function updateOpponentGameData(
         enemyData.sPosition = newPosition;
       }
       opponentData.enemies.push(enemyData);
-      for (const enemy of opponentData.enemies) {
-        const age =
-          variables.replay.elapsedReplayTime -
-          multiplayerContext[connectionID].enemies.spawnTimes[enemy.id];
-        const newPosition = 1 - (age / 1000) * enemy.speed;
-        enemy.sPosition = newPosition;
-      }
+      updateOpponentEnemyPositions(
+        opponentData.enemies,
+        multiplayerContext[connectionID].enemies.spawnTimes,
+        variables.replay.elapsedReplayTime
+      );
       break;
     }
     case "enemyReachedBase": {
@@ -819,6 +815,19 @@ function resetReplayGameData(replayGameData: { [key: string]: any }) {
   replayGameData.opponentGameData = [];
 }
 
+function updateOpponentEnemyPositions(
+  enemies: Array<{ id: string; speed: number; sPosition?: number }>,
+  spawnTimes: { [key: string]: number },
+  elapsedTime: number
+) {
+  for (const enemy of enemies) {
+    const spawnTime = spawnTimes[enemy.id];
+    if (spawnTime === undefined) continue;
+    const age = elapsedTime - spawnTime;
+    enemy.sPosition = 1 - (age / 1000) * enemy.speed;
+  }
+}
+
 export {
   fetchReplay,
   playReplay,
@@ -828,5 +837,6 @@ export {
   updateReplayGameDataLikeServer,
   replayGameData,
   stopReplay,
-  ActionRecord
+  ActionRecord,
+  updateOpponentEnemyPositions
 };
