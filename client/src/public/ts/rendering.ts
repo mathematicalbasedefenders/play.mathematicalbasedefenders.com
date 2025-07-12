@@ -143,7 +143,7 @@ function render(elapsedMilliseconds: number) {
       stageItems.textSprites.scoreText.text = "0";
     } else {
       stageItems.textSprites.scoreText.text =
-        parseInt(score.toString()).toLocaleString("en-US") || "0";
+        Number.parseInt(score.toString()).toLocaleString("en-US") || "0";
     }
   }
 
