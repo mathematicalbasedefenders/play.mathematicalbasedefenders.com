@@ -288,7 +288,6 @@ function createOpponentEnemy() {
   const enemy = new PIXI.Sprite(PIXI.Texture.WHITE);
   enemy.width = getScaledEnemyWidth();
   enemy.height = getScaledEnemyHeight();
-  // enemy.tint = getSetEnemyColor();
   return enemy;
 }
 
