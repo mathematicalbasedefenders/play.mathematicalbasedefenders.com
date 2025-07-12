@@ -830,6 +830,26 @@ function updateOpponentEnemyPositions(
   }
 }
 
+async function getCachedOrFetchReplay(
+  replayID: string
+): Promise<Replay | null> {
+  if (replayID in replayCache) {
+    console.log(
+      "Replay data already found in cache, using replay data from cache."
+    );
+    return replayCache[replayID];
+  } else {
+    console.log("Replay data not found in cache, fetching replay.");
+    const fetchData = await fetchReplay(replayID);
+    if (!fetchData) {
+      return null;
+    }
+    const data = await fetchData.json();
+    replayCache[replayID] = data;
+    return data;
+  }
+}
+
 export {
   fetchReplay,
   playReplay,
@@ -841,5 +861,6 @@ export {
   stopReplay,
   ActionRecord,
   updateOpponentEnemyPositions,
-  replayCache
+  replayCache,
+  getCachedOrFetchReplay
 };
