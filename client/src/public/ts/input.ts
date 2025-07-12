@@ -57,11 +57,6 @@ function initializeKeypressEventListener() {
   window.addEventListener("keydown", (event) => {
     // other client-side events start
     const sendWebSocketMessage = checkIfShouldSendWebSocketMessage(event);
-    // override:
-    if (variables.replay.watchingReplay && ABORT_KEYS.includes(event.code)) {
-      stopReplay();
-      variables.replay.watchingReplay = false;
-    }
     // see if a websocket message should be sent
     // main client-side events start
     handleClientSideEvents(event);
