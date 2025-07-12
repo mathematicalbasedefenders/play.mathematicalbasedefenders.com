@@ -17,6 +17,8 @@ import {
   ReplayContext
 } from "./replay-control";
 
+const replayCache: { [key: string]: Replay } = {};
+
 const replayGameData: { [key: string]: any } = {};
 
 interface ReplayData {
@@ -838,5 +840,6 @@ export {
   replayGameData,
   stopReplay,
   ActionRecord,
-  updateOpponentEnemyPositions
+  updateOpponentEnemyPositions,
+  replayCache
 };
