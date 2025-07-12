@@ -242,7 +242,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
   }
 
   // stop replay when it's done
-  if (variables.replay.elapsedReplayTime > inGameTime) {
+  if (variables.replay.elapsedReplayTime >= inGameTime) {
     stopReplay();
   }
 }
@@ -712,6 +712,7 @@ function updateReplayOpponentGameData(deltaTime: number) {
 
 function stopReplay() {
   clearReplayScreen();
+  variables.replay.watchingReplay = false;
   variables.replay.enemyColors = {};
   $("#replay-controller-container").hide(0);
   changeScreen("archiveMenu", true, true);
