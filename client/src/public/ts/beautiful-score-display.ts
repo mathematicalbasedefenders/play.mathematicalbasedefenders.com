@@ -40,7 +40,7 @@ function renderBeautifulScoreDisplay() {
     stageItems.textSprites.scoreText.text = "0";
   } else {
     stageItems.textSprites.scoreText.text =
-      parseInt(toShow.toString()).toLocaleString("en-US") || "0";
+      Number.parseInt(toShow.toString()).toLocaleString("en-US") || "0";
   }
 }
 
