@@ -70,3 +70,7 @@
   white-space: pre-line;
   display: none;
 }
+
+#archive__replay-id {
+  width: 50%;
+}
