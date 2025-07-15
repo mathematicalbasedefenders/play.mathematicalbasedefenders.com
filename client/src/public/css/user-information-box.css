@@ -1,0 +1,22 @@
+/* USER INFO */
+#main-content__user-menu-small-display {
+  background-color: var(--color-neutral);
+  color: var(--color-text-light);
+  border: 1px solid var(--color-text-light);
+  opacity: 0.5;
+}
+
+#main-content__user-menu-small-display:hover {
+  opacity: 1;
+}
+
+#main-content__user-menu-container {
+  z-index: 98;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+#main-content__user-menu-small-display {
+  width: 320px;
+}

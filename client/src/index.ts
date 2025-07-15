@@ -65,8 +65,8 @@ app.get("/", limiter, (request: Request, response: Response) => {
   response.render("pages/index.ejs", { optimizeForProduction: isProduction });
 });
 
-app.get("*", limiter, (request: Request, response: Response) => {
-  response.render("pages/404.ejs");
+app.all("*", limiter, (request: Request, response: Response) => {
+  response.status(404).render("pages/404.ejs");
 });
 
 app.listen(PORT, () => {

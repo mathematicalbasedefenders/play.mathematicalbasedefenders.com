@@ -6,13 +6,17 @@ Mathematical Base Defenders is a multiplayer math game where the objective is si
 
 This is the source code of the `play` subdomain, where the actual game content is located.
 
-## Gameplay
+## Basic Functionality
 Here is an excerpt from [`https://mathematicalbasedefenders.com/about`](https://mathematicalbasedefenders.com/about), which mistertfy64 believes gives the basic idea of the game well:
-> Enemies will fall from the top to your "base". Each enemy has text which is either a number or a math problem.
-> Your objective is to type the number or solve those math problems before the enemies come and reach your "base" (the line).
-> If an enemy has the text `10`, you must type `10` and submit the problem to kill the enemy.
-> If an enemy has the text `3 + 4`, you must type `7` and submit the problem to kill the enemy. (`3 + 4 = 7`)
-> For each enemy you missed (i.e., for each enemy that reached the base), you will lose base health. If your base health is 0, the game is over.
+> Enemies will fall from the top to your "base".
+>
+> Each enemy has text which is either an integer, an addition math problem, a subtraction math problem, a multiplication math problem, or a division math problem
+>
+> The main objective of Mathematical Base Defenders is to type the number on the enemies or solve the math problems on the enemies to kill them before the enemies come and reach your "base" (the line).
+>
+> If an enemy's text is an integer (not a math problem), you must type the integer and submit it as your answer.
+>
+> If an enemy's text is a math problem, you must solve the math problem, then type the answer to the math problem, then submit it as your answer.
 
 Also see the [Screenshots](https://github.com/mathematicalbasedefenders/play.mathematicalbasedefenders.com?tab=readme-ov-file#screenshots) section to get a better idea.
 

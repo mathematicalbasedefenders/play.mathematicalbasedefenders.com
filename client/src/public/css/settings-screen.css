@@ -1,0 +1,100 @@
+/* SETTINGS SCREEN */
+#main-content__settings-screen-container {
+  /* background-color: #000000; */
+  width: 100%;
+  height: 100%;
+}
+#main-content__settings-screen {
+  display: grid;
+  grid-template-columns: [column1-start] 80px [column1-end column2-start] 120px [column2-end column3-start] auto [column3-end column4-start] 80px [column4-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
+  height: 100%;
+  width: 100%;
+}
+#settings-screen__sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  grid-row: row1-end / row2-start;
+  grid-column: column2-start / column2-end;
+}
+.settings-screen__sidebar-item {
+  width: 100%;
+  color: var(--color-text-light);
+  font-size: 200%;
+  text-align: left;
+  margin: 4px;
+  background-color: transparent;
+  border-left: 1px solid #ffffff;
+  font-family: inherit;
+  transition-duration: var(--transition-duration-short);
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+}
+
+.settings-screen__sidebar-item:hover {
+  background-color: rgb(255, 255, 255, 0.75);
+  color: var(--color-text-dark);
+  border-left: 1px solid #ffffff;
+}
+
+.settings-screen__sidebar-item--selected {
+  background-color: var(--color-text-light);
+  color: var(--color-text-dark);
+  border-left: 1px solid #ffffff;
+}
+
+#settings-screen__content {
+  grid-row: row1-end / row2-start;
+  grid-column: column3-start / column3-end;
+  margin-left: 48px;
+}
+
+.settings-screen__content-secondary-screen {
+  width: 100%;
+  height: 95vh;
+  color: var(--color-text-light);
+  font-size: 100%;
+  overflow-y: auto;
+}
+
+.settings-screen__content-fieldset {
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  background-color: var(--color-neutral);
+  font-size: 150%;
+}
+
+.settings-screen__content-fieldset legend {
+  background-color: var(--color-neutral);
+  padding: 0 8px;
+}
+
+.settings-screen__content-fieldset label,
+.settings-screen__content-fieldset input {
+  margin: 4px 0;
+}
+
+.settings-screen__content-input--text {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 100%;
+  font-family: inherit;
+}
+
+.settings-screen__content-input--button {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 150%;
+  font-family: inherit;
+  transition-duration: var(--transition-duration-short);
+}
+
+.settings-screen__content-input--button:hover {
+  filter: brightness(1.05);
+  transform: scale(1.05);
+}
