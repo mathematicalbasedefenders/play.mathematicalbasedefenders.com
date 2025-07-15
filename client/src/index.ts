@@ -66,7 +66,7 @@ app.get("/", limiter, (request: Request, response: Response) => {
 });
 
 app.all("*", limiter, (request: Request, response: Response) => {
-  response.render("pages/404.ejs");
+  response.status(404).render("pages/404.ejs");
 });
 
 app.listen(PORT, () => {
