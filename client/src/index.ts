@@ -65,7 +65,7 @@ app.get("/", limiter, (request: Request, response: Response) => {
   response.render("pages/index.ejs", { optimizeForProduction: isProduction });
 });
 
-app.get("*", limiter, (request: Request, response: Response) => {
+app.all("*", limiter, (request: Request, response: Response) => {
   response.render("pages/404.ejs");
 });
 
