@@ -133,3 +133,9 @@
   filter: brightness(1.05);
   transform: scale(1.05);
 }
+
+#main-content__main-menu-screen-button-container__bottom {
+  display: flex;
+  flex-direction: row;
+  margin: 0 -16px;
+}
