@@ -63,6 +63,7 @@ function forceSetScore(score: number) {
   variables.currentGameClientSide.beautifulScoreDisplayPrevious = score;
 
   if (isNaN(score)) {
+    console.warn("forceSetScore received NaN value, defaulting to 0");
     stageItems.textSprites.scoreText.text = "0";
   } else {
     stageItems.textSprites.scoreText.text =
