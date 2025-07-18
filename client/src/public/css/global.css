@@ -3,11 +3,13 @@
 @font-face {
   font-family: "Computer Modern Unicode Serif";
   src: url("../assets/fonts/computermodernunicode.ttf");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "Computer Modern Math Italic";
   src: url("../assets/fonts/computermodernmathitalic.ttf");
+  font-display: swap;
 }
 
 body {
