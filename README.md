@@ -7,7 +7,7 @@ Mathematical Base Defenders is a multiplayer math game where the objective is si
 
 This is the source code of the `play` subdomain, where the actual game content is located.
 
-## Basic Functionality
+## Basic Gameplay
 Here is an excerpt from [`https://mathematicalbasedefenders.com/about`](https://mathematicalbasedefenders.com/about), which mistertfy64 believes gives the basic idea of the game well:
 > Enemies will fall from the top to your "base".
 >
