@@ -824,7 +824,10 @@ function updateOpponentEnemyPositions(
 ) {
   for (const enemy of enemies) {
     const spawnTime = spawnTimes[enemy.id];
-    if (spawnTime === undefined) continue;
+    if (spawnTime === undefined) {
+      console.warn(`Enemy ${enemy.id} missing spawn time in replay data`);
+      continue;
+    }
     const age = elapsedTime - spawnTime;
     enemy.sPosition = 1 - (age / 1000) * enemy.speed;
   }
