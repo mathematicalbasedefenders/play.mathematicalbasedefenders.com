@@ -546,11 +546,12 @@ function initializeEventListeners() {
   });
   $("#archive__search-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
+    $("#archive__search-button").prop("disabled", true).text("Fetching...");
     const replayDataJSON = await getCachedOrFetchReplay(replayID);
     if (!replayDataJSON) {
       return;
     }
-
+    $("#archive__search-button").prop("disabled", true).text("Search Replay");
     $(
       "#main-content__archive-screen-container__content__replay-statistics"
     ).text(formatReplayStatisticsText(replayDataJSON.data));
