@@ -32,12 +32,20 @@ Also see the [Screenshots](https://github.com/mathematicalbasedefenders/play.mat
 - Customizable Game Client
   - Able to set width of enemies
   - Able to set what symbol to use for the multiplication sign
+- Replays
 
 ## Screenshots
 These screenshots are from Game Version `0.4.3`.
 
 <img src="https://storage.mistertfy64.com/playmbd-screenshots/gameplay.png" height="360" alt="A screenshot of a Standard Singleplayer game.">
 <img src="https://storage.mistertfy64.com/playmbd-screenshots/main-menu.png" height="360" alt="A screenshot of the main menu.">
+
+## Contributing
+If you instead want to contribute to the official server, feel free to open an issue/pull request!
+
+## License
+
+AGPLv3, however earlier commits (before [`f1730aed53a939a520a6acfecde6f641e06a215d`](https://github.com/mathematicalbasedefenders/play.mathematicalbasedefenders.com/commit/f1730aed53a939a520a6acfecde6f641e06a215d)) used a different license, because of mistertfy64's lack of knowledge and indecisiveness. See the [LICENSE](https://github.com/mathematicalbasedefenders/play.mathematicalbasedefenders.com/blob/master/LICENSE) file for details.
 
 ## Usage on Other Servers
 
@@ -47,11 +55,6 @@ However, please note that while this only covers the `play` subdomain, meaning i
 
 Note: As of May 29, 2024, this source code has been exclusively made for Mathematical Base Defenders's official server (e.g. hardcoded strings that only work with the official server) and `localhost`. So if you are planning to use this in your own server (or domain), it might not work (You can still run it on localhost, this doesn't mean you can't run it on a different domain, you can, you just have to find the hardcoded strings). This will be fixed sometime later.
 
+You can always contact me (mistertfy64) if you want assistance in helping setting up your own instance of Mathematical Base Defenders.
+
 Finally, please note that if the Game Master decides to do something stupid (e.g. host an 2x exp event), it will only be on the official server. Likewise, if you want to host your own event, it will only be on your server.
-
-## Contributing
-If you instead want to contribute to the official server, feel free to open an issue/pull request!
-
-## License
-
-AGPLv3, however earlier commits (before [`f1730aed53a939a520a6acfecde6f641e06a215d`](https://github.com/mathematicalbasedefenders/play.mathematicalbasedefenders.com/commit/f1730aed53a939a520a6acfecde6f641e06a215d)) used a different license, because of mistertfy64's lack of knowledge and indecisiveness. See the [LICENSE](https://github.com/mathematicalbasedefenders/play.mathematicalbasedefenders.com/blob/master/LICENSE) file for details.
