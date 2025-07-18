@@ -375,6 +375,12 @@ function updateReplayGameData(
     }
     case "enemyReceive": {
       const enemyData = actionRecord.data;
+
+      // new in 0.5.0-rc.6
+      if (enemyData.enemyID) {
+        enemyData.id = enemyData.enemyID;
+      }
+
       const newEnemy = new Enemy(
         enemyData.sPosition,
         enemyData.displayedText,
@@ -399,6 +405,12 @@ function updateReplayGameData(
         replayGameData.currentInput = "";
         break;
       }
+
+      // new in 0.5.0-rc.6
+      if (enemyData.enemyID) {
+        enemyData.id = enemyData.enemyID;
+      }
+
       const newEnemy = new Enemy(
         enemyData.sPosition,
         enemyData.displayedText,
