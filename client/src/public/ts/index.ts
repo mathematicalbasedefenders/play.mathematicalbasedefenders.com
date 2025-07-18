@@ -551,7 +551,7 @@ function initializeEventListeners() {
     if (!replayDataJSON) {
       return;
     }
-    $("#archive__search-button").prop("disabled", true).text("Search Replay");
+    $("#archive__search-button").prop("disabled", false).text("Search Replay");
     $(
       "#main-content__archive-screen-container__content__replay-statistics"
     ).text(formatReplayStatisticsText(replayDataJSON.data));
