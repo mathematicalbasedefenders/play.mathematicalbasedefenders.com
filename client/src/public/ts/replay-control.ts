@@ -91,9 +91,8 @@ function jumpToProgressInReplay(destination: number) {
 
 /**
  * Gets additional replay context
- * TODO: Expand what the above sentence means.
- * @param actionRecords
- * @param actionNumbers
+ * @param actionRecords The records to base the returned additional context on
+ * @param actionNumbers The action number indexes to base the returned additional context on
  * @param time Current time of the replay
  */
 function getReplayContext(
