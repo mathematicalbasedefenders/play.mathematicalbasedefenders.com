@@ -60,12 +60,6 @@
   transform: scale(1.05);
 }
 
-#main-content__archive-screen-container__content {
-  grid-column: column3-start / column3-end;
-  grid-row: row2-start / row2-end;
-  margin-left: 48px;
-}
-
 #main-content__archive-screen-container__content__replay-details {
   white-space: pre-line;
   display: none;
