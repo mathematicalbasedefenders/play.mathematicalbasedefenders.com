@@ -1,6 +1,7 @@
 # play.mathematicalbasedefenders.com
 [![CodeFactor](https://www.codefactor.io/repository/github/mathematicalbasedefenders/play.mathematicalbasedefenders.com/badge)](https://www.codefactor.io/repository/github/mathematicalbasedefenders/play.mathematicalbasedefenders.com)
-<img src="https://img.shields.io/badge/dynamic/json?label=Registered Users on Official Server&query=usersRegistered&url=https%3A%2F%2Fmathematicalbasedefenders.com%2Fapi%2Fmetadata">
+![Registered User Count](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmathematicalbasedefenders.com%2Fapi%2Fmetadata&query=usersRegistered&label=Registered%20Users)
+
 
 Mathematical Base Defenders is a multiplayer math game where the objective is simple: solve problems on the enemies to kill them.
 
@@ -33,7 +34,7 @@ Also see the [Screenshots](https://github.com/mathematicalbasedefenders/play.mat
   - Able to set what symbol to use for the multiplication sign
 
 ## Screenshots
-These screenshots are from version `0.4.3`.
+These screenshots are from Game Version `0.4.3`.
 
 <img src="https://storage.mistertfy64.com/playmbd-screenshots/gameplay.png" height="360" alt="A screenshot of a Standard Singleplayer game.">
 <img src="https://storage.mistertfy64.com/playmbd-screenshots/main-menu.png" height="360" alt="A screenshot of the main menu.">
