@@ -109,7 +109,7 @@ code {
 }
 
 .button__strikethrough-bar {
-  rotate: 330deg;
+  transform: rotate(330deg);
   background-color: #ff0000;
   color: var(--color-text-light);
   font-size: 300%;
