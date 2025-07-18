@@ -1,6 +1,6 @@
 # play.mathematicalbasedefenders.com
 [![CodeFactor](https://www.codefactor.io/repository/github/mathematicalbasedefenders/play.mathematicalbasedefenders.com/badge)](https://www.codefactor.io/repository/github/mathematicalbasedefenders/play.mathematicalbasedefenders.com)
-![Registered User Count](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmathematicalbasedefenders.com%2Fapi%2Fmetadata&query=usersRegistered&label=Registered%20Users)
+![Registered Players Count](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fmathematicalbasedefenders.com%2Fapi%2Fmetadata&query=usersRegistered&label=Registered%20Players)
 
 
 Mathematical Base Defenders is a multiplayer math game where the objective is simple: solve problems on the enemies to kill them.
