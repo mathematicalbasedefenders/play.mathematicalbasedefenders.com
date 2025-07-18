@@ -548,10 +548,10 @@ function initializeEventListeners() {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
     $("#archive__search-button").prop("disabled", true).text("Fetching...");
     const replayDataJSON = await getCachedOrFetchReplay(replayID);
+    $("#archive__search-button").prop("disabled", false).text("Search Replay");
     if (!replayDataJSON) {
       return;
     }
-    $("#archive__search-button").prop("disabled", false).text("Search Replay");
     $(
       "#main-content__archive-screen-container__content__replay-statistics"
     ).text(formatReplayStatisticsText(replayDataJSON.data));
