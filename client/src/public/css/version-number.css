@@ -1,6 +1,6 @@
 /* VERSION NUMBER */
 #version-number-container {
-  z-index: 1001;
+  z-index: var(--z-index-version-number);
   overflow: hidden;
   width: 100vw;
   height: 100vh;
@@ -16,5 +16,5 @@
   right: 0;
   bottom: 0;
   font-size: 125%;
-  z-index: 1001;
+  z-index: var(--z-index-version-number);
 }
