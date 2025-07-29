@@ -688,7 +688,7 @@ class MultiplayerRoom extends Room {
         }
 
         // clocks
-        checkPlayerMultiplayerRoomClocks(data, this);
+        checkPlayerMultiplayerRoomClocks(data);
 
         // forced enemy (when zero)
         if (data.enemies.length === 0) {
