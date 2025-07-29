@@ -1004,11 +1004,7 @@ function processKeypressForRoom(
   inputInformation = input.getInputInformation(code);
   inputInformation.keyPressed = code;
   if (inputInformation.action !== InputAction.Unknown) {
-    input.processInputInformation(
-      inputInformation,
-      gameDataToProcess,
-      emulated
-    );
+    input.processInputInformation(inputInformation, gameDataToProcess);
   }
 }
 
