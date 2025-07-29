@@ -13,7 +13,7 @@ import _ from "lodash";
 import { log } from "../core/log";
 import { User, UserInterface } from "../models/User";
 
-const usernameRegex = /^[A-Za-z0-9_\-]{3,20}$/;
+const usernameRegex = /^[A-Za-z0-9_-]{3,20}$/;
 const userIDRegex = /^[0-9a-f]{24}$/;
 
 /**
