@@ -1,10 +1,6 @@
 import { log } from "./log";
 import * as universal from "../universal";
-import {
-  defaultMultiplayerRoomID,
-  leaveMultiplayerRoom,
-  processKeypressForRoom
-} from "../game/Room";
+import { leaveMultiplayerRoom, processKeypressForRoom } from "../game/Room";
 import {
   GameData,
   GameMode,
@@ -154,8 +150,7 @@ function processKeypress(
  */
 function processInputInformation(
   inputInformation: InputActionInterface,
-  gameDataToProcess: GameData,
-  emulated?: boolean
+  gameDataToProcess: GameData
 ) {
   // also increment actionsPerformed
   gameDataToProcess.actionsPerformed++;
