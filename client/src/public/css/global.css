@@ -53,7 +53,8 @@ body {
   --z-index-replay-controller: 300;
   --z-index-status-indicator: 999;
   --z-index-status-tray: 99;
-  --z-index-user-card: 1999;
+  --z-index-user-card: 1998;
+  --z-index-user-card--loading: 1999;
   --z-index-toast-notifications: 2005;
   --z-index-user-information-box: 98;
   --z-index-version-number: 1001;
