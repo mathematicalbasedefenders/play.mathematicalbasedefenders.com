@@ -1,4 +1,4 @@
-import { app, playerContainer, stageItems, textures, variables } from ".";
+import { app, playerContainer, textures, variables } from ".";
 import * as PIXI from "pixi.js";
 import {
   getScaledEnemyHeight,
@@ -146,13 +146,6 @@ class Opponent {
       instance.autoReposition();
     }
   }
-
-  /**
-   * Repositions the Opponent game instance according to its arguments (given new positions)
-   * @param {number} xPosition The xPosition on the screen to reposition to.
-   * @param {number} yPosition The yPosition on the screen to reposition to.
-   */
-  reposition(xPosition: number, yPosition: number) {}
 
   /**
    * Updates the enemy with the ID `id` with `data`.
