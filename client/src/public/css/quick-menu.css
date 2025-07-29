@@ -1,6 +1,6 @@
 /* QUICK MENU */
 #main-content__quick-menu-container {
-  z-index: 999;
+  z-index: var(--z-index-quick-menu);
   position: absolute;
   bottom: 0;
 }
