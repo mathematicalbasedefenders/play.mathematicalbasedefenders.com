@@ -1,5 +1,4 @@
 import { Enemy } from "../Enemy";
-import * as enemy from "../Enemy";
 
 enum SingleplayerGameMode {
   EASY = 1,
@@ -22,8 +21,3 @@ type SingleplayerGameParameters = {
     };
   };
 };
-
-function startSingleplayerGame(
-  roomID: string,
-  parameters: SingleplayerGameParameters
-) {}
