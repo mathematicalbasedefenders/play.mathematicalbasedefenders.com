@@ -4,10 +4,7 @@ import _ from "lodash";
 import { Enemy, createNewEnemy } from "../Enemy";
 import { GameData } from "../GameData";
 import { Room, MultiplayerRoom } from "../Room";
-import {
-  findGameDataWithConnectionID,
-  findRoomWithConnectionID
-} from "../../core/utilities";
+import { findRoomWithConnectionID } from "../../core/utilities";
 
 /**
  * Check all Singleplayer room clocks.
@@ -20,10 +17,7 @@ function checkSingleplayerRoomClocks(data: GameData, room: Room) {
   checkBaseHealthRegenerationClock(data);
 }
 
-function checkPlayerMultiplayerRoomClocks(
-  data: GameData,
-  room: MultiplayerRoom
-) {
+function checkPlayerMultiplayerRoomClocks(data: GameData) {
   checkComboTimeClock(data);
 }
 
