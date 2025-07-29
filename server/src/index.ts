@@ -140,11 +140,7 @@ uWS
       universal.sendInitialSocketData(socket);
     },
 
-    message: (
-      socket: universal.GameSocket,
-      message: WebSocketMessage,
-      isBinary: boolean
-    ) => {
+    message: (socket: universal.GameSocket, message: WebSocketMessage) => {
       if (websocketRateLimit(socket)) {
         const MESSAGE =
           "You're going too fast! You have rate-limited and been disconnected.";
@@ -327,25 +323,6 @@ function synchronizeGameDataWithSockets(
   }
 }
 
-/**
- * Resets all "one-frame" variables.
- * I forgot what this actually does -mistertfy64 2023-07-28
- */
-function resetOneFrameVariables() {
-  let rooms = universal.rooms;
-  for (let room of rooms) {
-    if (!room) {
-      continue;
-    }
-    if (room.gameData) {
-      for (let gameData of room.gameData) {
-        gameData.enemiesToErase = [];
-        // gameData.commands = {};
-      }
-    }
-  }
-}
-
 function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
   // or create one if said one doesn't exist
   if (roomID !== "default") {
@@ -364,7 +341,7 @@ function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
   room?.addMember(socket);
 }
 
-const loop = setInterval(() => {
+setInterval(() => {
   if (!initialized) {
     initialize();
     initialized = true;
