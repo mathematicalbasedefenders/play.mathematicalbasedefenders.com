@@ -6,7 +6,7 @@
   position: absolute;
   width: 100vw;
   height: 10%;
-  z-index: 300;
+  z-index: var(--z-index-replay-controller);
   bottom: 0;
 }
 
