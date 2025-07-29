@@ -2,7 +2,7 @@
 #opening-screen-container {
   width: 100vw;
   height: 100vh;
-  z-index: 2000;
+  z-index: var(--z-index-opening-screen);
   background-color: #000000;
   color: #ffffff;
   position: absolute;
