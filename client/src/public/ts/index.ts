@@ -17,25 +17,15 @@ import {
 } from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
-import {
-  ToastNotification,
-  ToastNotificationPosition
-} from "./toast-notification";
-import {
-  PopupNotification,
-  PopupNotificationButtonStyle
-} from "./popup-notification";
+import { ToastNotification } from "./toast-notification";
+import { PopupNotification } from "./popup-notification";
 import { changeBackgroundImage } from "./change-background-image";
 import { showUserLookupPopUp } from "./lookup-user";
-import { TextStyle } from "pixi.js";
 import {
-  fetchReplay,
   formatReplayStatisticsText,
   getCachedOrFetchReplay,
   getPlayerListOptions,
   playReplay,
-  Replay,
-  replayCache,
   stopReplay
 } from "./replay";
 import { checkQuickLink } from "./quick-links";
@@ -50,14 +40,6 @@ const STATISTICS_POSITION: number = 1294;
 const serifFont = new FontFaceObserver("Computer Modern Unicode Serif");
 const mathFont = new FontFaceObserver("Computer Modern Math Italic");
 const notoFont = new FontFaceObserver("Noto Sans");
-
-class ExtendedSprite extends PIXI.Sprite {
-  scalingPolicy!: AS.POLICY;
-}
-
-class ExtendedText extends PIXI.Text {
-  scalingPolicy!: AS.POLICY;
-}
 
 serifFont.load();
 mathFont.load();
@@ -88,7 +70,7 @@ async function initializePIXIApp() {
   // app.renderer.view.style.position = "absolute";
   // app.renderer.view.style.display = "block";
   app.stage.addChild(playerContainer);
-  app.ticker.add((deltaTime) => {
+  app.ticker.add(() => {
     render(app.ticker.elapsedMS);
   });
   for (const item in stageItems.sprites) {
@@ -644,19 +626,16 @@ function initializeEventListeners() {
     }
   });
   //
-  $("#settings-screen__content-save-background-image").on(
-    "click",
-    async (event) => {
-      const url = $("#settings__background-image-url").val() as string;
-      if (!url) {
-        const options = { backgroundColor: "#ff0000" };
-        new ToastNotification("Please enter a valid image URL!", options);
-        return;
-      }
-
-      changeBackgroundImage(url);
+  $("#settings-screen__content-save-background-image").on("click", async () => {
+    const url = $("#settings__background-image-url").val() as string;
+    if (!url) {
+      const options = { backgroundColor: "#ff0000" };
+      new ToastNotification("Please enter a valid image URL!", options);
+      return;
     }
-  );
+
+    changeBackgroundImage(url);
+  });
   //
   $("#game-over-screen-button--retry").on("click", () => {
     let settings = JSON.stringify(createCustomSingleplayerGameObject());
