@@ -2,7 +2,7 @@
 
 import * as PIXI from "pixi.js";
 import _ from "lodash";
-import { app, mathFont, playerContainer, variables } from "./index";
+import { playerContainer, variables } from "./index";
 import { playSound } from "./sounds";
 const ENEMY_FONT_SIZE = 24;
 const DEFAULT_ENEMY_WIDTH = 64;
