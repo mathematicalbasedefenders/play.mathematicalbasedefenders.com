@@ -5,7 +5,6 @@
   grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
   height: 100%;
   width: 100%;
-  /* background-color: #000000; */
 }
 
 #main-content__custom-singleplayer-intermission-screen-container__sidebar {
