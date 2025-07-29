@@ -386,7 +386,7 @@ function getSetEnemyColor() {
   const hexBase = 16;
   const maximumValue = 16777216;
   const value = variables.settings.enemyColor;
-  const validHexRegex = /\#[0-9a-f]{6}/;
+  const validHexRegex = /#[0-9a-f]{6}/;
   if (variables.settings.enemyColor === "randomFromPalette") {
     // select from palette
     const palette = $("#selected-enemy-color-palette").val()?.toString();
