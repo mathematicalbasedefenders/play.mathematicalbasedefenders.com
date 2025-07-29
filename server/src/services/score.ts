@@ -27,19 +27,16 @@ async function submitSingleplayerGame(
   gameActionRecord: GameActionRecord
 ) {
   let wordedGameMode: string = "";
-  let dataKey: string = "";
   let personalBestBeaten = false;
   // TODO: Make this JSON for more options in the future.
   let rankMessage = "";
   switch (data.mode) {
     case GameMode.EasySingleplayer: {
       wordedGameMode = "Easy Singleplayer";
-      dataKey = "easy";
       break;
     }
     case GameMode.StandardSingleplayer: {
       wordedGameMode = "Standard Singleplayer";
-      dataKey = "standard";
       break;
     }
     case GameMode.CustomSingleplayer: {
