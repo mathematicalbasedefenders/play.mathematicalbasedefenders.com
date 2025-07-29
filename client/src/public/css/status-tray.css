@@ -1,7 +1,7 @@
 /* STATUS TRAY */
 #status-tray-container {
   background: #000000cc;
-  z-index: 99;
+  z-index: var(--z-index-status-tray);
   width: 100vw;
   height: 100vh;
   display: none; /* original value */
