@@ -4,14 +4,13 @@ import fs from "fs";
 import path from "path";
 import uWS from "uWebSockets.js";
 require("@dotenvx/dotenvx").config({ path: "../credentials/.env" });
-import express, { Request, Response } from "express";
+import express from "express";
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
 import * as input from "./core/input";
 import {
   defaultMultiplayerRoomID,
   GameMode,
-  SingleplayerRoom,
   MultiplayerRoom,
   Room,
   leaveMultiplayerRoom,
@@ -19,9 +18,6 @@ import {
 } from "./game/Room";
 import _ from "lodash";
 const cors = require("cors");
-const createDOMPurify = require("dompurify");
-const { JSDOM } = require("jsdom");
-const window = new JSDOM("").window;
 const helmet = require("helmet");
 import { sendChatMessage } from "./core/chat";
 
