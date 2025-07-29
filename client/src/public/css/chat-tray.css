@@ -1,6 +1,6 @@
 /* CHAT TRAY */
 #chat-tray-container {
-  z-index: 99;
+  z-index: var(--z-index-chat-tray);
   width: 100vw;
   height: 100vh;
   display: none; /* original value */
