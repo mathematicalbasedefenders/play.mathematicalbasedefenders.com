@@ -17,11 +17,6 @@ import { getSettings } from "./settings";
 import { getArrowKeyDirections } from "./arrow-key-navigation";
 import { formatHowToPlayText } from "./how-to-play";
 
-const OPTIMAL_SCREEN_WIDTH: number = 1920;
-const OPTIMAL_SCREEN_HEIGHT: number = 1080;
-const OPTIMAL_SCREEN_RATIO: number =
-  OPTIMAL_SCREEN_WIDTH / OPTIMAL_SCREEN_HEIGHT;
-
 // TODO: Change `any` to something else.
 function renderGameData(data: { [key: string]: any }) {
   // pre actions go here.
