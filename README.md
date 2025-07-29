@@ -57,4 +57,4 @@ Note: As of May 29, 2024, this source code has been exclusively made for Mathema
 
 You can always contact me (mistertfy64) if you want assistance in helping setting up your own instance of Mathematical Base Defenders.
 
-Finally, please note that if the Game Master decides to do something stupid (e.g. host an 2x exp event), it will only be on the official server. Likewise, if you want to host your own event, it will only be on your server.
+Finally, please note that if the Game Master decides to do something stupid (e.g. host a 2x exp event), it will only be on the official server. Likewise, if you want to host your own event, it will only be on your server.
