@@ -347,7 +347,7 @@ setInterval(() => {
     initialized = true;
   }
   currentTime = Date.now();
-  let deltaTime: number = currentTime - lastUpdateTime;
+  const deltaTime: number = currentTime - lastUpdateTime;
   update(deltaTime);
   lastUpdateTime = Date.now();
 }, UPDATE_INTERVAL);
