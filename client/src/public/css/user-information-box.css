@@ -11,7 +11,7 @@
 }
 
 #main-content__user-menu-container {
-  z-index: 98;
+  z-index: var(--z-index-user-information-box);
   position: absolute;
   top: 0;
   right: 0;
