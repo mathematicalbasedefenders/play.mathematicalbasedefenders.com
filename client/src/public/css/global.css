@@ -43,6 +43,20 @@ body {
   --color-text-dark: #000000;
 
   --transition-duration-short: 250ms;
+
+  --z-index-canvas: 1;
+  --z-index-chat-tray: 99;
+  --z-index-on-screen-keyboard: 200;
+  --z-index-opening-screen: 10000;
+  --z-index-popup-notification: 2000;
+  --z-index-quick-menu: 999;
+  --z-index-replay-controller: 300;
+  --z-index-status-indicator: 999;
+  --z-index-status-tray: 99;
+  --z-index-user-card: 1999;
+  --z-index-toast-notifications: 2005;
+  --z-index-user-information-box: 98;
+  --z-index-version-number: 1001;
 }
 
 #main-content-container {
