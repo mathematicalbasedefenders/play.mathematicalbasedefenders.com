@@ -1,6 +1,6 @@
 /* POPUP NOTIFICATIONS */
 #main-content__popup-notification-container {
-  z-index: 101;
+  z-index: var(--z-index-popup-notification);
   overflow: hidden;
   width: 100vw;
   height: 100vh;
