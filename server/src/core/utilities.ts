@@ -4,15 +4,6 @@ import { Room } from "../game/Room";
 import { User, UserInterface } from "../models/User";
 import _ from "lodash";
 import { GameData, GameMode } from "../game/GameData";
-// Highest comes first
-const RANK_ORDER = [
-  ["Developer", "isDeveloper"],
-  ["Administrator", "isAdministrator"],
-  ["Moderator", "isModerator"],
-  ["Contributor", "isContributor"],
-  ["Tester", "isTester"],
-  ["Donator", "isDonator"]
-];
 
 const MESSAGES_PER_SECOND_TIME_PERIOD = 200;
 let timePeriodPassedForMessageSpeed = 0;
@@ -176,18 +167,6 @@ function mutatedArrayFilter(array: Array<unknown>, callback: Function) {
   for (let i = array.length - 1; i >= 0; i -= 1) {
     if (!callback(array[i])) array.splice(i, 1);
   }
-}
-
-function generatePlayerListText(connections: Array<string>) {
-  let text = "";
-  for (let connection of connections) {
-    let socket = universal.getSocketFromConnectionID(connection);
-    let color = socket?.playerRank?.color || "#ffffff";
-    let name = universal.getNameFromConnectionID(connection);
-    text += `<span style="color:${color};">${name}</span>`;
-    text += "<br>";
-  }
-  return text;
 }
 
 function validateCustomGameSettings(
@@ -441,7 +420,6 @@ function formatNumber(n: number) {
 }
 
 function generatePlayerListPayload(connectionIDs: string[]) {
-  const payload = [];
   return connectionIDs.map((connectionID) => {
     const socket = universal.getSocketFromConnectionID(connectionID);
     const color = socket?.playerRank?.color || "#ffffff";
