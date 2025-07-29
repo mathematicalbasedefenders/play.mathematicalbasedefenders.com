@@ -107,7 +107,6 @@ async function playReplay(replayData: Replay, viewAs?: string) {
 
   replayGameData.commands = {};
   replayGameData.aborted = false;
-  const dataLength = data.actionRecords.length;
 
   // TODO: actionNumber == 0 ?
   replayGameData.mode = data.mode;
