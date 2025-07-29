@@ -1,0 +1,5 @@
+/* CANVAS SCREEN */
+#canvas-container {
+  z-index: var(--z-index-canvas);
+  position: relative;
+}

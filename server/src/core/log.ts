@@ -4,12 +4,7 @@
  * If prefix is not wanted, just call the respective
  * `console` method directly.
  */
-const log: {
-  error: (...message: string[]) => void;
-  warn: (...message: string[]) => void;
-  info: (...message: string[]) => void;
-  debug: (...message: string[]) => void;
-} = {
+const log = {
   error: (...message: Array<string>) => {
     const timestamp = new Date().toISOString();
     console.error(`[${timestamp} ERROR] ${message.join(" ")}`);

@@ -1,0 +1,160 @@
+/* GLOBAL */
+
+@font-face {
+  font-family: "Computer Modern Unicode Serif";
+  src: url("../assets/fonts/computermodernunicode.ttf");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Computer Modern Math Italic";
+  src: url("../assets/fonts/computermodernmathitalic.ttf");
+  font-display: swap;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  font-family: "Noto Sans", sans-serif;
+  font-variant-ligatures: none;
+  font-size: 100%;
+  background-color: #000000;
+}
+
+:root {
+  --color-singleplayer: #00a032;
+  --color-multiplayer: #00a06b;
+  --color-archive: #a55616;
+
+  --color-singleplayer-menu-easy: #00851d;
+  --color-singleplayer-menu-standard: #b62a00;
+  --color-singleplayer-menu-custom: #9802b6;
+
+  --color-multiplayer-menu-default: #3867e9;
+  --color-multiplayer-menu-custom: #7b25ec;
+
+  --color-dangerous: #dd0000;
+  --color-neutral: #292929;
+
+  --color-arrow-key-focused: #ffc400;
+
+  --color-text-light: #ffffff;
+  --color-text-dark: #000000;
+
+  --transition-duration-short: 250ms;
+
+  --z-index-canvas: 1;
+  --z-index-chat-tray: 99;
+  --z-index-on-screen-keyboard: 200;
+  --z-index-opening-screen: 10000;
+  --z-index-popup-notification: 2000;
+  --z-index-quick-menu: 999;
+  --z-index-replay-controller: 300;
+  --z-index-status-indicator: 999;
+  --z-index-status-tray: 99;
+  --z-index-user-card: 1998;
+  --z-index-user-card--loading: 1999;
+  --z-index-toast-notifications: 2005;
+  --z-index-user-information-box: 98;
+  --z-index-version-number: 1001;
+}
+
+#main-content-container {
+  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+}
+
+.background--neutral {
+  background-color: var(--color-neutral);
+}
+
+.text--link {
+  color: var(--color-text-light) !important;
+}
+
+.text--centered {
+  text-align: center;
+}
+
+.text--light {
+  color: var(--color-text-light);
+}
+
+.text--dark {
+  color: var(--color-text-dark);
+}
+
+.text--monospace,
+code {
+  font-family: "Noto Sans Mono", monospace;
+}
+
+.option-button--small {
+  color: var(--color-text-light);
+  font-size: 200%;
+  text-align: left;
+  margin: 4px;
+  background-color: transparent;
+  font-family: inherit;
+  transition-duration: var(--transition-duration-short);
+  border-top: none;
+  width: 100%;
+}
+
+.option-button--left-bordered {
+  border-left: 1px solid #ffffff;
+  border-right: none;
+  border-top: 0;
+  border-bottom: 0;
+}
+
+.option-button--right-bordered {
+  border-right: 1px solid #ffffff;
+  border-left: none;
+  border-top: 0;
+  border-bottom: 0;
+}
+
+.option-button--small:hover {
+  background-color: rgb(255, 255, 255, 0.75);
+  color: var(--color-text-dark);
+  border-left: 1px solid #ffffff;
+}
+
+.button__strikethrough-bar {
+  transform: rotate(330deg);
+  background-color: #ff0000;
+  color: var(--color-text-light);
+  font-size: 300%;
+  font-family: inherit;
+  width: 750px;
+  padding: 8px;
+  top: -66.6%;
+  position: relative;
+}
+
+.button--arrow-key-focused {
+  z-index: 90;
+  outline: 8px solid var(--color-arrow-key-focused);
+}
+
+.button--top-aligned-text {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: flex-start;
+}
+
+.pointer-cursor {
+  cursor: pointer;
+}
+
+button {
+  cursor: pointer;
+}
+
+input[type="radio"] {
+  cursor: pointer;
+}

@@ -16,11 +16,17 @@ function render(elapsedMilliseconds: number) {
   /**
    * Update replay data as well
    */
-  if (variables.watchingReplay) {
+  if (variables.replay.watchingReplay) {
+    // ...but don't update if its paused,
+    // but do update enemies due to implementation
     renderEnemies();
-    updateReplayGameDataLikeServer(elapsedMilliseconds);
     renderGameData(replayGameData);
     showReplayIndicatorText();
+    // in fact, stop updating of everything else altogether.
+    if (variables.replay.paused) {
+      return;
+    }
+    updateReplayGameDataLikeServer(elapsedMilliseconds);
   } else {
     hideReplayIndicatorText();
   }
@@ -34,7 +40,13 @@ function render(elapsedMilliseconds: number) {
     for (let enemyID of enemiesDrawn) {
       let enemy = getEnemyFromCache(enemyID);
       if (typeof enemy !== "undefined") {
-        let age = Date.now() - enemy.creationTime;
+        const ageOffset = enemy.ageOffset ?? 0;
+        const age = variables.replay.watchingReplay
+          ? variables.replay.elapsedReplayTime -
+            enemy.relativeReplayCreationTime +
+            ageOffset
+          : Date.now() - enemy.creationTime;
+
         const speed = variables.currentGameClientSide.enemySpeedCoefficient;
         enemy.reposition(1 - enemy.speed * speed * (age / 1000));
       }
@@ -81,7 +93,7 @@ function render(elapsedMilliseconds: number) {
     if (
       variables.currentGameClientSide.timestampOfSynchronization >
         timestampOfFunctionCall ||
-      variables.watchingReplay
+      variables.replay.watchingReplay
     ) {
       stageItems.textSprites.inputText.text =
         variables.currentGameClientSide.synchronizedInput.replaceAll("-", "−");
@@ -127,8 +139,12 @@ function render(elapsedMilliseconds: number) {
     renderBeautifulScoreDisplay();
   } else {
     const score = variables.currentGameClientSide.shownScore;
-    stageItems.textSprites.scoreText.text =
-      parseInt(score).toLocaleString("en-US") || "0";
+    if (isNaN(score)) {
+      stageItems.textSprites.scoreText.text = "0";
+    } else {
+      stageItems.textSprites.scoreText.text =
+        Number.parseInt(score.toString()).toLocaleString("en-US") || "0";
+    }
   }
 
   const inputFlashAlpha = getInputFlashAlpha();

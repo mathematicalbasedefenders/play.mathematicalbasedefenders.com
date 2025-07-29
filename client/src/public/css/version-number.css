@@ -1,0 +1,20 @@
+/* VERSION NUMBER */
+#version-number-container {
+  z-index: var(--z-index-version-number);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  background-color: #00000000;
+  color: #ffffff;
+  left: 0;
+  top: 0;
+}
+
+#version-number {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: 125%;
+  z-index: var(--z-index-version-number);
+}

@@ -1,0 +1,87 @@
+/* USER CARD */
+#main-content__user-card-container {
+  width: 100vw;
+  height: 100vh;
+  background-color: #00000080;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: var(--z-index-user-card);
+  top: 0;
+  position: absolute;
+  left: 0;
+}
+
+#main-content__user-card {
+  min-width: 40vw;
+  height: 240px;
+  padding: 8px;
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+
+#user-card__loading,
+#user-card__error {
+  background-color: #181818;
+  z-index: var(--z-index-user-card--loading);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#user-card__play-data {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#user-card__rank {
+  font-size: 125%;
+}
+
+#user-card__username {
+  font-size: 250%;
+}
+
+.user-card__data__mode {
+  text-align: center;
+  background-color: var(--color-neutral);
+  border: 1px solid #ffffff;
+  width: 30%;
+  padding: 8px;
+}
+
+.user-card__header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+#user-card__player-data {
+  text-align: left;
+}
+
+.user-card__close-button,
+.user-card__open-in-new-button {
+  text-align: right;
+  max-height: fit-content;
+  cursor: pointer;
+}
+
+.user-card__score {
+  font-size: 300%;
+  padding: 4px;
+}
+
+.user-card__score--detailed {
+  font-size: 100%;
+}
+.user-card__diagnostic-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  flex-grow: 1;
+}

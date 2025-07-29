@@ -1,0 +1,8 @@
+/* STATUS INDICATORS */
+#main-content__status-indicator-menu-container {
+  z-index: var(--z-index-status-indicator);
+  position: absolute;
+  top: 50%;
+  background-color: transparent;
+  left: 4px;
+}

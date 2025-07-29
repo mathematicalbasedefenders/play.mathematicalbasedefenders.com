@@ -4,14 +4,13 @@ import fs from "fs";
 import path from "path";
 import uWS from "uWebSockets.js";
 require("@dotenvx/dotenvx").config({ path: "../credentials/.env" });
-import express, { Request, Response } from "express";
+import express from "express";
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
 import * as input from "./core/input";
 import {
   defaultMultiplayerRoomID,
   GameMode,
-  SingleplayerRoom,
   MultiplayerRoom,
   Room,
   leaveMultiplayerRoom,
@@ -19,9 +18,6 @@ import {
 } from "./game/Room";
 import _ from "lodash";
 const cors = require("cors");
-const createDOMPurify = require("dompurify");
-const { JSDOM } = require("jsdom");
-const window = new JSDOM("").window;
 const helmet = require("helmet");
 import { sendChatMessage } from "./core/chat";
 
@@ -144,11 +140,7 @@ uWS
       universal.sendInitialSocketData(socket);
     },
 
-    message: (
-      socket: universal.GameSocket,
-      message: WebSocketMessage,
-      isBinary: boolean
-    ) => {
+    message: (socket: universal.GameSocket, message: WebSocketMessage) => {
       if (websocketRateLimit(socket)) {
         const MESSAGE =
           "You're going too fast! You have rate-limited and been disconnected.";
@@ -331,25 +323,6 @@ function synchronizeGameDataWithSockets(
   }
 }
 
-/**
- * Resets all "one-frame" variables.
- * I forgot what this actually does -mistertfy64 2023-07-28
- */
-function resetOneFrameVariables() {
-  let rooms = universal.rooms;
-  for (let room of rooms) {
-    if (!room) {
-      continue;
-    }
-    if (room.gameData) {
-      for (let gameData of room.gameData) {
-        gameData.enemiesToErase = [];
-        // gameData.commands = {};
-      }
-    }
-  }
-}
-
 function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
   // or create one if said one doesn't exist
   if (roomID !== "default") {
@@ -368,13 +341,13 @@ function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
   room?.addMember(socket);
 }
 
-const loop = setInterval(() => {
+setInterval(() => {
   if (!initialized) {
     initialize();
     initialized = true;
   }
   currentTime = Date.now();
-  let deltaTime: number = currentTime - lastUpdateTime;
+  const deltaTime: number = currentTime - lastUpdateTime;
   update(deltaTime);
   lastUpdateTime = Date.now();
 }, UPDATE_INTERVAL);

@@ -1,0 +1,25 @@
+/* STATUS TRAY */
+#status-tray-container {
+  background: #000000cc;
+  z-index: var(--z-index-status-tray);
+  width: 100vw;
+  height: 100vh;
+  display: none; /* original value */
+  position: absolute;
+  top: 0;
+}
+
+#status-tray {
+  width: max(25%, 360px);
+  height: 100%;
+  background-color: var(--color-neutral);
+  border: 1px solid #ffffff;
+}
+
+#status-tray-text-container {
+  width: 80%;
+  margin: auto;
+  height: 90%;
+  font-size: 125%;
+  color: var(--color-text-light);
+}

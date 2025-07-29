@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { changeScreen, renderGameData } from "./game";
+import { changeScreen } from "./game";
 import { resetClientSideVariables } from "./rendering";
 import {
   Enemy,
@@ -11,11 +11,42 @@ import { variables } from ".";
 import { formatNumber, millisecondsToTime } from "./utilities";
 import { Opponent } from "./opponent";
 import { ToastNotification } from "./toast-notification";
+import {
+  forceSetScore,
+  getReplayContext,
+  ReplayContext
+} from "./replay-control";
+
+const replayCache: { [key: string]: Replay } = {};
 
 const replayGameData: { [key: string]: any } = {};
+
+interface ReplayData {
+  _id: string;
+  mode: string;
+  actionRecords: Array<ActionRecord>;
+  statistics: {
+    singleplayer: { [key: string]: any };
+    multiplayer: { [key: string]: any };
+  };
+}
+
 interface Replay {
   ok: boolean;
   reason: string;
+  data: ReplayData & { [key: string]: any };
+}
+
+interface ActionRecord {
+  scope: "room" | "player";
+  user?: {
+    userID: string | null | undefined;
+    name: string | undefined;
+    isAuthenticated: boolean | undefined;
+    connectionID: string | undefined;
+  };
+  action: string;
+  timestamp: number;
   data: { [key: string]: any };
 }
 
@@ -66,12 +97,16 @@ async function fetchReplay(replayID: string) {
 }
 
 async function playReplay(replayData: Replay, viewAs?: string) {
+  variables.replay.paused = false;
+
+  const INTERVAL = 1000 / 60;
+
   const data = replayData.data;
   changeScreen("canvas", true, true);
-  variables.watchingReplay = true;
+  $("#replay-controller-container").show(0);
+
   replayGameData.commands = {};
   replayGameData.aborted = false;
-  const dataLength = data.actionRecords.length;
 
   // TODO: actionNumber == 0 ?
   replayGameData.mode = data.mode;
@@ -79,35 +114,189 @@ async function playReplay(replayData: Replay, viewAs?: string) {
   // only for multiplayer
   replayGameData.viewAs = viewAs ?? "";
 
-  for (let actionNumber = 0; actionNumber < dataLength; actionNumber++) {
-    if (!variables.watchingReplay) {
+  // initialize starting timestamp
+  const startingActionRecord = data.actionRecords.find(
+    (element: ActionRecord) => element.action === "gameStart"
+  ) as ActionRecord;
+  const startingTimestamp = startingActionRecord.timestamp;
+  variables.replay.startingTimestamp = startingActionRecord.timestamp;
+  variables.replay.elapsedReplayTime = 0;
+
+  /* "Initialize" replay by initializing variables 
+  (action record at index 0 is always gameStart) */
+  const inGameTime = getInGameTime(replayData);
+  updateReplayGameData(replayGameData, data, 0);
+  variables.replay.inGameReplayTime = inGameTime;
+
+  /* Start replay (this variable assignment puts the game in "replay viewing" mode) */
+  variables.replay.watchingReplay = true;
+
+  while (variables.replay.elapsedReplayTime <= inGameTime) {
+    let timestamp = startingTimestamp + variables.replay.elapsedReplayTime;
+    let timestampWindow = INTERVAL;
+    let additionalReplayContext: ReplayContext = {
+      enemies: {
+        ignored: [],
+        ages: {},
+        spawnTimes: {}
+      }
+    };
+
+    if (variables.replay.jumped) {
+      resetClientSideVariables();
+      resetReplayGameData(replayGameData);
+      // set variables
+      variables.currentGameClientSide.totalElapsedMilliseconds =
+        variables.replay.elapsedReplayTime;
+      replayGameData.elapsedTime = variables.replay.elapsedReplayTime;
+      clearReplayScreen();
+      timestamp = startingTimestamp;
+      timestampWindow = variables.replay.elapsedReplayTime;
+      variables.replay.jumped = false;
+      variables.replay.finishedJumping = true;
+    }
+
+    const actionNumbers = getActionNumbers(
+      data.actionRecords,
+      timestamp,
+      timestampWindow
+    );
+
+    // apparently multiplayer enemy receives doesn't work if context not given.
+    const actionNumbersUpToTime = getActionNumbers(
+      data.actionRecords,
+      startingTimestamp,
+      variables.replay.elapsedReplayTime
+    );
+
+    if (variables.replay.finishedJumping) {
+      const scores = getPastScores(data, actionNumbers);
+      const newScore = Math.max(...scores);
+      forceSetScore(newScore);
+    }
+
+    if (!variables.replay.watchingReplay) {
       stopReplay();
       break;
     }
-    if (actionNumber > 0) {
-      const deltaTime =
-        data.actionRecords[actionNumber].timestamp -
-        data.actionRecords[actionNumber - 1].timestamp;
-      await sleep(deltaTime);
-      // also add to clocks
+
+    for (const actionNumber of actionNumbers) {
+      if (variables.replay.finishedJumping) {
+        const timeOfActionNumber =
+          replayData.data.actionRecords[actionNumber].timestamp -
+          variables.replay.startingTimestamp;
+        additionalReplayContext = getReplayContext(
+          data.actionRecords,
+          actionNumbers,
+          timeOfActionNumber,
+          data
+        );
+        updateReplayGameData(
+          replayGameData,
+          data,
+          actionNumber,
+          additionalReplayContext
+        );
+      } else {
+        const timeOfActionNumber =
+          replayData.data.actionRecords[actionNumber].timestamp -
+          variables.replay.startingTimestamp;
+        additionalReplayContext = getReplayContext(
+          data.actionRecords,
+          actionNumbersUpToTime,
+          timeOfActionNumber,
+          data
+        );
+        updateReplayGameData(
+          replayGameData,
+          data,
+          actionNumber,
+          additionalReplayContext
+        );
+      }
     }
-    updateReplayGameData(replayGameData, data, actionNumber);
+
+    if (variables.replay.elapsedReplayTime >= inGameTime) {
+      stopReplay();
+      break;
+    }
+
+    // update text
+    const progress = variables.replay.elapsedReplayTime / inGameTime;
+    $("#replay-controller__indicator").css("left", `${progress * 100}%`);
+    const currentTime = millisecondsToTime(variables.replay.elapsedReplayTime);
+    const totalTime = millisecondsToTime(inGameTime);
+    const pausedText = variables.replay.paused ? "(paused)" : "";
+    const timeText = `${currentTime} of ${totalTime} ${pausedText}`;
+    $("#replay-controller__current-time").text(timeText);
+
+    variables.replay.finishedJumping = false;
+
+    // check if replay is paused. if so, don't do anything
+    if (variables.replay.paused) {
+      await sleep(INTERVAL);
+      continue;
+    }
+
+    await sleep(INTERVAL);
+    variables.replay.elapsedReplayTime += INTERVAL;
   }
+
+  // stop replay when it's done
+  if (variables.replay.elapsedReplayTime >= inGameTime) {
+    stopReplay();
+  }
+}
+
+/**
+ * Gets every action number where the action has timestamp
+ * in the range `[timestamp, timestamp+limit)`
+ * @param {number} timestamp The timestamp
+ * @param {number} limit How way off the timestamp is allowed to exceed by
+ */
+function getActionNumbers(
+  actionRecords: Array<ActionRecord>,
+  timestamp: number,
+  limit: number
+) {
+  let start = 0;
+  let end = 0;
+  for (let current = 0; current < actionRecords.length; current++) {
+    if (timestamp <= actionRecords[current].timestamp) {
+      start = current;
+      break;
+    }
+  }
+  for (let current = start; current < actionRecords.length; current++) {
+    if (timestamp + limit < actionRecords[current].timestamp) {
+      break;
+    }
+    end = current;
+  }
+  const numbers = [];
+  for (let current = start; current <= end; current++) {
+    numbers.push(current);
+  }
+  return numbers;
 }
 
 function updateReplayGameData(
   replayGameData: { [key: string]: any },
   data: { [key: string]: any },
-  actionNumber: number
+  actionNumber: number,
+  additionalReplayContext?: ReplayContext
 ) {
   // set time
 
   if (actionNumber === 0) {
     replayGameData.elapsedTime = 0;
   } else {
-    replayGameData.elapsedTime +=
-      data.actionRecords[actionNumber].timestamp -
-      data.actionRecords[actionNumber - 1].timestamp;
+    const startingActionRecord = data.actionRecords.find(
+      (element: ActionRecord) => element.action === "gameStart"
+    ) as ActionRecord;
+    const startingTimestamp = startingActionRecord.timestamp;
+    replayGameData.elapsedTime =
+      data.actionRecords[actionNumber].timestamp - startingTimestamp;
   }
 
   const actionRecord = data.actionRecords[actionNumber];
@@ -120,7 +309,11 @@ function updateReplayGameData(
     const isRoomScoped = actionRecord.scope === "room";
     if (!isAddUserAction && updateOpponent && !isRoomScoped) {
       // update someone else...
-      updateOpponentGameData(actionRecord, replayGameData);
+      updateOpponentGameData(
+        actionRecord,
+        replayGameData,
+        additionalReplayContext
+      );
       return;
     }
   }
@@ -142,15 +335,24 @@ function updateReplayGameData(
       break;
     }
     case "enemyKill": {
+      replayGameData.enemiesKilled++;
+      replayGameData.combo++;
+      // ignore rendering functions
+      if (
+        additionalReplayContext?.enemies.ignored.includes(
+          actionRecord.data.enemyID
+        )
+      ) {
+        replayGameData.currentInput = "";
+        break;
+      }
       // enemy killed = input correct, so remove
       replayGameData.currentInput = "";
       replayGameData.enemiesToErase.push(actionRecord.data.enemyID);
       // add enemy killed
-      replayGameData.enemiesKilled++;
       // reset combo time
       replayGameData.clocks.comboReset.currentTime = 0;
       // add combo
-      replayGameData.combo++;
       /** flashing input area not needed due to it already being in enemy kill code */
       // ...
       break;
@@ -172,6 +374,12 @@ function updateReplayGameData(
     }
     case "enemyReceive": {
       const enemyData = actionRecord.data;
+
+      // new in 0.5.0-rc.6
+      if (enemyData.enemyID) {
+        enemyData.id = enemyData.enemyID;
+      }
+
       const newEnemy = new Enemy(
         enemyData.sPosition,
         enemyData.displayedText,
@@ -181,12 +389,27 @@ function updateReplayGameData(
         enemyData.speed,
         enemyData.xPosition
       );
+      newEnemy.relativeReplayCreationTime = replayGameData.elapsedTime;
+      if (additionalReplayContext?.enemies.ages[enemyData.id]) {
+        newEnemy.ageOffset =
+          additionalReplayContext?.enemies.ages[enemyData.id];
+      }
       newEnemy.render();
       break;
     }
     case "enemySpawn": {
       const enemyData = actionRecord.data;
       // replayGameData.enemies.push(enemyData);
+      if (additionalReplayContext?.enemies.ignored.includes(enemyData.id)) {
+        replayGameData.currentInput = "";
+        break;
+      }
+
+      // new in 0.5.0-rc.6
+      if (enemyData.enemyID) {
+        enemyData.id = enemyData.enemyID;
+      }
+
       const newEnemy = new Enemy(
         enemyData.sPosition,
         enemyData.displayedText,
@@ -196,53 +419,25 @@ function updateReplayGameData(
         enemyData.speed,
         enemyData.xPosition
       );
+      newEnemy.relativeReplayCreationTime = replayGameData.elapsedTime;
+      if (additionalReplayContext?.enemies.ages[enemyData.id]) {
+        newEnemy.ageOffset =
+          additionalReplayContext?.enemies.ages[enemyData.id];
+      }
       newEnemy.render();
       break;
     }
     case "enemyReachedBase": {
+      //TODO: temporary workaround, will get replaced by `setGameData` action anyway...
+      replayGameData.baseHealth -= 10;
       break;
     }
     case "gameStart": {
+      if (variables.replay.finishedJumping) {
+        break;
+      }
       resetClientSideVariables();
-      replayGameData.score = 0;
-      replayGameData.enemiesKilled = 0;
-      replayGameData.enemiesSpawned = 0;
-      replayGameData.baseHealth = 100;
-      replayGameData.owner = {};
-      replayGameData.ownerConnectionID = "";
-      replayGameData.ownerName = "";
-      replayGameData.enemies = [];
-      replayGameData.enemiesToErase = [];
-      replayGameData.currentInput = "";
-      replayGameData.elapsedTime = 0;
-      replayGameData.combo = -1;
-      replayGameData.commands = {};
-      replayGameData.aborted = false;
-      replayGameData.enemiesSentStock = 0;
-      replayGameData.attackScore = 0;
-      replayGameData.level = 1;
-      replayGameData.enemiesToNextLevel = 10;
-      replayGameData.baseHealthRegeneration = 2;
-      replayGameData.maximumBaseHealth = 100;
-      replayGameData.actionsPerformed = 0;
-      replayGameData.receivedEnemiesStock = 0;
-      replayGameData.clocks = {
-        enemySpawn: {
-          actionTime: 0,
-          currentTime: 0
-        },
-        comboReset: {
-          actionTime: 0,
-          currentTime: 0
-        },
-        forcedEnemySpawn: {
-          actionTime: 0,
-          currentTime: 0
-        }
-      };
-      replayGameData.enemySpeedCoefficient = 1;
-      replayGameData.enemySpawnThreshold = 0.1;
-      replayGameData.opponentGameData = [];
+      resetReplayGameData(replayGameData);
       break;
     }
     case "gameOver": {
@@ -251,7 +446,7 @@ function updateReplayGameData(
       replayGameData.enemiesToErase = [];
       // stop replay
       stopReplay();
-      variables.watchingReplay = false;
+      variables.replay.watchingReplay = false;
       changeScreen("archiveMenu", true, true);
       break;
     }
@@ -302,8 +497,12 @@ function updateReplayGameData(
  * @param actionRecord
  * @param replayGameData
  */
-function updateOpponentGameData(actionRecord: any, replayGameData: any) {
-  const connectionID = actionRecord.user.connectionID;
+function updateOpponentGameData(
+  actionRecord: any,
+  replayGameData: any,
+  additionalReplayContext?: ReplayContext
+) {
+  const connectionID = actionRecord.user.connectionID as string;
   const opponentData = replayGameData.opponentGameData.find(
     (element: any) => element.owner === connectionID
   );
@@ -340,25 +539,75 @@ function updateOpponentGameData(actionRecord: any, replayGameData: any) {
       break;
     }
     case "enemyReceive": {
-      opponentData.enemies.push({
+      // console.log(additionalReplayContext);
+      const multiplayerContext = additionalReplayContext?.multiplayer?.players;
+      if (!multiplayerContext) {
+        break;
+      }
+      const enemyData = {
         requestedValue: "",
         displayedText: actionRecord.data.displayedText,
         xPosition: actionRecord.data.xPosition,
         sPosition: actionRecord.data.sPosition,
         speed: actionRecord.data.speed,
         id: actionRecord.data.id
-      });
+      };
+      if (
+        multiplayerContext[connectionID].enemies.ignored.includes(
+          actionRecord.data.id
+        )
+      ) {
+        break;
+      }
+      if (multiplayerContext[connectionID].enemies.ages[actionRecord.data.id]) {
+        const age =
+          multiplayerContext[connectionID].enemies.ages[actionRecord.data.id];
+        const newPosition = 1 - (age / 1000) * enemyData.speed;
+
+        enemyData.sPosition = newPosition;
+      }
+
+      opponentData.enemies.push(enemyData);
+      updateOpponentEnemyPositions(
+        opponentData.enemies,
+        multiplayerContext[connectionID].enemies.spawnTimes,
+        variables.replay.elapsedReplayTime
+      );
       break;
     }
     case "enemySpawn": {
-      opponentData.enemies.push({
+      // console.log(additionalReplayContext);
+      const multiplayerContext = additionalReplayContext?.multiplayer?.players;
+      if (!multiplayerContext) {
+        break;
+      }
+      const enemyData = {
         requestedValue: "",
         displayedText: actionRecord.data.displayedText,
         xPosition: actionRecord.data.xPosition,
         sPosition: actionRecord.data.sPosition,
         speed: actionRecord.data.speed,
         id: actionRecord.data.id
-      });
+      };
+      if (
+        multiplayerContext[connectionID].enemies.ignored.includes(
+          actionRecord.data.id
+        )
+      ) {
+        break;
+      }
+      if (multiplayerContext[connectionID].enemies.ages[actionRecord.data.id]) {
+        const age =
+          multiplayerContext[connectionID].enemies.ages[actionRecord.data.id];
+        const newPosition = 1 - (age / 1000) * enemyData.speed;
+        enemyData.sPosition = newPosition;
+      }
+      opponentData.enemies.push(enemyData);
+      updateOpponentEnemyPositions(
+        opponentData.enemies,
+        multiplayerContext[connectionID].enemies.spawnTimes,
+        variables.replay.elapsedReplayTime
+      );
       break;
     }
     case "enemyReachedBase": {
@@ -423,7 +672,7 @@ function formatReplayStatisticsText(data: { [key: string]: any }) {
 function getPlayerListOptions(data: any) {
   const options = [];
   const ranking = data.statistics.multiplayer.ranking;
-  ranking.sort((a: any, b: any) => b.placement - a.placement);
+  ranking.sort((a: any, b: any) => a.placement - b.placement);
   let rank = 0;
   for (const player of ranking) {
     rank++;
@@ -446,9 +695,22 @@ function getWhoseDataToUpdate(actionRecord: any) {
  */
 function updateReplayGameDataLikeServer(deltaTime: number) {
   // clocks
-  replayGameData.clocks.comboReset.currentTime += deltaTime;
+  updateReplayClockData(deltaTime);
   // opponents
+  updateReplayOpponentGameData(deltaTime);
+}
+
+function updateReplayClockData(deltaTime: number) {
+  if (replayGameData?.clocks?.comboReset?.currentTime) {
+    replayGameData.clocks.comboReset.currentTime += deltaTime;
+  }
+}
+
+function updateReplayOpponentGameData(deltaTime: number) {
   const opponentGameData = replayGameData.opponentGameData;
+  if (!opponentGameData) {
+    return;
+  }
   for (const opponentData of opponentGameData) {
     // enemies
     for (const enemy of opponentData.enemies) {
@@ -458,16 +720,148 @@ function updateReplayGameDataLikeServer(deltaTime: number) {
 }
 
 function stopReplay() {
+  clearReplayScreen();
+  variables.replay.watchingReplay = false;
+  variables.replay.enemyColors = {};
+  $("#replay-controller-container").hide(0);
+  changeScreen("archiveMenu", true, true);
+}
+
+function clearReplayScreen() {
   replayGameData.enemies = [];
   replayGameData.enemiesToErase = [];
-  changeScreen("archiveMenu", true, true);
   for (const enemy in Enemy.enemiesDrawn) {
     if (Enemy.enemyCache[enemy]) {
       Enemy.enemyCache[enemy].deleteSprite();
     }
   }
-  Opponent.destroyAllInstances();
   deleteAllEnemies();
+  Opponent.destroyAllInstances();
+}
+
+function getInGameTime(data: Replay) {
+  switch (data.data.mode) {
+    case "easySingleplayer":
+    case "standardSingleplayer": {
+      const statistics = data.data.statistics.singleplayer;
+      const ms = statistics.timeInMilliseconds;
+      return ms;
+    }
+    case "defaultMultiplayer": {
+      const statistics = data.data.statistics.multiplayer;
+      if (statistics.timeInMilliseconds) {
+        return statistics.timeInMilliseconds;
+      } else {
+        // fallback for older replays: return how long the winner lasted
+        return statistics.ranking[statistics.ranking.length - 1].time;
+      }
+    }
+  }
+}
+
+function getPastScores(data: ReplayData, actionNumbers: Array<number>) {
+  if (data.mode === "defaultMultiplayer") {
+    const scores = data.actionRecords
+      .filter(
+        (element, index) =>
+          element.action === "setGameData" &&
+          element.data.key === "attackScore" &&
+          element.user?.connectionID === replayGameData.viewAs &&
+          Math.min(...actionNumbers) <= index &&
+          index <= Math.max(...actionNumbers)
+      )
+      .map((element) => element.data.value);
+    return scores;
+  } else {
+    const scores = data.actionRecords
+      .filter(
+        (element, index) =>
+          element.action === "setGameData" &&
+          element.data.key === "score" &&
+          Math.min(...actionNumbers) <= index &&
+          index <= Math.max(...actionNumbers)
+      )
+      .map((element) => element.data.value);
+    return scores;
+  }
+}
+
+function resetReplayGameData(replayGameData: { [key: string]: any }) {
+  replayGameData.score = 0;
+  replayGameData.enemiesKilled = 0;
+  replayGameData.enemiesSpawned = 0;
+  replayGameData.baseHealth = 100;
+  replayGameData.owner = {};
+  replayGameData.ownerConnectionID = "";
+  replayGameData.ownerName = "";
+  replayGameData.enemies = [];
+  replayGameData.enemiesToErase = [];
+  replayGameData.currentInput = "";
+  replayGameData.elapsedTime = 0;
+  replayGameData.combo = -1;
+  replayGameData.commands = {};
+  replayGameData.aborted = false;
+  replayGameData.enemiesSentStock = 0;
+  replayGameData.attackScore = 0;
+  replayGameData.level = 1;
+  replayGameData.enemiesToNextLevel = 10;
+  replayGameData.baseHealthRegeneration = 2;
+  replayGameData.maximumBaseHealth = 100;
+  replayGameData.actionsPerformed = 0;
+  replayGameData.receivedEnemiesStock = 0;
+  replayGameData.clocks = {
+    enemySpawn: {
+      actionTime: 0,
+      currentTime: 0
+    },
+    comboReset: {
+      actionTime: 0,
+      currentTime: 0
+    },
+    forcedEnemySpawn: {
+      actionTime: 0,
+      currentTime: 0
+    }
+  };
+  replayGameData.enemySpeedCoefficient = 1;
+  replayGameData.enemySpawnThreshold = 0.1;
+  replayGameData.opponentGameData = [];
+}
+
+function updateOpponentEnemyPositions(
+  enemies: Array<{ id: string; speed: number; sPosition?: number }>,
+  spawnTimes: { [key: string]: number },
+  elapsedTime: number
+) {
+  for (const enemy of enemies) {
+    const spawnTime = spawnTimes[enemy.id];
+    if (spawnTime === undefined) {
+      console.warn(`Enemy ${enemy.id} missing spawn time in replay data`);
+      continue;
+    }
+    const age = elapsedTime - spawnTime;
+    enemy.sPosition = 1 - (age / 1000) * enemy.speed;
+  }
+}
+
+async function getCachedOrFetchReplay(
+  replayID: string
+): Promise<Replay | null> {
+  if (replayID in replayCache) {
+    console.log(
+      "Replay data already found in cache, using replay data from cache."
+    );
+    return replayCache[replayID];
+  } else {
+    console.log("Replay data not found in cache, fetching replay.");
+    const fetchData = await fetchReplay(replayID);
+    if (!fetchData) {
+      return null;
+    }
+    const data = await fetchData.json();
+    replayCache[replayID] = data;
+    return data;
+  }
 }
 
 export {
@@ -478,5 +872,9 @@ export {
   getPlayerListOptions,
   updateReplayGameDataLikeServer,
   replayGameData,
-  stopReplay
+  stopReplay,
+  ActionRecord,
+  updateOpponentEnemyPositions,
+  replayCache,
+  getCachedOrFetchReplay
 };

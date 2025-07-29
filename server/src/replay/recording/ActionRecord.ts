@@ -41,7 +41,7 @@ class GameActionRecord {
   constructor() {
     this.recordingVersion = 1;
     // TODO: temp
-    this.gameVersion = "0.5.0-rc.5";
+    this.gameVersion = "0.5.0-rc.6";
     this.actionRecords = [];
     this.owner = null;
   }
@@ -80,7 +80,7 @@ class GameActionRecord {
         sPosition: enemy.sPosition,
         speed: enemy.speed,
         displayedText: enemy.displayedText,
-        id: enemy.id
+        enemyID: enemy.id
       }
     });
   }

@@ -1,5 +1,4 @@
 import os from "os";
-import { log } from "./log";
 import { STATUS } from "../universal";
 
 const SYSTEM_STATUS_UPDATE_INTERVAL = 5000;
@@ -29,13 +28,8 @@ function updateSystemStatus(deltaTime: number) {
 function checkStatus() {
   // get memory usages
   const memoryUsage = process.memoryUsage();
-  const usedHeapMemory = memoryUsage.heapUsed;
-  const totalHeapMemory = memoryUsage.heapTotal;
   const totalOSMemory = os.totalmem();
   const usedOSMemory = totalOSMemory - os.freemem();
-  // log.debug(`GAME: ${usedHeapMemory} / ${totalHeapMemory}`);
-  // log.debug(`OS: ${usedOSMemory} / ${totalOSMemory}`);
-  // log.debug(`UPD: ${STATUS.lastDeltaTimeToUpdate}ms`);
   // send status updates
   // for os memory
   result.os.usage = usedOSMemory / totalOSMemory;

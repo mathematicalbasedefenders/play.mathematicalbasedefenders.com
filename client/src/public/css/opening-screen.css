@@ -1,0 +1,74 @@
+/* OPENING SCREEN */
+#opening-screen-container {
+  width: 100vw;
+  height: 100vh;
+  z-index: var(--z-index-opening-screen);
+  background-color: #000000;
+  color: #ffffff;
+  position: absolute;
+}
+
+#opening-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  flex-direction: column;
+  height: 100%;
+}
+
+#opening-screen__authentication-modal {
+  font-size: 150%;
+  background-color: var(--color-neutral);
+  border: 2px solid #ffffff;
+  width: 50%;
+  padding: 4px;
+  @media (max-width: 1200px) {
+    width: 90%;
+  }
+}
+
+#opening-screen > div {
+  margin: 8px 0;
+}
+
+#opening-screen img {
+  transform: scale(0.75);
+}
+
+#opening-screen__quick-link {
+  margin: 0;
+}
+
+.opening-screen__input--text {
+  width: 100%;
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 100%;
+  font-family: inherit;
+}
+
+.link-button {
+  border: none;
+  text-decoration: underline;
+  color: #555555;
+  background-color: #000000;
+  padding: 8px;
+  margin: 8px;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  color: #aaaaaa;
+  cursor: pointer;
+}
+
+.authentication-modal__login-form-element {
+  margin: 8px 0;
+  width: calc(100% - 4px);
+}
+
+.authentication-modal__login-form-element input {
+  width: calc(100% - 4px);
+}

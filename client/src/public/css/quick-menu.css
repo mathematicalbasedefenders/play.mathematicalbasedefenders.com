@@ -1,0 +1,50 @@
+/* QUICK MENU */
+#main-content__quick-menu-container {
+  z-index: var(--z-index-quick-menu);
+  position: absolute;
+  bottom: 0;
+}
+
+#quick-menu__toggle-button {
+  background-color: var(--color-neutral);
+  color: var(--color-text-light);
+  width: 48px;
+  height: 48px;
+  font-size: 225%;
+  border: 1px #ffffff solid;
+}
+
+.quick-menu__content-button {
+  width: 48px;
+  height: 48px;
+  font-size: 225%;
+  font-family: inherit;
+  word-wrap: break-word;
+}
+
+#quick-menu__content-container {
+  display: flex;
+  flex-direction: column;
+}
+
+#quick-menu__content-container > button {
+  margin: 0 0 8px 0;
+}
+
+#quick-menu__content-button--quit {
+  background-color: var(--color-dangerous);
+  border: 1px #ffffff solid;
+  color: var(--color-text-light);
+}
+
+#quick-menu__content-button--settings {
+  background-color: #3a3abb;
+  border: 1px #ffffff solid;
+  color: var(--color-text-light);
+}
+
+#quick-menu__content-button--on-screen-keyboard {
+  background-color: #17a71e;
+  border: 1px #ffffff solid;
+  color: var(--color-text-light);
+}

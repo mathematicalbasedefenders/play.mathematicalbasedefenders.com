@@ -2,7 +2,7 @@
 
 import * as PIXI from "pixi.js";
 import _ from "lodash";
-import { app, mathFont, playerContainer, variables } from "./index";
+import { playerContainer, variables } from "./index";
 import { playSound } from "./sounds";
 const ENEMY_FONT_SIZE = 24;
 const DEFAULT_ENEMY_WIDTH = 64;
@@ -48,12 +48,14 @@ class Enemy {
   sPosition!: number;
   xPosition!: number;
   yPosition!: number;
+  ageOffset!: number;
   id!: string;
   text!: string;
   creationTime: number;
   speed: number;
   attackedBase: boolean;
   addedKill: boolean;
+  relativeReplayCreationTime!: number;
   constructor(
     sPosition: number,
     text: string,
@@ -65,9 +67,21 @@ class Enemy {
   ) {
     // meta-related
     const maxXPosition = 600 + PLAYFIELD_WIDTH - getScaledEnemyWidth();
+    // metadata
+    this.id = id;
+    this.creationTime = Date.now();
     // sprite-related
     this.sprite = new PIXI.Sprite(PIXI.Texture.WHITE);
-    this.sprite.tint = getSetEnemyColor();
+
+    // set enemy color if it appeared before
+    if (variables.replay.enemyColors[this.id]) {
+      this.sprite.tint = variables.replay.enemyColors[this.id];
+    } else {
+      const color = getSetEnemyColor();
+      this.sprite.tint = color;
+      variables.replay.enemyColors[this.id] = color;
+    }
+
     this.sprite.width = width || getScaledEnemyWidth();
 
     this.sprite.height = height || getScaledEnemyHeight();
@@ -98,11 +112,19 @@ class Enemy {
     this.sPosition = sPosition;
     this.attackedBase = false;
     this.addedKill = false;
-    // metadata
-    this.id = id;
-    this.creationTime = Date.now();
+
     // functions
-    Enemy.enemiesDrawn.push(id);
+
+    // prevent duplicates which may be causing replay problems
+    if (!Enemy.enemiesDrawn.includes(id)) {
+      Enemy.enemiesDrawn.push(id);
+    }
+
+    // prevent and delete duplicates which may be causing replay problems
+    const existingEnemy = Enemy.enemyCache.find((e) => e.id === this.id);
+    if (existingEnemy) {
+      deleteEnemy(this.id);
+    }
     Enemy.enemyCache.push(this);
   }
 
@@ -119,7 +141,7 @@ class Enemy {
    * TODO: Enemy will damage the base and get deleted if new sPosition <= 0
    * @param {number} sPosition The sPosition to render the enemy at.
    */
-  reposition(sPosition: number) {
+  reposition(sPosition: number, ignoreAttack?: boolean) {
     const traveled = MAXIMUM_Y_POSITION * (1 - sPosition);
     this.sprite.y = traveled - getScaledEnemyHeight();
     this.textSprite.x =
@@ -132,7 +154,7 @@ class Enemy {
       this.sprite.width
     );
     this.sPosition = sPosition;
-    if (sPosition <= 0) {
+    if (!ignoreAttack && sPosition <= 0) {
       deleteEnemy(this.id);
       if (!this.attackedBase) {
         playSound("assets/sounds/damaged.mp3", true);
@@ -262,7 +284,7 @@ function renderEnemy(enemy: ServerSideEnemy) {
     enemy.xPosition
   );
   Enemy.enemyCache.push(newEnemy);
-  getCachedEnemy(newEnemy.id)?.render();
+  newEnemy.render();
 }
 
 /**
@@ -364,7 +386,7 @@ function getSetEnemyColor() {
   const hexBase = 16;
   const maximumValue = 16777216;
   const value = variables.settings.enemyColor;
-  const validHexRegex = /\#[0-9a-f]{6}/;
+  const validHexRegex = /#[0-9a-f]{6}/;
   if (variables.settings.enemyColor === "randomFromPalette") {
     // select from palette
     const palette = $("#selected-enemy-color-palette").val()?.toString();

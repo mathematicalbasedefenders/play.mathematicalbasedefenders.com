@@ -1,4 +1,4 @@
-import { app, playerContainer, stageItems, textures, variables } from ".";
+import { app, playerContainer, textures, variables } from ".";
 import * as PIXI from "pixi.js";
 import {
   getScaledEnemyHeight,
@@ -148,13 +148,6 @@ class Opponent {
   }
 
   /**
-   * Repositions the Opponent game instance according to its arguments (given new positions)
-   * @param {number} xPosition The xPosition on the screen to reposition to.
-   * @param {number} yPosition The yPosition on the screen to reposition to.
-   */
-  reposition(xPosition: number, yPosition: number) {}
-
-  /**
    * Updates the enemy with the ID `id` with `data`.
    * @param {string} id The ID of the enemy to update.
    * @param {any} data The new data of the enemy.
@@ -165,6 +158,14 @@ class Opponent {
       // create enemy
       // TODO: temporary.
       this.enemies[`enemy${id}`] = createOpponentEnemy();
+      if (variables.replay.enemyColors[`enemy${id}`]) {
+        this.enemies[`enemy${id}`].tint =
+          variables.replay.enemyColors[`enemy${id}`];
+      } else {
+        const color = getSetEnemyColor();
+        this.enemies[`enemy${id}`].tint = color;
+        variables.replay.enemyColors[`enemy${id}`] = color;
+      }
       this.container.addChild(this.enemies[`enemy${id}`]);
     }
     const enemyData = data.enemies.find((element: any) => element.id === id);
@@ -280,7 +281,6 @@ function createOpponentEnemy() {
   const enemy = new PIXI.Sprite(PIXI.Texture.WHITE);
   enemy.width = getScaledEnemyWidth();
   enemy.height = getScaledEnemyHeight();
-  enemy.tint = getSetEnemyColor();
   return enemy;
 }
 

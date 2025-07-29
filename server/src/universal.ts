@@ -3,16 +3,13 @@ import {
   SingleplayerRoom,
   MultiplayerRoom,
   getOpponentsInformation,
-  Room,
   createSingleplayerRoom
 } from "./game/Room";
-import { GameData, GameMode, SingleplayerGameData } from "./game/GameData";
-import _, { update } from "lodash";
+import { GameData, GameMode } from "./game/GameData";
+import _ from "lodash";
 import {
   minifySelfGameData,
   findRoomWithConnectionID,
-  checkIfPropertyWithValueExists,
-  getRank,
   generateGuestID,
   generateConnectionID
 } from "./core/utilities";

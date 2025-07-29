@@ -1,0 +1,64 @@
+/** REPLAY CONTROLLER */
+#replay-controller-container {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  position: absolute;
+  width: 100vw;
+  height: 10%;
+  z-index: var(--z-index-replay-controller);
+  bottom: 0;
+}
+
+#replay-controller {
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  border-top: 2px solid var(--color-archive);
+}
+
+#replay-controller__indicator {
+  position: relative;
+  top: -8px;
+  left: 0%;
+  border-radius: 50%;
+  height: 16px;
+  width: 16px;
+  background-color: var(--color-archive);
+}
+
+#replay-controller__bar {
+  position: relative;
+  top: -24px;
+  height: 16px;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+  display: block;
+}
+
+#replay-controller__current-time {
+  font-size: 150%;
+  padding: 0 4px;
+  cursor: default;
+  user-select: none;
+}
+
+#replay-controller__control-zone {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: -24px;
+  user-select: none;
+}
+
+#replay-controller__control-buttons {
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+  user-select: none;
+}
+
+.replay-controller-text {
+  color: var(--color-archive);
+}

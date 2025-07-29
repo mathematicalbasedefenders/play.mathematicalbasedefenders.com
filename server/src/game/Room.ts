@@ -4,7 +4,7 @@ import * as enemy from "./Enemy";
 import * as _ from "lodash";
 import { log } from "../core/log";
 import * as input from "../core/input";
-import { addToStatistics, submitSingleplayerGame } from "../services/score";
+import { submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
 import {
   convertGameSettingsToReplayActions,
@@ -27,16 +27,12 @@ import {
   CustomGameSettings
 } from "./GameData";
 import { updateSingleplayerRoomData } from "./actions/update";
-import {
-  changeClientSideHTML,
-  changeClientSideText
-} from "./actions/send-html";
+import { changeClientSideText } from "./actions/send-html";
 import {
   checkGlobalMultiplayerRoomClocks,
   checkPlayerMultiplayerRoomClocks
 } from "./actions/clocks";
 import { createGameOverScreenText } from "./actions/create-text";
-import { performAnticheatCheck } from "../anticheat/anticheat";
 import { createNewEnemy } from "./Enemy";
 import {
   Action,
@@ -692,7 +688,7 @@ class MultiplayerRoom extends Room {
         }
 
         // clocks
-        checkPlayerMultiplayerRoomClocks(data, this);
+        checkPlayerMultiplayerRoomClocks(data);
 
         // forced enemy (when zero)
         if (data.enemies.length === 0) {
@@ -1008,11 +1004,7 @@ function processKeypressForRoom(
   inputInformation = input.getInputInformation(code);
   inputInformation.keyPressed = code;
   if (inputInformation.action !== InputAction.Unknown) {
-    input.processInputInformation(
-      inputInformation,
-      gameDataToProcess,
-      emulated
-    );
+    input.processInputInformation(inputInformation, gameDataToProcess);
   }
 }
 

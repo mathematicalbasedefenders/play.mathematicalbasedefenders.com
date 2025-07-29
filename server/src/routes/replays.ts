@@ -1,6 +1,5 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import rateLimit from "express-rate-limit";
-import bodyParser from "body-parser";
 import { log } from "../core/log";
 import {
   GameActionRecordInterface,

@@ -19,7 +19,7 @@ const socket: WebSocket = new WebSocket(
       : ":5000"
   }`
 );
-socket.addEventListener("close", (event: any) => {
+socket.addEventListener("close", () => {
   alert("Lost connection to server.");
   location.reload();
 });
@@ -92,7 +92,6 @@ socket.addEventListener("message", (event: any) => {
       sanitizedMessage.sender = DOMPurify.sanitize(sanitizedMessage.sender);
       sanitizedMessage.message = DOMPurify.sanitize(sanitizedMessage.message);
       sanitizedMessage.userID = DOMPurify.sanitize(sanitizedMessage.userID);
-      const sanitizedSender = DOMPurify.sanitize(message.data.sender);
       const sanitizedSenderColor = DOMPurify.sanitize(message.data.senderColor);
       const sanitizedAttribute = DOMPurify.sanitize(message.data.attribute);
       const chatMessage = createChatMessage(

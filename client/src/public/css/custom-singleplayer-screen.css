@@ -1,0 +1,90 @@
+/* (CUSTOM) SINGLEPLAYER INTERMISSION SCREEN */
+#main-content__custom-singleplayer-intermission-screen-container {
+  display: grid;
+  grid-template-columns: [column1-start] 80px [column1-end column2-start] 120px [column2-end column3-start] auto [column3-end column4-start] 80px [column4-end];
+  grid-template-rows: [row1-start] 40px [row1-end row2-start] auto [row2-end];
+  height: 100%;
+  width: 100%;
+}
+
+#main-content__custom-singleplayer-intermission-screen-container__sidebar {
+  grid-column: column2-start / column2-end;
+  grid-row: row2-start / row2-end;
+}
+
+#main-content__custom-singleplayer-intermission-screen-container__sidebar.option-button--left-bordered {
+  width: 100%;
+}
+
+#main-content__custom-singleplayer-intermission-screen-container__content {
+  grid-column: column3-start / column3-end;
+  grid-row: row2-start / row2-end;
+  margin-left: 48px;
+}
+
+.custom-singleplayer__content-fieldset {
+  color: #ffffff;
+  border: 1px solid #ffffff;
+  background-color: var(--color-neutral);
+  font-size: 150%;
+}
+
+.custom-singleplayer__content-fieldset legend {
+  background-color: var(--color-neutral);
+  padding: 0 8px;
+}
+
+.custom-singleplayer__content-fieldset label,
+.custom-singleplayer__content-fieldset input {
+  margin: 4px 0;
+}
+
+.custom-singleplayer__content-input--text {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 150%;
+  font-family: inherit;
+}
+.custom-singleplayer__content-input--button {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 150%;
+  font-family: inherit;
+  transition-duration: var(--transition-duration-short);
+}
+.custom-singleplayer__content-input--button:hover {
+  filter: brightness(1.05);
+  transform: scale(1.05);
+}
+
+#main-content__custom-singleplayer-intermission-screen-container__options-container {
+  width: 100%;
+  height: 100vh;
+  color: var(--color-neutral);
+}
+#main-content__custom-singleplayer-intermission-screen-container__options {
+  font-size: 150%;
+  padding: 8px;
+  margin: 32px 0;
+  border: 2px solid #ffffff;
+  overflow-y: scroll;
+  height: 90%;
+  background-color: var(--color-neutral);
+  color: var(--color-text-light);
+}
+
+.custom-singleplayer-game-input--text {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 100%;
+  font-family: inherit;
+}
+
+#main-content__custom-singleplayer-intermission-screen-container__left
+  .option-button--left-bordered {
+  margin-left: 80px;
+  margin-top: 40px;
+}

@@ -17,26 +17,19 @@ import {
 } from "./utilities";
 import { render, setClientSideRendering } from "./rendering";
 import { getSettings, loadSettings, setSettings } from "./settings";
-import {
-  ToastNotification,
-  ToastNotificationPosition
-} from "./toast-notification";
-import {
-  PopupNotification,
-  PopupNotificationButtonStyle
-} from "./popup-notification";
+import { ToastNotification } from "./toast-notification";
+import { PopupNotification } from "./popup-notification";
 import { changeBackgroundImage } from "./change-background-image";
 import { showUserLookupPopUp } from "./lookup-user";
-import { TextStyle } from "pixi.js";
 import {
-  fetchReplay,
   formatReplayStatisticsText,
+  getCachedOrFetchReplay,
   getPlayerListOptions,
   playReplay,
-  Replay,
   stopReplay
 } from "./replay";
 import { checkQuickLink } from "./quick-links";
+import { jumpToProgressInReplay, jumpToTimeInReplay } from "./replay-control";
 const startInitTime: number = Date.now();
 //
 const OPTIMAL_SCREEN_WIDTH: number = 1920;
@@ -47,14 +40,6 @@ const STATISTICS_POSITION: number = 1294;
 const serifFont = new FontFaceObserver("Computer Modern Unicode Serif");
 const mathFont = new FontFaceObserver("Computer Modern Math Italic");
 const notoFont = new FontFaceObserver("Noto Sans");
-
-class ExtendedSprite extends PIXI.Sprite {
-  scalingPolicy!: AS.POLICY;
-}
-
-class ExtendedText extends PIXI.Text {
-  scalingPolicy!: AS.POLICY;
-}
 
 serifFont.load();
 mathFont.load();
@@ -85,7 +70,7 @@ async function initializePIXIApp() {
   // app.renderer.view.style.position = "absolute";
   // app.renderer.view.style.display = "block";
   app.stage.addChild(playerContainer);
-  app.ticker.add((deltaTime) => {
+  app.ticker.add(() => {
     render(app.ticker.elapsedMS);
   });
   for (const item in stageItems.sprites) {
@@ -173,10 +158,18 @@ const variables: { [key: string]: any } = {
       playerCount: 0
     }
   },
-  watchingReplay: false
+  replay: {
+    watchingReplay: false,
+    elapsedReplayTime: 0,
+    inGameReplayTime: 0,
+    jumped: false,
+    finishedJumping: false,
+    enemyColors: {},
+    paused: false,
+    timestampOnPause: 0,
+    startingTimestamp: 0
+  }
 };
-
-const replayCache: { [key: string]: Replay } = {};
 
 async function initializeTextures() {
   try {
@@ -535,23 +528,12 @@ function initializeEventListeners() {
   });
   $("#archive__search-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
-    let replayDataJSON;
-    if (replayID in replayCache) {
-      console.log(
-        "Replay data already found in cache, using replay data from cache."
-      );
-      replayDataJSON = replayCache[replayID];
-    } else {
-      console.log("Replay data not found in cache, fetching replay.");
-      const fetchData = await fetchReplay(replayID);
-      if (!fetchData) {
-        return;
-      }
-      const data = await fetchData.json();
-      replayCache[replayID] = data;
-      replayDataJSON = data;
+    $("#archive__search-button").prop("disabled", true).text("Fetching...");
+    const replayDataJSON = await getCachedOrFetchReplay(replayID);
+    $("#archive__search-button").prop("disabled", false).text("Search Replay");
+    if (!replayDataJSON) {
+      return;
     }
-
     $(
       "#main-content__archive-screen-container__content__replay-statistics"
     ).text(formatReplayStatisticsText(replayDataJSON.data));
@@ -590,11 +572,10 @@ function initializeEventListeners() {
   });
   $("#archive__start-button").on("click", async () => {
     const replayID = $("#archive__replay-id").val()?.toString() ?? "";
-    const replayData = await fetchReplay(replayID);
-    if (!replayData) {
+    const replayDataJSON = await getCachedOrFetchReplay(replayID);
+    if (!replayDataJSON) {
       return;
     }
-    const replayDataJSON = await replayData.json();
     if (replayDataJSON.data.mode === "defaultMultiplayer") {
       const viewAs = $(
         "#main-content__archive-screen-container__content__replay-selector"
@@ -645,19 +626,16 @@ function initializeEventListeners() {
     }
   });
   //
-  $("#settings-screen__content-save-background-image").on(
-    "click",
-    async (event) => {
-      const url = $("#settings__background-image-url").val() as string;
-      if (!url) {
-        const options = { backgroundColor: "#ff0000" };
-        new ToastNotification("Please enter a valid image URL!", options);
-        return;
-      }
-
-      changeBackgroundImage(url);
+  $("#settings-screen__content-save-background-image").on("click", async () => {
+    const url = $("#settings__background-image-url").val() as string;
+    if (!url) {
+      const options = { backgroundColor: "#ff0000" };
+      new ToastNotification("Please enter a valid image URL!", options);
+      return;
     }
-  );
+
+    changeBackgroundImage(url);
+  });
   //
   $("#game-over-screen-button--retry").on("click", () => {
     let settings = JSON.stringify(createCustomSingleplayerGameObject());
@@ -688,9 +666,9 @@ function initializeEventListeners() {
   //
   $("#quick-menu__content-button--quit").on("click", () => {
     variables.playing = false;
-    if (variables.watchingReplay) {
+    if (variables.replay.watchingReplay) {
       stopReplay();
-      variables.watchingReplay = false;
+      variables.replay.watchingReplay = false;
       changeScreen("archiveMenu", true, true);
       return;
     }
@@ -837,6 +815,21 @@ function initializeEventListeners() {
       emulatedKeypress: "Escape"
     });
     changeScreen("mainMenu");
+  });
+  // === REPLAY CONTROL ===
+  $("#replay-controller__bar").on("click", (event) => {
+    if (!variables.replay.watchingReplay) {
+      return;
+    }
+    const progress = event.pageX / window.innerWidth;
+    jumpToProgressInReplay(progress);
+  });
+  $("#replay-controller__resume").on("click", () => {
+    variables.replay.paused = false;
+  });
+  $("#replay-controller__pause").on("click", () => {
+    variables.replay.paused = true;
+    jumpToTimeInReplay(variables.replay.elapsedReplayTime);
   });
 }
 

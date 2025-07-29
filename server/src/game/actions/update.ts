@@ -6,11 +6,7 @@ import { checkSingleplayerRoomClocks } from "./clocks";
 import { GameData } from "../GameData";
 import { createNewEnemy } from "../Enemy";
 import { log } from "../../core/log";
-import { Action, ActionRecord } from "../../replay/recording/ActionRecord";
-import {
-  findGameDataWithConnectionID,
-  findRoomWithConnectionID
-} from "../../core/utilities";
+import { findRoomWithConnectionID } from "../../core/utilities";
 
 function updateSingleplayerRoomData(room: SingleplayerRoom, deltaTime: number) {
   if (deltaTime < 0) {
