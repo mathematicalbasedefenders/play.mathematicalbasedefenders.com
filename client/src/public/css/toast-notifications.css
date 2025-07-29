@@ -1,6 +1,6 @@
 /* TOAST NOTIFICATIONS */
 #main-content__toast-notification-container {
-  z-index: 2005;
+  z-index: var(--z-index-toast-notifications);
   overflow: hidden;
   width: 100vw;
   height: 100vh;
@@ -10,7 +10,7 @@
 }
 
 .main-content__toast-notification {
-  z-index: 2005;
+  z-index: var(--z-index-toast-notifications);
   overflow: hidden;
 }
 
