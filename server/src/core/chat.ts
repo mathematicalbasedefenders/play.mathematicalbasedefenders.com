@@ -97,7 +97,7 @@ function validateRoom(connectionID: string) {
 }
 
 /**
- * Validates a chat message whether its safe or the room it is meant to be send to exists.
+ * Validates a chat message whether its safe.
  * @param {string} message The message to validate.
  * @param {string} connectionID The connectionID socket of the sender.
  * @returns `true` if the message passed validation, false if not.
