@@ -346,6 +346,11 @@ function releaseEnemyStock(gameDataToProcess: GameData, room: MultiplayerRoom) {
   room?.gameActionRecord.addStockReleaseAction(gameDataToProcess);
 }
 
+/**
+ * Updates clock data so that replays can be accurate.
+ * @param {GameData} gameDataToProcess
+ * @param {room} room
+ */
 function updateReplayClockData(gameDataToProcess: GameData, room: Room) {
   // update replay data
   const keys = [
