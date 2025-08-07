@@ -61,15 +61,17 @@ async function authenticate(
 }
 
 function sendUserStatistics(socket: universal.GameSocket, userData: any) {
+  const username = userData.username;
+  const playerRank = utilities.getRank(userData);
   const statistics = userData.statistics;
   socket.send(
     JSON.stringify({
       message: "updateUserInformationText",
       data: {
-        username: sanitizedUsername,
+        username: username,
         good: true,
         userData: userData,
-        rank: utilities.getRank(userData),
+        rank: playerRank,
         experiencePoints: statistics.totalExperiencePoints,
         records: {
           easy: statistics.personalBestScoreOnEasySingleplayerMode,
