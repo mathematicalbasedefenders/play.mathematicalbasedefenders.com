@@ -70,6 +70,11 @@ function sendChatMessage(
   }
 }
 
+/**
+ * Validates whether a room that socket `connectionID` is in actually exists for chat messages.
+ * @param {string} connectionID The `connectionID`.
+ * @returns `true` if room exists, `false` if it doesn't.
+ */
 function validateRoom(connectionID: string) {
   const playerName = universal.getNameFromConnectionID(connectionID);
   const roomID = findRoomWithConnectionID(connectionID, true)?.id;
