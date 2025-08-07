@@ -1,6 +1,10 @@
 import { log } from "./log";
 import * as universal from "../universal";
-import { leaveMultiplayerRoom, processKeypressForRoom } from "../game/Room";
+import {
+  leaveMultiplayerRoom,
+  MultiplayerRoom,
+  processKeypressForRoom
+} from "../game/Room";
 import {
   GameData,
   GameMode,
@@ -289,11 +293,7 @@ function processInputInformation(
       // reset input
       if (!enemyKilled) {
         if (gameDataToProcess instanceof MultiplayerGameData) {
-          // incorrect answers with enemies in stock - add from stock to to spawn
-          gameDataToProcess.receivedEnemiesToSpawn +=
-            gameDataToProcess.receivedEnemiesStock;
-          gameDataToProcess.receivedEnemiesStock = 0;
-          room?.gameActionRecord.addStockReleaseAction(gameDataToProcess);
+          releaseEnemyStock(gameDataToProcess, room as MultiplayerRoom);
         }
       }
       break;
@@ -353,6 +353,14 @@ function getInputInformation(code: string) {
     action: InputAction.Unknown,
     argument: "" // no need
   };
+}
+
+function releaseEnemyStock(gameDataToProcess: GameData, room: MultiplayerRoom) {
+  // incorrect answers with enemies in stock - add from stock to to spawn
+  gameDataToProcess.receivedEnemiesToSpawn +=
+    gameDataToProcess.receivedEnemiesStock;
+  gameDataToProcess.receivedEnemiesStock = 0;
+  room?.gameActionRecord.addStockReleaseAction(gameDataToProcess);
 }
 
 export {
