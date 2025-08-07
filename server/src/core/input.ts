@@ -55,7 +55,7 @@ interface InputActionInterface {
   argument: string;
 }
 const SEND_KEYS = ["Space", "Enter"];
-
+const MAXIMUM_INPUT_LENGTH = 7;
 /**
  * Emulates a keypress for a player as if the player pressed the key themselves.
  * Note that it will also log that the press is emulated.
@@ -156,7 +156,7 @@ function processInputInformation(
   gameDataToProcess.actionsPerformed++;
   switch (inputInformation.action) {
     case InputAction.AddDigit: {
-      if (gameDataToProcess.currentInput.length > 7) {
+      if (gameDataToProcess.currentInput.length > MAXIMUM_INPUT_LENGTH) {
         return;
       }
       gameDataToProcess.currentInput += inputInformation.argument.toString();
@@ -170,7 +170,7 @@ function processInputInformation(
       break;
     }
     case InputAction.AddSubtractionSign: {
-      if (gameDataToProcess.currentInput.length > 7) {
+      if (gameDataToProcess.currentInput.length > MAXIMUM_INPUT_LENGTH) {
         return;
       }
       gameDataToProcess.currentInput += "-";
