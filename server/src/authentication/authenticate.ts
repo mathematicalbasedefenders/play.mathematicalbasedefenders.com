@@ -9,6 +9,10 @@ const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
 
 const DISCONNECTION_BORDER_COLOR = "#bb0000";
+const MINIMUM_USERNAME_LENGTH = 3;
+const MAXIMUM_USERNAME_LENGTH = 20;
+const MINIMUM_PASSWORD_LENGTH = 8;
+const MAXIMUM_PASSWORD_LENGTH = 48;
 
 // TODO: Consider moving this to services folder
 async function authenticateForSocket(
@@ -145,8 +149,8 @@ function validateData(
   );
   if (
     sanitizedUsername !== username ||
-    sanitizedUsername.length > 20 ||
-    sanitizedUsername.length < 3
+    sanitizedUsername.length > MAXIMUM_USERNAME_LENGTH ||
+    sanitizedUsername.length < MINIMUM_USERNAME_LENGTH
   ) {
     return {
       good: false,
@@ -156,8 +160,8 @@ function validateData(
   }
   if (
     sanitizedPassword !== password ||
-    sanitizedPassword.length > 48 ||
-    sanitizedPassword.length < 8
+    sanitizedPassword.length > MAXIMUM_PASSWORD_LENGTH ||
+    sanitizedPassword.length < MINIMUM_PASSWORD_LENGTH
   ) {
     return {
       good: false,
