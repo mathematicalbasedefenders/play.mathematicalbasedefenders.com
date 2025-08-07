@@ -98,13 +98,13 @@ function generateRankingPayload(rankingData: Array<any>) {
 
 function findRoomWithConnectionID(
   connectionID: string | undefined,
-  countSpectatorsToo?: boolean
+  considerSpectators?: boolean
 ) {
   if (typeof connectionID === "undefined") {
     return null;
   }
   for (let room in universal.rooms) {
-    if (countSpectatorsToo) {
+    if (considerSpectators) {
       if (universal.rooms[room].spectatorConnectionIDs.includes(connectionID)) {
         return universal.rooms[room];
       }
