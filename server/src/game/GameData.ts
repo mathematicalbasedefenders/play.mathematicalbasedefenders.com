@@ -33,6 +33,34 @@ interface CustomGameSettings {
   forcedEnemySpawnTime: string | number;
 }
 
+const FORCED_ENEMY_SPAWN_DECREMENT_TIME = 2500;
+
+const EASY_SINGLEPLAYER_ENEMY_SPAWN_ACTION_TIME = 150;
+const EASY_SINGLEPLAYER_COMBO_RESET_ACTION_TIME = 10000;
+const EASY_SINGLEPLAYER_REGENERATE_BASE_HEALTH_ACTION_TIME = 1000;
+const EASY_SINGLEPLAYER_ENEMY_STARTING_SPEED = 0.5;
+const EASY_SINGLEPLAYER_ENEMY_STARTING_SPAWN_THRESHOLD = 0.075;
+const EASY_SINGLEPLAYER_ENEMY_SPEED_INCREMENT = 0.025;
+const EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT = 0.2;
+const EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_DECREMENT = 0.05;
+
+const STANDARD_SINGLEPLAYER_ENEMY_SPAWN_ACTION_TIME = 100;
+const STANDARD_SINGLEPLAYER_COMBO_RESET_ACTION_TIME = 5000;
+const STANDARD_SINGLEPLAYER_REGENERATE_BASE_HEALTH_ACTION_TIME = 1000;
+const STANDARD_ENEMY_STARTING_SPEED = 1;
+const STANDARD_ENEMY_STARTING_SPAWN_THRESHOLD = 0.1;
+const STANDARD_SINGLEPLAYER_ENEMY_SPEED_INCREMENT = 0.05;
+const STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT = 0.1;
+const STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_DECREMENT = 0.1;
+
+const ENEMY_SPAWN_ACTION_TIME_MULTIPLIER_ON_LEVEL_UP = 0.9875;
+
+const ENEMIES_PER_LEVEL = 10;
+
+const INITIAL_BASE_HEALTH = 100;
+const INITIAL_MAXIMUM_BASE_HEALTH = 100;
+const INITIAL_BASE_HEALTH_REGENERATION = 2;
+
 /**
  * Base class for `GameData`.
  */
@@ -110,7 +138,7 @@ class GameData {
     this.score = 0;
     this.enemiesKilled = 0;
     this.enemiesSpawned = 0;
-    this.baseHealth = 100;
+    this.baseHealth = INITIAL_BASE_HEALTH;
     this.owner = owner;
     this.ownerConnectionID = owner.connectionID as string;
     this.ownerName =
@@ -127,53 +155,58 @@ class GameData {
     this.enemiesSentStock = 0;
     this.attackScore = 0;
     this.level = 1;
-    this.enemiesToNextLevel = 10;
-    this.baseHealthRegeneration = 2;
-    this.maximumBaseHealth = 100;
+    this.enemiesToNextLevel = ENEMIES_PER_LEVEL;
+    this.baseHealthRegeneration = INITIAL_BASE_HEALTH_REGENERATION;
+    this.maximumBaseHealth = INITIAL_MAXIMUM_BASE_HEALTH;
     this.actionsPerformed = 0;
     // per mode
     if (mode === GameMode.EasySingleplayer) {
       this.clocks = {
         enemySpawn: {
           currentTime: 0,
-          actionTime: 150 // *0.9875 every level
+          actionTime: EASY_SINGLEPLAYER_ENEMY_SPAWN_ACTION_TIME // *0.9875 every level
         },
         forcedEnemySpawn: {
           currentTime: 0,
-          actionTime: 7500 // always 2500ms before comboReset actionTime
+          actionTime:
+            EASY_SINGLEPLAYER_COMBO_RESET_ACTION_TIME -
+            FORCED_ENEMY_SPAWN_DECREMENT_TIME // always 2500ms before comboReset actionTime
         },
         comboReset: {
           currentTime: 0,
-          actionTime: 10000
+          actionTime: EASY_SINGLEPLAYER_COMBO_RESET_ACTION_TIME
         },
         regenerateBaseHealth: {
           currentTime: 0,
-          actionTime: 1000
+          actionTime: EASY_SINGLEPLAYER_REGENERATE_BASE_HEALTH_ACTION_TIME
         }
       };
-      this.enemySpeedCoefficient = 0.5; // no change
-      this.enemySpawnThreshold = 0.075;
+      this.enemySpeedCoefficient = EASY_SINGLEPLAYER_ENEMY_STARTING_SPEED; // no change
+      this.enemySpawnThreshold =
+        EASY_SINGLEPLAYER_ENEMY_STARTING_SPAWN_THRESHOLD;
     } else {
       this.clocks = {
         enemySpawn: {
           currentTime: 0,
-          actionTime: 100 // *0.9875 every level
+          actionTime: STANDARD_SINGLEPLAYER_ENEMY_SPAWN_ACTION_TIME // *0.9875 every level
         },
         forcedEnemySpawn: {
           currentTime: 0,
-          actionTime: 2500 // always 2500ms before comboReset actionTime
+          actionTime:
+            STANDARD_SINGLEPLAYER_COMBO_RESET_ACTION_TIME -
+            FORCED_ENEMY_SPAWN_DECREMENT_TIME // always 2500ms before comboReset actionTime
         },
         comboReset: {
           currentTime: 0,
-          actionTime: 5000
+          actionTime: STANDARD_SINGLEPLAYER_COMBO_RESET_ACTION_TIME
         },
         regenerateBaseHealth: {
           currentTime: 0,
-          actionTime: 1000
+          actionTime: STANDARD_SINGLEPLAYER_REGENERATE_BASE_HEALTH_ACTION_TIME
         }
       };
-      this.enemySpeedCoefficient = 1; // +0.05 every level
-      this.enemySpawnThreshold = 0.1;
+      this.enemySpeedCoefficient = STANDARD_ENEMY_STARTING_SPEED; // +0.05 every level
+      this.enemySpawnThreshold = STANDARD_ENEMY_STARTING_SPAWN_THRESHOLD;
     }
     this.timestampOfSynchronization = Date.now();
   }
@@ -203,35 +236,53 @@ class SingleplayerGameData extends GameData {
     }
     for (let i = 0; i < amount; i++) {
       this.level++;
-      this.clocks.enemySpawn.actionTime *= 0.9875;
+      this.clocks.enemySpawn.actionTime *=
+        ENEMY_SPAWN_ACTION_TIME_MULTIPLIER_ON_LEVEL_UP;
       switch (this.mode) {
         case GameMode.EasySingleplayer: {
           // faster enemies
-          this.enemySpeedCoefficient += 0.025;
+          this.enemySpeedCoefficient += EASY_SINGLEPLAYER_ENEMY_SPEED_INCREMENT;
           // lower base health regeneration
-          if (this.baseHealthRegeneration >= 0.2) {
-            this.baseHealthRegeneration -= 0.05;
+          if (
+            this.baseHealthRegeneration >=
+            EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT
+          ) {
+            this.baseHealthRegeneration -=
+              EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_DECREMENT;
           }
-          if (this.baseHealthRegeneration < 0.2) {
-            this.baseHealthRegeneration = 0.2;
+          if (
+            this.baseHealthRegeneration <
+            EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT
+          ) {
+            this.baseHealthRegeneration =
+              EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT;
           }
           break;
         }
         case GameMode.StandardSingleplayer: {
           // faster enemies
-          this.enemySpeedCoefficient += 0.05;
+          this.enemySpeedCoefficient +=
+            STANDARD_SINGLEPLAYER_ENEMY_SPEED_INCREMENT;
           // lower base health regeneration
-          if (this.baseHealthRegeneration >= 0.1) {
-            this.baseHealthRegeneration -= 0.1;
+          if (
+            this.baseHealthRegeneration >=
+            STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT
+          ) {
+            this.baseHealthRegeneration -=
+              STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_DECREMENT;
           }
-          if (this.baseHealthRegeneration < 0.1) {
-            this.baseHealthRegeneration = 0.1;
+          if (
+            this.baseHealthRegeneration <
+            STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT
+          ) {
+            this.baseHealthRegeneration =
+              STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_DECREMENT;
           }
           break;
         }
       }
     }
-    this.enemiesToNextLevel = 10;
+    this.enemiesToNextLevel = ENEMIES_PER_LEVEL;
   }
 }
 
