@@ -153,6 +153,12 @@ function createGlobalMessageObject(
   return toReturn;
 }
 
+/**
+ * Sends a global chat message (in the global tray). This does not validate anything.
+ * This method shouldn't be called on its own, it pass validation checks first.
+ * @param message The message to send.
+ * @param socket The socket of the message sender.
+ */
 function sendGlobalChatMessage(message: string, socket: universal.GameSocket) {
   const connectionID = socket.connectionID as string;
   const playerName = universal.getNameFromConnectionID(connectionID);
