@@ -51,9 +51,6 @@ function sendChatMessage(
       }
       const room = findRoomWithConnectionID(connectionID, true) as Room;
       room.addChatMessage(message, socket);
-      log.info(
-        `Socket ID ${connectionID} (${playerName}) sent message ${message} to Room ID ${room.id}`
-      );
       break;
     }
     case "global": {

@@ -185,6 +185,11 @@ class Room {
         );
       }
     }
+
+    // log the chat message
+    log.info(
+      `${messageToSend.senderName} sent message ${message} to Room ID ${this.id}`
+    );
   }
 
   /**
