@@ -3,7 +3,8 @@ import * as universal from "../universal";
 import {
   leaveMultiplayerRoom,
   MultiplayerRoom,
-  processKeypressForRoom
+  processKeypressForRoom,
+  Room
 } from "../game/Room";
 import {
   GameData,
@@ -229,25 +230,7 @@ function processInputInformation(
 
             if (gameDataToProcess.enemiesToNextLevel <= 0) {
               gameDataToProcess.increaseLevel(1);
-
-              // update replay data
-              const keys = [
-                "clocks.enemySpawn.actionTime",
-                "enemySpeedCoefficient",
-                "baseHealthRegeneration",
-                "level"
-              ];
-
-              if (room) {
-                for (const key of keys) {
-                  room.gameActionRecord.addSetGameDataAction(
-                    gameDataToProcess,
-                    "player",
-                    key,
-                    _.get(gameDataToProcess, key)
-                  );
-                }
-              }
+              updateReplayClockData(gameDataToProcess, room as Room);
             }
           }
           enemy.kill(gameDataToProcess, true, true);
@@ -361,6 +344,25 @@ function releaseEnemyStock(gameDataToProcess: GameData, room: MultiplayerRoom) {
     gameDataToProcess.receivedEnemiesStock;
   gameDataToProcess.receivedEnemiesStock = 0;
   room?.gameActionRecord.addStockReleaseAction(gameDataToProcess);
+}
+
+function updateReplayClockData(gameDataToProcess: GameData, room: Room) {
+  // update replay data
+  const keys = [
+    "clocks.enemySpawn.actionTime",
+    "enemySpeedCoefficient",
+    "baseHealthRegeneration",
+    "level"
+  ];
+
+  for (const key of keys) {
+    room.gameActionRecord.addSetGameDataAction(
+      gameDataToProcess,
+      "player",
+      key,
+      _.get(gameDataToProcess, key)
+    );
+  }
 }
 
 export {
