@@ -51,6 +51,16 @@ async function authenticate(
   socket.send(JSON.stringify({ message: "exitOpeningScreen" }));
 
   /** Send data. */
+  sendUserStatistics(socket, userData);
+
+  // Also add missing keys
+  if (socket.ownerUserID) {
+    User.addMissingKeys(socket.ownerUserID);
+  }
+  return true;
+}
+
+function sendUserStatistics(socket: universal.GameSocket, userData: any) {
   const statistics = userData.statistics;
   socket.send(
     JSON.stringify({
@@ -69,12 +79,6 @@ async function authenticate(
       }
     })
   );
-
-  // Also add missing keys
-  if (socket.ownerUserID) {
-    User.addMissingKeys(socket.ownerUserID);
-  }
-  return true;
 }
 
 export { authenticate };
