@@ -105,18 +105,12 @@ function findRoomWithConnectionID(
   }
   for (let room in universal.rooms) {
     if (countSpectatorsToo) {
-      if (
-        universal.rooms[room].memberConnectionIDs.indexOf(connectionID) > -1 ||
-        universal.rooms[room].spectatorConnectionIDs.indexOf(connectionID) > -1
-      ) {
+      if (universal.rooms[room].spectatorConnectionIDs.includes(connectionID)) {
         return universal.rooms[room];
       }
-    } else {
-      if (
-        universal.rooms[room].memberConnectionIDs.indexOf(connectionID) > -1
-      ) {
-        return universal.rooms[room];
-      }
+    }
+    if (universal.rooms[room].memberConnectionIDs.includes(connectionID)) {
+      return universal.rooms[room];
     }
   }
   return null;
