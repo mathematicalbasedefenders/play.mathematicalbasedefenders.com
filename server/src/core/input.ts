@@ -338,6 +338,11 @@ function getInputInformation(code: string) {
   };
 }
 
+/**
+ * Releases ALL the enemies in a `GameData`'s enemy stock.
+ * @param {GameData} gameDataToProcess
+ * @param {room} room
+ */
 function releaseEnemyStock(gameDataToProcess: GameData, room: MultiplayerRoom) {
   // incorrect answers with enemies in stock - add from stock to to spawn
   gameDataToProcess.receivedEnemiesToSpawn +=
