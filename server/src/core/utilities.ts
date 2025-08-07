@@ -96,6 +96,12 @@ function generateRankingPayload(rankingData: Array<any>) {
   }));
 }
 
+/**
+ * Finds the room where the socket with connectionID `connectionID` is in.
+ * @param {string} connectionID The `connectionID` to search on.
+ * @param {boolean} considerSpectators Whether to also count spectators as "in the room".
+ * @returns The room if found, `null` otherwise.
+ */
 function findRoomWithConnectionID(
   connectionID: string | undefined,
   considerSpectators?: boolean
