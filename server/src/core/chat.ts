@@ -18,6 +18,8 @@ const CLEAR_BAD_MESSAGE_OBJECT = {
   selector: "#chat-tray-error",
   value: ""
 };
+//
+const MAXIMUM_CHAT_MESSAGE_LENGTH = 256;
 /**
  * Attempts to send a chat message to a room.
  * @param {string} scope the scope/visibility of the message
@@ -102,7 +104,7 @@ function validateMessage(message: string, connectionID: string) {
   const playerName = universal.getNameFromConnectionID(connectionID);
   const notEmpty = message !== "";
   const notJustBlank = message.replace(/\s/g, "").length > 0;
-  const notTooLong = message.length <= 256;
+  const notTooLong = message.length <= MAXIMUM_CHAT_MESSAGE_LENGTH;
   const notDangerous = DOMPurify.sanitize(message) === message;
   if (!(notEmpty && notJustBlank && notTooLong && notDangerous)) {
     log.warn(
