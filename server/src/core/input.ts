@@ -284,11 +284,10 @@ function processInputInformation(
             })
           );
         }
+        gameDataToProcess.currentInput = "";
       }
       // reset input
-      if (enemyKilled) {
-        gameDataToProcess.currentInput = "";
-      } else {
+      if (!enemyKilled) {
         if (gameDataToProcess instanceof MultiplayerGameData) {
           // incorrect answers with enemies in stock - add from stock to to spawn
           gameDataToProcess.receivedEnemiesToSpawn +=
