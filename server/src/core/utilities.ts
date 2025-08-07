@@ -413,9 +413,10 @@ function calculateAPM(actions: number, elapsedTime: number) {
  * en-US locale, 3 decimal places.
  */
 function formatNumber(n: number) {
+  const DECIMAL_PLACES = 3;
   return n.toLocaleString("en-US", {
-    minimumFractionDigits: 3,
-    maximumFractionDigits: 3
+    minimumFractionDigits: DECIMAL_PLACES,
+    maximumFractionDigits: DECIMAL_PLACES
   });
 }
 
