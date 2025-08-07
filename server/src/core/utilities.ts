@@ -195,14 +195,16 @@ function validateCustomGameSettings(
         ok = false;
         continue;
       }
-      if (
-        !(
-          parsedValue >= restriction.minimum &&
-          parsedValue <= restriction.maximum
-        )
-      ) {
+      if (parsedValue < restriction.minimum) {
         errors.push(
-          `Value too high or too low in ${key}: got ${parsedValue}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
+          `Value too low in ${key}: got ${parsedValue}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
+        );
+        ok = false;
+        continue;
+      }
+      if (restriction.maximum < parsedValue) {
+        errors.push(
+          `Value too high in ${key}: got ${parsedValue}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
         );
         ok = false;
         continue;
