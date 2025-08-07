@@ -6,6 +6,9 @@ import * as utilities from "../core/utilities";
 import * as universal from "../universal";
 import { DOMPurifySanitizer } from "../sanitizer";
 
+const FAILED_BORDER_COLOR = "#ff0000";
+const SUCCESS_BORDER_COLOR = "#00dd00";
+
 async function authenticate(
   username: string,
   password: string,
@@ -30,8 +33,7 @@ async function authenticate(
   if (!result.good) {
     log.warn(`Login attempt for ${username} failed: ${result.reason}`);
     const MESSAGE = `Failed to login as ${username} (${result.reason})`;
-    const BORDER_COLOR = "#ff0000";
-    universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+    universal.sendToastMessageToSocket(socket, MESSAGE, FAILED_BORDER_COLOR);
     return false;
   }
 
@@ -43,8 +45,7 @@ async function authenticate(
   utilities.updateSocketUserInformation(socket);
   socket.playerRank = utilities.getRank(userData);
   const MESSAGE = `Successfully logged in as ${sanitizedUsername}`;
-  const BORDER_COLOR = "#1fa628";
-  universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+  universal.sendToastMessageToSocket(socket, MESSAGE, SUCCESS_BORDER_COLOR);
 
   /** Exit opening screen */
   socket.send(JSON.stringify({ message: "exitOpeningScreen" }));
