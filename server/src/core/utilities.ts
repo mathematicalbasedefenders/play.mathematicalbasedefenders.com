@@ -184,15 +184,6 @@ function validateCustomGameSettings(
   for (const key in settings) {
     const restriction = SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES[key];
     const parsedValue = settings[key];
-    // if (typeof parsedValue !== restriction.type) {
-    //   errors.push(
-    //     `Wrong type in ${key}: got ${typeof parsedValue}, but expected ${
-    //       restriction.type
-    //     }.`
-    //   );
-    //   ok = false;
-    //   continue;
-    // }
     // check numbers
     if (restriction.type === "number") {
       if (!IS_NUMBER_REGEX.test(parsedValue as string)) {
