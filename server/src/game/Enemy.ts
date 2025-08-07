@@ -12,6 +12,8 @@ import { findRoomWithConnectionID } from "../core/utilities";
 const MINIMUM_GENERABLE_NUMBER = -100;
 const POSSIBLE_FACTORS = [2, 3, 4, 5, 6, 8, 9, 10, 11];
 
+const DEFAULT_SPEED = 0.01;
+
 interface EnemyAttributes {
   attack?: number;
   health?: number;
@@ -50,7 +52,7 @@ class Enemy {
   }
 
   move(distance?: number) {
-    this.sPosition -= distance || 0.01;
+    this.sPosition -= distance || DEFAULT_SPEED;
   }
 
   check(input: number) {
