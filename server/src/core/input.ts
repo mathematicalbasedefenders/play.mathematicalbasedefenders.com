@@ -313,38 +313,38 @@ function processInputInformation(
  * @returns {object} An object detailing what action and argument to pass to the next function.
  */
 function getInputInformation(code: string) {
-  if (NUMBER_PAD_KEYS.indexOf(code) > -1) {
+  if (NUMBER_PAD_KEYS.includes(code)) {
     return {
       action: InputAction.AddDigit,
       argument: NUMBER_PAD_KEYS.indexOf(code).toString()
     };
   }
   // TODO: consider checking inputInformation as well, to save probably less than a millisecond of time
-  if (NUMBER_ROW_KEYS.indexOf(code) > -1) {
+  if (NUMBER_ROW_KEYS.includes(code)) {
     return {
       action: InputAction.AddDigit,
       argument: NUMBER_ROW_KEYS.indexOf(code).toString()
     };
   }
-  if (REMOVE_DIGIT_KEYS.indexOf(code) > -1) {
+  if (REMOVE_DIGIT_KEYS.includes(code)) {
     return {
       action: InputAction.RemoveDigit,
       argument: ""
     };
   }
-  if (SEND_KEYS.indexOf(code) > -1) {
+  if (SEND_KEYS.includes(code)) {
     return {
       action: InputAction.SendAnswer,
       argument: "" // TODO: Optionally put in current game data's current Input
     };
   }
-  if (SUBTRACTION_SIGN_KEYS.indexOf(code) > -1) {
+  if (SUBTRACTION_SIGN_KEYS.includes(code)) {
     return {
       action: InputAction.AddSubtractionSign,
       argument: "" // TODO: Optionally put in current game data's current Input
     };
   }
-  if (ABORT_KEYS.indexOf(code) > -1) {
+  if (ABORT_KEYS.includes(code)) {
     return {
       action: InputAction.AbortGame,
       argument: ""
