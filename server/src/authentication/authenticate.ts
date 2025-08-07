@@ -13,6 +13,7 @@ const MINIMUM_USERNAME_LENGTH = 3;
 const MAXIMUM_USERNAME_LENGTH = 20;
 const MINIMUM_PASSWORD_LENGTH = 8;
 const MAXIMUM_PASSWORD_LENGTH = 48;
+const VALID_SOCKET_ID_LENGTH = 16;
 
 // TODO: Consider moving this to services folder
 async function authenticateForSocket(
@@ -222,7 +223,7 @@ function checkIfSocketCanBeAuthenticated(connectionID: string) {
   }
 
   // socket's id is in an incorrect format.
-  if (socket.connectionID.length !== 16) {
+  if (socket.connectionID.length !== VALID_SOCKET_ID_LENGTH) {
     log.warn(`A user tried to log in, but the socket's identifier is invalid.`);
     return {
       good: false,
