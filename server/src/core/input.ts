@@ -1,8 +1,8 @@
 import { log } from "./log";
 import * as universal from "../universal";
+import * as utilities from "../core/utilities";
 import {
-  leaveMultiplayerRoom,
-  MultiplayerRoom,
+  defaultMultiplayerRoomID,
   processKeypressForRoom,
   Room
 } from "../game/Room";
@@ -276,7 +276,7 @@ function processInputInformation(
       // reset input
       if (!enemyKilled) {
         if (gameDataToProcess instanceof MultiplayerGameData) {
-          releaseEnemyStock(gameDataToProcess, room as MultiplayerRoom);
+          releaseEnemyStock(gameDataToProcess, room as Room);
         }
       }
       break;
@@ -343,7 +343,7 @@ function getInputInformation(code: string) {
  * @param {GameData} gameDataToProcess
  * @param {room} room
  */
-function releaseEnemyStock(gameDataToProcess: GameData, room: MultiplayerRoom) {
+function releaseEnemyStock(gameDataToProcess: GameData, room: Room) {
   // incorrect answers with enemies in stock - add from stock to to spawn
   gameDataToProcess.receivedEnemiesToSpawn +=
     gameDataToProcess.receivedEnemiesStock;
@@ -375,10 +375,32 @@ function updateReplayClockData(gameDataToProcess: GameData, room: Room) {
   }
 }
 
+// This just attempts to leave.
+function leaveMultiplayerRoom(socket: universal.GameSocket) {
+  // TODO: Implement for spectators when spectators are implemented.
+  let room = universal.rooms.find(
+    (element) =>
+      element.memberConnectionIDs.indexOf(socket.connectionID as string) > -1
+  );
+  if (room?.mode === GameMode.DefaultMultiplayer) {
+    if (room.playing) {
+      let gameData = utilities.findGameDataWithConnectionID(
+        socket.connectionID as string
+      );
+      if (gameData) {
+        room.abort(gameData);
+      }
+    }
+    room.deleteMember(socket);
+    socket.unsubscribe(defaultMultiplayerRoomID as string);
+  }
+}
+
 export {
   processKeypress,
   getInputInformation,
   processInputInformation,
   emulateKeypress,
-  InputAction
+  InputAction,
+  leaveMultiplayerRoom
 };
