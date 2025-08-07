@@ -1,6 +1,6 @@
 const mongoDBSanitize = require("express-mongo-sanitize");
 import { log } from "../core/log";
-import { User } from "../models/User";
+import { User, UserInterface } from "../models/User";
 import { authenticateForSocket } from "./authenticate";
 import * as utilities from "../core/utilities";
 import * as universal from "../universal";
@@ -60,7 +60,10 @@ async function authenticate(
   return true;
 }
 
-function sendUserStatistics(socket: universal.GameSocket, userData: any) {
+function sendUserStatistics(
+  socket: universal.GameSocket,
+  userData: UserInterface
+) {
   const username = userData.username;
   const playerRank = utilities.getRank(userData);
   const statistics = userData.statistics;
