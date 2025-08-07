@@ -7,6 +7,10 @@ const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
+
+const DISCONNECTION_BORDER_COLOR = "#bb0000";
+const INCORRECT_BORDER_COLOR = "#ff0000";
+
 // TODO: Consider moving this to services folder
 async function authenticateForSocket(
   username: unknown | undefined,
