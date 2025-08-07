@@ -39,19 +39,9 @@ function sendChatMessage(
   const playerName = universal.getNameFromConnectionID(connectionID);
   switch (scope) {
     case "room": {
-      const roomID = findRoomWithConnectionID(connectionID, true)?.id;
-      if (typeof roomID === "undefined") {
+      if (!validateRoom(connectionID)) {
         log.warn(
-          `Room Undefined found for Socket ID ${connectionID} (${playerName}) when validating chat message.`
-        );
-        return;
-      }
-      const roomIndex = universal.rooms.findIndex(
-        (element) => element.id === roomID
-      );
-      if (roomIndex === -1) {
-        log.warn(
-          `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+          `Bad chat room validation for ${connectionID} (${playerName})`
         );
         return;
       }
@@ -72,18 +62,7 @@ function sendChatMessage(
         socket.send(JSON.stringify(BAD_MESSAGE_OBJECT));
         return;
       }
-      const messageObject = createGlobalMessageObject(
-        message,
-        connectionID,
-        socket?.playerRank?.color
-      );
-      socket.publish("game", JSON.stringify(messageObject));
-      socket.send(JSON.stringify(messageObject));
-      socket.send(JSON.stringify(CLEAR_BAD_MESSAGE_OBJECT));
-      log.info(
-        `Socket ID ${connectionID} (${playerName}) sent message ${message} to global chat.`
-      );
-      break;
+      sendGlobalChatMessage(message, socket);
     }
     default: {
       log.warn(
@@ -92,6 +71,27 @@ function sendChatMessage(
       break;
     }
   }
+}
+
+function validateRoom(connectionID: string) {
+  const playerName = universal.getNameFromConnectionID(connectionID);
+  const roomID = findRoomWithConnectionID(connectionID, true)?.id;
+  if (typeof roomID === "undefined") {
+    log.warn(
+      `Room Undefined found for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+    );
+    return false;
+  }
+  const roomIndex = universal.rooms.findIndex(
+    (element) => element.id === roomID
+  );
+  if (roomIndex === -1) {
+    log.warn(
+      `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+    );
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -149,5 +149,21 @@ function createGlobalMessageObject(
     }
   };
   return toReturn;
+}
+
+function sendGlobalChatMessage(message: string, socket: universal.GameSocket) {
+  const connectionID = socket.connectionID as string;
+  const playerName = universal.getNameFromConnectionID(connectionID);
+  const messageObject = createGlobalMessageObject(
+    message,
+    connectionID,
+    socket?.playerRank?.color
+  );
+  socket.publish("game", JSON.stringify(messageObject));
+  socket.send(JSON.stringify(messageObject));
+  socket.send(JSON.stringify(CLEAR_BAD_MESSAGE_OBJECT));
+  log.info(
+    `Socket ID ${connectionID} (${playerName}) sent message ${message} to global chat.`
+  );
 }
 export { sendChatMessage };
