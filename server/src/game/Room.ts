@@ -256,7 +256,7 @@ class Room {
 }
 
 function generateRoomID(length: number): string {
-  let pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let current = "";
   while (
     current === "" ||
