@@ -24,7 +24,7 @@ class SingleplayerRoom extends Room {
     super(host, mode);
     // custom settings
     if (typeof settings !== "undefined") {
-      setCustomSingleplayerRoomRules(this, settings);
+      this.setCustomSingleplayerRoomRules(settings);
     }
   }
 
@@ -168,6 +168,33 @@ class SingleplayerRoom extends Room {
       this.deleteMember(socket);
     }
   }
+
+  /**
+   * Sets the custom rules to this room.
+   * @param {any} settings The settings to set this room to.
+   */
+  setCustomSingleplayerRoomRules(settings: { [key: string]: any }) {
+    this.customSettings = {
+      baseHealth: 100,
+      comboTime: 5000,
+      enemySpeedCoefficient: 1,
+      enemySpawnThreshold: 0.1,
+      enemySpawnTime: 100,
+      forcedEnemySpawnTime: 2500
+    };
+    this.customSettings.baseHealth = parseFloat(settings.baseHealth);
+    this.customSettings.comboTime = parseFloat(settings.comboTime);
+    this.customSettings.enemySpeedCoefficient = parseFloat(
+      settings.enemySpeedCoefficient
+    );
+    this.customSettings.enemySpawnTime = parseFloat(settings.enemySpawnTime);
+    this.customSettings.enemySpawnThreshold = parseFloat(
+      settings.enemySpawnChance
+    );
+    this.customSettings.forcedEnemySpawnTime = parseFloat(
+      settings.forcedEnemySpawnTime
+    );
+  }
 }
 
 /**
@@ -185,37 +212,6 @@ function createSingleplayerRoom(
   const room = new SingleplayerRoom(caller, gameMode, settings);
   universal.rooms.push(room);
   return room;
-}
-
-/**
- * Sets the custom rules to a room.
- * @param {Room} room The room to set settings to.
- * @param {any} settings The settings to set the room to.
- */
-function setCustomSingleplayerRoomRules(
-  room: Room,
-  settings: { [key: string]: any }
-) {
-  room.customSettings = {
-    baseHealth: 100,
-    comboTime: 5000,
-    enemySpeedCoefficient: 1,
-    enemySpawnThreshold: 0.1,
-    enemySpawnTime: 100,
-    forcedEnemySpawnTime: 2500
-  };
-  room.customSettings.baseHealth = parseFloat(settings.baseHealth);
-  room.customSettings.comboTime = parseFloat(settings.comboTime);
-  room.customSettings.enemySpeedCoefficient = parseFloat(
-    settings.enemySpeedCoefficient
-  );
-  room.customSettings.enemySpawnTime = parseFloat(settings.enemySpawnTime);
-  room.customSettings.enemySpawnThreshold = parseFloat(
-    settings.enemySpawnChance
-  );
-  room.customSettings.forcedEnemySpawnTime = parseFloat(
-    settings.forcedEnemySpawnTime
-  );
 }
 
 export { createSingleplayerRoom, SingleplayerRoom };
