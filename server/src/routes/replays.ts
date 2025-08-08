@@ -28,7 +28,7 @@ router.get("/api/replays/:replayID", limiter, async (request, response) => {
     const data = await GameActionRecord.findOne({ _id: sanitizedReplayID });
 
     if (!data) {
-      log.error(`Game recording ${sanitizedReplayID} doesn't exist.`);
+      log.warn(`Game recording ${sanitizedReplayID} doesn't exist.`);
       response.status(404).json({
         ok: false,
         reason: `Game recording ${sanitizedReplayID} doesn't exist.`
