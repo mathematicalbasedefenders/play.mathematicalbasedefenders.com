@@ -28,12 +28,16 @@ import * as utilities from "../core/utilities";
 import { Enemy } from "./Enemy";
 import * as enemy from "./Enemy";
 
+const PLAYER_LIST_UPDATE_INTERVAL = 1000;
+
 class MultiplayerRoom extends Room {
   nextGameStartTime!: Date | null;
   globalEnemySpawnThreshold: number;
   globalClock: ClockInterface;
   playersAtStart!: number;
   globalEnemyToAdd!: Enemy | null;
+  timeSinceLastPlayerListUpdate: number;
+
   constructor(host: universal.GameSocket, mode: GameMode, noHost: boolean) {
     super(host, mode, noHost);
     this.nextGameStartTime = null;
@@ -51,6 +55,8 @@ class MultiplayerRoom extends Room {
           GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_FORCED_ENEMY_SPAWN_ACTION_TIME
       }
     };
+    // this isn't in `globalClock` because it's not part of gameplay.
+    this.timeSinceLastPlayerListUpdate = 0;
   }
 
   startPlay() {
@@ -110,6 +116,10 @@ class MultiplayerRoom extends Room {
 
     // other global stuff
     for (const connectionID of this.memberConnectionIDs) {
+      this.timeSinceLastPlayerListUpdate += deltaTime;
+      if (this.timeSinceLastPlayerListUpdate <= PLAYER_LIST_UPDATE_INTERVAL) {
+        continue;
+      }
       const socket = universal.getSocketFromConnectionID(connectionID);
       if (!socket) {
         continue;
@@ -136,6 +146,7 @@ class MultiplayerRoom extends Room {
           data: playersPayload
         })
       );
+      this.timeSinceLastPlayerListUpdate = 0;
     }
 
     // Then update specifically for multiplayer rooms
