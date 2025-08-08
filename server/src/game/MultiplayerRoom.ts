@@ -19,15 +19,14 @@ import {
   ClockInterface,
   GameMode,
   MultiplayerGameData,
-  GameData
+  GameData,
+  GAME_DATA_CONSTANTS
 } from "./GameData";
 import { Room } from "./Room";
 import * as universal from "../universal";
 import * as utilities from "../core/utilities";
 import { Enemy } from "./Enemy";
 import * as enemy from "./Enemy";
-
-const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
 
 class MultiplayerRoom extends Room {
   nextGameStartTime!: Date | null;
@@ -38,15 +37,18 @@ class MultiplayerRoom extends Room {
   constructor(host: universal.GameSocket, mode: GameMode, noHost: boolean) {
     super(host, mode, noHost);
     this.nextGameStartTime = null;
-    this.globalEnemySpawnThreshold = 0.1;
+    this.globalEnemySpawnThreshold =
+      GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_GLOBAL_ENEMY_STARTING_SPAWN_THRESHOLD;
     this.globalClock = {
       enemySpawn: {
         currentTime: 0,
-        actionTime: 100
+        actionTime:
+          GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_GLOBAL_ENEMY_SPAWN_ACTION_TIME
       },
       forcedEnemySpawn: {
         currentTime: 0,
-        actionTime: 2500
+        actionTime:
+          GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_FORCED_ENEMY_SPAWN_ACTION_TIME
       }
     };
   }
@@ -142,16 +144,18 @@ class MultiplayerRoom extends Room {
       // Check if there is at least 2 players - if so, start intermission countdown
       if (
         this.nextGameStartTime == null &&
-        this.memberConnectionIDs.length >= 2
+        this.memberConnectionIDs.length >=
+          GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
       ) {
         this.nextGameStartTime = new Date(
-          Date.now() + DEFAULT_MULTIPLAYER_INTERMISSION_TIME
+          Date.now() + GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_INTERMISSION_TIME
         );
       }
       // Check if there is less than 2 players - if so, stop intermission countdown
       if (
         this.nextGameStartTime instanceof Date &&
-        this.memberConnectionIDs.length < 2
+        this.memberConnectionIDs.length <
+          GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
       ) {
         this.nextGameStartTime = null;
       }
@@ -493,7 +497,7 @@ class MultiplayerRoom extends Room {
   stopPlay() {
     this.playing = false;
     this.nextGameStartTime = new Date(
-      Date.now() + DEFAULT_MULTIPLAYER_INTERMISSION_TIME
+      Date.now() + GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_INTERMISSION_TIME
     );
     this.connectionIDsThisRound = [];
     this.gameData = [];
