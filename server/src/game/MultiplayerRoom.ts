@@ -21,7 +21,7 @@ import {
   MultiplayerGameData,
   GameData
 } from "./GameData";
-import { defaultMultiplayerRoomID, Room } from "./Room";
+import { Room } from "./Room";
 import * as universal from "../universal";
 import * as utilities from "../core/utilities";
 import { Enemy } from "./Enemy";
