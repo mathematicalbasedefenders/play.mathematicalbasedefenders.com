@@ -393,7 +393,9 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
       }
     }
     room.deleteMember(socket);
-    socket.unsubscribe(defaultMultiplayerRoomID as string);
+    if (defaultMultiplayerRoomID) {
+      socket.unsubscribe(defaultMultiplayerRoomID);
+    }
   }
 }
 
