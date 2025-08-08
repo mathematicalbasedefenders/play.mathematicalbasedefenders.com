@@ -161,7 +161,7 @@ function processInputInformation(
   gameDataToProcess.actionsPerformed++;
   switch (inputInformation.action) {
     case InputAction.AddDigit: {
-      if (gameDataToProcess.currentInput.length > MAXIMUM_INPUT_LENGTH) {
+      if (gameDataToProcess.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
         return;
       }
       gameDataToProcess.currentInput += inputInformation.argument.toString();
@@ -175,7 +175,7 @@ function processInputInformation(
       break;
     }
     case InputAction.AddSubtractionSign: {
-      if (gameDataToProcess.currentInput.length > MAXIMUM_INPUT_LENGTH) {
+      if (gameDataToProcess.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
         return;
       }
       gameDataToProcess.currentInput += "-";
