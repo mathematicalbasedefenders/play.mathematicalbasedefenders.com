@@ -182,18 +182,30 @@ class SingleplayerRoom extends Room {
       enemySpawnTime: 100,
       forcedEnemySpawnTime: 2500
     };
-    this.customSettings.baseHealth = parseFloat(settings.baseHealth);
-    this.customSettings.comboTime = parseFloat(settings.comboTime);
-    this.customSettings.enemySpeedCoefficient = parseFloat(
-      settings.enemySpeedCoefficient
-    );
-    this.customSettings.enemySpawnTime = parseFloat(settings.enemySpawnTime);
-    this.customSettings.enemySpawnThreshold = parseFloat(
-      settings.enemySpawnChance
-    );
-    this.customSettings.forcedEnemySpawnTime = parseFloat(
-      settings.forcedEnemySpawnTime
-    );
+    if (!Number.isNaN(Number(settings.baseHealth))) {
+      this.customSettings.baseHealth = parseFloat(settings.baseHealth);
+    }
+    if (!Number.isNaN(Number(settings.comboTime))) {
+      this.customSettings.comboTime = parseFloat(settings.comboTime);
+    }
+    if (!Number.isNaN(Number(settings.enemySpeedCoefficient))) {
+      this.customSettings.enemySpeedCoefficient = parseFloat(
+        settings.enemySpeedCoefficient
+      );
+    }
+    if (!Number.isNaN(Number(settings.enemySpawnTime))) {
+      this.customSettings.enemySpawnTime = parseFloat(settings.enemySpawnTime);
+    }
+    if (!Number.isNaN(Number(settings.enemySpawnThreshold))) {
+      this.customSettings.enemySpawnThreshold = parseFloat(
+        settings.enemySpawnChance
+      );
+    }
+    if (!Number.isNaN(Number(settings.forcedEnemySpawnTime))) {
+      this.customSettings.forcedEnemySpawnTime = parseFloat(
+        settings.forcedEnemySpawnTime
+      );
+    }
   }
 }
 
