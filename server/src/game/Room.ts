@@ -278,7 +278,7 @@ function processKeypressForRoom(
   code: string,
   emulated?: boolean
 ) {
-  let roomToProcess = utilities.findRoomWithConnectionID(connectionID, false);
+  const roomToProcess = utilities.findRoomWithConnectionID(connectionID, false);
   let inputInformation: InputActionInterface = {
     action: InputAction.Unknown,
     argument: ""
@@ -286,7 +286,7 @@ function processKeypressForRoom(
   if (!roomToProcess) {
     return;
   }
-  let gameDataToProcess = utilities.findGameDataWithConnectionID(
+  const gameDataToProcess = utilities.findGameDataWithConnectionID(
     connectionID,
     roomToProcess
   );
