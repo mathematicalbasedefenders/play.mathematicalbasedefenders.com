@@ -146,9 +146,10 @@ class MultiplayerRoom extends Room {
         this.memberConnectionIDs.length >=
           GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
       ) {
-        this.nextGameStartTime = new Date(
-          Date.now() + GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_INTERMISSION_TIME
-        );
+        const nextGameStartTime =
+          Date.now() +
+          GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_INTERMISSION_TIME;
+        this.nextGameStartTime = new Date(nextGameStartTime);
       }
       // Check if there is less than 2 players - if so, stop intermission countdown
       if (
