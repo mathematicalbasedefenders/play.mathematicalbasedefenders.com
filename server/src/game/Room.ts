@@ -7,6 +7,7 @@ import { InputAction } from "../core/input";
 import { findRoomWithConnectionID } from "../core/utilities";
 import { GameData, GameMode, CustomGameSettings } from "./GameData";
 import { GameActionRecord } from "../replay/recording/ActionRecord";
+import { Enemy } from "./Enemy";
 
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -21,14 +22,14 @@ interface InputActionInterface {
 }
 
 interface MinifiedGameDataInterface {
-  baseHealth: number;
-  combo: number;
-  currentInput: string;
-  receivedEnemiesStock: number;
   owner: string;
-  ownerName: string;
-  enemies: number;
-  enemiesToErase: number;
+  ownerName?: string;
+  baseHealth?: number;
+  combo?: number;
+  currentInput?: string;
+  receivedEnemiesStock?: number;
+  enemies?: Array<Enemy>;
+  enemiesToErase?: Array<string>;
 }
 
 class Room {
@@ -339,15 +340,17 @@ function getOpponentsInformation(
   }
   const minifiedOpponentGameData = [];
   for (let singleGameData of opponentGameData) {
-    let minifiedGameData: { [key: string]: any } = {};
-    minifiedGameData.baseHealth = singleGameData.baseHealth;
-    minifiedGameData.combo = singleGameData.combo;
-    minifiedGameData.currentInput = singleGameData.currentInput;
-    minifiedGameData.receivedEnemiesStock = singleGameData.receivedEnemiesStock;
-    minifiedGameData.owner = singleGameData.ownerConnectionID;
-    minifiedGameData.ownerName = singleGameData.ownerName;
-    minifiedGameData.enemies = singleGameData.enemies;
-    minifiedGameData.enemiesToErase = singleGameData.enemiesToErase;
+    const minifiedGameData: MinifiedGameDataInterface = {
+      baseHealth: singleGameData.baseHealth,
+      combo: singleGameData.combo,
+      currentInput: singleGameData.currentInput,
+      receivedEnemiesStock: singleGameData.receivedEnemiesStock,
+      owner: singleGameData.ownerConnectionID,
+      ownerName: singleGameData.ownerName,
+      enemies: singleGameData.enemies,
+      enemiesToErase: singleGameData.enemiesToErase
+    };
+
     minifiedOpponentGameData.push(minifiedGameData);
     aliveConnectionIDs.push(singleGameData.ownerConnectionID);
   }
@@ -358,9 +361,10 @@ function getOpponentsInformation(
   );
   // console.log(eliminatedConnectionIDs);
   for (let eliminated of eliminatedConnectionIDs) {
-    const minifiedGameData: { [key: string]: any } = {};
-    minifiedGameData.owner = eliminated;
-    minifiedGameData.baseHealth = -99999;
+    const minifiedGameData: MinifiedGameDataInterface = {
+      owner: eliminated,
+      baseHealth: -99999
+    };
     minifiedOpponentGameData.push(minifiedGameData);
   }
   return minifiedOpponentGameData;
