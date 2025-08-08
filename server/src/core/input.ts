@@ -385,7 +385,8 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
   if (room?.mode === GameMode.DefaultMultiplayer) {
     if (room.playing) {
       let gameData = utilities.findGameDataWithConnectionID(
-        socket.connectionID as string
+        socket.connectionID as string,
+        room
       );
       if (gameData) {
         room.abort(gameData);
