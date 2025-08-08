@@ -215,7 +215,8 @@ class MultiplayerRoom extends Room {
 
         for (const enemy of data.enemies) {
           enemy.move(
-            GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED *
+            GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED *
+              GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT *
               data.enemySpeedCoefficient *
               (deltaTime / 1000)
           );
