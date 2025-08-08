@@ -4,6 +4,11 @@ import { STATUS } from "../universal";
 const SYSTEM_STATUS_UPDATE_INTERVAL = 5000;
 let systemStatusUpdateTime = 0;
 
+const LEVEL_2_MEMORY_THRESHOLD = 0.95;
+const LEVEL_1_MEMORY_THRESHOLD = 0.85;
+const LEVEL_2_DELTA_TIME_THRESHOLD = 100;
+const LEVEL_1_DELTA_TIME_THRESHOLD = 40;
+
 const result = {
   os: {
     level: 0,
