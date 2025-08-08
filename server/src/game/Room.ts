@@ -323,37 +323,36 @@ function getOpponentsInformation(
   const opponentGameData = currentRoom.gameData.filter(
     (element) => element.ownerConnectionID !== socket.connectionID
   );
-  if (minifyData) {
-    let minifiedOpponentGameData = [];
-    for (let singleGameData of opponentGameData) {
-      let minifiedGameData: { [key: string]: any } = {};
-      minifiedGameData.baseHealth = singleGameData.baseHealth;
-      minifiedGameData.combo = singleGameData.combo;
-      minifiedGameData.currentInput = singleGameData.currentInput;
-      minifiedGameData.receivedEnemiesStock =
-        singleGameData.receivedEnemiesStock;
-      minifiedGameData.owner = singleGameData.ownerConnectionID;
-      minifiedGameData.ownerName = singleGameData.ownerName;
-      minifiedGameData.enemies = singleGameData.enemies;
-      minifiedGameData.enemiesToErase = singleGameData.enemiesToErase;
-      minifiedOpponentGameData.push(minifiedGameData);
-      aliveConnectionIDs.push(singleGameData.ownerConnectionID);
-    }
-    // 0 base health players
-    let eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
-      (element) =>
-        !aliveConnectionIDs.includes(element) && element !== socket.connectionID
-    );
-    // console.log(eliminatedConnectionIDs);
-    for (let eliminated of eliminatedConnectionIDs) {
-      let minifiedGameData: { [key: string]: any } = {};
-      minifiedGameData.owner = eliminated;
-      minifiedGameData.baseHealth = -99999;
-      minifiedOpponentGameData.push(minifiedGameData);
-    }
-    return minifiedOpponentGameData;
+  if (!minifyData) {
+    return opponentGameData;
   }
-  return opponentGameData;
+  let minifiedOpponentGameData = [];
+  for (let singleGameData of opponentGameData) {
+    let minifiedGameData: { [key: string]: any } = {};
+    minifiedGameData.baseHealth = singleGameData.baseHealth;
+    minifiedGameData.combo = singleGameData.combo;
+    minifiedGameData.currentInput = singleGameData.currentInput;
+    minifiedGameData.receivedEnemiesStock = singleGameData.receivedEnemiesStock;
+    minifiedGameData.owner = singleGameData.ownerConnectionID;
+    minifiedGameData.ownerName = singleGameData.ownerName;
+    minifiedGameData.enemies = singleGameData.enemies;
+    minifiedGameData.enemiesToErase = singleGameData.enemiesToErase;
+    minifiedOpponentGameData.push(minifiedGameData);
+    aliveConnectionIDs.push(singleGameData.ownerConnectionID);
+  }
+  // 0 base health players
+  let eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
+    (element) =>
+      !aliveConnectionIDs.includes(element) && element !== socket.connectionID
+  );
+  // console.log(eliminatedConnectionIDs);
+  for (let eliminated of eliminatedConnectionIDs) {
+    let minifiedGameData: { [key: string]: any } = {};
+    minifiedGameData.owner = eliminated;
+    minifiedGameData.baseHealth = -99999;
+    minifiedOpponentGameData.push(minifiedGameData);
+  }
+  return minifiedOpponentGameData;
 }
 
 /**
