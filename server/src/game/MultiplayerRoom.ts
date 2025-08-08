@@ -140,7 +140,8 @@ class MultiplayerRoom extends Room {
 
     // Then update specifically for multiplayer rooms
     if (!this.playing) {
-      // Check if there is at least 2 players - if so, start intermission countdown
+      // Check if there is at least 2 players and timer hasn't started countdown.
+      // If so, start intermission countdown
       if (
         !this.nextGameStartTime &&
         this.memberConnectionIDs.length >=
