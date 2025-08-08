@@ -340,8 +340,8 @@ function getInputInformation(code: string) {
 
 /**
  * Releases ALL the enemies in a `GameData`'s enemy stock.
- * @param {GameData} gameDataToProcess
- * @param {Room} room
+ * @param {GameData} gameDataToProcess The `GameData` of the instance to release enemy stock.
+ * @param {Room} room The `Room` to add the enemies to. This should be the same as `GameData`'s location.
  */
 function releaseEnemyStock(gameDataToProcess: GameData, room: Room) {
   // incorrect answers with enemies in stock - add from stock to to spawn
