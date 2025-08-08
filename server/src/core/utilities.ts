@@ -183,8 +183,8 @@ function validateCustomGameSettings(
   const errors = [];
   for (const key in settings) {
     const restriction = SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES[key];
-    const parsedValue = settings[key];
     // check numbers
+    const parsedValue = settings[key];
     if (restriction.type === "number") {
       if (!IS_NUMBER_REGEX.test(parsedValue as string)) {
         errors.push(
@@ -195,16 +195,17 @@ function validateCustomGameSettings(
         ok = false;
         continue;
       }
+      const value = Number(parsedValue);
       if (parsedValue < restriction.minimum) {
         errors.push(
-          `Value too low in ${key}: got ${parsedValue}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
+          `Value too low in ${key}: got ${value}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
         );
         ok = false;
         continue;
       }
       if (restriction.maximum < parsedValue) {
         errors.push(
-          `Value too high in ${key}: got ${parsedValue}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
+          `Value too high in ${key}: got ${value}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
         );
         ok = false;
         continue;
