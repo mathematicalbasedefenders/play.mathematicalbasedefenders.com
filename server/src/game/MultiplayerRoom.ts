@@ -188,15 +188,18 @@ class MultiplayerRoom extends Room {
       }
       return;
     }
+
     // playing
     for (const connectionID of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(connectionID);
-      if (socket) {
-        const selector =
-          "#main-content__multiplayer-intermission-screen-container__game-status-message";
-        const value = `Current game in progress. (Remaining: ${this.gameData.length}/${this.playersAtStart})`;
-        changeClientSideText(socket, selector, value);
+      if (!socket) {
+        return;
       }
+      const playersRemaining = this.gameData.length;
+      const selector =
+        "#main-content__multiplayer-intermission-screen-container__game-status-message";
+      const value = `Current game in progress. (Remaining: ${playersRemaining}/${this.playersAtStart})`;
+      changeClientSideText(socket, selector, value);
     }
 
     // global - applies to all players
