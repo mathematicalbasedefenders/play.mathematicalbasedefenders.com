@@ -320,7 +320,7 @@ function getOpponentsInformation(
     log.warn(`Room for owner ${socket.connectionID} of game data not found.`);
     return [];
   }
-  let opponentGameData = currentRoom.gameData.filter(
+  const opponentGameData = currentRoom.gameData.filter(
     (element) => element.ownerConnectionID !== socket.connectionID
   );
   if (minifyData) {
