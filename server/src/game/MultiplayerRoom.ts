@@ -285,7 +285,8 @@ class MultiplayerRoom extends Room {
         data.receivedEnemiesToSpawn--;
         data.enemiesSpawned++;
         const attributes = {
-          speed: 0.1 * data.enemySpeedCoefficient
+          speed:
+            GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED * data.enemySpeedCoefficient
         };
         const receivedEnemy = enemy.createNewReceivedEnemy(
           `R${data.enemiesSpawned}`,
