@@ -8,6 +8,7 @@ import { GameData, GameMode } from "../game/GameData";
 const MESSAGES_PER_SECOND_TIME_PERIOD = 200;
 let timePeriodPassedForMessageSpeed = 0;
 const MESSAGES_PER_SECOND_LIMIT = 500;
+const DECIMAL_PLACES = 3;
 
 const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
   baseHealth: {
@@ -407,7 +408,6 @@ function calculateAPM(actions: number, elapsedTime: number) {
  * en-US locale, 3 decimal places.
  */
 function formatNumber(n: number) {
-  const DECIMAL_PLACES = 3;
   return n.toLocaleString("en-US", {
     minimumFractionDigits: DECIMAL_PLACES,
     maximumFractionDigits: DECIMAL_PLACES
