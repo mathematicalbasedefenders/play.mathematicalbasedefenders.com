@@ -365,5 +365,6 @@ export {
   CustomSingleplayerGameData,
   GameMode,
   ClockInterface,
-  CustomGameSettings
+  CustomGameSettings,
+  GAME_DATA_CONSTANTS
 };
