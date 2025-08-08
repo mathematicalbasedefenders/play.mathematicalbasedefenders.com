@@ -347,7 +347,7 @@ function getOpponentsInformation(
   );
   // console.log(eliminatedConnectionIDs);
   for (let eliminated of eliminatedConnectionIDs) {
-    let minifiedGameData: { [key: string]: any } = {};
+    const minifiedGameData: { [key: string]: any } = {};
     minifiedGameData.owner = eliminated;
     minifiedGameData.baseHealth = -99999;
     minifiedOpponentGameData.push(minifiedGameData);
