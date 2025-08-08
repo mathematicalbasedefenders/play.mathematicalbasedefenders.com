@@ -314,8 +314,8 @@ function getOpponentsInformation(
   room: Room,
   minifyData: boolean
 ): any {
-  let currentRoom = findRoomWithConnectionID(socket.connectionID);
-  let aliveConnectionIDs: Array<string> = [];
+  const currentRoom = findRoomWithConnectionID(socket.connectionID);
+  const aliveConnectionIDs: Array<string> = [];
   if (typeof currentRoom === "undefined" || currentRoom == null) {
     log.warn(`Room for owner ${socket.connectionID} of game data not found.`);
     return [];
