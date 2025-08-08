@@ -65,7 +65,6 @@ function sendUserStatistics(
   userData: UserInterface
 ) {
   const username = userData.username;
-  const playerRank = utilities.getRank(userData);
   const statistics = userData.statistics;
   socket.send(
     JSON.stringify({
@@ -74,7 +73,7 @@ function sendUserStatistics(
         username: username,
         good: true,
         userData: userData,
-        rank: playerRank,
+        rank: socket.playerRank,
         experiencePoints: statistics.totalExperiencePoints,
         records: {
           easy: statistics.personalBestScoreOnEasySingleplayerMode,
