@@ -116,7 +116,7 @@ class MultiplayerRoom extends Room {
     this.timeSinceLastPlayerListUpdate += deltaTime;
 
     // other global stuff
-    if (this.timeSinceLastPlayerListUpdate <= PLAYER_LIST_UPDATE_INTERVAL) {
+    if (this.timeSinceLastPlayerListUpdate >= PLAYER_LIST_UPDATE_INTERVAL) {
       for (const connectionID of this.memberConnectionIDs) {
         const socket = universal.getSocketFromConnectionID(connectionID);
         if (!socket) {
