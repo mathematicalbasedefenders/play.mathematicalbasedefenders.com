@@ -39,15 +39,6 @@ class SingleplayerRoom extends Room {
         const socket = getSocketFromConnectionID(member);
         if (socket) {
           this.gameData.push(new SingleplayerGameData(socket, this.mode));
-          // add add user to record
-          this.gameActionRecord.addAction({
-            scope: "room",
-            action: Action.AddUser,
-            timestamp: Date.now(),
-            data: {
-              playerAdded: getUserReplayDataFromSocket(socket)
-            }
-          });
         }
       }
     } else if (this.mode === GameMode.CustomSingleplayer) {
@@ -61,17 +52,24 @@ class SingleplayerRoom extends Room {
               this.customSettings
             )
           );
-          // add add user to record
-          this.gameActionRecord.addAction({
-            scope: "room",
-            action: Action.AddUser,
-            timestamp: Date.now(),
-            data: {
-              playerAdded: getUserReplayDataFromSocket(socket)
-            }
-          });
         }
       }
+    }
+
+    // add players (and maybe spectators) to record
+    for (let member of this.memberConnectionIDs) {
+      const socket = getSocketFromConnectionID(member);
+      if (!socket) {
+        continue;
+      }
+      this.gameActionRecord.addAction({
+        scope: "room",
+        action: Action.AddUser,
+        timestamp: Date.now(),
+        data: {
+          playerAdded: getUserReplayDataFromSocket(socket)
+        }
+      });
     }
 
     // add game settings
