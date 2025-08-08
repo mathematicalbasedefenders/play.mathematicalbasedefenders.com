@@ -169,8 +169,8 @@ class Room {
   addMember(caller: universal.GameSocket) {
     const connectionID = caller.connectionID as string;
     if (
-      this.memberConnectionIDs.indexOf(connectionID) === -1 &&
-      this.spectatorConnectionIDs.indexOf(connectionID) === -1
+      !this.memberConnectionIDs.includes(connectionID) &&
+      !this.spectatorConnectionIDs.includes(connectionID)
     ) {
       this.memberConnectionIDs.push(connectionID);
       log.info(
@@ -188,8 +188,8 @@ class Room {
   addSpectator(caller: universal.GameSocket) {
     const connectionID = caller.connectionID as string;
     if (
-      this.spectatorConnectionIDs.indexOf(connectionID) === -1 &&
-      this.memberConnectionIDs.indexOf(connectionID) === -1
+      !this.spectatorConnectionIDs.includes(connectionID) &&
+      !this.memberConnectionIDs.includes(connectionID)
     ) {
       this.spectatorConnectionIDs.push(connectionID);
       log.info(
@@ -205,7 +205,7 @@ class Room {
    */
   deleteMember(caller: universal.GameSocket) {
     const connectionID = caller.connectionID as string;
-    if (this.memberConnectionIDs.indexOf(connectionID) > -1) {
+    if (this.memberConnectionIDs.includes(connectionID)) {
       this.memberConnectionIDs.splice(
         this.memberConnectionIDs.indexOf(connectionID),
         1
@@ -223,7 +223,7 @@ class Room {
    */
   deleteSpectator(caller: universal.GameSocket) {
     const connectionID = caller.connectionID as string;
-    if (this.spectatorConnectionIDs.indexOf(connectionID) > -1) {
+    if (this.spectatorConnectionIDs.includes(connectionID)) {
       this.spectatorConnectionIDs.splice(
         this.spectatorConnectionIDs.indexOf(connectionID),
         1
@@ -342,8 +342,7 @@ function getOpponentsInformation(
     // 0 base health players
     let eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
       (element) =>
-        aliveConnectionIDs.indexOf(element) === -1 &&
-        element !== socket.connectionID
+        !aliveConnectionIDs.includes(element) && element !== socket.connectionID
     );
     // console.log(eliminatedConnectionIDs);
     for (let eliminated of eliminatedConnectionIDs) {
