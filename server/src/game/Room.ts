@@ -20,6 +20,17 @@ interface InputActionInterface {
   keyPressed?: string | undefined;
 }
 
+interface MinifiedGameDataInterface {
+  baseHealth: number;
+  combo: number;
+  currentInput: string;
+  receivedEnemiesStock: number;
+  owner: string;
+  ownerName: string;
+  enemies: number;
+  enemiesToErase: number;
+}
+
 class Room {
   id: string;
   host: universal.GameSocket | null;
