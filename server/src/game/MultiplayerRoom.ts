@@ -186,129 +186,126 @@ class MultiplayerRoom extends Room {
           }
         }
       }
-    } else {
-      // playing
-      for (const connectionID of this.memberConnectionIDs) {
-        const socket = universal.getSocketFromConnectionID(connectionID);
-        if (socket) {
-          const selector =
-            "#main-content__multiplayer-intermission-screen-container__game-status-message";
-          const value = `Current game in progress. (Remaining: ${this.gameData.length}/${this.playersAtStart})`;
-          changeClientSideText(socket, selector, value);
-        }
+      return;
+    }
+    // playing
+    for (const connectionID of this.memberConnectionIDs) {
+      const socket = universal.getSocketFromConnectionID(connectionID);
+      if (socket) {
+        const selector =
+          "#main-content__multiplayer-intermission-screen-container__game-status-message";
+        const value = `Current game in progress. (Remaining: ${this.gameData.length}/${this.playersAtStart})`;
+        changeClientSideText(socket, selector, value);
+      }
+    }
+
+    // global - applies to all players
+    // global clocks
+    this.globalClock.enemySpawn.currentTime += deltaTime;
+    this.globalClock.forcedEnemySpawn.currentTime += deltaTime;
+    checkGlobalMultiplayerRoomClocks(this);
+
+    // specific to each player
+    for (const data of this.gameData) {
+      const opponentGameData = this.gameData.filter(
+        (element) => element.ownerConnectionID !== data.ownerConnectionID
+      );
+
+      if (data.aborted) {
+        this.abort(data);
       }
 
-      // global - applies to all players
-      // global clocks
-      this.globalClock.enemySpawn.currentTime += deltaTime;
-      this.globalClock.forcedEnemySpawn.currentTime += deltaTime;
-      checkGlobalMultiplayerRoomClocks(this);
-
-      // specific to each player
-      for (const data of this.gameData) {
-        const opponentGameData = this.gameData.filter(
-          (element) => element.ownerConnectionID !== data.ownerConnectionID
+      for (const enemy of data.enemies) {
+        enemy.move(
+          GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED *
+            GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT *
+            data.enemySpeedCoefficient *
+            (deltaTime / 1000)
         );
-
-        if (data.aborted) {
-          this.abort(data);
+        if (enemy.sPosition <= 0) {
+          this.gameActionRecord.addEnemyReachedBaseAction(enemy, data);
+          enemy.remove(data, 10);
+          this.gameActionRecord.addSetGameDataAction(
+            data,
+            "player",
+            "baseHealth",
+            data.baseHealth
+          );
+        }
+      }
+      if (data.baseHealth <= 0) {
+        // player is eliminated.
+        const socket = universal.getSocketFromConnectionID(
+          data.ownerConnectionID
+        );
+        if (socket && !data.aborted) {
+          socket.send(
+            JSON.stringify({
+              message: "changeScreen",
+              newScreen: "multiplayerIntermission"
+            })
+          );
         }
 
-        for (const enemy of data.enemies) {
-          enemy.move(
-            GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED *
-              GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT *
-              data.enemySpeedCoefficient *
-              (deltaTime / 1000)
-          );
-          if (enemy.sPosition <= 0) {
-            this.gameActionRecord.addEnemyReachedBaseAction(enemy, data);
-            enemy.remove(data, 10);
-            this.gameActionRecord.addSetGameDataAction(
-              data,
-              "player",
-              "baseHealth",
-              data.baseHealth
-            );
+        this.eliminateSocketID(data.ownerConnectionID, data);
+        const eliminationActionRecord: ActionRecord = {
+          scope: "room",
+          action: Action.Elimination,
+          timestamp: Date.now(),
+          data: {
+            eliminated: getUserReplayDataFromSocket(data.owner)
           }
-        }
-        if (data.baseHealth <= 0) {
-          // player is eliminated.
-          const socket = universal.getSocketFromConnectionID(
-            data.ownerConnectionID
+        };
+        this.gameActionRecord.addAction(eliminationActionRecord);
+      }
+
+      // clocks
+      checkPlayerMultiplayerRoomClocks(data);
+
+      // forced enemy (when zero)
+      if (data.enemies.length === 0) {
+        const enemy = createNewEnemy(`F${data.enemiesSpawned}`);
+        this.gameActionRecord.addEnemySpawnAction(enemy, data);
+        data.enemies.push(_.clone(enemy));
+        data.enemiesSpawned++;
+      }
+
+      // generated enemy
+      if (this.globalEnemyToAdd) {
+        data.enemiesSpawned++;
+        data.enemies.push(_.clone(this.globalEnemyToAdd as Enemy));
+        this.gameActionRecord.addEnemySpawnAction(this.globalEnemyToAdd, data);
+      }
+
+      // received enemy
+      if (data.receivedEnemiesToSpawn > 0) {
+        data.receivedEnemiesToSpawn--;
+        data.enemiesSpawned++;
+        const attributes = {
+          speed: 0.1 * data.enemySpeedCoefficient
+        };
+        const receivedEnemy = enemy.createNewReceivedEnemy(
+          `R${data.enemiesSpawned}`,
+          attributes
+        );
+        data.enemies.push(_.clone(receivedEnemy));
+        this.gameActionRecord.addEnemySpawnAction(receivedEnemy, data, true);
+      }
+
+      if (data.enemiesSentStock > 0) {
+        data.enemiesSentStock--;
+        let targetedOpponentGameData = _.sample(opponentGameData);
+        if (targetedOpponentGameData) {
+          targetedOpponentGameData.receivedEnemiesStock += 1;
+          targetedOpponentGameData.totalEnemiesReceived += 1;
+          const room = findRoomWithConnectionID(
+            targetedOpponentGameData.ownerConnectionID
           );
-          if (socket && !data.aborted) {
-            socket.send(
-              JSON.stringify({
-                message: "changeScreen",
-                newScreen: "multiplayerIntermission"
-              })
+          if (room) {
+            room.gameActionRecord.addStockAddAction(
+              targetedOpponentGameData,
+              1
             );
-          }
-
-          this.eliminateSocketID(data.ownerConnectionID, data);
-          const eliminationActionRecord: ActionRecord = {
-            scope: "room",
-            action: Action.Elimination,
-            timestamp: Date.now(),
-            data: {
-              eliminated: getUserReplayDataFromSocket(data.owner)
-            }
-          };
-          this.gameActionRecord.addAction(eliminationActionRecord);
-        }
-
-        // clocks
-        checkPlayerMultiplayerRoomClocks(data);
-
-        // forced enemy (when zero)
-        if (data.enemies.length === 0) {
-          const enemy = createNewEnemy(`F${data.enemiesSpawned}`);
-          this.gameActionRecord.addEnemySpawnAction(enemy, data);
-          data.enemies.push(_.clone(enemy));
-          data.enemiesSpawned++;
-        }
-
-        // generated enemy
-        if (this.globalEnemyToAdd) {
-          data.enemiesSpawned++;
-          data.enemies.push(_.clone(this.globalEnemyToAdd as Enemy));
-          this.gameActionRecord.addEnemySpawnAction(
-            this.globalEnemyToAdd,
-            data
-          );
-        }
-
-        // received enemy
-        if (data.receivedEnemiesToSpawn > 0) {
-          data.receivedEnemiesToSpawn--;
-          data.enemiesSpawned++;
-          const attributes = {
-            speed: 0.1 * data.enemySpeedCoefficient
-          };
-          const receivedEnemy = enemy.createNewReceivedEnemy(
-            `R${data.enemiesSpawned}`,
-            attributes
-          );
-          data.enemies.push(_.clone(receivedEnemy));
-          this.gameActionRecord.addEnemySpawnAction(receivedEnemy, data, true);
-        }
-
-        if (data.enemiesSentStock > 0) {
-          data.enemiesSentStock--;
-          let targetedOpponentGameData = _.sample(opponentGameData);
-          if (targetedOpponentGameData) {
-            targetedOpponentGameData.receivedEnemiesStock += 1;
-            targetedOpponentGameData.totalEnemiesReceived += 1;
-            const room = findRoomWithConnectionID(
-              targetedOpponentGameData.ownerConnectionID
-            );
-            if (room) {
-              room.gameActionRecord.addStockAddAction(
-                targetedOpponentGameData,
-                1
-              );
-            }
           }
         }
       }
