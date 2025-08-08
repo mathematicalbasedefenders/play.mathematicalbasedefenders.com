@@ -73,15 +73,6 @@ class SingleplayerRoom extends Room {
     // add game settings
     const gameSettings = convertGameSettingsToReplayActions(this.gameData[0]);
     for (const setting in gameSettings) {
-      // this.gameActionRecord.addAction({
-      //   scope: "room",
-      //   action: Action.SetGameData,
-      //   timestamp: Date.now(),
-      //   data: {
-      //     key: setting,
-      //     value: gameSettings[setting]
-      //   }
-      // });
       this.gameActionRecord.addSetGameDataAction(
         this.gameData[0],
         "player",
@@ -92,7 +83,8 @@ class SingleplayerRoom extends Room {
 
     this.updating = true;
 
-    //TODO: unsafe?
+    // It's the first element of the array because spectators aren't implemented yet.
+    // TODO: Do something when spectators get implemented
     this.gameActionRecord.owner = getSocketFromConnectionID(
       this.memberConnectionIDs[0]
     );
