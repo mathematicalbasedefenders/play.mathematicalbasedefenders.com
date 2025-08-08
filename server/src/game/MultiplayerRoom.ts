@@ -113,39 +113,38 @@ class MultiplayerRoom extends Room {
     let deltaTime: number = now - this.lastUpdateTime;
     super.update(deltaTime);
     this.lastUpdateTime = now;
+    this.timeSinceLastPlayerListUpdate += deltaTime;
 
     // other global stuff
-    for (const connectionID of this.memberConnectionIDs) {
-      this.timeSinceLastPlayerListUpdate += deltaTime;
-      if (this.timeSinceLastPlayerListUpdate <= PLAYER_LIST_UPDATE_INTERVAL) {
-        continue;
+    if (this.timeSinceLastPlayerListUpdate <= PLAYER_LIST_UPDATE_INTERVAL) {
+      for (const connectionID of this.memberConnectionIDs) {
+        const socket = universal.getSocketFromConnectionID(connectionID);
+        if (!socket) {
+          continue;
+        }
+        const rankingPayload = utilities.generateRankingPayload(
+          _.clone(this.ranking)
+        );
+        socket.send(
+          JSON.stringify({
+            message: "modifyMultiplayerRankContent",
+            data: rankingPayload
+          })
+        );
+        const playersPayload = utilities.generatePlayerListPayload(
+          this.memberConnectionIDs
+        );
+        const playerCountSelector =
+          "#main-content__multiplayer-intermission-screen-container__player-count";
+        const playerCountText = this.memberConnectionIDs.length.toString();
+        changeClientSideText(socket, playerCountSelector, playerCountText);
+        socket.send(
+          JSON.stringify({
+            message: "modifyPlayerListContent",
+            data: playersPayload
+          })
+        );
       }
-      const socket = universal.getSocketFromConnectionID(connectionID);
-      if (!socket) {
-        continue;
-      }
-      const rankingPayload = utilities.generateRankingPayload(
-        _.clone(this.ranking)
-      );
-      socket.send(
-        JSON.stringify({
-          message: "modifyMultiplayerRankContent",
-          data: rankingPayload
-        })
-      );
-      const playersPayload = utilities.generatePlayerListPayload(
-        this.memberConnectionIDs
-      );
-      const playerCountSelector =
-        "#main-content__multiplayer-intermission-screen-container__player-count";
-      const playerCountText = this.memberConnectionIDs.length.toString();
-      changeClientSideText(socket, playerCountSelector, playerCountText);
-      socket.send(
-        JSON.stringify({
-          message: "modifyPlayerListContent",
-          data: playersPayload
-        })
-      );
       this.timeSinceLastPlayerListUpdate = 0;
     }
 
