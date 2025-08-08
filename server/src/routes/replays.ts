@@ -29,7 +29,7 @@ router.get("/api/replays/:replayID", limiter, async (request, response) => {
 
     if (!data) {
       log.error(`Game recording ${sanitizedReplayID} doesn't exist.`);
-      response.status(400).json({
+      response.status(404).json({
         ok: false,
         reason: `Game recording ${sanitizedReplayID} doesn't exist.`
       });
