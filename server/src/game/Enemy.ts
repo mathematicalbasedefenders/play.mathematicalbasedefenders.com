@@ -52,7 +52,10 @@ class Enemy {
   }
 
   move(distance?: number) {
-    this.sPosition -= distance || DEFAULT_SPEED;
+    if (distance) {
+      this.sPosition -= distance;
+    }
+    this.sPosition -= this.speed ?? DEFAULT_SPEED;
   }
 
   check(input: number) {
