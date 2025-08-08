@@ -111,32 +111,31 @@ class MultiplayerRoom extends Room {
     // other global stuff
     for (const connectionID of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(connectionID);
-      if (socket) {
-        const rankingPayload = utilities.generateRankingPayload(
-          _.clone(this.ranking)
-        );
-        const playersPayload = utilities.generatePlayerListPayload(
-          this.memberConnectionIDs
-        );
-        const playerCountSelector =
-          "#main-content__multiplayer-intermission-screen-container__player-count";
-        const playerCountText = this.memberConnectionIDs.length.toString();
-        changeClientSideText(socket, playerCountSelector, playerCountText);
-        // changeClientSideHTML(socket, rankingSelector, rankingText);
-        socket.send(
-          JSON.stringify({
-            message: "modifyMultiplayerRankContent",
-            data: rankingPayload
-          })
-        );
-        // changeClientSideHTML(socket, playersSelector, playersText);
-        socket.send(
-          JSON.stringify({
-            message: "modifyPlayerListContent",
-            data: playersPayload
-          })
-        );
+      if (!socket) {
+        continue;
       }
+      const rankingPayload = utilities.generateRankingPayload(
+        _.clone(this.ranking)
+      );
+      socket.send(
+        JSON.stringify({
+          message: "modifyMultiplayerRankContent",
+          data: rankingPayload
+        })
+      );
+      const playersPayload = utilities.generatePlayerListPayload(
+        this.memberConnectionIDs
+      );
+      const playerCountSelector =
+        "#main-content__multiplayer-intermission-screen-container__player-count";
+      const playerCountText = this.memberConnectionIDs.length.toString();
+      changeClientSideText(socket, playerCountSelector, playerCountText);
+      socket.send(
+        JSON.stringify({
+          message: "modifyPlayerListContent",
+          data: playersPayload
+        })
+      );
     }
 
     // Then update specifically for multiplayer rooms
