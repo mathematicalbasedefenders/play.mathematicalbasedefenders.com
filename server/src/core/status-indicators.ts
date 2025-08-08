@@ -46,20 +46,20 @@ function checkStatus() {
 }
 
 function getOSMemoryLevel(usage: number) {
-  if (usage >= 0.95) {
+  if (usage >= LEVEL_2_MEMORY_THRESHOLD) {
     return 2;
   }
-  if (usage >= 0.85) {
+  if (usage >= LEVEL_1_MEMORY_THRESHOLD) {
     return 1;
   }
   return 0;
 }
 
 function getUpdateTimeLevel() {
-  if (STATUS.lastDeltaTimeToUpdate >= 100) {
+  if (STATUS.lastDeltaTimeToUpdate >= LEVEL_2_DELTA_TIME_THRESHOLD) {
     return 2;
   }
-  if (STATUS.lastDeltaTimeToUpdate >= 40) {
+  if (STATUS.lastDeltaTimeToUpdate >= LEVEL_1_DELTA_TIME_THRESHOLD) {
     return 1;
   }
   return 0;
