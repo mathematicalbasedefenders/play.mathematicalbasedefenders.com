@@ -12,7 +12,7 @@ import { findRoomWithConnectionID } from "../core/utilities";
 const MINIMUM_GENERABLE_NUMBER = -100;
 const POSSIBLE_FACTORS = [2, 3, 4, 5, 6, 8, 9, 10, 11];
 
-const DEFAULT_SPEED = 0.1;
+const DEFAULT_SPEED = 1 / 60;
 
 interface EnemyAttributes {
   attack?: number;
