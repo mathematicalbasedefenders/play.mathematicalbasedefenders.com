@@ -134,24 +134,26 @@ class Room {
       message: messageToSend.sanitizedMessage,
       senderName: messageToSend.senderName
     });
+
     // send to all sockets
     for (const connectionID of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(connectionID);
-      if (socket) {
-        socket.send(
-          JSON.stringify({
-            message: "addRoomChatMessage",
-            // selector:
-            //   "#main-content__multiplayer-intermission-screen-container__chat__messages",
-            data: {
-              name: DOMPurify.sanitize(messageToSend.senderName),
-              message: DOMPurify.sanitize(message),
-              nameColor: messageToSend.nameColor,
-              userID: messageToSend.userID
-            }
-          })
-        );
+      if (!socket) {
+        continue;
       }
+      socket.send(
+        JSON.stringify({
+          message: "addRoomChatMessage",
+          // selector:
+          //   "#main-content__multiplayer-intermission-screen-container__chat__messages",
+          data: {
+            name: DOMPurify.sanitize(messageToSend.senderName),
+            message: DOMPurify.sanitize(message),
+            nameColor: messageToSend.nameColor,
+            userID: messageToSend.userID
+          }
+        })
+      );
     }
 
     // log the chat message
