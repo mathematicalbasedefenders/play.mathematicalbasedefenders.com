@@ -295,7 +295,7 @@ class SingleplayerGameData extends GameData {
             GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT
           ) {
             this.baseHealthRegeneration =
-              GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_DECREMENT;
+              GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT;
           }
           break;
         }
