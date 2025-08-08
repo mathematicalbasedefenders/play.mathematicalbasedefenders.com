@@ -32,7 +32,6 @@ function updateSystemStatus(deltaTime: number) {
 
 function checkStatus() {
   // get memory usages
-  const memoryUsage = process.memoryUsage();
   const totalOSMemory = os.totalmem();
   const usedOSMemory = totalOSMemory - os.freemem();
   // send status updates
