@@ -326,7 +326,7 @@ function getOpponentsInformation(
   if (!minifyData) {
     return opponentGameData;
   }
-  let minifiedOpponentGameData = [];
+  const minifiedOpponentGameData = [];
   for (let singleGameData of opponentGameData) {
     let minifiedGameData: { [key: string]: any } = {};
     minifiedGameData.baseHealth = singleGameData.baseHealth;
@@ -341,7 +341,7 @@ function getOpponentsInformation(
     aliveConnectionIDs.push(singleGameData.ownerConnectionID);
   }
   // 0 base health players
-  let eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
+  const eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
     (element) =>
       !aliveConnectionIDs.includes(element) && element !== socket.connectionID
   );
