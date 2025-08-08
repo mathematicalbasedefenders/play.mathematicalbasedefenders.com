@@ -176,8 +176,11 @@ class MultiplayerRoom extends Room {
             timeLeft = Math.abs(timeLeft / 1000);
             const value = `Game starting in ${timeLeft.toFixed(3)} seconds.`;
             changeClientSideText(socket, selector, value);
-          } else if (this.memberConnectionIDs.length < 2) {
-            const value = `Waiting for at least 2 players.`;
+          } else if (
+            this.memberConnectionIDs.length <
+            GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
+          ) {
+            const value = `Waiting for at least ${GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START} players.`;
             changeClientSideText(socket, selector, value);
           }
         }
