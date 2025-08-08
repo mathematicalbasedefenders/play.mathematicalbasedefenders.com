@@ -156,35 +156,10 @@ class MultiplayerRoom extends Room {
         this.nextGameStartTime = null;
       }
       // Start game
-      // TODO: Refactor this
-      if (this.nextGameStartTime != null) {
-        if (new Date() >= this.nextGameStartTime) {
-          this.startPlay();
-          this.playersAtStart = this.memberConnectionIDs.length;
-          for (const connectionID of this.memberConnectionIDs) {
-            let socket = universal.getSocketFromConnectionID(connectionID);
-            if (socket) {
-              socket.send(
-                JSON.stringify({
-                  message: "changeScreen",
-                  newScreen: "canvas"
-                })
-              );
-              // add games played
-              let userID = socket.ownerUserID;
-              if (typeof userID === "string") {
-                if (!universal.STATUS.databaseAvailable) {
-                  log.warn(
-                    "Database is not available. Not running database operation."
-                  );
-                } else {
-                  User.addGamesPlayedToUserID(userID, 1);
-                  User.addMultiplayerGamesPlayedToUserID(userID, 1);
-                }
-              }
-            }
-          }
-        }
+      if (this.nextGameStartTime && new Date() >= this.nextGameStartTime) {
+        this.startPlay();
+        this.playersAtStart = this.memberConnectionIDs.length;
+        this.summonEveryoneToGameplay();
       }
       // Update Text
       for (const connectionID of this.memberConnectionIDs) {
@@ -525,6 +500,35 @@ class MultiplayerRoom extends Room {
     // send everyone to intermission
 
     log.info(`Room ${this.id} has stopped play.`);
+  }
+
+  summonEveryoneToGameplay() {
+    for (const connectionID of this.memberConnectionIDs) {
+      const socket = universal.getSocketFromConnectionID(connectionID);
+      if (!socket) {
+        log.warn("Socket is falsy. Unable to send player to game screen.");
+        continue;
+      }
+      // send to canvas screen
+      const userID = socket.ownerUserID;
+      socket.send(
+        JSON.stringify({
+          message: "changeScreen",
+          newScreen: "canvas"
+        })
+      );
+      // add games played
+      if (!universal.STATUS.databaseAvailable) {
+        log.warn("Database is not available. Not running database operation.");
+        continue;
+      }
+      if (typeof userID !== "string") {
+        log.warn("User ID is not string. Not running database operation.");
+        continue;
+      }
+      User.addGamesPlayedToUserID(userID, 1);
+      User.addMultiplayerGamesPlayedToUserID(userID, 1);
+    }
   }
 
   summonEveryoneToIntermission() {
