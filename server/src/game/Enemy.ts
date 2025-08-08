@@ -54,6 +54,7 @@ class Enemy {
   move(distance?: number) {
     if (distance) {
       this.sPosition -= distance;
+      return;
     }
     this.sPosition -= this.speed ?? DEFAULT_SPEED;
   }
