@@ -1,10 +1,5 @@
 import { WebSocket } from "uWebSockets.js";
-import {
-  SingleplayerRoom,
-  MultiplayerRoom,
-  getOpponentsInformation,
-  createSingleplayerRoom
-} from "./game/Room";
+import { getOpponentsInformation } from "./game/Room";
 import { GameData, GameMode } from "./game/GameData";
 import _ from "lodash";
 import {
@@ -17,6 +12,11 @@ import { log } from "./core/log";
 import { validateCustomGameSettings } from "./core/utilities";
 import fs from "node:fs";
 import path from "node:path";
+import { MultiplayerRoom } from "./game/MultiplayerRoom";
+import {
+  SingleplayerRoom,
+  createSingleplayerRoom
+} from "./game/SingleplayerRoom";
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
 interface UserData {}

@@ -1,6 +1,11 @@
 import { log } from "./log";
 import * as universal from "../universal";
-import { leaveMultiplayerRoom, processKeypressForRoom } from "../game/Room";
+import * as utilities from "../core/utilities";
+import {
+  defaultMultiplayerRoomID,
+  processKeypressForRoom,
+  Room
+} from "../game/Room";
 import {
   GameData,
   GameMode,
@@ -55,7 +60,7 @@ interface InputActionInterface {
   argument: string;
 }
 const SEND_KEYS = ["Space", "Enter"];
-
+const MAXIMUM_INPUT_LENGTH = 7;
 /**
  * Emulates a keypress for a player as if the player pressed the key themselves.
  * Note that it will also log that the press is emulated.
@@ -156,7 +161,7 @@ function processInputInformation(
   gameDataToProcess.actionsPerformed++;
   switch (inputInformation.action) {
     case InputAction.AddDigit: {
-      if (gameDataToProcess.currentInput.length > 7) {
+      if (gameDataToProcess.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
         return;
       }
       gameDataToProcess.currentInput += inputInformation.argument.toString();
@@ -170,7 +175,7 @@ function processInputInformation(
       break;
     }
     case InputAction.AddSubtractionSign: {
-      if (gameDataToProcess.currentInput.length > 7) {
+      if (gameDataToProcess.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
         return;
       }
       gameDataToProcess.currentInput += "-";
@@ -225,25 +230,7 @@ function processInputInformation(
 
             if (gameDataToProcess.enemiesToNextLevel <= 0) {
               gameDataToProcess.increaseLevel(1);
-
-              // update replay data
-              const keys = [
-                "clocks.enemySpawn.actionTime",
-                "enemySpeedCoefficient",
-                "baseHealthRegeneration",
-                "level"
-              ];
-
-              if (room) {
-                for (const key of keys) {
-                  room.gameActionRecord.addSetGameDataAction(
-                    gameDataToProcess,
-                    "player",
-                    key,
-                    _.get(gameDataToProcess, key)
-                  );
-                }
-              }
+              updateReplayClockData(gameDataToProcess, room as Room);
             }
           }
           enemy.kill(gameDataToProcess, true, true);
@@ -284,17 +271,12 @@ function processInputInformation(
             })
           );
         }
+        gameDataToProcess.currentInput = "";
       }
       // reset input
-      if (enemyKilled) {
-        gameDataToProcess.currentInput = "";
-      } else {
+      if (!enemyKilled) {
         if (gameDataToProcess instanceof MultiplayerGameData) {
-          // incorrect answers with enemies in stock - add from stock to to spawn
-          gameDataToProcess.receivedEnemiesToSpawn +=
-            gameDataToProcess.receivedEnemiesStock;
-          gameDataToProcess.receivedEnemiesStock = 0;
-          room?.gameActionRecord.addStockReleaseAction(gameDataToProcess);
+          releaseEnemyStock(gameDataToProcess, room as Room);
         }
       }
       break;
@@ -313,38 +295,38 @@ function processInputInformation(
  * @returns {object} An object detailing what action and argument to pass to the next function.
  */
 function getInputInformation(code: string) {
-  if (NUMBER_PAD_KEYS.indexOf(code) > -1) {
+  if (NUMBER_PAD_KEYS.includes(code)) {
     return {
       action: InputAction.AddDigit,
       argument: NUMBER_PAD_KEYS.indexOf(code).toString()
     };
   }
   // TODO: consider checking inputInformation as well, to save probably less than a millisecond of time
-  if (NUMBER_ROW_KEYS.indexOf(code) > -1) {
+  if (NUMBER_ROW_KEYS.includes(code)) {
     return {
       action: InputAction.AddDigit,
       argument: NUMBER_ROW_KEYS.indexOf(code).toString()
     };
   }
-  if (REMOVE_DIGIT_KEYS.indexOf(code) > -1) {
+  if (REMOVE_DIGIT_KEYS.includes(code)) {
     return {
       action: InputAction.RemoveDigit,
       argument: ""
     };
   }
-  if (SEND_KEYS.indexOf(code) > -1) {
+  if (SEND_KEYS.includes(code)) {
     return {
       action: InputAction.SendAnswer,
       argument: "" // TODO: Optionally put in current game data's current Input
     };
   }
-  if (SUBTRACTION_SIGN_KEYS.indexOf(code) > -1) {
+  if (SUBTRACTION_SIGN_KEYS.includes(code)) {
     return {
       action: InputAction.AddSubtractionSign,
       argument: "" // TODO: Optionally put in current game data's current Input
     };
   }
-  if (ABORT_KEYS.indexOf(code) > -1) {
+  if (ABORT_KEYS.includes(code)) {
     return {
       action: InputAction.AbortGame,
       argument: ""
@@ -356,10 +338,72 @@ function getInputInformation(code: string) {
   };
 }
 
+/**
+ * Releases ALL the enemies in a `GameData`'s enemy stock.
+ * @param {GameData} gameDataToProcess The `GameData` of the instance to release enemy stock.
+ * @param {Room} room The `Room` to add the enemies to. This should be the same as `GameData`'s location.
+ */
+function releaseEnemyStock(gameDataToProcess: GameData, room: Room) {
+  // incorrect answers with enemies in stock - add from stock to to spawn
+  gameDataToProcess.receivedEnemiesToSpawn +=
+    gameDataToProcess.receivedEnemiesStock;
+  gameDataToProcess.receivedEnemiesStock = 0;
+  room?.gameActionRecord.addStockReleaseAction(gameDataToProcess);
+}
+
+/**
+ * Updates clock data so that replays can be accurate.
+ * @param {GameData} gameDataToProcess
+ * @param {room} room
+ */
+function updateReplayClockData(gameDataToProcess: GameData, room: Room) {
+  // update replay data
+  const keys = [
+    "clocks.enemySpawn.actionTime",
+    "enemySpeedCoefficient",
+    "baseHealthRegeneration",
+    "level"
+  ];
+
+  for (const key of keys) {
+    room.gameActionRecord.addSetGameDataAction(
+      gameDataToProcess,
+      "player",
+      key,
+      _.get(gameDataToProcess, key)
+    );
+  }
+}
+
+// This just attempts to leave.
+function leaveMultiplayerRoom(socket: universal.GameSocket) {
+  // TODO: Implement for spectators when spectators are implemented.
+  let room = universal.rooms.find(
+    (element) =>
+      element.memberConnectionIDs.indexOf(socket.connectionID as string) > -1
+  );
+  if (room?.mode === GameMode.DefaultMultiplayer) {
+    if (room.playing) {
+      let gameData = utilities.findGameDataWithConnectionID(
+        socket.connectionID as string,
+        room
+      );
+      if (gameData) {
+        room.abort(gameData);
+      }
+    }
+    room.deleteMember(socket);
+    if (defaultMultiplayerRoomID) {
+      socket.unsubscribe(defaultMultiplayerRoomID);
+    }
+  }
+}
+
 export {
   processKeypress,
   getInputInformation,
   processInputInformation,
   emulateKeypress,
-  InputAction
+  InputAction,
+  leaveMultiplayerRoom
 };

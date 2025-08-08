@@ -1,10 +1,13 @@
 const mongoDBSanitize = require("express-mongo-sanitize");
 import { log } from "../core/log";
-import { User } from "../models/User";
+import { User, UserInterface } from "../models/User";
 import { authenticateForSocket } from "./authenticate";
 import * as utilities from "../core/utilities";
 import * as universal from "../universal";
 import { DOMPurifySanitizer } from "../sanitizer";
+
+const FAILED_BORDER_COLOR = "#ff0000";
+const SUCCESS_BORDER_COLOR = "#00dd00";
 
 async function authenticate(
   username: string,
@@ -30,8 +33,7 @@ async function authenticate(
   if (!result.good) {
     log.warn(`Login attempt for ${username} failed: ${result.reason}`);
     const MESSAGE = `Failed to login as ${username} (${result.reason})`;
-    const BORDER_COLOR = "#ff0000";
-    universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+    universal.sendToastMessageToSocket(socket, MESSAGE, FAILED_BORDER_COLOR);
     return false;
   }
 
@@ -43,22 +45,35 @@ async function authenticate(
   utilities.updateSocketUserInformation(socket);
   socket.playerRank = utilities.getRank(userData);
   const MESSAGE = `Successfully logged in as ${sanitizedUsername}`;
-  const BORDER_COLOR = "#1fa628";
-  universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+  universal.sendToastMessageToSocket(socket, MESSAGE, SUCCESS_BORDER_COLOR);
 
   /** Exit opening screen */
   socket.send(JSON.stringify({ message: "exitOpeningScreen" }));
 
   /** Send data. */
+  sendUserStatistics(socket, userData);
+
+  // Also add missing keys
+  if (socket.ownerUserID) {
+    User.addMissingKeys(socket.ownerUserID);
+  }
+  return true;
+}
+
+function sendUserStatistics(
+  socket: universal.GameSocket,
+  userData: UserInterface
+) {
+  const username = userData.username;
   const statistics = userData.statistics;
   socket.send(
     JSON.stringify({
       message: "updateUserInformationText",
       data: {
-        username: sanitizedUsername,
+        username: username,
         good: true,
         userData: userData,
-        rank: utilities.getRank(userData),
+        rank: socket.playerRank,
         experiencePoints: statistics.totalExperiencePoints,
         records: {
           easy: statistics.personalBestScoreOnEasySingleplayerMode,
@@ -68,12 +83,6 @@ async function authenticate(
       }
     })
   );
-
-  // Also add missing keys
-  if (socket.ownerUserID) {
-    User.addMissingKeys(socket.ownerUserID);
-  }
-  return true;
 }
 
 export { authenticate };

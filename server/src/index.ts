@@ -11,9 +11,7 @@ import * as input from "./core/input";
 import {
   defaultMultiplayerRoomID,
   GameMode,
-  MultiplayerRoom,
   Room,
-  leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID
 } from "./game/Room";
 import _ from "lodash";
@@ -24,6 +22,7 @@ import { sendChatMessage } from "./core/chat";
 import { synchronizeGameDataWithSocket } from "./universal";
 import { updateSystemStatus } from "./core/status-indicators";
 import { authenticate } from "./authentication/perform-authentication";
+import { MultiplayerRoom } from "./game/MultiplayerRoom";
 
 const app = express();
 app.set("trust proxy", 2);
@@ -195,7 +194,7 @@ uWS
             return;
           }
           // attempt to
-          leaveMultiplayerRoom(socket);
+          input.leaveMultiplayerRoom(socket);
           break;
         }
         // game input

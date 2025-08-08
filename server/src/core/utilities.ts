@@ -8,6 +8,7 @@ import { GameData, GameMode } from "../game/GameData";
 const MESSAGES_PER_SECOND_TIME_PERIOD = 200;
 let timePeriodPassedForMessageSpeed = 0;
 const MESSAGES_PER_SECOND_LIMIT = 500;
+const NUMBER_DECIMAL_PLACES = 3;
 
 const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
   baseHealth: {
@@ -96,27 +97,27 @@ function generateRankingPayload(rankingData: Array<any>) {
   }));
 }
 
+/**
+ * Finds the room where the socket with connectionID `connectionID` is in.
+ * @param {string} connectionID The `connectionID` to search on.
+ * @param {boolean} considerSpectators Whether to also count spectators as "in the room".
+ * @returns The room if found, `null` otherwise.
+ */
 function findRoomWithConnectionID(
   connectionID: string | undefined,
-  countSpectatorsToo?: boolean
+  considerSpectators?: boolean
 ) {
   if (typeof connectionID === "undefined") {
     return null;
   }
   for (let room in universal.rooms) {
-    if (countSpectatorsToo) {
-      if (
-        universal.rooms[room].memberConnectionIDs.indexOf(connectionID) > -1 ||
-        universal.rooms[room].spectatorConnectionIDs.indexOf(connectionID) > -1
-      ) {
+    if (considerSpectators) {
+      if (universal.rooms[room].spectatorConnectionIDs.includes(connectionID)) {
         return universal.rooms[room];
       }
-    } else {
-      if (
-        universal.rooms[room].memberConnectionIDs.indexOf(connectionID) > -1
-      ) {
-        return universal.rooms[room];
-      }
+    }
+    if (universal.rooms[room].memberConnectionIDs.includes(connectionID)) {
+      return universal.rooms[room];
     }
   }
   return null;
@@ -183,17 +184,8 @@ function validateCustomGameSettings(
   const errors = [];
   for (const key in settings) {
     const restriction = SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES[key];
-    const parsedValue = settings[key];
-    // if (typeof parsedValue !== restriction.type) {
-    //   errors.push(
-    //     `Wrong type in ${key}: got ${typeof parsedValue}, but expected ${
-    //       restriction.type
-    //     }.`
-    //   );
-    //   ok = false;
-    //   continue;
-    // }
     // check numbers
+    const parsedValue = settings[key];
     if (restriction.type === "number") {
       if (!IS_NUMBER_REGEX.test(parsedValue as string)) {
         errors.push(
@@ -204,14 +196,17 @@ function validateCustomGameSettings(
         ok = false;
         continue;
       }
-      if (
-        !(
-          parsedValue >= restriction.minimum &&
-          parsedValue <= restriction.maximum
-        )
-      ) {
+      const value = Number(parsedValue);
+      if (parsedValue < restriction.minimum) {
         errors.push(
-          `Value too high or too low in ${key}: got ${parsedValue}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
+          `Value too low in ${key}: got ${value}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
+        );
+        ok = false;
+        continue;
+      }
+      if (restriction.maximum < parsedValue) {
+        errors.push(
+          `Value too high in ${key}: got ${value}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
         );
         ok = false;
         continue;
@@ -414,8 +409,8 @@ function calculateAPM(actions: number, elapsedTime: number) {
  */
 function formatNumber(n: number) {
   return n.toLocaleString("en-US", {
-    minimumFractionDigits: 3,
-    maximumFractionDigits: 3
+    minimumFractionDigits: NUMBER_DECIMAL_PLACES,
+    maximumFractionDigits: NUMBER_DECIMAL_PLACES
   });
 }
 
