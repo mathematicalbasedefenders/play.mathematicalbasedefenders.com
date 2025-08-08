@@ -211,9 +211,10 @@ class MultiplayerRoom extends Room {
         }
 
         for (const enemy of data.enemies) {
-          const BASE_ENEMY_SPEED = 0.1;
           enemy.move(
-            BASE_ENEMY_SPEED * data.enemySpeedCoefficient * (deltaTime / 1000)
+            GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED *
+              data.enemySpeedCoefficient *
+              (deltaTime / 1000)
           );
           if (enemy.sPosition <= 0) {
             this.gameActionRecord.addEnemyReachedBaseAction(enemy, data);
