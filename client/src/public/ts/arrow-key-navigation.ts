@@ -383,15 +383,7 @@ function navigateFocus(event: KeyboardEvent) {
     screen = "globalChatTray";
     // overwrite: if chat tray is focused and caret is at end, move
     // to send button instead.
-    const input = document.getElementById(
-      "chat-tray-input"
-    ) as HTMLInputElement;
-    if (
-      input &&
-      input.value.length === input.selectionEnd &&
-      element === "#chat-tray-input" &&
-      keyPressed === "ArrowRight"
-    ) {
+    if (checkIfFocusedOnEndOfChatTray(screen, element, keyPressed)) {
       forcedDestination = "#chat-tray-input-send-button";
     }
   }
@@ -516,6 +508,23 @@ function checkIfFocusedOnEndOfMessageBox(
     element === "#chat-message" &&
     input &&
     input.value.length === input.selectionEnd &&
+    keyPressed === "ArrowRight"
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function checkIfFocusedOnEndOfChatTray(
+  screen: string,
+  element: string,
+  keyPressed: string
+) {
+  const input = document.getElementById("chat-tray-input") as HTMLInputElement;
+  if (
+    input &&
+    input.value.length === input.selectionEnd &&
+    element === "#chat-tray-input" &&
     keyPressed === "ArrowRight"
   ) {
     return true;
