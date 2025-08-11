@@ -440,22 +440,15 @@ function navigateFocus(event: KeyboardEvent) {
   // overwrite: if no object is highlighted, highlight the `defaultFocused` element.
   if (
     (element == null ||
-      Object.keys(directions[screen].destinations).indexOf(element) === -1) &&
+      !Object.keys(directions[screen].destinations).includes(element)) &&
     !forcedDestination
   ) {
     event.preventDefault();
-    element = directions[screen].defaultFocused;
-    // focus on the `defaultFocus` element if nothing is arrow-key focused
-    const destinationElement = $(`${element}`);
-    // remove old element's focus status
-    const oldElement = $(variables.navigation.focusing);
-    if (oldElement) {
-      oldElement.removeClass("button--arrow-key-focused");
+    const element = directions[screen].defaultFocused;
+    if (!element) {
+      return;
     }
-    // focus new element
-    destinationElement.trigger("focus");
-    destinationElement.addClass("button--arrow-key-focused");
-    variables.navigation.focusing = element;
+    focusOnDefault(screen, element, keyPressed);
     return;
   }
   // normal case
@@ -543,6 +536,20 @@ function focusPopup() {
   popupElement.trigger("focus");
   popupElement.addClass("button--arrow-key-focused");
   variables.navigation.focusing = popupToFocusID;
+}
+
+function focusOnDefault(screen: string, element: string, keyPressed: string) {
+  // focus on the `defaultFocus` element if nothing is arrow-key focused
+  const destinationElement = $(`${element}`);
+  // remove old element's focus status
+  const oldElement = $(variables.navigation.focusing);
+  if (oldElement) {
+    oldElement.removeClass("button--arrow-key-focused");
+  }
+  // focus new element
+  destinationElement.trigger("focus");
+  destinationElement.addClass("button--arrow-key-focused");
+  variables.navigation.focusing = element;
 }
 
 export { navigateFocus, getArrowKeyDirections };
