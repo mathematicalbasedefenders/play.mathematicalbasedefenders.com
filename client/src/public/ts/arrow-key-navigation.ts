@@ -374,7 +374,7 @@ function navigateFocus(event: KeyboardEvent) {
   let element = variables.navigation.focusing;
   const directions = getArrowKeyDirections();
   // FORCED OVERWRITES
-  // overwrite: if multiplayer chat tray is focused, focus there instead.
+  // overwrite: if end of multiplayer chat tray is focused, focus on the send button instead.
   if (checkIfFocusedOnEndOfMessageBox(screen, element, keyPressed)) {
     forcedDestination = "#message-send-button";
   }
