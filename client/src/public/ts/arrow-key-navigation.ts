@@ -389,20 +389,12 @@ function navigateFocus(event: KeyboardEvent) {
   }
   // overwrite: if focused element is an input, and caret is at leftmost,
   // move where the left arrow should be instead
-  if ($(element).is("input")) {
-    let elementID = element;
-    if (element[0] === "#") {
-      elementID = element.substring(1);
-    }
-    const input = document.getElementById(elementID) as HTMLInputElement;
-    if (
-      input &&
-      input.selectionStart === 0 &&
-      keyPressed === "ArrowLeft" &&
-      !forcedDestination
-    ) {
-      forcedDestination = directions[screen]?.defaultFocused;
-    }
+  if (
+    !forcedDestination &&
+    $(element).is("input") &&
+    checkIfChatBoxShouldForceLeftArrowMove(screen, element, keyPressed)
+  ) {
+    forcedDestination = directions[screen]?.defaultFocused;
   }
   // overwrite: radio buttons
   if (
@@ -427,15 +419,8 @@ function navigateFocus(event: KeyboardEvent) {
     // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.
     // currently, later notifications are given priority when dealing with arrow keys.
     event.preventDefault();
-    const popUpID =
-      PopupNotification.activeNotificationIDs[
-        PopupNotification.activeNotificationIDs.length - 1
-      ];
-    const popupToFocusID = `#popup-notification--${popUpID}__close-button`;
-    const popupElement = $(popupToFocusID);
-    popupElement.trigger("focus");
-    popupElement.addClass("button--arrow-key-focused");
-    variables.navigation.focusing = popupToFocusID;
+    // this focuses on the most recent/top-most pop up.
+    focusPopup();
     return;
   }
   // overwrite: if an input box is focused on, pushing left and right arrow keys should not
@@ -530,6 +515,34 @@ function checkIfFocusedOnEndOfChatTray(
     return true;
   }
   return false;
+}
+
+function checkIfChatBoxShouldForceLeftArrowMove(
+  screen: string,
+  element: string,
+  keyPressed: string
+) {
+  let elementID = element;
+  if (element[0] === "#") {
+    elementID = element.substring(1);
+  }
+  const input = document.getElementById(elementID) as HTMLInputElement;
+  if (input && input.selectionStart === 0 && keyPressed === "ArrowLeft") {
+    return true;
+  }
+  return false;
+}
+
+function focusPopup() {
+  const popUpID =
+    PopupNotification.activeNotificationIDs[
+      PopupNotification.activeNotificationIDs.length - 1
+    ];
+  const popupToFocusID = `#popup-notification--${popUpID}__close-button`;
+  const popupElement = $(popupToFocusID);
+  popupElement.trigger("focus");
+  popupElement.addClass("button--arrow-key-focused");
+  variables.navigation.focusing = popupToFocusID;
 }
 
 export { navigateFocus, getArrowKeyDirections };
