@@ -458,7 +458,7 @@ function navigateFocus(event: KeyboardEvent) {
   event.preventDefault();
   // this function actually moves the focus.
   if (!destination) {
-    // no element corresponds to destination
+    console.warn("Unable to move because destination string is falsy.");
     return;
   }
   const destinationElement = $(`${destination}`);
