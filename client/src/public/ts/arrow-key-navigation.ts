@@ -2,6 +2,19 @@ import _ from "lodash";
 import { variables } from ".";
 import { PopupNotification } from "./popup-notification";
 
+// Usually it's left/right/up/down, but sometimes there may be other keys required
+// for the `DirectionMap`.
+interface DirectionMap {
+  [key: string]: string;
+}
+
+interface DestinationMap {
+  destinations: {
+    [key: string]: DirectionMap;
+  };
+  defaultFocused?: string;
+}
+
 // Globals
 const settingsSecondaryScreenOrder: { [key: string]: Array<string> } = {
   "online": [
@@ -58,7 +71,7 @@ const customSingleplayerIntermissionSecondaryScreenOrder: {
  * New destination: directions.(currentScreen).destinations.(currentElement).(keyPressed)
  */
 function getArrowKeyDirections() {
-  const directions: { [key: string]: any } = {
+  const directions: { [key: string]: DestinationMap } = {
     "mainMenu": {
       destinations: {
         "#main-menu-screen-button--singleplayer": {
@@ -160,7 +173,7 @@ function getArrowKeyDirections() {
     },
     "globalChatTray": getGlobalChatTrayDirections(),
     "openingScreen": getOpeningScreenDirections(),
-    "canvas": null,
+    "canvas": { destinations: {} },
     "archiveMenu": {
       destinations: {
         "#archive-screen-container__back-button": {
@@ -189,7 +202,7 @@ function getArrowKeyDirections() {
 }
 
 function getSettingsMenuDestinations(secondaryScreen: string) {
-  const result: { [key: string]: any } = {
+  const result: DestinationMap = {
     destinations: {
       "#settings-screen__sidebar-item--back": {
         "ArrowDown": "#settings-screen__sidebar-item--online"
@@ -245,7 +258,7 @@ function getSettingsMenuDestinations(secondaryScreen: string) {
 }
 
 function getCustomSingleplayerMenuDestinations(secondaryScreen: string) {
-  const result: { [key: string]: any } = {
+  const result: DestinationMap = {
     destinations: {
       "#custom-singleplayer-intermission-screen-container__back-button": {
         "ArrowDown":
@@ -297,7 +310,7 @@ function getCustomSingleplayerMenuDestinations(secondaryScreen: string) {
 }
 
 function getGlobalChatTrayDirections() {
-  const result: { [key: string]: any } = {
+  const result: DestinationMap = {
     destinations: {
       "#chat-tray-input-send-button": {
         "ArrowLeft": "#chat-tray-input"
@@ -316,12 +329,10 @@ function getOpeningScreenDirections() {
     "#opening-screen__register",
     "#opening-screen__play-as-guest"
   ];
-  const result = _.merge(
-    { destinations: constructUpDownKeyDirections(elements) },
-    {
-      defaultFocused: "#authentication-modal__username"
-    }
-  );
+  const result = _.merge({
+    destinations: constructUpDownKeyDirections(elements)
+  });
+  result.defaultFocused = "#authentication-modal__username";
   return result;
 }
 
@@ -332,24 +343,19 @@ function getOpeningScreenDirections() {
  * ArrowUp will lead to one before it, and ArrowDown will lead to one after it.
  */
 function constructUpDownKeyDirections(ids: Array<string>) {
-  const result: { [key: string]: any } = {};
+  const result: { [key: string]: DirectionMap } = {};
   for (let i = 0; i < ids.length; i++) {
+    result[ids[i]] = {};
     if (i == 0) {
-      result[ids[i]] = {
-        "ArrowDown": ids[i + 1]
-      };
+      result[ids[i]]["ArrowDown"] = ids[i + 1];
       continue;
     }
     if (i == ids.length - 1) {
-      result[ids[i]] = {
-        "ArrowUp": ids[i - 1]
-      };
+      result[ids[i]]["ArrowUp"] = ids[i - 1];
       continue;
     }
-    result[ids[i]] = {
-      "ArrowUp": ids[i - 1],
-      "ArrowDown": ids[i + 1]
-    };
+    result[ids[i]]["ArrowDown"] = ids[i + 1];
+    result[ids[i]]["ArrowUp"] = ids[i - 1];
   }
   return result;
 }
