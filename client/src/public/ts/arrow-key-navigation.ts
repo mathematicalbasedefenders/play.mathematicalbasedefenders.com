@@ -375,15 +375,8 @@ function navigateFocus(event: KeyboardEvent) {
   const directions = getArrowKeyDirections();
   // FORCED OVERWRITES
   // overwrite: if multiplayer chat tray is focused, focus there instead.
-  if (element === "#chat-message") {
-    const input = document.getElementById("chat-message") as HTMLInputElement;
-    if (
-      input &&
-      input.value.length === input.selectionEnd &&
-      keyPressed === "ArrowRight"
-    ) {
-      forcedDestination = "#message-send-button";
-    }
+  if (checkIfFocusedOnEndOfMessageBox(screen, element, keyPressed)) {
+    forcedDestination = "#message-send-button";
   }
   // overwrite: if chat tray is active, focus there instead.
   if ($("#chat-tray-container").is(":visible")) {
@@ -511,6 +504,23 @@ function navigateFocus(event: KeyboardEvent) {
   destinationElement.trigger("focus");
   destinationElement.addClass("button--arrow-key-focused");
   variables.navigation.focusing = destination;
+}
+
+function checkIfFocusedOnEndOfMessageBox(
+  screen: string,
+  element: string,
+  keyPressed: string
+) {
+  const input = document.getElementById("chat-message") as HTMLInputElement;
+  if (
+    element === "#chat-message" &&
+    input &&
+    input.value.length === input.selectionEnd &&
+    keyPressed === "ArrowRight"
+  ) {
+    return true;
+  }
+  return false;
 }
 
 export { navigateFocus, getArrowKeyDirections };
