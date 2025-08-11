@@ -456,6 +456,7 @@ function navigateFocus(event: KeyboardEvent) {
     forcedDestination ||
     directions[screen]?.destinations?.[element]?.[keyPressed];
   event.preventDefault();
+  // this function actually moves the focus.
   if (!destination) {
     // no element corresponds to destination
     return;
@@ -465,15 +466,7 @@ function navigateFocus(event: KeyboardEvent) {
     console.warn("Unable to select destination element because it is falsy.");
     return;
   }
-  // remove old element's focus status
-  const oldElement = $(variables.navigation.focusing);
-  if (oldElement) {
-    oldElement.removeClass("button--arrow-key-focused");
-  }
-  // focus new element
-  destinationElement.trigger("focus");
-  destinationElement.addClass("button--arrow-key-focused");
-  variables.navigation.focusing = destination;
+  changeFocus(destination);
 }
 
 function checkIfFocusedOnEndOfMessageBox(
@@ -550,6 +543,19 @@ function focusOnDefault(screen: string, element: string, keyPressed: string) {
   destinationElement.trigger("focus");
   destinationElement.addClass("button--arrow-key-focused");
   variables.navigation.focusing = element;
+}
+
+function changeFocus(destination: string) {
+  const destinationElement = $(`${destination}`);
+  // remove old element's focus status
+  const oldElement = $(variables.navigation.focusing);
+  if (oldElement) {
+    oldElement.removeClass("button--arrow-key-focused");
+  }
+  // focus new element
+  destinationElement.trigger("focus");
+  destinationElement.addClass("button--arrow-key-focused");
+  variables.navigation.focusing = destination;
 }
 
 export { navigateFocus, getArrowKeyDirections };
