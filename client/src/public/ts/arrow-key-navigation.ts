@@ -388,7 +388,7 @@ function navigateFocus(event: KeyboardEvent) {
     }
   }
   // overwrite: if focused element is an input, and caret is at leftmost,
-  // move where the left arrow should he instead
+  // move where the left arrow should be instead
   if ($(element).is("input")) {
     let elementID = element;
     if (element[0] === "#") {
