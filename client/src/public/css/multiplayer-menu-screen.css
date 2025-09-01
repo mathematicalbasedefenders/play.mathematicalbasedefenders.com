@@ -69,7 +69,7 @@
   background-size: auto 100%;
   background-position-x: 32px;
   height: 30%;
-  cursor: not-allowed;
+  cursor: pointer;
   background-repeat: no-repeat;
 }
 
