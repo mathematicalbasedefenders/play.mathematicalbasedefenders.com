@@ -7,6 +7,14 @@ const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
+
+const DISCONNECTION_BORDER_COLOR = "#bb0000";
+const MINIMUM_USERNAME_LENGTH = 3;
+const MAXIMUM_USERNAME_LENGTH = 20;
+const MINIMUM_PASSWORD_LENGTH = 8;
+const MAXIMUM_PASSWORD_LENGTH = 48;
+const VALID_SOCKET_ID_LENGTH = 16;
+
 // TODO: Consider moving this to services folder
 async function authenticateForSocket(
   username: unknown | undefined,
@@ -35,7 +43,7 @@ async function authenticateForSocket(
 
   // validate data
   let dataValidationResult = validateData(username, password, socketID);
-  if (!(dataValidationResult.good === true)) {
+  if (!dataValidationResult.good) {
     log.info(
       `A user didn't pass data validation checks and therefore can't be logged in. (${dataValidationResult.reason})`
     );
@@ -83,7 +91,7 @@ async function authenticateForSocket(
         message: "createToastNotification",
         // TODO: Refactor this
         text: `Disconnected due to your account being logged in from another location. If this wasn't you, consider changing your password.`,
-        options: { borderColor: "#4f0909" }
+        options: { borderColor: DISCONNECTION_BORDER_COLOR }
       })
     );
     universal.deleteSocket(duplicateSocket);
@@ -142,8 +150,8 @@ function validateData(
   );
   if (
     sanitizedUsername !== username ||
-    sanitizedUsername.length > 20 ||
-    sanitizedUsername.length < 3
+    sanitizedUsername.length > MAXIMUM_USERNAME_LENGTH ||
+    sanitizedUsername.length < MINIMUM_USERNAME_LENGTH
   ) {
     return {
       good: false,
@@ -153,8 +161,8 @@ function validateData(
   }
   if (
     sanitizedPassword !== password ||
-    sanitizedPassword.length > 48 ||
-    sanitizedPassword.length < 8
+    sanitizedPassword.length > MAXIMUM_PASSWORD_LENGTH ||
+    sanitizedPassword.length < MINIMUM_PASSWORD_LENGTH
   ) {
     return {
       good: false,
@@ -215,7 +223,7 @@ function checkIfSocketCanBeAuthenticated(connectionID: string) {
   }
 
   // socket's id is in an incorrect format.
-  if (socket.connectionID.length !== 16) {
+  if (socket.connectionID.length !== VALID_SOCKET_ID_LENGTH) {
     log.warn(`A user tried to log in, but the socket's identifier is invalid.`);
     return {
       good: false,

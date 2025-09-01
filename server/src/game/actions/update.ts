@@ -1,12 +1,12 @@
 // packages
 import * as _ from "lodash";
 // other files
-import { SingleplayerRoom } from "../Room";
 import { checkSingleplayerRoomClocks } from "./clocks";
 import { GameData } from "../GameData";
 import { createNewEnemy } from "../Enemy";
 import { log } from "../../core/log";
 import { findRoomWithConnectionID } from "../../core/utilities";
+import { SingleplayerRoom } from "../SingleplayerRoom";
 
 function updateSingleplayerRoomData(room: SingleplayerRoom, deltaTime: number) {
   if (deltaTime < 0) {

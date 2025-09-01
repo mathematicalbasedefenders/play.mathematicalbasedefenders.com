@@ -12,6 +12,8 @@ import { findRoomWithConnectionID } from "../core/utilities";
 const MINIMUM_GENERABLE_NUMBER = -100;
 const POSSIBLE_FACTORS = [2, 3, 4, 5, 6, 8, 9, 10, 11];
 
+const DEFAULT_SPEED = 1 / 60;
+
 interface EnemyAttributes {
   attack?: number;
   health?: number;
@@ -50,7 +52,11 @@ class Enemy {
   }
 
   move(distance?: number) {
-    this.sPosition -= distance || 0.01;
+    if (distance) {
+      this.sPosition -= distance;
+      return;
+    }
+    this.sPosition -= this.speed ?? DEFAULT_SPEED;
   }
 
   check(input: number) {
@@ -58,8 +64,8 @@ class Enemy {
   }
 
   calculateScore(coefficient: number, combo: number, level: number): number {
-    const base = 100;
-    const comboBonus = 0.1;
+    const BASE = 100;
+    const COMBO_BONUS = 0.1;
     const levelBonus = Math.max(1, 1 + 0.1 * (level - 1));
     const sPositionThreshold = 0.5;
     const sPositionBonus = 50;
@@ -67,9 +73,9 @@ class Enemy {
       0,
       (this.sPosition - sPositionThreshold) * sPositionBonus
     );
-    const comboScore = Math.max(1, combo * comboBonus + 1);
+    const comboScore = Math.max(1, combo * COMBO_BONUS + 1);
     return Math.round(
-      (base + sPositionScore * comboScore) * levelBonus * coefficient
+      (BASE + sPositionScore * comboScore) * levelBonus * coefficient
     );
   }
 

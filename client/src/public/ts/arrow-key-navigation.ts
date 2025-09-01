@@ -2,6 +2,19 @@ import _ from "lodash";
 import { variables } from ".";
 import { PopupNotification } from "./popup-notification";
 
+// Usually it's left/right/up/down, but sometimes there may be other keys required
+// for the `DirectionMap`.
+interface DirectionMap {
+  [key: string]: string;
+}
+
+interface DestinationMap {
+  destinations: {
+    [key: string]: DirectionMap;
+  };
+  defaultFocused?: string;
+}
+
 // Globals
 const settingsSecondaryScreenOrder: { [key: string]: Array<string> } = {
   "online": [
@@ -58,7 +71,7 @@ const customSingleplayerIntermissionSecondaryScreenOrder: {
  * New destination: directions.(currentScreen).destinations.(currentElement).(keyPressed)
  */
 function getArrowKeyDirections() {
-  const directions: { [key: string]: any } = {
+  const directions: { [key: string]: DestinationMap } = {
     "mainMenu": {
       destinations: {
         "#main-menu-screen-button--singleplayer": {
@@ -160,7 +173,7 @@ function getArrowKeyDirections() {
     },
     "globalChatTray": getGlobalChatTrayDirections(),
     "openingScreen": getOpeningScreenDirections(),
-    "canvas": null,
+    "canvas": { destinations: {} },
     "archiveMenu": {
       destinations: {
         "#archive-screen-container__back-button": {
@@ -189,7 +202,7 @@ function getArrowKeyDirections() {
 }
 
 function getSettingsMenuDestinations(secondaryScreen: string) {
-  const result: { [key: string]: any } = {
+  const result: DestinationMap = {
     destinations: {
       "#settings-screen__sidebar-item--back": {
         "ArrowDown": "#settings-screen__sidebar-item--online"
@@ -245,7 +258,7 @@ function getSettingsMenuDestinations(secondaryScreen: string) {
 }
 
 function getCustomSingleplayerMenuDestinations(secondaryScreen: string) {
-  const result: { [key: string]: any } = {
+  const result: DestinationMap = {
     destinations: {
       "#custom-singleplayer-intermission-screen-container__back-button": {
         "ArrowDown":
@@ -297,7 +310,7 @@ function getCustomSingleplayerMenuDestinations(secondaryScreen: string) {
 }
 
 function getGlobalChatTrayDirections() {
-  const result: { [key: string]: any } = {
+  const result: DestinationMap = {
     destinations: {
       "#chat-tray-input-send-button": {
         "ArrowLeft": "#chat-tray-input"
@@ -316,12 +329,10 @@ function getOpeningScreenDirections() {
     "#opening-screen__register",
     "#opening-screen__play-as-guest"
   ];
-  const result = _.merge(
-    { destinations: constructUpDownKeyDirections(elements) },
-    {
-      defaultFocused: "#authentication-modal__username"
-    }
-  );
+  const result = _.merge({
+    destinations: constructUpDownKeyDirections(elements)
+  });
+  result.defaultFocused = "#authentication-modal__username";
   return result;
 }
 
@@ -332,24 +343,19 @@ function getOpeningScreenDirections() {
  * ArrowUp will lead to one before it, and ArrowDown will lead to one after it.
  */
 function constructUpDownKeyDirections(ids: Array<string>) {
-  const result: { [key: string]: any } = {};
+  const result: { [key: string]: DirectionMap } = {};
   for (let i = 0; i < ids.length; i++) {
+    result[ids[i]] = {};
     if (i == 0) {
-      result[ids[i]] = {
-        "ArrowDown": ids[i + 1]
-      };
+      result[ids[i]]["ArrowDown"] = ids[i + 1];
       continue;
     }
     if (i == ids.length - 1) {
-      result[ids[i]] = {
-        "ArrowUp": ids[i - 1]
-      };
+      result[ids[i]]["ArrowUp"] = ids[i - 1];
       continue;
     }
-    result[ids[i]] = {
-      "ArrowUp": ids[i - 1],
-      "ArrowDown": ids[i + 1]
-    };
+    result[ids[i]]["ArrowDown"] = ids[i + 1];
+    result[ids[i]]["ArrowUp"] = ids[i - 1];
   }
   return result;
 }
@@ -368,50 +374,27 @@ function navigateFocus(event: KeyboardEvent) {
   let element = variables.navigation.focusing;
   const directions = getArrowKeyDirections();
   // FORCED OVERWRITES
-  // overwrite: if multiplayer chat tray is focused, focus there instead.
-  if (element === "#chat-message") {
-    const input = document.getElementById("chat-message") as HTMLInputElement;
-    if (
-      input &&
-      input.value.length === input.selectionEnd &&
-      keyPressed === "ArrowRight"
-    ) {
-      forcedDestination = "#message-send-button";
-    }
+  // overwrite: if end of multiplayer chat tray is focused, focus on the send button instead.
+  if (checkIfFocusedOnEndOfMessageBox(screen, element, keyPressed)) {
+    forcedDestination = "#message-send-button";
   }
   // overwrite: if chat tray is active, focus there instead.
   if ($("#chat-tray-container").is(":visible")) {
     screen = "globalChatTray";
     // overwrite: if chat tray is focused and caret is at end, move
     // to send button instead.
-    const input = document.getElementById(
-      "chat-tray-input"
-    ) as HTMLInputElement;
-    if (
-      input &&
-      input.value.length === input.selectionEnd &&
-      element === "#chat-tray-input" &&
-      keyPressed === "ArrowRight"
-    ) {
+    if (checkIfFocusedOnEndOfChatTray(screen, element, keyPressed)) {
       forcedDestination = "#chat-tray-input-send-button";
     }
   }
   // overwrite: if focused element is an input, and caret is at leftmost,
-  // move where the left arrow should he instead
-  if ($(element).is("input")) {
-    let elementID = element;
-    if (element[0] === "#") {
-      elementID = element.substring(1);
-    }
-    const input = document.getElementById(elementID) as HTMLInputElement;
-    if (
-      input &&
-      input.selectionStart === 0 &&
-      keyPressed === "ArrowLeft" &&
-      !forcedDestination
-    ) {
-      forcedDestination = directions[screen]?.defaultFocused;
-    }
+  // move where the left arrow should be instead
+  if (
+    !forcedDestination &&
+    $(element).is("input") &&
+    checkIfChatBoxShouldForceLeftArrowMove(screen, element, keyPressed)
+  ) {
+    forcedDestination = directions[screen]?.defaultFocused;
   }
   // overwrite: radio buttons
   if (
@@ -436,15 +419,8 @@ function navigateFocus(event: KeyboardEvent) {
     // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.
     // currently, later notifications are given priority when dealing with arrow keys.
     event.preventDefault();
-    const popUpID =
-      PopupNotification.activeNotificationIDs[
-        PopupNotification.activeNotificationIDs.length - 1
-      ];
-    const popupToFocusID = `#popup-notification--${popUpID}__close-button`;
-    const popupElement = $(popupToFocusID);
-    popupElement.trigger("focus");
-    popupElement.addClass("button--arrow-key-focused");
-    variables.navigation.focusing = popupToFocusID;
+    // this focuses on the most recent/top-most pop up.
+    focusPopup();
     return;
   }
   // overwrite: if an input box is focused on, pushing left and right arrow keys should not
@@ -464,22 +440,15 @@ function navigateFocus(event: KeyboardEvent) {
   // overwrite: if no object is highlighted, highlight the `defaultFocused` element.
   if (
     (element == null ||
-      Object.keys(directions[screen].destinations).indexOf(element) === -1) &&
+      !Object.keys(directions[screen].destinations).includes(element)) &&
     !forcedDestination
   ) {
     event.preventDefault();
-    element = directions[screen].defaultFocused;
-    // focus on the `defaultFocus` element if nothing is arrow-key focused
-    const destinationElement = $(`${element}`);
-    // remove old element's focus status
-    const oldElement = $(variables.navigation.focusing);
-    if (oldElement) {
-      oldElement.removeClass("button--arrow-key-focused");
+    const element = directions[screen].defaultFocused;
+    if (!element) {
+      return;
     }
-    // focus new element
-    destinationElement.trigger("focus");
-    destinationElement.addClass("button--arrow-key-focused");
-    variables.navigation.focusing = element;
+    focusOnDefault(screen, element, keyPressed);
     return;
   }
   // normal case
@@ -487,8 +456,11 @@ function navigateFocus(event: KeyboardEvent) {
     forcedDestination ||
     directions[screen]?.destinations?.[element]?.[keyPressed];
   event.preventDefault();
+  // this function actually moves the focus.
   if (!destination) {
-    // no element corresponds to destination
+    console.debug(
+      "Unable to move because destination string is falsy. This could be intentional!"
+    );
     return;
   }
   const destinationElement = $(`${destination}`);
@@ -496,6 +468,87 @@ function navigateFocus(event: KeyboardEvent) {
     console.warn("Unable to select destination element because it is falsy.");
     return;
   }
+  changeFocus(destination);
+}
+
+function checkIfFocusedOnEndOfMessageBox(
+  screen: string,
+  element: string,
+  keyPressed: string
+) {
+  const input = document.getElementById("chat-message") as HTMLInputElement;
+  if (
+    element === "#chat-message" &&
+    input &&
+    input.value.length === input.selectionEnd &&
+    keyPressed === "ArrowRight"
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function checkIfFocusedOnEndOfChatTray(
+  screen: string,
+  element: string,
+  keyPressed: string
+) {
+  const input = document.getElementById("chat-tray-input") as HTMLInputElement;
+  if (
+    input &&
+    input.value.length === input.selectionEnd &&
+    element === "#chat-tray-input" &&
+    keyPressed === "ArrowRight"
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function checkIfChatBoxShouldForceLeftArrowMove(
+  screen: string,
+  element: string,
+  keyPressed: string
+) {
+  let elementID = element;
+  if (element[0] === "#") {
+    elementID = element.substring(1);
+  }
+  const input = document.getElementById(elementID) as HTMLInputElement;
+  if (input && input.selectionStart === 0 && keyPressed === "ArrowLeft") {
+    return true;
+  }
+  return false;
+}
+
+function focusPopup() {
+  const popUpID =
+    PopupNotification.activeNotificationIDs[
+      PopupNotification.activeNotificationIDs.length - 1
+    ];
+  const popupToFocusID = `#popup-notification--${popUpID}__close-button`;
+  const popupElement = $(popupToFocusID);
+  popupElement.trigger("focus");
+  popupElement.addClass("button--arrow-key-focused");
+  variables.navigation.focusing = popupToFocusID;
+}
+
+function focusOnDefault(screen: string, element: string, keyPressed: string) {
+  // focus on the `defaultFocus` element if nothing is arrow-key focused
+  const destinationElement = $(`${element}`);
+  // remove old element's focus status
+  const oldElement = $(variables.navigation.focusing);
+  if (oldElement) {
+    oldElement.removeClass("button--arrow-key-focused");
+  }
+  // focus new element
+  destinationElement.trigger("focus");
+  destinationElement.addClass("button--arrow-key-focused");
+  variables.navigation.focusing = element;
+}
+
+function changeFocus(destination: string) {
+  const destinationElement = $(`${destination}`);
   // remove old element's focus status
   const oldElement = $(variables.navigation.focusing);
   if (oldElement) {
