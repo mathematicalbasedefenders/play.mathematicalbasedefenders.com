@@ -12,9 +12,10 @@ import {
   defaultMultiplayerRoomID,
   GameMode,
   Room,
-  resetDefaultMultiplayerRoomID
+  resetDefaultMultiplayerRoomID,
+  setDefaultMultiplayerRoomID
 } from "./game/Room";
-import _ from "lodash";
+import _, { create } from "lodash";
 const cors = require("cors");
 const helmet = require("helmet");
 import { sendChatMessage } from "./core/chat";
@@ -179,7 +180,15 @@ uWS
           }
           switch (parsedMessage.room) {
             case "default": {
-              joinMultiplayerRoom(socket, "default");
+              if (!defaultMultiplayerRoomID) {
+                const room = new MultiplayerRoom(
+                  socket,
+                  GameMode.DefaultMultiplayer,
+                  true
+                );
+                setDefaultMultiplayerRoomID(room.id);
+              }
+              joinMultiplayerRoom(socket, defaultMultiplayerRoomID as string);
               break;
             }
             default: {
@@ -187,9 +196,6 @@ uWS
             }
           }
           break;
-        }
-        case "createMultiplayerRoom": {
-          // createMultiplayerRoom();
         }
         case "leaveMultiplayerRoom": {
           if (!socket.exitedOpeningScreen) {
