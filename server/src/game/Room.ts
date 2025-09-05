@@ -80,17 +80,6 @@ class Room {
 
     this.gameActionRecord = new GameActionRecord();
 
-    // special for default multiplayer
-    // check if default multiplayer room already exists
-    if (gameMode === GameMode.DefaultMultiplayer && defaultMultiplayerRoomID) {
-      log.warn(`There may only be one Default Multiplayer room at at time.`);
-      log.warn(`There is one, which is ID ${defaultMultiplayerRoomID}.`);
-      this.destroy();
-      return;
-    } else if (gameMode === GameMode.DefaultMultiplayer) {
-      defaultMultiplayerRoomID = this.id;
-    }
-
     log.info(`Created ${gameMode} room with ID ${this.id}`);
   }
 
@@ -371,6 +360,14 @@ function getOpponentsInformation(
 }
 
 /**
+ * Sets the `defaultMultiplayerRoomID` variable for tracking of default multiplayer room.
+ * @param {string} newID The string to set the ID to.
+ */
+function setDefaultMultiplayerRoomID(newID: string) {
+  defaultMultiplayerRoomID = newID;
+}
+
+/**
  * Resets the Default Multiplayer Room's ID.
  * @param {room} room ???
  */
@@ -385,5 +382,6 @@ export {
   GameMode,
   defaultMultiplayerRoomID,
   resetDefaultMultiplayerRoomID,
+  setDefaultMultiplayerRoomID,
   getOpponentsInformation
 };

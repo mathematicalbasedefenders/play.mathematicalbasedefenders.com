@@ -22,7 +22,11 @@ import {
   GameData,
   GAME_DATA_CONSTANTS
 } from "./GameData";
-import { Room } from "./Room";
+import {
+  defaultMultiplayerRoomID,
+  Room,
+  setDefaultMultiplayerRoomID
+} from "./Room";
 import * as universal from "../universal";
 import * as utilities from "../core/utilities";
 import { Enemy } from "./Enemy";
@@ -57,6 +61,18 @@ class MultiplayerRoom extends Room {
     };
     // this isn't in `globalClock` because it's not part of gameplay.
     this.timeSinceLastPlayerListUpdate = 0;
+
+    // special for default multiplayer
+    // check if default multiplayer room already exists
+    if (mode === GameMode.DefaultMultiplayer && defaultMultiplayerRoomID) {
+      log.warn(`There may only be one Default Multiplayer room at at time.`);
+      log.warn(`There is one, which is ID ${defaultMultiplayerRoomID}.`);
+      this.destroy();
+      return;
+    } else if (mode === GameMode.DefaultMultiplayer) {
+      setDefaultMultiplayerRoomID(this.id);
+    }
+    universal.rooms.push(this);
   }
 
   startPlay() {
