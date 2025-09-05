@@ -42,7 +42,7 @@ class MultiplayerRoom extends Room {
   globalEnemyToAdd!: Enemy | null;
   timeSinceLastPlayerListUpdate: number;
 
-  constructor(host: universal.GameSocket, mode: GameMode, noHost: boolean) {
+  constructor(host: universal.GameSocket, mode: GameMode, noHost?: boolean) {
     super(host, mode, noHost);
     this.nextGameStartTime = null;
     this.globalEnemySpawnThreshold =
