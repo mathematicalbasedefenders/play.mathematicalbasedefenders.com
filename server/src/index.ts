@@ -355,6 +355,11 @@ function synchronizeGameDataWithSockets(
   }
 }
 
+/**
+ * Makes `socket` join a multiplayer room with the id `roomID`.
+ * @param {universal.GameSocket} socket
+ * @param {string} roomID
+ */
 function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
   let room;
   if (roomID === "default") {
