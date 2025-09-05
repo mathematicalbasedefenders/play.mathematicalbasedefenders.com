@@ -188,6 +188,9 @@ uWS
           }
           break;
         }
+        case "createMultiplayerRoom": {
+          // createMultiplayerRoom();
+        }
         case "leaveMultiplayerRoom": {
           if (!socket.exitedOpeningScreen) {
             blockSocket(socket);
@@ -323,20 +326,16 @@ function synchronizeGameDataWithSockets(
 }
 
 function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
-  // or create one if said one doesn't exist
-  if (roomID !== "default") {
-    log.warn(`Unknown roomID, should be default: ${roomID}`);
-  }
   let room;
-  if (!defaultMultiplayerRoomID) {
-    room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer, true);
-    universal.rooms.push(room);
-    socket.subscribe(room.id);
-  } else {
+  if (roomID === "default") {
+    // log.warn(`Unknown roomID, should be default: ${roomID}`);
     const defaultRoom = (room: Room) => room.id === defaultMultiplayerRoomID;
     room = universal.rooms.find(defaultRoom);
-    socket.subscribe(defaultMultiplayerRoomID);
+  } else {
+    const roomWithID = (room: Room) => room.id === roomID;
+    room = universal.rooms.find(roomWithID);
   }
+  socket.subscribe(roomID);
   room?.addMember(socket);
 }
 
