@@ -178,6 +178,14 @@ uWS
             blockSocket(socket);
             return;
           }
+          // reject message if already in room
+          if (utilities.findRoomWithConnectionID(socket.connectionID)) {
+            const MESSAGE = "You're already in a room!";
+            const BORDER_COLOR = "#ff0000";
+            universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+            return;
+          }
+          // actually join room
           switch (parsedMessage.room) {
             case "default": {
               if (!defaultMultiplayerRoomID) {
@@ -202,6 +210,14 @@ uWS
             blockSocket(socket);
             return;
           }
+          // reject message if already in room
+          if (utilities.findRoomWithConnectionID(socket.connectionID)) {
+            const MESSAGE = "You're already in a room!";
+            const BORDER_COLOR = "#ff0000";
+            universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+            return;
+          }
+          // actually create room
           const room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer);
           joinMultiplayerRoom(socket, room.id);
         }
