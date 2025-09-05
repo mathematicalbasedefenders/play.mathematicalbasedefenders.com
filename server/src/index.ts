@@ -197,6 +197,14 @@ uWS
           }
           break;
         }
+        case "createMultiplayerRoom": {
+          if (!socket.exitedOpeningScreen) {
+            blockSocket(socket);
+            return;
+          }
+          const room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer);
+          joinMultiplayerRoom(socket, room.id);
+        }
         case "leaveMultiplayerRoom": {
           if (!socket.exitedOpeningScreen) {
             blockSocket(socket);
