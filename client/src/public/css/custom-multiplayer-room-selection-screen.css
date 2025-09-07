@@ -76,6 +76,7 @@
 #custom-multiplayer-room-selection-screen-button--back {
   background-color: var(--color-neutral);
   background-position: 0 70%;
+  background-image: url("../assets/images/back.svg");
   height: 10%;
 }
 

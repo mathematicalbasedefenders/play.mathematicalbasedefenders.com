@@ -75,6 +75,7 @@
 
 #multiplayer-menu-screen-button--back {
   background-color: var(--color-neutral);
+  background-image: url("../assets/images/back.svg");
   background-position: 0 70%;
   height: 10%;
 }
