@@ -80,6 +80,7 @@
 }
 
 #multiplayer-menu-screen-button--default:hover,
+#multiplayer-menu-screen-button--custom:hover,
 #multiplayer-menu-screen-button--back:hover {
   filter: brightness(1.05);
   transform: scale(1.05);
