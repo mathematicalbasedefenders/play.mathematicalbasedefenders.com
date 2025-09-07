@@ -34,6 +34,9 @@ body {
   --color-multiplayer-menu-default: #3867e9;
   --color-multiplayer-menu-custom: #7b25ec;
 
+  --color-multiplayer-menu-custom--join: #f5348e;
+  --color-multiplayer-menu-custom--create: #f71ce5;
+
   --color-dangerous: #dd0000;
   --color-neutral: #292929;
 
