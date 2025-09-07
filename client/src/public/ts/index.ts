@@ -479,6 +479,9 @@ function initializeEventListeners() {
     });
     changeScreen("multiplayerIntermission");
   });
+  $("#multiplayer-menu-screen-button--custom").on("click", () => {
+    changeScreen("customMultiplayerRoomSelection");
+  });
   $("#multiplayer-menu-screen-button--back").on("click", () => {
     changeScreen("mainMenu");
   });
@@ -831,6 +834,13 @@ function initializeEventListeners() {
     variables.replay.paused = true;
     jumpToTimeInReplay(variables.replay.elapsedReplayTime);
   });
+  // == CUSTOM MULTIPLAYER ==
+  $("#custom-multiplayer-room-selection-screen-button--back").on(
+    "click",
+    () => {
+      changeScreen("multiplayerMenu");
+    }
+  );
 }
 
 // events

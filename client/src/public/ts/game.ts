@@ -301,6 +301,10 @@ function changeScreen(
   $("#main-content__game-over-screen-container").hide(0);
   $("#main-content__settings-screen-container").hide(0);
   $("#main-content__archive-screen-container").hide(0);
+  $("#main-content__custom-multiplayer-room-selection-screen-container").hide(
+    0
+  );
+  $("#main-content__custom-multiplayer-intermission-screen-container").hide(0);
   $("#canvas-container").hide(0);
 
   $("#replay-controller-container").hide(0);
@@ -377,6 +381,18 @@ function changeScreen(
     }
     case "archiveMenu": {
       $("#main-content__archive-screen-container").show(0);
+      break;
+    }
+    case "customMultiplayerRoomSelection": {
+      $(
+        "#main-content__custom-multiplayer-room-selection-screen-container"
+      ).show(0);
+      break;
+    }
+    case "customMultiplayerIntermission": {
+      $("#main-content__custom-multiplayer-intermission-screen-container").hide(
+        0
+      );
       break;
     }
   }
