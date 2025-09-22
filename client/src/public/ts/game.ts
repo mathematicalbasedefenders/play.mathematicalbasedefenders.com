@@ -390,7 +390,7 @@ function changeScreen(
       break;
     }
     case "customMultiplayerIntermission": {
-      $("#main-content__custom-multiplayer-intermission-screen-container").hide(
+      $("#main-content__custom-multiplayer-intermission-screen-container").show(
         0
       );
       break;
