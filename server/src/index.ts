@@ -314,8 +314,6 @@ function update(deltaTime: number) {
   const systemStatus = updateSystemStatus(deltaTime);
   synchronizeGameDataWithSockets(deltaTime, systemStatus || {});
 
-  console.log(universal.rooms);
-
   /**
    * Rooms are deleted here!
    */
