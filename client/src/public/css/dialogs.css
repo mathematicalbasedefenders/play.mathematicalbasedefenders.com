@@ -1,16 +1,6 @@
-/* POPUP NOTIFICATIONS */
-#main-content__popup-notification-container {
-  z-index: var(--z-index-popup-notification);
-  overflow: hidden;
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  pointer-events: none;
-  background-color: #000000aa;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* DIALOG NOTIFICATIONS */
+dialog::backdrop {
+  background: #000000aa;
 }
 
 dialog {
@@ -18,8 +8,6 @@ dialog {
   height: fit-content;
   background-color: var(--color-neutral);
   color: var(--color-text-light);
-  display: flex;
-  flex-direction: column;
   padding: 8px;
   border: 2px solid var(--color-text-light);
 }
@@ -47,12 +35,19 @@ dialog button {
   background-color: #181818;
   border: 1px solid #ffffff;
   color: var(--color-text-light);
-  font-size: 200%;
   font-family: inherit;
   transition-duration: var(--transition-duration-short);
 }
 
-.dialog__button-container button:hover {
+dialog button:hover {
   filter: brightness(1.05);
   transform: scale(1.05);
+}
+
+dialog input {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 100%;
+  font-family: inherit;
 }
