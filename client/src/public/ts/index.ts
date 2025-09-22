@@ -486,6 +486,14 @@ function initializeEventListeners() {
     changeScreen("mainMenu");
   });
   //
+  $("#custom-multiplayer-room-selection-screen-button--create").on(
+    "click",
+    () => {
+      const object = { message: "createMultiplayerRoom" };
+      sendSocketMessage(object);
+    }
+  );
+  //
   $("#settings-screen__sidebar-item--back").on("click", () => {
     setSettings();
     changeScreen("mainMenu");
