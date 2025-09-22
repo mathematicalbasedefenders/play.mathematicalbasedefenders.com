@@ -232,6 +232,7 @@ uWS
           };
           const message = JSON.stringify(object);
           socket.send(message);
+          break;
         }
         case "leaveMultiplayerRoom": {
           if (!socket.exitedOpeningScreen) {
