@@ -52,6 +52,9 @@ class Room {
   // new update 2025-03-31
   gameActionRecord: GameActionRecord;
 
+  // new update 2025-09-22
+  ageInMilliseconds: number = 0;
+
   /**
    * Creates a `Room` instance. This shouldn't be called directly.
    * Instead it should be called from a `super()` call from either
@@ -96,6 +99,7 @@ class Room {
     }
 
     this.updateNumber++;
+    this.ageInMilliseconds += deltaTime;
   }
 
   // room specific
