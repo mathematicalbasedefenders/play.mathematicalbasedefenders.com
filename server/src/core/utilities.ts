@@ -461,6 +461,35 @@ function convertGameSettingsToReplayActions(data: GameData) {
   return result;
 }
 
+/**
+ * Gets the currently available multiplayer rooms available
+ * for use with the public room list.
+ */
+function getHumanFriendlyMultiplayerRoomList() {
+  const rooms = universal.rooms.filter(
+    (e) => e.mode === GameMode.CustomMultiplayer
+  );
+  const result: Array<unknown> = [];
+  for (const room of rooms) {
+    if (!room.host) {
+      continue;
+    }
+    const formattedRoom = {
+      id: room.id,
+      playerCount: room.memberConnectionIDs.length,
+      spectatorCount: room.spectatorConnectionIDs.length,
+      name: ""
+    };
+    // TODO: Quite a hacky way to do this, find a "better" way.
+    const hostName =
+      universal.getNameFromConnectionID(room.host.connectionID as string) ??
+      "(unknown)";
+    formattedRoom.name = `Multiplayer room with ID ${room.id} hosted by ${hostName} with ${formattedRoom.playerCount} players.`;
+    result.push(formattedRoom);
+  }
+  return result;
+}
+
 const keyify = (obj: any, prefix = ""): string[] => {
   const keys: string[] = [];
   Object.keys(obj).forEach((el) => {
@@ -495,5 +524,6 @@ export {
   calculateAPM,
   formatNumber,
   getUserReplayDataFromSocket,
-  convertGameSettingsToReplayActions
+  convertGameSettingsToReplayActions,
+  getHumanFriendlyMultiplayerRoomList
 };
