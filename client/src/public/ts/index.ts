@@ -899,14 +899,46 @@ function initializeEventListeners() {
         "custom-multiplayer-room-selection-dialog"
       ) as HTMLDialogElement;
       if (!roomSelectDialog) {
-        console.error(
-          "Room selection dialog HTML doesn't exist! Is the game properly loaded?"
-        );
+        const message =
+          "Room selection dialog HTML doesn't exist! Is the game properly loaded?";
+        console.error(message);
+        const options = { borderColor: "#ff0000" };
+        const toast = new ToastNotification(message, options);
+        toast.render();
         return;
       }
+      sendSocketMessage({ message: "getMultiplayerRoomList" });
       roomSelectDialog.showModal();
     }
   );
+  $("#custom-multiplayer-room-selection-dialog__close").on("click", () => {
+    const roomSelectDialog = document.getElementById(
+      "custom-multiplayer-room-selection-dialog"
+    ) as HTMLDialogElement;
+    if (!roomSelectDialog) {
+      const message =
+        "Room selection dialog HTML doesn't exist! Is the game properly loaded?";
+      console.error(message);
+      const options = { borderColor: "#ff0000" };
+      const toast = new ToastNotification(message, options);
+      toast.render();
+      return;
+    }
+    roomSelectDialog.close();
+  });
+  $("#join-by-code").on("click", () => {
+    // TODO: Placeholder
+    const code = $("#room-to-join").val();
+    console.log(`Joining room with code ${code}`);
+  });
+  $("#public-room-list__join").on("click", () => {
+    // TODO: Placeholder
+    const code = $("#room-to-join").val();
+    console.log(`Joining room with code ${code}`);
+  });
+  $("#public-room-list__refresh").on("click", () => {
+    sendSocketMessage({ message: "getMultiplayerRoomList" });
+  });
 }
 
 // events
@@ -921,6 +953,9 @@ $("#on-screen-keyboard-container").hide(0);
 $("#settings-screen__content--online__login-form").on("submit", (event) => {
   event?.preventDefault();
 });
+for (const dialog of Array.from(document.getElementsByTagName("dialog"))) {
+  dialog.close();
+}
 redrawStage();
 
 function updateUserInformationText(data: any) {
