@@ -370,6 +370,12 @@ function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
     const roomWithID = (room: Room) => room.id === roomID;
     room = universal.rooms.find(roomWithID);
   }
+  if (!room) {
+    const MESSAGE = "The room you're trying to join doesn't exist!";
+    const BORDER_COLOR = "#ff0000";
+    universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+    return;
+  }
   socket.subscribe(roomID);
   room?.addMember(socket);
 }
