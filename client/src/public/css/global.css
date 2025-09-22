@@ -91,7 +91,7 @@ body {
 
 .text--monospace,
 code {
-  font-family: "Noto Sans Mono", monospace;
+  font-family: "JetBrains Mono", monospace;
 }
 
 .option-button--small {
