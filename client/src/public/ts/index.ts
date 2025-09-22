@@ -473,6 +473,9 @@ function initializeEventListeners() {
   );
   //
   $("#multiplayer-menu-screen-button--default").on("click", () => {
+    // clear cache
+    variables.multiplayerChat.playerListCache.playerCount = 0;
+    variables.multiplayerChat.playerListCache.registeredPlayers.clear();
     sendSocketMessage({
       message: "joinMultiplayerRoom",
       room: "default"
@@ -489,6 +492,9 @@ function initializeEventListeners() {
   $("#custom-multiplayer-room-selection-screen-button--create").on(
     "click",
     () => {
+      // clear cache
+      variables.multiplayerChat.playerListCache.playerCount = 0;
+      variables.multiplayerChat.playerListCache.registeredPlayers.clear();
       const object = { message: "createMultiplayerRoom" };
       sendSocketMessage(object);
     }
