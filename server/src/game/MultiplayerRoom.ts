@@ -144,6 +144,8 @@ class MultiplayerRoom extends Room {
         socket.send(
           JSON.stringify({
             message: "modifyMultiplayerRankContent",
+            scope:
+              this.mode == GameMode.DefaultMultiplayer ? "default" : "custom",
             data: rankingPayload
           })
         );
@@ -157,6 +159,8 @@ class MultiplayerRoom extends Room {
         socket.send(
           JSON.stringify({
             message: "modifyPlayerListContent",
+            scope:
+              this.mode == GameMode.DefaultMultiplayer ? "default" : "custom",
             data: playersPayload
           })
         );

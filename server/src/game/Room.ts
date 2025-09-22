@@ -153,6 +153,8 @@ class Room {
           message: "addRoomChatMessage",
           // selector:
           //   "#main-content__multiplayer-intermission-screen-container__chat__messages",
+          scope:
+            this.mode == GameMode.DefaultMultiplayer ? "default" : "custom",
           data: {
             name: DOMPurify.sanitize(messageToSend.senderName),
             message: DOMPurify.sanitize(message),
