@@ -184,6 +184,10 @@ class Room {
         `Added socket with ID ${connectionID} as a member to room ${this.id}`
       );
       caller.subscribe(this.id);
+    } else {
+      log.warn(
+        `Did not add socket with ID ${connectionID} as it's already in this room.`
+      );
     }
   }
 
@@ -201,6 +205,10 @@ class Room {
       this.spectatorConnectionIDs.push(connectionID);
       log.info(
         `Added socket with ID ${connectionID} as a spectator to room ${this.id}`
+      );
+    } else {
+      log.warn(
+        `Did not add socket with ID ${connectionID} as it's already in this room.`
       );
     }
   }
