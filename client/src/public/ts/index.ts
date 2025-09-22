@@ -884,6 +884,14 @@ function initializeEventListeners() {
     });
     changeScreen("mainMenu");
   });
+  $(`#custom-multiplayer-message-send-button`).on("click", () => {
+    sendSocketMessage({
+      message: "sendChatMessage",
+      scope: "room",
+      chatMessage: $("#custom-multiplayer-chat-message").val()?.toString() || ""
+    });
+    $("#custom-multiplayer-chat-message").val("");
+  });
 }
 
 // events
