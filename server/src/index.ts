@@ -215,6 +215,9 @@ uWS
             const MESSAGE = "You're already in a room!";
             const BORDER_COLOR = "#ff0000";
             universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+            log.warn(
+              `Socket ${socket.connectionID} is already in a room while creating another.`
+            );
             return;
           }
           // actually create room
@@ -374,10 +377,16 @@ function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
     const MESSAGE = "The room you're trying to join doesn't exist!";
     const BORDER_COLOR = "#ff0000";
     universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+    log.warn(
+      `Socket ${socket.connectionID} tried to join a non-existent multiplayer room.`
+    );
     return;
   }
   socket.subscribe(roomID);
   room?.addMember(socket);
+  const object = { newScreen: "customMultiplayerIntermission" };
+  const message = JSON.stringify(object);
+  socket.send(message);
 }
 
 setInterval(() => {
