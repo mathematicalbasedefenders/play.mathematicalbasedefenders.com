@@ -151,7 +151,7 @@ class MultiplayerRoom extends Room {
           this.memberConnectionIDs
         );
         const playerCountSelector =
-          "#main-content__multiplayer-intermission-screen-container__player-count";
+          "#main-content__custom-multiplayer-intermission-screen-container__player-count";
         const playerCountText = this.memberConnectionIDs.length.toString();
         changeClientSideText(socket, playerCountSelector, playerCountText);
         socket.send(
@@ -197,7 +197,7 @@ class MultiplayerRoom extends Room {
     //     const socket = universal.getSocketFromConnectionID(connectionID);
     //     if (socket) {
     //       const selector =
-    //         "#main-content__multiplayer-intermission-screen-container__game-status-message";
+    //         "#main-content__custom-multiplayer-intermission-screen-container__game-status-message";
     //       if (this.nextGameStartTime) {
     //         let timeLeft = Date.now() - this.nextGameStartTime.getTime();
     //         timeLeft = Math.abs(timeLeft / 1000);
@@ -227,7 +227,7 @@ class MultiplayerRoom extends Room {
       }
       const playersRemaining = this.gameData.length;
       const selector =
-        "#main-content__multiplayer-intermission-screen-container__game-status-message";
+        "#main-content__custom-multiplayer-intermission-screen-container__game-status-message";
       const value = `Current game in progress. (Remaining: ${playersRemaining}/${this.playersAtStart})`;
       changeClientSideText(socket, selector, value);
     }
