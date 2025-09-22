@@ -24,6 +24,7 @@ import { synchronizeGameDataWithSocket } from "./universal";
 import { updateSystemStatus } from "./core/status-indicators";
 import { authenticate } from "./authentication/perform-authentication";
 import { MultiplayerRoom } from "./game/MultiplayerRoom";
+import { DefaultMultiplayerRoom } from "./game/DefaultMultiplayerRoom";
 
 const app = express();
 app.set("trust proxy", 2);
@@ -191,7 +192,7 @@ uWS
           switch (parsedMessage.room) {
             case "default": {
               if (!defaultMultiplayerRoomID) {
-                const room = new MultiplayerRoom(
+                const room = new DefaultMultiplayerRoom(
                   socket,
                   GameMode.DefaultMultiplayer,
                   true
