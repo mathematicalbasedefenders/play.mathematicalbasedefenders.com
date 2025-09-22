@@ -280,6 +280,16 @@ uWS
           sendChatMessage(scope, message, socket);
           break;
         }
+        case "getMultiplayerRoomList": {
+          const result = utilities.getHumanFriendlyMultiplayerRoomList();
+          const object = {
+            message: "updateMultiplayerRoomList",
+            data: result
+          };
+          const message = JSON.stringify(object);
+          socket.send(message);
+          break;
+        }
         case "exitOpeningScreen": {
           log.info(`Socket ${socket.connectionID} exited opening screen.`);
           socket.exitedOpeningScreen = true;
