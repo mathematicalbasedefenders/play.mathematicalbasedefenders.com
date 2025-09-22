@@ -29,10 +29,31 @@
 </div>
 
 <dialog id="custom-multiplayer-room-selection-dialog">
-  <div id="dialog__title">
-    <span>Select a room to join!</span>
+  <div style="display: flex;align-items: start">
+    <div class="dialog__title">
+      <span>Select a room to join!</span>
+    </div>
+    <button id="custom-multiplayer-room-selection-dialog__close">Close</button>
   </div>
   <div class="dialog__content">
-    <span>You can either type in the room code to join a room or select a public room from the list to join.</span>
+    <span>You can either type in a room code to join a room or select a public room from the list to join.</span>
+    <hr>
+    <span>Type a Room Code</span>
+    <br>
+    <div style="display: flex;align-items: center;">
+      <label for="room-to-join">Room Code: </label>
+      <input style="margin-left: 4px;" type="text" maxlength="8" class="text--monospace" id="room-to-join" name="room-to-join" autocomplete="off">
+      <button id="join-by-code" style="margin-left: 4px;">Join</button>
+    </div>
+    <hr>
+    <div style="display:flex;justify-content:space-between;">
+      <label for="public-room-list">Select a Public Room</label>
+      <div>
+        <button id="public-room-list__refresh">Refresh</button>
+        <button id="public-room-list__join">Join</button>
+      </div>
+    </div>
+    <select name="public-room-list" id="public-room-list" style="width:100%;margin:4px 0;">
+    </select>
   </div>
 </dialog>
