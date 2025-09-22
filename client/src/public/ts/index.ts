@@ -892,6 +892,21 @@ function initializeEventListeners() {
     });
     $("#custom-multiplayer-chat-message").val("");
   });
+  $("#custom-multiplayer-room-selection-screen-button--join").on(
+    "click",
+    () => {
+      const roomSelectDialog = document.getElementById(
+        "custom-multiplayer-room-selection-dialog"
+      ) as HTMLDialogElement;
+      if (!roomSelectDialog) {
+        console.error(
+          "Room selection dialog HTML doesn't exist! Is the game properly loaded?"
+        );
+        return;
+      }
+      roomSelectDialog.showModal();
+    }
+  );
 }
 
 // events

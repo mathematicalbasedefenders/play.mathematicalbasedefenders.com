@@ -1,0 +1,58 @@
+/* POPUP NOTIFICATIONS */
+#main-content__popup-notification-container {
+  z-index: var(--z-index-popup-notification);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+  background-color: #000000aa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+dialog {
+  width: min(720px, 80%);
+  height: fit-content;
+  background-color: var(--color-neutral);
+  color: var(--color-text-light);
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border: 2px solid var(--color-text-light);
+}
+
+dialog .dialog__title {
+  height: 12.5%;
+  width: 100%;
+  font-size: 250%;
+}
+
+dialog .dialog__content {
+  height: 77.5%;
+  width: 100%;
+  font-size: 125%;
+}
+
+dialog .dialog__button-container {
+  height: 10%;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+}
+
+dialog button {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 200%;
+  font-family: inherit;
+  transition-duration: var(--transition-duration-short);
+}
+
+.dialog__button-container button:hover {
+  filter: brightness(1.05);
+  transform: scale(1.05);
+}
