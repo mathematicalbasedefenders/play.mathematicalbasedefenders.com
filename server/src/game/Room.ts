@@ -87,6 +87,9 @@ class Room {
   }
 
   update(deltaTime: number) {
+    // update things that need to be updated, regardless if room is in active play
+    this.ageInMilliseconds += deltaTime;
+
     if (!this.playing && !this.updating) {
       return;
     }
@@ -99,7 +102,6 @@ class Room {
     }
 
     this.updateNumber++;
-    this.ageInMilliseconds += deltaTime;
   }
 
   // room specific

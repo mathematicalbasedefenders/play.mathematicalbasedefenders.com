@@ -74,11 +74,13 @@ const CONFIGURATION = JSON.parse(
 
 const PORT: number = 4000;
 const WEBSOCKET_PORT: number = 5000;
+
 const DESIRED_SYNCHRONIZATIONS_PER_SECOND: number = 5;
 const DESIRED_SERVER_UPDATES_PER_SECOND: number = 60;
 const UPDATE_INTERVAL: number = 1000 / DESIRED_SERVER_UPDATES_PER_SECOND;
 const SYNCHRONIZATION_INTERVAL: number =
   1000 / DESIRED_SYNCHRONIZATIONS_PER_SECOND;
+const LIVING_ROOM_CONDITION_GRACE_PERIOD = 3000;
 
 // https://github.com/uNetworking/uWebSockets.js/issues/335#issuecomment-643500581
 // https://github.com/uNetworking/uWebSockets.js/issues/335#issuecomment-834141711
@@ -321,7 +323,7 @@ function update(deltaTime: number) {
         0 ||
       typeof element === "undefined" ||
       Object.keys(element).length === 0
-    );
+    ) && element.ageInMilliseconds > LIVING_ROOM_CONDITION_GRACE_PERIOD;
   let oldRooms = _.clone(universal.rooms).map((element) => element.id);
   utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
 
