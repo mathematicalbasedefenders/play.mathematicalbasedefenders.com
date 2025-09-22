@@ -10,7 +10,12 @@ import { updateSystemStatusTrayText } from "./system-status-indicator";
 import { createChatMessage } from "./chat";
 import DOMPurify from "dompurify";
 import { showUserLookupPopUp } from "./lookup-user";
-import { checkPlayerListCacheEquality, millisecondsToTime } from "./utilities";
+import {
+  checkPlayerListCacheEquality,
+  clearMultiplayerRoomList,
+  millisecondsToTime,
+  updateMultiplayerRoomList
+} from "./utilities";
 import { checkQuickLink } from "./quick-links";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
@@ -310,6 +315,11 @@ socket.addEventListener("message", (event: any) => {
           break;
         }
       }
+      break;
+    }
+    case "updateMultiplayerRoomList": {
+      clearMultiplayerRoomList();
+      updateMultiplayerRoomList(message.data);
       break;
     }
   }
