@@ -31,10 +31,11 @@ import * as universal from "../universal";
 import * as utilities from "../core/utilities";
 import { Enemy } from "./Enemy";
 import * as enemy from "./Enemy";
+import { MultiplayerRoom } from "./MultiplayerRoom";
 
 const PLAYER_LIST_UPDATE_INTERVAL = 1000;
 
-class MultiplayerRoom extends Room {
+class DefaultMultiplayerRoom extends MultiplayerRoom {
   nextGameStartTime!: Date | null;
   globalEnemySpawnThreshold: number;
   globalClock: ClockInterface;
@@ -102,15 +103,6 @@ class MultiplayerRoom extends Room {
     for (const playerData of this.gameData) {
       const gameSettings = convertGameSettingsToReplayActions(playerData);
       for (const setting in gameSettings) {
-        // this.gameActionRecord.addAction({
-        //   scope: "room",
-        //   action: Action.SetGameData,
-        //   timestamp: Date.now(),
-        //   data: {
-        //     key: setting,
-        //     value: gameSettings[setting]
-        //   }
-        // });
         this.gameActionRecord.addSetGameDataAction(
           playerData,
           "player",
@@ -127,7 +119,7 @@ class MultiplayerRoom extends Room {
     // Update for all types of rooms
     let now: number = Date.now();
     let deltaTime: number = now - this.lastUpdateTime;
-    super.update(deltaTime);
+    super.update();
     this.lastUpdateTime = now;
     this.timeSinceLastPlayerListUpdate += deltaTime;
 
@@ -164,186 +156,182 @@ class MultiplayerRoom extends Room {
       this.timeSinceLastPlayerListUpdate = 0;
     }
 
-    // Then update specifically for multiplayer rooms
-    // if (!this.playing) {
-    //   // Check if there is at least 2 players and timer hasn't started countdown.
-    //   // If so, start intermission countdown
-    //   if (
-    //     !this.nextGameStartTime &&
-    //     this.memberConnectionIDs.length >=
-    //       GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
-    //   ) {
-    //     const nextGameStartTime =
-    //       Date.now() +
-    //       GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_INTERMISSION_TIME;
-    //     this.nextGameStartTime = new Date(nextGameStartTime);
-    //   }
-    //   // Check if there is less than 2 players - if so, stop intermission countdown
-    //   if (
-    //     this.nextGameStartTime instanceof Date &&
-    //     this.memberConnectionIDs.length <
-    //       GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
-    //   ) {
-    //     this.nextGameStartTime = null;
-    //   }
-    //   // Start game
-    //   if (this.nextGameStartTime && new Date() >= this.nextGameStartTime) {
-    //     this.startPlay();
-    //     this.playersAtStart = this.memberConnectionIDs.length;
-    //     this.summonEveryoneToGameplay();
-    //   }
-    //   // Update Text
-    //   for (const connectionID of this.memberConnectionIDs) {
-    //     const socket = universal.getSocketFromConnectionID(connectionID);
-    //     if (socket) {
-    //       const selector =
-    //         "#main-content__multiplayer-intermission-screen-container__game-status-message";
-    //       if (this.nextGameStartTime) {
-    //         let timeLeft = Date.now() - this.nextGameStartTime.getTime();
-    //         timeLeft = Math.abs(timeLeft / 1000);
-    //         const value = `Game starting in ${timeLeft.toFixed(3)} seconds.`;
-    //         changeClientSideText(socket, selector, value);
-    //       } else if (
-    //         this.memberConnectionIDs.length <
-    //         GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
-    //       ) {
-    //         const value = `Waiting for at least ${GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START} players.`;
-    //         changeClientSideText(socket, selector, value);
-    //       }
-    //     }
-    //   }
-    //   return;
-    // }
-
+    // Then update specifically for Default Multiplayer rooms
     if (!this.playing) {
+      // Check if there is at least 2 players and timer hasn't started countdown.
+      // If so, start intermission countdown
+      if (
+        !this.nextGameStartTime &&
+        this.memberConnectionIDs.length >=
+          GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
+      ) {
+        const nextGameStartTime =
+          Date.now() +
+          GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_INTERMISSION_TIME;
+        this.nextGameStartTime = new Date(nextGameStartTime);
+      }
+      // Check if there is less than 2 players - if so, stop intermission countdown
+      if (
+        this.nextGameStartTime instanceof Date &&
+        this.memberConnectionIDs.length <
+          GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
+      ) {
+        this.nextGameStartTime = null;
+      }
+      // Start game
+      if (this.nextGameStartTime && new Date() >= this.nextGameStartTime) {
+        this.startPlay();
+        this.playersAtStart = this.memberConnectionIDs.length;
+        this.summonEveryoneToGameplay();
+      }
+      // Update Text
+      for (const connectionID of this.memberConnectionIDs) {
+        const socket = universal.getSocketFromConnectionID(connectionID);
+        if (socket) {
+          const selector =
+            "#main-content__multiplayer-intermission-screen-container__game-status-message";
+          if (this.nextGameStartTime) {
+            let timeLeft = Date.now() - this.nextGameStartTime.getTime();
+            timeLeft = Math.abs(timeLeft / 1000);
+            const value = `Game starting in ${timeLeft.toFixed(3)} seconds.`;
+            changeClientSideText(socket, selector, value);
+          } else if (
+            this.memberConnectionIDs.length <
+            GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
+          ) {
+            const value = `Waiting for at least ${GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START} players.`;
+            changeClientSideText(socket, selector, value);
+          }
+        }
+      }
       return;
     }
 
     // playing
-    for (const connectionID of this.memberConnectionIDs) {
-      const socket = universal.getSocketFromConnectionID(connectionID);
-      if (!socket) {
-        return;
-      }
-      const playersRemaining = this.gameData.length;
-      const selector =
-        "#main-content__multiplayer-intermission-screen-container__game-status-message";
-      const value = `Current game in progress. (Remaining: ${playersRemaining}/${this.playersAtStart})`;
-      changeClientSideText(socket, selector, value);
-    }
+    // for (const connectionID of this.memberConnectionIDs) {
+    //   const socket = universal.getSocketFromConnectionID(connectionID);
+    //   if (!socket) {
+    //     return;
+    //   }
+    //   const playersRemaining = this.gameData.length;
+    //   const selector =
+    //     "#main-content__multiplayer-intermission-screen-container__game-status-message";
+    //   const value = `Current game in progress. (Remaining: ${playersRemaining}/${this.playersAtStart})`;
+    //   changeClientSideText(socket, selector, value);
+    // }
 
-    // global - applies to all players
-    // global clocks
-    this.globalClock.enemySpawn.currentTime += deltaTime;
-    this.globalClock.forcedEnemySpawn.currentTime += deltaTime;
-    checkGlobalMultiplayerRoomClocks(this);
+    // // global - applies to all players
+    // // global clocks
+    // this.globalClock.enemySpawn.currentTime += deltaTime;
+    // this.globalClock.forcedEnemySpawn.currentTime += deltaTime;
+    // checkGlobalMultiplayerRoomClocks(this);
 
-    // specific to each player
-    for (const data of this.gameData) {
-      const opponentGameData = this.gameData.filter(
-        (element) => element.ownerConnectionID !== data.ownerConnectionID
-      );
+    // // specific to each player
+    // for (const data of this.gameData) {
+    //   const opponentGameData = this.gameData.filter(
+    //     (element) => element.ownerConnectionID !== data.ownerConnectionID
+    //   );
 
-      if (data.aborted) {
-        this.abort(data);
-      }
+    //   if (data.aborted) {
+    //     this.abort(data);
+    //   }
 
-      for (const enemy of data.enemies) {
-        enemy.move(
-          GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED *
-            GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT *
-            data.enemySpeedCoefficient *
-            (deltaTime / 1000)
-        );
-        if (enemy.sPosition <= 0) {
-          this.gameActionRecord.addEnemyReachedBaseAction(enemy, data);
-          enemy.remove(data, 10);
-          this.gameActionRecord.addSetGameDataAction(
-            data,
-            "player",
-            "baseHealth",
-            data.baseHealth
-          );
-        }
-      }
-      if (data.baseHealth <= 0) {
-        // player is eliminated.
-        const socket = universal.getSocketFromConnectionID(
-          data.ownerConnectionID
-        );
-        if (socket && !data.aborted) {
-          socket.send(
-            JSON.stringify({
-              message: "changeScreen",
-              newScreen: "multiplayerIntermission"
-            })
-          );
-        }
+    //   for (const enemy of data.enemies) {
+    //     enemy.move(
+    //       GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED *
+    //         GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT *
+    //         data.enemySpeedCoefficient *
+    //         (deltaTime / 1000)
+    //     );
+    //     if (enemy.sPosition <= 0) {
+    //       this.gameActionRecord.addEnemyReachedBaseAction(enemy, data);
+    //       enemy.remove(data, 10);
+    //       this.gameActionRecord.addSetGameDataAction(
+    //         data,
+    //         "player",
+    //         "baseHealth",
+    //         data.baseHealth
+    //       );
+    //     }
+    //   }
+    //   if (data.baseHealth <= 0) {
+    //     // player is eliminated.
+    //     const socket = universal.getSocketFromConnectionID(
+    //       data.ownerConnectionID
+    //     );
+    //     if (socket && !data.aborted) {
+    //       socket.send(
+    //         JSON.stringify({
+    //           message: "changeScreen",
+    //           newScreen: "multiplayerIntermission"
+    //         })
+    //       );
+    //     }
 
-        this.eliminateSocketID(data.ownerConnectionID, data);
-        const eliminationActionRecord: ActionRecord = {
-          scope: "room",
-          action: Action.Elimination,
-          timestamp: Date.now(),
-          data: {
-            eliminated: getUserReplayDataFromSocket(data.owner)
-          }
-        };
-        this.gameActionRecord.addAction(eliminationActionRecord);
-      }
+    //     this.eliminateSocketID(data.ownerConnectionID, data);
+    //     const eliminationActionRecord: ActionRecord = {
+    //       scope: "room",
+    //       action: Action.Elimination,
+    //       timestamp: Date.now(),
+    //       data: {
+    //         eliminated: getUserReplayDataFromSocket(data.owner)
+    //       }
+    //     };
+    //     this.gameActionRecord.addAction(eliminationActionRecord);
+    //   }
 
-      // clocks
-      checkPlayerMultiplayerRoomClocks(data);
+    //   // clocks
+    //   checkPlayerMultiplayerRoomClocks(data);
 
-      // forced enemy (when zero)
-      if (data.enemies.length === 0) {
-        const enemy = createNewEnemy(`F${data.enemiesSpawned}`);
-        this.gameActionRecord.addEnemySpawnAction(enemy, data);
-        data.enemies.push(_.clone(enemy));
-        data.enemiesSpawned++;
-      }
+    //   // forced enemy (when zero)
+    //   if (data.enemies.length === 0) {
+    //     const enemy = createNewEnemy(`F${data.enemiesSpawned}`);
+    //     this.gameActionRecord.addEnemySpawnAction(enemy, data);
+    //     data.enemies.push(_.clone(enemy));
+    //     data.enemiesSpawned++;
+    //   }
 
-      // generated enemy
-      if (this.globalEnemyToAdd) {
-        data.enemiesSpawned++;
-        data.enemies.push(_.clone(this.globalEnemyToAdd as Enemy));
-        this.gameActionRecord.addEnemySpawnAction(this.globalEnemyToAdd, data);
-      }
+    //   // generated enemy
+    //   if (this.globalEnemyToAdd) {
+    //     data.enemiesSpawned++;
+    //     data.enemies.push(_.clone(this.globalEnemyToAdd as Enemy));
+    //     this.gameActionRecord.addEnemySpawnAction(this.globalEnemyToAdd, data);
+    //   }
 
-      // received enemy
-      if (data.receivedEnemiesToSpawn > 0) {
-        data.receivedEnemiesToSpawn--;
-        data.enemiesSpawned++;
-        const attributes = {
-          speed:
-            GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED * data.enemySpeedCoefficient
-        };
-        const receivedEnemy = enemy.createNewReceivedEnemy(
-          `R${data.enemiesSpawned}`,
-          attributes
-        );
-        data.enemies.push(_.clone(receivedEnemy));
-        this.gameActionRecord.addEnemySpawnAction(receivedEnemy, data, true);
-      }
+    //   // received enemy
+    //   if (data.receivedEnemiesToSpawn > 0) {
+    //     data.receivedEnemiesToSpawn--;
+    //     data.enemiesSpawned++;
+    //     const attributes = {
+    //       speed:
+    //         GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED * data.enemySpeedCoefficient
+    //     };
+    //     const receivedEnemy = enemy.createNewReceivedEnemy(
+    //       `R${data.enemiesSpawned}`,
+    //       attributes
+    //     );
+    //     data.enemies.push(_.clone(receivedEnemy));
+    //     this.gameActionRecord.addEnemySpawnAction(receivedEnemy, data, true);
+    //   }
 
-      if (data.enemiesSentStock > 0) {
-        data.enemiesSentStock--;
-        let targetedOpponentGameData = _.sample(opponentGameData);
-        if (targetedOpponentGameData) {
-          targetedOpponentGameData.receivedEnemiesStock += 1;
-          targetedOpponentGameData.totalEnemiesReceived += 1;
-          const room = findRoomWithConnectionID(
-            targetedOpponentGameData.ownerConnectionID
-          );
-          if (room) {
-            room.gameActionRecord.addStockAddAction(
-              targetedOpponentGameData,
-              1
-            );
-          }
-        }
-      }
-    }
+    //   if (data.enemiesSentStock > 0) {
+    //     data.enemiesSentStock--;
+    //     let targetedOpponentGameData = _.sample(opponentGameData);
+    //     if (targetedOpponentGameData) {
+    //       targetedOpponentGameData.receivedEnemiesStock += 1;
+    //       targetedOpponentGameData.totalEnemiesReceived += 1;
+    //       const room = findRoomWithConnectionID(
+    //         targetedOpponentGameData.ownerConnectionID
+    //       );
+    //       if (room) {
+    //         room.gameActionRecord.addStockAddAction(
+    //           targetedOpponentGameData,
+    //           1
+    //         );
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   eliminateSocketID(connectionID: string, gameData: GameData | object) {
@@ -592,4 +580,4 @@ class MultiplayerRoom extends Room {
   }
 }
 
-export { MultiplayerRoom };
+export { DefaultMultiplayerRoom };
