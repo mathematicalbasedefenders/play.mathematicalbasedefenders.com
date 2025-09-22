@@ -340,7 +340,7 @@ function update(deltaTime: number) {
   let newRooms = _.clone(universal.rooms).map((element) => element.id);
   let deletedRooms = oldRooms.filter((element) => !newRooms.includes(element));
   for (let room of deletedRooms) {
-    log.info(`Deleted room with ID ${room}`);
+    log.info(`Deleted room with ID ${room} from living condition.`);
     if (room === defaultMultiplayerRoomID) {
       resetDefaultMultiplayerRoomID(room);
     }
