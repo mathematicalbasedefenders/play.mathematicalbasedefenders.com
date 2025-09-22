@@ -223,7 +223,7 @@ uWS
             return;
           }
           // actually create room
-          const room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer);
+          const room = new MultiplayerRoom(socket, GameMode.CustomMultiplayer);
           joinMultiplayerRoom(socket, room.id);
         }
         case "leaveMultiplayerRoom": {
