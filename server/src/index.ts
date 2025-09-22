@@ -314,6 +314,11 @@ function update(deltaTime: number) {
   const systemStatus = updateSystemStatus(deltaTime);
   synchronizeGameDataWithSockets(deltaTime, systemStatus || {});
 
+  console.log(universal.rooms);
+
+  /**
+   * Rooms are deleted here!
+   */
   // delete rooms with zero players
   // additionally, delete rooms which are empty JSON objects.
   let livingRoomCondition = (element: Room) =>
@@ -323,7 +328,7 @@ function update(deltaTime: number) {
         0 ||
       typeof element === "undefined" ||
       Object.keys(element).length === 0
-    ) && element.ageInMilliseconds > LIVING_ROOM_CONDITION_GRACE_PERIOD;
+    ) || element.ageInMilliseconds <= LIVING_ROOM_CONDITION_GRACE_PERIOD;
   let oldRooms = _.clone(universal.rooms).map((element) => element.id);
   utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
 
@@ -385,7 +390,7 @@ function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
     return;
   }
   socket.subscribe(roomID);
-  room?.addMember(socket);
+  room.addMember(socket);
   const object = { newScreen: "customMultiplayerIntermission" };
   const message = JSON.stringify(object);
   socket.send(message);
