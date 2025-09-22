@@ -253,6 +253,7 @@ class Room {
         this.deleteMember(socket);
       }
     }
+    log.info(`Destroyed room ${this.id}`);
   }
 }
 
