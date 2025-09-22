@@ -88,7 +88,7 @@
   border-top: 2px solid #ffffff;
 }
 
-#chat-message {
+#custom-multiplayer-chat-message {
   width: calc(100% - 86px);
   background-color: transparent;
   border: 2px solid #ffffff;
