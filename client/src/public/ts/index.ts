@@ -849,6 +849,35 @@ function initializeEventListeners() {
       changeScreen("multiplayerMenu");
     }
   );
+  $(
+    "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list"
+  ).on("click", () => {
+    variables.multiplayerChat.playerListShown =
+      !variables.multiplayerChat.playerListShown;
+    const playerListSelector =
+      "#main-content__custom-multiplayer-intermission-screen-container__chat__player-list";
+    const messageListSelector =
+      "#main-content__custom-multiplayer-intermission-screen-container__chat__messages";
+    const toggleListSelector =
+      "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list";
+    if (variables.multiplayerChat.playerListShown) {
+      $(playerListSelector).show(0);
+      $(messageListSelector).hide(0);
+      $(toggleListSelector).text("Hide Player List");
+    } else {
+      $(messageListSelector).show(0);
+      $(playerListSelector).hide(0);
+      $(toggleListSelector).text("Show Player List");
+    }
+  });
+  $("#custom-multiplayer-screen__sidebar-item--back").on("click", () => {
+    variables.playing = false;
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: "Escape"
+    });
+    changeScreen("mainMenu");
+  });
 }
 
 // events
