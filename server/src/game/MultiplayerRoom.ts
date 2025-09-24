@@ -237,7 +237,7 @@ class MultiplayerRoom extends Room {
     for (const connectionID of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(connectionID);
       if (!socket) {
-        return;
+        continue;
       }
       const playersRemaining = this.gameData.length;
       const selector =
