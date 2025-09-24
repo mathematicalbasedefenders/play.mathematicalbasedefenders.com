@@ -88,6 +88,21 @@
   transform: scale(1.05);
 }
 
+#custom-multiplayer-room-selection-dialog-container {
+  z-index: var(--z-index-popup-notification);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+  background-color: #000000aa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: all;
+}
+
 @media only screen and (max-width: 1200px) {
   #main-content__custom-multiplayer-room-selection-screen {
     display: flex;

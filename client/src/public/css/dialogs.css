@@ -1,6 +1,7 @@
 /* DIALOG NOTIFICATIONS */
 dialog::backdrop {
   background: #000000aa;
+  z-index: var(--z-index-dialog-backdrops);
 }
 
 dialog {
@@ -10,6 +11,9 @@ dialog {
   color: var(--color-text-light);
   padding: 8px;
   border: 2px solid var(--color-text-light);
+  z-index: var(--z-index-dialog);
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 dialog .dialog__title {
