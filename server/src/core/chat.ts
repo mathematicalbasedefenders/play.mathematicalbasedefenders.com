@@ -50,7 +50,7 @@ function sendChatMessage(
         return;
       }
       const room = findRoomWithConnectionID(connectionID, true) as Room;
-      room.addChatMessage(message, { sender: socket, isSystemMessage: true });
+      room.addChatMessage(message, { sender: socket });
       break;
     }
     case "global": {
