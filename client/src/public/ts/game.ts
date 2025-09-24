@@ -286,6 +286,12 @@ function changeScreen(
   alsoResetStage?: boolean,
   newData?: { [key: string]: any }
 ) {
+  // TODO: Move close dialog somewhere else
+  const roomSelectDialog = document.getElementById(
+    "custom-multiplayer-room-selection-dialog"
+  ) as HTMLDialogElement;
+  roomSelectDialog.close();
+
   // reset arrow key navigation
   // remove old element's focus status
   $(variables.navigation.focusing).removeClass("button--arrow-key-focused");

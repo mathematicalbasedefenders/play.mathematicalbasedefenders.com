@@ -189,22 +189,45 @@ uWS
             return;
           }
           // actually join room
-          switch (parsedMessage.room) {
-            case "default": {
-              if (!defaultMultiplayerRoomID) {
-                const room = new DefaultMultiplayerRoom(
-                  socket,
-                  GameMode.DefaultMultiplayer,
-                  true
-                );
-                setDefaultMultiplayerRoomID(room.id);
-              }
-              joinMultiplayerRoom(socket, defaultMultiplayerRoomID as string);
+          if (parsedMessage.room === "default") {
+            if (!defaultMultiplayerRoomID) {
+              const room = new DefaultMultiplayerRoom(
+                socket,
+                GameMode.DefaultMultiplayer,
+                true
+              );
+              setDefaultMultiplayerRoomID(room.id);
+            }
+            joinMultiplayerRoom(socket, defaultMultiplayerRoomID as string);
+            break;
+          } else {
+            // validate
+            const target = parsedMessage.room;
+            if (!/^[A-Z0-9]{8}$/.test(target)) {
+              const socketID = socket.connectionID;
+              log.warn(`Socket ${socketID} used an invalid room code.`);
+              const MESSAGE = "Invalid room code format!";
+              const BORDER_COLOR = "#ff0000";
+              universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
               break;
             }
-            default: {
-              log.warn(`Unknown multiplayer room: ${parsedMessage.room}`);
+            const room = universal.rooms.find((e) => e.id === target);
+            if (!room) {
+              const socketID = socket.connectionID;
+              log.warn(`Socket ${socketID} tried to join a non-existent room.`);
+              const MESSAGE = "That room doesn't exist!";
+              const BORDER_COLOR = "#ff0000";
+              universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+              break;
             }
+            const object = {
+              message: "changeScreen",
+              newScreen: "customMultiplayerIntermission"
+            };
+            const message = JSON.stringify(object);
+            joinMultiplayerRoom(socket, parsedMessage.room);
+            socket.send(message);
+            log.info(`Socket ${socket.connectionID} joined room ${target}`);
           }
           break;
         }

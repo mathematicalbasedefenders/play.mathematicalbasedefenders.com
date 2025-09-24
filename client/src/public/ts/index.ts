@@ -908,7 +908,8 @@ function initializeEventListeners() {
         return;
       }
       sendSocketMessage({ message: "getMultiplayerRoomList" });
-      roomSelectDialog.showModal();
+      roomSelectDialog.show();
+      $("#custom-multiplayer-room-selection-dialog-container").show(0);
     }
   );
   $("#custom-multiplayer-room-selection-dialog__close").on("click", () => {
@@ -925,16 +926,29 @@ function initializeEventListeners() {
       return;
     }
     roomSelectDialog.close();
+    $("#custom-multiplayer-room-selection-dialog-container").hide(0);
   });
   $("#join-by-code").on("click", () => {
-    // TODO: Placeholder
     const code = $("#room-to-join").val();
-    console.log(`Joining room with code ${code}`);
+    if (!code) {
+      return;
+    }
+    sendSocketMessage({
+      message: "joinMultiplayerRoom",
+      room: code.toString()
+    });
+    console.log(`Joining multiplayer room with code ${code}`);
   });
   $("#public-room-list__join").on("click", () => {
-    // TODO: Placeholder
     const code = $("#room-to-join").val();
-    console.log(`Joining room with code ${code}`);
+    if (!code) {
+      return;
+    }
+    sendSocketMessage({
+      message: "joinMultiplayerRoom",
+      room: code.toString()
+    });
+    console.log(`Joining multiplayer room with code ${code}`);
   });
   $("#public-room-list__refresh").on("click", () => {
     sendSocketMessage({ message: "getMultiplayerRoomList" });
@@ -948,6 +962,7 @@ initializeKeypressEventListener();
 $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
 $("#main-content__popup-notification-container").hide(0);
+$("#custom-multiplayer-room-selection-dialog-container").hide(0);
 changeCustomSingleplayerSecondaryScreen("");
 $("#on-screen-keyboard-container").hide(0);
 $("#settings-screen__content--online__login-form").on("submit", (event) => {
