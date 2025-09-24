@@ -172,6 +172,60 @@ class Room {
   }
 
   /**
+   * Runs a chat command
+   * @param {string} message The original message to use as the command.
+   * @param {{[key: string]:any}} options Any additional information to send.
+   */
+  runChatCommand(message: string, options?: { [key: string]: any }) {
+    let isHost = false;
+    const systemMessageData = {
+      name: "(System)",
+      message: "",
+      nameColor: "#06aa06",
+      userID: ""
+    };
+
+    if (!options?.sender) {
+      log.warn(`Socket doesn't exist when running chat commands.`);
+      return;
+    }
+
+    if (options?.sender.connectionID === this.host?.connectionID) {
+      isHost = true;
+    }
+
+    // substring constant because we already know
+    // index 0 in `message` is the `/`, which signifies
+    // a chat command.
+    const text = message.substring(1).split(" ");
+    const [command, ...context] = text;
+
+    switch (command) {
+      case "start": {
+        break;
+      }
+      default: {
+        systemMessageData.message = `Unknown command \"/${command}\".`;
+        options.sender.send(
+          JSON.stringify({
+            message: "addRoomChatMessage",
+            scope:
+              this.mode == GameMode.DefaultMultiplayer ? "default" : "custom",
+            data: systemMessageData
+          })
+        );
+        break;
+      }
+    }
+
+    // log the command
+    const senderName =
+      universal.getNameFromConnectionID(options.sender.connectionID || "") ||
+      "";
+    log.info(`${senderName} sent message ${message} to Room ID ${this.id}`);
+  }
+
+  /**
    * Adds the socket to this `Room` instance as a member.
    * @param {universal.GameSocket} caller The socket to add to the room (also the socket who called this function)
    */
