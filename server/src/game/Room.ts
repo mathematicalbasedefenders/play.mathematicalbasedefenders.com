@@ -5,7 +5,12 @@ import { log } from "../core/log";
 import * as input from "../core/input";
 import { InputAction } from "../core/input";
 import { findRoomWithConnectionID } from "../core/utilities";
-import { GameData, GameMode, CustomGameSettings } from "./GameData";
+import {
+  GameData,
+  GameMode,
+  CustomGameSettings,
+  MultiplayerGameData
+} from "./GameData";
 import { GameActionRecord } from "../replay/recording/ActionRecord";
 import { Enemy } from "./Enemy";
 
@@ -178,6 +183,9 @@ class Room {
    */
   runChatCommand(message: string, options?: { [key: string]: any }) {
     let isHost = false;
+
+    const scope =
+      this.mode == GameMode.DefaultMultiplayer ? "default" : "custom";
     const systemMessageData = {
       name: "(System)",
       message: "",
@@ -202,6 +210,44 @@ class Room {
 
     switch (command) {
       case "start": {
+        let valid = true;
+        let errors = [];
+        if (!isHost) {
+          errors.push("You must be the host to run this command.");
+          valid = false;
+        }
+        if (!(this.mode === GameMode.CustomMultiplayer)) {
+          errors.push("This command must be ran in a Custom Multiplayer room.");
+          valid = false;
+        }
+        if (this.memberConnectionIDs.length < 2) {
+          errors.push(
+            "This command can only be ran when there are at least 2 players in the room."
+          );
+          valid = false;
+        }
+        if (!valid) {
+          systemMessageData.message += `Failed to run \"/${command}\" command due to the following reasons: `;
+          systemMessageData.message += errors.join(", ");
+          options.sender.send(
+            JSON.stringify({
+              message: "addRoomChatMessage",
+              scope: scope,
+              data: systemMessageData
+            })
+          );
+          break;
+        }
+
+        // give feedback
+        systemMessageData.message = `Successfully ran command \"/${command}\". Game will start in 3 seconds.`;
+        options.sender.send(
+          JSON.stringify({
+            message: "addRoomChatMessage",
+            scope: scope,
+            data: systemMessageData
+          })
+        );
         break;
       }
       default: {
