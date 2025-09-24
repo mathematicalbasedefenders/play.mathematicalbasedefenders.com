@@ -170,7 +170,7 @@ function checkIfSocketIsInMultiplayerRoom(id: string) {
   if (!room) {
     return false;
   }
-  if (room.mode !== "defaultMultiplayer") {
+  if (room.mode !== "defaultMultiplayer" && room.mode !== "customMultiplayer") {
     return false;
   }
   return true;
