@@ -422,9 +422,12 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
         room.addChatMessage(message, { isSystemMessage: true });
         log.info(`Room ${room.id}'s host is now ${newHost} from ${pastHost}.`);
       } else {
-        room.addChatMessage("No one in the room, deleting room...", {
-          isSystemMessage: true
-        });
+        // TODO: Find a more stable way to do this. Right now it is sufficient since 1-1=0, and
+        // there's no point in keeping a 0-player room in memory.
+
+        // room.addChatMessage("No one in the room, deleting room...", {
+        //   isSystemMessage: true
+        // });
         log.info(`About to delete room ${room.id}...`);
       }
     }

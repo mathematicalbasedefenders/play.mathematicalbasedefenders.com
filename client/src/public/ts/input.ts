@@ -3,6 +3,7 @@ import { variables } from "./index";
 import { stopReplay } from "./replay";
 import { controlReplay } from "./replay-control";
 import { sendSocketMessage, socket } from "./socket";
+import { clearChatBoxes } from "./utilities";
 const NUMBER_ROW_KEYS = [
   "Digit0",
   "Digit1",
@@ -152,6 +153,9 @@ function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   // overrides: set to true
   if (variables.serverReportsInMultiplayer && ABORT_KEYS.includes(event.code)) {
     sendWebSocketMessage = true;
+    // generally pressing Escape takes you straight to the main menu,
+    // so might as well clear the chat boxes so it doesn't look weird.
+    clearChatBoxes();
   }
   return sendWebSocketMessage;
 }
