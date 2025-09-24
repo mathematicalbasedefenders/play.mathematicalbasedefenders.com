@@ -594,6 +594,20 @@ class MultiplayerRoom extends Room {
       );
     }
   }
+
+  setNewHost(connectionID: string) {
+    if (this.mode === GameMode.DefaultMultiplayer) {
+      log.warn("Can't set host for the Default Multiplayer room.");
+      return;
+    }
+    const newHost = universal.getSocketFromConnectionID(connectionID);
+    if (!newHost) {
+      log.error(`Can't find new host's socket! ${connectionID}`);
+      // TODO: Force everyone to leave???
+      return;
+    }
+    this.host = newHost;
+  }
 }
 
 export { MultiplayerRoom };

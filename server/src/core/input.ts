@@ -18,6 +18,7 @@ import {
 } from "./utilities";
 import { Action, ActionRecord } from "../replay/recording/ActionRecord";
 import _ from "lodash";
+import { MultiplayerRoom } from "../game/MultiplayerRoom";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -382,24 +383,52 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
     (element) =>
       element.memberConnectionIDs.indexOf(socket.connectionID as string) > -1
   );
-  if (
-    room?.mode === GameMode.DefaultMultiplayer ||
-    room?.mode === GameMode.CustomMultiplayer
-  ) {
-    if (room.playing) {
-      let gameData = utilities.findGameDataWithConnectionID(
-        socket.connectionID as string,
-        room
-      );
-      if (gameData) {
-        room.abort(gameData);
-      }
+  if (!room) {
+    log.warn(`Socket tried to leave a room, but it wasn't found.`);
+    return;
+  }
+  if (room.playing) {
+    let gameData = utilities.findGameDataWithConnectionID(
+      socket.connectionID as string,
+      room
+    );
+    if (gameData) {
+      room.abort(gameData);
     }
-    room.deleteMember(socket);
+  }
+  if (room.mode === GameMode.DefaultMultiplayer) {
     if (defaultMultiplayerRoomID) {
       socket.unsubscribe(defaultMultiplayerRoomID);
     }
+  } else if (room.mode === GameMode.CustomMultiplayer) {
+    if (!socket.connectionID) {
+      log.warn("Socket doesn't have a connection ID when leaving room.");
+      return;
+    }
+    if ((room as MultiplayerRoom).host?.connectionID === socket.connectionID) {
+      const pool = room.memberConnectionIDs.filter(
+        (e) => e !== socket.connectionID
+      );
+      // It's here since we have to find a new host, and if there's only
+      // one socket before leaving, the room is empty and can be destroyed.
+      if (pool.length >= 1) {
+        const newHostID = _.sample(pool);
+        (room as MultiplayerRoom).setNewHost(newHostID as string);
+
+        // also send new chat message indicating the new host.
+        const pastHost = universal.getNameFromConnectionID(socket.connectionID);
+        const newHost = universal.getNameFromConnectionID(newHostID as string);
+        const message = `This room's host is now ${newHost}, since the original host, ${pastHost} has left the room.`;
+        room.addChatMessage(message, null, true);
+        log.info(`Room ${room.id}'s host is now ${newHost} from ${pastHost}.`);
+      } else {
+        room.addChatMessage("No one in the room, deleting room...", null, true);
+        log.info(`About to delete room ${room.id}...`);
+      }
+    }
+    socket.unsubscribe(room.id);
   }
+  room.deleteMember(socket);
 }
 
 export {
