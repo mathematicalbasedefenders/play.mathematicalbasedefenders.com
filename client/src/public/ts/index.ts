@@ -12,6 +12,7 @@ import {
 } from "./game";
 import {
   calculateLevel,
+  clearChatBoxes,
   createTextStyle,
   millisecondsToTime
 } from "./utilities";
@@ -832,6 +833,7 @@ function initializeEventListeners() {
       emulatedKeypress: "Escape"
     });
     changeScreen("mainMenu");
+    clearChatBoxes();
   });
   // === REPLAY CONTROL ===
   $("#replay-controller__bar").on("click", (event) => {
@@ -883,6 +885,7 @@ function initializeEventListeners() {
       emulatedKeypress: "Escape"
     });
     changeScreen("mainMenu");
+    clearChatBoxes();
   });
   $(`#custom-multiplayer-message-send-button`).on("click", () => {
     sendSocketMessage({
