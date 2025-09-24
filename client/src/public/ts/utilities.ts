@@ -132,6 +132,16 @@ function updateMultiplayerRoomList(data: Array<{ [key: string]: unknown }>) {
   console.log(`Refreshed room list! Found ${count} eligible rooms.`);
 }
 
+function clearChatBoxes() {
+  // also clear chat
+  $(
+    "#main-content__multiplayer-intermission-screen-container__chat__messages"
+  ).empty();
+  $(
+    "#main-content__custom-multiplayer-intermission-screen-container__chat__messages"
+  ).empty();
+}
+
 export {
   millisecondsToTime,
   calculateLevel,
@@ -140,5 +150,6 @@ export {
   checkPlayerListCacheEquality,
   createTextStyle,
   updateMultiplayerRoomList,
-  clearMultiplayerRoomList
+  clearMultiplayerRoomList,
+  clearChatBoxes
 };
