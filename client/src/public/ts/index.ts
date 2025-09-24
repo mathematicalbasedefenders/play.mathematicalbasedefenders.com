@@ -940,7 +940,7 @@ function initializeEventListeners() {
     console.log(`Joining multiplayer room with code ${code}`);
   });
   $("#public-room-list__join").on("click", () => {
-    const code = $("#room-to-join").val();
+    const code = $("#public-room-list").val();
     if (!code) {
       return;
     }
