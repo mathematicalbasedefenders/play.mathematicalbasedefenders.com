@@ -58,7 +58,9 @@ body {
   --z-index-status-tray: 99;
   --z-index-user-card: 1998;
   --z-index-user-card--loading: 1999;
-  --z-index-toast-notifications: 2005;
+  --z-index-toast-notifications: 10001;
+  --z-index-dialog: 2004;
+  --z-index-dialog-backdrops: 2003;
   --z-index-user-information-box: 98;
   --z-index-version-number: 1001;
 }
