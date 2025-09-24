@@ -291,6 +291,7 @@ function changeScreen(
     "custom-multiplayer-room-selection-dialog"
   ) as HTMLDialogElement;
   roomSelectDialog.close();
+  $("#custom-multiplayer-room-selection-dialog-container").hide(0);
 
   // reset arrow key navigation
   // remove old element's focus status
