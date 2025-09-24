@@ -363,9 +363,6 @@ function changeScreen(
       break;
     }
     case "multiplayerIntermission": {
-      $(
-        "#main-content__multiplayer-intermission-screen-container__chat__messages"
-      ).empty();
       $("#main-content__multiplayer-intermission-screen-container").show(0);
       break;
     }
@@ -400,9 +397,6 @@ function changeScreen(
       break;
     }
     case "customMultiplayerIntermission": {
-      $(
-        "#main-content__custom-multiplayer-intermission-screen-container__chat__messages"
-      ).empty();
       $("#main-content__custom-multiplayer-intermission-screen-container").show(
         0
       );
