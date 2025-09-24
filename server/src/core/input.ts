@@ -419,10 +419,12 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
         const pastHost = universal.getNameFromConnectionID(socket.connectionID);
         const newHost = universal.getNameFromConnectionID(newHostID as string);
         const message = `This room's host is now ${newHost}, since the original host, ${pastHost} has left the room.`;
-        room.addChatMessage(message, null, true);
+        room.addChatMessage(message, { isSystemMessage: true });
         log.info(`Room ${room.id}'s host is now ${newHost} from ${pastHost}.`);
       } else {
-        room.addChatMessage("No one in the room, deleting room...", null, true);
+        room.addChatMessage("No one in the room, deleting room...", {
+          isSystemMessage: true
+        });
         log.info(`About to delete room ${room.id}...`);
       }
     }

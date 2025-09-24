@@ -105,12 +105,11 @@ class Room {
   }
 
   // room specific
-  addChatMessage(
-    message: string,
-    sender: universal.GameSocket | null,
-    isSystemMessage?: boolean
-  ) {
-    if (!isSystemMessage && (!sender || !sender.connectionID)) {
+  addChatMessage(message: string, options: { [key: string]: any }) {
+    if (
+      !options.isSystemMessage &&
+      (!options.sender || !options.sender.connectionID)
+    ) {
       log.warn(
         `No sender/connectionID for message: ${message} in room, ignoring.`
       );
@@ -124,17 +123,18 @@ class Room {
       userID: ""
     };
 
-    if (isSystemMessage) {
+    if (options.isSystemMessage) {
       messageToSend.sanitizedMessage = DOMPurify.sanitize(message);
       messageToSend.senderName = "(System)";
       messageToSend.nameColor = "#06aa06";
       messageToSend.userID = "";
-    } else if (sender) {
+    } else if (options.sender) {
       messageToSend.sanitizedMessage = DOMPurify.sanitize(message);
       messageToSend.senderName =
-        universal.getNameFromConnectionID(sender.connectionID || "") || "";
-      messageToSend.nameColor = sender.playerRank?.color ?? "#ffffff";
-      messageToSend.userID = sender.ownerUserID ?? "";
+        universal.getNameFromConnectionID(options.sender.connectionID || "") ||
+        "";
+      messageToSend.nameColor = options.sender.playerRank?.color ?? "#ffffff";
+      messageToSend.userID = options.sender.ownerUserID ?? "";
     }
 
     this.chatMessages.push({

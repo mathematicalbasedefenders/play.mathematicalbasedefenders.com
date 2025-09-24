@@ -485,8 +485,7 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
             if (replay.ok) {
               this.addChatMessage(
                 `Default Multiplayer game replay saved with Replay ID ${replay.id}.`,
-                null,
-                true
+                { isSystemMessage: true }
               );
             }
           }
