@@ -13,6 +13,7 @@ import {
 } from "./GameData";
 import { GameActionRecord } from "../replay/recording/ActionRecord";
 import { Enemy } from "./Enemy";
+import { MultiplayerRoom } from "./MultiplayerRoom";
 
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -226,6 +227,13 @@ class Room {
           );
           valid = false;
         }
+        if (this.playing) {
+          errors.push(
+            "This command can only be ran when there is no active game in progress."
+          );
+          valid = false;
+        }
+
         if (!valid) {
           systemMessageData.message += `Failed to run \"/${command}\" command due to the following reasons: `;
           systemMessageData.message += errors.join(", ");
@@ -240,7 +248,8 @@ class Room {
         }
 
         // give feedback
-        systemMessageData.message = `Successfully ran command \"/${command}\". Game will start in 3 seconds.`;
+        // TODO: Add a delay for everyone to see when it's time to start.
+        systemMessageData.message = `Successfully ran command \"/${command}\". Game will now start.`;
         options.sender.send(
           JSON.stringify({
             message: "addRoomChatMessage",
@@ -248,6 +257,24 @@ class Room {
             data: systemMessageData
           })
         );
+
+        if (this.mode === GameMode.CustomMultiplayer) {
+          (this as unknown as MultiplayerRoom).startPlay();
+          (this as unknown as MultiplayerRoom).playersAtStart =
+            this.memberConnectionIDs.length;
+          (this as unknown as MultiplayerRoom).summonEveryoneToGameplay();
+        } else {
+          log.error("Can't run /start command due to an internal error.");
+          options.sender.send(
+            JSON.stringify({
+              message: "createToastNotification",
+              // TODO: Refactor this
+              text: `Can't run /start command due to an internal error. Please contact the server administrator!`,
+              options: { borderColor: "#ff0000" }
+            })
+          );
+        }
+
         break;
       }
       default: {
