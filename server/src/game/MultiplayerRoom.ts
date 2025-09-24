@@ -220,6 +220,16 @@ class MultiplayerRoom extends Room {
     // }
 
     if (!this.playing) {
+      for (const connectionID of this.memberConnectionIDs) {
+        const socket = universal.getSocketFromConnectionID(connectionID);
+        if (!socket) {
+          continue;
+        }
+        const selector =
+          "#main-content__custom-multiplayer-intermission-screen-container__game-status-message";
+        const value = `Waiting for host to start...`;
+        changeClientSideText(socket, selector, value);
+      }
       return;
     }
 
@@ -395,7 +405,7 @@ class MultiplayerRoom extends Room {
     log.info(
       `Socket ID ${connectionID} (${universal.getNameFromConnectionID(
         connectionID
-      )}) has been eliminated from the Default Multiplayer Room`
+      )}) has been eliminated from Multiplayer Room with ID ${this.id}`
     );
     // give exp to eliminated player
     // add to ranking
@@ -525,7 +535,7 @@ class MultiplayerRoom extends Room {
     log.info(
       `Socket ID ${data.ownerConnectionID} (${universal.getNameFromConnectionID(
         data.ownerConnectionID
-      )}) has quit the Default Multiplayer Room`
+      )}) has quit the Multiplayer Room`
     );
     if (socket) {
       socket?.unsubscribe(this.id);
@@ -569,8 +579,6 @@ class MultiplayerRoom extends Room {
         log.warn("User ID is not string. Not running database operation.");
         continue;
       }
-      // User.addGamesPlayedToUserID(userID, 1);
-      // User.addMultiplayerGamesPlayedToUserID(userID, 1);
     }
   }
 
@@ -580,14 +588,14 @@ class MultiplayerRoom extends Room {
       let socket = universal.getSocketFromConnectionID(connectionID);
       if (typeof socket === "undefined") {
         log.warn(
-          `Socket ID ${connectionID} not found while summoning it to lobby, therefore skipping process.`
+          `Socket ID ${connectionID} not found while summoning it to custom lobby, therefore skipping process.`
         );
         continue;
       }
       socket.send(
         JSON.stringify({
           message: "changeScreen",
-          newScreen: "multiplayerIntermission"
+          newScreen: "customMultiplayerIntermission"
         })
       );
     }
@@ -595,7 +603,7 @@ class MultiplayerRoom extends Room {
 
   setNewHost(connectionID: string) {
     if (this.mode === GameMode.DefaultMultiplayer) {
-      log.warn("Can't set host for the Default Multiplayer room.");
+      log.warn(`Can't set host for the Multiplayer Room with ID ${this.id}.`);
       return;
     }
     const newHost = universal.getSocketFromConnectionID(connectionID);
