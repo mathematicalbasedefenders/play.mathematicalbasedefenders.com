@@ -378,13 +378,13 @@ class MultiplayerRoom extends Room {
       }
       this.ranking.push(data);
     }
-    if (socket?.loggedIn && gameData instanceof GameData) {
-      const earnedEXP = Math.round(gameData.elapsedTime / 2000);
-      User.giveExperiencePointsToUserID(
-        socket.ownerUserID as string,
-        earnedEXP
-      );
-    }
+    // if (socket?.loggedIn && gameData instanceof GameData) {
+    //   const earnedEXP = Math.round(gameData.elapsedTime / 2000);
+    //   User.giveExperiencePointsToUserID(
+    //     socket.ownerUserID as string,
+    //     earnedEXP
+    //   );
+    // }
     // eliminate the socket
     let gameDataIndex = this.gameData.findIndex(
       (element) => element.ownerConnectionID === connectionID
@@ -405,8 +405,7 @@ class MultiplayerRoom extends Room {
   async checkIfGameFinished(gameDataArray: Array<GameData>) {
     if (gameDataArray.length <= 1) {
       // game finished
-      // Default Multiplayer for now since there's only 1 multiplayer room at a given time.
-      log.info(`Default Multiplayer Room has finished playing.`);
+      log.info(`Custom Multiplayer Room ID ${this.id} has finished playing.`);
       if (gameDataArray.length === 1) {
         let winnerGameData = gameDataArray[0];
         log.info(
@@ -436,28 +435,28 @@ class MultiplayerRoom extends Room {
         this.gameActionRecord.addGameOverAction();
 
         // add exp to winner socket
-        if (winnerSocket?.ownerUserID) {
-          if (typeof winnerSocket.ownerUserID === "string") {
-            if (!universal.STATUS.databaseAvailable) {
-              log.warn(
-                "Database is not available. Not running database operation."
-              );
-            } else {
-              // multiplayer games won
-              User.addMultiplayerGamesWonToUserID(
-                winnerSocket.ownerUserID as string,
-                1
-              );
-              // experience (50% bonus for winning)
-              const earnedEXP =
-                Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
-              User.giveExperiencePointsToUserID(
-                winnerSocket.ownerUserID as string,
-                earnedEXP
-              );
-            }
-          }
-        }
+        // if (winnerSocket?.ownerUserID) {
+        //   if (typeof winnerSocket.ownerUserID === "string") {
+        //     if (!universal.STATUS.databaseAvailable) {
+        //       log.warn(
+        //         "Database is not available. Not running database operation."
+        //       );
+        //     } else {
+        //       // multiplayer games won
+        //       User.addMultiplayerGamesWonToUserID(
+        //         winnerSocket.ownerUserID as string,
+        //         1
+        //       );
+        //       // experience (50% bonus for winning)
+        //       const earnedEXP =
+        //         Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
+        //       User.giveExperiencePointsToUserID(
+        //         winnerSocket.ownerUserID as string,
+        //         earnedEXP
+        //       );
+        //     }
+        //   }
+        // }
 
         const data = {
           placement: this.gameData.length,
@@ -482,28 +481,28 @@ class MultiplayerRoom extends Room {
         this.ranking.push(data);
         // submit replay here.
 
-        if (
-          this.memberConnectionIDs.filter(
-            (e) => getSocketFromConnectionID(e)?.loggedIn
-          ).length >= 1
-        ) {
-          const replay = await this.gameActionRecord.save(
-            this.mode,
-            this.ranking
-          );
-          if (!universal.STATUS.databaseAvailable) {
-            log.warn("Not saving multiplayer because database is unavailable.");
-          } else {
-            if (replay.ok) {
-              this.addChatMessage(
-                `Default Multiplayer game replay saved with Replay ID ${replay.id}.`,
-                { isSystemMessage: true }
-              );
-            }
-          }
-        } else {
-          log.info("Not saving multiplayer game because no one is logged in.");
-        }
+        // if (
+        //   this.memberConnectionIDs.filter(
+        //     (e) => getSocketFromConnectionID(e)?.loggedIn
+        //   ).length >= 1
+        // ) {
+        //   const replay = await this.gameActionRecord.save(
+        //     this.mode,
+        //     this.ranking
+        //   );
+        //   if (!universal.STATUS.databaseAvailable) {
+        //     log.warn("Not saving multiplayer because database is unavailable.");
+        //   } else {
+        //     if (replay.ok) {
+        //       this.addChatMessage(
+        //         `Default Multiplayer game replay saved with Replay ID ${replay.id}.`,
+        //         { isSystemMessage: true }
+        //       );
+        //     }
+        //   }
+        // } else {
+        //   log.info("Not saving multiplayer game because no one is logged in.");
+        // }
       }
       // stop everyone from playing
       this.stopPlay();
@@ -570,8 +569,8 @@ class MultiplayerRoom extends Room {
         log.warn("User ID is not string. Not running database operation.");
         continue;
       }
-      User.addGamesPlayedToUserID(userID, 1);
-      User.addMultiplayerGamesPlayedToUserID(userID, 1);
+      // User.addGamesPlayedToUserID(userID, 1);
+      // User.addMultiplayerGamesPlayedToUserID(userID, 1);
     }
   }
 
