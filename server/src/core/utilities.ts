@@ -182,7 +182,6 @@ function validateCustomGameSettings(
   }
   let ok = true;
   const errors = [];
-  console.debug(settings);
   for (const key in settings) {
     const restriction = CUSTOM_SETTINGS_BOUNDARIES[key];
     // check numbers
