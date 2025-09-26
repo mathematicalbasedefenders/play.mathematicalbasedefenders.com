@@ -198,7 +198,7 @@ class SingleplayerRoom extends Room {
     }
     if (!Number.isNaN(Number(settings.enemySpawnThreshold))) {
       this.customSettings.enemySpawnThreshold = parseFloat(
-        settings.enemySpawnChance
+        settings.enemySpawnThreshold
       );
     }
     if (!Number.isNaN(Number(settings.forcedEnemySpawnTime))) {

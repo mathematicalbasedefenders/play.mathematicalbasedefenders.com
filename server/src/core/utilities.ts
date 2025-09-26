@@ -31,7 +31,7 @@ const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
     minimum: 10,
     maximum: 60 * 1000
   },
-  enemySpawnChance: {
+  enemySpawnThreshold: {
     type: "number",
     minimum: 0.001,
     maximum: 1
@@ -174,7 +174,7 @@ function validateCustomGameSettings(
   mode: string,
   settings: { [key: string]: string | number }
 ) {
-  if (mode !== "singleplayer") {
+  if (mode !== "singleplayer" && mode !== "multiplayer") {
     return {
       success: false,
       reason: `Unknown mode: ${mode}`
@@ -182,6 +182,7 @@ function validateCustomGameSettings(
   }
   let ok = true;
   const errors = [];
+  console.debug(settings);
   for (const key in settings) {
     const restriction = SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES[key];
     // check numbers
