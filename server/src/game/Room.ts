@@ -86,8 +86,16 @@ class Room {
     }
     this.connectionIDsThisRound = [];
     this.lastUpdateTime = Date.now();
-
     this.gameActionRecord = new GameActionRecord();
+
+    this.customSettings = {
+      baseHealth: 100,
+      comboTime: 5000,
+      enemySpeedCoefficient: 1,
+      enemySpawnThreshold: 0.1,
+      enemySpawnTime: 100,
+      forcedEnemySpawnTime: 2500
+    };
 
     log.info(`Created ${gameMode} room with ID ${this.id}`);
   }
@@ -243,6 +251,10 @@ class Room {
           break;
         }
         this.setRoomConstant(context[0], context[1]);
+        const selfMessage = `Successfully set room's constant property ${context[0]} to ${context[1]}.`;
+        this.sendCommandResultToSocket(options, selfMessage);
+        const roomMessage = `The room's host has set this room's constant property ${context[0]} to ${context[1]}.`;
+        this.addChatMessage(roomMessage, { isSystemMessage: true });
         break;
       }
       default: {
@@ -420,6 +432,15 @@ class Room {
       return result;
     }
 
+    // One finally early stop.
+    if (!this.customSettings) {
+      result.valid = false;
+      result.errors.push(
+        `This room does not contain custom settings. Please contact the server administrator!`
+      );
+      return result;
+    }
+
     // At this point, the command's form is considered to be "correct",
     // However, further checks on the CONTEXT of the command's runner and the room
     // is required, just like how the host can only issue commands on non-active games.
@@ -446,7 +467,7 @@ class Room {
     if (!constants.map((e) => e.toLowerCase()).includes(constantToChange)) {
       result.valid = false;
       result.errors.push(
-        `Room constant property ${constantToChange} doesn't exist. 
+        `Room constant property \"${constantToChange}\" doesn't exist. 
         (Available constants are ${constants.join(", ")})`
       );
     }
@@ -454,7 +475,23 @@ class Room {
     return result;
   }
 
-  setRoomConstant(targetKey: string, newValue: string) {}
+  setRoomConstant(targetKey: string, newValueAsString: string) {
+    // Because the command accepts case-insensitive arguments,
+    // it is needed to somehow "convert" the case-insensitive
+    // argument to its original casing.
+    let target = "";
+    const constants = Object.keys(this.customSettings);
+    for (const constant of constants) {
+      const lowercased = constant.toLowerCase();
+      if (lowercased === targetKey) {
+        target = constant;
+        break;
+      }
+    }
+
+    const newValue = parseInt(newValueAsString);
+    this.customSettings[target] = newValue;
+  }
 
   sendCommandResultToSocket(
     options: { [key: string]: any },
