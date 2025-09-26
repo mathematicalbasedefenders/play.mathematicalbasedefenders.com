@@ -421,14 +421,14 @@ class Room {
     const constantToChange = context[0].toLowerCase();
     const newValueAsString = context[1];
 
-    const SAFE_INTEGER_REGEX = /^[0-9]{0,7}$/;
+    const IS_NUMBER_REGEX = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
 
     // Early stop for the same reason above.
     // TODO: For now, all values are integers, so some expansion
     // is needed when the values can be (e.g.) string enums.
-    if (!SAFE_INTEGER_REGEX.test(newValueAsString)) {
+    if (!IS_NUMBER_REGEX.test(newValueAsString)) {
       result.valid = false;
-      result.errors.push(`New value is not in safe value.`);
+      result.errors.push(`New value is not a number.`);
       return result;
     }
 
@@ -470,15 +470,37 @@ class Room {
         `Room constant property \"${constantToChange}\" doesn't exist. 
         (Available constants are ${constants.join(", ")})`
       );
+      return result;
+    }
+
+    // We also need to check that the value is in the allowed range.
+    let target = "";
+    for (const constant of constants) {
+      const lowercased = constant.toLowerCase();
+      if (lowercased === constantToChange.toLowerCase()) {
+        target = constant;
+        break;
+      }
+    }
+    const newSettings = _.clone(this.customSettings);
+    newSettings[target] = parseFloat(newValueAsString);
+    const setResult = utilities.validateCustomGameSettings(
+      "multiplayer",
+      newSettings
+    );
+
+    if (!setResult.success) {
+      result.valid = false;
+      const valueErrorMessage =
+        setResult.reason ?? `Unknown error on constant property ${target}`;
+      result.errors.push(valueErrorMessage);
     }
 
     return result;
   }
 
   setRoomConstant(targetKey: string, newValueAsString: string) {
-    // Because the command accepts case-insensitive arguments,
-    // it is needed to somehow "convert" the case-insensitive
-    // argument to its original casing.
+    // TODO: DRY
     let target = "";
     const constants = Object.keys(this.customSettings);
     for (const constant of constants) {
@@ -489,7 +511,7 @@ class Room {
       }
     }
 
-    const newValue = parseInt(newValueAsString);
+    const newValue = parseFloat(newValueAsString);
     this.customSettings[target] = newValue;
   }
 
