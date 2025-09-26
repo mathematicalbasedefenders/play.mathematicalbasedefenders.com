@@ -206,14 +206,14 @@ class Room {
 
         if (!result.valid) {
           const commandErrorMessage = result.errors.join(", ");
-          this.sendCommandResultToSocket(options, command, commandErrorMessage);
+          this.sendCommandResultToSocket(options, commandErrorMessage);
           break;
         }
 
         // give feedback
         // TODO: Add a delay for everyone to see when it's time to start.
         const commandSuccessMessage = `Successfully ran command \"/${command}\". Game will now start.`;
-        this.sendCommandResultToSocket(options, command, commandSuccessMessage);
+        this.sendCommandResultToSocket(options, commandSuccessMessage);
 
         // start multiplayer game
         try {
@@ -235,9 +235,19 @@ class Room {
 
         break;
       }
+      case "set": {
+        const result = this.validateSetCommandForRoom(isHost, context);
+        if (!result.valid) {
+          const commandErrorMessage = result.errors.join(", ");
+          this.sendCommandResultToSocket(options, commandErrorMessage);
+          break;
+        }
+        this.setRoomConstant(context[0], context[1]);
+        break;
+      }
       default: {
         const message = `Unknown command \"/${command}\".`;
-        this.sendCommandResultToSocket(options, command, message);
+        this.sendCommandResultToSocket(options, message);
         break;
       }
     }
@@ -379,10 +389,77 @@ class Room {
     };
   }
 
+  validateSetCommandForRoom(isHost: boolean, context: Array<string>) {
+    const result: { valid: boolean; errors: Array<string> } = {
+      valid: true,
+      errors: []
+    };
+
+    // Command validation is broken here if it's invalid,
+    // since the actual set operation needs two arguments,
+    // the key and the value, which must be a valid integer.
+    // Otherwise, continue, since the command could
+    // be either valid or invalid, further checks are needed.
+    if (context.length < 2) {
+      result.valid = false;
+      result.errors.push(`/set command must have at least 2 arguments.`);
+      return result;
+    }
+
+    const constantToChange = context[0].toLowerCase();
+    const newValueAsString = context[1];
+
+    const SAFE_INTEGER_REGEX = /^[0-9]{0,7}$/;
+
+    // Early stop for the same reason above.
+    // TODO: For now, all values are integers, so some expansion
+    // is needed when the values can be (e.g.) string enums.
+    if (!SAFE_INTEGER_REGEX.test(newValueAsString)) {
+      result.valid = false;
+      result.errors.push(`New value is not in safe value.`);
+      return result;
+    }
+
+    // At this point, the command's form is considered to be "correct",
+    // However, further checks on the CONTEXT of the command's runner and the room
+    // is required, just like how the host can only issue commands on non-active games.
+    if (!isHost) {
+      result.errors.push("You must be the host to run this command.");
+      result.valid = false;
+    }
+    if (!(this.mode === GameMode.CustomMultiplayer)) {
+      result.errors.push(
+        "This command must be ran in a Custom Multiplayer room."
+      );
+      result.valid = false;
+    }
+    if (this.playing) {
+      result.errors.push(
+        "This command can only be ran when there is no active game in progress."
+      );
+      result.valid = false;
+    }
+
+    // We still need to see if the command is acting on
+    // an actual key that exists as a room property.
+    const constants = Object.keys(this.customSettings);
+    if (!constants.map((e) => e.toLowerCase()).includes(constantToChange)) {
+      result.valid = false;
+      result.errors.push(
+        `Room constant property ${constantToChange} doesn't exist. 
+        (Available constants are ${constants.join(", ")})`
+      );
+    }
+
+    return result;
+  }
+
+  setRoomConstant(targetKey: string, newValue: string) {}
+
   sendCommandResultToSocket(
     options: { [key: string]: any },
-    command: string,
-    message: string
+    message: string,
+    command?: string
   ) {
     const scope =
       this.mode == GameMode.DefaultMultiplayer ? "default" : "custom";
