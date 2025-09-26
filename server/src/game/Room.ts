@@ -185,15 +185,6 @@ class Room {
   runChatCommand(message: string, options?: { [key: string]: any }) {
     let isHost = false;
 
-    const scope =
-      this.mode == GameMode.DefaultMultiplayer ? "default" : "custom";
-    const systemMessageData = {
-      name: "(System)",
-      message: "",
-      nameColor: "#06aa06",
-      userID: ""
-    };
-
     if (!options?.sender) {
       log.warn(`Socket doesn't exist when running chat commands.`);
       return;
@@ -214,28 +205,15 @@ class Room {
         const result = this.validateStartCommandForRoom(isHost);
 
         if (!result.valid) {
-          systemMessageData.message += `Failed to run \"/${command}\" command due to the following reasons: `;
-          systemMessageData.message += result.errors.join(", ");
-          options.sender.send(
-            JSON.stringify({
-              message: "addRoomChatMessage",
-              scope: scope,
-              data: systemMessageData
-            })
-          );
+          const commandErrorMessage = result.errors.join(", ");
+          this.sendCommandResultToSocket(options, command, commandErrorMessage);
           break;
         }
 
         // give feedback
         // TODO: Add a delay for everyone to see when it's time to start.
-        systemMessageData.message = `Successfully ran command \"/${command}\". Game will now start.`;
-        options.sender.send(
-          JSON.stringify({
-            message: "addRoomChatMessage",
-            scope: scope,
-            data: systemMessageData
-          })
-        );
+        const commandSuccessMessage = `Successfully ran command \"/${command}\". Game will now start.`;
+        this.sendCommandResultToSocket(options, command, commandSuccessMessage);
 
         // start multiplayer game
         try {
@@ -244,11 +222,11 @@ class Room {
           (this as unknown as MultiplayerRoom).startPlay();
           (this as unknown as MultiplayerRoom).summonEveryoneToGameplay();
         } catch {
+          // TODO: Refactor this
           log.error("Can't run /start command due to an internal error.");
           options.sender.send(
             JSON.stringify({
               message: "createToastNotification",
-              // TODO: Refactor this
               text: `Can't run /start command due to an internal error. Please contact the server administrator!`,
               options: { borderColor: "#ff0000" }
             })
@@ -258,15 +236,8 @@ class Room {
         break;
       }
       default: {
-        systemMessageData.message = `Unknown command \"/${command}\".`;
-        options.sender.send(
-          JSON.stringify({
-            message: "addRoomChatMessage",
-            scope:
-              this.mode == GameMode.DefaultMultiplayer ? "default" : "custom",
-            data: systemMessageData
-          })
-        );
+        const message = `Unknown command \"/${command}\".`;
+        this.sendCommandResultToSocket(options, command, message);
         break;
       }
     }
@@ -406,6 +377,30 @@ class Room {
       valid: valid,
       errors: errors
     };
+  }
+
+  sendCommandResultToSocket(
+    options: { [key: string]: any },
+    command: string,
+    message: string
+  ) {
+    const scope =
+      this.mode == GameMode.DefaultMultiplayer ? "default" : "custom";
+
+    const systemMessageData = {
+      name: "(System)",
+      message: "",
+      nameColor: "#06aa06",
+      userID: ""
+    };
+    systemMessageData.message = message;
+    options.sender.send(
+      JSON.stringify({
+        message: "addRoomChatMessage",
+        scope: scope,
+        data: systemMessageData
+      })
+    );
   }
 }
 
