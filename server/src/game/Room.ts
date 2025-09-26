@@ -211,32 +211,11 @@ class Room {
 
     switch (command) {
       case "start": {
-        let valid = true;
-        let errors = [];
-        if (!isHost) {
-          errors.push("You must be the host to run this command.");
-          valid = false;
-        }
-        if (!(this.mode === GameMode.CustomMultiplayer)) {
-          errors.push("This command must be ran in a Custom Multiplayer room.");
-          valid = false;
-        }
-        if (this.memberConnectionIDs.length < 2) {
-          errors.push(
-            "This command can only be ran when there are at least 2 players in the room."
-          );
-          valid = false;
-        }
-        if (this.playing) {
-          errors.push(
-            "This command can only be ran when there is no active game in progress."
-          );
-          valid = false;
-        }
+        const result = this.validateStartCommandForRoom(isHost);
 
-        if (!valid) {
+        if (!result.valid) {
           systemMessageData.message += `Failed to run \"/${command}\" command due to the following reasons: `;
-          systemMessageData.message += errors.join(", ");
+          systemMessageData.message += result.errors.join(", ");
           options.sender.send(
             JSON.stringify({
               message: "addRoomChatMessage",
@@ -258,12 +237,13 @@ class Room {
           })
         );
 
-        if (this.mode === GameMode.CustomMultiplayer) {
-          (this as unknown as MultiplayerRoom).startPlay();
+        // start multiplayer game
+        try {
           (this as unknown as MultiplayerRoom).playersAtStart =
             this.memberConnectionIDs.length;
+          (this as unknown as MultiplayerRoom).startPlay();
           (this as unknown as MultiplayerRoom).summonEveryoneToGameplay();
-        } else {
+        } catch {
           log.error("Can't run /start command due to an internal error.");
           options.sender.send(
             JSON.stringify({
@@ -397,6 +377,35 @@ class Room {
       }
     }
     log.info(`Destroyed room ${this.id}`);
+  }
+
+  validateStartCommandForRoom(isHost: boolean) {
+    let valid = true;
+    let errors = [];
+    if (!isHost) {
+      errors.push("You must be the host to run this command.");
+      valid = false;
+    }
+    if (!(this.mode === GameMode.CustomMultiplayer)) {
+      errors.push("This command must be ran in a Custom Multiplayer room.");
+      valid = false;
+    }
+    if (this.memberConnectionIDs.length < 2) {
+      errors.push(
+        "This command can only be ran when there are at least 2 players in the room."
+      );
+      valid = false;
+    }
+    if (this.playing) {
+      errors.push(
+        "This command can only be ran when there is no active game in progress."
+      );
+      valid = false;
+    }
+    return {
+      valid: valid,
+      errors: errors
+    };
   }
 }
 
