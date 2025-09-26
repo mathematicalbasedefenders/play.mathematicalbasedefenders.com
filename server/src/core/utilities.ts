@@ -10,7 +10,7 @@ let timePeriodPassedForMessageSpeed = 0;
 const MESSAGES_PER_SECOND_LIMIT = 500;
 const NUMBER_DECIMAL_PLACES = 3;
 
-const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
+const CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
   baseHealth: {
     type: "number",
     minimum: 1,
@@ -184,7 +184,7 @@ function validateCustomGameSettings(
   const errors = [];
   console.debug(settings);
   for (const key in settings) {
-    const restriction = SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES[key];
+    const restriction = CUSTOM_SETTINGS_BOUNDARIES[key];
     // check numbers
     const parsedValue = settings[key].toString();
     if (!restriction) {
