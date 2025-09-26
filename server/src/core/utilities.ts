@@ -186,7 +186,7 @@ function validateCustomGameSettings(
   for (const key in settings) {
     const restriction = SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES[key];
     // check numbers
-    const parsedValue = settings[key];
+    const parsedValue = settings[key].toString();
     if (!restriction) {
       log.warn(`${key} doesn't exist as a customizable field for custom mode.`);
       continue;
