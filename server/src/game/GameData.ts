@@ -31,6 +31,7 @@ interface CustomGameSettings {
   enemySpawnTime: number;
   enemySpawnThreshold: number;
   forcedEnemySpawnTime: number;
+  [key: string]: number; // FIXME: Hacky way, unstable?
 }
 
 const GAME_DATA_CONSTANTS = {
