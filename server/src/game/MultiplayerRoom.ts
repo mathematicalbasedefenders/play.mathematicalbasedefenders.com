@@ -91,7 +91,11 @@ class MultiplayerRoom extends Room {
     for (const member of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(member);
       if (socket) {
-        this.gameData.push(new MultiplayerGameData(socket, this.mode));
+        const playerGameData = new MultiplayerGameData(socket, this.mode);
+        if (this.mode === GameMode.CustomMultiplayer) {
+          playerGameData.setValuesToCustomSettings(this.customSettings);
+        }
+        this.gameData.push(playerGameData);
         // add add user to record
         this.gameActionRecord.addAction({
           scope: "room",
@@ -275,7 +279,6 @@ class MultiplayerRoom extends Room {
       for (const enemy of data.enemies) {
         enemy.move(
           GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED *
-            this.customSettings.enemySpeedCoefficient *
             data.enemySpeedCoefficient *
             (deltaTime / 1000)
         );
