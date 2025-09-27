@@ -251,9 +251,9 @@ class Room {
           break;
         }
         this.setRoomConstant(context[0], context[1]);
-        const selfMessage = `Successfully set room's constant property ${context[0]} to ${context[1]}.`;
+        const selfMessage = `Successfully set room's constant property ${result.target} to ${context[1]}.`;
         this.sendCommandResultToSocket(options, selfMessage);
-        const roomMessage = `The room's host has set this room's constant property ${context[0]} to ${context[1]}.`;
+        const roomMessage = `The room's host has set this room's constant property ${result.target} to ${context[1]}.`;
         this.addChatMessage(roomMessage, { isSystemMessage: true });
         break;
       }
