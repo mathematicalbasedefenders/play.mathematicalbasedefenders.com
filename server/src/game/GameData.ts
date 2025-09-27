@@ -347,6 +347,10 @@ class MultiplayerGameData extends GameData {
     this.receivedEnemiesStock = 0;
     this.receivedEnemiesToSpawn = 0;
   }
+
+  setValuesToCustomSettings(customSettings: CustomGameSettings) {
+    this.baseHealth = customSettings.baseHealth;
+  }
 }
 
 export {
