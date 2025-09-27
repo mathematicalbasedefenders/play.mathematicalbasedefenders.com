@@ -78,6 +78,16 @@ class MultiplayerRoom extends Room {
   startPlay() {
     this.gameActionRecord.initialize();
 
+    // set custom settings to correct values
+    // for custom multiplayer
+    if (this.mode === GameMode.CustomMultiplayer) {
+      this.globalEnemySpawnThreshold = this.customSettings.enemySpawnThreshold;
+      this.globalClock.enemySpawn.actionTime =
+        this.customSettings.enemySpawnTime;
+      this.globalClock.forcedEnemySpawn.actionTime =
+        this.customSettings.forcedEnemySpawnTime;
+    }
+
     for (const member of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(member);
       if (socket) {
@@ -265,7 +275,7 @@ class MultiplayerRoom extends Room {
       for (const enemy of data.enemies) {
         enemy.move(
           GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED *
-            GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT *
+            this.customSettings.enemySpeedCoefficient *
             data.enemySpeedCoefficient *
             (deltaTime / 1000)
         );
