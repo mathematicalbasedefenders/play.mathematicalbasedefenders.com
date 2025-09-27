@@ -418,7 +418,7 @@ class Room {
       return result;
     }
 
-    const constantToChange = context[0].toLowerCase();
+    const constantToChange = context[0];
     const newValueAsString = context[1];
 
     const IS_NUMBER_REGEX = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
@@ -464,7 +464,8 @@ class Room {
     // We still need to see if the command is acting on
     // an actual key that exists as a room property.
     const constants = Object.keys(this.customSettings);
-    if (!constants.map((e) => e.toLowerCase()).includes(constantToChange)) {
+    const lowercasedTarget = constantToChange.toLowerCase();
+    if (!constants.map((e) => e.toLowerCase()).includes(lowercasedTarget)) {
       result.valid = false;
       result.errors.push(
         `Room constant property \"${constantToChange}\" doesn't exist. 
@@ -505,12 +506,11 @@ class Room {
     const constants = Object.keys(this.customSettings);
     for (const constant of constants) {
       const lowercased = constant.toLowerCase();
-      if (lowercased === targetKey) {
+      if (lowercased === targetKey.toLowerCase()) {
         target = constant;
         break;
       }
     }
-
     const newValue = parseFloat(newValueAsString);
     this.customSettings[target] = newValue;
   }
