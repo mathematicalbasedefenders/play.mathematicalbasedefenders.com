@@ -350,6 +350,7 @@ class MultiplayerGameData extends GameData {
 
   setValuesToCustomSettings(customSettings: CustomGameSettings) {
     this.baseHealth = customSettings.baseHealth;
+    this.enemySpeedCoefficient = customSettings.enemySpeedCoefficient;
   }
 }
 
