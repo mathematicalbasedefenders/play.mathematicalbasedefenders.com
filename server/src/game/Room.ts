@@ -402,9 +402,10 @@ class Room {
   }
 
   validateSetCommandForRoom(isHost: boolean, context: Array<string>) {
-    const result: { valid: boolean; errors: Array<string> } = {
+    const result: { valid: boolean; errors: Array<string>; target: string } = {
       valid: true,
-      errors: []
+      errors: [],
+      target: ""
     };
 
     // Command validation is broken here if it's invalid,
@@ -480,6 +481,7 @@ class Room {
       const lowercased = constant.toLowerCase();
       if (lowercased === constantToChange.toLowerCase()) {
         target = constant;
+        result.target = constant;
         break;
       }
     }
