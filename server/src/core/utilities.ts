@@ -471,7 +471,7 @@ function convertGameSettingsToReplayActions(data: GameData) {
  */
 function getHumanFriendlyMultiplayerRoomList() {
   const rooms = universal.rooms.filter(
-    (e) => e.mode === GameMode.CustomMultiplayer
+    (e) => e.mode === GameMode.CustomMultiplayer && e.hidden === false
   );
   const result: Array<unknown> = [];
   for (const room of rooms) {
