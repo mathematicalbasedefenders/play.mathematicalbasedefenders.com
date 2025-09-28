@@ -770,11 +770,7 @@ function initializeEventListeners() {
     $("#chat-tray-input").val("");
   });
   $(`#main-content__user-menu-small-display`).on("click", () => {
-    if (
-      variables.isGuest ||
-      variables.playing ||
-      variables.loggedInUserID == null
-    ) {
+    if (variables.isGuest || variables.loggedInUserID == null) {
       return;
     }
     showUserLookupPopUp(variables.loggedInUserID);
