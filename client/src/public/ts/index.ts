@@ -949,7 +949,7 @@ function initializeEventListeners() {
       console.log(`Attempting to copy quick join link ${text}`);
       navigator.clipboard.writeText(text);
       const message = "Copied room quick join link!";
-      const options = { borderColor: "#00ff00" };
+      const options = { borderColor: "#00dd00" };
       const toast = new ToastNotification(message, options);
       toast.render();
     } catch (error) {
