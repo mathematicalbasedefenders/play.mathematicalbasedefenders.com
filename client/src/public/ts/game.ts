@@ -303,6 +303,14 @@ function changeScreen(
   $("#chat-message").val("");
   $("#custom-multiplayer-chat-message").val("");
 
+  // reset rendered rankings as well
+  $(
+    "#main-content__custom-multiplayer-intermission-screen-container__game-status-ranking"
+  ).empty();
+  $(
+    "#main-content__multiplayer-intermission-screen-container__game-status-ranking"
+  ).empty();
+
   // set settings
   getSettings(localStorage.getItem("settings") || "{}");
 
