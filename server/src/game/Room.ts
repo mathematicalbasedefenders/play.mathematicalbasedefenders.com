@@ -21,6 +21,16 @@ const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
 let defaultMultiplayerRoomID: string | null = null;
 
+const COMMAND_DATA = [
+  "start",
+  "set",
+  "get",
+  "setvisibility",
+  "getvisibility",
+  "remove",
+  "transferhost"
+];
+
 interface InputActionInterface {
   action: InputAction;
   argument: string;
@@ -60,6 +70,9 @@ class Room {
 
   // new update 2025-09-22
   ageInMilliseconds: number = 0;
+
+  // custom multiplayer
+  hidden: boolean = false;
 
   /**
    * Creates a `Room` instance. This shouldn't be called directly.
@@ -290,6 +303,31 @@ class Room {
         }
         const value = this.customSettings[target];
         const message = `The constant property ${target}'s value for this room is ${value}.`;
+        this.sendCommandResultToSocket(options, message);
+        break;
+      }
+      case "setvisibility": {
+        break;
+      }
+      case "getvisibility": {
+        break;
+      }
+      case "remove": {
+        break;
+      }
+      case "transferhost": {
+        break;
+      }
+      case "?":
+      case "help": {
+        let message = `The available commands are: `;
+        message += COMMAND_DATA.join(", ");
+        message += ".";
+        if (!isHost) {
+          message += " ";
+          message +=
+            "Note that you may not use some of these commands as they are reserved for the host.";
+        }
         this.sendCommandResultToSocket(options, message);
         break;
       }
