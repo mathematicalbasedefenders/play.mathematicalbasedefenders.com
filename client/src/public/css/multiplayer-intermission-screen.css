@@ -184,3 +184,15 @@
   color: var(--color-text-dark);
   border-left: 1px solid #ffffff;
 }
+
+.main-content__multiplayer-intermission-screen-container__introductory-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+  user-select: none;
+  text-align: center;
+}
