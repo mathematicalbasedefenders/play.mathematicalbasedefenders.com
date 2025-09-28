@@ -221,6 +221,10 @@ class Room {
     const text = message.substring(1).split(" ");
     const [command, ...context] = text;
 
+    const senderName =
+      universal.getNameFromConnectionID(options.sender.connectionID || "") ||
+      "";
+
     switch (command) {
       case "start": {
         const result = this.validateStartCommandForRoom(isHost);
@@ -350,6 +354,51 @@ class Room {
         break;
       }
       case "kick": {
+        const result = this.validateKickCommandForRoom(
+          isHost,
+          context,
+          senderName
+        );
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /kick due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+
+        const nameToKick = context.join(" ");
+        const connectionIDToKick = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === nameToKick
+        );
+        const connectionIDOfSender = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === senderName
+        );
+
+        // defaults to `???`, since there are no sockets
+        // which this connectionID already in the first place.
+        const socketToKick = universal.getSocketFromConnectionID(
+          connectionIDToKick ?? "???"
+        );
+
+        const senderSocket = universal.getSocketFromConnectionID(
+          connectionIDOfSender ?? "???"
+        );
+
+        if (senderSocket && socketToKick) {
+          this.kickMember(senderSocket, socketToKick);
+          const selfMessage = `Successfully kicked ${nameToKick} from the room.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The room's host has kicked ${nameToKick} from the room.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+        } else {
+          log.warn(`Unable to to kick ${nameToKick} from room ${this.id}.`);
+          const selfMessage = `Unable to kick ${nameToKick} from the room. Please contact the server administrator if this happens again!`;
+          this.sendCommandResultToSocket(selfMessage, options);
+        }
+
+        log.info(
+          `Host of room ${this.id} has kicked ${nameToKick} from the room.`
+        );
         break;
       }
       case "transferhost": {
@@ -376,9 +425,6 @@ class Room {
     }
 
     // log the command
-    const senderName =
-      universal.getNameFromConnectionID(options.sender.connectionID || "") ||
-      "";
     log.info(`${senderName} sent message ${message} to Room ID ${this.id}`);
   }
 
@@ -442,6 +488,45 @@ class Room {
         `Deleted socket with ID ${connectionID} (member) from room ${this.id}`
       );
     }
+  }
+
+  kickMember(caller: universal.GameSocket, target: universal.GameSocket) {
+    const callerConnectionID = caller.connectionID as string;
+    const targetConnectionID = target.connectionID as string;
+    if (
+      !this.memberConnectionIDs.includes(callerConnectionID) ||
+      !this.memberConnectionIDs.includes(targetConnectionID)
+    ) {
+      log.warn(`Unable to kick: Member/target doesn't exist in ${this.id}`);
+      return;
+    }
+
+    // kick here
+    this.memberConnectionIDs.splice(
+      this.memberConnectionIDs.indexOf(targetConnectionID),
+      1
+    );
+    const targetSocket =
+      universal.getSocketFromConnectionID(targetConnectionID);
+
+    if (targetSocket) {
+      targetSocket.unsubscribe(this.id);
+      this.deleteMember(targetSocket);
+
+      const message = `You have been kicked from this Custom Multiplayer room!`;
+      const BORDER_COLOR = `#ff0000`;
+      universal.sendToastMessageToSocket(targetSocket, message, BORDER_COLOR);
+      targetSocket.send(
+        JSON.stringify({
+          message: "changeScreen",
+          newScreen: "mainMenu"
+        })
+      );
+    }
+
+    log.info(
+      `Socket with ID ${callerConnectionID} kicked socket with ID ${targetConnectionID} (member) from room ${this.id}`
+    );
   }
 
   /**
@@ -635,6 +720,48 @@ class Room {
       result.errors.push(
         `This command\'s argument can only be either "true" or "false".`
       );
+      result.valid = false;
+    }
+    return result;
+  }
+
+  validateKickCommandForRoom(
+    isHost: boolean,
+    context: Array<string>,
+    senderName: string
+  ) {
+    const result: { valid: boolean; errors: Array<string> } = {
+      valid: true,
+      errors: []
+    };
+
+    if (!isHost) {
+      result.errors.push("You must be the room's host to run this command.");
+      result.valid = false;
+    }
+
+    if (!(this.mode === GameMode.CustomMultiplayer)) {
+      result.errors.push(
+        "This command must be ran in a Custom Multiplayer room."
+      );
+      result.valid = false;
+    }
+
+    const target = context.join(" ");
+    const names = this.memberConnectionIDs.map((connectionID) => {
+      return universal.getNameFromConnectionID(connectionID);
+    });
+
+    if (target === "") {
+      result.errors.push(`No player to kick is specified.`);
+      result.valid = false;
+    } else if (!names.includes(target)) {
+      result.errors.push(`Player ${target} doesn't exist in this room.`);
+      result.valid = false;
+    }
+
+    if (target === senderName) {
+      result.errors.push(`You can't kick yourself.`);
       result.valid = false;
     }
     return result;
