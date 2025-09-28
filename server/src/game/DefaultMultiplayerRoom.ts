@@ -367,11 +367,15 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
       this.ranking.push(data);
     }
     if (socket?.loggedIn && gameData instanceof GameData) {
-      const earnedEXP = Math.round(gameData.elapsedTime / 2000);
-      User.giveExperiencePointsToUserID(
-        socket.ownerUserID as string,
-        earnedEXP
-      );
+      if (!universal.STATUS.databaseAvailable) {
+        log.warn("Database is not available. Not running database operation.");
+      } else {
+        const earnedEXP = Math.round(gameData.elapsedTime / 2000);
+        User.giveExperiencePointsToUserID(
+          socket.ownerUserID as string,
+          earnedEXP
+        );
+      }
     }
     // eliminate the socket
     let gameDataIndex = this.gameData.findIndex(
