@@ -192,6 +192,7 @@
   right: 0;
   margin: 2px;
   text-align: right;
+  user-select: none;
 }
 
 #custom-multiplayer-room-indicator-label
