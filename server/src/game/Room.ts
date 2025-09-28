@@ -309,6 +309,32 @@ class Room {
         break;
       }
       case "setvisibility": {
+        const result = this.validateSetVisibilityCommandForRoom(
+          isHost,
+          context
+        );
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /setvisibility due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+
+        // valid
+        if (context[0] === "true") {
+          const selfMessage = `Successfully set room's visibility to true.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The room's host has set this visibility to true.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+          this.setRoomVisibility(true);
+        } else if (context[0] === "false") {
+          const selfMessage = `Successfully set room's visibility to false.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The room's host has set this room's visibility to false.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+          this.setRoomVisibility(false);
+        }
+
         break;
       }
       case "getvisibility": {
@@ -587,6 +613,33 @@ class Room {
     return result;
   }
 
+  validateSetVisibilityCommandForRoom(isHost: boolean, context: Array<string>) {
+    const result: { valid: boolean; errors: Array<string> } = {
+      valid: true,
+      errors: []
+    };
+
+    if (!isHost) {
+      result.errors.push("You must be the host to run this command.");
+      result.valid = false;
+    }
+
+    if (!(this.mode === GameMode.CustomMultiplayer)) {
+      result.errors.push(
+        "This command must be ran in a Custom Multiplayer room."
+      );
+      result.valid = false;
+    }
+
+    if (!(context[0] === "true" || context[0] === "false")) {
+      result.errors.push(
+        `This command\'s argument can only be either "true" or "false".`
+      );
+      result.valid = false;
+    }
+    return result;
+  }
+
   setRoomConstant(targetKey: string, newValueAsString: string) {
     // TODO: DRY
     let target = "";
@@ -600,6 +653,10 @@ class Room {
     }
     const newValue = parseFloat(newValueAsString);
     this.customSettings[target] = newValue;
+  }
+
+  setRoomVisibility(visible: boolean) {
+    this.hidden = !visible;
   }
 
   sendCommandResultToSocket(
