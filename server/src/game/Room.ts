@@ -767,6 +767,48 @@ class Room {
     return result;
   }
 
+  validateTransferHostCommandForRoom(
+    isHost: boolean,
+    context: Array<string>,
+    senderName: string
+  ) {
+    const result: { valid: boolean; errors: Array<string> } = {
+      valid: true,
+      errors: []
+    };
+
+    if (!isHost) {
+      result.errors.push("You must be the room's host to run this command.");
+      result.valid = false;
+    }
+
+    if (!(this.mode === GameMode.CustomMultiplayer)) {
+      result.errors.push(
+        "This command must be ran in a Custom Multiplayer room."
+      );
+      result.valid = false;
+    }
+
+    const target = context.join(" ");
+    const names = this.memberConnectionIDs.map((connectionID) => {
+      return universal.getNameFromConnectionID(connectionID);
+    });
+
+    if (target === "") {
+      result.errors.push(`No player to give hosting powers to is specified.`);
+      result.valid = false;
+    } else if (!names.includes(target)) {
+      result.errors.push(`Player ${target} doesn't exist in this room.`);
+      result.valid = false;
+    }
+
+    if (target === senderName) {
+      result.errors.push(`You are already the host of this room!`);
+      result.valid = false;
+    }
+    return result;
+  }
+
   setRoomConstant(targetKey: string, newValueAsString: string) {
     // TODO: DRY
     let target = "";
