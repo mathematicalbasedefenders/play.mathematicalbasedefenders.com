@@ -9,7 +9,7 @@ import {
   GameData,
   GameMode,
   CustomGameSettings,
-  MultiplayerGameData
+  GAME_DATA_CONSTANTS
 } from "./GameData";
 import { GameActionRecord } from "../replay/recording/ActionRecord";
 import { Enemy } from "./Enemy";
@@ -102,12 +102,16 @@ class Room {
     this.gameActionRecord = new GameActionRecord();
 
     this.customSettings = {
-      baseHealth: 100,
-      comboTime: 5000,
-      enemySpeedCoefficient: 1,
-      enemySpawnThreshold: 0.1,
-      enemySpawnTime: 100,
-      forcedEnemySpawnTime: 2500
+      baseHealth: GAME_DATA_CONSTANTS.INITIAL_BASE_HEALTH,
+      comboTime: GAME_DATA_CONSTANTS.CUSTOM_MULTIPLAYER_INITIAL_COMBO_TIME,
+      enemySpeedCoefficient:
+        GAME_DATA_CONSTANTS.CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPEED_COEFFICIENT,
+      enemySpawnThreshold:
+        GAME_DATA_CONSTANTS.CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPAWN_THRESHOLD,
+      enemySpawnTime:
+        GAME_DATA_CONSTANTS.CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPAWN_TIME,
+      forcedEnemySpawnTime:
+        GAME_DATA_CONSTANTS.CUSTOM_MULTIPLAYER_INITIAL_FORCED_ENEMY_SPAWN_TIME
     };
 
     log.info(`Created ${gameMode} room with ID ${this.id}`);
