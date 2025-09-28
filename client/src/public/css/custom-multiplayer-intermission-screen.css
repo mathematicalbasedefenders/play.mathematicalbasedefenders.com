@@ -1,5 +1,5 @@
-/* MULTIPLAYER INTERMISSION */
-#main-content__multiplayer-intermission-screen-container {
+/* custom-multiplayer INTERMISSION */
+#main-content__custom-multiplayer-intermission-screen-container {
   /* background-color: #000000; */
   width: 100%;
   height: 100%;
@@ -9,7 +9,7 @@
   grid-template-rows: [row1-start] 100px [row1-end row2-start] 50vh [row2-end row3-start] auto [row3-end]; */
 }
 
-#main-content__multiplayer-intermission-screen-container__left {
+#main-content__custom-multiplayer-intermission-screen-container__left {
   /* grid-column: column1-start / column3-end; */
   /* grid-row: row1-start / row1-end; */
   width: 25%;
@@ -17,12 +17,12 @@
   align-items: center;
 }
 
-#main-content__multiplayer-intermission-screen-container__center {
+#main-content__custom-multiplayer-intermission-screen-container__center {
   /* grid-row: row2-start / row2-end; */
   width: 50%;
 }
 
-#main-content__multiplayer-intermission-screen-container__right {
+#main-content__custom-multiplayer-intermission-screen-container__right {
   /* grid-column: column3-start / column3-end;
   grid-row: row2-start / row2-end; */
   width: 25%;
@@ -31,7 +31,7 @@
   justify-content: end;
 }
 
-#main-content__multiplayer-intermission-screen-container__chat {
+#main-content__custom-multiplayer-intermission-screen-container__chat {
   border: 2px solid #ffffff;
   /* padding: 4px; */
   height: 75%;
@@ -41,7 +41,7 @@
   background-color: var(--color-neutral);
 }
 
-#main-content__multiplayer-intermission-screen-container__chat__messages {
+#main-content__custom-multiplayer-intermission-screen-container__chat__messages {
   height: 95%;
   width: 100%;
   overflow-x: hidden;
@@ -53,27 +53,28 @@
   margin-bottom: 2px;
 }
 
-#main-content__multiplayer-intermission-screen-container__chat__messages > div {
+#main-content__custom-multiplayer-intermission-screen-container__chat__messages
+  > div {
   margin: 0 2px;
 }
 
-#main-content__multiplayer-intermission-screen-container__chat__entry {
+#main-content__custom-multiplayer-intermission-screen-container__chat__entry {
   width: 100%;
   background-color: transparent;
 }
 
-#main-content__multiplayer-intermission-screen-container__player-list {
+#main-content__custom-multiplayer-intermission-screen-container__player-list {
   display: flex;
   justify-content: space-between;
   margin: 2px;
 }
 
-#main-content__multiplayer-intermission-screen-container__player-list__toggle-list {
+#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list {
   text-decoration: underline;
   cursor: pointer;
 }
 
-#main-content__multiplayer-intermission-screen-container__chat__player-list {
+#main-content__custom-multiplayer-intermission-screen-container__chat__player-list {
   display: none;
   height: 95%;
   overflow-x: hidden;
@@ -81,13 +82,13 @@
   margin: 2px;
 }
 
-.main-content__multiplayer-intermission-screen-container__status-indicator:nth-of-type(
+.main-content__custom-multiplayer-intermission-screen-container__status-indicator:nth-of-type(
     2
   ) {
   border-top: 2px solid #ffffff;
 }
 
-#chat-message {
+#custom-multiplayer-chat-message {
   width: calc(100% - 86px);
   background-color: transparent;
   border: 2px solid #ffffff;
@@ -96,7 +97,7 @@
   margin: 0 2px;
 }
 
-#message-send-button {
+#custom-multiplayer-message-send-button {
   width: 70px;
   background-color: transparent;
   border: 2px solid white;
@@ -104,7 +105,7 @@
   font-family: inherit;
 }
 
-#main-content__multiplayer-intermission-screen-container__status {
+#main-content__custom-multiplayer-intermission-screen-container__status {
   height: 75%;
   overflow: hidden;
   width: 100%;
@@ -113,7 +114,7 @@
   background-color: var(--color-neutral);
 }
 
-.main-content__multiplayer-intermission-screen-container__status-indicator {
+.main-content__custom-multiplayer-intermission-screen-container__status-indicator {
   position: relative;
   height: 50%;
   display: flex;
@@ -150,12 +151,12 @@
   flex-direction: column;
 }
 
-#main-content__multiplayer-intermission-screen-container__game-status-ranking {
+#main-content__custom-multiplayer-intermission-screen-container__game-status-ranking {
   width: 100%;
   padding: 2px;
 }
 
-.multiplayer-screen__sidebar-item {
+.custom-multiplayer-screen__sidebar-item {
   width: 120px;
   color: var(--color-text-light);
   font-size: 200%;
@@ -173,19 +174,43 @@
   left: 80px;
 }
 
-.multiplayer-screen__sidebar-item:hover {
+.custom-multiplayer-screen__sidebar-item:hover {
   background-color: rgb(255, 255, 255, 0.75);
   color: var(--color-text-dark);
   border-left: 1px solid #ffffff;
 }
 
-.multiplayer-screen__sidebar-item--selected {
+.custom-multiplayer-screen__sidebar-item--selected {
   background-color: var(--color-text-light);
   color: var(--color-text-dark);
   border-left: 1px solid #ffffff;
 }
 
-.main-content__multiplayer-intermission-screen-container__introductory-text {
+#custom-multiplayer-room-indicator-label {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 2px;
+  text-align: right;
+  user-select: none;
+}
+
+#custom-multiplayer-room-indicator-label
+  #custom-multiplayer-room-indicator-label__room-code--hidden {
+  display: none;
+}
+
+#custom-multiplayer-room-indicator-label__copy,
+#custom-multiplayer-room-indicator-label__toggle-visibility {
+  text-decoration: underline;
+}
+
+#custom-multiplayer-room-indicator-label__copy:hover,
+#custom-multiplayer-room-indicator-label__toggle-visibility:hover {
+  cursor: pointer;
+}
+
+.main-content__custom-multiplayer-intermission-screen-container__introductory-text {
   display: flex;
   justify-content: center;
   align-items: center;

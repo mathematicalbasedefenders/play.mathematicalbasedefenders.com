@@ -6,9 +6,7 @@ import {
   findRoomWithConnectionID,
   sleep
 } from "../core/utilities";
-import { User } from "../models/User";
 import { Action, ActionRecord } from "../replay/recording/ActionRecord";
-import { getSocketFromConnectionID } from "../universal";
 import {
   checkGlobalMultiplayerRoomClocks,
   checkPlayerMultiplayerRoomClocks
@@ -22,7 +20,11 @@ import {
   GameData,
   GAME_DATA_CONSTANTS
 } from "./GameData";
-import { Room } from "./Room";
+import {
+  defaultMultiplayerRoomID,
+  Room,
+  setDefaultMultiplayerRoomID
+} from "./Room";
 import * as universal from "../universal";
 import * as utilities from "../core/utilities";
 import { Enemy } from "./Enemy";
@@ -38,7 +40,7 @@ class MultiplayerRoom extends Room {
   globalEnemyToAdd!: Enemy | null;
   timeSinceLastPlayerListUpdate: number;
 
-  constructor(host: universal.GameSocket, mode: GameMode, noHost: boolean) {
+  constructor(host: universal.GameSocket, mode: GameMode, noHost?: boolean) {
     super(host, mode, noHost);
     this.nextGameStartTime = null;
     this.globalEnemySpawnThreshold =
@@ -57,15 +59,41 @@ class MultiplayerRoom extends Room {
     };
     // this isn't in `globalClock` because it's not part of gameplay.
     this.timeSinceLastPlayerListUpdate = 0;
+
+    // special for default multiplayer
+    // check if default multiplayer room already exists
+    if (mode === GameMode.DefaultMultiplayer && defaultMultiplayerRoomID) {
+      log.warn(`There may only be one Default Multiplayer room at at time.`);
+      log.warn(`There is one, which is ID ${defaultMultiplayerRoomID}.`);
+      this.destroy();
+      return;
+    } else if (mode === GameMode.DefaultMultiplayer) {
+      setDefaultMultiplayerRoomID(this.id);
+    }
+    universal.rooms.push(this);
   }
 
   startPlay() {
     this.gameActionRecord.initialize();
 
+    // set custom settings to correct values
+    // for custom multiplayer
+    if (this.mode === GameMode.CustomMultiplayer) {
+      this.globalEnemySpawnThreshold = this.customSettings.enemySpawnThreshold;
+      this.globalClock.enemySpawn.actionTime =
+        this.customSettings.enemySpawnTime;
+      this.globalClock.forcedEnemySpawn.actionTime =
+        this.customSettings.forcedEnemySpawnTime;
+    }
+
     for (const member of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(member);
       if (socket) {
-        this.gameData.push(new MultiplayerGameData(socket, this.mode));
+        const playerGameData = new MultiplayerGameData(socket, this.mode);
+        if (this.mode === GameMode.CustomMultiplayer) {
+          playerGameData.setValuesToCustomSettings(this.customSettings);
+        }
+        this.gameData.push(playerGameData);
         // add add user to record
         this.gameActionRecord.addAction({
           scope: "room",
@@ -128,6 +156,8 @@ class MultiplayerRoom extends Room {
         socket.send(
           JSON.stringify({
             message: "modifyMultiplayerRankContent",
+            scope:
+              this.mode == GameMode.DefaultMultiplayer ? "default" : "custom",
             data: rankingPayload
           })
         );
@@ -135,12 +165,14 @@ class MultiplayerRoom extends Room {
           this.memberConnectionIDs
         );
         const playerCountSelector =
-          "#main-content__multiplayer-intermission-screen-container__player-count";
+          "#main-content__custom-multiplayer-intermission-screen-container__player-count";
         const playerCountText = this.memberConnectionIDs.length.toString();
         changeClientSideText(socket, playerCountSelector, playerCountText);
         socket.send(
           JSON.stringify({
             message: "modifyPlayerListContent",
+            scope:
+              this.mode == GameMode.DefaultMultiplayer ? "default" : "custom",
             data: playersPayload
           })
         );
@@ -149,51 +181,89 @@ class MultiplayerRoom extends Room {
     }
 
     // Then update specifically for multiplayer rooms
+    // if (!this.playing) {
+    //   // Check if there is at least 2 players and timer hasn't started countdown.
+    //   // If so, start intermission countdown
+    //   if (
+    //     !this.nextGameStartTime &&
+    //     this.memberConnectionIDs.length >=
+    //       GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
+    //   ) {
+    //     const nextGameStartTime =
+    //       Date.now() +
+    //       GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_INTERMISSION_TIME;
+    //     this.nextGameStartTime = new Date(nextGameStartTime);
+    //   }
+    //   // Check if there is less than 2 players - if so, stop intermission countdown
+    //   if (
+    //     this.nextGameStartTime instanceof Date &&
+    //     this.memberConnectionIDs.length <
+    //       GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
+    //   ) {
+    //     this.nextGameStartTime = null;
+    //   }
+    //   // Start game
+    //   if (this.nextGameStartTime && new Date() >= this.nextGameStartTime) {
+    //     this.startPlay();
+    //     this.playersAtStart = this.memberConnectionIDs.length;
+    //     this.summonEveryoneToGameplay();
+    //   }
+    //   // Update Text
+    //   for (const connectionID of this.memberConnectionIDs) {
+    //     const socket = universal.getSocketFromConnectionID(connectionID);
+    //     if (socket) {
+    //       const selector =
+    //         "#main-content__custom-multiplayer-intermission-screen-container__game-status-message";
+    //       if (this.nextGameStartTime) {
+    //         let timeLeft = Date.now() - this.nextGameStartTime.getTime();
+    //         timeLeft = Math.abs(timeLeft / 1000);
+    //         const value = `Game starting in ${timeLeft.toFixed(3)} seconds.`;
+    //         changeClientSideText(socket, selector, value);
+    //       } else if (
+    //         this.memberConnectionIDs.length <
+    //         GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
+    //       ) {
+    //         const value = `Waiting for at least ${GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START} players.`;
+    //         changeClientSideText(socket, selector, value);
+    //       }
+    //     }
+    //   }
+    //   return;
+    // }
+
+    // change text, regardless of whether room is playing or not.
+    for (const connectionID of this.memberConnectionIDs) {
+      const socket = universal.getSocketFromConnectionID(connectionID);
+      if (!socket) {
+        continue;
+      }
+      const roomCodeSelector =
+        "#custom-multiplayer-room-indicator-label__room-code";
+      changeClientSideText(socket, roomCodeSelector, this.id);
+
+      const hostNameSelector =
+        "#main-content__custom-multiplayer-intermission-screen-container__host-name";
+      const hostName =
+        universal.getNameFromConnectionID(this.host?.connectionID ?? "???") ||
+        "(unknown)";
+      changeClientSideText(socket, hostNameSelector, hostName);
+    }
+
     if (!this.playing) {
-      // Check if there is at least 2 players and timer hasn't started countdown.
-      // If so, start intermission countdown
-      if (
-        !this.nextGameStartTime &&
-        this.memberConnectionIDs.length >=
-          GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
-      ) {
-        const nextGameStartTime =
-          Date.now() +
-          GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_INTERMISSION_TIME;
-        this.nextGameStartTime = new Date(nextGameStartTime);
-      }
-      // Check if there is less than 2 players - if so, stop intermission countdown
-      if (
-        this.nextGameStartTime instanceof Date &&
-        this.memberConnectionIDs.length <
-          GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
-      ) {
-        this.nextGameStartTime = null;
-      }
-      // Start game
-      if (this.nextGameStartTime && new Date() >= this.nextGameStartTime) {
-        this.startPlay();
-        this.playersAtStart = this.memberConnectionIDs.length;
-        this.summonEveryoneToGameplay();
-      }
-      // Update Text
       for (const connectionID of this.memberConnectionIDs) {
         const socket = universal.getSocketFromConnectionID(connectionID);
-        if (socket) {
-          const selector =
-            "#main-content__multiplayer-intermission-screen-container__game-status-message";
-          if (this.nextGameStartTime) {
-            let timeLeft = Date.now() - this.nextGameStartTime.getTime();
-            timeLeft = Math.abs(timeLeft / 1000);
-            const value = `Game starting in ${timeLeft.toFixed(3)} seconds.`;
-            changeClientSideText(socket, selector, value);
-          } else if (
-            this.memberConnectionIDs.length <
-            GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
-          ) {
-            const value = `Waiting for at least ${GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START} players.`;
-            changeClientSideText(socket, selector, value);
-          }
+        if (!socket) {
+          continue;
+        }
+        const selector =
+          "#main-content__custom-multiplayer-intermission-screen-container__game-status-message";
+
+        if (connectionID === this.host?.connectionID) {
+          const value = `You are the host of this room! Type "/start" in chat to start the game. You can also type "/?" in chat to view commands that allow you to customize this room's settings.`;
+          changeClientSideText(socket, selector, value);
+        } else {
+          const value = `Waiting for host to start...`;
+          changeClientSideText(socket, selector, value);
         }
       }
       return;
@@ -203,11 +273,11 @@ class MultiplayerRoom extends Room {
     for (const connectionID of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(connectionID);
       if (!socket) {
-        return;
+        continue;
       }
       const playersRemaining = this.gameData.length;
       const selector =
-        "#main-content__multiplayer-intermission-screen-container__game-status-message";
+        "#main-content__custom-multiplayer-intermission-screen-container__game-status-message";
       const value = `Current game in progress. (Remaining: ${playersRemaining}/${this.playersAtStart})`;
       changeClientSideText(socket, selector, value);
     }
@@ -231,7 +301,6 @@ class MultiplayerRoom extends Room {
       for (const enemy of data.enemies) {
         enemy.move(
           GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED *
-            GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT *
             data.enemySpeedCoefficient *
             (deltaTime / 1000)
         );
@@ -354,13 +423,13 @@ class MultiplayerRoom extends Room {
       }
       this.ranking.push(data);
     }
-    if (socket?.loggedIn && gameData instanceof GameData) {
-      const earnedEXP = Math.round(gameData.elapsedTime / 2000);
-      User.giveExperiencePointsToUserID(
-        socket.ownerUserID as string,
-        earnedEXP
-      );
-    }
+    // if (socket?.loggedIn && gameData instanceof GameData) {
+    //   const earnedEXP = Math.round(gameData.elapsedTime / 2000);
+    //   User.giveExperiencePointsToUserID(
+    //     socket.ownerUserID as string,
+    //     earnedEXP
+    //   );
+    // }
     // eliminate the socket
     let gameDataIndex = this.gameData.findIndex(
       (element) => element.ownerConnectionID === connectionID
@@ -371,7 +440,7 @@ class MultiplayerRoom extends Room {
     log.info(
       `Socket ID ${connectionID} (${universal.getNameFromConnectionID(
         connectionID
-      )}) has been eliminated from the Default Multiplayer Room`
+      )}) has been eliminated from Multiplayer Room with ID ${this.id}`
     );
     // give exp to eliminated player
     // add to ranking
@@ -381,8 +450,7 @@ class MultiplayerRoom extends Room {
   async checkIfGameFinished(gameDataArray: Array<GameData>) {
     if (gameDataArray.length <= 1) {
       // game finished
-      // Default Multiplayer for now since there's only 1 multiplayer room at a given time.
-      log.info(`Default Multiplayer Room has finished playing.`);
+      log.info(`Custom Multiplayer Room ID ${this.id} has finished playing.`);
       if (gameDataArray.length === 1) {
         let winnerGameData = gameDataArray[0];
         log.info(
@@ -412,28 +480,28 @@ class MultiplayerRoom extends Room {
         this.gameActionRecord.addGameOverAction();
 
         // add exp to winner socket
-        if (winnerSocket?.ownerUserID) {
-          if (typeof winnerSocket.ownerUserID === "string") {
-            if (!universal.STATUS.databaseAvailable) {
-              log.warn(
-                "Database is not available. Not running database operation."
-              );
-            } else {
-              // multiplayer games won
-              User.addMultiplayerGamesWonToUserID(
-                winnerSocket.ownerUserID as string,
-                1
-              );
-              // experience (50% bonus for winning)
-              const earnedEXP =
-                Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
-              User.giveExperiencePointsToUserID(
-                winnerSocket.ownerUserID as string,
-                earnedEXP
-              );
-            }
-          }
-        }
+        // if (winnerSocket?.ownerUserID) {
+        //   if (typeof winnerSocket.ownerUserID === "string") {
+        //     if (!universal.STATUS.databaseAvailable) {
+        //       log.warn(
+        //         "Database is not available. Not running database operation."
+        //       );
+        //     } else {
+        //       // multiplayer games won
+        //       User.addMultiplayerGamesWonToUserID(
+        //         winnerSocket.ownerUserID as string,
+        //         1
+        //       );
+        //       // experience (50% bonus for winning)
+        //       const earnedEXP =
+        //         Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
+        //       User.giveExperiencePointsToUserID(
+        //         winnerSocket.ownerUserID as string,
+        //         earnedEXP
+        //       );
+        //     }
+        //   }
+        // }
 
         const data = {
           placement: this.gameData.length,
@@ -458,29 +526,28 @@ class MultiplayerRoom extends Room {
         this.ranking.push(data);
         // submit replay here.
 
-        if (
-          this.memberConnectionIDs.filter(
-            (e) => getSocketFromConnectionID(e)?.loggedIn
-          ).length >= 1
-        ) {
-          const replay = await this.gameActionRecord.save(
-            this.mode,
-            this.ranking
-          );
-          if (!universal.STATUS.databaseAvailable) {
-            log.warn("Not saving multiplayer because database is unavailable.");
-          } else {
-            if (replay.ok) {
-              this.addChatMessage(
-                `Default Multiplayer game replay saved with Replay ID ${replay.id}.`,
-                null,
-                true
-              );
-            }
-          }
-        } else {
-          log.info("Not saving multiplayer game because no one is logged in.");
-        }
+        // if (
+        //   this.memberConnectionIDs.filter(
+        //     (e) => getSocketFromConnectionID(e)?.loggedIn
+        //   ).length >= 1
+        // ) {
+        //   const replay = await this.gameActionRecord.save(
+        //     this.mode,
+        //     this.ranking
+        //   );
+        //   if (!universal.STATUS.databaseAvailable) {
+        //     log.warn("Not saving multiplayer because database is unavailable.");
+        //   } else {
+        //     if (replay.ok) {
+        //       this.addChatMessage(
+        //         `Default Multiplayer game replay saved with Replay ID ${replay.id}.`,
+        //         { isSystemMessage: true }
+        //       );
+        //     }
+        //   }
+        // } else {
+        //   log.info("Not saving multiplayer game because no one is logged in.");
+        // }
       }
       // stop everyone from playing
       this.stopPlay();
@@ -503,7 +570,7 @@ class MultiplayerRoom extends Room {
     log.info(
       `Socket ID ${data.ownerConnectionID} (${universal.getNameFromConnectionID(
         data.ownerConnectionID
-      )}) has quit the Default Multiplayer Room`
+      )}) has quit the Multiplayer Room`
     );
     if (socket) {
       socket?.unsubscribe(this.id);
@@ -547,8 +614,6 @@ class MultiplayerRoom extends Room {
         log.warn("User ID is not string. Not running database operation.");
         continue;
       }
-      User.addGamesPlayedToUserID(userID, 1);
-      User.addMultiplayerGamesPlayedToUserID(userID, 1);
     }
   }
 
@@ -558,17 +623,31 @@ class MultiplayerRoom extends Room {
       let socket = universal.getSocketFromConnectionID(connectionID);
       if (typeof socket === "undefined") {
         log.warn(
-          `Socket ID ${connectionID} not found while summoning it to lobby, therefore skipping process.`
+          `Socket ID ${connectionID} not found while summoning it to custom lobby, therefore skipping process.`
         );
         continue;
       }
       socket.send(
         JSON.stringify({
           message: "changeScreen",
-          newScreen: "multiplayerIntermission"
+          newScreen: "customMultiplayerIntermission"
         })
       );
     }
+  }
+
+  setNewHost(connectionID: string) {
+    if (this.mode === GameMode.DefaultMultiplayer) {
+      log.warn(`Can't set host for the Multiplayer Room with ID ${this.id}.`);
+      return;
+    }
+    const newHost = universal.getSocketFromConnectionID(connectionID);
+    if (!newHost) {
+      log.error(`Can't find new host's socket! ${connectionID}`);
+      // TODO: Force everyone to leave???
+      return;
+    }
+    this.host = newHost;
   }
 }
 

@@ -31,6 +31,7 @@ interface CustomGameSettings {
   enemySpawnTime: number;
   enemySpawnThreshold: number;
   forcedEnemySpawnTime: number;
+  [key: string]: number; // FIXME: Hacky way, unstable?
 }
 
 const GAME_DATA_CONSTANTS = {
@@ -66,7 +67,13 @@ const GAME_DATA_CONSTANTS = {
   DEFAULT_MULTIPLAYER_INTERMISSION_TIME: 10000,
   DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START: 2,
   DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT: 1,
-  DEFAULT_MULTIPLAYER_FORCED_ENEMY_SPAWN_ACTION_TIME: 2500
+  DEFAULT_MULTIPLAYER_FORCED_ENEMY_SPAWN_ACTION_TIME: 2500,
+
+  CUSTOM_MULTIPLAYER_INITIAL_COMBO_TIME: 5000,
+  CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPEED_COEFFICIENT: 1,
+  CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPAWN_THRESHOLD: 0.1,
+  CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPAWN_TIME: 100,
+  CUSTOM_MULTIPLAYER_INITIAL_FORCED_ENEMY_SPAWN_TIME: 0.1
 };
 
 /**
@@ -345,6 +352,17 @@ class MultiplayerGameData extends GameData {
     super(owner, gameMode);
     this.receivedEnemiesStock = 0;
     this.receivedEnemiesToSpawn = 0;
+  }
+
+  setValuesToCustomSettings(customSettings: CustomGameSettings) {
+    this.baseHealth = customSettings.baseHealth;
+    this.maximumBaseHealth = customSettings.baseHealth;
+    this.enemySpeedCoefficient = customSettings.enemySpeedCoefficient;
+    this.enemySpawnThreshold = customSettings.enemySpawnThreshold;
+    this.clocks.enemySpawn.actionTime = customSettings.enemySpawnTime;
+    this.clocks.forcedEnemySpawn.actionTime =
+      customSettings.forcedEnemySpawnTime;
+    this.clocks.comboReset.actionTime = customSettings.comboTime;
   }
 }
 

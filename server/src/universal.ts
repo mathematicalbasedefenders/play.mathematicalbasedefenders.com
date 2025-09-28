@@ -170,7 +170,7 @@ function checkIfSocketIsInMultiplayerRoom(id: string) {
   if (!room) {
     return false;
   }
-  if (room.mode !== "defaultMultiplayer") {
+  if (room.mode !== "defaultMultiplayer" && room.mode !== "customMultiplayer") {
     return false;
   }
   return true;
@@ -281,7 +281,9 @@ function getServerMetadata(
   const roomsTotal = rooms.length;
   // TODO: Change this when custom singleplayer comes
   const roomsMulti =
-    rooms.filter((e) => e.mode === "defaultMultiplayer").length || 0;
+    rooms.filter(
+      (e) => e.mode === "defaultMultiplayer" || e.mode === "customMultiplayer"
+    ).length || 0;
   const roomsSingle = roomsTotal - roomsMulti;
   // system usage status
   const osUsageLevel = systemStatus.os.level;

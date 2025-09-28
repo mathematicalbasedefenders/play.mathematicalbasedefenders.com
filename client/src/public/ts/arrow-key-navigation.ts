@@ -129,6 +129,22 @@ function getArrowKeyDirections() {
       },
       defaultFocused: "#multiplayer-menu-screen-button--default"
     },
+    "customMultiplayerRoomSelection": {
+      destinations: {
+        "#custom-multiplayer-room-selection-screen-button--join": {
+          "ArrowDown":
+            "#custom-multiplayer-room-selection-screen-button--create"
+        },
+        "#custom-multiplayer-room-selection-screen-button--create": {
+          "ArrowUp": "#custom-multiplayer-room-selection-screen-button--join",
+          "ArrowDown": "#custom-multiplayer-room-selection-screen-button--back"
+        },
+        "#custom-multiplayer-room-selection-screen-button--back": {
+          "ArrowUp": "#custom-multiplayer-room-selection-screen-button--create"
+        }
+      },
+      defaultFocused: "#custom-multiplayer-room-selection-screen-button--join"
+    },
     "customSingleplayerIntermission": getCustomSingleplayerMenuDestinations(
       variables.navigation.currentSecondaryScreen
     ),
@@ -170,6 +186,46 @@ function getArrowKeyDirections() {
           }
       },
       defaultFocused: "#chat-message"
+    },
+    "customMultiplayerIntermission": {
+      destinations: {
+        "#custom-multiplayer-screen__sidebar-item--back": {
+          "ArrowDown": "#custom-multiplayer-room-indicator-label__copy"
+        },
+        "#custom-multiplayer-room-indicator-label__copy": {
+          "ArrowUp": "#custom-multiplayer-screen__sidebar-item--back",
+          "ArrowRight":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility",
+          "ArrowDown":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility"
+        },
+        "#custom-multiplayer-room-indicator-label__toggle-visibility": {
+          "ArrowUp": "#custom-multiplayer-room-indicator-label__copy",
+          "ArrowLeft": "#custom-multiplayer-room-indicator-label__copy",
+          "ArrowRight": "#custom-multiplayer-chat-message",
+          "ArrowDown": "#custom-multiplayer-chat-message"
+        },
+        "#custom-multiplayer-chat-message": {
+          "ArrowLeft":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility",
+          "ArrowUp":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility",
+          "ArrowRight": "#custom-multiplayer-message-send-button",
+          "ArrowDown":
+            "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list"
+        },
+        "#custom-multiplayer-message-send-button": {
+          "ArrowUp": "#custom-multiplayer-screen__sidebar-item--back",
+          "ArrowLeft": "#custom-multiplayer-chat-message",
+          "ArrowDown":
+            "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list"
+        },
+        "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list":
+          {
+            "ArrowUp": "#custom-multiplayer-chat-message"
+          }
+      },
+      defaultFocused: "#custom-multiplayer-chat-message"
     },
     "globalChatTray": getGlobalChatTrayDirections(),
     "openingScreen": getOpeningScreenDirections(),
@@ -336,6 +392,39 @@ function getOpeningScreenDirections() {
   return result;
 }
 
+function getMultiplayerRoomSelectionDialogDirections() {
+  const destinations: { [key: string]: DirectionMap } = {
+    "#custom-multiplayer-room-selection-dialog__close": {
+      "ArrowDown": "#room-to-join"
+    },
+    "#room-to-join": {
+      "ArrowUp": "#custom-multiplayer-room-selection-dialog__close",
+      "ArrowRight": "#join-by-code",
+      "ArrowDown": "#public-room-list__refresh"
+    },
+    "#join-by-code": {
+      "ArrowUp": "#custom-multiplayer-room-selection-dialog__close",
+      "ArrowLeft": "#room-to-join",
+      "ArrowRight": "#public-room-list__refresh",
+      "ArrowDown": "#public-room-list__refresh"
+    },
+    "#public-room-list__refresh": {
+      "ArrowUp": "#room-to-join",
+      "ArrowRight": "#public-room-list__join",
+      "ArrowDown": "#public-room-list"
+    },
+    "#public-room-list__join": {
+      "ArrowUp": "#room-to-join",
+      "ArrowLeft": "#public-room-list__refresh",
+      "ArrowDown": "#public-room-list"
+    },
+    "#public-room-list": {
+      "ArrowUp": "#public-room-list__join"
+    }
+  };
+  return destinations;
+}
+
 /**
  * Utility function which constructs a object for easy `ArrowUp/ArrowDown` navigation.
  * @param {Array<string>} ids The ids of each element in order.
@@ -376,7 +465,11 @@ function navigateFocus(event: KeyboardEvent) {
   // FORCED OVERWRITES
   // overwrite: if end of multiplayer chat tray is focused, focus on the send button instead.
   if (checkIfFocusedOnEndOfMessageBox(screen, element, keyPressed)) {
-    forcedDestination = "#message-send-button";
+    if (screen === "multiplayerIntermission") {
+      forcedDestination = "#message-send-button";
+    } else if (screen === "customMultiplayerIntermission") {
+      forcedDestination = "#custom-multiplayer-message-send-button";
+    }
   }
   // overwrite: if chat tray is active, focus there instead.
   if ($("#chat-tray-container").is(":visible")) {
@@ -422,6 +515,30 @@ function navigateFocus(event: KeyboardEvent) {
     // this focuses on the most recent/top-most pop up.
     focusPopup();
     return;
+  }
+  // overwrite: custom multiplayer room selection room selection dialog
+  // force usage of destination mapping for dialog
+  if ($("#custom-multiplayer-room-selection-dialog-container").is(":visible")) {
+    const directions = getMultiplayerRoomSelectionDialogDirections();
+    if (element === "#room-to-join") {
+      const input = document.getElementById("room-to-join") as HTMLInputElement;
+      if (
+        input &&
+        input.value.length === input.selectionEnd &&
+        keyPressed === "ArrowRight"
+      ) {
+        forcedDestination = directions[element]?.[keyPressed];
+      }
+    } else if (Object.keys(directions).includes(element)) {
+      forcedDestination = directions[element]?.[keyPressed];
+    } else {
+      forcedDestination = "#custom-multiplayer-room-selection-dialog__close";
+    }
+    // unless there is no forcedDestination found, in that case, do nothing
+    // and keep the focus where it is
+    if (!forcedDestination) {
+      return;
+    }
   }
   // overwrite: if an input box is focused on, pushing left and right arrow keys should not
   // move on focused element, instead, it should move the caret in the input field.
@@ -476,9 +593,17 @@ function checkIfFocusedOnEndOfMessageBox(
   element: string,
   keyPressed: string
 ) {
-  const input = document.getElementById("chat-message") as HTMLInputElement;
+  let targetID = "";
+  if (screen === "multiplayerIntermission") {
+    targetID = "chat-message";
+  } else if (screen === "customMultiplayerIntermission") {
+    targetID = "custom-multiplayer-chat-message";
+  } else {
+    return false;
+  }
+  const input = document.getElementById(targetID) as HTMLInputElement;
   if (
-    element === "#chat-message" &&
+    element === `#${targetID}` &&
     input &&
     input.value.length === input.selectionEnd &&
     keyPressed === "ArrowRight"

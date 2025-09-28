@@ -10,7 +10,7 @@ let timePeriodPassedForMessageSpeed = 0;
 const MESSAGES_PER_SECOND_LIMIT = 500;
 const NUMBER_DECIMAL_PLACES = 3;
 
-const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
+const CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
   baseHealth: {
     type: "number",
     minimum: 1,
@@ -31,7 +31,7 @@ const SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES: { [key: string]: any } = {
     minimum: 10,
     maximum: 60 * 1000
   },
-  enemySpawnChance: {
+  enemySpawnThreshold: {
     type: "number",
     minimum: 0.001,
     maximum: 1
@@ -174,18 +174,22 @@ function validateCustomGameSettings(
   mode: string,
   settings: { [key: string]: string | number }
 ) {
-  if (mode !== "singleplayer") {
+  if (mode !== "singleplayer" && mode !== "multiplayer") {
     return {
       success: false,
       reason: `Unknown mode: ${mode}`
     };
   }
   let ok = true;
-  const errors = [];
+  const errors: string[] = [];
   for (const key in settings) {
-    const restriction = SINGLEPLAYER_CUSTOM_SETTINGS_BOUNDARIES[key];
+    const restriction = CUSTOM_SETTINGS_BOUNDARIES[key];
     // check numbers
-    const parsedValue = settings[key];
+    const parsedValue = settings[key].toString();
+    if (!restriction) {
+      log.warn(`${key} doesn't exist as a customizable field for custom mode.`);
+      continue;
+    }
     if (restriction.type === "number") {
       if (!IS_NUMBER_REGEX.test(parsedValue as string)) {
         errors.push(
@@ -356,7 +360,7 @@ function checkWebSocketMessageSpeeds(
   time: number
 ) {
   timePeriodPassedForMessageSpeed += time;
-  // here incase Nms is too low (e.g. 1 msg. in 1ms => 1000 msg./s => disconnect)
+  // here in case Nms is too low (e.g. 1 msg. in 1ms => 1000 msg./s => disconnect)
   if (timePeriodPassedForMessageSpeed < MESSAGES_PER_SECOND_TIME_PERIOD) {
     return;
   }
@@ -461,6 +465,40 @@ function convertGameSettingsToReplayActions(data: GameData) {
   return result;
 }
 
+/**
+ * Gets the currently available multiplayer rooms available
+ * for use with the public room list.
+ */
+function getHumanFriendlyMultiplayerRoomList() {
+  const rooms = universal.rooms.filter(
+    (e) => e.mode === GameMode.CustomMultiplayer && e.hidden === false
+  );
+  const result: Array<{
+    id: string;
+    playerCount: number;
+    spectatorCount: number;
+    name: string;
+  }> = [];
+  for (const room of rooms) {
+    if (!room.host) {
+      continue;
+    }
+    const formattedRoom = {
+      id: room.id,
+      playerCount: room.memberConnectionIDs.length,
+      spectatorCount: room.spectatorConnectionIDs.length,
+      name: ""
+    };
+    // TODO: Quite a hacky way to do this, find a "better" way.
+    const hostName =
+      universal.getNameFromConnectionID(room.host.connectionID as string) ||
+      "(unknown)";
+    formattedRoom.name = `Multiplayer room with ID ${room.id} hosted by ${hostName} with ${formattedRoom.playerCount} players.`;
+    result.push(formattedRoom);
+  }
+  return result;
+}
+
 const keyify = (obj: any, prefix = ""): string[] => {
   const keys: string[] = [];
   Object.keys(obj).forEach((el) => {
@@ -495,5 +533,7 @@ export {
   calculateAPM,
   formatNumber,
   getUserReplayDataFromSocket,
-  convertGameSettingsToReplayActions
+  convertGameSettingsToReplayActions,
+  getHumanFriendlyMultiplayerRoomList,
+  IS_NUMBER_REGEX
 };

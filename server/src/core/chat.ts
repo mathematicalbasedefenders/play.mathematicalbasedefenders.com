@@ -49,8 +49,15 @@ function sendChatMessage(
         log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
         return;
       }
+
       const room = findRoomWithConnectionID(connectionID, true) as Room;
-      room.addChatMessage(message, socket);
+      // commands
+      if (message.startsWith("/")) {
+        room.runChatCommand(message, { sender: socket });
+        break;
+      }
+
+      room.addChatMessage(message, { sender: socket });
       break;
     }
     case "global": {

@@ -115,11 +115,41 @@ function createTextStyle(data: Partial<TextStyleOptions>) {
   return new TextStyle(data);
 }
 
+function clearMultiplayerRoomList() {
+  $("#public-room-list").empty();
+}
+
+function updateMultiplayerRoomList(data: Array<{ [key: string]: unknown }>) {
+  console.log("Refreshing room list...");
+  let count = 0;
+  for (const room of data) {
+    const option = $("<option>");
+    option.text(room.name as string);
+    option.val(room.id as string);
+    $("#public-room-list").append(option);
+    count++;
+  }
+  console.log(`Refreshed room list! Found ${count} eligible rooms.`);
+}
+
+function clearChatBoxes() {
+  // also clear chat
+  $(
+    "#main-content__multiplayer-intermission-screen-container__chat__messages"
+  ).empty();
+  $(
+    "#main-content__custom-multiplayer-intermission-screen-container__chat__messages"
+  ).empty();
+}
+
 export {
   millisecondsToTime,
   calculateLevel,
   nCr,
   formatNumber,
   checkPlayerListCacheEquality,
-  createTextStyle
+  createTextStyle,
+  updateMultiplayerRoomList,
+  clearMultiplayerRoomList,
+  clearChatBoxes
 };
