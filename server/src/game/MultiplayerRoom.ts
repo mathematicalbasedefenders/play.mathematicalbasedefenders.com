@@ -6,9 +6,7 @@ import {
   findRoomWithConnectionID,
   sleep
 } from "../core/utilities";
-import { User } from "../models/User";
 import { Action, ActionRecord } from "../replay/recording/ActionRecord";
-import { getSocketFromConnectionID } from "../universal";
 import {
   checkGlobalMultiplayerRoomClocks,
   checkPlayerMultiplayerRoomClocks

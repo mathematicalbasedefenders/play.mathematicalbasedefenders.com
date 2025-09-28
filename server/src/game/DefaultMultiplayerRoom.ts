@@ -3,18 +3,12 @@ import { log } from "../core/log";
 import {
   getUserReplayDataFromSocket,
   convertGameSettingsToReplayActions,
-  findRoomWithConnectionID,
   sleep
 } from "../core/utilities";
 import { User } from "../models/User";
 import { Action, ActionRecord } from "../replay/recording/ActionRecord";
 import { getSocketFromConnectionID } from "../universal";
-import {
-  checkGlobalMultiplayerRoomClocks,
-  checkPlayerMultiplayerRoomClocks
-} from "./actions/clocks";
 import { changeClientSideText } from "./actions/send-html";
-import { createNewEnemy } from "./Enemy";
 import {
   ClockInterface,
   GameMode,
@@ -22,15 +16,10 @@ import {
   GameData,
   GAME_DATA_CONSTANTS
 } from "./GameData";
-import {
-  defaultMultiplayerRoomID,
-  Room,
-  setDefaultMultiplayerRoomID
-} from "./Room";
+import { defaultMultiplayerRoomID, setDefaultMultiplayerRoomID } from "./Room";
 import * as universal from "../universal";
 import * as utilities from "../core/utilities";
 import { Enemy } from "./Enemy";
-import * as enemy from "./Enemy";
 import { MultiplayerRoom } from "./MultiplayerRoom";
 
 const PLAYER_LIST_UPDATE_INTERVAL = 1000;

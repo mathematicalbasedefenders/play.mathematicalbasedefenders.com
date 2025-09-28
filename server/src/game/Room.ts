@@ -883,11 +883,7 @@ class Room {
     this.hidden = !visible;
   }
 
-  sendCommandResultToSocket(
-    message: string,
-    options: { [key: string]: any },
-    command?: string
-  ) {
+  sendCommandResultToSocket(message: string, options: { [key: string]: any }) {
     const scope =
       this.mode == GameMode.DefaultMultiplayer ? "default" : "custom";
 

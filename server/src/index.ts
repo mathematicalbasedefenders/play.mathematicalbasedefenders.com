@@ -15,7 +15,7 @@ import {
   resetDefaultMultiplayerRoomID,
   setDefaultMultiplayerRoomID
 } from "./game/Room";
-import _, { create } from "lodash";
+import _ from "lodash";
 const cors = require("cors");
 const helmet = require("helmet");
 import { sendChatMessage } from "./core/chat";
