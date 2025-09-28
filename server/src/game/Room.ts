@@ -27,7 +27,7 @@ const COMMAND_DATA = [
   "get",
   "setvisibility",
   "getvisibility",
-  "remove",
+  "kick",
   "transferhost"
 ];
 
@@ -349,7 +349,7 @@ class Room {
         this.sendCommandResultToSocket(message, options);
         break;
       }
-      case "remove": {
+      case "kick": {
         break;
       }
       case "transferhost": {
