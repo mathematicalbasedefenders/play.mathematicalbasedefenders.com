@@ -592,8 +592,8 @@ class Room {
   }
 
   sendCommandResultToSocket(
-    options: { [key: string]: any },
     message: string,
+    options: { [key: string]: any },
     command?: string
   ) {
     const scope =
