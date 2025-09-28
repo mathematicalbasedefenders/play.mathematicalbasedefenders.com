@@ -1091,8 +1091,12 @@ window.addEventListener("load", function () {
   // quick link
   const quickLink = checkQuickLink(false);
   if (quickLink.ok) {
-    const message = `Opening Quick Link ${quickLink.parameter}:${quickLink.value}`;
+    const message = `Opening Quick Link`;
     $("#opening-screen__quick-link").text(message);
+    $("#opening-screen__quick-link__key").text(
+      (quickLink.parameter ?? "") + ":"
+    );
+    $("#opening-screen__quick-link__value").text(quickLink.value ?? "");
   }
   // initialize some settings
   if (variables.settings.backgroundImage) {
