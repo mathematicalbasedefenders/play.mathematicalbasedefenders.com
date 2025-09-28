@@ -671,12 +671,10 @@ class Room {
     const constantToChange = context[0];
     const newValueAsString = context[1];
 
-    const IS_NUMBER_REGEX = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
-
     // Early stop for the same reason above.
     // TODO: For now, all values are integers, so some expansion
     // is needed when the values can be (e.g.) string enums.
-    if (!IS_NUMBER_REGEX.test(newValueAsString)) {
+    if (!utilities.IS_NUMBER_REGEX.test(newValueAsString)) {
       result.valid = false;
       result.errors.push(`New value is not a number.`);
       return result;
