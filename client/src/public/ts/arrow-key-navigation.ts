@@ -392,6 +392,39 @@ function getOpeningScreenDirections() {
   return result;
 }
 
+function getMultiplayerRoomSelectionDialogDirections() {
+  const destinations: { [key: string]: any } = {
+    "#custom-multiplayer-room-selection-dialog__close": {
+      "ArrowDown": "#room-to-join"
+    },
+    "#room-to-join": {
+      "ArrowUp": "#custom-multiplayer-room-selection-dialog__close",
+      "ArrowRight": "#join-by-code",
+      "ArrowDown": "#public-room-list__refresh"
+    },
+    "#join-by-code": {
+      "ArrowUp": "#custom-multiplayer-room-selection-dialog__close",
+      "ArrowLeft": "#room-to-join",
+      "ArrowRight": "#public-room-list__refresh",
+      "ArrowDown": "#public-room-list__refresh"
+    },
+    "#public-room-list__refresh": {
+      "ArrowUp": "#room-to-join",
+      "ArrowRight": "#public-room-list__join",
+      "ArrowDown": "#public-room-list"
+    },
+    "#public-room-list__join": {
+      "ArrowUp": "#room-to-join",
+      "ArrowLeft": "#public-room-list__refresh",
+      "ArrowDown": "#public-room-list"
+    },
+    "#public-room-list": {
+      "ArrowUp": "#public-room-list__join"
+    }
+  };
+  return destinations;
+}
+
 /**
  * Utility function which constructs a object for easy `ArrowUp/ArrowDown` navigation.
  * @param {Array<string>} ids The ids of each element in order.
@@ -482,6 +515,33 @@ function navigateFocus(event: KeyboardEvent) {
     // this focuses on the most recent/top-most pop up.
     focusPopup();
     return;
+  }
+  // overwrite: custom multiplayer room selection room selection dialog
+  // force usage of destination mapping for dialog
+  if (
+    $("#custom-multiplayer-room-selection-dialog-container").css("display") !==
+    "none"
+  ) {
+    const directions = getMultiplayerRoomSelectionDialogDirections();
+    if (element === "#room-to-join") {
+      const input = document.getElementById("room-to-join") as HTMLInputElement;
+      if (
+        input &&
+        input.value.length === input.selectionEnd &&
+        keyPressed === "ArrowRight"
+      ) {
+        forcedDestination = directions[element]?.[keyPressed];
+      }
+    } else if (Object.keys(directions).includes(element)) {
+      forcedDestination = directions[element]?.[keyPressed];
+    } else {
+      forcedDestination = "#custom-multiplayer-room-selection-dialog__close";
+    }
+    // unless there is no forcedDestination found, in that case, do nothing
+    // and keep the focus where it is
+    if (!forcedDestination) {
+      return;
+    }
   }
   // overwrite: if an input box is focused on, pushing left and right arrow keys should not
   // move on focused element, instead, it should move the caret in the input field.
