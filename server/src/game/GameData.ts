@@ -350,7 +350,13 @@ class MultiplayerGameData extends GameData {
 
   setValuesToCustomSettings(customSettings: CustomGameSettings) {
     this.baseHealth = customSettings.baseHealth;
+    this.maximumBaseHealth = customSettings.baseHealth;
     this.enemySpeedCoefficient = customSettings.enemySpeedCoefficient;
+    this.enemySpawnThreshold = customSettings.enemySpawnThreshold;
+    this.clocks.enemySpawn.actionTime = customSettings.enemySpawnTime;
+    this.clocks.forcedEnemySpawn.actionTime =
+      customSettings.forcedEnemySpawnTime;
+    this.clocks.comboReset.actionTime = customSettings.comboTime;
   }
 }
 
