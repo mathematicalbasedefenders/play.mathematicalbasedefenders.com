@@ -233,6 +233,24 @@ class MultiplayerRoom extends Room {
     //   return;
     // }
 
+    // change text, regardless of whether room is playing or not.
+    for (const connectionID of this.memberConnectionIDs) {
+      const socket = universal.getSocketFromConnectionID(connectionID);
+      if (!socket) {
+        continue;
+      }
+      const roomCodeSelector =
+        "#custom-multiplayer-room-indicator-label__room-code";
+      changeClientSideText(socket, roomCodeSelector, this.id);
+
+      const hostNameSelector =
+        "#main-content__custom-multiplayer-intermission-screen-container__host-name";
+      const hostName =
+        universal.getNameFromConnectionID(this.host?.connectionID ?? "???") ||
+        "(unknown)";
+      changeClientSideText(socket, hostNameSelector, hostName);
+    }
+
     if (!this.playing) {
       for (const connectionID of this.memberConnectionIDs) {
         const socket = universal.getSocketFromConnectionID(connectionID);
@@ -243,16 +261,12 @@ class MultiplayerRoom extends Room {
           "#main-content__custom-multiplayer-intermission-screen-container__game-status-message";
 
         if (connectionID === this.host?.connectionID) {
-          const value = `You are the host of this room! Type "/start" in chat to start the game.`;
+          const value = `You are the host of this room! Type "/start" in chat to start the game. You can also type "/?" in chat to view commands that allow you to customize this room's settings.`;
           changeClientSideText(socket, selector, value);
         } else {
           const value = `Waiting for host to start...`;
           changeClientSideText(socket, selector, value);
         }
-
-        const roomCodeSelector =
-          "#custom-multiplayer-room-indicator-label__room-code";
-        changeClientSideText(socket, roomCodeSelector, this.id);
       }
       return;
     }
