@@ -503,9 +503,9 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
       // bring everyone to intermission screen
       this.summonEveryoneToIntermission();
       // update everyone's client-side statistics
-      const socketsInRoom = this.memberConnectionIDs.map((id) =>
-        universal.getSocketFromConnectionID(id)
-      );
+      const socketsInRoom = this.memberConnectionIDs
+        .map((id) => universal.getSocketFromConnectionID(id))
+        .filter(Boolean);
       await sleep(1000);
       utilities.bulkUpdateSocketUserInformation(...socketsInRoom);
     }
