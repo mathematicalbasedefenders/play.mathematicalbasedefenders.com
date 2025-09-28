@@ -221,3 +221,7 @@
   user-select: none;
   text-align: center;
 }
+
+#main-content__custom-multiplayer-intermission-screen-container__game-status-message {
+  text-align: center;
+}
