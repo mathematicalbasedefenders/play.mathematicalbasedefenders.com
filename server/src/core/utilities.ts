@@ -473,7 +473,12 @@ function getHumanFriendlyMultiplayerRoomList() {
   const rooms = universal.rooms.filter(
     (e) => e.mode === GameMode.CustomMultiplayer && e.hidden === false
   );
-  const result: Array<unknown> = [];
+  const result: Array<{
+    id: string;
+    playerCount: number;
+    spectatorCount: number;
+    name: string;
+  }> = [];
   for (const room of rooms) {
     if (!room.host) {
       continue;
@@ -486,7 +491,7 @@ function getHumanFriendlyMultiplayerRoomList() {
     };
     // TODO: Quite a hacky way to do this, find a "better" way.
     const hostName =
-      universal.getNameFromConnectionID(room.host.connectionID as string) ??
+      universal.getNameFromConnectionID(room.host.connectionID as string) ||
       "(unknown)";
     formattedRoom.name = `Multiplayer room with ID ${room.id} hosted by ${hostName} with ${formattedRoom.playerCount} players.`;
     result.push(formattedRoom);
