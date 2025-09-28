@@ -321,7 +321,7 @@ class Room {
       case "?":
       case "help": {
         let message = `The available commands are: `;
-        message += COMMAND_DATA.join(", ");
+        message += COMMAND_DATA.map((e) => "/" + e).join(", ");
         message += ".";
         if (!isHost) {
           message += " ";
