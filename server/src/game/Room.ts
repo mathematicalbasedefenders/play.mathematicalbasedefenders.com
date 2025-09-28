@@ -402,7 +402,7 @@ class Room {
         break;
       }
       case "transferhost": {
-        const result = this.validateKickCommandForRoom(
+        const result = this.validateTransferHostCommandForRoom(
           isHost,
           context,
           senderName
