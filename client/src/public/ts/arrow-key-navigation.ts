@@ -393,7 +393,7 @@ function getOpeningScreenDirections() {
 }
 
 function getMultiplayerRoomSelectionDialogDirections() {
-  const destinations: { [key: string]: any } = {
+  const destinations: { [key: string]: DirectionMap } = {
     "#custom-multiplayer-room-selection-dialog__close": {
       "ArrowDown": "#room-to-join"
     },
