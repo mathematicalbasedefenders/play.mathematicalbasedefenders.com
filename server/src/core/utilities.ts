@@ -534,5 +534,6 @@ export {
   formatNumber,
   getUserReplayDataFromSocket,
   convertGameSettingsToReplayActions,
-  getHumanFriendlyMultiplayerRoomList
+  getHumanFriendlyMultiplayerRoomList,
+  IS_NUMBER_REGEX
 };
