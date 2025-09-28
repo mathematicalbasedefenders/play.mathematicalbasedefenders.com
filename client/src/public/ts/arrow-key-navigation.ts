@@ -129,6 +129,22 @@ function getArrowKeyDirections() {
       },
       defaultFocused: "#multiplayer-menu-screen-button--default"
     },
+    "customMultiplayerRoomSelection": {
+      destinations: {
+        "#custom-multiplayer-room-selection-screen-button--join": {
+          "ArrowDown":
+            "#custom-multiplayer-room-selection-screen-button--create"
+        },
+        "#custom-multiplayer-room-selection-screen-button--create": {
+          "ArrowUp": "#custom-multiplayer-room-selection-screen-button--join",
+          "ArrowDown": "#custom-multiplayer-room-selection-screen-button--back"
+        },
+        "#custom-multiplayer-room-selection-screen-button--back": {
+          "ArrowUp": "#custom-multiplayer-room-selection-screen-button--create"
+        }
+      },
+      defaultFocused: "#custom-multiplayer-room-selection-screen-button--join"
+    },
     "customSingleplayerIntermission": getCustomSingleplayerMenuDestinations(
       variables.navigation.currentSecondaryScreen
     ),
