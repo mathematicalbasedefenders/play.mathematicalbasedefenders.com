@@ -1,7 +1,8 @@
 import { changeScreen } from "./game";
+import { sendSocketMessage } from "./socket";
 
 function checkQuickLink(activate?: boolean) {
-  const QUICK_LINKS = ["replayID"];
+  const QUICK_LINKS = ["replayID", "customMultiplayerRoomID"];
   const parameters = new URLSearchParams(window.location.search);
   for (let parameter of QUICK_LINKS) {
     if (parameters.get(parameter)) {
@@ -34,6 +35,13 @@ function activateLink(parameter: string, value: string | null) {
         break;
       }
       redirectToReplay(value);
+      break;
+    }
+    case "customMultiplayerRoomID": {
+      sendSocketMessage({
+        message: "joinMultiplayerRoom",
+        room: value.toString()
+      });
       break;
     }
   }
