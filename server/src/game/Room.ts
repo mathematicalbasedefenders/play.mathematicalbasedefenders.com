@@ -773,7 +773,7 @@ class Room {
 
     if (!(context[0] === "true" || context[0] === "false")) {
       result.errors.push(
-        `This command\'s argument can only be either "true" or "false".`
+        `This command's argument can only be either "true" or "false".`
       );
       result.valid = false;
     }
