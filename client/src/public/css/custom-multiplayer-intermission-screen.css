@@ -217,6 +217,7 @@
   color: #ffffff;
   flex-direction: column;
   height: 100%;
-  padding: 8px;
+  padding: 16px;
+  user-select: none;
   text-align: center;
 }
