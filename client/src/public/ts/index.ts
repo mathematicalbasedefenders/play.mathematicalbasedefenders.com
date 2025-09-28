@@ -1066,6 +1066,10 @@ function updateUserInformationText(data: any) {
   );
   $("#main-content__user-menu-small-display__username").text(data.username);
   let level = calculateLevel(data.experiencePoints);
+  $("#main-content__user-menu-small-display__username").css(
+    "color",
+    data.rank.color
+  );
   $("#main-content__user-menu-small-display__level").text(
     `Level ${level.level} (${((level.progressToNext || 0) * 100).toFixed(
       3
