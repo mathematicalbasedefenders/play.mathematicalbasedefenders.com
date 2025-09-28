@@ -148,9 +148,9 @@ socket.addEventListener("message", (event: any) => {
       variables.multiplayerChat.playerListCache.registeredPlayers.clear();
 
       const playerListSelector =
-        message.scope === "default"
-          ? "#main-content__multiplayer-intermission-screen-container__chat__player-list"
-          : "#main-content__custom-multiplayer-intermission-screen-container__chat__player-list";
+        message.scope === "custom"
+          ? "#main-content__custom-multiplayer-intermission-screen-container__chat__player-list"
+          : "#main-content__multiplayer-intermission-screen-container__chat__player-list";
       $(playerListSelector).empty();
       for (const player of message.data) {
         const entry = $("<div></div>");
