@@ -297,6 +297,10 @@ function changeScreen(
   // remove old element's focus status
   $(variables.navigation.focusing).removeClass("button--arrow-key-focused");
 
+  // reset chat message boxes
+  $("#chat-message").val("");
+  $("#custom-multiplayer-chat-message").val("");
+
   // set settings
   getSettings(localStorage.getItem("settings") || "{}");
 
