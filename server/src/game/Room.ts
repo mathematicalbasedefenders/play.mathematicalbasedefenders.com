@@ -613,7 +613,7 @@ class Room {
     for (let spectator of spectators) {
       const socket = universal.getSocketFromConnectionID(spectator);
       if (socket) {
-        this.deleteMember(socket);
+        this.deleteSpectator(socket);
       }
     }
     for (let member of members) {
