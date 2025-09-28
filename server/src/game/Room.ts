@@ -402,6 +402,59 @@ class Room {
         break;
       }
       case "transferhost": {
+        const result = this.validateKickCommandForRoom(
+          isHost,
+          context,
+          senderName
+        );
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /transferhost due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+
+        const nameToTransferHostTo = context.join(" ");
+        const connectionIDToTransferHostTo = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === nameToTransferHostTo
+        );
+        const connectionIDOfSender = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === senderName
+        );
+
+        // defaults to `???`, since there are no sockets
+        // which this connectionID already in the first place.
+        const newHostSocket = universal.getSocketFromConnectionID(
+          connectionIDToTransferHostTo ?? "???"
+        );
+
+        const senderSocket = universal.getSocketFromConnectionID(
+          connectionIDOfSender ?? "???"
+        );
+
+        if (senderSocket && newHostSocket) {
+          (this as unknown as MultiplayerRoom).setNewHost(
+            connectionIDToTransferHostTo as string
+          );
+          const selfMessage = `Successfully transferred hosting powers to ${nameToTransferHostTo}.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The host of this room has transferred hosting powers to ${nameToTransferHostTo}.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+          const newHostMessage = `The host of this room has transferred hosting powers to you. You are now the host of this room.`;
+          this.sendCommandResultToSocket(newHostMessage, {
+            sender: newHostSocket
+          });
+        } else {
+          log.warn(
+            `Unable to to transfer host to ${nameToTransferHostTo} for room ${this.id}.`
+          );
+          const selfMessage = `Unable to to transfer host to ${nameToTransferHostTo} for room ${this.id}. Please contact the server administrator if this happens again!`;
+          this.sendCommandResultToSocket(selfMessage, options);
+        }
+
+        log.info(
+          `Host of room ${this.id} has transferred hosting powers to ${nameToTransferHostTo} for room ${this.id}.`
+        );
         break;
       }
       case "?":
