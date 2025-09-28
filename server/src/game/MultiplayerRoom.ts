@@ -249,6 +249,10 @@ class MultiplayerRoom extends Room {
           const value = `Waiting for host to start...`;
           changeClientSideText(socket, selector, value);
         }
+
+        const roomCodeSelector =
+          "#custom-multiplayer-room-indicator-label__room-code";
+        changeClientSideText(socket, roomCodeSelector, this.id);
       }
       return;
     }
