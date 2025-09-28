@@ -290,7 +290,9 @@ function changeScreen(
   const roomSelectDialog = document.getElementById(
     "custom-multiplayer-room-selection-dialog"
   ) as HTMLDialogElement;
-  roomSelectDialog.close();
+  if (roomSelectDialog instanceof HTMLDialogElement) {
+    roomSelectDialog.close();
+  }
   $("#custom-multiplayer-room-selection-dialog-container").hide(0);
 
   // reset arrow key navigation
