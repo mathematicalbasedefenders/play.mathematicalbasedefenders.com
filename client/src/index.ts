@@ -70,6 +70,8 @@ app.all("*", limiter, (request: Request, response: Response) => {
 });
 
 app.listen(PORT, () => {
+  const version = process.env.npm_package_version;
+  log.info(`Mathematical Base Defenders ${version} (client-side code)`);
   log.info(`Client app listening at port ${PORT}`);
   if (process.env.CREDENTIAL_SET_USED === "TESTING") {
     log.warn("Using testing credentials.");

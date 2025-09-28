@@ -490,6 +490,9 @@ fs.readdirSync(path.join(__dirname, "./routes")).forEach((file: string) => {
 });
 
 app.listen(PORT, () => {
+  log.info(
+    `Mathematical Base Defenders ${universal.STATUS.gameVersion} (server-side code)`
+  );
   log.info(`Server listening at port ${PORT}`);
   log.info(`Server is using configuration ${JSON.stringify(CONFIGURATION)}`);
   if (process.env.CREDENTIAL_SET_USED === "TESTING") {
