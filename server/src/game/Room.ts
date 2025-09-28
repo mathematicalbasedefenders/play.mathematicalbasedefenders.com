@@ -487,7 +487,7 @@ class Room {
     let valid = true;
     let errors = [];
     if (!isHost) {
-      errors.push("You must be the host to run this command.");
+      errors.push("You must be the room's host to run this command.");
       valid = false;
     }
     if (!(this.mode === GameMode.CustomMultiplayer)) {
@@ -557,7 +557,7 @@ class Room {
     // However, further checks on the CONTEXT of the command's runner and the room
     // is required, just like how the host can only issue commands on non-active games.
     if (!isHost) {
-      result.errors.push("You must be the host to run this command.");
+      result.errors.push("You must be the room's host to run this command.");
       result.valid = false;
     }
     if (!(this.mode === GameMode.CustomMultiplayer)) {
@@ -620,7 +620,7 @@ class Room {
     };
 
     if (!isHost) {
-      result.errors.push("You must be the host to run this command.");
+      result.errors.push("You must be the room's host to run this command.");
       result.valid = false;
     }
 
