@@ -497,6 +497,8 @@ function initializeEventListeners() {
       // clear cache
       variables.multiplayerChat.playerListCache.playerCount = 0;
       variables.multiplayerChat.playerListCache.registeredPlayers.clear();
+      clearChatBoxes();
+      // create room
       const object = { message: "createMultiplayerRoom" };
       sendSocketMessage(object);
     }
