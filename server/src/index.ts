@@ -367,7 +367,9 @@ function update(deltaTime: number) {
         0 ||
       typeof element === "undefined" ||
       Object.keys(element).length === 0
-    ) || element.ageInMilliseconds <= LIVING_ROOM_CONDITION_GRACE_PERIOD;
+    ) ||
+    (element &&
+      element.ageInMilliseconds <= LIVING_ROOM_CONDITION_GRACE_PERIOD);
   let oldRooms = _.clone(universal.rooms).map((element) => element.id);
   utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
 
