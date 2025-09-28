@@ -180,57 +180,6 @@ class MultiplayerRoom extends Room {
       this.timeSinceLastPlayerListUpdate = 0;
     }
 
-    // Then update specifically for multiplayer rooms
-    // if (!this.playing) {
-    //   // Check if there is at least 2 players and timer hasn't started countdown.
-    //   // If so, start intermission countdown
-    //   if (
-    //     !this.nextGameStartTime &&
-    //     this.memberConnectionIDs.length >=
-    //       GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
-    //   ) {
-    //     const nextGameStartTime =
-    //       Date.now() +
-    //       GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_INTERMISSION_TIME;
-    //     this.nextGameStartTime = new Date(nextGameStartTime);
-    //   }
-    //   // Check if there is less than 2 players - if so, stop intermission countdown
-    //   if (
-    //     this.nextGameStartTime instanceof Date &&
-    //     this.memberConnectionIDs.length <
-    //       GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
-    //   ) {
-    //     this.nextGameStartTime = null;
-    //   }
-    //   // Start game
-    //   if (this.nextGameStartTime && new Date() >= this.nextGameStartTime) {
-    //     this.startPlay();
-    //     this.playersAtStart = this.memberConnectionIDs.length;
-    //     this.summonEveryoneToGameplay();
-    //   }
-    //   // Update Text
-    //   for (const connectionID of this.memberConnectionIDs) {
-    //     const socket = universal.getSocketFromConnectionID(connectionID);
-    //     if (socket) {
-    //       const selector =
-    //         "#main-content__custom-multiplayer-intermission-screen-container__game-status-message";
-    //       if (this.nextGameStartTime) {
-    //         let timeLeft = Date.now() - this.nextGameStartTime.getTime();
-    //         timeLeft = Math.abs(timeLeft / 1000);
-    //         const value = `Game starting in ${timeLeft.toFixed(3)} seconds.`;
-    //         changeClientSideText(socket, selector, value);
-    //       } else if (
-    //         this.memberConnectionIDs.length <
-    //         GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START
-    //       ) {
-    //         const value = `Waiting for at least ${GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START} players.`;
-    //         changeClientSideText(socket, selector, value);
-    //       }
-    //     }
-    //   }
-    //   return;
-    // }
-
     // change text, regardless of whether room is playing or not.
     for (const connectionID of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(connectionID);
@@ -479,30 +428,6 @@ class MultiplayerRoom extends Room {
 
         this.gameActionRecord.addGameOverAction();
 
-        // add exp to winner socket
-        // if (winnerSocket?.ownerUserID) {
-        //   if (typeof winnerSocket.ownerUserID === "string") {
-        //     if (!universal.STATUS.databaseAvailable) {
-        //       log.warn(
-        //         "Database is not available. Not running database operation."
-        //       );
-        //     } else {
-        //       // multiplayer games won
-        //       User.addMultiplayerGamesWonToUserID(
-        //         winnerSocket.ownerUserID as string,
-        //         1
-        //       );
-        //       // experience (50% bonus for winning)
-        //       const earnedEXP =
-        //         Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
-        //       User.giveExperiencePointsToUserID(
-        //         winnerSocket.ownerUserID as string,
-        //         earnedEXP
-        //       );
-        //     }
-        //   }
-        // }
-
         const data = {
           placement: this.gameData.length,
           name:
@@ -524,30 +449,6 @@ class MultiplayerRoom extends Room {
           data.nameColor = winnerSocket.playerRank?.color ?? "#ffffff";
         }
         this.ranking.push(data);
-        // submit replay here.
-
-        // if (
-        //   this.memberConnectionIDs.filter(
-        //     (e) => getSocketFromConnectionID(e)?.loggedIn
-        //   ).length >= 1
-        // ) {
-        //   const replay = await this.gameActionRecord.save(
-        //     this.mode,
-        //     this.ranking
-        //   );
-        //   if (!universal.STATUS.databaseAvailable) {
-        //     log.warn("Not saving multiplayer because database is unavailable.");
-        //   } else {
-        //     if (replay.ok) {
-        //       this.addChatMessage(
-        //         `Default Multiplayer game replay saved with Replay ID ${replay.id}.`,
-        //         { isSystemMessage: true }
-        //       );
-        //     }
-        //   }
-        // } else {
-        //   log.info("Not saving multiplayer game because no one is logged in.");
-        // }
       }
       // stop everyone from playing
       this.stopPlay();
