@@ -931,6 +931,37 @@ function initializeEventListeners() {
     roomSelectDialog.close();
     $("#custom-multiplayer-room-selection-dialog-container").hide(0);
   });
+  $("#custom-multiplayer-room-indicator-label__toggle-visibility").on(
+    "click",
+    () => {
+      $("#custom-multiplayer-room-indicator-label__room-code--hidden").toggle(
+        0
+      );
+      $("#custom-multiplayer-room-indicator-label__room-code").toggle(0);
+    }
+  );
+  $("#custom-multiplayer-room-indicator-label__copy").on("click", () => {
+    try {
+      const roomCode = $(
+        "#custom-multiplayer-room-indicator-label__room-code"
+      ).text();
+      const text = `${window.location.origin}/?roomID=${roomCode}`;
+      console.log(`Attempting to copy quick join link ${text}`);
+      navigator.clipboard.writeText(text);
+      const message = "Copied room quick join link!";
+      const options = { borderColor: "#00ff00" };
+      const toast = new ToastNotification(message, options);
+      toast.render();
+    } catch (error) {
+      console.error(`Unable to copy quick join link.`, error);
+      const message =
+        "Unable to copy quick join link! One common reason is that you're not on HTTPS.";
+      const options = { borderColor: "#ff0000" };
+      const toast = new ToastNotification(message, options);
+      toast.render();
+    }
+  });
+  // == CUSTOM MULTIPLAYER ROOM SELECT ==
   $("#join-by-code").on("click", () => {
     const code = $("#room-to-join").val();
     if (!code) {
