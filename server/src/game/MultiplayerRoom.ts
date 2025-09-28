@@ -598,22 +598,12 @@ class MultiplayerRoom extends Room {
         continue;
       }
       // send to canvas screen
-      const userID = socket.ownerUserID;
       socket.send(
         JSON.stringify({
           message: "changeScreen",
           newScreen: "canvas"
         })
       );
-      // add games played
-      if (!universal.STATUS.databaseAvailable) {
-        log.warn("Database is not available. Not running database operation.");
-        continue;
-      }
-      if (typeof userID !== "string") {
-        log.warn("User ID is not string. Not running database operation.");
-        continue;
-      }
     }
   }
 
