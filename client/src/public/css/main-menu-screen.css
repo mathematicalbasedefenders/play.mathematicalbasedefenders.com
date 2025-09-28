@@ -30,6 +30,7 @@
   #main-content__main-menu-screen {
     display: flex;
     flex-direction: column;
+    justify-content: center;
   }
 
   .main-menu-screen-button {
@@ -39,6 +40,7 @@
   }
 
   #main-content__main-menu-screen__logo {
+    display: none;
     opacity: 0;
   }
 
