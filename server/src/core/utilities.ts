@@ -181,7 +181,7 @@ function validateCustomGameSettings(
     };
   }
   let ok = true;
-  const errors = [];
+  const errors: string[] = [];
   for (const key in settings) {
     const restriction = CUSTOM_SETTINGS_BOUNDARIES[key];
     // check numbers
