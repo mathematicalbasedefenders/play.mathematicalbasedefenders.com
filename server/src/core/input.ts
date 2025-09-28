@@ -61,7 +61,7 @@ interface InputActionInterface {
   argument: string;
 }
 const SEND_KEYS = ["Space", "Enter"];
-const MAXIMUM_INPUT_LENGTH = 7;
+const MAXIMUM_INPUT_LENGTH = 8;
 /**
  * Emulates a keypress for a player as if the player pressed the key themselves.
  * Note that it will also log that the press is emulated.
