@@ -518,10 +518,7 @@ function navigateFocus(event: KeyboardEvent) {
   }
   // overwrite: custom multiplayer room selection room selection dialog
   // force usage of destination mapping for dialog
-  if (
-    $("#custom-multiplayer-room-selection-dialog-container").css("display") !==
-    "none"
-  ) {
+  if ($("#custom-multiplayer-room-selection-dialog-container").is(":visible")) {
     const directions = getMultiplayerRoomSelectionDialogDirections();
     if (element === "#room-to-join") {
       const input = document.getElementById("room-to-join") as HTMLInputElement;
