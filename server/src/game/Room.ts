@@ -226,7 +226,8 @@ class Room {
         const result = this.validateStartCommandForRoom(isHost);
 
         if (!result.valid) {
-          const commandErrorMessage = result.errors.join(", ");
+          let commandErrorMessage = `Unable to run /start due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
           this.sendCommandResultToSocket(commandErrorMessage, options);
           break;
         }
@@ -259,7 +260,8 @@ class Room {
       case "set": {
         const result = this.validateSetCommandForRoom(isHost, context);
         if (!result.valid) {
-          const commandErrorMessage = result.errors.join(", ");
+          let commandErrorMessage = `Unable to run /set due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
           this.sendCommandResultToSocket(commandErrorMessage, options);
           break;
         }
