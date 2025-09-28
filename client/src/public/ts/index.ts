@@ -945,7 +945,7 @@ function initializeEventListeners() {
       const roomCode = $(
         "#custom-multiplayer-room-indicator-label__room-code"
       ).text();
-      const text = `${window.location.origin}/?roomID=${roomCode}`;
+      const text = `${window.location.origin}/?customMultiplayerRoomID=${roomCode}`;
       console.log(`Attempting to copy quick join link ${text}`);
       navigator.clipboard.writeText(text);
       const message = "Copied room quick join link!";
