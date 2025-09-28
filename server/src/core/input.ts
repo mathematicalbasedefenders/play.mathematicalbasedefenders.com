@@ -420,6 +420,18 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
         const newHost = universal.getNameFromConnectionID(newHostID as string);
         const message = `This room's host is now ${newHost}, since the original host, ${pastHost} has left the room.`;
         room.addChatMessage(message, { isSystemMessage: true });
+
+        // notify the new host as well
+        const newHostSocket = universal.getSocketFromConnectionID(
+          newHostID as string
+        );
+        if (newHostSocket) {
+          (room as Room).sendCommandResultToSocket(
+            "You have been randomly selected to be the new host of this room since the previous host left.",
+            { sender: newHostSocket }
+          );
+        }
+
         log.info(`Room ${room.id}'s host is now ${newHost} from ${pastHost}.`);
       } else {
         // TODO: Find a more stable way to do this. Right now it is sufficient since 1-1=0, and
