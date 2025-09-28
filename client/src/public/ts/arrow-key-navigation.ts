@@ -171,6 +171,46 @@ function getArrowKeyDirections() {
       },
       defaultFocused: "#chat-message"
     },
+    "customMultiplayerIntermission": {
+      destinations: {
+        "#custom-multiplayer-screen__sidebar-item--back": {
+          "ArrowDown": "#custom-multiplayer-room-indicator-label__copy"
+        },
+        "#custom-multiplayer-room-indicator-label__copy": {
+          "ArrowUp": "#custom-multiplayer-screen__sidebar-item--back",
+          "ArrowRight":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility",
+          "ArrowDown":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility"
+        },
+        "#custom-multiplayer-room-indicator-label__toggle-visibility": {
+          "ArrowUp": "#custom-multiplayer-room-indicator-label__copy",
+          "ArrowLeft": "#custom-multiplayer-room-indicator-label__copy",
+          "ArrowRight": "#custom-multiplayer-chat-message",
+          "ArrowDown": "#custom-multiplayer-chat-message"
+        },
+        "#custom-multiplayer-chat-message": {
+          "ArrowLeft":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility",
+          "ArrowUp":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility",
+          "ArrowRight": "#custom-multiplayer-message-send-button",
+          "ArrowDown":
+            "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list"
+        },
+        "#custom-multiplayer-message-send-button": {
+          "ArrowUp": "#custom-multiplayer-screen__sidebar-item--back",
+          "ArrowLeft": "#custom-multiplayer-chat-message",
+          "ArrowDown":
+            "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list"
+        },
+        "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list":
+          {
+            "ArrowUp": "#custom-multiplayer-chat-message"
+          }
+      },
+      defaultFocused: "#custom-multiplayer-chat-message"
+    },
     "globalChatTray": getGlobalChatTrayDirections(),
     "openingScreen": getOpeningScreenDirections(),
     "canvas": { destinations: {} },
@@ -376,7 +416,11 @@ function navigateFocus(event: KeyboardEvent) {
   // FORCED OVERWRITES
   // overwrite: if end of multiplayer chat tray is focused, focus on the send button instead.
   if (checkIfFocusedOnEndOfMessageBox(screen, element, keyPressed)) {
-    forcedDestination = "#message-send-button";
+    if (screen === "multiplayerIntermission") {
+      forcedDestination = "#message-send-button";
+    } else if (screen === "customMultiplayerIntermission") {
+      forcedDestination = "#custom-multiplayer-message-send-button";
+    }
   }
   // overwrite: if chat tray is active, focus there instead.
   if ($("#chat-tray-container").is(":visible")) {
@@ -476,9 +520,17 @@ function checkIfFocusedOnEndOfMessageBox(
   element: string,
   keyPressed: string
 ) {
-  const input = document.getElementById("chat-message") as HTMLInputElement;
+  let targetID = "";
+  if (screen === "multiplayerIntermission") {
+    targetID = "chat-message";
+  } else if (screen === "customMultiplayerIntermission") {
+    targetID = "custom-multiplayer-chat-message";
+  } else {
+    return false;
+  }
+  const input = document.getElementById(targetID) as HTMLInputElement;
   if (
-    element === "#chat-message" &&
+    element === `#${targetID}` &&
     input &&
     input.value.length === input.selectionEnd &&
     keyPressed === "ArrowRight"
