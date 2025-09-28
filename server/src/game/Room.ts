@@ -227,14 +227,14 @@ class Room {
 
         if (!result.valid) {
           const commandErrorMessage = result.errors.join(", ");
-          this.sendCommandResultToSocket(options, commandErrorMessage);
+          this.sendCommandResultToSocket(commandErrorMessage, options);
           break;
         }
 
         // give feedback
         // TODO: Add a delay for everyone to see when it's time to start.
         const commandSuccessMessage = `Successfully ran command \"/${command}\". Game will now start.`;
-        this.sendCommandResultToSocket(options, commandSuccessMessage);
+        this.sendCommandResultToSocket(commandSuccessMessage, options);
 
         // start multiplayer game
         try {
@@ -260,12 +260,12 @@ class Room {
         const result = this.validateSetCommandForRoom(isHost, context);
         if (!result.valid) {
           const commandErrorMessage = result.errors.join(", ");
-          this.sendCommandResultToSocket(options, commandErrorMessage);
+          this.sendCommandResultToSocket(commandErrorMessage, options);
           break;
         }
         this.setRoomConstant(context[0], context[1]);
         const selfMessage = `Successfully set room's constant property ${result.target} to ${context[1]}.`;
-        this.sendCommandResultToSocket(options, selfMessage);
+        this.sendCommandResultToSocket(selfMessage, options);
         const roomMessage = `The room's host has set this room's constant property ${result.target} to ${context[1]}.`;
         this.addChatMessage(roomMessage, { isSystemMessage: true });
         break;
@@ -280,7 +280,7 @@ class Room {
           }
           message += values.join(", ");
           message += ".";
-          this.sendCommandResultToSocket(options, message);
+          this.sendCommandResultToSocket(message, options);
           break;
         }
 
@@ -298,12 +298,12 @@ class Room {
         }
         if (!found) {
           const message = `Unknown room custom property: ${context[0]}`;
-          this.sendCommandResultToSocket(options, message);
+          this.sendCommandResultToSocket(message, options);
           break;
         }
         const value = this.customSettings[target];
         const message = `The constant property ${target}'s value for this room is ${value}.`;
-        this.sendCommandResultToSocket(options, message);
+        this.sendCommandResultToSocket(message, options);
         break;
       }
       case "setvisibility": {
@@ -328,12 +328,12 @@ class Room {
           message +=
             "Note that you may not use some of these commands as they are reserved for the host.";
         }
-        this.sendCommandResultToSocket(options, message);
+        this.sendCommandResultToSocket(message, options);
         break;
       }
       default: {
         const message = `Unknown command \"/${command}\".`;
-        this.sendCommandResultToSocket(options, message);
+        this.sendCommandResultToSocket(message, options);
         break;
       }
     }
