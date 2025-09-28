@@ -482,6 +482,7 @@ function initializeEventListeners() {
       room: "default"
     });
     changeScreen("multiplayerIntermission");
+    clearChatBoxes();
   });
   $("#multiplayer-menu-screen-button--custom").on("click", () => {
     changeScreen("customMultiplayerRoomSelection");
@@ -972,6 +973,7 @@ function initializeEventListeners() {
       room: code.toString()
     });
     console.log(`Joining multiplayer room with code ${code}`);
+    clearChatBoxes();
   });
   $("#public-room-list__join").on("click", () => {
     const code = $("#public-room-list").val();
@@ -983,6 +985,7 @@ function initializeEventListeners() {
       room: code.toString()
     });
     console.log(`Joining multiplayer room with code ${code}`);
+    clearChatBoxes();
   });
   $("#public-room-list__refresh").on("click", () => {
     sendSocketMessage({ message: "getMultiplayerRoomList" });
