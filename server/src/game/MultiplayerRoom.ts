@@ -241,8 +241,14 @@ class MultiplayerRoom extends Room {
         }
         const selector =
           "#main-content__custom-multiplayer-intermission-screen-container__game-status-message";
-        const value = `Waiting for host to start...`;
-        changeClientSideText(socket, selector, value);
+
+        if (connectionID === this.host?.connectionID) {
+          const value = `You are the host of this room! Type "/start" in chat to start the game.`;
+          changeClientSideText(socket, selector, value);
+        } else {
+          const value = `Waiting for host to start...`;
+          changeClientSideText(socket, selector, value);
+        }
       }
       return;
     }
