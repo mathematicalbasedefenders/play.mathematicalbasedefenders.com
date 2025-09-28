@@ -95,7 +95,6 @@
   height: 100vh;
   position: absolute;
   top: 0;
-  pointer-events: none;
   background-color: #000000aa;
   display: flex;
   justify-content: center;
