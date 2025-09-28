@@ -940,14 +940,14 @@ function initializeEventListeners() {
       $("#custom-multiplayer-room-indicator-label__room-code").toggle(0);
     }
   );
-  $("#custom-multiplayer-room-indicator-label__copy").on("click", () => {
+  $("#custom-multiplayer-room-indicator-label__copy").on("click", async () => {
     try {
       const roomCode = $(
         "#custom-multiplayer-room-indicator-label__room-code"
       ).text();
       const text = `${window.location.origin}/?customMultiplayerRoomID=${roomCode}`;
       console.log(`Attempting to copy quick join link ${text}`);
-      navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(text);
       const message = "Copied room quick join link!";
       const options = { borderColor: "#00dd00" };
       const toast = new ToastNotification(message, options);
