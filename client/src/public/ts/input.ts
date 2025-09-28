@@ -79,7 +79,9 @@ function handleClientSideEvents(event: KeyboardEvent) {
   const removeDigitKeyIndex = REMOVE_DIGIT_KEYS.indexOf(event.code);
   const subtractionSignKeyIndex = SUBTRACTION_SIGN_KEYS.indexOf(event.code);
   if (!variables.replay.watchingReplay) {
-    if (numberRowKeyIndex > -1) {
+    if (variables.currentGameClientSide.currentInput.length >= 8) {
+      // do nothing
+    } else if (numberRowKeyIndex > -1) {
       variables.currentGameClientSide.currentInput +=
         numberRowKeyIndex.toString();
     } else if (numberPadKeyIndex > -1) {
