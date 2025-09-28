@@ -310,6 +310,15 @@ class Room {
         break;
       }
       case "getvisibility": {
+        let message = "";
+        if (this.hidden) {
+          message =
+            "This room is hidden. It is not shown in the room list, but other players may still join through the room code.";
+        } else {
+          message =
+            "This room is public. It is shown in the room list, and other players can also join through the room code.";
+        }
+        this.sendCommandResultToSocket(message, options);
         break;
       }
       case "remove": {
