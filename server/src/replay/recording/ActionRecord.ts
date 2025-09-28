@@ -5,6 +5,7 @@ import { GameSocket } from "../../universal";
 import { GameActionRecord as DatabaseGameActionRecord } from "../../models/GameActionRecord";
 import mongoose from "mongoose";
 import { log } from "../../core/log";
+import * as universal from "../../universal";
 
 enum Action {
   /** Direct by player */
@@ -40,8 +41,7 @@ class GameActionRecord {
 
   constructor() {
     this.recordingVersion = 1;
-    // TODO: temp
-    this.gameVersion = "0.5.0-rc.6";
+    this.gameVersion = universal.STATUS.gameVersion;
     this.actionRecords = [];
     this.owner = null;
   }
