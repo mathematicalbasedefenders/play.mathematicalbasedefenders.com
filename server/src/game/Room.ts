@@ -242,7 +242,7 @@ class Room {
 
         // give feedback
         // TODO: Add a delay for everyone to see when it's time to start.
-        const commandSuccessMessage = `Successfully ran command \"/${command}\". Game will now start.`;
+        const commandSuccessMessage = `Successfully ran command /${command}. Game will now start.`;
         this.sendCommandResultToSocket(commandSuccessMessage, options);
 
         // start multiplayer game
@@ -475,7 +475,7 @@ class Room {
         break;
       }
       default: {
-        const message = `Unknown command \"/${command}\".`;
+        const message = `Unknown command /${command}.`;
         this.sendCommandResultToSocket(message, options);
         break;
       }
@@ -720,7 +720,7 @@ class Room {
     if (!constants.map((e) => e.toLowerCase()).includes(lowercasedTarget)) {
       result.valid = false;
       result.errors.push(
-        `Room constant property \"${constantToChange}\" doesn't exist. 
+        `Room constant property ${constantToChange} doesn't exist. 
         (Available constants are ${constants.join(", ")})`
       );
       return result;
