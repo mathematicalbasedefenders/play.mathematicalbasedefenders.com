@@ -360,7 +360,7 @@ function checkWebSocketMessageSpeeds(
   time: number
 ) {
   timePeriodPassedForMessageSpeed += time;
-  // here incase Nms is too low (e.g. 1 msg. in 1ms => 1000 msg./s => disconnect)
+  // here in case Nms is too low (e.g. 1 msg. in 1ms => 1000 msg./s => disconnect)
   if (timePeriodPassedForMessageSpeed < MESSAGES_PER_SECOND_TIME_PERIOD) {
     return;
   }
