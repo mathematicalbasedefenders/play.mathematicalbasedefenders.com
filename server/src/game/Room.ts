@@ -257,6 +257,42 @@ class Room {
         this.addChatMessage(roomMessage, { isSystemMessage: true });
         break;
       }
+      case "get": {
+        if (context.length == 0) {
+          // no context wanted, show all.
+          let message = "The constant properties' values for this room are: ";
+          let values: Array<string> = [];
+          for (const constant of Object.keys(this.customSettings)) {
+            values.push(`${constant}: ${this.customSettings[constant]}`);
+          }
+          message += values.join(", ");
+          message += ".";
+          this.sendCommandResultToSocket(options, message);
+          break;
+        }
+
+        // context found, show the context
+        let target = "";
+        let found = false;
+        const constants = Object.keys(this.customSettings);
+        for (const constant of constants) {
+          const lowercased = constant.toLowerCase();
+          if (lowercased === context[0].toLowerCase()) {
+            target = constant;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          const message = `Unknown room custom property: ${context[0]}`;
+          this.sendCommandResultToSocket(options, message);
+          break;
+        }
+        const value = this.customSettings[target];
+        const message = `The constant property ${target}'s value for this room is ${value}.`;
+        this.sendCommandResultToSocket(options, message);
+        break;
+      }
       default: {
         const message = `Unknown command \"/${command}\".`;
         this.sendCommandResultToSocket(options, message);
