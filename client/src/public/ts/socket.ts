@@ -203,9 +203,9 @@ socket.addEventListener("message", (event: any) => {
       variables.multiplayerLastGameRankings.playerListCache.registeredPlayers.clear();
 
       const selector =
-        message.scope === "default"
-          ? "#main-content__multiplayer-intermission-screen-container__game-status-ranking"
-          : "#main-content__custom-multiplayer-intermission-screen-container__game-status-ranking";
+        message.scope === "custom"
+          ? "#main-content__custom-multiplayer-intermission-screen-container__game-status-ranking"
+          : "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
       $(selector).empty();
       const placements = message.data;
       for (const placement of placements) {
@@ -262,9 +262,9 @@ socket.addEventListener("message", (event: any) => {
     }
     case "addRoomChatMessage": {
       const selector =
-        message.scope === "default"
-          ? "#main-content__multiplayer-intermission-screen-container__chat__messages"
-          : "#main-content__custom-multiplayer-intermission-screen-container__chat__messages";
+        message.scope === "custom"
+          ? "#main-content__custom-multiplayer-intermission-screen-container__chat__messages"
+          : "#main-content__multiplayer-intermission-screen-container__chat__messages";
 
       const chatMessage = $("<div></div>");
       chatMessage.css("display", "flex");
