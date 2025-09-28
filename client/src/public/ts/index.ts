@@ -751,6 +751,20 @@ function initializeEventListeners() {
       emulatedKeypress: `Backspace`
     });
   });
+  $(`#chat-message`).on("keypress", function (e) {
+    if (e.which == 13) {
+      const message = $("#chat-message").val()?.toString().trim() || "";
+      if (!message) {
+        return;
+      }
+      sendSocketMessage({
+        message: "sendChatMessage",
+        scope: "room",
+        chatMessage: message
+      });
+      $("#chat-message").val("");
+    }
+  });
   $(`#message-send-button`).on("click", () => {
     sendSocketMessage({
       message: "sendChatMessage",
@@ -758,6 +772,20 @@ function initializeEventListeners() {
       chatMessage: $("#chat-message").val()?.toString() || ""
     });
     $("#chat-message").val("");
+  });
+  $("#chat-tray-input").on("keypress", function (e) {
+    if (e.which == 13) {
+      const message = $("#chat-tray-input").val()?.toString().trim() || "";
+      if (!message) {
+        return;
+      }
+      sendSocketMessage({
+        message: "sendChatMessage",
+        scope: "global",
+        chatMessage: message
+      });
+      $("#chat-tray-input").val("");
+    }
   });
   $(`#chat-tray-input-send-button`).on("click", () => {
     const message = $("#chat-tray-input").val()?.toString().trim() || "";
@@ -885,6 +913,22 @@ function initializeEventListeners() {
     });
     changeScreen("mainMenu");
     clearChatBoxes();
+  });
+  $("#custom-multiplayer-chat-message").on("keypress", function (e) {
+    if (e.which == 13) {
+      const message =
+        $("#custom-multiplayer-chat-message").val()?.toString().trim() || "";
+      if (!message) {
+        return;
+      }
+      sendSocketMessage({
+        message: "sendChatMessage",
+        scope: "room",
+        chatMessage:
+          $("#custom-multiplayer-chat-message").val()?.toString() || ""
+      });
+      $("#custom-multiplayer-chat-message").val("");
+    }
   });
   $(`#custom-multiplayer-message-send-button`).on("click", () => {
     sendSocketMessage({
