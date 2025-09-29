@@ -70,6 +70,13 @@ class SingleplayerRoom extends Room {
       });
     }
 
+    // check for validity
+    if (this.gameData.length === 0) {
+      log.error(`Room ${this.id} started without any initialized GameData!`);
+      this.updating = false;
+      return;
+    }
+
     // add game settings
     const gameSettings = convertGameSettingsToReplayActions(this.gameData[0]);
     for (const setting in gameSettings) {
