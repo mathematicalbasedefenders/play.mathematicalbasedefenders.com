@@ -1,6 +1,6 @@
 import { changeScreen } from "./game";
 import { sendSocketMessage } from "./socket";
-import { clearChatBoxes } from "./utilities";
+import { clearChatMessageBoxes } from "./utilities";
 
 function checkQuickLink(activate?: boolean) {
   const QUICK_LINKS = ["replayID", "customMultiplayerRoomID"];
@@ -43,7 +43,7 @@ function activateLink(parameter: string, value: string | null) {
         message: "joinMultiplayerRoom",
         room: value.toString()
       });
-      clearChatBoxes();
+      clearChatMessageBoxes();
       break;
     }
   }

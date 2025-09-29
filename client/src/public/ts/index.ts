@@ -12,7 +12,7 @@ import {
 } from "./game";
 import {
   calculateLevel,
-  clearChatBoxes,
+  clearChatMessageBoxes,
   createTextStyle,
   millisecondsToTime
 } from "./utilities";
@@ -482,7 +482,7 @@ function initializeEventListeners() {
       room: "default"
     });
     changeScreen("multiplayerIntermission");
-    clearChatBoxes();
+    clearChatMessageBoxes();
   });
   $("#multiplayer-menu-screen-button--custom").on("click", () => {
     changeScreen("customMultiplayerRoomSelection");
@@ -497,7 +497,7 @@ function initializeEventListeners() {
       // clear cache
       variables.multiplayerChat.playerListCache.playerCount = 0;
       variables.multiplayerChat.playerListCache.registeredPlayers.clear();
-      clearChatBoxes();
+      clearChatMessageBoxes();
       // create room
       const object = { message: "createMultiplayerRoom" };
       sendSocketMessage(object);
@@ -860,7 +860,7 @@ function initializeEventListeners() {
       emulatedKeypress: "Escape"
     });
     changeScreen("mainMenu");
-    clearChatBoxes();
+    clearChatMessageBoxes();
   });
   // === REPLAY CONTROL ===
   $("#replay-controller__bar").on("click", (event) => {
@@ -912,7 +912,7 @@ function initializeEventListeners() {
       emulatedKeypress: "Escape"
     });
     changeScreen("mainMenu");
-    clearChatBoxes();
+    clearChatMessageBoxes();
   });
   $("#custom-multiplayer-chat-message").on("keypress", function (e) {
     if (e.which == 13) {
@@ -1015,7 +1015,7 @@ function initializeEventListeners() {
       room: code.toString()
     });
     console.log(`Joining multiplayer room with code ${code}`);
-    clearChatBoxes();
+    clearChatMessageBoxes();
   });
   $("#public-room-list__join").on("click", () => {
     const code = $("#public-room-list").val();
@@ -1027,7 +1027,7 @@ function initializeEventListeners() {
       room: code.toString()
     });
     console.log(`Joining multiplayer room with code ${code}`);
-    clearChatBoxes();
+    clearChatMessageBoxes();
   });
   $("#public-room-list__refresh").on("click", () => {
     sendSocketMessage({ message: "getMultiplayerRoomList" });
