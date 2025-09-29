@@ -45,7 +45,7 @@ router.get("/api/replays/:replayID", limiter, async (request, response) => {
     } else {
       log.error(`Error while getting game recording: ${error}`);
     }
-    response.status(400).json({
+    response.status(500).json({
       ok: false,
       reason: `Error while getting game recording: ${error}`
     });
