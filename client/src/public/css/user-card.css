@@ -95,6 +95,7 @@
     display: flex;
     height: fit-content;
     padding: 8px;
+    flex-direction: column;
   }
 
   .user-card__data__mode {
