@@ -52,7 +52,7 @@ class Enemy {
   }
 
   move(distance?: number) {
-    if (distance) {
+    if (typeof distance === "number") {
       this.sPosition -= distance;
       return;
     }
