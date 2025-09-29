@@ -189,7 +189,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #ffffff;
+  color: var(--color-text-light);
   flex-direction: column;
   height: 100%;
   padding: 16px;
