@@ -28,14 +28,7 @@ import { DefaultMultiplayerRoom } from "./game/DefaultMultiplayerRoom";
 
 const app = express();
 app.set("trust proxy", 2);
-const corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "https://mathematicalbasedefenders.com",
-    "https://mathematicalbasedefenders.com:3000"
-  ]
-};
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(
   helmet({
     contentSecurityPolicy: {
