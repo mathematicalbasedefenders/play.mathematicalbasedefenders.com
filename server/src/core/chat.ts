@@ -67,6 +67,7 @@ function sendChatMessage(
         return;
       }
       sendGlobalChatMessage(message, socket);
+      break;
     }
     default: {
       log.warn(
