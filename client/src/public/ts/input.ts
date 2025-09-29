@@ -79,7 +79,11 @@ function handleClientSideEvents(event: KeyboardEvent) {
   const removeDigitKeyIndex = REMOVE_DIGIT_KEYS.indexOf(event.code);
   const subtractionSignKeyIndex = SUBTRACTION_SIGN_KEYS.indexOf(event.code);
   if (!variables.replay.watchingReplay) {
-    if (variables.currentGameClientSide.currentInput.length >= 8) {
+    if (removeDigitKeyIndex > -1) {
+      const newLength = variables.currentGameClientSide.currentInput.length - 1;
+      variables.currentGameClientSide.currentInput =
+        variables.currentGameClientSide.currentInput.substring(0, newLength);
+    } else if (variables.currentGameClientSide.currentInput.length >= 8) {
       // do nothing
     } else if (numberRowKeyIndex > -1) {
       variables.currentGameClientSide.currentInput +=
@@ -89,10 +93,6 @@ function handleClientSideEvents(event: KeyboardEvent) {
         numberPadKeyIndex.toString();
     } else if (subtractionSignKeyIndex > -1) {
       variables.currentGameClientSide.currentInput += "-";
-    } else if (removeDigitKeyIndex > -1) {
-      const newLength = variables.currentGameClientSide.currentInput.length - 1;
-      variables.currentGameClientSide.currentInput =
-        variables.currentGameClientSide.currentInput.substring(0, newLength);
     }
   }
   if (variables.replay.watchingReplay && ABORT_KEYS.includes(event.code)) {
