@@ -231,7 +231,9 @@ function processInputInformation(
 
             if (gameDataToProcess.enemiesToNextLevel <= 0) {
               gameDataToProcess.increaseLevel(1);
-              updateReplayClockData(gameDataToProcess, room as Room);
+              if (room) {
+                updateReplayClockData(gameDataToProcess, room);
+              }
             }
           }
           enemy.kill(gameDataToProcess, true, true);
