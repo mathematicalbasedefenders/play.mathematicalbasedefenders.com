@@ -524,11 +524,12 @@ function navigateFocus(event: KeyboardEvent) {
       const input = document.getElementById("room-to-join") as HTMLInputElement;
       if (
         input &&
-        input.value.length === input.selectionEnd &&
+        input.value.length !== input.selectionEnd &&
         keyPressed === "ArrowRight"
       ) {
-        forcedDestination = directions[element]?.[keyPressed];
+        return;
       }
+      forcedDestination = directions[element]?.[keyPressed];
     } else if (Object.keys(directions).includes(element)) {
       forcedDestination = directions[element]?.[keyPressed];
     } else {
