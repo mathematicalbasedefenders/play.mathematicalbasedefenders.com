@@ -1,0 +1,61 @@
+<div id="main-content__custom-multiplayer-room-selection-screen-container">
+  <div id="main-content__custom-multiplayer-room-selection-screen">
+    <div id="main-content__custom-multiplayer-room-selection-screen-button-container">
+      <button class="custom-multiplayer-room-selection-screen-button" id="custom-multiplayer-room-selection-screen-button--join">
+        <div class="button--top-aligned-text">
+          <div class="custom-multiplayer-room-selection-screen-button__title">Join a Room</div>
+          <div class="custom-multiplayer-room-selection-screen-button__description">Enter an existing room to get in to the game with other players.
+          </div>
+        </div>
+
+      </button>
+      <button class="custom-multiplayer-room-selection-screen-button" id="custom-multiplayer-room-selection-screen-button--create">
+        <div class="button--top-aligned-text">
+          <div class="custom-multiplayer-room-selection-screen-button__title">Create a Room</div>
+          <div class="custom-multiplayer-room-selection-screen-button__description">Make your own room to set your own rules on other players.
+          </div>
+        </div>
+      </button>
+      <button class="custom-multiplayer-room-selection-screen-button" id="custom-multiplayer-room-selection-screen-button--back">
+        <div class="button--top-aligned-text">
+          <div class="custom-multiplayer-room-selection-screen-button__title">Back</div>
+          <div class="custom-multiplayer-room-selection-screen-button__description">Go back to the multiplayer menu.
+          </div>
+        </div>
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<div id="custom-multiplayer-room-selection-dialog-container">
+  <dialog id="custom-multiplayer-room-selection-dialog">
+    <div style="display: flex;align-items: start">
+      <div class="dialog__title">
+        <span>Select a room to join!</span>
+      </div>
+      <button id="custom-multiplayer-room-selection-dialog__close">Close</button>
+    </div>
+    <div class="dialog__content">
+      <span>You can either type in a room code to join a room or select a public room from the list to join.</span>
+      <hr>
+      <span>Type a Room Code</span>
+      <br>
+      <div style="display: flex;align-items: center;">
+        <label for="room-to-join">Room Code: </label>
+        <input style="margin-left: 4px;" type="text" maxlength="8" class="text--monospace" id="room-to-join" name="room-to-join" autocomplete="off" spellcheck="false" autocorrect="off" pattern="[A-Z0-9]{8}">
+        <button id="join-by-code" style="margin-left: 4px;">Join</button>
+      </div>
+      <hr>
+      <div style="display:flex;justify-content:space-between;">
+        <label for="public-room-list">Select a Public Room</label>
+        <div>
+          <button type="button" id="public-room-list__refresh">Refresh</button>
+          <button type="button" id="public-room-list__join">Join</button>
+        </div>
+      </div>
+      <select name="public-room-list" id="public-room-list" style="width:100%;margin:4px 0;">
+      </select>
+    </div>
+  </dialog>
+</div>

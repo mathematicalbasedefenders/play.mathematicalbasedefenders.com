@@ -11,10 +11,9 @@ import * as input from "./core/input";
 import {
   defaultMultiplayerRoomID,
   GameMode,
-  MultiplayerRoom,
   Room,
-  leaveMultiplayerRoom,
-  resetDefaultMultiplayerRoomID
+  resetDefaultMultiplayerRoomID,
+  setDefaultMultiplayerRoomID
 } from "./game/Room";
 import _ from "lodash";
 const cors = require("cors");
@@ -24,6 +23,8 @@ import { sendChatMessage } from "./core/chat";
 import { synchronizeGameDataWithSocket } from "./universal";
 import { updateSystemStatus } from "./core/status-indicators";
 import { authenticate } from "./authentication/perform-authentication";
+import { MultiplayerRoom } from "./game/MultiplayerRoom";
+import { DefaultMultiplayerRoom } from "./game/DefaultMultiplayerRoom";
 
 const app = express();
 app.set("trust proxy", 2);
@@ -74,11 +75,13 @@ const CONFIGURATION = JSON.parse(
 
 const PORT: number = 4000;
 const WEBSOCKET_PORT: number = 5000;
+
 const DESIRED_SYNCHRONIZATIONS_PER_SECOND: number = 5;
 const DESIRED_SERVER_UPDATES_PER_SECOND: number = 60;
 const UPDATE_INTERVAL: number = 1000 / DESIRED_SERVER_UPDATES_PER_SECOND;
 const SYNCHRONIZATION_INTERVAL: number =
   1000 / DESIRED_SYNCHRONIZATIONS_PER_SECOND;
+const LIVING_ROOM_CONDITION_GRACE_PERIOD = 3000;
 
 // https://github.com/uNetworking/uWebSockets.js/issues/335#issuecomment-643500581
 // https://github.com/uNetworking/uWebSockets.js/issues/335#issuecomment-834141711
@@ -178,15 +181,80 @@ uWS
             blockSocket(socket);
             return;
           }
-          switch (parsedMessage.room) {
-            case "default": {
-              joinMultiplayerRoom(socket, "default");
+          // reject message if already in room
+          if (utilities.findRoomWithConnectionID(socket.connectionID)) {
+            const MESSAGE = "You're already in a room!";
+            const BORDER_COLOR = "#ff0000";
+            universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+            return;
+          }
+          // actually join room
+          if (parsedMessage.room === "default") {
+            if (!defaultMultiplayerRoomID) {
+              const room = new DefaultMultiplayerRoom(
+                socket,
+                GameMode.DefaultMultiplayer,
+                true
+              );
+              setDefaultMultiplayerRoomID(room.id);
+            }
+            joinMultiplayerRoom(socket, defaultMultiplayerRoomID as string);
+            break;
+          } else {
+            // validate
+            const target = parsedMessage.room;
+            if (!/^[A-Z0-9]{8}$/.test(target)) {
+              const socketID = socket.connectionID;
+              log.warn(`Socket ${socketID} used an invalid room code.`);
+              const MESSAGE = "Invalid room code format!";
+              const BORDER_COLOR = "#ff0000";
+              universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
               break;
             }
-            default: {
-              log.warn(`Unknown multiplayer room: ${parsedMessage.room}`);
+            const room = universal.rooms.find((e) => e.id === target);
+            if (!room) {
+              const socketID = socket.connectionID;
+              log.warn(`Socket ${socketID} tried to join a non-existent room.`);
+              const MESSAGE = "That room doesn't exist!";
+              const BORDER_COLOR = "#ff0000";
+              universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+              break;
             }
+            const object = {
+              message: "changeScreen",
+              newScreen: "customMultiplayerIntermission"
+            };
+            const message = JSON.stringify(object);
+            joinMultiplayerRoom(socket, parsedMessage.room);
+            socket.send(message);
+            log.info(`Socket ${socket.connectionID} joined room ${target}`);
           }
+          break;
+        }
+        case "createMultiplayerRoom": {
+          if (!socket.exitedOpeningScreen) {
+            blockSocket(socket);
+            return;
+          }
+          // reject message if already in room
+          if (utilities.findRoomWithConnectionID(socket.connectionID)) {
+            const MESSAGE = "You're already in a room!";
+            const BORDER_COLOR = "#ff0000";
+            universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+            log.warn(
+              `Socket ${socket.connectionID} is already in a room while creating another.`
+            );
+            return;
+          }
+          // actually create room
+          const room = new MultiplayerRoom(socket, GameMode.CustomMultiplayer);
+          joinMultiplayerRoom(socket, room.id);
+          const object = {
+            message: "changeScreen",
+            newScreen: "customMultiplayerIntermission"
+          };
+          const message = JSON.stringify(object);
+          socket.send(message);
           break;
         }
         case "leaveMultiplayerRoom": {
@@ -195,7 +263,7 @@ uWS
             return;
           }
           // attempt to
-          leaveMultiplayerRoom(socket);
+          input.leaveMultiplayerRoom(socket);
           break;
         }
         // game input
@@ -233,6 +301,16 @@ uWS
           const message = parsedMessage.chatMessage;
           // attempt to
           sendChatMessage(scope, message, socket);
+          break;
+        }
+        case "getMultiplayerRoomList": {
+          const result = utilities.getHumanFriendlyMultiplayerRoomList();
+          const object = {
+            message: "updateMultiplayerRoomList",
+            data: result
+          };
+          const message = JSON.stringify(object);
+          socket.send(message);
           break;
         }
         case "exitOpeningScreen": {
@@ -277,6 +355,9 @@ function update(deltaTime: number) {
   const systemStatus = updateSystemStatus(deltaTime);
   synchronizeGameDataWithSockets(deltaTime, systemStatus || {});
 
+  /**
+   * Rooms are deleted here!
+   */
   // delete rooms with zero players
   // additionally, delete rooms which are empty JSON objects.
   let livingRoomCondition = (element: Room) =>
@@ -286,14 +367,16 @@ function update(deltaTime: number) {
         0 ||
       typeof element === "undefined" ||
       Object.keys(element).length === 0
-    );
+    ) ||
+    (element &&
+      element.ageInMilliseconds <= LIVING_ROOM_CONDITION_GRACE_PERIOD);
   let oldRooms = _.clone(universal.rooms).map((element) => element.id);
   utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
 
   let newRooms = _.clone(universal.rooms).map((element) => element.id);
   let deletedRooms = oldRooms.filter((element) => !newRooms.includes(element));
   for (let room of deletedRooms) {
-    log.info(`Deleted room with ID ${room}`);
+    log.info(`Deleted room with ID ${room} from living condition.`);
     if (room === defaultMultiplayerRoomID) {
       resetDefaultMultiplayerRoomID(room);
     }
@@ -323,22 +406,32 @@ function synchronizeGameDataWithSockets(
   }
 }
 
+/**
+ * Makes `socket` join a multiplayer room with the id `roomID`.
+ * @param {universal.GameSocket} socket
+ * @param {string} roomID
+ */
 function joinMultiplayerRoom(socket: universal.GameSocket, roomID: string) {
-  // or create one if said one doesn't exist
-  if (roomID !== "default") {
-    log.warn(`Unknown roomID, should be default: ${roomID}`);
-  }
   let room;
-  if (!defaultMultiplayerRoomID) {
-    room = new MultiplayerRoom(socket, GameMode.DefaultMultiplayer, true);
-    universal.rooms.push(room);
-    socket.subscribe(room.id);
-  } else {
+  if (roomID === "default") {
+    // log.warn(`Unknown roomID, should be default: ${roomID}`);
     const defaultRoom = (room: Room) => room.id === defaultMultiplayerRoomID;
     room = universal.rooms.find(defaultRoom);
-    socket.subscribe(defaultMultiplayerRoomID);
+  } else {
+    const roomWithID = (room: Room) => room.id === roomID;
+    room = universal.rooms.find(roomWithID);
   }
-  room?.addMember(socket);
+  if (!room) {
+    const MESSAGE = "The room you're trying to join doesn't exist!";
+    const BORDER_COLOR = "#ff0000";
+    universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+    log.warn(
+      `Socket ${socket.connectionID} tried to join a non-existent multiplayer room.`
+    );
+    return;
+  }
+  socket.subscribe(roomID);
+  room.addMember(socket);
 }
 
 setInterval(() => {
@@ -397,6 +490,9 @@ fs.readdirSync(path.join(__dirname, "./routes")).forEach((file: string) => {
 });
 
 app.listen(PORT, () => {
+  log.info(
+    `Mathematical Base Defenders ${universal.STATUS.gameVersion} (server-side code)`
+  );
   log.info(`Server listening at port ${PORT}`);
   log.info(`Server is using configuration ${JSON.stringify(CONFIGURATION)}`);
   if (process.env.CREDENTIAL_SET_USED === "TESTING") {

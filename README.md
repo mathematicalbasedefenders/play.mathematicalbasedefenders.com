@@ -25,7 +25,8 @@ Also see the [Screenshots](https://github.com/mathematicalbasedefenders/play.mat
   - Standard Singleplayer
   - Easy Singleplayer
   - Custom Singleplayer
-  - Default Multiplayer (Custom Multiplayer is planned for the future.)
+  - Default Multiplayer
+  - Custom Multiplayer
 - Account System
 - Leaderboards
 - Customizable Game Client
@@ -52,7 +53,7 @@ Because this is open-source, you are free to use it on your own servers/domains.
 
 However, please note that while this only covers the `play` subdomain, meaning if you want to have accounts on your own servers, you might have to hardcode it.
 
-Note: As of May 29, 2024, this source code has been exclusively made for Mathematical Base Defenders's official server (e.g. hardcoded strings that only work with the official server) and `localhost`. So if you are planning to use this in your own server (or domain), it might not work (You can still run it on localhost, this doesn't mean you can't run it on a different domain, you can, you just have to find the hardcoded strings). This will be fixed sometime later.
+Note: As of May 29, 2024, this source code has been exclusively made for Mathematical Base Defenders's official server (e.g. hardcoded strings that only work with the official server) and `localhost`. So if you are planning to use this in your own server (or domain), it might not work (You can still run it on localhost, this doesn't mean you can't run it on a different domain, you can, you just have to find the hardcoded strings). This will be fixed sometime later. Please contact mistertfy64 if you need help setting up your own instance.
 
 You can always contact me (mistertfy64) if you want assistance in helping setting up your own instance of Mathematical Base Defenders.
 

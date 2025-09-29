@@ -286,9 +286,30 @@ function changeScreen(
   alsoResetStage?: boolean,
   newData?: { [key: string]: any }
 ) {
+  // TODO: Move close dialog somewhere else
+  const roomSelectDialog = document.getElementById(
+    "custom-multiplayer-room-selection-dialog"
+  );
+  if (roomSelectDialog instanceof HTMLDialogElement) {
+    roomSelectDialog.close();
+  }
+  $("#custom-multiplayer-room-selection-dialog-container").hide(0);
+
   // reset arrow key navigation
   // remove old element's focus status
   $(variables.navigation.focusing).removeClass("button--arrow-key-focused");
+
+  // reset chat message boxes
+  $("#chat-message").val("");
+  $("#custom-multiplayer-chat-message").val("");
+
+  // reset rendered rankings as well
+  $(
+    "#main-content__custom-multiplayer-intermission-screen-container__game-status-ranking"
+  ).empty();
+  $(
+    "#main-content__multiplayer-intermission-screen-container__game-status-ranking"
+  ).empty();
 
   // set settings
   getSettings(localStorage.getItem("settings") || "{}");
@@ -301,6 +322,10 @@ function changeScreen(
   $("#main-content__game-over-screen-container").hide(0);
   $("#main-content__settings-screen-container").hide(0);
   $("#main-content__archive-screen-container").hide(0);
+  $("#main-content__custom-multiplayer-room-selection-screen-container").hide(
+    0
+  );
+  $("#main-content__custom-multiplayer-intermission-screen-container").hide(0);
   $("#canvas-container").hide(0);
 
   $("#replay-controller-container").hide(0);
@@ -324,6 +349,7 @@ function changeScreen(
   const oldElement = $(variables.navigation.focusing);
   if (oldElement) {
     oldElement.removeClass("button--arrow-key-focused");
+    oldElement.trigger("blur");
   }
   variables.navigation.focusing = null;
   variables.replay.paused = false;
@@ -379,6 +405,18 @@ function changeScreen(
       $("#main-content__archive-screen-container").show(0);
       break;
     }
+    case "customMultiplayerRoomSelection": {
+      $(
+        "#main-content__custom-multiplayer-room-selection-screen-container"
+      ).show(0);
+      break;
+    }
+    case "customMultiplayerIntermission": {
+      $("#main-content__custom-multiplayer-intermission-screen-container").show(
+        0
+      );
+      break;
+    }
   }
 }
 
@@ -406,7 +444,7 @@ function createCustomSingleplayerGameObject() {
     comboTime: $(`${bp}combo-time`).val(),
     enemySpeedCoefficient: $(`${bp}enemy-speed-coefficient`).val(),
     enemySpawnTime: $(`${bp}enemy-spawn-time`).val(),
-    enemySpawnChance: $(`${bp}enemy-spawn-chance`).val(),
+    enemySpawnThreshold: $(`${bp}enemy-spawn-threshold`).val(),
     forcedEnemySpawnTime: $(`${bp}forced-enemy-spawn-time`).val()
   };
   return toReturn;

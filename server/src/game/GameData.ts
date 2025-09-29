@@ -25,13 +25,56 @@ enum GameMode {
  * Extra interface for `CustomGameData`.
  */
 interface CustomGameSettings {
-  baseHealth: string | number;
-  comboTime: string | number;
-  enemySpeedCoefficient: string | number;
-  enemySpawnTime: string | number;
-  enemySpawnThreshold: string | number;
-  forcedEnemySpawnTime: string | number;
+  baseHealth: number;
+  comboTime: number;
+  enemySpeedCoefficient: number;
+  enemySpawnTime: number;
+  enemySpawnThreshold: number;
+  forcedEnemySpawnTime: number;
+  [key: string]: number; // FIXME: Hacky way, unstable?
 }
+
+const GAME_DATA_CONSTANTS = {
+  ENEMY_BASE_SPEED: 0.1,
+
+  FORCED_ENEMY_SPAWN_DECREMENT_TIME: 2500,
+  ENEMY_SPAWN_ACTION_TIME_MULTIPLIER_ON_LEVEL_UP: 0.9875,
+  ENEMIES_PER_LEVEL: 10,
+  INITIAL_BASE_HEALTH: 100,
+  INITIAL_MAXIMUM_BASE_HEALTH: 100,
+  INITIAL_BASE_HEALTH_REGENERATION: 2,
+
+  EASY_SINGLEPLAYER_ENEMY_SPAWN_ACTION_TIME: 150,
+  EASY_SINGLEPLAYER_COMBO_RESET_ACTION_TIME: 10000,
+  EASY_SINGLEPLAYER_REGENERATE_BASE_HEALTH_ACTION_TIME: 1000,
+  EASY_SINGLEPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT: 0.5,
+  EASY_SINGLEPLAYER_ENEMY_STARTING_SPAWN_THRESHOLD: 0.075,
+  EASY_SINGLEPLAYER_ENEMY_SPEED_COEFFICIENT_INCREMENT: 0.025,
+  EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT: 0.2,
+  EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_DECREMENT: 0.05,
+
+  STANDARD_SINGLEPLAYER_ENEMY_SPAWN_ACTION_TIME: 100,
+  STANDARD_SINGLEPLAYER_COMBO_RESET_ACTION_TIME: 5000,
+  STANDARD_SINGLEPLAYER_REGENERATE_BASE_HEALTH_ACTION_TIME: 1000,
+  STANDARD_SINGLEPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT: 1,
+  STANDARD_SINGLEPLAYER_ENEMY_STARTING_SPAWN_THRESHOLD: 0.1,
+  STANDARD_SINGLEPLAYER_ENEMY_SPEED_COEFFICIENT_INCREMENT: 0.05,
+  STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT: 0.1,
+  STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_DECREMENT: 0.1,
+
+  DEFAULT_MULTIPLAYER_GLOBAL_ENEMY_SPAWN_ACTION_TIME: 100,
+  DEFAULT_MULTIPLAYER_GLOBAL_ENEMY_STARTING_SPAWN_THRESHOLD: 0.1,
+  DEFAULT_MULTIPLAYER_INTERMISSION_TIME: 10000,
+  DEFAULT_MULTIPLAYER_MINIMUM_PLAYERS_TO_START: 2,
+  DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT: 1,
+  DEFAULT_MULTIPLAYER_FORCED_ENEMY_SPAWN_ACTION_TIME: 2500,
+
+  CUSTOM_MULTIPLAYER_INITIAL_COMBO_TIME: 5000,
+  CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPEED_COEFFICIENT: 1,
+  CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPAWN_THRESHOLD: 0.1,
+  CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPAWN_TIME: 100,
+  CUSTOM_MULTIPLAYER_INITIAL_FORCED_ENEMY_SPAWN_TIME: 2500
+};
 
 /**
  * Base class for `GameData`.
@@ -110,7 +153,7 @@ class GameData {
     this.score = 0;
     this.enemiesKilled = 0;
     this.enemiesSpawned = 0;
-    this.baseHealth = 100;
+    this.baseHealth = GAME_DATA_CONSTANTS.INITIAL_BASE_HEALTH;
     this.owner = owner;
     this.ownerConnectionID = owner.connectionID as string;
     this.ownerName =
@@ -127,53 +170,68 @@ class GameData {
     this.enemiesSentStock = 0;
     this.attackScore = 0;
     this.level = 1;
-    this.enemiesToNextLevel = 10;
-    this.baseHealthRegeneration = 2;
-    this.maximumBaseHealth = 100;
+    this.enemiesToNextLevel = GAME_DATA_CONSTANTS.ENEMIES_PER_LEVEL;
+    this.baseHealthRegeneration =
+      GAME_DATA_CONSTANTS.INITIAL_BASE_HEALTH_REGENERATION;
+    this.maximumBaseHealth = GAME_DATA_CONSTANTS.INITIAL_MAXIMUM_BASE_HEALTH;
     this.actionsPerformed = 0;
     // per mode
     if (mode === GameMode.EasySingleplayer) {
       this.clocks = {
         enemySpawn: {
           currentTime: 0,
-          actionTime: 150 // *0.9875 every level
+          actionTime:
+            GAME_DATA_CONSTANTS.EASY_SINGLEPLAYER_ENEMY_SPAWN_ACTION_TIME // *0.9875 every level
         },
         forcedEnemySpawn: {
           currentTime: 0,
-          actionTime: 7500 // always 2500ms before comboReset actionTime
+          actionTime:
+            GAME_DATA_CONSTANTS.EASY_SINGLEPLAYER_COMBO_RESET_ACTION_TIME -
+            GAME_DATA_CONSTANTS.FORCED_ENEMY_SPAWN_DECREMENT_TIME // always 2500ms before comboReset actionTime
         },
         comboReset: {
           currentTime: 0,
-          actionTime: 10000
+          actionTime:
+            GAME_DATA_CONSTANTS.EASY_SINGLEPLAYER_COMBO_RESET_ACTION_TIME
         },
         regenerateBaseHealth: {
           currentTime: 0,
-          actionTime: 1000
+          actionTime:
+            GAME_DATA_CONSTANTS.EASY_SINGLEPLAYER_REGENERATE_BASE_HEALTH_ACTION_TIME
         }
       };
-      this.enemySpeedCoefficient = 0.5; // no change
-      this.enemySpawnThreshold = 0.075;
+      this.enemySpeedCoefficient =
+        GAME_DATA_CONSTANTS.EASY_SINGLEPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT; // no change
+      this.enemySpawnThreshold =
+        GAME_DATA_CONSTANTS.EASY_SINGLEPLAYER_ENEMY_STARTING_SPAWN_THRESHOLD;
     } else {
       this.clocks = {
         enemySpawn: {
           currentTime: 0,
-          actionTime: 100 // *0.9875 every level
+          actionTime:
+            GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_ENEMY_SPAWN_ACTION_TIME // *0.9875 every level
         },
         forcedEnemySpawn: {
           currentTime: 0,
-          actionTime: 2500 // always 2500ms before comboReset actionTime
+          actionTime:
+            GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_COMBO_RESET_ACTION_TIME -
+            GAME_DATA_CONSTANTS.FORCED_ENEMY_SPAWN_DECREMENT_TIME // always 2500ms before comboReset actionTime
         },
         comboReset: {
           currentTime: 0,
-          actionTime: 5000
+          actionTime:
+            GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_COMBO_RESET_ACTION_TIME
         },
         regenerateBaseHealth: {
           currentTime: 0,
-          actionTime: 1000
+          actionTime:
+            GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_REGENERATE_BASE_HEALTH_ACTION_TIME
         }
       };
-      this.enemySpeedCoefficient = 1; // +0.05 every level
-      this.enemySpawnThreshold = 0.1;
+      this.enemySpeedCoefficient =
+        GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT; // +0.05 every level
+      this.enemySpawnThreshold =
+        GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_ENEMY_STARTING_SPAWN_THRESHOLD;
     }
     this.timestampOfSynchronization = Date.now();
   }
@@ -203,35 +261,54 @@ class SingleplayerGameData extends GameData {
     }
     for (let i = 0; i < amount; i++) {
       this.level++;
-      this.clocks.enemySpawn.actionTime *= 0.9875;
+      this.clocks.enemySpawn.actionTime *=
+        GAME_DATA_CONSTANTS.ENEMY_SPAWN_ACTION_TIME_MULTIPLIER_ON_LEVEL_UP;
       switch (this.mode) {
         case GameMode.EasySingleplayer: {
           // faster enemies
-          this.enemySpeedCoefficient += 0.025;
+          this.enemySpeedCoefficient +=
+            GAME_DATA_CONSTANTS.EASY_SINGLEPLAYER_ENEMY_SPEED_COEFFICIENT_INCREMENT;
           // lower base health regeneration
-          if (this.baseHealthRegeneration >= 0.2) {
-            this.baseHealthRegeneration -= 0.05;
+          if (
+            this.baseHealthRegeneration >=
+            GAME_DATA_CONSTANTS.EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT
+          ) {
+            this.baseHealthRegeneration -=
+              GAME_DATA_CONSTANTS.EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_DECREMENT;
           }
-          if (this.baseHealthRegeneration < 0.2) {
-            this.baseHealthRegeneration = 0.2;
+          if (
+            this.baseHealthRegeneration <
+            GAME_DATA_CONSTANTS.EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT
+          ) {
+            this.baseHealthRegeneration =
+              GAME_DATA_CONSTANTS.EASY_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT;
           }
           break;
         }
         case GameMode.StandardSingleplayer: {
           // faster enemies
-          this.enemySpeedCoefficient += 0.05;
+          this.enemySpeedCoefficient +=
+            GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_ENEMY_SPEED_COEFFICIENT_INCREMENT;
           // lower base health regeneration
-          if (this.baseHealthRegeneration >= 0.1) {
-            this.baseHealthRegeneration -= 0.1;
+          if (
+            this.baseHealthRegeneration >=
+            GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT
+          ) {
+            this.baseHealthRegeneration -=
+              GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_DECREMENT;
           }
-          if (this.baseHealthRegeneration < 0.1) {
-            this.baseHealthRegeneration = 0.1;
+          if (
+            this.baseHealthRegeneration <
+            GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT
+          ) {
+            this.baseHealthRegeneration =
+              GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_BASE_HEALTH_REGENERATION_LOWER_LIMIT;
           }
           break;
         }
       }
     }
-    this.enemiesToNextLevel = 10;
+    this.enemiesToNextLevel = GAME_DATA_CONSTANTS.ENEMIES_PER_LEVEL;
   }
 }
 
@@ -249,24 +326,13 @@ class CustomSingleplayerGameData extends GameData {
     }
     super(owner, gameMode);
     // This assumes that data has already been validated.
-    // FIXME: Remove unnecessary re-conversion to string from number.
-    this.baseHealth = Number.parseFloat(settings.baseHealth as string);
-    this.maximumBaseHealth = Number.parseFloat(settings.baseHealth as string);
-    this.clocks.comboReset.actionTime = Number.parseFloat(
-      settings.comboTime as string
-    );
-    this.enemySpeedCoefficient = Number.parseFloat(
-      settings.enemySpeedCoefficient as string
-    );
-    this.clocks.enemySpawn.actionTime = Number.parseFloat(
-      settings.enemySpawnTime as string
-    );
-    this.enemySpawnThreshold = Number.parseFloat(
-      settings.enemySpawnThreshold as string
-    );
-    this.clocks.forcedEnemySpawn.actionTime = Number.parseFloat(
-      settings.forcedEnemySpawnTime as string
-    );
+    this.baseHealth = settings.baseHealth;
+    this.maximumBaseHealth = settings.baseHealth;
+    this.clocks.comboReset.actionTime = settings.comboTime;
+    this.enemySpeedCoefficient = settings.enemySpeedCoefficient;
+    this.clocks.enemySpawn.actionTime = settings.enemySpawnTime;
+    this.enemySpawnThreshold = settings.enemySpawnThreshold;
+    this.clocks.forcedEnemySpawn.actionTime = settings.forcedEnemySpawnTime;
   }
 }
 
@@ -287,6 +353,17 @@ class MultiplayerGameData extends GameData {
     this.receivedEnemiesStock = 0;
     this.receivedEnemiesToSpawn = 0;
   }
+
+  setValuesToCustomSettings(customSettings: CustomGameSettings) {
+    this.baseHealth = customSettings.baseHealth;
+    this.maximumBaseHealth = customSettings.baseHealth;
+    this.enemySpeedCoefficient = customSettings.enemySpeedCoefficient;
+    this.enemySpawnThreshold = customSettings.enemySpawnThreshold;
+    this.clocks.enemySpawn.actionTime = customSettings.enemySpawnTime;
+    this.clocks.forcedEnemySpawn.actionTime =
+      customSettings.forcedEnemySpawnTime;
+    this.clocks.comboReset.actionTime = customSettings.comboTime;
+  }
 }
 
 export {
@@ -296,5 +373,6 @@ export {
   CustomSingleplayerGameData,
   GameMode,
   ClockInterface,
-  CustomGameSettings
+  CustomGameSettings,
+  GAME_DATA_CONSTANTS
 };

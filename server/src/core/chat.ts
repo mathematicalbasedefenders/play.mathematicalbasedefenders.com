@@ -18,6 +18,8 @@ const CLEAR_BAD_MESSAGE_OBJECT = {
   selector: "#chat-tray-error",
   value: ""
 };
+//
+const MAXIMUM_CHAT_MESSAGE_LENGTH = 256;
 /**
  * Attempts to send a chat message to a room.
  * @param {string} scope the scope/visibility of the message
@@ -37,19 +39,9 @@ function sendChatMessage(
   const playerName = universal.getNameFromConnectionID(connectionID);
   switch (scope) {
     case "room": {
-      const roomID = findRoomWithConnectionID(connectionID, true)?.id;
-      if (typeof roomID === "undefined") {
+      if (!validateRoom(connectionID)) {
         log.warn(
-          `Room Undefined found for Socket ID ${connectionID} (${playerName}) when validating chat message.`
-        );
-        return;
-      }
-      const roomIndex = universal.rooms.findIndex(
-        (element) => element.id === roomID
-      );
-      if (roomIndex === -1) {
-        log.warn(
-          `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+          `Bad chat room validation for ${connectionID} (${playerName})`
         );
         return;
       }
@@ -57,11 +49,15 @@ function sendChatMessage(
         log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
         return;
       }
+
       const room = findRoomWithConnectionID(connectionID, true) as Room;
-      room.addChatMessage(message, socket);
-      log.info(
-        `Socket ID ${connectionID} (${playerName}) sent message ${message} to Room ID ${room.id}`
-      );
+      // commands
+      if (message.startsWith("/")) {
+        room.runChatCommand(message, { sender: socket });
+        break;
+      }
+
+      room.addChatMessage(message, { sender: socket });
       break;
     }
     case "global": {
@@ -70,17 +66,7 @@ function sendChatMessage(
         socket.send(JSON.stringify(BAD_MESSAGE_OBJECT));
         return;
       }
-      const messageObject = createGlobalMessageObject(
-        message,
-        connectionID,
-        socket?.playerRank?.color
-      );
-      socket.publish("game", JSON.stringify(messageObject));
-      socket.send(JSON.stringify(messageObject));
-      socket.send(JSON.stringify(CLEAR_BAD_MESSAGE_OBJECT));
-      log.info(
-        `Socket ID ${connectionID} (${playerName}) sent message ${message} to global chat.`
-      );
+      sendGlobalChatMessage(message, socket);
       break;
     }
     default: {
@@ -93,7 +79,33 @@ function sendChatMessage(
 }
 
 /**
- * Validates a chat message whether its safe or the room it is meant to be send to exists.
+ * Validates whether a room that socket `connectionID` is in actually exists for chat messages.
+ * @param {string} connectionID The `connectionID`.
+ * @returns `true` if room exists, `false` if it doesn't.
+ */
+function validateRoom(connectionID: string) {
+  const playerName = universal.getNameFromConnectionID(connectionID);
+  const roomID = findRoomWithConnectionID(connectionID, true)?.id;
+  if (typeof roomID === "undefined") {
+    log.warn(
+      `Room Undefined found for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+    );
+    return false;
+  }
+  const roomIndex = universal.rooms.findIndex(
+    (element) => element.id === roomID
+  );
+  if (roomIndex === -1) {
+    log.warn(
+      `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+    );
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Validates a chat message whether its safe.
  * @param {string} message The message to validate.
  * @param {string} connectionID The connectionID socket of the sender.
  * @returns `true` if the message passed validation, false if not.
@@ -102,7 +114,7 @@ function validateMessage(message: string, connectionID: string) {
   const playerName = universal.getNameFromConnectionID(connectionID);
   const notEmpty = message !== "";
   const notJustBlank = message.replace(/\s/g, "").length > 0;
-  const notTooLong = message.length <= 256;
+  const notTooLong = message.length <= MAXIMUM_CHAT_MESSAGE_LENGTH;
   const notDangerous = DOMPurify.sanitize(message) === message;
   if (!(notEmpty && notJustBlank && notTooLong && notDangerous)) {
     log.warn(
@@ -147,5 +159,27 @@ function createGlobalMessageObject(
     }
   };
   return toReturn;
+}
+
+/**
+ * Sends a global chat message (in the global tray). This does not validate anything.
+ * This method shouldn't be called on its own, it pass validation checks first.
+ * @param message The message to send.
+ * @param socket The socket of the message sender.
+ */
+function sendGlobalChatMessage(message: string, socket: universal.GameSocket) {
+  const connectionID = socket.connectionID as string;
+  const playerName = universal.getNameFromConnectionID(connectionID);
+  const messageObject = createGlobalMessageObject(
+    message,
+    connectionID,
+    socket?.playerRank?.color
+  );
+  socket.publish("game", JSON.stringify(messageObject));
+  socket.send(JSON.stringify(messageObject));
+  socket.send(JSON.stringify(CLEAR_BAD_MESSAGE_OBJECT));
+  log.info(
+    `Socket ID ${connectionID} (${playerName}) sent message ${message} to global chat.`
+  );
 }
 export { sendChatMessage };

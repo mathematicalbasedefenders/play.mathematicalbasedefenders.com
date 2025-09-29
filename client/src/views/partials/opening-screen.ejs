@@ -3,7 +3,11 @@
     <img src="../../assets/images/reversal.png">
   </div>
   <div id="opening-screen__authentication-modal">
-    <p id="opening-screen__quick-link"></p>
+    <div>
+      <span id="opening-screen__quick-link"></span>
+      <span class="text--monospace" id="opening-screen__quick-link__key"></span>
+      <span class="text--monospace" id="opening-screen__quick-link__value"></span>
+    </div>
     Welcome to Mathematical Base Defenders!
     <br>
     Please log in to your account.
@@ -12,16 +16,16 @@
       <div class="authentication-modal__login-form-element">
         <label for="authentication-modal__username" title="Put the username for your account here.">Username</label>
         <br>
-        <input class="opening-screen__input--text" id="authentication-modal__username" name="authentication-modal__username" type="text" autocomplete="username">
+        <input class="opening-screen__input--text" id="authentication-modal__username" name="authentication-modal__username" type="text" autocomplete="username" minlength="3" maxlength="20">
       </div>
       <div class="authentication-modal__login-form-element">
         <label for="authentication-modal__password" title="Put the password for your account here.">Password</label>
         <br>
-        <input class="opening-screen__input--text" id="authentication-modal__password" name="authentication-modal__password" type="password" autocomplete="current-password">
+        <input class="opening-screen__input--text" id="authentication-modal__password" name="authentication-modal__password" type="password" autocomplete="current-password" minlength="8">
       </div>
       <input name="authentication-modal__socket-id" id="authentication-modal__socket-id" type="hidden">
       <div style="width:100%;text-align:right;">
-        <input type="submit" style="padding:0px 32px;" id="settings-screen__content--online__submit" class="pointer-cursor settings-screen__content-input--button"></input>
+        <input type="submit" value="Login" style="padding:0px 32px;" id="settings-screen__content--online__submit" class="pointer-cursor settings-screen__content-input--button"></input>
       </div>
     </form>
   </div>

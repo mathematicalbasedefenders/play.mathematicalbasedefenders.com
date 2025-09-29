@@ -3,6 +3,7 @@ import { variables } from "./index";
 import { stopReplay } from "./replay";
 import { controlReplay } from "./replay-control";
 import { sendSocketMessage, socket } from "./socket";
+import { clearChatMessageBoxes } from "./utilities";
 const NUMBER_ROW_KEYS = [
   "Digit0",
   "Digit1",
@@ -46,7 +47,7 @@ const ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE = [
   "#settings-screen__content--online__password",
   "#custom-singleplayer-game__combo-time",
   "#custom-singleplayer-game__enemy-spawn-time",
-  "#custom-singleplayer-game__enemy-spawn-chance",
+  "#custom-singleplayer-game__enemy-spawn-threshold",
   "#custom-singleplayer-game__forced-enemy-spawn-time",
   "#custom-singleplayer-game__enemy-speed-coefficient",
   "#custom-singleplayer-game__starting-base-health"
@@ -78,7 +79,13 @@ function handleClientSideEvents(event: KeyboardEvent) {
   const removeDigitKeyIndex = REMOVE_DIGIT_KEYS.indexOf(event.code);
   const subtractionSignKeyIndex = SUBTRACTION_SIGN_KEYS.indexOf(event.code);
   if (!variables.replay.watchingReplay) {
-    if (numberRowKeyIndex > -1) {
+    if (removeDigitKeyIndex > -1) {
+      const newLength = variables.currentGameClientSide.currentInput.length - 1;
+      variables.currentGameClientSide.currentInput =
+        variables.currentGameClientSide.currentInput.substring(0, newLength);
+    } else if (variables.currentGameClientSide.currentInput.length >= 8) {
+      // do nothing
+    } else if (numberRowKeyIndex > -1) {
       variables.currentGameClientSide.currentInput +=
         numberRowKeyIndex.toString();
     } else if (numberPadKeyIndex > -1) {
@@ -86,10 +93,6 @@ function handleClientSideEvents(event: KeyboardEvent) {
         numberPadKeyIndex.toString();
     } else if (subtractionSignKeyIndex > -1) {
       variables.currentGameClientSide.currentInput += "-";
-    } else if (removeDigitKeyIndex > -1) {
-      const newLength = variables.currentGameClientSide.currentInput.length - 1;
-      variables.currentGameClientSide.currentInput =
-        variables.currentGameClientSide.currentInput.substring(0, newLength);
     }
   }
   if (variables.replay.watchingReplay && ABORT_KEYS.includes(event.code)) {
@@ -106,6 +109,15 @@ function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   let sendWebSocketMessage = true;
   if (event.code === "Tab" && variables.exitedOpeningScreen) {
     event.preventDefault();
+
+    // remove (keyboard) focus
+    const oldElement = $(variables.navigation.focusing);
+    if (oldElement) {
+      oldElement.removeClass("button--arrow-key-focused");
+      oldElement.trigger("blur");
+    }
+    variables.navigation.focusing = null;
+
     $("#status-tray-container").toggle(0);
     $("#chat-tray-container").toggle(0);
     sendWebSocketMessage = false;
@@ -152,6 +164,9 @@ function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   // overrides: set to true
   if (variables.serverReportsInMultiplayer && ABORT_KEYS.includes(event.code)) {
     sendWebSocketMessage = true;
+    // generally pressing Escape takes you straight to the main menu,
+    // so might as well clear the chat boxes so it doesn't look weird.
+    clearChatMessageBoxes();
   }
   return sendWebSocketMessage;
 }

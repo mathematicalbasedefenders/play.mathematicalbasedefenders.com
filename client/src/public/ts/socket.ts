@@ -10,7 +10,12 @@ import { updateSystemStatusTrayText } from "./system-status-indicator";
 import { createChatMessage } from "./chat";
 import DOMPurify from "dompurify";
 import { showUserLookupPopUp } from "./lookup-user";
-import { checkPlayerListCacheEquality, millisecondsToTime } from "./utilities";
+import {
+  checkPlayerListCacheEquality,
+  clearMultiplayerRoomList,
+  millisecondsToTime,
+  updateMultiplayerRoomList
+} from "./utilities";
 import { checkQuickLink } from "./quick-links";
 const socket: WebSocket = new WebSocket(
   `ws${location.protocol === "https:" ? "s" : ""}://${location.hostname}${
@@ -143,7 +148,9 @@ socket.addEventListener("message", (event: any) => {
       variables.multiplayerChat.playerListCache.registeredPlayers.clear();
 
       const playerListSelector =
-        "#main-content__multiplayer-intermission-screen-container__chat__player-list";
+        message.scope === "custom"
+          ? "#main-content__custom-multiplayer-intermission-screen-container__chat__player-list"
+          : "#main-content__multiplayer-intermission-screen-container__chat__player-list";
       $(playerListSelector).empty();
       for (const player of message.data) {
         const entry = $("<div></div>");
@@ -196,7 +203,9 @@ socket.addEventListener("message", (event: any) => {
       variables.multiplayerLastGameRankings.playerListCache.registeredPlayers.clear();
 
       const selector =
-        "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
+        message.scope === "custom"
+          ? "#main-content__custom-multiplayer-intermission-screen-container__game-status-ranking"
+          : "#main-content__multiplayer-intermission-screen-container__game-status-ranking";
       $(selector).empty();
       const placements = message.data;
       for (const placement of placements) {
@@ -253,7 +262,9 @@ socket.addEventListener("message", (event: any) => {
     }
     case "addRoomChatMessage": {
       const selector =
-        "#main-content__multiplayer-intermission-screen-container__chat__messages";
+        message.scope === "custom"
+          ? "#main-content__custom-multiplayer-intermission-screen-container__chat__messages"
+          : "#main-content__multiplayer-intermission-screen-container__chat__messages";
 
       const chatMessage = $("<div></div>");
       chatMessage.css("display", "flex");
@@ -304,6 +315,11 @@ socket.addEventListener("message", (event: any) => {
           break;
         }
       }
+      break;
+    }
+    case "updateMultiplayerRoomList": {
+      clearMultiplayerRoomList();
+      updateMultiplayerRoomList(message.data);
       break;
     }
   }

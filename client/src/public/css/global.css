@@ -34,6 +34,9 @@ body {
   --color-multiplayer-menu-default: #3867e9;
   --color-multiplayer-menu-custom: #7b25ec;
 
+  --color-multiplayer-menu-custom--join: #f5348e;
+  --color-multiplayer-menu-custom--create: #f71ce5;
+
   --color-dangerous: #dd0000;
   --color-neutral: #292929;
 
@@ -55,7 +58,9 @@ body {
   --z-index-status-tray: 99;
   --z-index-user-card: 1998;
   --z-index-user-card--loading: 1999;
-  --z-index-toast-notifications: 2005;
+  --z-index-toast-notifications: 10001;
+  --z-index-dialog: 2004;
+  --z-index-dialog-backdrops: 2003;
   --z-index-user-information-box: 98;
   --z-index-version-number: 1001;
 }
@@ -88,7 +93,7 @@ body {
 
 .text--monospace,
 code {
-  font-family: "Noto Sans Mono", monospace;
+  font-family: "JetBrains Mono", monospace !important;
 }
 
 .option-button--small {
@@ -118,7 +123,7 @@ code {
 }
 
 .option-button--small:hover {
-  background-color: rgb(255, 255, 255, 0.75);
+  background-color: rgba(255, 255, 255, 0.75);
   color: var(--color-text-dark);
   border-left: 1px solid #ffffff;
 }

@@ -1,12 +1,12 @@
 /* MULTIPLAYER MENU */
-#main-content__multiplayer-menu-screen-container {
+#main-content__custom-multiplayer-room-selection-screen-container {
   /* background-color: #000000; */
   width: 100%;
   height: 100%;
   display: grid;
 }
 
-#main-content__multiplayer-menu-screen {
+#main-content__custom-multiplayer-room-selection-screen {
   display: grid;
   flex-direction: column;
   align-items: center;
@@ -14,7 +14,7 @@
   grid-template-rows: [row1-start] 10% [row1-end row2-start] 80% [row2-end row3-start] 10% [row3-end];
 }
 
-#main-content__multiplayer-menu-screen-button-container {
+#main-content__custom-multiplayer-room-selection-screen-button-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,7 +23,7 @@
   height: 100%;
 }
 
-.multiplayer-menu-screen-button {
+.custom-multiplayer-room-selection-screen-button {
   height: 8vw;
   border: 1px #ffffff solid;
   background-repeat: no-repeat;
@@ -35,14 +35,14 @@
   flex-flow: column wrap;
 }
 
-.multiplayer-menu-screen-button__title {
+.custom-multiplayer-room-selection-screen-button__title {
   font-size: min(48px, 6vw);
   color: #ffffff;
   margin: 0 0 0 4px;
   text-align: left;
   font-family: inherit;
 }
-.multiplayer-menu-screen-button__description {
+.custom-multiplayer-room-selection-screen-button__description {
   font-size: min(24px, 1.5vw);
   color: #ffffff;
   margin: 0 0 0 4px;
@@ -54,18 +54,18 @@
   font-family: inherit;
 }
 
-#multiplayer-menu-screen-button--default {
-  background-color: var(--color-multiplayer-menu-default);
-  background-image: url("../assets/images/default.svg");
+#custom-multiplayer-room-selection-screen-button--join {
+  background-color: var(--color-multiplayer-menu-custom--join);
+  background-image: url("../assets/images/join.svg");
   background-size: auto 100%;
   background-position-x: 32px;
   height: 60%;
   background-repeat: no-repeat;
 }
 
-#multiplayer-menu-screen-button--custom {
-  background-color: var(--color-multiplayer-menu-custom);
-  background-image: url("../assets/images/custom2.svg");
+#custom-multiplayer-room-selection-screen-button--create {
+  background-color: var(--color-multiplayer-menu-custom--create);
+  background-image: url("../assets/images/create.svg");
   background-size: auto 100%;
   background-position-x: 32px;
   height: 30%;
@@ -73,30 +73,44 @@
   background-repeat: no-repeat;
 }
 
-#multiplayer-menu-screen-button--back {
+#custom-multiplayer-room-selection-screen-button--back {
   background-color: var(--color-neutral);
-  background-image: url("../assets/images/back.svg");
-  background-position-x: 32px;
   background-size: auto 100%;
+  background-position-x: 32px;
+  background-image: url("../assets/images/back.svg");
   height: 10%;
 }
 
-#multiplayer-menu-screen-button--default:hover,
-#multiplayer-menu-screen-button--custom:hover,
-#multiplayer-menu-screen-button--back:hover {
+#custom-multiplayer-room-selection-screen-button--join:hover,
+#custom-multiplayer-room-selection-screen-button--create:hover,
+#custom-multiplayer-room-selection-screen-button--back:hover {
   filter: brightness(1.05);
   transform: scale(1.05);
 }
 
+#custom-multiplayer-room-selection-dialog-container {
+  z-index: var(--z-index-popup-notification);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  background-color: #000000aa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: all;
+}
+
 @media only screen and (max-width: 1200px) {
-  #main-content__multiplayer-menu-screen {
+  #main-content__custom-multiplayer-room-selection-screen {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
   }
 
-  #main-content__multiplayer-menu-screen-button-container {
+  #main-content__custom-multiplayer-room-selection-screen-button-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -104,13 +118,14 @@
     height: unset;
   }
 
-  .multiplayer-menu-screen-button {
+  .custom-multiplayer-room-selection-screen-button {
     margin: 16px;
     width: 90% !important;
     height: 50% !important;
   }
 
-  #multiplayer-menu-screen-button--custom .button__strikethrough-bar {
+  #custom-multiplayer-room-selection-screen-button--custom
+    .button__strikethrough-bar {
     position: relative;
     top: -50px;
   }

@@ -4,6 +4,8 @@
   color: var(--color-text-light);
   border: 1px solid var(--color-text-light);
   opacity: 0.5;
+  user-select: none;
+  cursor: pointer;
 }
 
 #main-content__user-menu-small-display:hover {

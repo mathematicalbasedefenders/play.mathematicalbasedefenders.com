@@ -1,10 +1,5 @@
 import { WebSocket } from "uWebSockets.js";
-import {
-  SingleplayerRoom,
-  MultiplayerRoom,
-  getOpponentsInformation,
-  createSingleplayerRoom
-} from "./game/Room";
+import { getOpponentsInformation } from "./game/Room";
 import { GameData, GameMode } from "./game/GameData";
 import _ from "lodash";
 import {
@@ -17,6 +12,11 @@ import { log } from "./core/log";
 import { validateCustomGameSettings } from "./core/utilities";
 import fs from "node:fs";
 import path from "node:path";
+import { MultiplayerRoom } from "./game/MultiplayerRoom";
+import {
+  SingleplayerRoom,
+  createSingleplayerRoom
+} from "./game/SingleplayerRoom";
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
 interface UserData {}
@@ -62,7 +62,8 @@ const rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
 
 const STATUS = {
   databaseAvailable: false,
-  lastDeltaTimeToUpdate: 0
+  lastDeltaTimeToUpdate: 0,
+  gameVersion: process.env.npm_package_version ?? "0.5.0-rc.7"
 };
 
 /**
@@ -170,7 +171,7 @@ function checkIfSocketIsInMultiplayerRoom(id: string) {
   if (!room) {
     return false;
   }
-  if (room.mode !== "defaultMultiplayer") {
+  if (room.mode !== "defaultMultiplayer" && room.mode !== "customMultiplayer") {
     return false;
   }
   return true;
@@ -281,7 +282,9 @@ function getServerMetadata(
   const roomsTotal = rooms.length;
   // TODO: Change this when custom singleplayer comes
   const roomsMulti =
-    rooms.filter((e) => e.mode === "defaultMultiplayer").length || 0;
+    rooms.filter(
+      (e) => e.mode === "defaultMultiplayer" || e.mode === "customMultiplayer"
+    ).length || 0;
   const roomsSingle = roomsTotal - roomsMulti;
   // system usage status
   const osUsageLevel = systemStatus.os.level;

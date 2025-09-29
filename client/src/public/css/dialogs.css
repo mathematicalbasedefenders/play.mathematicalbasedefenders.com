@@ -1,0 +1,57 @@
+/* DIALOG NOTIFICATIONS */
+dialog::backdrop {
+  background: #000000aa;
+  z-index: var(--z-index-dialog-backdrops);
+}
+
+dialog {
+  width: min(720px, 80%);
+  height: fit-content;
+  background-color: var(--color-neutral);
+  color: var(--color-text-light);
+  padding: 8px;
+  border: 2px solid var(--color-text-light);
+  z-index: var(--z-index-dialog);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+dialog .dialog__title {
+  height: 12.5%;
+  width: 100%;
+  font-size: 250%;
+}
+
+dialog .dialog__content {
+  height: 77.5%;
+  width: 100%;
+  font-size: 125%;
+}
+
+dialog .dialog__button-container {
+  height: 10%;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+}
+
+dialog button {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-family: inherit;
+  transition-duration: var(--transition-duration-short);
+}
+
+dialog button:hover {
+  filter: brightness(1.05);
+  transform: scale(1.05);
+}
+
+dialog input {
+  background-color: #181818;
+  border: 1px solid #ffffff;
+  color: var(--color-text-light);
+  font-size: 100%;
+  font-family: inherit;
+}

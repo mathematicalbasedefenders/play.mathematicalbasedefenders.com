@@ -2,6 +2,19 @@ import _ from "lodash";
 import { variables } from ".";
 import { PopupNotification } from "./popup-notification";
 
+// Usually it's left/right/up/down, but sometimes there may be other keys required
+// for the `DirectionMap`.
+interface DirectionMap {
+  [key: string]: string;
+}
+
+interface DestinationMap {
+  destinations: {
+    [key: string]: DirectionMap;
+  };
+  defaultFocused?: string;
+}
+
 // Globals
 const settingsSecondaryScreenOrder: { [key: string]: Array<string> } = {
   "online": [
@@ -47,7 +60,7 @@ const customSingleplayerIntermissionSecondaryScreenOrder: {
   ],
   "enemies": [
     "#custom-singleplayer-game__enemy-spawn-time",
-    "#custom-singleplayer-game__enemy-spawn-chance",
+    "#custom-singleplayer-game__enemy-spawn-threshold",
     "#custom-singleplayer-game__forced-enemy-spawn-time",
     "#custom-singleplayer-game__enemy-speed-coefficient"
   ],
@@ -58,7 +71,7 @@ const customSingleplayerIntermissionSecondaryScreenOrder: {
  * New destination: directions.(currentScreen).destinations.(currentElement).(keyPressed)
  */
 function getArrowKeyDirections() {
-  const directions: { [key: string]: any } = {
+  const directions: { [key: string]: DestinationMap } = {
     "mainMenu": {
       destinations: {
         "#main-menu-screen-button--singleplayer": {
@@ -116,6 +129,22 @@ function getArrowKeyDirections() {
       },
       defaultFocused: "#multiplayer-menu-screen-button--default"
     },
+    "customMultiplayerRoomSelection": {
+      destinations: {
+        "#custom-multiplayer-room-selection-screen-button--join": {
+          "ArrowDown":
+            "#custom-multiplayer-room-selection-screen-button--create"
+        },
+        "#custom-multiplayer-room-selection-screen-button--create": {
+          "ArrowUp": "#custom-multiplayer-room-selection-screen-button--join",
+          "ArrowDown": "#custom-multiplayer-room-selection-screen-button--back"
+        },
+        "#custom-multiplayer-room-selection-screen-button--back": {
+          "ArrowUp": "#custom-multiplayer-room-selection-screen-button--create"
+        }
+      },
+      defaultFocused: "#custom-multiplayer-room-selection-screen-button--join"
+    },
     "customSingleplayerIntermission": getCustomSingleplayerMenuDestinations(
       variables.navigation.currentSecondaryScreen
     ),
@@ -158,9 +187,49 @@ function getArrowKeyDirections() {
       },
       defaultFocused: "#chat-message"
     },
+    "customMultiplayerIntermission": {
+      destinations: {
+        "#custom-multiplayer-screen__sidebar-item--back": {
+          "ArrowDown": "#custom-multiplayer-room-indicator-label__copy"
+        },
+        "#custom-multiplayer-room-indicator-label__copy": {
+          "ArrowUp": "#custom-multiplayer-screen__sidebar-item--back",
+          "ArrowRight":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility",
+          "ArrowDown":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility"
+        },
+        "#custom-multiplayer-room-indicator-label__toggle-visibility": {
+          "ArrowUp": "#custom-multiplayer-room-indicator-label__copy",
+          "ArrowLeft": "#custom-multiplayer-room-indicator-label__copy",
+          "ArrowRight": "#custom-multiplayer-chat-message",
+          "ArrowDown": "#custom-multiplayer-chat-message"
+        },
+        "#custom-multiplayer-chat-message": {
+          "ArrowLeft":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility",
+          "ArrowUp":
+            "#custom-multiplayer-room-indicator-label__toggle-visibility",
+          "ArrowRight": "#custom-multiplayer-message-send-button",
+          "ArrowDown":
+            "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list"
+        },
+        "#custom-multiplayer-message-send-button": {
+          "ArrowUp": "#custom-multiplayer-screen__sidebar-item--back",
+          "ArrowLeft": "#custom-multiplayer-chat-message",
+          "ArrowDown":
+            "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list"
+        },
+        "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list":
+          {
+            "ArrowUp": "#custom-multiplayer-chat-message"
+          }
+      },
+      defaultFocused: "#custom-multiplayer-chat-message"
+    },
     "globalChatTray": getGlobalChatTrayDirections(),
     "openingScreen": getOpeningScreenDirections(),
-    "canvas": null,
+    "canvas": { destinations: {} },
     "archiveMenu": {
       destinations: {
         "#archive-screen-container__back-button": {
@@ -189,7 +258,7 @@ function getArrowKeyDirections() {
 }
 
 function getSettingsMenuDestinations(secondaryScreen: string) {
-  const result: { [key: string]: any } = {
+  const result: DestinationMap = {
     destinations: {
       "#settings-screen__sidebar-item--back": {
         "ArrowDown": "#settings-screen__sidebar-item--online"
@@ -245,7 +314,7 @@ function getSettingsMenuDestinations(secondaryScreen: string) {
 }
 
 function getCustomSingleplayerMenuDestinations(secondaryScreen: string) {
-  const result: { [key: string]: any } = {
+  const result: DestinationMap = {
     destinations: {
       "#custom-singleplayer-intermission-screen-container__back-button": {
         "ArrowDown":
@@ -297,7 +366,7 @@ function getCustomSingleplayerMenuDestinations(secondaryScreen: string) {
 }
 
 function getGlobalChatTrayDirections() {
-  const result: { [key: string]: any } = {
+  const result: DestinationMap = {
     destinations: {
       "#chat-tray-input-send-button": {
         "ArrowLeft": "#chat-tray-input"
@@ -316,13 +385,44 @@ function getOpeningScreenDirections() {
     "#opening-screen__register",
     "#opening-screen__play-as-guest"
   ];
-  const result = _.merge(
-    { destinations: constructUpDownKeyDirections(elements) },
-    {
-      defaultFocused: "#authentication-modal__username"
-    }
-  );
+  const result = _.merge({
+    destinations: constructUpDownKeyDirections(elements)
+  });
+  result.defaultFocused = "#authentication-modal__username";
   return result;
+}
+
+function getMultiplayerRoomSelectionDialogDirections() {
+  const destinations: { [key: string]: DirectionMap } = {
+    "#custom-multiplayer-room-selection-dialog__close": {
+      "ArrowDown": "#room-to-join"
+    },
+    "#room-to-join": {
+      "ArrowUp": "#custom-multiplayer-room-selection-dialog__close",
+      "ArrowRight": "#join-by-code",
+      "ArrowDown": "#public-room-list__refresh"
+    },
+    "#join-by-code": {
+      "ArrowUp": "#custom-multiplayer-room-selection-dialog__close",
+      "ArrowLeft": "#room-to-join",
+      "ArrowRight": "#public-room-list__refresh",
+      "ArrowDown": "#public-room-list__refresh"
+    },
+    "#public-room-list__refresh": {
+      "ArrowUp": "#room-to-join",
+      "ArrowRight": "#public-room-list__join",
+      "ArrowDown": "#public-room-list"
+    },
+    "#public-room-list__join": {
+      "ArrowUp": "#room-to-join",
+      "ArrowLeft": "#public-room-list__refresh",
+      "ArrowDown": "#public-room-list"
+    },
+    "#public-room-list": {
+      "ArrowUp": "#public-room-list__join"
+    }
+  };
+  return destinations;
 }
 
 /**
@@ -332,24 +432,19 @@ function getOpeningScreenDirections() {
  * ArrowUp will lead to one before it, and ArrowDown will lead to one after it.
  */
 function constructUpDownKeyDirections(ids: Array<string>) {
-  const result: { [key: string]: any } = {};
+  const result: { [key: string]: DirectionMap } = {};
   for (let i = 0; i < ids.length; i++) {
+    result[ids[i]] = {};
     if (i == 0) {
-      result[ids[i]] = {
-        "ArrowDown": ids[i + 1]
-      };
+      result[ids[i]]["ArrowDown"] = ids[i + 1];
       continue;
     }
     if (i == ids.length - 1) {
-      result[ids[i]] = {
-        "ArrowUp": ids[i - 1]
-      };
+      result[ids[i]]["ArrowUp"] = ids[i - 1];
       continue;
     }
-    result[ids[i]] = {
-      "ArrowUp": ids[i - 1],
-      "ArrowDown": ids[i + 1]
-    };
+    result[ids[i]]["ArrowDown"] = ids[i + 1];
+    result[ids[i]]["ArrowUp"] = ids[i - 1];
   }
   return result;
 }
@@ -368,15 +463,12 @@ function navigateFocus(event: KeyboardEvent) {
   let element = variables.navigation.focusing;
   const directions = getArrowKeyDirections();
   // FORCED OVERWRITES
-  // overwrite: if multiplayer chat tray is focused, focus there instead.
-  if (element === "#chat-message") {
-    const input = document.getElementById("chat-message") as HTMLInputElement;
-    if (
-      input &&
-      input.value.length === input.selectionEnd &&
-      keyPressed === "ArrowRight"
-    ) {
+  // overwrite: if end of multiplayer chat tray is focused, focus on the send button instead.
+  if (checkIfFocusedOnEndOfMessageBox(screen, element, keyPressed)) {
+    if (screen === "multiplayerIntermission") {
       forcedDestination = "#message-send-button";
+    } else if (screen === "customMultiplayerIntermission") {
+      forcedDestination = "#custom-multiplayer-message-send-button";
     }
   }
   // overwrite: if chat tray is active, focus there instead.
@@ -384,34 +476,18 @@ function navigateFocus(event: KeyboardEvent) {
     screen = "globalChatTray";
     // overwrite: if chat tray is focused and caret is at end, move
     // to send button instead.
-    const input = document.getElementById(
-      "chat-tray-input"
-    ) as HTMLInputElement;
-    if (
-      input &&
-      input.value.length === input.selectionEnd &&
-      element === "#chat-tray-input" &&
-      keyPressed === "ArrowRight"
-    ) {
+    if (checkIfFocusedOnEndOfChatTray(screen, element, keyPressed)) {
       forcedDestination = "#chat-tray-input-send-button";
     }
   }
   // overwrite: if focused element is an input, and caret is at leftmost,
-  // move where the left arrow should he instead
-  if ($(element).is("input")) {
-    let elementID = element;
-    if (element[0] === "#") {
-      elementID = element.substring(1);
-    }
-    const input = document.getElementById(elementID) as HTMLInputElement;
-    if (
-      input &&
-      input.selectionStart === 0 &&
-      keyPressed === "ArrowLeft" &&
-      !forcedDestination
-    ) {
-      forcedDestination = directions[screen]?.defaultFocused;
-    }
+  // move where the left arrow should be instead
+  if (
+    !forcedDestination &&
+    $(element).is("input") &&
+    checkIfChatBoxShouldForceLeftArrowMove(screen, element, keyPressed)
+  ) {
+    forcedDestination = directions[screen]?.defaultFocused;
   }
   // overwrite: radio buttons
   if (
@@ -436,16 +512,34 @@ function navigateFocus(event: KeyboardEvent) {
     // right now, there will be only 1 pop-up notification active, which is the "Hello!" popup.
     // currently, later notifications are given priority when dealing with arrow keys.
     event.preventDefault();
-    const popUpID =
-      PopupNotification.activeNotificationIDs[
-        PopupNotification.activeNotificationIDs.length - 1
-      ];
-    const popupToFocusID = `#popup-notification--${popUpID}__close-button`;
-    const popupElement = $(popupToFocusID);
-    popupElement.trigger("focus");
-    popupElement.addClass("button--arrow-key-focused");
-    variables.navigation.focusing = popupToFocusID;
+    // this focuses on the most recent/top-most pop up.
+    focusPopup();
     return;
+  }
+  // overwrite: custom multiplayer room selection room selection dialog
+  // force usage of destination mapping for dialog
+  if ($("#custom-multiplayer-room-selection-dialog-container").is(":visible")) {
+    const directions = getMultiplayerRoomSelectionDialogDirections();
+    if (element === "#room-to-join") {
+      const input = document.getElementById("room-to-join") as HTMLInputElement;
+      if (
+        input &&
+        input.value.length !== input.selectionEnd &&
+        keyPressed === "ArrowRight"
+      ) {
+        return;
+      }
+      forcedDestination = directions[element]?.[keyPressed];
+    } else if (Object.keys(directions).includes(element)) {
+      forcedDestination = directions[element]?.[keyPressed];
+    } else {
+      forcedDestination = "#custom-multiplayer-room-selection-dialog__close";
+    }
+    // unless there is no forcedDestination found, in that case, do nothing
+    // and keep the focus where it is
+    if (!forcedDestination) {
+      return;
+    }
   }
   // overwrite: if an input box is focused on, pushing left and right arrow keys should not
   // move on focused element, instead, it should move the caret in the input field.
@@ -464,22 +558,15 @@ function navigateFocus(event: KeyboardEvent) {
   // overwrite: if no object is highlighted, highlight the `defaultFocused` element.
   if (
     (element == null ||
-      Object.keys(directions[screen].destinations).indexOf(element) === -1) &&
+      !Object.keys(directions[screen].destinations).includes(element)) &&
     !forcedDestination
   ) {
     event.preventDefault();
-    element = directions[screen].defaultFocused;
-    // focus on the `defaultFocus` element if nothing is arrow-key focused
-    const destinationElement = $(`${element}`);
-    // remove old element's focus status
-    const oldElement = $(variables.navigation.focusing);
-    if (oldElement) {
-      oldElement.removeClass("button--arrow-key-focused");
+    const element = directions[screen].defaultFocused;
+    if (!element) {
+      return;
     }
-    // focus new element
-    destinationElement.trigger("focus");
-    destinationElement.addClass("button--arrow-key-focused");
-    variables.navigation.focusing = element;
+    focusOnDefault(screen, element, keyPressed);
     return;
   }
   // normal case
@@ -487,8 +574,11 @@ function navigateFocus(event: KeyboardEvent) {
     forcedDestination ||
     directions[screen]?.destinations?.[element]?.[keyPressed];
   event.preventDefault();
+  // this function actually moves the focus.
   if (!destination) {
-    // no element corresponds to destination
+    console.debug(
+      "Unable to move because destination string is falsy. This could be intentional!"
+    );
     return;
   }
   const destinationElement = $(`${destination}`);
@@ -496,10 +586,101 @@ function navigateFocus(event: KeyboardEvent) {
     console.warn("Unable to select destination element because it is falsy.");
     return;
   }
+  changeFocus(destination);
+}
+
+function checkIfFocusedOnEndOfMessageBox(
+  screen: string,
+  element: string,
+  keyPressed: string
+) {
+  let targetID = "";
+  if (screen === "multiplayerIntermission") {
+    targetID = "chat-message";
+  } else if (screen === "customMultiplayerIntermission") {
+    targetID = "custom-multiplayer-chat-message";
+  } else {
+    return false;
+  }
+  const input = document.getElementById(targetID) as HTMLInputElement;
+  if (
+    element === `#${targetID}` &&
+    input &&
+    input.value.length === input.selectionEnd &&
+    keyPressed === "ArrowRight"
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function checkIfFocusedOnEndOfChatTray(
+  screen: string,
+  element: string,
+  keyPressed: string
+) {
+  const input = document.getElementById("chat-tray-input") as HTMLInputElement;
+  if (
+    input &&
+    input.value.length === input.selectionEnd &&
+    element === "#chat-tray-input" &&
+    keyPressed === "ArrowRight"
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function checkIfChatBoxShouldForceLeftArrowMove(
+  screen: string,
+  element: string,
+  keyPressed: string
+) {
+  let elementID = element;
+  if (element[0] === "#") {
+    elementID = element.substring(1);
+  }
+  const input = document.getElementById(elementID) as HTMLInputElement;
+  if (input && input.selectionStart === 0 && keyPressed === "ArrowLeft") {
+    return true;
+  }
+  return false;
+}
+
+function focusPopup() {
+  const popUpID =
+    PopupNotification.activeNotificationIDs[
+      PopupNotification.activeNotificationIDs.length - 1
+    ];
+  const popupToFocusID = `#popup-notification--${popUpID}__close-button`;
+  const popupElement = $(popupToFocusID);
+  popupElement.trigger("focus");
+  popupElement.addClass("button--arrow-key-focused");
+  variables.navigation.focusing = popupToFocusID;
+}
+
+function focusOnDefault(screen: string, element: string, keyPressed: string) {
+  // focus on the `defaultFocus` element if nothing is arrow-key focused
+  const destinationElement = $(`${element}`);
   // remove old element's focus status
   const oldElement = $(variables.navigation.focusing);
   if (oldElement) {
     oldElement.removeClass("button--arrow-key-focused");
+    oldElement.trigger("blur");
+  }
+  // focus new element
+  destinationElement.trigger("focus");
+  destinationElement.addClass("button--arrow-key-focused");
+  variables.navigation.focusing = element;
+}
+
+function changeFocus(destination: string) {
+  const destinationElement = $(`${destination}`);
+  // remove old element's focus status
+  const oldElement = $(variables.navigation.focusing);
+  if (oldElement) {
+    oldElement.removeClass("button--arrow-key-focused");
+    oldElement.trigger("blur");
   }
   // focus new element
   destinationElement.trigger("focus");

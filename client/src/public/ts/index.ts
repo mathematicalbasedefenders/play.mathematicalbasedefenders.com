@@ -12,6 +12,7 @@ import {
 } from "./game";
 import {
   calculateLevel,
+  clearChatMessageBoxes,
   createTextStyle,
   millisecondsToTime
 } from "./utilities";
@@ -473,15 +474,35 @@ function initializeEventListeners() {
   );
   //
   $("#multiplayer-menu-screen-button--default").on("click", () => {
+    // clear cache
+    variables.multiplayerChat.playerListCache.playerCount = 0;
+    variables.multiplayerChat.playerListCache.registeredPlayers.clear();
     sendSocketMessage({
       message: "joinMultiplayerRoom",
       room: "default"
     });
     changeScreen("multiplayerIntermission");
+    clearChatMessageBoxes();
+  });
+  $("#multiplayer-menu-screen-button--custom").on("click", () => {
+    changeScreen("customMultiplayerRoomSelection");
   });
   $("#multiplayer-menu-screen-button--back").on("click", () => {
     changeScreen("mainMenu");
   });
+  //
+  $("#custom-multiplayer-room-selection-screen-button--create").on(
+    "click",
+    () => {
+      // clear cache
+      variables.multiplayerChat.playerListCache.playerCount = 0;
+      variables.multiplayerChat.playerListCache.registeredPlayers.clear();
+      clearChatMessageBoxes();
+      // create room
+      const object = { message: "createMultiplayerRoom" };
+      sendSocketMessage(object);
+    }
+  );
   //
   $("#settings-screen__sidebar-item--back").on("click", () => {
     setSettings();
@@ -730,6 +751,20 @@ function initializeEventListeners() {
       emulatedKeypress: `Backspace`
     });
   });
+  $(`#chat-message`).on("keypress", function (e) {
+    if (e.which == 13) {
+      const message = $("#chat-message").val()?.toString().trim() || "";
+      if (!message) {
+        return;
+      }
+      sendSocketMessage({
+        message: "sendChatMessage",
+        scope: "room",
+        chatMessage: message
+      });
+      $("#chat-message").val("");
+    }
+  });
   $(`#message-send-button`).on("click", () => {
     sendSocketMessage({
       message: "sendChatMessage",
@@ -737,6 +772,20 @@ function initializeEventListeners() {
       chatMessage: $("#chat-message").val()?.toString() || ""
     });
     $("#chat-message").val("");
+  });
+  $("#chat-tray-input").on("keypress", function (e) {
+    if (e.which == 13) {
+      const message = $("#chat-tray-input").val()?.toString().trim() || "";
+      if (!message) {
+        return;
+      }
+      sendSocketMessage({
+        message: "sendChatMessage",
+        scope: "global",
+        chatMessage: message
+      });
+      $("#chat-tray-input").val("");
+    }
   });
   $(`#chat-tray-input-send-button`).on("click", () => {
     const message = $("#chat-tray-input").val()?.toString().trim() || "";
@@ -751,11 +800,7 @@ function initializeEventListeners() {
     $("#chat-tray-input").val("");
   });
   $(`#main-content__user-menu-small-display`).on("click", () => {
-    if (
-      variables.isGuest ||
-      variables.playing ||
-      variables.loggedInUserID == null
-    ) {
+    if (variables.isGuest || variables.loggedInUserID == null) {
       return;
     }
     showUserLookupPopUp(variables.loggedInUserID);
@@ -763,8 +808,8 @@ function initializeEventListeners() {
   $("#opening-screen__play-as-guest").on("click", () => {
     $("#opening-screen-container").hide(0);
     changeScreen("mainMenu");
-    checkQuickLink(true);
     sendSocketMessage({ message: "exitOpeningScreen" });
+    checkQuickLink(true);
     variables.exitedOpeningScreen = true;
   });
   $(
@@ -815,6 +860,7 @@ function initializeEventListeners() {
       emulatedKeypress: "Escape"
     });
     changeScreen("mainMenu");
+    clearChatMessageBoxes();
   });
   // === REPLAY CONTROL ===
   $("#replay-controller__bar").on("click", (event) => {
@@ -831,6 +877,161 @@ function initializeEventListeners() {
     variables.replay.paused = true;
     jumpToTimeInReplay(variables.replay.elapsedReplayTime);
   });
+  // == CUSTOM MULTIPLAYER ==
+  $("#custom-multiplayer-room-selection-screen-button--back").on(
+    "click",
+    () => {
+      changeScreen("multiplayerMenu");
+    }
+  );
+  $(
+    "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list"
+  ).on("click", () => {
+    variables.multiplayerChat.playerListShown =
+      !variables.multiplayerChat.playerListShown;
+    const playerListSelector =
+      "#main-content__custom-multiplayer-intermission-screen-container__chat__player-list";
+    const messageListSelector =
+      "#main-content__custom-multiplayer-intermission-screen-container__chat__messages";
+    const toggleListSelector =
+      "#main-content__custom-multiplayer-intermission-screen-container__player-list__toggle-list";
+    if (variables.multiplayerChat.playerListShown) {
+      $(playerListSelector).show(0);
+      $(messageListSelector).hide(0);
+      $(toggleListSelector).text("Hide Player List");
+    } else {
+      $(messageListSelector).show(0);
+      $(playerListSelector).hide(0);
+      $(toggleListSelector).text("Show Player List");
+    }
+  });
+  $("#custom-multiplayer-screen__sidebar-item--back").on("click", () => {
+    variables.playing = false;
+    sendSocketMessage({
+      message: "emulateKeypress",
+      emulatedKeypress: "Escape"
+    });
+    changeScreen("mainMenu");
+    clearChatMessageBoxes();
+  });
+  $("#custom-multiplayer-chat-message").on("keypress", function (e) {
+    if (e.which == 13) {
+      const message =
+        $("#custom-multiplayer-chat-message").val()?.toString().trim() || "";
+      if (!message) {
+        return;
+      }
+      sendSocketMessage({
+        message: "sendChatMessage",
+        scope: "room",
+        chatMessage:
+          $("#custom-multiplayer-chat-message").val()?.toString() || ""
+      });
+      $("#custom-multiplayer-chat-message").val("");
+    }
+  });
+  $(`#custom-multiplayer-message-send-button`).on("click", () => {
+    sendSocketMessage({
+      message: "sendChatMessage",
+      scope: "room",
+      chatMessage: $("#custom-multiplayer-chat-message").val()?.toString() || ""
+    });
+    $("#custom-multiplayer-chat-message").val("");
+  });
+  $("#custom-multiplayer-room-selection-screen-button--join").on(
+    "click",
+    () => {
+      const roomSelectDialog = document.getElementById(
+        "custom-multiplayer-room-selection-dialog"
+      ) as HTMLDialogElement;
+      if (!roomSelectDialog) {
+        const message =
+          "Room selection dialog HTML doesn't exist! Is the game properly loaded?";
+        console.error(message);
+        const options = { borderColor: "#ff0000" };
+        const toast = new ToastNotification(message, options);
+        toast.render();
+        return;
+      }
+      sendSocketMessage({ message: "getMultiplayerRoomList" });
+      roomSelectDialog.show();
+      $("#custom-multiplayer-room-selection-dialog-container").show(0);
+    }
+  );
+  $("#custom-multiplayer-room-selection-dialog__close").on("click", () => {
+    const roomSelectDialog = document.getElementById(
+      "custom-multiplayer-room-selection-dialog"
+    ) as HTMLDialogElement;
+    if (!roomSelectDialog) {
+      const message =
+        "Room selection dialog HTML doesn't exist! Is the game properly loaded?";
+      console.error(message);
+      const options = { borderColor: "#ff0000" };
+      const toast = new ToastNotification(message, options);
+      toast.render();
+      return;
+    }
+    roomSelectDialog.close();
+    $("#custom-multiplayer-room-selection-dialog-container").hide(0);
+  });
+  $("#custom-multiplayer-room-indicator-label__toggle-visibility").on(
+    "click",
+    () => {
+      $("#custom-multiplayer-room-indicator-label__room-code--hidden").toggle(
+        0
+      );
+      $("#custom-multiplayer-room-indicator-label__room-code").toggle(0);
+    }
+  );
+  $("#custom-multiplayer-room-indicator-label__copy").on("click", async () => {
+    try {
+      const roomCode = $(
+        "#custom-multiplayer-room-indicator-label__room-code"
+      ).text();
+      const text = `${window.location.origin}/?customMultiplayerRoomID=${roomCode}`;
+      console.log(`Attempting to copy quick join link ${text}`);
+      await navigator.clipboard.writeText(text);
+      const message = "Copied room quick join link!";
+      const options = { borderColor: "#00dd00" };
+      const toast = new ToastNotification(message, options);
+      toast.render();
+    } catch (error) {
+      console.error(`Unable to copy quick join link.`, error);
+      const message =
+        "Unable to copy quick join link! One common reason is that you're not on HTTPS.";
+      const options = { borderColor: "#ff0000" };
+      const toast = new ToastNotification(message, options);
+      toast.render();
+    }
+  });
+  // == CUSTOM MULTIPLAYER ROOM SELECT ==
+  $("#join-by-code").on("click", () => {
+    const code = $("#room-to-join").val();
+    if (!code) {
+      return;
+    }
+    sendSocketMessage({
+      message: "joinMultiplayerRoom",
+      room: code.toString()
+    });
+    console.log(`Joining multiplayer room with code ${code}`);
+    clearChatMessageBoxes();
+  });
+  $("#public-room-list__join").on("click", () => {
+    const code = $("#public-room-list").val();
+    if (!code) {
+      return;
+    }
+    sendSocketMessage({
+      message: "joinMultiplayerRoom",
+      room: code.toString()
+    });
+    console.log(`Joining multiplayer room with code ${code}`);
+    clearChatMessageBoxes();
+  });
+  $("#public-room-list__refresh").on("click", () => {
+    sendSocketMessage({ message: "getMultiplayerRoomList" });
+  });
 }
 
 // events
@@ -840,11 +1041,15 @@ initializeKeypressEventListener();
 $(".settings-screen__content--online--unauthenticated").show(0);
 $(".settings-screen__content--online--authenticated").hide(0);
 $("#main-content__popup-notification-container").hide(0);
+$("#custom-multiplayer-room-selection-dialog-container").hide(0);
 changeCustomSingleplayerSecondaryScreen("");
 $("#on-screen-keyboard-container").hide(0);
 $("#settings-screen__content--online__login-form").on("submit", (event) => {
   event?.preventDefault();
 });
+for (const dialog of Array.from(document.getElementsByTagName("dialog"))) {
+  dialog.close();
+}
 redrawStage();
 
 function updateUserInformationText(data: any) {
@@ -906,6 +1111,10 @@ function updateUserInformationText(data: any) {
   );
   $("#main-content__user-menu-small-display__username").text(data.username);
   let level = calculateLevel(data.experiencePoints);
+  $("#main-content__user-menu-small-display__username").css(
+    "color",
+    data.rank.color
+  );
   $("#main-content__user-menu-small-display__level").text(
     `Level ${level.level} (${((level.progressToNext || 0) * 100).toFixed(
       3
@@ -931,8 +1140,12 @@ window.addEventListener("load", function () {
   // quick link
   const quickLink = checkQuickLink(false);
   if (quickLink.ok) {
-    const message = `Opening Quick Link ${quickLink.parameter}:${quickLink.value}`;
+    const message = `Opening Quick Link`;
     $("#opening-screen__quick-link").text(message);
+    $("#opening-screen__quick-link__key").text(
+      (quickLink.parameter ?? "") + ":"
+    );
+    $("#opening-screen__quick-link__value").text(quickLink.value ?? "");
   }
   // initialize some settings
   if (variables.settings.backgroundImage) {

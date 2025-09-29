@@ -1,55 +1,51 @@
 import * as utilities from "../core/utilities";
 import * as universal from "../universal";
-import * as enemy from "./Enemy";
 import * as _ from "lodash";
 import { log } from "../core/log";
 import * as input from "../core/input";
-import { submitSingleplayerGame } from "../services/score";
 import { InputAction } from "../core/input";
-import {
-  convertGameSettingsToReplayActions,
-  findRoomWithConnectionID,
-  getUserReplayDataFromSocket,
-  sleep
-} from "../core/utilities";
-import { User } from "../models/User";
-import {
-  getSocketFromConnectionID,
-  synchronizeGameDataWithSocket
-} from "../universal";
+import { findRoomWithConnectionID } from "../core/utilities";
 import {
   GameData,
-  SingleplayerGameData,
-  CustomSingleplayerGameData,
-  MultiplayerGameData,
   GameMode,
-  ClockInterface,
-  CustomGameSettings
+  CustomGameSettings,
+  GAME_DATA_CONSTANTS
 } from "./GameData";
-import { updateSingleplayerRoomData } from "./actions/update";
-import { changeClientSideText } from "./actions/send-html";
-import {
-  checkGlobalMultiplayerRoomClocks,
-  checkPlayerMultiplayerRoomClocks
-} from "./actions/clocks";
-import { createGameOverScreenText } from "./actions/create-text";
-import { createNewEnemy } from "./Enemy";
-import {
-  Action,
-  ActionRecord,
-  GameActionRecord
-} from "../replay/recording/ActionRecord";
-const DEFAULT_MULTIPLAYER_INTERMISSION_TIME = 1000 * 10;
+import { GameActionRecord } from "../replay/recording/ActionRecord";
+import { Enemy } from "./Enemy";
+import { MultiplayerRoom } from "./MultiplayerRoom";
+
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
 const window = new JSDOM("").window;
 const DOMPurify = createDOMPurify(window);
 let defaultMultiplayerRoomID: string | null = null;
 
+const COMMAND_DATA = [
+  "start",
+  "set",
+  "get",
+  "setvisibility",
+  "getvisibility",
+  "kick",
+  "transferhost"
+];
+
 interface InputActionInterface {
   action: InputAction;
   argument: string;
   keyPressed?: string | undefined;
+}
+
+interface MinifiedGameDataInterface {
+  owner: string;
+  ownerName?: string;
+  baseHealth?: number;
+  combo?: number;
+  currentInput?: string;
+  receivedEnemiesStock?: number;
+  enemies?: Array<Enemy>;
+  enemiesToErase?: Array<string>;
 }
 
 class Room {
@@ -71,6 +67,12 @@ class Room {
 
   // new update 2025-03-31
   gameActionRecord: GameActionRecord;
+
+  // new update 2025-09-22
+  ageInMilliseconds: number = 0;
+
+  // custom multiplayer
+  hidden: boolean = false;
 
   /**
    * Creates a `Room` instance. This shouldn't be called directly.
@@ -97,24 +99,28 @@ class Room {
     }
     this.connectionIDsThisRound = [];
     this.lastUpdateTime = Date.now();
-
     this.gameActionRecord = new GameActionRecord();
 
-    // special for default multiplayer
-    // check if default multiplayer room already exists
-    if (gameMode === GameMode.DefaultMultiplayer && defaultMultiplayerRoomID) {
-      log.warn(`There may only be one Default Multiplayer room at at time.`);
-      log.warn(`There is one, which is ID ${defaultMultiplayerRoomID}.`);
-      this.destroy();
-      return;
-    } else if (gameMode === GameMode.DefaultMultiplayer) {
-      defaultMultiplayerRoomID = this.id;
-    }
+    this.customSettings = {
+      baseHealth: GAME_DATA_CONSTANTS.INITIAL_BASE_HEALTH,
+      comboTime: GAME_DATA_CONSTANTS.CUSTOM_MULTIPLAYER_INITIAL_COMBO_TIME,
+      enemySpeedCoefficient:
+        GAME_DATA_CONSTANTS.CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPEED_COEFFICIENT,
+      enemySpawnThreshold:
+        GAME_DATA_CONSTANTS.CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPAWN_THRESHOLD,
+      enemySpawnTime:
+        GAME_DATA_CONSTANTS.CUSTOM_MULTIPLAYER_INITIAL_ENEMY_SPAWN_TIME,
+      forcedEnemySpawnTime:
+        GAME_DATA_CONSTANTS.CUSTOM_MULTIPLAYER_INITIAL_FORCED_ENEMY_SPAWN_TIME
+    };
 
     log.info(`Created ${gameMode} room with ID ${this.id}`);
   }
 
   update(deltaTime: number) {
+    // update things that need to be updated, regardless if room is in active play
+    this.ageInMilliseconds += deltaTime;
+
     if (!this.playing && !this.updating) {
       return;
     }
@@ -130,12 +136,11 @@ class Room {
   }
 
   // room specific
-  addChatMessage(
-    message: string,
-    sender: universal.GameSocket | null,
-    isSystemMessage?: boolean
-  ) {
-    if (!isSystemMessage && (!sender || !sender.connectionID)) {
+  addChatMessage(message: string, options: { [key: string]: any }) {
+    if (
+      !options.isSystemMessage &&
+      (!options.sender || !options.sender.connectionID)
+    ) {
       log.warn(
         `No sender/connectionID for message: ${message} in room, ignoring.`
       );
@@ -149,42 +154,335 @@ class Room {
       userID: ""
     };
 
-    if (isSystemMessage) {
+    if (options.isSystemMessage) {
       messageToSend.sanitizedMessage = DOMPurify.sanitize(message);
       messageToSend.senderName = "(System)";
       messageToSend.nameColor = "#06aa06";
       messageToSend.userID = "";
-    } else if (sender) {
+    } else if (options.sender) {
       messageToSend.sanitizedMessage = DOMPurify.sanitize(message);
       messageToSend.senderName =
-        universal.getNameFromConnectionID(sender.connectionID || "") || "";
-      messageToSend.nameColor = sender.playerRank?.color ?? "#ffffff";
-      messageToSend.userID = sender.ownerUserID ?? "";
+        universal.getNameFromConnectionID(options.sender.connectionID || "") ||
+        "";
+      messageToSend.nameColor = options.sender.playerRank?.color ?? "#ffffff";
+      messageToSend.userID = options.sender.ownerUserID ?? "";
     }
 
     this.chatMessages.push({
       message: messageToSend.sanitizedMessage,
       senderName: messageToSend.senderName
     });
+
     // send to all sockets
     for (const connectionID of this.memberConnectionIDs) {
       const socket = universal.getSocketFromConnectionID(connectionID);
-      if (socket) {
-        socket.send(
-          JSON.stringify({
-            message: "addRoomChatMessage",
-            // selector:
-            //   "#main-content__multiplayer-intermission-screen-container__chat__messages",
-            data: {
-              name: DOMPurify.sanitize(messageToSend.senderName),
-              message: DOMPurify.sanitize(message),
-              nameColor: messageToSend.nameColor,
-              userID: messageToSend.userID
-            }
-          })
+      if (!socket) {
+        continue;
+      }
+      socket.send(
+        JSON.stringify({
+          message: "addRoomChatMessage",
+          // selector:
+          //   "#main-content__multiplayer-intermission-screen-container__chat__messages",
+          scope:
+            this.mode == GameMode.DefaultMultiplayer ? "default" : "custom",
+          data: {
+            name: DOMPurify.sanitize(messageToSend.senderName),
+            message: DOMPurify.sanitize(message),
+            nameColor: messageToSend.nameColor,
+            userID: messageToSend.userID
+          }
+        })
+      );
+    }
+
+    // log the chat message
+    log.info(
+      `${messageToSend.senderName} sent message ${message} to Room ID ${this.id}`
+    );
+  }
+
+  /**
+   * Runs a chat command
+   * @param {string} message The original message to use as the command.
+   * @param {{[key: string]:any}} options Any additional information to send.
+   */
+  runChatCommand(message: string, options?: { [key: string]: any }) {
+    let isHost = false;
+
+    if (!options?.sender) {
+      log.warn(`Socket doesn't exist when running chat commands.`);
+      return;
+    }
+
+    if (options?.sender.connectionID === this.host?.connectionID) {
+      isHost = true;
+    }
+
+    // substring constant because we already know
+    // index 0 in `message` is the `/`, which signifies
+    // a chat command.
+    const text = message.substring(1).split(" ");
+    const [command, ...context] = text;
+
+    const senderName =
+      universal.getNameFromConnectionID(options.sender.connectionID || "") ||
+      "";
+
+    switch (command) {
+      case "start": {
+        const result = this.validateStartCommandForRoom(isHost);
+
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /start due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+
+        // give feedback
+        // TODO: Add a delay for everyone to see when it's time to start.
+        const commandSuccessMessage = `Successfully ran command /${command}. Game will now start.`;
+        this.sendCommandResultToSocket(commandSuccessMessage, options);
+
+        // start multiplayer game
+        try {
+          (this as unknown as MultiplayerRoom).playersAtStart =
+            this.memberConnectionIDs.length;
+          (this as unknown as MultiplayerRoom).startPlay();
+          (this as unknown as MultiplayerRoom).summonEveryoneToGameplay();
+        } catch {
+          // TODO: Refactor this
+          log.error("Can't run /start command due to an internal error.");
+          options.sender.send(
+            JSON.stringify({
+              message: "createToastNotification",
+              text: `Can't run /start command due to an internal error. Please contact the server administrator!`,
+              options: { borderColor: "#ff0000" }
+            })
+          );
+        }
+
+        break;
+      }
+      case "set": {
+        const result = this.validateSetCommandForRoom(isHost, context);
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /set due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+        this.setRoomConstant(context[0], context[1]);
+        const selfMessage = `Successfully set room's constant property ${result.target} to ${context[1]}.`;
+        this.sendCommandResultToSocket(selfMessage, options);
+        const roomMessage = `The room's host has set this room's constant property ${result.target} to ${context[1]}.`;
+        this.addChatMessage(roomMessage, { isSystemMessage: true });
+        break;
+      }
+      case "get": {
+        if (context.length == 0) {
+          // no context wanted, show all.
+          let message = "The constant properties' values for this room are: ";
+          let values: Array<string> = [];
+          for (const constant of Object.keys(this.customSettings)) {
+            values.push(`${constant}: ${this.customSettings[constant]}`);
+          }
+          message += values.join(", ");
+          message += ".";
+          this.sendCommandResultToSocket(message, options);
+          break;
+        }
+
+        // context found, show the context
+        let target = "";
+        let found = false;
+        const constants = Object.keys(this.customSettings);
+        for (const constant of constants) {
+          const lowercased = constant.toLowerCase();
+          if (lowercased === context[0].toLowerCase()) {
+            target = constant;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          const message = `Unknown room custom property: ${context[0]}`;
+          this.sendCommandResultToSocket(message, options);
+          break;
+        }
+        const value = this.customSettings[target];
+        const message = `The constant property ${target}'s value for this room is ${value}.`;
+        this.sendCommandResultToSocket(message, options);
+        break;
+      }
+      case "setvisibility": {
+        const result = this.validateSetVisibilityCommandForRoom(
+          isHost,
+          context
         );
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /setvisibility due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+
+        // valid
+        if (context[0] === "true") {
+          const selfMessage = `Successfully set room's visibility to true.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The room's host has set this visibility to true.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+          this.setRoomVisibility(true);
+        } else if (context[0] === "false") {
+          const selfMessage = `Successfully set room's visibility to false.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The room's host has set this room's visibility to false.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+          this.setRoomVisibility(false);
+        }
+
+        break;
+      }
+      case "getvisibility": {
+        let message = "";
+        if (this.hidden) {
+          message =
+            "This room is hidden. It is not shown in the room list, but other players may still join through the room code.";
+        } else {
+          message =
+            "This room is public. It is shown in the room list, and other players can also join through the room code.";
+        }
+        this.sendCommandResultToSocket(message, options);
+        break;
+      }
+      case "kick": {
+        const result = this.validateKickCommandForRoom(
+          isHost,
+          context,
+          senderName
+        );
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /kick due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+
+        const nameToKick = context.join(" ");
+        const connectionIDToKick = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === nameToKick
+        );
+        const connectionIDOfSender = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === senderName
+        );
+
+        // defaults to `???`, since there are no sockets
+        // which this connectionID already in the first place.
+        const socketToKick = universal.getSocketFromConnectionID(
+          connectionIDToKick ?? "???"
+        );
+
+        const senderSocket = universal.getSocketFromConnectionID(
+          connectionIDOfSender ?? "???"
+        );
+
+        if (senderSocket && socketToKick) {
+          this.kickMember(senderSocket, socketToKick);
+          const selfMessage = `Successfully kicked ${nameToKick} from the room.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The room's host has kicked ${nameToKick} from the room.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+        } else {
+          log.warn(`Unable to to kick ${nameToKick} from room ${this.id}.`);
+          const selfMessage = `Unable to kick ${nameToKick} from the room. Please contact the server administrator if this happens again!`;
+          this.sendCommandResultToSocket(selfMessage, options);
+        }
+
+        log.info(
+          `Host of room ${this.id} has kicked ${nameToKick} from the room.`
+        );
+        break;
+      }
+      case "transferhost": {
+        const result = this.validateTransferHostCommandForRoom(
+          isHost,
+          context,
+          senderName
+        );
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /transferhost due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+
+        const nameToTransferHostTo = context.join(" ");
+        const connectionIDToTransferHostTo = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === nameToTransferHostTo
+        );
+        const connectionIDOfSender = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === senderName
+        );
+
+        // defaults to `???`, since there are no sockets
+        // which this connectionID already in the first place.
+        const newHostSocket = universal.getSocketFromConnectionID(
+          connectionIDToTransferHostTo ?? "???"
+        );
+
+        const senderSocket = universal.getSocketFromConnectionID(
+          connectionIDOfSender ?? "???"
+        );
+
+        if (senderSocket && newHostSocket) {
+          (this as unknown as MultiplayerRoom).setNewHost(
+            connectionIDToTransferHostTo as string
+          );
+          const selfMessage = `Successfully transferred hosting powers to ${nameToTransferHostTo}.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The host of this room has transferred hosting powers to ${nameToTransferHostTo}.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+          const newHostMessage = `The host of this room has transferred hosting powers to you. You are now the host of this room.`;
+          this.sendCommandResultToSocket(newHostMessage, {
+            sender: newHostSocket
+          });
+        } else {
+          log.warn(
+            `Unable to to transfer host to ${nameToTransferHostTo} for room ${this.id}.`
+          );
+          const selfMessage = `Unable to to transfer host to ${nameToTransferHostTo} for room ${this.id}. Please contact the server administrator if this happens again!`;
+          this.sendCommandResultToSocket(selfMessage, options);
+        }
+
+        log.info(
+          `Host of room ${this.id} has transferred hosting powers to ${nameToTransferHostTo} for room ${this.id}.`
+        );
+        break;
+      }
+      case "?":
+      case "help": {
+        let message = `The available commands are: `;
+        message += COMMAND_DATA.map((e) => "/" + e).join(", ");
+        message += ".";
+        if (!isHost) {
+          message += " ";
+          message +=
+            "Note that you may not use some of these commands as they are reserved for the host.";
+        }
+        this.sendCommandResultToSocket(message, options);
+        break;
+      }
+      default: {
+        const message = `Unknown command /${command}.`;
+        this.sendCommandResultToSocket(message, options);
+        break;
       }
     }
+
+    // log the command
+    log.info(`${senderName} sent message ${message} to Room ID ${this.id}`);
   }
 
   /**
@@ -194,14 +492,18 @@ class Room {
   addMember(caller: universal.GameSocket) {
     const connectionID = caller.connectionID as string;
     if (
-      this.memberConnectionIDs.indexOf(connectionID) === -1 &&
-      this.spectatorConnectionIDs.indexOf(connectionID) === -1
+      !this.memberConnectionIDs.includes(connectionID) &&
+      !this.spectatorConnectionIDs.includes(connectionID)
     ) {
       this.memberConnectionIDs.push(connectionID);
       log.info(
         `Added socket with ID ${connectionID} as a member to room ${this.id}`
       );
       caller.subscribe(this.id);
+    } else {
+      log.warn(
+        `Did not add socket with ID ${connectionID} as it's already in this room.`
+      );
     }
   }
 
@@ -213,12 +515,16 @@ class Room {
   addSpectator(caller: universal.GameSocket) {
     const connectionID = caller.connectionID as string;
     if (
-      this.spectatorConnectionIDs.indexOf(connectionID) === -1 &&
-      this.memberConnectionIDs.indexOf(connectionID) === -1
+      !this.spectatorConnectionIDs.includes(connectionID) &&
+      !this.memberConnectionIDs.includes(connectionID)
     ) {
       this.spectatorConnectionIDs.push(connectionID);
       log.info(
         `Added socket with ID ${connectionID} as a spectator to room ${this.id}`
+      );
+    } else {
+      log.warn(
+        `Did not add socket with ID ${connectionID} as it's already in this room.`
       );
     }
   }
@@ -230,7 +536,7 @@ class Room {
    */
   deleteMember(caller: universal.GameSocket) {
     const connectionID = caller.connectionID as string;
-    if (this.memberConnectionIDs.indexOf(connectionID) > -1) {
+    if (this.memberConnectionIDs.includes(connectionID)) {
       this.memberConnectionIDs.splice(
         this.memberConnectionIDs.indexOf(connectionID),
         1
@@ -241,6 +547,45 @@ class Room {
     }
   }
 
+  kickMember(caller: universal.GameSocket, target: universal.GameSocket) {
+    const callerConnectionID = caller.connectionID as string;
+    const targetConnectionID = target.connectionID as string;
+    if (
+      !this.memberConnectionIDs.includes(callerConnectionID) ||
+      !this.memberConnectionIDs.includes(targetConnectionID)
+    ) {
+      log.warn(`Unable to kick: Member/target doesn't exist in ${this.id}`);
+      return;
+    }
+
+    // kick here
+    this.memberConnectionIDs.splice(
+      this.memberConnectionIDs.indexOf(targetConnectionID),
+      1
+    );
+    const targetSocket =
+      universal.getSocketFromConnectionID(targetConnectionID);
+
+    if (targetSocket) {
+      targetSocket.unsubscribe(this.id);
+      this.deleteMember(targetSocket);
+
+      const message = `You have been kicked from this Custom Multiplayer room!`;
+      const BORDER_COLOR = `#ff0000`;
+      universal.sendToastMessageToSocket(targetSocket, message, BORDER_COLOR);
+      targetSocket.send(
+        JSON.stringify({
+          message: "changeScreen",
+          newScreen: "mainMenu"
+        })
+      );
+    }
+
+    log.info(
+      `Socket with ID ${callerConnectionID} kicked socket with ID ${targetConnectionID} (member) from room ${this.id}`
+    );
+  }
+
   /**
    * Deletes the socket from this `Room` instance.
    * This requires that the socket is a spectator (and not a member),
@@ -248,7 +593,7 @@ class Room {
    */
   deleteSpectator(caller: universal.GameSocket) {
     const connectionID = caller.connectionID as string;
-    if (this.spectatorConnectionIDs.indexOf(connectionID) > -1) {
+    if (this.spectatorConnectionIDs.includes(connectionID)) {
       this.spectatorConnectionIDs.splice(
         this.spectatorConnectionIDs.indexOf(connectionID),
         1
@@ -263,12 +608,12 @@ class Room {
    * Remove all of the room's players, then deletes the room.
    */
   destroy() {
-    let members = _.clone(this.memberConnectionIDs);
-    let spectators = _.clone(this.spectatorConnectionIDs);
+    const members = _.clone(this.memberConnectionIDs);
+    const spectators = _.clone(this.spectatorConnectionIDs);
     for (let spectator of spectators) {
       const socket = universal.getSocketFromConnectionID(spectator);
       if (socket) {
-        this.deleteMember(socket);
+        this.deleteSpectator(socket);
       }
     }
     for (let member of members) {
@@ -277,692 +622,290 @@ class Room {
         this.deleteMember(socket);
       }
     }
-  }
-}
-
-class SingleplayerRoom extends Room {
-  constructor(host: universal.GameSocket, mode: GameMode, settings?: any) {
-    super(host, mode);
-    // custom settings
-    if (typeof settings !== "undefined") {
-      setCustomRules(this, settings);
-    }
+    log.info(`Destroyed room ${this.id}`);
   }
 
-  startPlay() {
-    this.gameActionRecord.initialize();
-
-    if (
-      this.mode === GameMode.EasySingleplayer ||
-      this.mode === GameMode.StandardSingleplayer
-    ) {
-      for (let member of this.memberConnectionIDs) {
-        const socket = getSocketFromConnectionID(member);
-        if (socket) {
-          this.gameData.push(new SingleplayerGameData(socket, this.mode));
-          // add add user to record
-          this.gameActionRecord.addAction({
-            scope: "room",
-            action: Action.AddUser,
-            timestamp: Date.now(),
-            data: {
-              playerAdded: getUserReplayDataFromSocket(socket)
-            }
-          });
-        }
-      }
-    } else if (this.mode === GameMode.CustomSingleplayer) {
-      for (let member of this.memberConnectionIDs) {
-        const socket = getSocketFromConnectionID(member);
-        if (socket) {
-          this.gameData.push(
-            new CustomSingleplayerGameData(
-              socket,
-              this.mode,
-              this.customSettings
-            )
-          );
-          // add add user to record
-          this.gameActionRecord.addAction({
-            scope: "room",
-            action: Action.AddUser,
-            timestamp: Date.now(),
-            data: {
-              playerAdded: getUserReplayDataFromSocket(socket)
-            }
-          });
-        }
-      }
+  validateStartCommandForRoom(isHost: boolean) {
+    let valid = true;
+    let errors = [];
+    if (!isHost) {
+      errors.push("You must be the room's host to run this command.");
+      valid = false;
     }
-
-    // add game settings
-    const gameSettings = convertGameSettingsToReplayActions(this.gameData[0]);
-    for (const setting in gameSettings) {
-      // this.gameActionRecord.addAction({
-      //   scope: "room",
-      //   action: Action.SetGameData,
-      //   timestamp: Date.now(),
-      //   data: {
-      //     key: setting,
-      //     value: gameSettings[setting]
-      //   }
-      // });
-      this.gameActionRecord.addSetGameDataAction(
-        this.gameData[0],
-        "player",
-        setting,
-        gameSettings[setting]
+    if (!(this.mode === GameMode.CustomMultiplayer)) {
+      errors.push("This command must be ran in a Custom Multiplayer room.");
+      valid = false;
+    }
+    if (this.memberConnectionIDs.length < 2) {
+      errors.push(
+        "This command can only be ran when there are at least 2 players in the room."
       );
+      valid = false;
     }
-
-    this.updating = true;
-
-    //TODO: unsafe?
-    this.gameActionRecord.owner = getSocketFromConnectionID(
-      this.memberConnectionIDs[0]
-    );
-
-    log.info(`Room ${this.id} has started play!`);
-  }
-
-  async startGameOverProcess(data: GameData) {
-    // destroy room
-    this.playing = false;
-
-    let socket = universal.getSocketFromConnectionID(data.ownerConnectionID);
-
-    // game over here
-
-    let gameMode: string = "";
-    switch (data.mode) {
-      case GameMode.EasySingleplayer: {
-        gameMode = "Easy Singleplayer";
-        break;
-      }
-      case GameMode.StandardSingleplayer: {
-        gameMode = "Standard Singleplayer";
-        break;
-      }
-      case GameMode.CustomSingleplayer: {
-        gameMode = "Custom Singleplayer";
-        break;
-      }
+    if (this.playing) {
+      errors.push(
+        "This command can only be ran when there is no active game in progress."
+      );
+      valid = false;
     }
-
-    data.commands.updateText = createGameOverScreenText(data, gameMode);
-    data.commands.changeScreenTo = [{ value: "gameOver", age: 0 }];
-    if (socket) {
-      synchronizeGameDataWithSocket(socket);
-    }
-
-    // check anticheat and submit score
-    if (socket) {
-      //TODO: Implement anticheat
-      submitSingleplayerGame(data, socket, this.gameActionRecord);
-    }
-
-    if (socket) {
-      socket?.unsubscribe(this.id);
-      this.deleteMember(socket);
-    }
-  }
-
-  update() {
-    const now: number = Date.now();
-    const deltaTime: number = now - this.lastUpdateTime;
-    // Check if room is supposed to update.
-    if (!this.updating) {
-      return;
-    }
-
-    /**
-     * Call the `update` method for all types of rooms first.
-     */
-    super.update(deltaTime);
-    this.lastUpdateTime = now;
-
-    /**
-     * Then call the `update` method made for Singleplayer rooms.
-     */
-    let data = this.gameData[0];
-    if (data.aborted) {
-      this.abort(data);
-    }
-
-    updateSingleplayerRoomData(this, deltaTime);
-  }
-
-  abort(data: GameData) {
-    let socket = universal.getSocketFromConnectionID(data.ownerConnectionID);
-    this.playing = false;
-    data.commands.changeScreenTo = [{ value: "mainMenu", age: 0 }];
-    if (socket) {
-      socket?.unsubscribe(this.id);
-      this.deleteMember(socket);
-    }
-  }
-}
-
-class MultiplayerRoom extends Room {
-  nextGameStartTime!: Date | null;
-  globalEnemySpawnThreshold: number;
-  globalClock: ClockInterface;
-  playersAtStart!: number;
-  globalEnemyToAdd!: enemy.Enemy | null;
-  constructor(host: universal.GameSocket, mode: GameMode, noHost: boolean) {
-    super(host, mode, noHost);
-    this.nextGameStartTime = null;
-    this.globalEnemySpawnThreshold = 0.1;
-    this.globalClock = {
-      enemySpawn: {
-        currentTime: 0,
-        actionTime: 100
-      },
-      forcedEnemySpawn: {
-        currentTime: 0,
-        actionTime: 2500
-      }
+    return {
+      valid: valid,
+      errors: errors
     };
   }
 
-  startPlay() {
-    this.gameActionRecord.initialize();
+  validateSetCommandForRoom(isHost: boolean, context: Array<string>) {
+    const result: { valid: boolean; errors: Array<string>; target: string } = {
+      valid: true,
+      errors: [],
+      target: ""
+    };
 
-    for (const member of this.memberConnectionIDs) {
-      const socket = universal.getSocketFromConnectionID(member);
-      if (socket) {
-        this.gameData.push(new MultiplayerGameData(socket, this.mode));
-        // add add user to record
-        this.gameActionRecord.addAction({
-          scope: "room",
-          action: Action.AddUser,
-          timestamp: Date.now(),
-          data: {
-            playerAdded: getUserReplayDataFromSocket(socket)
-          }
-        });
-      }
+    // Command validation is broken here if it's invalid,
+    // since the actual set operation needs two arguments,
+    // the key and the value, which must be a valid integer.
+    // Otherwise, continue, since the command could
+    // be either valid or invalid, further checks are needed.
+    if (context.length < 2) {
+      result.valid = false;
+      result.errors.push(`/set command must have at least 2 arguments.`);
+      return result;
     }
 
-    this.ranking = [];
-    this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
-    this.playing = true;
+    const constantToChange = context[0];
+    const newValueAsString = context[1];
 
-    // FIXME: may not be the same
-    for (const playerData of this.gameData) {
-      const gameSettings = convertGameSettingsToReplayActions(playerData);
-      for (const setting in gameSettings) {
-        // this.gameActionRecord.addAction({
-        //   scope: "room",
-        //   action: Action.SetGameData,
-        //   timestamp: Date.now(),
-        //   data: {
-        //     key: setting,
-        //     value: gameSettings[setting]
-        //   }
-        // });
-        this.gameActionRecord.addSetGameDataAction(
-          playerData,
-          "player",
-          setting,
-          gameSettings[setting]
-        );
-      }
+    // Early stop for the same reason above.
+    // TODO: For now, all values are integers, so some expansion
+    // is needed when the values can be (e.g.) string enums.
+    if (!utilities.IS_NUMBER_REGEX.test(newValueAsString)) {
+      result.valid = false;
+      result.errors.push(`New value is not a number.`);
+      return result;
     }
 
-    log.info(`Room ${this.id} has started play!`);
-  }
-
-  update() {
-    // Update for all types of rooms
-    let now: number = Date.now();
-    let deltaTime: number = now - this.lastUpdateTime;
-    super.update(deltaTime);
-    this.lastUpdateTime = now;
-
-    // other global stuff
-    for (const connectionID of this.memberConnectionIDs) {
-      const socket = universal.getSocketFromConnectionID(connectionID);
-      if (socket) {
-        const rankingPayload = utilities.generateRankingPayload(
-          _.clone(this.ranking)
-        );
-        const playersPayload = utilities.generatePlayerListPayload(
-          this.memberConnectionIDs
-        );
-        const playerCountSelector =
-          "#main-content__multiplayer-intermission-screen-container__player-count";
-        const playerCountText = this.memberConnectionIDs.length.toString();
-        changeClientSideText(socket, playerCountSelector, playerCountText);
-        // changeClientSideHTML(socket, rankingSelector, rankingText);
-        socket.send(
-          JSON.stringify({
-            message: "modifyMultiplayerRankContent",
-            data: rankingPayload
-          })
-        );
-        // changeClientSideHTML(socket, playersSelector, playersText);
-        socket.send(
-          JSON.stringify({
-            message: "modifyPlayerListContent",
-            data: playersPayload
-          })
-        );
-      }
-    }
-
-    // Then update specifically for multiplayer rooms
-    if (!this.playing) {
-      // Check if there is at least 2 players - if so, start intermission countdown
-      if (
-        this.nextGameStartTime == null &&
-        this.memberConnectionIDs.length >= 2
-      ) {
-        this.nextGameStartTime = new Date(
-          Date.now() + DEFAULT_MULTIPLAYER_INTERMISSION_TIME
-        );
-      }
-      // Check if there is less than 2 players - if so, stop intermission countdown
-      if (
-        this.nextGameStartTime instanceof Date &&
-        this.memberConnectionIDs.length < 2
-      ) {
-        this.nextGameStartTime = null;
-      }
-      // Start game
-      // TODO: Refactor this
-      if (this.nextGameStartTime != null) {
-        if (new Date() >= this.nextGameStartTime) {
-          this.startPlay();
-          this.playersAtStart = this.memberConnectionIDs.length;
-          for (const connectionID of this.memberConnectionIDs) {
-            let socket = universal.getSocketFromConnectionID(connectionID);
-            if (socket) {
-              socket.send(
-                JSON.stringify({
-                  message: "changeScreen",
-                  newScreen: "canvas"
-                })
-              );
-              // add games played
-              let userID = socket.ownerUserID;
-              if (typeof userID === "string") {
-                if (!universal.STATUS.databaseAvailable) {
-                  log.warn(
-                    "Database is not available. Not running database operation."
-                  );
-                } else {
-                  User.addGamesPlayedToUserID(userID, 1);
-                  User.addMultiplayerGamesPlayedToUserID(userID, 1);
-                }
-              }
-            }
-          }
-        }
-      }
-      // Update Text
-      for (const connectionID of this.memberConnectionIDs) {
-        const socket = universal.getSocketFromConnectionID(connectionID);
-        if (socket) {
-          const selector =
-            "#main-content__multiplayer-intermission-screen-container__game-status-message";
-          if (this.nextGameStartTime) {
-            let timeLeft = Date.now() - this.nextGameStartTime.getTime();
-            timeLeft = Math.abs(timeLeft / 1000);
-            const value = `Game starting in ${timeLeft.toFixed(3)} seconds.`;
-            changeClientSideText(socket, selector, value);
-          } else if (this.memberConnectionIDs.length < 2) {
-            const value = `Waiting for at least 2 players.`;
-            changeClientSideText(socket, selector, value);
-          }
-        }
-      }
-    } else {
-      // playing
-      for (const connectionID of this.memberConnectionIDs) {
-        const socket = universal.getSocketFromConnectionID(connectionID);
-        if (socket) {
-          const selector =
-            "#main-content__multiplayer-intermission-screen-container__game-status-message";
-          const value = `Current game in progress. (Remaining: ${this.gameData.length}/${this.playersAtStart})`;
-          changeClientSideText(socket, selector, value);
-        }
-      }
-
-      // global - applies to all players
-      // global clocks
-      this.globalClock.enemySpawn.currentTime += deltaTime;
-      this.globalClock.forcedEnemySpawn.currentTime += deltaTime;
-      checkGlobalMultiplayerRoomClocks(this);
-
-      // specific to each player
-      for (const data of this.gameData) {
-        const opponentGameData = this.gameData.filter(
-          (element) => element.ownerConnectionID !== data.ownerConnectionID
-        );
-
-        if (data.aborted) {
-          this.abort(data);
-        }
-
-        for (const enemy of data.enemies) {
-          const BASE_ENEMY_SPEED = 0.1;
-          enemy.move(
-            BASE_ENEMY_SPEED * data.enemySpeedCoefficient * (deltaTime / 1000)
-          );
-          if (enemy.sPosition <= 0) {
-            this.gameActionRecord.addEnemyReachedBaseAction(enemy, data);
-            enemy.remove(data, 10);
-            this.gameActionRecord.addSetGameDataAction(
-              data,
-              "player",
-              "baseHealth",
-              data.baseHealth
-            );
-          }
-        }
-        if (data.baseHealth <= 0) {
-          // player is eliminated.
-          const socket = universal.getSocketFromConnectionID(
-            data.ownerConnectionID
-          );
-          if (socket && !data.aborted) {
-            socket.send(
-              JSON.stringify({
-                message: "changeScreen",
-                newScreen: "multiplayerIntermission"
-              })
-            );
-          }
-
-          this.eliminateSocketID(data.ownerConnectionID, data);
-          const eliminationActionRecord: ActionRecord = {
-            scope: "room",
-            action: Action.Elimination,
-            timestamp: Date.now(),
-            data: {
-              eliminated: getUserReplayDataFromSocket(data.owner)
-            }
-          };
-          this.gameActionRecord.addAction(eliminationActionRecord);
-        }
-
-        // clocks
-        checkPlayerMultiplayerRoomClocks(data);
-
-        // forced enemy (when zero)
-        if (data.enemies.length === 0) {
-          const enemy = createNewEnemy(`F${data.enemiesSpawned}`);
-          this.gameActionRecord.addEnemySpawnAction(enemy, data);
-          data.enemies.push(_.clone(enemy));
-          data.enemiesSpawned++;
-        }
-
-        // generated enemy
-        if (this.globalEnemyToAdd) {
-          data.enemiesSpawned++;
-          data.enemies.push(_.clone(this.globalEnemyToAdd as enemy.Enemy));
-          this.gameActionRecord.addEnemySpawnAction(
-            this.globalEnemyToAdd,
-            data
-          );
-        }
-
-        // received enemy
-        if (data.receivedEnemiesToSpawn > 0) {
-          data.receivedEnemiesToSpawn--;
-          data.enemiesSpawned++;
-          const attributes = {
-            speed: 0.1 * data.enemySpeedCoefficient
-          };
-          const receivedEnemy = enemy.createNewReceivedEnemy(
-            `R${data.enemiesSpawned}`,
-            attributes
-          );
-          data.enemies.push(_.clone(receivedEnemy));
-          this.gameActionRecord.addEnemySpawnAction(receivedEnemy, data, true);
-        }
-
-        if (data.enemiesSentStock > 0) {
-          data.enemiesSentStock--;
-          let targetedOpponentGameData = _.sample(opponentGameData);
-          if (targetedOpponentGameData) {
-            targetedOpponentGameData.receivedEnemiesStock += 1;
-            targetedOpponentGameData.totalEnemiesReceived += 1;
-            const room = findRoomWithConnectionID(
-              targetedOpponentGameData.ownerConnectionID
-            );
-            if (room) {
-              room.gameActionRecord.addStockAddAction(
-                targetedOpponentGameData,
-                1
-              );
-            }
-          }
-        }
-      }
-    }
-  }
-
-  eliminateSocketID(connectionID: string, gameData: GameData | object) {
-    const socket = universal.getSocketFromConnectionID(connectionID);
-    if (typeof socket === "undefined") {
-      log.warn(
-        `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
+    // One finally early stop.
+    if (!this.customSettings) {
+      result.valid = false;
+      result.errors.push(
+        `This room does not contain custom settings. Please contact the server administrator!`
       );
+      return result;
     }
-    const place = this.gameData.length;
-    if (gameData instanceof GameData) {
-      const data = {
-        placement: place,
-        name: universal.getNameFromConnectionID(connectionID) || "???",
-        time: gameData.elapsedTime,
-        sent: gameData.totalEnemiesSent,
-        received: gameData.totalEnemiesReceived,
-        isRegistered: false,
-        nameColor: "",
-        userID: "",
-        connectionID: gameData.ownerConnectionID
-      };
-      if (socket?.ownerUserID) {
-        // is registered
-        data.isRegistered = true;
-        data.userID = socket.ownerUserID;
-        data.nameColor = socket.playerRank?.color ?? "#ffffff";
-      }
-      this.ranking.push(data);
+
+    // At this point, the command's form is considered to be "correct",
+    // However, further checks on the CONTEXT of the command's runner and the room
+    // is required, just like how the host can only issue commands on non-active games.
+    if (!isHost) {
+      result.errors.push("You must be the room's host to run this command.");
+      result.valid = false;
     }
-    if (socket?.loggedIn && gameData instanceof GameData) {
-      const earnedEXP = Math.round(gameData.elapsedTime / 2000);
-      User.giveExperiencePointsToUserID(
-        socket.ownerUserID as string,
-        earnedEXP
+    if (!(this.mode === GameMode.CustomMultiplayer)) {
+      result.errors.push(
+        "This command must be ran in a Custom Multiplayer room."
       );
+      result.valid = false;
     }
-    // eliminate the socket
-    let gameDataIndex = this.gameData.findIndex(
-      (element) => element.ownerConnectionID === connectionID
-    );
-    if (gameDataIndex > -1) {
-      this.gameData.splice(gameDataIndex, 1);
-    }
-    log.info(
-      `Socket ID ${connectionID} (${universal.getNameFromConnectionID(
-        connectionID
-      )}) has been eliminated from the Default Multiplayer Room`
-    );
-    // give exp to eliminated player
-    // add to ranking
-    this.checkIfGameFinished(this.gameData);
-  }
-
-  async checkIfGameFinished(gameDataArray: Array<GameData>) {
-    if (gameDataArray.length <= 1) {
-      // game finished
-      // Default Multiplayer for now since there's only 1 multiplayer room at a given time.
-      log.info(`Default Multiplayer Room has finished playing.`);
-      if (gameDataArray.length === 1) {
-        let winnerGameData = gameDataArray[0];
-        log.info(
-          `The winner is socket ID ${
-            winnerGameData.ownerConnectionID
-          } (${universal.getNameFromConnectionID(
-            winnerGameData.ownerConnectionID
-          )})`
-        );
-        const winnerSocket = universal.getSocketFromConnectionID(
-          winnerGameData.ownerConnectionID
-        );
-
-        // add winner action
-        if (winnerSocket) {
-          const winnerActionRecord: ActionRecord = {
-            scope: "room",
-            action: Action.DeclareWinner,
-            timestamp: Date.now(),
-            data: {
-              winner: getUserReplayDataFromSocket(winnerSocket)
-            }
-          };
-          this.gameActionRecord.addAction(winnerActionRecord);
-        }
-
-        this.gameActionRecord.addGameOverAction();
-
-        // add exp to winner socket
-        if (winnerSocket?.ownerUserID) {
-          if (typeof winnerSocket.ownerUserID === "string") {
-            if (!universal.STATUS.databaseAvailable) {
-              log.warn(
-                "Database is not available. Not running database operation."
-              );
-            } else {
-              // multiplayer games won
-              User.addMultiplayerGamesWonToUserID(
-                winnerSocket.ownerUserID as string,
-                1
-              );
-              // experience (50% bonus for winning)
-              const earnedEXP =
-                Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
-              User.giveExperiencePointsToUserID(
-                winnerSocket.ownerUserID as string,
-                earnedEXP
-              );
-            }
-          }
-        }
-
-        const data = {
-          placement: this.gameData.length,
-          name:
-            universal.getNameFromConnectionID(
-              winnerGameData.ownerConnectionID
-            ) || "???",
-          time: winnerGameData.elapsedTime,
-          sent: winnerGameData.totalEnemiesSent,
-          received: winnerGameData.totalEnemiesReceived,
-          isRegistered: false,
-          nameColor: "",
-          userID: "",
-          connectionID: winnerGameData.ownerConnectionID
-        };
-        if (winnerSocket?.ownerUserID) {
-          // is registered
-          data.isRegistered = true;
-          data.userID = winnerSocket.ownerUserID;
-          data.nameColor = winnerSocket.playerRank?.color ?? "#ffffff";
-        }
-        this.ranking.push(data);
-        // submit replay here.
-
-        if (
-          this.memberConnectionIDs.filter(
-            (e) => getSocketFromConnectionID(e)?.loggedIn
-          ).length >= 1
-        ) {
-          const replay = await this.gameActionRecord.save(
-            this.mode,
-            this.ranking
-          );
-          if (!universal.STATUS.databaseAvailable) {
-            log.warn("Not saving multiplayer because database is unavailable.");
-          } else {
-            if (replay.ok) {
-              this.addChatMessage(
-                `Default Multiplayer game replay saved with Replay ID ${replay.id}.`,
-                null,
-                true
-              );
-            }
-          }
-        } else {
-          log.info("Not saving multiplayer game because no one is logged in.");
-        }
-      }
-      // stop everyone from playing
-      this.stopPlay();
-      // bring everyone to intermission screen
-      this.summonEveryoneToIntermission();
-      // update everyone's client-side statistics
-      const socketsInRoom = this.memberConnectionIDs.map((id) =>
-        universal.getSocketFromConnectionID(id)
+    if (this.playing) {
+      result.errors.push(
+        "This command can only be ran when there is no active game in progress."
       );
-      await sleep(1000);
-      utilities.bulkUpdateSocketUserInformation(...socketsInRoom);
+      result.valid = false;
     }
-  }
 
-  // force quit - NOT send to intermission screen
-  abort(data: GameData) {
-    data.baseHealth = -99999;
-    let socket = universal.getSocketFromConnectionID(data.ownerConnectionID);
-    data.commands.changeScreenTo = [{ value: "mainMenu", age: 0 }];
-    log.info(
-      `Socket ID ${data.ownerConnectionID} (${universal.getNameFromConnectionID(
-        data.ownerConnectionID
-      )}) has quit the Default Multiplayer Room`
-    );
-    if (socket) {
-      socket?.unsubscribe(this.id);
-      this.deleteMember(socket);
-    }
-  }
-
-  stopPlay() {
-    this.playing = false;
-    this.nextGameStartTime = new Date(
-      Date.now() + DEFAULT_MULTIPLAYER_INTERMISSION_TIME
-    );
-    this.connectionIDsThisRound = [];
-    this.gameData = [];
-    // send everyone to intermission
-
-    log.info(`Room ${this.id} has stopped play.`);
-  }
-
-  summonEveryoneToIntermission() {
-    // TODO: Add spectators once they get implemented
-    for (const connectionID of this.memberConnectionIDs) {
-      let socket = universal.getSocketFromConnectionID(connectionID);
-      if (typeof socket === "undefined") {
-        log.warn(
-          `Socket ID ${connectionID} not found while summoning it to lobby, therefore skipping process.`
-        );
-        continue;
-      }
-      socket.send(
-        JSON.stringify({
-          message: "changeScreen",
-          newScreen: "multiplayerIntermission"
-        })
+    // We still need to see if the command is acting on
+    // an actual key that exists as a room property.
+    const constants = Object.keys(this.customSettings);
+    const lowercasedTarget = constantToChange.toLowerCase();
+    if (!constants.map((e) => e.toLowerCase()).includes(lowercasedTarget)) {
+      result.valid = false;
+      result.errors.push(
+        `Room constant property ${constantToChange} doesn't exist. 
+        (Available constants are ${constants.join(", ")})`
       );
+      return result;
     }
+
+    // We also need to check that the value is in the allowed range.
+    let target = "";
+    for (const constant of constants) {
+      const lowercased = constant.toLowerCase();
+      if (lowercased === constantToChange.toLowerCase()) {
+        target = constant;
+        result.target = constant;
+        break;
+      }
+    }
+    const newSettings = _.clone(this.customSettings);
+    newSettings[target] = parseFloat(newValueAsString);
+    const setResult = utilities.validateCustomGameSettings(
+      "multiplayer",
+      newSettings
+    );
+
+    if (!setResult.success) {
+      result.valid = false;
+      const valueErrorMessage =
+        setResult.reason ?? `Unknown error on constant property ${target}`;
+      result.errors.push(valueErrorMessage);
+    }
+
+    return result;
+  }
+
+  validateSetVisibilityCommandForRoom(isHost: boolean, context: Array<string>) {
+    const result: { valid: boolean; errors: Array<string> } = {
+      valid: true,
+      errors: []
+    };
+
+    if (!isHost) {
+      result.errors.push("You must be the room's host to run this command.");
+      result.valid = false;
+    }
+
+    if (!(this.mode === GameMode.CustomMultiplayer)) {
+      result.errors.push(
+        "This command must be ran in a Custom Multiplayer room."
+      );
+      result.valid = false;
+    }
+
+    if (!(context[0] === "true" || context[0] === "false")) {
+      result.errors.push(
+        `This command's argument can only be either "true" or "false".`
+      );
+      result.valid = false;
+    }
+    return result;
+  }
+
+  validateKickCommandForRoom(
+    isHost: boolean,
+    context: Array<string>,
+    senderName: string
+  ) {
+    const result: { valid: boolean; errors: Array<string> } = {
+      valid: true,
+      errors: []
+    };
+
+    if (!isHost) {
+      result.errors.push("You must be the room's host to run this command.");
+      result.valid = false;
+    }
+
+    if (!(this.mode === GameMode.CustomMultiplayer)) {
+      result.errors.push(
+        "This command must be ran in a Custom Multiplayer room."
+      );
+      result.valid = false;
+    }
+
+    const target = context.join(" ");
+    const names = this.memberConnectionIDs.map((connectionID) => {
+      return universal.getNameFromConnectionID(connectionID);
+    });
+
+    if (target === "") {
+      result.errors.push(`No player to kick is specified.`);
+      result.valid = false;
+    } else if (!names.includes(target)) {
+      result.errors.push(`Player ${target} doesn't exist in this room.`);
+      result.valid = false;
+    }
+
+    if (target === senderName) {
+      result.errors.push(`You can't kick yourself.`);
+      result.valid = false;
+    }
+    return result;
+  }
+
+  validateTransferHostCommandForRoom(
+    isHost: boolean,
+    context: Array<string>,
+    senderName: string
+  ) {
+    const result: { valid: boolean; errors: Array<string> } = {
+      valid: true,
+      errors: []
+    };
+
+    if (!isHost) {
+      result.errors.push("You must be the room's host to run this command.");
+      result.valid = false;
+    }
+
+    if (!(this.mode === GameMode.CustomMultiplayer)) {
+      result.errors.push(
+        "This command must be ran in a Custom Multiplayer room."
+      );
+      result.valid = false;
+    }
+
+    const target = context.join(" ");
+    const names = this.memberConnectionIDs.map((connectionID) => {
+      return universal.getNameFromConnectionID(connectionID);
+    });
+
+    if (target === "") {
+      result.errors.push(`No player to give hosting powers to is specified.`);
+      result.valid = false;
+    } else if (!names.includes(target)) {
+      result.errors.push(`Player ${target} doesn't exist in this room.`);
+      result.valid = false;
+    }
+
+    if (target === senderName) {
+      result.errors.push(`You are already the host of this room!`);
+      result.valid = false;
+    }
+    return result;
+  }
+
+  setRoomConstant(targetKey: string, newValueAsString: string) {
+    // TODO: DRY
+    let target = "";
+    const constants = Object.keys(this.customSettings);
+    for (const constant of constants) {
+      const lowercased = constant.toLowerCase();
+      if (lowercased === targetKey.toLowerCase()) {
+        target = constant;
+        break;
+      }
+    }
+    const newValue = parseFloat(newValueAsString);
+    this.customSettings[target] = newValue;
+  }
+
+  setRoomVisibility(visible: boolean) {
+    this.hidden = !visible;
+  }
+
+  sendCommandResultToSocket(message: string, options: { [key: string]: any }) {
+    const scope =
+      this.mode == GameMode.DefaultMultiplayer ? "default" : "custom";
+
+    const systemMessageData = {
+      name: "(System)",
+      message: "",
+      nameColor: "#06aa06",
+      userID: ""
+    };
+    systemMessageData.message = message;
+    options.sender.send(
+      JSON.stringify({
+        message: "addRoomChatMessage",
+        scope: scope,
+        data: systemMessageData
+      })
+    );
   }
 }
 
 function generateRoomID(length: number): string {
-  let pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let current = "";
   while (
     current === "" ||
@@ -984,7 +927,7 @@ function processKeypressForRoom(
   code: string,
   emulated?: boolean
 ) {
-  let roomToProcess = utilities.findRoomWithConnectionID(connectionID, false);
+  const roomToProcess = utilities.findRoomWithConnectionID(connectionID, false);
   let inputInformation: InputActionInterface = {
     action: InputAction.Unknown,
     argument: ""
@@ -992,7 +935,7 @@ function processKeypressForRoom(
   if (!roomToProcess) {
     return;
   }
-  let gameDataToProcess = utilities.findGameDataWithConnectionID(
+  const gameDataToProcess = utilities.findGameDataWithConnectionID(
     connectionID,
     roomToProcess
   );
@@ -1008,27 +951,6 @@ function processKeypressForRoom(
   }
 }
 
-// This just attempts to leave.
-function leaveMultiplayerRoom(socket: universal.GameSocket) {
-  // TODO: Implement for spectators when spectators are implemented.
-  let room = universal.rooms.find(
-    (element) =>
-      element.memberConnectionIDs.indexOf(socket.connectionID as string) > -1
-  );
-  if (room instanceof MultiplayerRoom) {
-    if (room.playing) {
-      let gameData = utilities.findGameDataWithConnectionID(
-        socket.connectionID as string
-      );
-      if (gameData) {
-        room.abort(gameData);
-      }
-    }
-    room.deleteMember(socket);
-    socket.unsubscribe(defaultMultiplayerRoomID as string);
-  }
-}
-
 /**
  *
  * @param {universal.GameSocket} socket The socket that called the function. Will be used so function doesn't return self's data.
@@ -1041,48 +963,56 @@ function getOpponentsInformation(
   room: Room,
   minifyData: boolean
 ): any {
-  let currentRoom: SingleplayerRoom | MultiplayerRoom | null =
-    findRoomWithConnectionID(socket.connectionID);
-  let aliveConnectionIDs: Array<string> = [];
+  const currentRoom = findRoomWithConnectionID(socket.connectionID);
+  const aliveConnectionIDs: Array<string> = [];
   if (typeof currentRoom === "undefined" || currentRoom == null) {
     log.warn(`Room for owner ${socket.connectionID} of game data not found.`);
     return [];
   }
-  let opponentGameData = currentRoom.gameData.filter(
+  const opponentGameData = currentRoom.gameData.filter(
     (element) => element.ownerConnectionID !== socket.connectionID
   );
-  if (minifyData) {
-    let minifiedOpponentGameData = [];
-    for (let singleGameData of opponentGameData) {
-      let minifiedGameData: { [key: string]: any } = {};
-      minifiedGameData.baseHealth = singleGameData.baseHealth;
-      minifiedGameData.combo = singleGameData.combo;
-      minifiedGameData.currentInput = singleGameData.currentInput;
-      minifiedGameData.receivedEnemiesStock =
-        singleGameData.receivedEnemiesStock;
-      minifiedGameData.owner = singleGameData.ownerConnectionID;
-      minifiedGameData.ownerName = singleGameData.ownerName;
-      minifiedGameData.enemies = singleGameData.enemies;
-      minifiedGameData.enemiesToErase = singleGameData.enemiesToErase;
-      minifiedOpponentGameData.push(minifiedGameData);
-      aliveConnectionIDs.push(singleGameData.ownerConnectionID);
-    }
-    // 0 base health players
-    let eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
-      (element) =>
-        aliveConnectionIDs.indexOf(element) === -1 &&
-        element !== socket.connectionID
-    );
-    // console.log(eliminatedConnectionIDs);
-    for (let eliminated of eliminatedConnectionIDs) {
-      let minifiedGameData: { [key: string]: any } = {};
-      minifiedGameData.owner = eliminated;
-      minifiedGameData.baseHealth = -99999;
-      minifiedOpponentGameData.push(minifiedGameData);
-    }
-    return minifiedOpponentGameData;
+  if (!minifyData) {
+    return opponentGameData;
   }
-  return opponentGameData;
+  const minifiedOpponentGameData = [];
+  for (let singleGameData of opponentGameData) {
+    const minifiedGameData: MinifiedGameDataInterface = {
+      baseHealth: singleGameData.baseHealth,
+      combo: singleGameData.combo,
+      currentInput: singleGameData.currentInput,
+      receivedEnemiesStock: singleGameData.receivedEnemiesStock,
+      owner: singleGameData.ownerConnectionID,
+      ownerName: singleGameData.ownerName,
+      enemies: singleGameData.enemies,
+      enemiesToErase: singleGameData.enemiesToErase
+    };
+
+    minifiedOpponentGameData.push(minifiedGameData);
+    aliveConnectionIDs.push(singleGameData.ownerConnectionID);
+  }
+  // 0 base health players
+  const eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
+    (element) =>
+      !aliveConnectionIDs.includes(element) && element !== socket.connectionID
+  );
+  // console.log(eliminatedConnectionIDs);
+  for (let eliminated of eliminatedConnectionIDs) {
+    const minifiedGameData: MinifiedGameDataInterface = {
+      owner: eliminated,
+      baseHealth: -99999
+    };
+    minifiedOpponentGameData.push(minifiedGameData);
+  }
+  return minifiedOpponentGameData;
+}
+
+/**
+ * Sets the `defaultMultiplayerRoomID` variable for tracking of default multiplayer room.
+ * @param {string} newID The string to set the ID to.
+ */
+function setDefaultMultiplayerRoomID(newID: string) {
+  defaultMultiplayerRoomID = newID;
 }
 
 /**
@@ -1094,60 +1024,12 @@ function resetDefaultMultiplayerRoomID(room: string) {
   log.info(`Reset default multiplayer room ID from ${room} to null.`);
 }
 
-/**
- * Sets the custom rules to a room.
- * @param {Room} room The room to set settings to.
- * @param {any} settings The settings to set the room to.
- */
-function setCustomRules(room: Room, settings: { [key: string]: any }) {
-  room.customSettings = {
-    baseHealth: 100,
-    comboTime: 5000,
-    enemySpeedCoefficient: 1,
-    enemySpawnThreshold: 0.1,
-    enemySpawnTime: 100,
-    forcedEnemySpawnTime: 2500
-  };
-  room.customSettings.baseHealth = parseFloat(settings.baseHealth);
-  room.customSettings.comboTime = parseFloat(settings.comboTime);
-  room.customSettings.enemySpeedCoefficient = parseFloat(
-    settings.enemySpeedCoefficient
-  );
-  room.customSettings.enemySpawnTime = parseFloat(settings.enemySpawnTime);
-  room.customSettings.enemySpawnThreshold = parseFloat(
-    settings.enemySpawnChance
-  );
-  room.customSettings.forcedEnemySpawnTime = parseFloat(
-    settings.forcedEnemySpawnTime
-  );
-}
-
-/**
- * Creates a new singleplayer room.
- * @param {universal.GameSocket} caller The socket that called the function
- * @param {GameMode} gameMode The singleplayer game mode.
- * @param {settings} settings The `settings` for the singleplayer game mode, if it's custom.
- * @returns The newly-created room object.
- */
-function createSingleplayerRoom(
-  caller: universal.GameSocket,
-  gameMode: GameMode,
-  settings?: { [key: string]: string }
-): SingleplayerRoom {
-  const room = new SingleplayerRoom(caller, gameMode, settings);
-  universal.rooms.push(room);
-  return room;
-}
-
 export {
-  SingleplayerRoom,
-  MultiplayerRoom,
   Room,
   processKeypressForRoom,
   GameMode,
   defaultMultiplayerRoomID,
-  leaveMultiplayerRoom,
   resetDefaultMultiplayerRoomID,
-  getOpponentsInformation,
-  createSingleplayerRoom
+  setDefaultMultiplayerRoomID,
+  getOpponentsInformation
 };
