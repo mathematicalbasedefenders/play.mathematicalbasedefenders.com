@@ -152,6 +152,12 @@ class SingleplayerRoom extends Room {
      * Then call the `update` method made for Singleplayer rooms.
      */
     let data = this.gameData[0];
+
+    if (!data) {
+      log.error("No/empty/invalid data value found when updating game data!");
+      return;
+    }
+
     if (data.aborted) {
       this.abort(data);
     }
