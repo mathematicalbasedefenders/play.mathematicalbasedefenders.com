@@ -349,6 +349,7 @@ function changeScreen(
   const oldElement = $(variables.navigation.focusing);
   if (oldElement) {
     oldElement.removeClass("button--arrow-key-focused");
+    oldElement.trigger("blur");
   }
   variables.navigation.focusing = null;
   variables.replay.paused = false;

@@ -666,6 +666,7 @@ function focusOnDefault(screen: string, element: string, keyPressed: string) {
   const oldElement = $(variables.navigation.focusing);
   if (oldElement) {
     oldElement.removeClass("button--arrow-key-focused");
+    oldElement.trigger("blur");
   }
   // focus new element
   destinationElement.trigger("focus");
@@ -679,6 +680,7 @@ function changeFocus(destination: string) {
   const oldElement = $(variables.navigation.focusing);
   if (oldElement) {
     oldElement.removeClass("button--arrow-key-focused");
+    oldElement.trigger("blur");
   }
   // focus new element
   destinationElement.trigger("focus");

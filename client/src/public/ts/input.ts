@@ -109,6 +109,15 @@ function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   let sendWebSocketMessage = true;
   if (event.code === "Tab" && variables.exitedOpeningScreen) {
     event.preventDefault();
+
+    // remove (keyboard) focus
+    const oldElement = $(variables.navigation.focusing);
+    if (oldElement) {
+      oldElement.removeClass("button--arrow-key-focused");
+      oldElement.trigger("blur");
+    }
+    variables.navigation.focusing = null;
+
     $("#status-tray-container").toggle(0);
     $("#chat-tray-container").toggle(0);
     sendWebSocketMessage = false;
