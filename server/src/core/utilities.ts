@@ -201,14 +201,14 @@ function validateCustomGameSettings(
         continue;
       }
       const value = Number(parsedValue);
-      if (parsedValue < restriction.minimum) {
+      if (value < restriction.minimum) {
         errors.push(
           `Value too low in ${key}: got ${value}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
         );
         ok = false;
         continue;
       }
-      if (restriction.maximum < parsedValue) {
+      if (restriction.maximum < value) {
         errors.push(
           `Value too high in ${key}: got ${value}, but only allowed a number between ${restriction.minimum} and ${restriction.maximum}, inclusive.`
         );
