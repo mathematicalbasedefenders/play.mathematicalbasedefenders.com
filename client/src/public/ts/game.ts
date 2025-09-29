@@ -289,7 +289,7 @@ function changeScreen(
   // TODO: Move close dialog somewhere else
   const roomSelectDialog = document.getElementById(
     "custom-multiplayer-room-selection-dialog"
-  ) as HTMLDialogElement;
+  );
   if (roomSelectDialog instanceof HTMLDialogElement) {
     roomSelectDialog.close();
   }
