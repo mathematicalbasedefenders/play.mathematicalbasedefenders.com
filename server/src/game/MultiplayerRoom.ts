@@ -109,6 +109,7 @@ class MultiplayerRoom extends Room {
     this.ranking = [];
     this.connectionIDsThisRound = _.clone(this.memberConnectionIDs);
     this.playing = true;
+    this.playersAtStart = this.gameData.length;
 
     // FIXME: may not be the same
     for (const playerData of this.gameData) {
