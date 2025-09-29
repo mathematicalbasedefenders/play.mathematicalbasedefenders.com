@@ -60,7 +60,7 @@ const customSingleplayerIntermissionSecondaryScreenOrder: {
   ],
   "enemies": [
     "#custom-singleplayer-game__enemy-spawn-time",
-    "#custom-singleplayer-game__enemy-spawn-chance",
+    "#custom-singleplayer-game__enemy-spawn-threshold",
     "#custom-singleplayer-game__forced-enemy-spawn-time",
     "#custom-singleplayer-game__enemy-speed-coefficient"
   ],

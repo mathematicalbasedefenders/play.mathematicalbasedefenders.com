@@ -47,7 +47,7 @@ const ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE = [
   "#settings-screen__content--online__password",
   "#custom-singleplayer-game__combo-time",
   "#custom-singleplayer-game__enemy-spawn-time",
-  "#custom-singleplayer-game__enemy-spawn-chance",
+  "#custom-singleplayer-game__enemy-spawn-threshold",
   "#custom-singleplayer-game__forced-enemy-spawn-time",
   "#custom-singleplayer-game__enemy-speed-coefficient",
   "#custom-singleplayer-game__starting-base-health"

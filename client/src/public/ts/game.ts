@@ -443,7 +443,7 @@ function createCustomSingleplayerGameObject() {
     comboTime: $(`${bp}combo-time`).val(),
     enemySpeedCoefficient: $(`${bp}enemy-speed-coefficient`).val(),
     enemySpawnTime: $(`${bp}enemy-spawn-time`).val(),
-    enemySpawnThreshold: $(`${bp}enemy-spawn-chance`).val(),
+    enemySpawnThreshold: $(`${bp}enemy-spawn-threshold`).val(),
     forcedEnemySpawnTime: $(`${bp}forced-enemy-spawn-time`).val()
   };
   return toReturn;
