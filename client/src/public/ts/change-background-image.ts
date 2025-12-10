@@ -19,6 +19,11 @@ function changeBackgroundImage(url: string | URL) {
       options
     );
     toast.render();
+    const explanatoryToast = new ToastNotification(
+      `Your background URL is probably invalid. To change the URL, go to the Settings menu. However, this shouldn't affect gameplay or appearance.`,
+      options
+    );
+    explanatoryToast.render();
   }
 }
 
