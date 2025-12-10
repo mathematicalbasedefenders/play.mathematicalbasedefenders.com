@@ -60,7 +60,7 @@ interface InputActionInterface {
   keyPressed?: string | undefined;
   argument: string;
 }
-const SEND_KEYS = ["Space", "Enter"];
+const SEND_KEYS = ["Space", "Enter", "NumpadEnter"];
 const MAXIMUM_INPUT_LENGTH = 8;
 /**
  * Emulates a keypress for a player as if the player pressed the key themselves.
