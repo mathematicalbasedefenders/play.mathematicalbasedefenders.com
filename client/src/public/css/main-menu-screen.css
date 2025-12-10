@@ -122,7 +122,7 @@
   color: #ffffff;
   margin: 0 0 0 4px;
   white-space: nowrap;
-  text-wrap: pretty;
+  text-wrap: wrap;
   text-overflow: clip;
   text-align: left;
   font-family: inherit;

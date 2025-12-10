@@ -95,7 +95,7 @@
   color: #ffffff;
   margin: 0 0 0 4px;
   white-space: nowrap;
-  text-wrap: pretty;
+  text-wrap: wrap;
 
   overflow: hidden;
   text-overflow: clip;

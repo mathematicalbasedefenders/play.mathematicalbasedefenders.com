@@ -78,7 +78,7 @@
 .singleplayer-menu-screen-button__description {
   font-size: min(24px, 1.5vw);
   color: #ffffff;
-  text-wrap: pretty;
+  text-wrap: wrap;
   margin: 0 0 0 4px;
   text-overflow: clip;
   text-align: left;
