@@ -1,6 +1,6 @@
 {
   "name": "play.mathematicalbasedefenders.com-server",
-  "version": "0.5.0-rc.7",
+  "version": "0.5.0-rc.8",
   "private": "true",
   "description": "Fun math game",
   "main": "server.js",

@@ -63,7 +63,7 @@ const rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
 const STATUS = {
   databaseAvailable: false,
   lastDeltaTimeToUpdate: 0,
-  gameVersion: process.env.npm_package_version ?? "0.5.0-rc.7"
+  gameVersion: process.env.npm_package_version ?? "0.5.0-rc.8"
 };
 
 /**

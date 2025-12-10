@@ -46,7 +46,7 @@
   font-size: min(24px, 1.5vw);
   color: #ffffff;
   margin: 0 0 0 4px;
-  text-wrap: pretty;
+  text-wrap: wrap;
 
   white-space: nowrap;
   text-overflow: clip;

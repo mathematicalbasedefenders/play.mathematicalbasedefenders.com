@@ -32,7 +32,7 @@ const REMOVE_DIGIT_KEYS = ["NumpadAdd", "Backspace"];
 const SUBTRACTION_SIGN_KEYS = ["Minus", "NumpadSubtract"];
 const ARROW_KEYS = ["ArrowLeft", "ArrowUp", "ArrowDown", "ArrowRight"];
 const ABORT_KEYS = ["Escape"];
-const SEND_KEYS = ["Space", "Enter"];
+const SEND_KEYS = ["Space", "Enter", "NumpadEnter"];
 // send websocket message keys
 const WEBSOCKET_MESSAGE_SEND_KEYS = NUMBER_ROW_KEYS.concat(
   NUMBER_PAD_KEYS,
