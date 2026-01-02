@@ -33,9 +33,7 @@ async function authenticateForSocket(
     };
   }
   // check socket conditions
-  const canBeAuthenticated = checkIfSocketCanBeAuthenticated(
-    socketID as string
-  );
+  const canBeAuthenticated = checkIfSocketCanBeAuthenticated(socketID);
   if (!canBeAuthenticated.good) {
     log.info(`A socket failed validation checks  ${canBeAuthenticated.reason}`);
     return canBeAuthenticated;
@@ -175,8 +173,16 @@ function validateData(
  * @param {string} connectionID The `connectionID` of the socket.
  * @returns An object with the fields `good` and `reason`. `good` is `true` if socket is eligible to log in, false otherwise with a reason in `reason`.
  */
-function checkIfSocketCanBeAuthenticated(connectionID: string) {
-  const socket = universal.getSocketFromConnectionID(connectionID as string);
+function checkIfSocketCanBeAuthenticated(connectionID: unknown) {
+  if (typeof connectionID !== "string") {
+    return {
+      good: false,
+      reason: "Socket Connection ID is of wrong type.",
+      id: null
+    };
+  }
+
+  const socket = universal.getSocketFromConnectionID(connectionID);
 
   // socket doesn't exist
   if (!socket) {
