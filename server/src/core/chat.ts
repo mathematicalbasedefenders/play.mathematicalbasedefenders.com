@@ -21,7 +21,7 @@ const CLEAR_BAD_MESSAGE_OBJECT = {
 //
 const MAXIMUM_CHAT_MESSAGE_LENGTH = 256;
 /**
- * Attempts to send a chat message to a room.
+ * Attempts to send a chat message to a scope.
  * @param {string} scope the scope/visibility of the message
  * @param {string} message the message
  * @param {universal.GameSocket} socket the socket of the message sender.
@@ -53,6 +53,11 @@ function sendChatMessage(
   }
 }
 
+/**
+ * Attempts to send a chat message to a room.
+ * @param {string} message the message
+ * @param {universal.GameSocket} socket the socket of the message sender.
+ */
 function sendChatMessageToRoom(message: string, socket: universal.GameSocket) {
   const connectionID = socket.connectionID;
 
@@ -88,6 +93,11 @@ function sendChatMessageToRoom(message: string, socket: universal.GameSocket) {
   return;
 }
 
+/**
+ * Attempts to send a chat message globally.
+ * @param {string} message the message
+ * @param {universal.GameSocket} socket the socket of the message sender.
+ */
 function sendChatMessageGlobally(
   message: string,
   socket: universal.GameSocket
