@@ -116,6 +116,7 @@ function sendChatMessageGlobally(
  */
 function validateRoom(connectionID: string) {
   const playerName = universal.getNameFromConnectionID(connectionID);
+
   const roomID = findRoomWithConnectionID(connectionID, true)?.id;
   if (typeof roomID === "undefined") {
     log.warn(
@@ -123,10 +124,9 @@ function validateRoom(connectionID: string) {
     );
     return false;
   }
-  const roomIndex = universal.rooms.findIndex(
-    (element) => element.id === roomID
-  );
-  if (roomIndex === -1) {
+
+  const roomExists = universal.rooms.some((e) => e.id === roomID);
+  if (!roomExists) {
     log.warn(
       `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
     );
