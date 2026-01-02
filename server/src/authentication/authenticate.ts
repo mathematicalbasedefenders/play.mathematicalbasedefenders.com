@@ -141,17 +141,10 @@ function validateData(
       id: null
     };
   }
-  // validate data
-  let sanitizedUsername = mongoDBSanitize.sanitize(
-    DOMPurify.sanitize(username)
-  );
-  let sanitizedPassword = mongoDBSanitize.sanitize(
-    DOMPurify.sanitize(password)
-  );
+
   if (
-    sanitizedUsername !== username ||
-    sanitizedUsername.length > MAXIMUM_USERNAME_LENGTH ||
-    sanitizedUsername.length < MINIMUM_USERNAME_LENGTH
+    username.length > MAXIMUM_USERNAME_LENGTH ||
+    username.length < MINIMUM_USERNAME_LENGTH
   ) {
     return {
       good: false,
@@ -160,9 +153,8 @@ function validateData(
     };
   }
   if (
-    sanitizedPassword !== password ||
-    sanitizedPassword.length > MAXIMUM_PASSWORD_LENGTH ||
-    sanitizedPassword.length < MINIMUM_PASSWORD_LENGTH
+    password.length > MAXIMUM_PASSWORD_LENGTH ||
+    password.length < MINIMUM_PASSWORD_LENGTH
   ) {
     return {
       good: false,
