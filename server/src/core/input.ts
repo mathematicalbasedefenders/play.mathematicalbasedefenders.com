@@ -160,127 +160,18 @@ function processInputInformation(
   gameDataToProcess.actionsPerformed++;
   switch (inputInformation.action) {
     case InputAction.AddDigit: {
-      if (gameDataToProcess.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
-        return;
-      }
-      gameDataToProcess.currentInput += inputInformation.argument.toString();
+      addDigitToGameDataInput(gameDataToProcess, inputInformation);
       break;
     }
     case InputAction.RemoveDigit: {
-      gameDataToProcess.currentInput = gameDataToProcess.currentInput.substring(
-        0,
-        gameDataToProcess.currentInput.length - 1
-      );
+      removeDigitFromGameDataInput(gameDataToProcess, inputInformation);
       break;
     }
     case InputAction.AddSubtractionSign: {
-      if (gameDataToProcess.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
-        return;
-      }
-      gameDataToProcess.currentInput += "-";
-      break;
+      addSubtractionSignToGameDataInput(gameDataToProcess, inputInformation);
     }
     case InputAction.SendAnswer: {
-      let enemyKilled = false;
-      const room = findRoomWithConnectionID(
-        gameDataToProcess.ownerConnectionID
-      );
-
-      if (room) {
-        const ownerSocket = universal.getSocketFromConnectionID(
-          gameDataToProcess.ownerConnectionID
-        );
-        const submissionRecord: ActionRecord = {
-          action: Action.Submit,
-          scope: "player",
-          user: ownerSocket
-            ? getUserReplayDataFromSocket(ownerSocket)
-            : {
-                userID: null,
-                name: "(unknown)",
-                isAuthenticated: false,
-                connectionID: ""
-              },
-          data: {
-            submitted: gameDataToProcess.currentInput
-          },
-          timestamp: Date.now()
-        };
-        room.gameActionRecord.addAction(submissionRecord);
-      }
-
-      for (let enemy of gameDataToProcess.enemies) {
-        // TODO: Data validation
-        if (enemy.check(parseInt(gameDataToProcess.currentInput))) {
-          gameDataToProcess.enemiesToErase.push(enemy.id);
-          enemyKilled = true;
-          gameDataToProcess.enemiesKilled += 1;
-          if (gameDataToProcess instanceof SingleplayerGameData) {
-            gameDataToProcess.enemiesToNextLevel -= 1;
-
-            if (room) {
-              room.gameActionRecord.addSetGameDataAction(
-                gameDataToProcess,
-                "player",
-                "enemiesToNextLevel",
-                _.get(gameDataToProcess, "enemiesToNextLevel")
-              );
-            }
-
-            if (gameDataToProcess.enemiesToNextLevel <= 0) {
-              gameDataToProcess.increaseLevel(1);
-              if (room) {
-                updateReplayClockData(gameDataToProcess, room);
-              }
-            }
-          }
-          enemy.kill(gameDataToProcess, true, true);
-          if (room) {
-            if (
-              gameDataToProcess.mode === GameMode.EasySingleplayer ||
-              gameDataToProcess.mode === GameMode.StandardSingleplayer
-            ) {
-              room.gameActionRecord.addSetGameDataAction(
-                gameDataToProcess,
-                "player",
-                "score",
-                gameDataToProcess.score
-              );
-            } else if (gameDataToProcess.mode === GameMode.DefaultMultiplayer) {
-              room.gameActionRecord.addSetGameDataAction(
-                gameDataToProcess,
-                "player",
-                "attackScore",
-                gameDataToProcess.attackScore
-              );
-            }
-            room.gameActionRecord.addEnemyKillAction(enemy, gameDataToProcess);
-          }
-        }
-      }
-      if (enemyKilled) {
-        const ownerSocket = universal.getSocketFromConnectionID(
-          gameDataToProcess.ownerConnectionID
-        );
-        if (ownerSocket) {
-          ownerSocket.send(
-            JSON.stringify({
-              message: "clearInput",
-              data: {
-                toClear: gameDataToProcess.currentInput.toString()
-              }
-            })
-          );
-        }
-        gameDataToProcess.currentInput = "";
-      }
-      // reset input
-      if (!enemyKilled) {
-        if (gameDataToProcess instanceof MultiplayerGameData) {
-          releaseEnemyStock(gameDataToProcess, room as Room);
-        }
-      }
-      break;
+      sendAnswerForGameDataInput(gameDataToProcess, inputInformation);
     }
     case InputAction.AbortGame: {
       gameDataToProcess.aborted = true;
@@ -446,6 +337,142 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
     socket.unsubscribe(room.id);
   }
   room.deleteMember(socket);
+}
+
+function addDigitToGameDataInput(
+  gameData: GameData,
+  input: InputActionInterface
+) {
+  if (gameData.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
+    return;
+  }
+  gameData.currentInput += input.argument.toString();
+}
+
+function removeDigitFromGameDataInput(
+  gameData: GameData,
+  input: InputActionInterface
+) {
+  if (gameData.currentInput.length <= 0) {
+    return;
+  }
+  gameData.currentInput = gameData.currentInput.substring(
+    0,
+    gameData.currentInput.length - 1
+  );
+}
+
+function addSubtractionSignToGameDataInput(
+  gameData: GameData,
+  input?: InputActionInterface
+) {
+  if (gameData.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
+    return;
+  }
+  gameData.currentInput += "-";
+}
+
+function sendAnswerForGameDataInput(
+  gameData: GameData,
+  input: InputActionInterface
+) {
+  let enemyKilled = false;
+  const room = findRoomWithConnectionID(gameData.ownerConnectionID);
+
+  if (room) {
+    const ownerSocket = universal.getSocketFromConnectionID(
+      gameData.ownerConnectionID
+    );
+    const submissionRecord: ActionRecord = {
+      action: Action.Submit,
+      scope: "player",
+      user: ownerSocket
+        ? getUserReplayDataFromSocket(ownerSocket)
+        : {
+            userID: null,
+            name: "(unknown)",
+            isAuthenticated: false,
+            connectionID: ""
+          },
+      data: {
+        submitted: gameData.currentInput
+      },
+      timestamp: Date.now()
+    };
+    room.gameActionRecord.addAction(submissionRecord);
+  }
+
+  for (let enemy of gameData.enemies) {
+    // TODO: Data validation
+    if (enemy.check(parseInt(gameData.currentInput))) {
+      gameData.enemiesToErase.push(enemy.id);
+      enemyKilled = true;
+      gameData.enemiesKilled += 1;
+      if (gameData instanceof SingleplayerGameData) {
+        gameData.enemiesToNextLevel -= 1;
+
+        if (room) {
+          room.gameActionRecord.addSetGameDataAction(
+            gameData,
+            "player",
+            "enemiesToNextLevel",
+            _.get(gameData, "enemiesToNextLevel")
+          );
+        }
+
+        if (gameData.enemiesToNextLevel <= 0) {
+          gameData.increaseLevel(1);
+          if (room) {
+            updateReplayClockData(gameData, room);
+          }
+        }
+      }
+      enemy.kill(gameData, true, true);
+      if (room) {
+        if (
+          gameData.mode === GameMode.EasySingleplayer ||
+          gameData.mode === GameMode.StandardSingleplayer
+        ) {
+          room.gameActionRecord.addSetGameDataAction(
+            gameData,
+            "player",
+            "score",
+            gameData.score
+          );
+        } else if (gameData.mode === GameMode.DefaultMultiplayer) {
+          room.gameActionRecord.addSetGameDataAction(
+            gameData,
+            "player",
+            "attackScore",
+            gameData.attackScore
+          );
+        }
+        room.gameActionRecord.addEnemyKillAction(enemy, gameData);
+      }
+    }
+  }
+  if (enemyKilled) {
+    const ownerSocket = universal.getSocketFromConnectionID(
+      gameData.ownerConnectionID
+    );
+    if (ownerSocket) {
+      ownerSocket.send(
+        JSON.stringify({
+          message: "clearInput",
+          data: {
+            toClear: gameData.currentInput.toString()
+          }
+        })
+      );
+    }
+    gameData.currentInput = "";
+  }
+  // reset input
+  if (!enemyKilled) {
+    if (gameData instanceof MultiplayerGameData) {
+      releaseEnemyStock(gameData, room as Room);
+    }
+  }
 }
 
 export {
