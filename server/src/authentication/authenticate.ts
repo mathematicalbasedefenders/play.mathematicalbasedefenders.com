@@ -35,7 +35,7 @@ async function authenticateForSocket(
   // check socket conditions
   const canBeAuthenticated = checkIfSocketCanBeAuthenticated(socketID);
   if (!canBeAuthenticated.good) {
-    log.info(`A socket failed validation checks  ${canBeAuthenticated.reason}`);
+    log.info(`A socket failed validation checks: ${canBeAuthenticated.reason}`);
     return canBeAuthenticated;
   }
 
