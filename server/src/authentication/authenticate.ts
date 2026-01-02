@@ -68,22 +68,8 @@ async function authenticateForSocket(
   );
 
   // log out sockets that were already logged in
-  let duplicateSockets = universal.getSocketsFromUserID(id);
-  for (let duplicateSocket of duplicateSockets || []) {
-    duplicateSocket.send(
-      JSON.stringify({
-        message: "createToastNotification",
-        // TODO: Refactor this
-        text: `Disconnected due to your account being logged in from another location. If this wasn't you, consider changing your password.`,
-        options: { borderColor: DISCONNECTION_BORDER_COLOR }
-      })
-    );
-    universal.deleteSocket(duplicateSocket);
-    log.warn(
-      `Disconnected socket ${duplicateSocket.connectionID} because a new socket logged in with the same credentials. (${username})`
-    );
-    duplicateSocket.close();
-  }
+  closeAlreadyLoggedInSockets(id, username);
+
   return {
     good: true,
     reason: "All checks passed",
@@ -271,6 +257,23 @@ async function authenticate(
     reason: "All checks passed",
     id: userDocument._id
   };
+}
+
+function closeAlreadyLoggedInSockets(userID: string, username: string) {
+  const duplicateSockets = universal.getSocketsFromUserID(userID);
+  for (const duplicateSocket of duplicateSockets) {
+    const disconnectionMessage = JSON.stringify({
+      message: "createToastNotification",
+      text: `Disconnected due to your account being logged in from another location. If this wasn't you, consider changing your password.`,
+      options: { borderColor: DISCONNECTION_BORDER_COLOR }
+    });
+    duplicateSocket.send(disconnectionMessage);
+    universal.deleteSocket(duplicateSocket);
+    log.warn(
+      `Disconnected socket ${duplicateSocket.connectionID} because a new socket logged in with the same credentials. (${username})`
+    );
+    duplicateSocket.close();
+  }
 }
 
 export { authenticateForSocket };
