@@ -1073,14 +1073,10 @@ function updateUserInformationText(data: any) {
     }% to next)`
   );
   $("#user-account-stat--easy-singleplayer-record").text(
-    Number.isNaN(data.records.easy?.score)
-      ? "N/A"
-      : data.records.easy.score.toLocaleString("en-US")
+    data.records.easy?.score ?? "N/A"
   );
   $("#user-account-stat--standard-singleplayer-record").text(
-    Number.isNaN(data.records.standard?.score)
-      ? "N/A"
-      : data.records.standard.score.toLocaleString("en-US")
+    data.records.standard?.score ?? "N/A"
   );
   $("#user-account-stat--level").attr(
     "title",
