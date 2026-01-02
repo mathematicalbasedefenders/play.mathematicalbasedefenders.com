@@ -160,15 +160,15 @@ function processInputInformation(
   gameDataToProcess.actionsPerformed++;
   switch (inputInformation.action) {
     case InputAction.AddDigit: {
-      addDigitToGameDataInput(gameDataToProcess, inputInformation);
+      gameDataToProcess.addDigitToGameDataInput(inputInformation);
       break;
     }
     case InputAction.RemoveDigit: {
-      removeDigitFromGameDataInput(gameDataToProcess, inputInformation);
+      gameDataToProcess.removeDigitFromGameDataInput(inputInformation);
       break;
     }
     case InputAction.AddSubtractionSign: {
-      addSubtractionSignToGameDataInput(gameDataToProcess);
+      gameDataToProcess.addSubtractionSignToGameDataInput();
       break;
     }
     case InputAction.SendAnswer: {
@@ -341,36 +341,6 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
   room.deleteMember(socket);
 }
 
-function addDigitToGameDataInput(
-  gameData: GameData,
-  input: InputActionInterface
-) {
-  if (gameData.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
-    return;
-  }
-  gameData.currentInput += input.argument.toString();
-}
-
-function removeDigitFromGameDataInput(
-  gameData: GameData,
-  input: InputActionInterface
-) {
-  if (gameData.currentInput.length <= 0) {
-    return;
-  }
-  gameData.currentInput = gameData.currentInput.substring(
-    0,
-    gameData.currentInput.length - 1
-  );
-}
-
-function addSubtractionSignToGameDataInput(gameData: GameData) {
-  if (gameData.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
-    return;
-  }
-  gameData.currentInput += "-";
-}
-
 function sendAnswerForGameDataInput(gameData: GameData) {
   let enemyKilled = false;
   const room = findRoomWithConnectionID(gameData.ownerConnectionID);
@@ -481,5 +451,6 @@ export {
   processInputInformation,
   emulateKeypress,
   InputAction,
-  leaveMultiplayerRoom
+  leaveMultiplayerRoom,
+  InputActionInterface
 };

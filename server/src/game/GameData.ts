@@ -4,6 +4,7 @@
 import * as universal from "../universal";
 import * as enemy from "./Enemy";
 import { log } from "../core/log";
+import { InputActionInterface } from "../core/input";
 
 interface ClockInterface {
   [key: string]: {
@@ -234,6 +235,31 @@ class GameData {
         GAME_DATA_CONSTANTS.STANDARD_SINGLEPLAYER_ENEMY_STARTING_SPAWN_THRESHOLD;
     }
     this.timestampOfSynchronization = Date.now();
+  }
+
+  addDigitToGameDataInput(input: InputActionInterface) {
+    const MAXIMUM_INPUT_LENGTH = 8;
+    if (this.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
+      return;
+    }
+    this.currentInput += input.argument.toString();
+  }
+
+  removeDigitFromGameDataInput(input: InputActionInterface) {
+    if (this.currentInput.length <= 0) {
+      return;
+    }
+    const length = this.currentInput.length;
+    const result = this.currentInput.substring(0, length - 1);
+    this.currentInput = result;
+  }
+
+  addSubtractionSignToGameDataInput() {
+    const MAXIMUM_INPUT_LENGTH = 8;
+    if (this.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
+      return;
+    }
+    this.currentInput += "-";
   }
 }
 class SingleplayerGameData extends GameData {
