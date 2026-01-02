@@ -374,29 +374,33 @@ function addSubtractionSignToGameDataInput(gameData: GameData) {
 function sendAnswerForGameDataInput(gameData: GameData) {
   let enemyKilled = false;
   const room = findRoomWithConnectionID(gameData.ownerConnectionID);
+  const socketID = gameData.ownerConnectionID;
 
-  if (room) {
-    const ownerSocket = universal.getSocketFromConnectionID(
-      gameData.ownerConnectionID
-    );
-    const submissionRecord: ActionRecord = {
-      action: Action.Submit,
-      scope: "player",
-      user: ownerSocket
-        ? getUserReplayDataFromSocket(ownerSocket)
-        : {
-            userID: null,
-            name: "(unknown)",
-            isAuthenticated: false,
-            connectionID: ""
-          },
-      data: {
-        submitted: gameData.currentInput
-      },
-      timestamp: Date.now()
-    };
-    room.gameActionRecord.addAction(submissionRecord);
+  if (!room) {
+    // should never reach here, but here just in case.
+    log.warn(`Can't find room when sending answer for socket ID ${socketID}.`);
+    return;
   }
+
+  const ownerSocket = universal.getSocketFromConnectionID(socketID);
+
+  const submissionRecord: ActionRecord = {
+    action: Action.Submit,
+    scope: "player",
+    user: ownerSocket
+      ? getUserReplayDataFromSocket(ownerSocket)
+      : {
+          userID: null,
+          name: "(unknown)",
+          isAuthenticated: false,
+          connectionID: ""
+        },
+    data: {
+      submitted: gameData.currentInput
+    },
+    timestamp: Date.now()
+  };
+  room.gameActionRecord.addAction(submissionRecord);
 
   for (let enemy of gameData.enemies) {
     // TODO: Data validation
