@@ -19,6 +19,7 @@ import {
 import { Action, ActionRecord } from "../replay/recording/ActionRecord";
 import _ from "lodash";
 import { MultiplayerRoom } from "../game/MultiplayerRoom";
+import { Enemy } from "../game/Enemy";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -61,7 +62,6 @@ interface InputActionInterface {
   argument: string;
 }
 const SEND_KEYS = ["Space", "Enter", "NumpadEnter"];
-const MAXIMUM_INPUT_LENGTH = 8;
 
 /**
  * Emulates a keypress for a player as if the player pressed the key themselves.
@@ -160,15 +160,15 @@ function processInputInformation(
   gameDataToProcess.actionsPerformed++;
   switch (inputInformation.action) {
     case InputAction.AddDigit: {
-      addDigitToGameDataInput(gameDataToProcess, inputInformation);
+      gameDataToProcess.addDigitToGameDataInput(inputInformation);
       break;
     }
     case InputAction.RemoveDigit: {
-      removeDigitFromGameDataInput(gameDataToProcess, inputInformation);
+      gameDataToProcess.removeDigitFromGameDataInput(inputInformation);
       break;
     }
     case InputAction.AddSubtractionSign: {
-      addSubtractionSignToGameDataInput(gameDataToProcess);
+      gameDataToProcess.addSubtractionSignToGameDataInput();
       break;
     }
     case InputAction.SendAnswer: {
@@ -341,36 +341,6 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
   room.deleteMember(socket);
 }
 
-function addDigitToGameDataInput(
-  gameData: GameData,
-  input: InputActionInterface
-) {
-  if (gameData.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
-    return;
-  }
-  gameData.currentInput += input.argument.toString();
-}
-
-function removeDigitFromGameDataInput(
-  gameData: GameData,
-  input: InputActionInterface
-) {
-  if (gameData.currentInput.length <= 0) {
-    return;
-  }
-  gameData.currentInput = gameData.currentInput.substring(
-    0,
-    gameData.currentInput.length - 1
-  );
-}
-
-function addSubtractionSignToGameDataInput(gameData: GameData) {
-  if (gameData.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
-    return;
-  }
-  gameData.currentInput += "-";
-}
-
 function sendAnswerForGameDataInput(gameData: GameData) {
   let enemyKilled = false;
   const room = findRoomWithConnectionID(gameData.ownerConnectionID);
@@ -402,56 +372,9 @@ function sendAnswerForGameDataInput(gameData: GameData) {
   };
   room.gameActionRecord.addAction(submissionRecord);
 
-  for (let enemy of gameData.enemies) {
-    // TODO: Data validation
-    if (enemy.check(parseInt(gameData.currentInput))) {
-      gameData.enemiesToErase.push(enemy.id);
-      enemyKilled = true;
-      gameData.enemiesKilled += 1;
-      if (gameData instanceof SingleplayerGameData) {
-        gameData.enemiesToNextLevel -= 1;
+  const enemyIDsToKill = getKilledEnemyIDs(gameData);
 
-        if (room) {
-          room.gameActionRecord.addSetGameDataAction(
-            gameData,
-            "player",
-            "enemiesToNextLevel",
-            _.get(gameData, "enemiesToNextLevel")
-          );
-        }
-
-        if (gameData.enemiesToNextLevel <= 0) {
-          gameData.increaseLevel(1);
-          if (room) {
-            updateReplayClockData(gameData, room);
-          }
-        }
-      }
-      enemy.kill(gameData, true, true);
-      if (room) {
-        if (
-          gameData.mode === GameMode.EasySingleplayer ||
-          gameData.mode === GameMode.StandardSingleplayer
-        ) {
-          room.gameActionRecord.addSetGameDataAction(
-            gameData,
-            "player",
-            "score",
-            gameData.score
-          );
-        } else if (gameData.mode === GameMode.DefaultMultiplayer) {
-          room.gameActionRecord.addSetGameDataAction(
-            gameData,
-            "player",
-            "attackScore",
-            gameData.attackScore
-          );
-        }
-        room.gameActionRecord.addEnemyKillAction(enemy, gameData);
-      }
-    }
-  }
-  if (enemyKilled) {
+  if (enemyIDsToKill.length > 0) {
     const ownerSocket = universal.getSocketFromConnectionID(
       gameData.ownerConnectionID
     );
@@ -475,11 +398,30 @@ function sendAnswerForGameDataInput(gameData: GameData) {
   }
 }
 
+function getKilledEnemyIDs(gameData: GameData) {
+  const enemyIDsToKill: Array<string> = [];
+
+  if (/^\-{0,1}[0-9]{1,8}$/.test(gameData.currentInput)) {
+    // invalid input, e.g. --53, -3-5, and the like.
+    return [];
+  }
+
+  for (const enemy of gameData.enemies) {
+    // TODO: Data validation
+    if (enemy.check(parseInt(gameData.currentInput))) {
+      // gameData.enemiesToErase.push(enemy.id);
+      enemyIDsToKill.push(enemy.id);
+    }
+  }
+  return enemyIDsToKill;
+}
+
 export {
   processKeypress,
   getInputInformation,
   processInputInformation,
   emulateKeypress,
   InputAction,
+  InputActionInterface,
   leaveMultiplayerRoom
 };
