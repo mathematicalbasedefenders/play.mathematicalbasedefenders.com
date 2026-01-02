@@ -245,30 +245,6 @@ function releaseEnemyStock(gameDataToProcess: GameData, room: Room) {
   room?.gameActionRecord.addStockReleaseAction(gameDataToProcess);
 }
 
-/**
- * Updates clock data so that replays can be accurate.
- * @param {GameData} gameDataToProcess
- * @param {room} room
- */
-function updateReplayClockData(gameDataToProcess: GameData, room: Room) {
-  // update replay data
-  const keys = [
-    "clocks.enemySpawn.actionTime",
-    "enemySpeedCoefficient",
-    "baseHealthRegeneration",
-    "level"
-  ];
-
-  for (const key of keys) {
-    room.gameActionRecord.addSetGameDataAction(
-      gameDataToProcess,
-      "player",
-      key,
-      _.get(gameDataToProcess, key)
-    );
-  }
-}
-
 // This just attempts to leave.
 function leaveMultiplayerRoom(socket: universal.GameSocket) {
   // TODO: Implement for spectators when spectators are implemented.
@@ -372,77 +348,47 @@ function sendAnswerForGameDataInput(gameData: GameData) {
   };
   room.gameActionRecord.addAction(submissionRecord);
 
-  for (let enemy of gameData.enemies) {
+  const enemyIDsToKill = getKilledEnemyIDs(gameData);
+  for (const enemyID of enemyIDsToKill) {
+    const enemy = gameData.enemies.find((e) => e.id === enemyID);
+    if (!enemy) {
+      log.warn(`Can't find enemy to kill in room ${room.id}.`);
+      continue;
+    }
+    enemy.kill(gameData, true, true);
+    room.gameActionRecord.addEnemyKillAction(enemy, gameData);
+
+    gameData.enemiesToErase.push(enemyID);
+    gameData.processEnemyKill(1, room);
+  }
+
+  if (enemyIDsToKill.length > 0) {
+    gameData.clearInput();
+  } else {
+    // no enemies killed on submission in
+    // multiplayer: release enemy stock
+    if (gameData instanceof MultiplayerGameData) {
+      releaseEnemyStock(gameData, room);
+    }
+  }
+}
+
+function getKilledEnemyIDs(gameData: GameData) {
+  const enemyIDsToKill: Array<string> = [];
+
+  if (!/^\-{0,1}[0-9]{1,8}$/.test(gameData.currentInput)) {
+    // invalid input, e.g. --53, -3-5, and the like.
+    return [];
+  }
+
+  for (const enemy of gameData.enemies) {
     // TODO: Data validation
     if (enemy.check(parseInt(gameData.currentInput))) {
-      gameData.enemiesToErase.push(enemy.id);
-      enemyKilled = true;
-      gameData.enemiesKilled += 1;
-      if (gameData instanceof SingleplayerGameData) {
-        gameData.enemiesToNextLevel -= 1;
-
-        if (room) {
-          room.gameActionRecord.addSetGameDataAction(
-            gameData,
-            "player",
-            "enemiesToNextLevel",
-            _.get(gameData, "enemiesToNextLevel")
-          );
-        }
-
-        if (gameData.enemiesToNextLevel <= 0) {
-          gameData.increaseLevel(1);
-          if (room) {
-            updateReplayClockData(gameData, room);
-          }
-        }
-      }
-      enemy.kill(gameData, true, true);
-      if (room) {
-        if (
-          gameData.mode === GameMode.EasySingleplayer ||
-          gameData.mode === GameMode.StandardSingleplayer
-        ) {
-          room.gameActionRecord.addSetGameDataAction(
-            gameData,
-            "player",
-            "score",
-            gameData.score
-          );
-        } else if (gameData.mode === GameMode.DefaultMultiplayer) {
-          room.gameActionRecord.addSetGameDataAction(
-            gameData,
-            "player",
-            "attackScore",
-            gameData.attackScore
-          );
-        }
-        room.gameActionRecord.addEnemyKillAction(enemy, gameData);
-      }
+      // gameData.enemiesToErase.push(enemy.id);
+      enemyIDsToKill.push(enemy.id);
     }
   }
-  if (enemyKilled) {
-    const ownerSocket = universal.getSocketFromConnectionID(
-      gameData.ownerConnectionID
-    );
-    if (ownerSocket) {
-      ownerSocket.send(
-        JSON.stringify({
-          message: "clearInput",
-          data: {
-            toClear: gameData.currentInput.toString()
-          }
-        })
-      );
-    }
-    gameData.currentInput = "";
-  }
-  // reset input
-  if (!enemyKilled) {
-    if (gameData instanceof MultiplayerGameData) {
-      releaseEnemyStock(gameData, room as Room);
-    }
-  }
+  return enemyIDsToKill;
 }
 
 export {

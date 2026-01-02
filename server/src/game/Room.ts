@@ -902,6 +902,30 @@ class Room {
       })
     );
   }
+
+  /**
+   * Updates clock data so that replays can be accurate.
+   * @param {GameData} gameDataToProcess
+   * @param {room} room
+   */
+  updateReplayClockData(gameDataToProcess: GameData, room: Room) {
+    // update replay data
+    const keys = [
+      "clocks.enemySpawn.actionTime",
+      "enemySpeedCoefficient",
+      "baseHealthRegeneration",
+      "level"
+    ];
+
+    for (const key of keys) {
+      room.gameActionRecord.addSetGameDataAction(
+        gameDataToProcess,
+        "player",
+        key,
+        _.get(gameDataToProcess, key)
+      );
+    }
+  }
 }
 
 function generateRoomID(length: number): string {
