@@ -168,10 +168,10 @@ function processInputInformation(
       break;
     }
     case InputAction.AddSubtractionSign: {
-      addSubtractionSignToGameDataInput(gameDataToProcess, inputInformation);
+      addSubtractionSignToGameDataInput(gameDataToProcess);
     }
     case InputAction.SendAnswer: {
-      sendAnswerForGameDataInput(gameDataToProcess, inputInformation);
+      sendAnswerForGameDataInput(gameDataToProcess);
     }
     case InputAction.AbortGame: {
       gameDataToProcess.aborted = true;
@@ -362,20 +362,14 @@ function removeDigitFromGameDataInput(
   );
 }
 
-function addSubtractionSignToGameDataInput(
-  gameData: GameData,
-  input?: InputActionInterface
-) {
+function addSubtractionSignToGameDataInput(gameData: GameData) {
   if (gameData.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
     return;
   }
   gameData.currentInput += "-";
 }
 
-function sendAnswerForGameDataInput(
-  gameData: GameData,
-  input: InputActionInterface
-) {
+function sendAnswerForGameDataInput(gameData: GameData) {
   let enemyKilled = false;
   const room = findRoomWithConnectionID(gameData.ownerConnectionID);
 
