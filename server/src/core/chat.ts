@@ -27,55 +27,86 @@ const MAXIMUM_CHAT_MESSAGE_LENGTH = 256;
  * @param {universal.GameSocket} socket the socket of the message sender.
  */
 function sendChatMessage(
-  scope: string,
+  scope: "room" | "global",
   message: string,
   socket: universal.GameSocket
 ) {
-  const connectionID = socket.connectionID;
-  if (!connectionID) {
-    log.warn(`Socket has no ID.`);
-    return;
-  }
-  const playerName = universal.getNameFromConnectionID(connectionID);
   switch (scope) {
     case "room": {
-      if (!validateRoom(connectionID)) {
-        log.warn(
-          `Bad chat room validation for ${connectionID} (${playerName})`
-        );
-        return;
-      }
-      if (!validateMessage(message, connectionID)) {
-        log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
-        return;
-      }
-
-      const room = findRoomWithConnectionID(connectionID, true) as Room;
-      // commands
-      if (message.startsWith("/")) {
-        room.runChatCommand(message, { sender: socket });
-        break;
-      }
-
-      room.addChatMessage(message, { sender: socket });
+      sendChatMessageToRoom(message, socket);
       break;
     }
     case "global": {
-      if (!validateMessage(message, connectionID)) {
-        log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
-        socket.send(JSON.stringify(BAD_MESSAGE_OBJECT));
-        return;
-      }
-      sendGlobalChatMessage(message, socket);
+      sendChatMessageGlobally(message, socket);
       break;
     }
     default: {
+      const connectionID = socket.connectionID;
+      const playerName = socket.loggedIn
+        ? socket.ownerUsername
+        : socket.ownerGuestName;
       log.warn(
         `Unknown chat message scope: ${scope} from Socket ID ${connectionID} (${playerName})`
       );
       break;
     }
   }
+}
+
+function sendChatMessageToRoom(message: string, socket: universal.GameSocket) {
+  const connectionID = socket.connectionID;
+
+  if (!connectionID) {
+    log.warn(`Socket has no ID.`);
+    return;
+  }
+
+  const playerName = universal.getNameFromConnectionID(connectionID);
+
+  if (!connectionID) {
+    log.warn(`Socket has no ID.`);
+    return;
+  }
+
+  if (!validateRoom(connectionID)) {
+    log.warn(`Bad chat room validation for ${connectionID} (${playerName})`);
+    return;
+  }
+  if (!validateMessage(message, connectionID)) {
+    log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
+    return;
+  }
+
+  const room = findRoomWithConnectionID(connectionID, true) as Room;
+  // commands
+  if (message.startsWith("/")) {
+    room.runChatCommand(message, { sender: socket });
+    return;
+  }
+
+  room.addChatMessage(message, { sender: socket });
+  return;
+}
+
+function sendChatMessageGlobally(
+  message: string,
+  socket: universal.GameSocket
+) {
+  const connectionID = socket.connectionID;
+
+  if (!connectionID) {
+    log.warn(`Socket has no ID.`);
+    return;
+  }
+
+  const playerName = universal.getNameFromConnectionID(connectionID);
+
+  if (!validateMessage(message, connectionID)) {
+    log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
+    socket.send(JSON.stringify(BAD_MESSAGE_OBJECT));
+    return;
+  }
+  sendGlobalChatMessage(message, socket);
 }
 
 /**
