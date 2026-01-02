@@ -169,9 +169,11 @@ function processInputInformation(
     }
     case InputAction.AddSubtractionSign: {
       addSubtractionSignToGameDataInput(gameDataToProcess);
+      break;
     }
     case InputAction.SendAnswer: {
       sendAnswerForGameDataInput(gameDataToProcess);
+      break;
     }
     case InputAction.AbortGame: {
       gameDataToProcess.aborted = true;
