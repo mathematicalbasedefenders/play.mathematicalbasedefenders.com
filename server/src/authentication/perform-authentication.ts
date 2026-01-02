@@ -44,6 +44,8 @@ async function authenticate(
   const userData = await User.safeFindByUsername(socket.ownerUsername);
   utilities.updateSocketUserInformation(socket);
   socket.playerRank = utilities.getRank(userData);
+
+  /** Send toast message that logged in. */
   const MESSAGE = `Successfully logged in as ${sanitizedUsername}`;
   universal.sendToastMessageToSocket(socket, MESSAGE, SUCCESS_BORDER_COLOR);
 
