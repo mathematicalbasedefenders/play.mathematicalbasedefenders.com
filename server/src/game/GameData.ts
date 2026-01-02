@@ -5,6 +5,8 @@ import * as universal from "../universal";
 import * as enemy from "./Enemy";
 import { log } from "../core/log";
 import { InputActionInterface } from "../core/input";
+import _ from "lodash";
+import { Room } from "./Room";
 
 interface ClockInterface {
   [key: string]: {
@@ -261,6 +263,27 @@ class GameData {
     }
     this.currentInput += "-";
   }
+
+  clearInput() {
+    const ownerSocket = universal.getSocketFromConnectionID(
+      this.ownerConnectionID
+    );
+    if (ownerSocket) {
+      ownerSocket.send(
+        JSON.stringify({
+          message: "clearInput",
+          data: {
+            toClear: this.currentInput.toString()
+          }
+        })
+      );
+    }
+    this.currentInput = "";
+  }
+
+  processEnemyKill(iterations: number, room: Room) {
+    log.warn(`processEnemyKill called on base GameData class. Done nothing.`);
+  }
 }
 class SingleplayerGameData extends GameData {
   // nothing here yet...
@@ -336,6 +359,39 @@ class SingleplayerGameData extends GameData {
     }
     this.enemiesToNextLevel = GAME_DATA_CONSTANTS.ENEMIES_PER_LEVEL;
   }
+
+  processEnemyKill(iterations: number, room: Room) {
+    for (let iteration = 0; iteration < iterations; iteration++) {
+      this.enemiesKilled++;
+      this.enemiesToNextLevel--;
+
+      if (room) {
+        room.gameActionRecord.addSetGameDataAction(
+          this,
+          "player",
+          "enemiesToNextLevel",
+          _.get(this, "enemiesToNextLevel")
+        );
+      }
+
+      if (this.enemiesToNextLevel <= 0) {
+        this.increaseLevel(1);
+        if (room) {
+          // this function already updates level
+          // and sets the corresponding clocks to
+          // the correct (new) intervals
+          room.updateReplayClockData(this, room);
+        }
+      }
+
+      room.gameActionRecord.addSetGameDataAction(
+        this,
+        "player",
+        "score",
+        this.score
+      );
+    }
+  }
 }
 
 class CustomSingleplayerGameData extends GameData {
@@ -389,6 +445,18 @@ class MultiplayerGameData extends GameData {
     this.clocks.forcedEnemySpawn.actionTime =
       customSettings.forcedEnemySpawnTime;
     this.clocks.comboReset.actionTime = customSettings.comboTime;
+  }
+
+  processEnemyKill(iterations: number, room: Room) {
+    for (let iteration = 0; iteration < iterations; iteration++) {
+      this.enemiesKilled++;
+      room.gameActionRecord.addSetGameDataAction(
+        this,
+        "player",
+        "attackScore",
+        this.attackScore
+      );
+    }
   }
 }
 
