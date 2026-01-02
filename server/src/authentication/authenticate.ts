@@ -40,7 +40,7 @@ async function authenticateForSocket(
   }
 
   // validate data
-  let dataValidationResult = validateData(username, password, socketID);
+  const dataValidationResult = validateData(username, password, socketID);
   if (!dataValidationResult.good) {
     log.info(
       `A user didn't pass data validation checks and therefore can't be logged in. (${dataValidationResult.reason})`
