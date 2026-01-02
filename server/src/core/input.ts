@@ -57,7 +57,7 @@ enum InputAction {
 }
 interface InputActionInterface {
   action: InputAction;
-  keyPressed: string;
+  keyPressed?: string;
   argument: string;
 }
 const SEND_KEYS = ["Space", "Enter", "NumpadEnter"];

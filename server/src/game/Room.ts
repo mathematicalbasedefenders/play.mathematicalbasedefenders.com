@@ -34,7 +34,7 @@ const COMMAND_DATA = [
 interface InputActionInterface {
   action: InputAction;
   argument: string;
-  keyPressed?: string | undefined;
+  keyPressed?: string;
 }
 
 interface MinifiedGameDataInterface {
@@ -930,7 +930,8 @@ function processKeypressForRoom(
   const roomToProcess = utilities.findRoomWithConnectionID(connectionID, false);
   let inputInformation: InputActionInterface = {
     action: InputAction.Unknown,
-    argument: ""
+    argument: "",
+    keyPressed: ""
   };
   if (!roomToProcess) {
     return;
