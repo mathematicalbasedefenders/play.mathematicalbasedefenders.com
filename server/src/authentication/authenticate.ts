@@ -17,9 +17,9 @@ const VALID_SOCKET_ID_LENGTH = 16;
 
 // TODO: Consider moving this to services folder
 async function authenticateForSocket(
-  username: unknown | undefined,
-  password: unknown | undefined,
-  socketID: unknown | undefined,
+  username: string,
+  password: string,
+  socketID: string,
   bypassDatabase?: boolean
 ) {
   // check if database is available, or if it is bypassed
@@ -51,36 +51,22 @@ async function authenticateForSocket(
       id: null
     };
   }
-  // actually compare passwords
-  let userDocument = await User.findByUsername(username as string);
-  if (!userDocument) {
-    log.info(
-      `User ${username} doesn't exist and therefore can't be logged in. (Socket ID: ${socketID})`
-    );
+
+  const authenticationResult = await authenticate(username, password, socketID);
+
+  if (!authenticationResult.good) {
     return {
       good: false,
-      reason: "User not found.",
+      reason: authenticationResult.reason,
       id: null
     };
   }
-  let passwordResult = await bcrypt.compare(
-    password,
-    userDocument.hashedPassword
-  );
-  if (!passwordResult) {
-    log.info(
-      `User ${username} has unsuccessfully logged in due to an incorrect password. (Socket ID: ${socketID})`
-    );
-    return {
-      good: false,
-      reason: "Incorrect password.",
-      id: null
-    };
-  }
-  let id = userDocument._id.toString();
+
+  const id = authenticationResult.id?.toString() || "";
   log.info(
     `User ${username} has successfully logged in. (Socket ID: ${socketID})`
   );
+
   // log out sockets that were already logged in
   let duplicateSockets = universal.getSocketsFromUserID(id);
   for (let duplicateSocket of duplicateSockets || []) {
@@ -105,19 +91,7 @@ async function authenticateForSocket(
   };
 }
 
-function validateData(
-  username: unknown | undefined,
-  password: unknown | undefined,
-  socketID: unknown | undefined
-) {
-  // socket is already logged in
-  if (universal.getSocketFromConnectionID(socketID as string)?.loggedIn) {
-    return {
-      good: false,
-      reason: "User is already logged in.",
-      id: null
-    };
-  }
+function validateData(username: unknown, password: unknown, socketID: unknown) {
   if (typeof username !== "string" || username === "") {
     return {
       good: false,
@@ -136,6 +110,14 @@ function validateData(
     return {
       good: false,
       reason: "Invalid Socket ID.",
+      id: null
+    };
+  }
+  // socket is already logged in
+  if (universal.getSocketFromConnectionID(socketID as string)?.loggedIn) {
+    return {
+      good: false,
+      reason: "User is already logged in.",
       id: null
     };
   }
@@ -247,6 +229,47 @@ function checkIfSocketCanBeAuthenticated(connectionID: unknown) {
   return {
     good: true,
     reason: "All socket authentication eligibility checks passed."
+  };
+}
+
+async function authenticate(
+  username: string,
+  password: string,
+  socketID: string
+) {
+  // actually compare passwords
+  const userDocument = await User.findByUsername(username);
+  if (!userDocument) {
+    log.info(
+      `User ${username} doesn't exist and therefore can't be logged in. (Socket ID: ${socketID})`
+    );
+    return {
+      good: false,
+      reason: "User not found.",
+      id: null
+    };
+  }
+
+  const passwordResult = await bcrypt.compare(
+    password,
+    userDocument.hashedPassword
+  );
+
+  if (!passwordResult) {
+    log.info(
+      `User ${username} has unsuccessfully logged in due to an incorrect password. (Socket ID: ${socketID})`
+    );
+    return {
+      good: false,
+      reason: "Incorrect password.",
+      id: null
+    };
+  }
+
+  return {
+    good: true,
+    reason: "All checks passed",
+    id: userDocument._id
   };
 }
 
