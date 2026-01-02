@@ -57,36 +57,34 @@ enum InputAction {
 }
 interface InputActionInterface {
   action: InputAction;
-  keyPressed?: string | undefined;
+  keyPressed: string;
   argument: string;
 }
 const SEND_KEYS = ["Space", "Enter", "NumpadEnter"];
 const MAXIMUM_INPUT_LENGTH = 8;
+
 /**
  * Emulates a keypress for a player as if the player pressed the key themselves.
  * Note that it will also log that the press is emulated.
  * @param {universal.GameSocket} socket
  * @param {string} code
  */
-function emulateKeypress(
-  socket: universal.GameSocket,
-  code: string | undefined
-) {
+function emulateKeypress(socket: universal.GameSocket, code: string) {
   const connectionID = socket.connectionID;
   const playerName = universal.getNameFromConnectionID(connectionID || "");
   if (!connectionID) {
     log.warn(`Socket has no ID.`);
     return;
   }
-  log.info(
-    `Keypress ${code} emulated on Socket ID ${connectionID} (${playerName})`
-  );
   if (typeof connectionID !== "string") {
     log.warn(
       "An emulated keypress event that isn't associated with any socket connectionID has been fired."
     );
     return;
   }
+  log.info(
+    `Keypress ${code} emulated on Socket ID ${connectionID} (${playerName})`
+  );
   if (typeof code !== "string") {
     log.warn("An emulated keypress event that isn't a string has been fired.");
     return;
