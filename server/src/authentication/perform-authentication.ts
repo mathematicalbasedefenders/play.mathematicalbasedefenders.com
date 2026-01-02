@@ -48,7 +48,8 @@ async function authenticate(
   universal.sendToastMessageToSocket(socket, MESSAGE, SUCCESS_BORDER_COLOR);
 
   /** Exit opening screen */
-  socket.send(JSON.stringify({ message: "exitOpeningScreen" }));
+  const exitOpeningScreen = JSON.stringify({ message: "exitOpeningScreen" });
+  socket.send(exitOpeningScreen);
 
   /** Send data. */
   sendUserStatistics(socket, userData);
