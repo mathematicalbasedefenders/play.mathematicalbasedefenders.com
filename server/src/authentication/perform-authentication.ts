@@ -34,6 +34,8 @@ async function authenticate(
     return false;
   }
 
+  const sanitizedUsername = DOMPurifySanitizer.sanitize(username);
+
   /** Successfully logged in. */
   socket.getUserData().loggedIn = true;
   socket.getUserData().ownerUsername = username;
@@ -43,7 +45,7 @@ async function authenticate(
   socket.getUserData().playerRank = utilities.getRank(userData);
 
   /** Send toast message that logged in. */
-  const MESSAGE = `Successfully logged in as ${username}`;
+  const MESSAGE = `Successfully logged in as ${sanitizedUsername}`;
   universal.sendToastMessageToSocket(socket, MESSAGE, SUCCESS_BORDER_COLOR);
 
   /** Exit opening screen */
