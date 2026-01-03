@@ -548,6 +548,27 @@ class MultiplayerRoom extends Room {
     }
     this.host = newHost;
   }
+
+  notifyOfNewHost(newHostConnectionID: string) {
+    const pastHostConnectionID = this.host?.getUserData().connectionID;
+    const newHost = universal.getNameFromConnectionID(newHostConnectionID);
+
+    if (!pastHostConnectionID) {
+      // here just in case
+      log.warn(`Can't find past host connection ID when declaring new host.`);
+      log.info(`Room ${this.id}'s host now ${newHost}.`);
+
+      const message = `This room's host is now ${newHost}, since the original host left the room.`;
+      this.addChatMessage(message, { isSystemMessage: true });
+      return;
+    }
+
+    const pastHost = universal.getNameFromConnectionID(pastHostConnectionID);
+    const message = `This room's host is now ${newHost}, since the original host, ${pastHost} has left the room.`;
+    this.addChatMessage(message, { isSystemMessage: true });
+
+    log.info(`Room ${this.id}'s host now ${newHost} from ${pastHost}.`);
+  }
 }
 
 export { MultiplayerRoom };

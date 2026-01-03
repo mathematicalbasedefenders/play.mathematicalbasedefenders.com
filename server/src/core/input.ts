@@ -253,7 +253,7 @@ function releaseEnemyStock(gameDataToProcess: GameData, room: Room) {
 function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
   // TODO: Implement for spectators when spectators are implemented.
   const connectionID = socket.getUserData().connectionID;
-  const room = findRoomWithConnectionID(connectionID);
+  const room = findRoomWithConnectionID(connectionID) as MultiplayerRoom;
   if (!room) {
     log.warn(`Socket tried to leave a room, but it wasn't found.`);
     return;
@@ -269,10 +269,6 @@ function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
       socket.unsubscribe(defaultMultiplayerRoomID);
     }
   } else if (room.mode === GameMode.CustomMultiplayer) {
-    if (!(room instanceof MultiplayerRoom)) {
-      log.warn("CustomMultiplayer room code called on non-multiplayer room.");
-      return;
-    }
     if (!connectionID) {
       log.warn("Socket doesn't have a connection ID when leaving room.");
       return;
@@ -300,21 +296,15 @@ function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
           room.setNewHost(newHostID);
 
           // also send new chat message indicating the new host.
-          const pastHost = universal.getNameFromConnectionID(connectionID);
-          const newHost = universal.getNameFromConnectionID(newHostID);
-          const message = `This room's host is now ${newHost}, since the original host, ${pastHost} has left the room.`;
-          room.addChatMessage(message, { isSystemMessage: true });
+          room.notifyOfNewHost(newHostID);
 
           // notify the new host as well
           const newHostSocket = universal.getSocketFromConnectionID(newHostID);
-          const MESSAGE =
-            "You have been randomly selected to be the new host of this room since the previous host left.";
-
-          if (!newHostSocket) {
+          if (newHostSocket) {
+            const MESSAGE =
+              "You have been randomly selected to be the new host of this room since the previous host left.";
             room.sendCommandResultToSocket(MESSAGE, { sender: newHostSocket });
           }
-
-          log.info(`Room ${room.id}'s host now ${newHost} from ${pastHost}.`);
         }
       }
     }
@@ -324,7 +314,6 @@ function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
 }
 
 function sendAnswerForGameDataInput(gameData: GameData) {
-  let enemyKilled = false;
   const room = findRoomWithConnectionID(gameData.ownerConnectionID);
   const socketID = gameData.ownerConnectionID;
 
@@ -336,17 +325,21 @@ function sendAnswerForGameDataInput(gameData: GameData) {
 
   const ownerSocket = universal.getSocketFromConnectionID(socketID);
 
+  const emptyPlayerData = {
+    userID: null,
+    name: "(unknown)",
+    isAuthenticated: false,
+    connectionID: ""
+  };
+
+  const playerData = ownerSocket
+    ? getUserReplayDataFromSocket(ownerSocket)
+    : emptyPlayerData;
+
   const submissionRecord: ActionRecord = {
     action: Action.Submit,
     scope: "player",
-    user: ownerSocket
-      ? getUserReplayDataFromSocket(ownerSocket)
-      : {
-          userID: null,
-          name: "(unknown)",
-          isAuthenticated: false,
-          connectionID: ""
-        },
+    user: playerData,
     data: {
       submitted: gameData.currentInput
     },
@@ -355,18 +348,7 @@ function sendAnswerForGameDataInput(gameData: GameData) {
   room.gameActionRecord.addAction(submissionRecord);
 
   const enemyIDsToKill = getKilledEnemyIDs(gameData);
-  for (const enemyID of enemyIDsToKill) {
-    const enemy = gameData.enemies.find((e) => e.id === enemyID);
-    if (!enemy) {
-      log.warn(`Can't find enemy to kill in room ${room.id}.`);
-      continue;
-    }
-    enemy.kill(gameData, true, true);
-    room.gameActionRecord.addEnemyKillAction(enemy, gameData);
-
-    gameData.enemiesToErase.push(enemyID);
-    gameData.processEnemyKill(1, room);
-  }
+  killEnemyIDsInGameData(enemyIDsToKill, gameData, room);
 
   if (enemyIDsToKill.length > 0) {
     gameData.clearInput();
@@ -395,6 +377,25 @@ function getKilledEnemyIDs(gameData: GameData) {
     }
   }
   return enemyIDsToKill;
+}
+
+function killEnemyIDsInGameData(
+  enemyIDsToKill: Array<string>,
+  gameData: GameData,
+  room: Room
+) {
+  for (const enemyID of enemyIDsToKill) {
+    const enemy = gameData.enemies.find((e) => e.id === enemyID);
+    if (!enemy) {
+      log.warn(`Can't find enemy to kill in room ${room.id}.`);
+      continue;
+    }
+    enemy.kill(gameData, true, true);
+    room.gameActionRecord.addEnemyKillAction(enemy, gameData);
+
+    gameData.enemiesToErase.push(enemyID);
+    gameData.processEnemyKill(1, room);
+  }
 }
 
 export {
