@@ -283,10 +283,10 @@ function generateGuestID(length: number) {
 /**
  * TODO: Move this to somewhere else.
  * Updates the client-side on-screen data for the socket with said socket's info.
- * @param {WebSocket<UserData>} socket The socket to get data from and to update to
+ * @param {GameWebSocket<UserData>} socket The socket to get data from and to update to
  */
 async function updateSocketUserInformation(
-  socket: universal.WebSocket<UserData>
+  socket: universal.GameWebSocket<UserData>
 ) {
   const userData = await User.safeFindByUsername(
     socket.getUserData().ownerUsername as string
@@ -313,7 +313,7 @@ async function updateSocketUserInformation(
 }
 
 async function bulkUpdateSocketUserInformation(
-  ...sockets: Array<universal.WebSocket<UserData> | undefined>
+  ...sockets: Array<universal.GameWebSocket<UserData> | undefined>
 ) {
   for (const socket of sockets) {
     if (socket && socket.getUserData().loggedIn) {
@@ -342,14 +342,14 @@ function createGlobalLeaderboardsMessage(data: GameData, rank: number) {
 }
 
 /**
- * Derives the number of messages a `WebSocket<UserData>` will send per 1000ms from the socket and the time passed now.
- * @param {WebSocket<UserData>} socket The socket to check the speed of.
+ * Derives the number of messages a `GameWebSocket<UserData>` will send per 1000ms from the socket and the time passed now.
+ * @param {GameWebSocket<UserData>} socket The socket to check the speed of.
  * @param {number} time The time period of the speed.
- * @returns How many messages the WebSocket<UserData> would have sent as if 1000ms has passed,
+ * @returns How many messages the GameWebSocket<UserData> would have sent as if 1000ms has passed,
  * or -1 if socket doesn't have the `accumulatedMessages` property.
  */
 function getWebSocketMessageSpeed(
-  socket: universal.WebSocket<UserData>,
+  socket: universal.GameWebSocket<UserData>,
   time: number
 ) {
   if (typeof socket.getUserData().accumulatedMessages === "number") {
@@ -364,7 +364,7 @@ function getWebSocketMessageSpeed(
  *
  */
 function checkWebSocketMessageSpeeds(
-  sockets: Array<universal.WebSocket<UserData>>,
+  sockets: Array<universal.GameWebSocket<UserData>>,
   time: number
 ) {
   timePeriodPassedForMessageSpeed += time;
@@ -450,7 +450,9 @@ function generatePlayerListPayload(connectionIDs: string[]) {
  * @param socket The socket.
  * @returns The parsed data.
  */
-function getUserReplayDataFromSocket(socket: universal.WebSocket<UserData>) {
+function getUserReplayDataFromSocket(
+  socket: universal.GameWebSocket<UserData>
+) {
   return {
     userID: socket.getUserData().loggedIn
       ? socket.getUserData().ownerUserID

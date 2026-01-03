@@ -127,7 +127,7 @@ class GameData {
   /**  The name to display under the playfield of `GameData`.*/
   ownerName!: string;
   /**  The owner of the `GameData`.*/
-  owner: universal.WebSocket<UserData>;
+  owner: universal.GameWebSocket<UserData>;
   // ... (0.4.0)
   /**  The current level this `GameData` is at.*/
   level: number;
@@ -152,7 +152,7 @@ class GameData {
    */
   timestampOfSynchronization!: number;
 
-  constructor(owner: universal.WebSocket<UserData>, mode: GameMode) {
+  constructor(owner: universal.GameWebSocket<UserData>, mode: GameMode) {
     this.mode = mode;
     this.score = 0;
     this.enemiesKilled = 0;
@@ -289,7 +289,7 @@ class GameData {
 class SingleplayerGameData extends GameData {
   // nothing here yet...
 
-  constructor(owner: universal.WebSocket<UserData>, gameMode: GameMode) {
+  constructor(owner: universal.GameWebSocket<UserData>, gameMode: GameMode) {
     if (
       !(
         gameMode === GameMode.EasySingleplayer ||
@@ -397,7 +397,7 @@ class SingleplayerGameData extends GameData {
 
 class CustomSingleplayerGameData extends GameData {
   constructor(
-    owner: universal.WebSocket<UserData>,
+    owner: universal.GameWebSocket<UserData>,
     gameMode: GameMode,
     settings: CustomGameSettings
   ) {
@@ -420,7 +420,7 @@ class CustomSingleplayerGameData extends GameData {
 }
 
 class MultiplayerGameData extends GameData {
-  constructor(owner: universal.WebSocket<UserData>, gameMode: GameMode) {
+  constructor(owner: universal.GameWebSocket<UserData>, gameMode: GameMode) {
     if (
       !(
         gameMode === GameMode.DefaultMultiplayer ||

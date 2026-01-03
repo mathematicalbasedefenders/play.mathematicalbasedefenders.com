@@ -51,7 +51,7 @@ interface MinifiedGameDataInterface {
 
 class Room {
   id: string;
-  host: universal.WebSocket<UserData> | null;
+  host: universal.GameWebSocket<UserData> | null;
   memberConnectionIDs: Array<string> = [];
   spectatorConnectionIDs: Array<string> = [];
   updateNumber: number = 0;
@@ -80,13 +80,13 @@ class Room {
    * Instead it should be called from a `super()` call from either
    * a new `SingleplayerRoom` or a new `MultiplayerRoom`.
    * Note: A Room will only "start to function" when it is in `universal.rooms`.
-   * @param {universal.WebSocket<UserData>} host The socket that asked for the room.
+   * @param {universal.GameWebSocket<UserData>} host The socket that asked for the room.
    * @param {GameMode} gameMode The game mode of the room
    * @param {boolean} noHost Should only be `true` on Default Multiplayer.
    * @returns
    */
   constructor(
-    host: universal.WebSocket<UserData>,
+    host: universal.GameWebSocket<UserData>,
     gameMode: GameMode,
     noHost?: boolean
   ) {
@@ -494,9 +494,9 @@ class Room {
 
   /**
    * Adds the socket to this `Room` instance as a member.
-   * @param {universal.WebSocket<UserData>} caller The socket to add to the room (also the socket who called this function)
+   * @param {universal.GameWebSocket<UserData>} caller The socket to add to the room (also the socket who called this function)
    */
-  addMember(caller: universal.WebSocket<UserData>) {
+  addMember(caller: universal.GameWebSocket<UserData>) {
     const connectionID = caller.getUserData().connectionID as string;
     if (
       !this.memberConnectionIDs.includes(connectionID) &&
@@ -517,9 +517,9 @@ class Room {
   /**
    * Adds the socket to this `Room` instance as a spectator.
    * This hasn't been fully implemented yet.
-   * @param {universal.WebSocket<UserData>} caller The socket to add to the room (also the socket who called this function)
+   * @param {universal.GameWebSocket<UserData>} caller The socket to add to the room (also the socket who called this function)
    */
-  addSpectator(caller: universal.WebSocket<UserData>) {
+  addSpectator(caller: universal.GameWebSocket<UserData>) {
     const connectionID = caller.getUserData().connectionID as string;
     if (
       !this.spectatorConnectionIDs.includes(connectionID) &&
@@ -539,9 +539,9 @@ class Room {
   /**
    * Deletes the socket from this `Room` instance.
    * This requires that the socket is a member (and not a spectator),
-   * @param {universal.WebSocket<UserData>} caller The socket to delete from the room (also the socket who called this function)
+   * @param {universal.GameWebSocket<UserData>} caller The socket to delete from the room (also the socket who called this function)
    */
-  deleteMember(caller: universal.WebSocket<UserData>) {
+  deleteMember(caller: universal.GameWebSocket<UserData>) {
     const connectionID = caller.getUserData().connectionID as string;
     if (this.memberConnectionIDs.includes(connectionID)) {
       this.memberConnectionIDs.splice(
@@ -555,8 +555,8 @@ class Room {
   }
 
   kickMember(
-    caller: universal.WebSocket<UserData>,
-    target: universal.WebSocket<UserData>
+    caller: universal.GameWebSocket<UserData>,
+    target: universal.GameWebSocket<UserData>
   ) {
     const callerConnectionID = caller.getUserData().connectionID as string;
     const targetConnectionID = target.getUserData().connectionID as string;
@@ -599,9 +599,9 @@ class Room {
   /**
    * Deletes the socket from this `Room` instance.
    * This requires that the socket is a spectator (and not a member),
-   * @param {universal.WebSocket<UserData>} caller The socket to delete from the room (also the socket who called this function)
+   * @param {universal.GameWebSocket<UserData>} caller The socket to delete from the room (also the socket who called this function)
    */
-  deleteSpectator(caller: universal.WebSocket<UserData>) {
+  deleteSpectator(caller: universal.GameWebSocket<UserData>) {
     const connectionID = caller.getUserData().connectionID as string;
     if (this.spectatorConnectionIDs.includes(connectionID)) {
       this.spectatorConnectionIDs.splice(
@@ -988,13 +988,13 @@ function processKeypressForRoom(
 
 /**
  *
- * @param {universal.WebSocket<UserData>} socket The socket that called the function. Will be used so function doesn't return self's data.
+ * @param {universal.GameWebSocket<UserData>} socket The socket that called the function. Will be used so function doesn't return self's data.
  * @param {Room} room The room the socket is in. TODO: Make it so that the room is inferred from the socket automatically.
  * @param {boolean} minifyData Whether to "minify" the data. This should be `true` if the data is expected to be sent to the client.
  * @returns
  */
 function getOpponentsInformation(
-  socket: universal.WebSocket<UserData>,
+  socket: universal.GameWebSocket<UserData>,
   room: Room,
   minifyData: boolean
 ): any {

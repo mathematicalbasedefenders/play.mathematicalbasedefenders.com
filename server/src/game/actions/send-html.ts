@@ -1,13 +1,13 @@
-import { WebSocket, UserData } from "../../universal";
+import { GameWebSocket, UserData } from "../../universal";
 
 /**
- * Changes text rendered on client side through a WebSocket/WebSocket<UserData> message.
- * @param {WebSocket<UserData>} socket The socket to change text data of.
+ * Changes text rendered on client side through a WebSocket/GameWebSocket<UserData> message.
+ * @param {GameWebSocket<UserData>} socket The socket to change text data of.
  * @param {string} selector The client-side selector
  * @param {string} value The new text
  */
 function changeClientSideText(
-  socket: WebSocket<UserData>,
+  socket: GameWebSocket<UserData>,
   selector: string,
   value: string
 ) {
@@ -20,15 +20,15 @@ function changeClientSideText(
 }
 
 /**
- * Changes HTML rendered on client side through a WebSocket/WebSocket<UserData> message.
+ * Changes HTML rendered on client side through a WebSocket/GameWebSocket<UserData> message.
  * This should not be used in most cases: instead use the `changeClientSideText`
  * if you only want to change text (and not styling).
- * @param {WebSocket<UserData>} socket The socket to change text data of.
+ * @param {GameWebSocket<UserData>} socket The socket to change text data of.
  * @param {string} selector The client-side selector
  * @param {string} value The new HTML
  */
 function changeClientSideHTML(
-  socket: WebSocket<UserData>,
+  socket: GameWebSocket<UserData>,
   selector: string,
   value: string
 ) {

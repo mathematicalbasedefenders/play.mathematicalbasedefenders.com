@@ -11,11 +11,11 @@ import {
   millisecondsToTime
 } from "../core/utilities";
 import {
-  WebSocket,
   UserData,
   STATUS,
   sendGlobalToastNotification,
-  sendGlobalWebSocketMessage
+  sendGlobalWebSocketMessage,
+  GameWebSocket
 } from "../universal";
 import { sendDiscordWebhook } from "./discord-webhook";
 import { GameActionRecord } from "../replay/recording/ActionRecord";
@@ -24,7 +24,7 @@ import mongoose from "mongoose";
 // TODO: make this DRY
 async function submitSingleplayerGame(
   data: GameData,
-  owner: WebSocket<UserData>,
+  owner: GameWebSocket<UserData>,
   gameActionRecord: GameActionRecord
 ) {
   let wordedGameMode: string = "";
@@ -180,10 +180,10 @@ async function submitSingleplayerGame(
 
 /**
  * Gives EXP and GamesPlayed according to Score to the owner of the GameData.
- * @param {WebSocket<UserData>} owner The socket of the GameData's owner.
+ * @param {GameWebSocket<UserData>} owner The socket of the GameData's owner.
  * @param {GameData} data The GameData of which the score was submitted.
  */
-async function addToStatistics(owner: WebSocket<UserData>, data: GameData) {
+async function addToStatistics(owner: GameWebSocket<UserData>, data: GameData) {
   const expCoefficient = data.mode === GameMode.EasySingleplayer ? 0.3 : 1;
   const earned = Math.round(expCoefficient * (data.score / 100));
   User.giveExperiencePointsToUserID(
@@ -196,11 +196,14 @@ async function addToStatistics(owner: WebSocket<UserData>, data: GameData) {
 /**
  * Announces the owner's rank on the leaderboards to the owner of the score and the logs.
  * Leaderboard ranks are announced if the player made top 100, regardless if the score was a new personal best.
- * @param {WebSocket<UserData>} owner The socket of the GameData's owner.
+ * @param {GameWebSocket<UserData>} owner The socket of the GameData's owner.
  * @param {GameData} data The GameData of which the new personal best was acquired.
  * @returns -1 if not in Top 100 of game mode, rank number otherwise.
  */
-async function getLeaderboardsRank(owner: WebSocket<UserData>, data: GameData) {
+async function getLeaderboardsRank(
+  owner: GameWebSocket<UserData>,
+  data: GameData
+) {
   const records = await getScoresOfAllPlayers(data.mode);
   let globalRank = -1;
   let key = "";
@@ -243,11 +246,11 @@ async function getLeaderboardsRank(owner: WebSocket<UserData>, data: GameData) {
  * Updates the personal best of a registered user.
  * Note that this does not check if the score is actually higher than the previous score.
  * There should be an if statement to check if it's okay to update the score.
- * @param {WebSocket<UserData>} owner The socket of the GameData's owner.
+ * @param {GameWebSocket<UserData>} owner The socket of the GameData's owner.
  * @param {GameData} newData The GameData of which the new personal best was acquired.
  */
 async function updatePersonalBest(
-  owner: WebSocket<UserData>,
+  owner: GameWebSocket<UserData>,
   newData: GameData,
   replayID: string
 ) {
@@ -290,10 +293,10 @@ async function updatePersonalBest(
 
 /**
  * Sends a message containing leaderboard rank info to the owner's socket.
- * @param {WebSocket<UserData>} owner The socket to send the message to.
+ * @param {GameWebSocket<UserData>} owner The socket to send the message to.
  * @param {string} message The message to send to the user.
  */
-async function sendDataToUser(owner: WebSocket<UserData>, message: string) {
+async function sendDataToUser(owner: GameWebSocket<UserData>, message: string) {
   owner.send(
     JSON.stringify({
       message: "changeText",

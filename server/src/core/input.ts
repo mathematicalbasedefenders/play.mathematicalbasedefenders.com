@@ -67,10 +67,13 @@ const MAXIMUM_INPUT_LENGTH = 8;
 /**
  * Emulates a keypress for a player as if the player pressed the key themselves.
  * Note that it will also log that the press is emulated.
- * @param {universal.WebSocket<UserData>} socket
+ * @param {universal.GameWebSocket<UserData>} socket
  * @param {string} code
  */
-function emulateKeypress(socket: universal.WebSocket<UserData>, code: string) {
+function emulateKeypress(
+  socket: universal.GameWebSocket<UserData>,
+  code: string
+) {
   const connectionID = socket.getUserData().connectionID;
   const playerName = universal.getNameFromConnectionID(connectionID || "");
   if (!connectionID) {
@@ -95,7 +98,7 @@ function emulateKeypress(socket: universal.WebSocket<UserData>, code: string) {
 }
 
 function processKeypress(
-  socket: universal.WebSocket<UserData>,
+  socket: universal.GameWebSocket<UserData>,
   code: string | undefined,
   emulated?: boolean
 ) {
@@ -247,7 +250,7 @@ function releaseEnemyStock(gameDataToProcess: GameData, room: Room) {
 }
 
 // This just attempts to leave.
-function leaveMultiplayerRoom(socket: universal.WebSocket<UserData>) {
+function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
   // TODO: Implement for spectators when spectators are implemented.
   let room = universal.rooms.find(
     (element) =>

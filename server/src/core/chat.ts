@@ -25,12 +25,12 @@ const MAXIMUM_CHAT_MESSAGE_LENGTH = 256;
  * Attempts to send a chat message to a scope.
  * @param {string} scope the scope/visibility of the message
  * @param {string} message the message
- * @param {universal.WebSocket<UserData>} socket the socket of the message sender.
+ * @param {universal.GameWebSocket<UserData>} socket the socket of the message sender.
  */
 function sendChatMessage(
   scope: "room" | "global",
   message: string,
-  socket: universal.WebSocket<UserData>
+  socket: universal.GameWebSocket<UserData>
 ) {
   switch (scope) {
     case "room": {
@@ -57,11 +57,11 @@ function sendChatMessage(
 /**
  * Attempts to send a chat message to a room.
  * @param {string} message the message
- * @param {universal.WebSocket<UserData>} socket the socket of the message sender.
+ * @param {universal.GameWebSocket<UserData>} socket the socket of the message sender.
  */
 function sendChatMessageToRoom(
   message: string,
-  socket: universal.WebSocket<UserData>
+  socket: universal.GameWebSocket<UserData>
 ) {
   const connectionID = socket.getUserData().connectionID;
 
@@ -100,11 +100,11 @@ function sendChatMessageToRoom(
 /**
  * Attempts to send a chat message globally.
  * @param {string} message the message
- * @param {universal.WebSocket<UserData>} socket the socket of the message sender.
+ * @param {universal.GameWebSocket<UserData>} socket the socket of the message sender.
  */
 function sendChatMessageGlobally(
   message: string,
-  socket: universal.WebSocket<UserData>
+  socket: universal.GameWebSocket<UserData>
 ) {
   const connectionID = socket.getUserData().connectionID;
 
@@ -214,7 +214,7 @@ function createGlobalMessageObject(
  */
 function sendGlobalChatMessage(
   message: string,
-  socket: universal.WebSocket<UserData>
+  socket: universal.GameWebSocket<UserData>
 ) {
   const connectionID = socket.getUserData().connectionID as string;
   const playerName = universal.getNameFromConnectionID(connectionID);

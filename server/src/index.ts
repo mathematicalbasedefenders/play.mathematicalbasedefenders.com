@@ -82,7 +82,7 @@ const WebSocketRateLimit = (limit: number, interval: number) => {
   // const last = Symbol() as unknown as string;
   // const count = Symbol() as unknown as string;
   setInterval(() => ++now, interval);
-  return (webSocket: universal.WebSocket<UserData>) => {
+  return (webSocket: universal.GameWebSocket<UserData>) => {
     if (!webSocket.getUserData().rateLimiting) {
       return;
     }
@@ -124,8 +124,8 @@ uWS
   .App()
   .ws("/", {
     /**
-     * This handles the open connection for a `WebSocket<UserData>`.
-     * @param {universal.WebSocket<UserData>} socket The socket that was connected to.
+     * This handles the open connection for a `GameWebSocket<UserData>`.
+     * @param {universal.GameWebSocket<UserData>} socket The socket that was connected to.
      */
     open: (socket) => {
       log.info("Socket connected!");
@@ -341,7 +341,7 @@ uWS
       }
     },
 
-    close: (socket: universal.WebSocket<UserData>) => {
+    close: (socket: universal.GameWebSocket<UserData>) => {
       log.info(
         `Socket with ID ${socket.getUserData().connectionID} has disconnected!`
       );
@@ -424,11 +424,11 @@ function synchronizeGameDataWithSockets(
 
 /**
  * Makes `socket` join a multiplayer room with the id `roomID`.
- * @param {universal.WebSocket<UserData>} socket
+ * @param {universal.GameWebSocket<UserData>} socket
  * @param {string} roomID
  */
 function joinMultiplayerRoom(
-  socket: universal.WebSocket<UserData>,
+  socket: universal.GameWebSocket<UserData>,
   roomID: string
 ) {
   let room;
@@ -468,7 +468,7 @@ setInterval(() => {
 
 function checkBufferSize(
   buffer: Buffer,
-  socket: universal.WebSocket<UserData>
+  socket: universal.GameWebSocket<UserData>
 ) {
   // check if buffer big, if so, log it.
   if (buffer.length >= 1024) {
@@ -498,9 +498,9 @@ function initialize() {
  * Blocks a socket from performing any actions.
  * Used when socket hasn't properly exited opening screen.
  * (e.g. using DevTools to remove opening screen)
- * @param {universal.WebSocket<UserData>} socket The socket to block
+ * @param {universal.GameWebSocket<UserData>} socket The socket to block
  */
-function blockSocket(socket: universal.WebSocket<UserData>) {
+function blockSocket(socket: universal.GameWebSocket<UserData>) {
   log.warn(
     `Blocking socket ${
       socket.getUserData().connectionID

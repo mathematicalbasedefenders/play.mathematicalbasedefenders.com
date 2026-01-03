@@ -1,7 +1,7 @@
 import { getUserReplayDataFromSocket } from "../../core/utilities";
 import { Enemy } from "../../game/Enemy";
 import { GameData } from "../../game/GameData";
-import { WebSocket, UserData } from "../../universal";
+import { GameWebSocket, UserData } from "../../universal";
 import { GameActionRecord as DatabaseGameActionRecord } from "../../models/GameActionRecord";
 import mongoose from "mongoose";
 import { log } from "../../core/log";
@@ -37,7 +37,7 @@ class GameActionRecord {
   actionRecords: Array<ActionRecord>;
   recordingVersion: number;
   gameVersion: string;
-  owner: WebSocket<UserData> | null | undefined;
+  owner: GameWebSocket<UserData> | null | undefined;
 
   constructor() {
     this.recordingVersion = 1;

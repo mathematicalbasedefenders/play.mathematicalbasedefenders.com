@@ -42,7 +42,7 @@ class MultiplayerRoom extends Room {
   timeSinceLastPlayerListUpdate: number;
 
   constructor(
-    host: universal.WebSocket<UserData>,
+    host: universal.GameWebSocket<UserData>,
     mode: GameMode,
     noHost?: boolean
   ) {

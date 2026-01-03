@@ -61,7 +61,7 @@ async function authenticate(
 }
 
 function sendUserStatistics(
-  socket: universal.WebSocket<UserData>,
+  socket: universal.GameWebSocket<UserData>,
   userData: UserInterface
 ) {
   const username = userData.username;

@@ -22,7 +22,7 @@ import * as universal from "../universal";
 
 class SingleplayerRoom extends Room {
   constructor(
-    host: universal.WebSocket<UserData>,
+    host: universal.GameWebSocket<UserData>,
     mode: GameMode,
     settings?: any
   ) {
@@ -229,13 +229,13 @@ class SingleplayerRoom extends Room {
 
 /**
  * Creates a new singleplayer room.
- * @param {universal.WebSocket<UserData>} caller The socket that called the function
+ * @param {universal.GameWebSocket<UserData>} caller The socket that called the function
  * @param {GameMode} gameMode The singleplayer game mode.
  * @param {settings} settings The `settings` for the singleplayer game mode, if it's custom.
  * @returns The newly-created room object.
  */
 function createSingleplayerRoom(
-  caller: universal.WebSocket<UserData>,
+  caller: universal.GameWebSocket<UserData>,
   gameMode: GameMode,
   settings?: { [key: string]: string }
 ): SingleplayerRoom {
