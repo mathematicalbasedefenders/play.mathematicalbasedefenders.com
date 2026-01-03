@@ -7,6 +7,7 @@ import { log } from "../core/log";
 import { InputActionInterface } from "../core/input";
 import _ from "lodash";
 import { Room } from "./Room";
+import { UserData } from "../universal";
 
 interface ClockInterface {
   [key: string]: {
@@ -126,7 +127,7 @@ class GameData {
   /**  The name to display under the playfield of `GameData`.*/
   ownerName!: string;
   /**  The owner of the `GameData`.*/
-  owner: universal.GameSocket;
+  owner: universal.WebSocket<UserData>;
   // ... (0.4.0)
   /**  The current level this `GameData` is at.*/
   level: number;
@@ -151,14 +152,14 @@ class GameData {
    */
   timestampOfSynchronization!: number;
 
-  constructor(owner: universal.GameSocket, mode: GameMode) {
+  constructor(owner: universal.WebSocket<UserData>, mode: GameMode) {
     this.mode = mode;
     this.score = 0;
     this.enemiesKilled = 0;
     this.enemiesSpawned = 0;
     this.baseHealth = GAME_DATA_CONSTANTS.INITIAL_BASE_HEALTH;
     this.owner = owner;
-    this.ownerConnectionID = owner.connectionID as string;
+    this.ownerConnectionID = owner.getUserData().connectionID as string;
     this.ownerName =
       universal.getNameFromConnectionID(this.ownerConnectionID) || "???";
     this.enemies = [];
@@ -288,7 +289,7 @@ class GameData {
 class SingleplayerGameData extends GameData {
   // nothing here yet...
 
-  constructor(owner: universal.GameSocket, gameMode: GameMode) {
+  constructor(owner: universal.WebSocket<UserData>, gameMode: GameMode) {
     if (
       !(
         gameMode === GameMode.EasySingleplayer ||
@@ -396,7 +397,7 @@ class SingleplayerGameData extends GameData {
 
 class CustomSingleplayerGameData extends GameData {
   constructor(
-    owner: universal.GameSocket,
+    owner: universal.WebSocket<UserData>,
     gameMode: GameMode,
     settings: CustomGameSettings
   ) {
@@ -419,7 +420,7 @@ class CustomSingleplayerGameData extends GameData {
 }
 
 class MultiplayerGameData extends GameData {
-  constructor(owner: universal.GameSocket, gameMode: GameMode) {
+  constructor(owner: universal.WebSocket<UserData>, gameMode: GameMode) {
     if (
       !(
         gameMode === GameMode.DefaultMultiplayer ||

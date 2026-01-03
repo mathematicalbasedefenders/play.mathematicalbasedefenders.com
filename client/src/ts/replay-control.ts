@@ -112,12 +112,12 @@ function getReplayContext(
 
   if (replayData.mode === "defaultMultiplayer") {
     const opponents = replayData.statistics.multiplayer.ranking.filter(
-      (e: any) => e.connectionID !== replayData.viewAs
+      (e: any) => e.getUserData().connectionID !== replayData.viewAs
     );
     context.multiplayer = {};
     context.multiplayer.players = {};
     for (const opponent of opponents) {
-      const connectionID = opponent.connectionID;
+      const connectionID = opponent.getUserData().connectionID;
       context.multiplayer.players[connectionID] = {
         enemies: { ignored: [], ages: {}, spawnTimes: {} }
       };

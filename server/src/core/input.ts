@@ -19,6 +19,7 @@ import {
 import { Action, ActionRecord } from "../replay/recording/ActionRecord";
 import _ from "lodash";
 import { MultiplayerRoom } from "../game/MultiplayerRoom";
+import { UserData } from "../universal";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -66,11 +67,11 @@ const MAXIMUM_INPUT_LENGTH = 8;
 /**
  * Emulates a keypress for a player as if the player pressed the key themselves.
  * Note that it will also log that the press is emulated.
- * @param {universal.GameSocket} socket
+ * @param {universal.WebSocket<UserData>} socket
  * @param {string} code
  */
-function emulateKeypress(socket: universal.GameSocket, code: string) {
-  const connectionID = socket.connectionID;
+function emulateKeypress(socket: universal.WebSocket<UserData>, code: string) {
+  const connectionID = socket.getUserData().connectionID;
   const playerName = universal.getNameFromConnectionID(connectionID || "");
   if (!connectionID) {
     log.warn(`Socket has no ID.`);
@@ -94,11 +95,11 @@ function emulateKeypress(socket: universal.GameSocket, code: string) {
 }
 
 function processKeypress(
-  socket: universal.GameSocket,
+  socket: universal.WebSocket<UserData>,
   code: string | undefined,
   emulated?: boolean
 ) {
-  const connectionID = socket.connectionID;
+  const connectionID = socket.getUserData().connectionID;
   if (!connectionID) {
     log.warn(`Socket has no ID.`);
     return;
@@ -133,7 +134,7 @@ function processKeypress(
   // non-room interactions
   if (code === "Escape") {
     let socket = universal.sockets.find(
-      (socket) => socket.connectionID === connectionID
+      (socket) => socket.getUserData().connectionID === connectionID
     );
     if (socket) {
       leaveMultiplayerRoom(socket);
@@ -246,11 +247,13 @@ function releaseEnemyStock(gameDataToProcess: GameData, room: Room) {
 }
 
 // This just attempts to leave.
-function leaveMultiplayerRoom(socket: universal.GameSocket) {
+function leaveMultiplayerRoom(socket: universal.WebSocket<UserData>) {
   // TODO: Implement for spectators when spectators are implemented.
   let room = universal.rooms.find(
     (element) =>
-      element.memberConnectionIDs.indexOf(socket.connectionID as string) > -1
+      element.memberConnectionIDs.indexOf(
+        socket.getUserData().connectionID as string
+      ) > -1
   );
   if (!room) {
     log.warn(`Socket tried to leave a room, but it wasn't found.`);
@@ -258,7 +261,7 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
   }
   if (room.playing) {
     let gameData = utilities.findGameDataWithConnectionID(
-      socket.connectionID as string,
+      socket.getUserData().connectionID as string,
       room
     );
     if (gameData) {
@@ -270,13 +273,16 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
       socket.unsubscribe(defaultMultiplayerRoomID);
     }
   } else if (room.mode === GameMode.CustomMultiplayer) {
-    if (!socket.connectionID) {
+    if (!socket.getUserData().connectionID) {
       log.warn("Socket doesn't have a connection ID when leaving room.");
       return;
     }
-    if ((room as MultiplayerRoom).host?.connectionID === socket.connectionID) {
+    if (
+      (room as MultiplayerRoom).host?.getUserData().connectionID ===
+      socket.getUserData().connectionID
+    ) {
       const pool = room.memberConnectionIDs.filter(
-        (e) => e !== socket.connectionID
+        (e) => e !== socket.getUserData().connectionID
       );
       // It's here since we have to find a new host, and if there's only
       // one socket before leaving, the room is empty and can be destroyed.
@@ -285,7 +291,9 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
         (room as MultiplayerRoom).setNewHost(newHostID as string);
 
         // also send new chat message indicating the new host.
-        const pastHost = universal.getNameFromConnectionID(socket.connectionID);
+        const pastHost = universal.getNameFromConnectionID(
+          socket.getUserData().connectionID
+        );
         const newHost = universal.getNameFromConnectionID(newHostID as string);
         const message = `This room's host is now ${newHost}, since the original host, ${pastHost} has left the room.`;
         room.addChatMessage(message, { isSystemMessage: true });

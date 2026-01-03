@@ -11,7 +11,8 @@ import {
   millisecondsToTime
 } from "../core/utilities";
 import {
-  GameSocket,
+  WebSocket,
+  UserData,
   STATUS,
   sendGlobalToastNotification,
   sendGlobalWebSocketMessage
@@ -23,7 +24,7 @@ import mongoose from "mongoose";
 // TODO: make this DRY
 async function submitSingleplayerGame(
   data: GameData,
-  owner: GameSocket,
+  owner: WebSocket<UserData>,
   gameActionRecord: GameActionRecord
 ) {
   let wordedGameMode: string = "";
@@ -70,7 +71,7 @@ async function submitSingleplayerGame(
     return;
   }
 
-  if (!owner.loggedIn) {
+  if (!owner.getUserData().loggedIn) {
     // guest user - ignore score
     log.info(`Ignoring guest score of ${data.score} on ${data.mode} mode`);
     owner.send(
@@ -106,17 +107,23 @@ async function submitSingleplayerGame(
 
   // announce
   log.info(
-    `${owner.ownerUsername} submitted a score of ${data.score} on ${wordedGameMode}`
+    `${owner.getUserData().ownerUsername} submitted a score of ${
+      data.score
+    } on ${wordedGameMode}`
   );
 
   // TODO: This makes like 5 database calls, reduce this to one pls
-  const statistics = await User.safeFindByUserID(owner.ownerUserID as string);
+  const statistics = await User.safeFindByUserID(
+    owner.getUserData().ownerUserID as string
+  );
   switch (data.mode) {
     case GameMode.EasySingleplayer: {
       const key = "personalBestScoreOnEasySingleplayerMode";
       const previousBest = statistics?.statistics[key]?.score;
       if (data.score > (previousBest ?? -1)) {
-        log.info(`New Easy Singleplayer PB for ${owner.ownerUsername}.`);
+        log.info(
+          `New Easy Singleplayer PB for ${owner.getUserData().ownerUsername}.`
+        );
         rankMessage += "Personal Best! ";
         personalBestBeaten = true;
       }
@@ -126,7 +133,11 @@ async function submitSingleplayerGame(
       const key = "personalBestScoreOnStandardSingleplayerMode";
       const previousBest = statistics?.statistics[key]?.score;
       if (data.score > (previousBest ?? -1)) {
-        log.info(`New Standard Singleplayer PB for ${owner.ownerUsername}.`);
+        log.info(
+          `New Standard Singleplayer PB for ${
+            owner.getUserData().ownerUsername
+          }.`
+        );
         rankMessage += "Personal Best! ";
         personalBestBeaten = true;
       }
@@ -149,7 +160,7 @@ async function submitSingleplayerGame(
       const chatAlert = createGlobalChatLeaderboardsMessage(
         data,
         rank,
-        owner?.playerRank?.color
+        owner?.getUserData().playerRank?.color
       );
       sendRankToGlobalChat(chatAlert);
     }
@@ -169,24 +180,27 @@ async function submitSingleplayerGame(
 
 /**
  * Gives EXP and GamesPlayed according to Score to the owner of the GameData.
- * @param {GameSocket} owner The socket of the GameData's owner.
+ * @param {WebSocket<UserData>} owner The socket of the GameData's owner.
  * @param {GameData} data The GameData of which the score was submitted.
  */
-async function addToStatistics(owner: GameSocket, data: GameData) {
+async function addToStatistics(owner: WebSocket<UserData>, data: GameData) {
   const expCoefficient = data.mode === GameMode.EasySingleplayer ? 0.3 : 1;
   const earned = Math.round(expCoefficient * (data.score / 100));
-  User.giveExperiencePointsToUserID(owner.ownerUserID as string, earned);
-  User.addGamesPlayedToUserID(owner.ownerUserID as string, 1);
+  User.giveExperiencePointsToUserID(
+    owner.getUserData().ownerUserID as string,
+    earned
+  );
+  User.addGamesPlayedToUserID(owner.getUserData().ownerUserID as string, 1);
 }
 
 /**
  * Announces the owner's rank on the leaderboards to the owner of the score and the logs.
  * Leaderboard ranks are announced if the player made top 100, regardless if the score was a new personal best.
- * @param {GameSocket} owner The socket of the GameData's owner.
+ * @param {WebSocket<UserData>} owner The socket of the GameData's owner.
  * @param {GameData} data The GameData of which the new personal best was acquired.
  * @returns -1 if not in Top 100 of game mode, rank number otherwise.
  */
-async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
+async function getLeaderboardsRank(owner: WebSocket<UserData>, data: GameData) {
   const records = await getScoresOfAllPlayers(data.mode);
   let globalRank = -1;
   let key = "";
@@ -215,7 +229,11 @@ async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
     globalRank = records.length;
   }
   if (globalRank > -1 && globalRank < 100) {
-    log.info(`${owner.ownerUsername} got #${globalRank + 1} on ${data.mode}.`);
+    log.info(
+      `${owner.getUserData().ownerUsername} got #${globalRank + 1} on ${
+        data.mode
+      }.`
+    );
     return globalRank + 1;
   }
   return -1;
@@ -225,15 +243,17 @@ async function getLeaderboardsRank(owner: GameSocket, data: GameData) {
  * Updates the personal best of a registered user.
  * Note that this does not check if the score is actually higher than the previous score.
  * There should be an if statement to check if it's okay to update the score.
- * @param {GameSocket} owner The socket of the GameData's owner.
+ * @param {WebSocket<UserData>} owner The socket of the GameData's owner.
  * @param {GameData} newData The GameData of which the new personal best was acquired.
  */
 async function updatePersonalBest(
-  owner: GameSocket,
+  owner: WebSocket<UserData>,
   newData: GameData,
   replayID: string
 ) {
-  let playerData = await User.safeFindByUserID(owner.ownerUserID as string);
+  let playerData = await User.safeFindByUserID(
+    owner.getUserData().ownerUserID as string
+  );
   switch (newData.mode) {
     case GameMode.EasySingleplayer: {
       const key = "personalBestScoreOnEasySingleplayerMode";
@@ -261,15 +281,19 @@ async function updatePersonalBest(
     }
   }
   await playerData.save();
-  log.info(`Updated PB for user ${owner.ownerUsername} on ${newData.mode}.`);
+  log.info(
+    `Updated PB for user ${owner.getUserData().ownerUsername} on ${
+      newData.mode
+    }.`
+  );
 }
 
 /**
  * Sends a message containing leaderboard rank info to the owner's socket.
- * @param {GameSocket} owner The socket to send the message to.
+ * @param {WebSocket<UserData>} owner The socket to send the message to.
  * @param {string} message The message to send to the user.
  */
-async function sendDataToUser(owner: GameSocket, message: string) {
+async function sendDataToUser(owner: WebSocket<UserData>, message: string) {
   owner.send(
     JSON.stringify({
       message: "changeText",

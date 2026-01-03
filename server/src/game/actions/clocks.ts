@@ -115,7 +115,9 @@ function checkBaseHealthRegenerationClock(data: GameData) {
     data.baseHealth > 0
   ) {
     const baseHealthNow = addToBaseHealth(data);
-    const room = findRoomWithConnectionID(data.owner.connectionID);
+    const room = findRoomWithConnectionID(
+      data.owner.getUserData().connectionID
+    );
     room?.gameActionRecord.addSetGameDataAction(
       data,
       "player",

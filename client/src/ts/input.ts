@@ -107,7 +107,7 @@ function handleClientSideEvents(event: KeyboardEvent) {
 function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   // overrides: set to false
   let sendWebSocketMessage = true;
-  if (event.code === "Tab" && variables.exitedOpeningScreen) {
+  if (event.code === "Tab" && variables.getUserData().exitedOpeningScreen) {
     event.preventDefault();
 
     // remove (keyboard) focus
@@ -126,7 +126,7 @@ function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
     navigateFocus(event);
     sendWebSocketMessage = false;
   }
-  if (event.code === "Tab" && !variables.exitedOpeningScreen) {
+  if (event.code === "Tab" && !variables.getUserData().exitedOpeningScreen) {
     event.preventDefault();
     const fakeEvent = new KeyboardEvent("keypress", { code: "ArrowDown" });
     navigateFocus(fakeEvent);

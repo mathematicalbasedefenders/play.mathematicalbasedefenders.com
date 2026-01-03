@@ -7,7 +7,8 @@ import { Action } from "../replay/recording/ActionRecord";
 import { submitSingleplayerGame } from "../services/score";
 import {
   getSocketFromConnectionID,
-  synchronizeGameDataWithSocket
+  synchronizeGameDataWithSocket,
+  UserData
 } from "../universal";
 import { createGameOverScreenText } from "./actions/create-text";
 import { updateSingleplayerRoomData } from "./actions/update";
@@ -20,7 +21,11 @@ import { GameMode, Room } from "./Room";
 import * as universal from "../universal";
 
 class SingleplayerRoom extends Room {
-  constructor(host: universal.GameSocket, mode: GameMode, settings?: any) {
+  constructor(
+    host: universal.WebSocket<UserData>,
+    mode: GameMode,
+    settings?: any
+  ) {
     super(host, mode);
     // custom settings
     if (typeof settings !== "undefined") {
@@ -224,13 +229,13 @@ class SingleplayerRoom extends Room {
 
 /**
  * Creates a new singleplayer room.
- * @param {universal.GameSocket} caller The socket that called the function
+ * @param {universal.WebSocket<UserData>} caller The socket that called the function
  * @param {GameMode} gameMode The singleplayer game mode.
  * @param {settings} settings The `settings` for the singleplayer game mode, if it's custom.
  * @returns The newly-created room object.
  */
 function createSingleplayerRoom(
-  caller: universal.GameSocket,
+  caller: universal.WebSocket<UserData>,
   gameMode: GameMode,
   settings?: { [key: string]: string }
 ): SingleplayerRoom {

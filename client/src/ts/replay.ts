@@ -460,23 +460,25 @@ function updateReplayGameData(
       if (data.mode.indexOf("Singleplayer") > -1) {
         replayGameData.owner = actionRecord.data.name;
         replayGameData.userID = actionRecord.data.userID;
-        replayGameData.connectionID = actionRecord.data.connectionID;
+        replayGameData.getUserData().connectionID =
+          actionRecord.data.getUserData().connectionID;
       } else {
         // is multiplayer
         if (
-          replayGameData.viewAs === actionRecord.data.playerAdded.connectionID
+          replayGameData.viewAs ===
+          actionRecord.data.playerAdded.getUserData().connectionID
         ) {
           replayGameData.owner = actionRecord.data.playerAdded.name;
           replayGameData.userID = actionRecord.data.playerAdded.userID;
-          replayGameData.connectionID =
-            actionRecord.data.playerAdded.connectionID;
+          replayGameData.getUserData().connectionID =
+            actionRecord.data.playerAdded.getUserData().connectionID;
         } else {
           replayGameData.opponentGameData.push({
             baseHealth: 100,
             combo: -1,
             currentInput: "",
             receivedEnemiesStock: 0,
-            owner: actionRecord.data.playerAdded.connectionID,
+            owner: actionRecord.data.playerAdded.getUserData().connectionID,
             ownerName: actionRecord.data.playerAdded.name,
             enemies: [],
             enemiesToErase: []
@@ -502,7 +504,7 @@ function updateOpponentGameData(
   replayGameData: any,
   additionalReplayContext?: ReplayContext
 ) {
-  const connectionID = actionRecord.user.connectionID as string;
+  const connectionID = actionRecord.user.getUserData().connectionID as string;
   const opponentData = replayGameData.opponentGameData.find(
     (element: any) => element.owner === connectionID
   );
@@ -677,7 +679,7 @@ function getPlayerListOptions(data: any) {
   for (const player of ranking) {
     rank++;
     const playerName = player.name;
-    const playerConnectionID = player.connectionID;
+    const playerConnectionID = player.getUserData().connectionID;
     const option = new Option(`${playerName} (#${rank})`, playerConnectionID);
     options.push(option);
   }
@@ -685,7 +687,7 @@ function getPlayerListOptions(data: any) {
 }
 
 function getWhoseDataToUpdate(actionRecord: any) {
-  return actionRecord?.user?.connectionID ?? "";
+  return actionRecord?.user?.getUserData().connectionID ?? "";
 }
 
 /**
