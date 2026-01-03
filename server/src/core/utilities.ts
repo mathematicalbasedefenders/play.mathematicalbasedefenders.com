@@ -4,6 +4,7 @@ import { Room } from "../game/Room";
 import { User, UserInterface } from "../models/User";
 import _ from "lodash";
 import { GameData, GameMode } from "../game/GameData";
+import { UserData } from "../universal";
 
 const MESSAGES_PER_SECOND_TIME_PERIOD = 200;
 let timePeriodPassedForMessageSpeed = 0;
@@ -282,17 +283,19 @@ function generateGuestID(length: number) {
 /**
  * TODO: Move this to somewhere else.
  * Updates the client-side on-screen data for the socket with said socket's info.
- * @param {GameSocket} socket The socket to get data from and to update to
+ * @param {GameWebSocket<UserData>} socket The socket to get data from and to update to
  */
-async function updateSocketUserInformation(socket: universal.GameSocket) {
+async function updateSocketUserInformation(
+  socket: universal.GameWebSocket<UserData>
+) {
   const userData = await User.safeFindByUsername(
-    socket.ownerUsername as string
+    socket.getUserData().ownerUsername as string
   );
   socket.send(
     JSON.stringify({
       message: "updateUserInformationText",
       data: {
-        username: socket.ownerUsername,
+        username: socket.getUserData().ownerUsername,
         good: true,
         userData: userData,
         rank: getRank(userData),
@@ -310,10 +313,10 @@ async function updateSocketUserInformation(socket: universal.GameSocket) {
 }
 
 async function bulkUpdateSocketUserInformation(
-  ...sockets: Array<universal.GameSocket | undefined>
+  ...sockets: Array<universal.GameWebSocket<UserData> | undefined>
 ) {
   for (const socket of sockets) {
-    if (socket && socket.loggedIn) {
+    if (socket && socket.getUserData().loggedIn) {
       updateSocketUserInformation(socket);
     }
   }
@@ -339,15 +342,20 @@ function createGlobalLeaderboardsMessage(data: GameData, rank: number) {
 }
 
 /**
- * Derives the number of messages a `GameSocket` will send per 1000ms from the socket and the time passed now.
- * @param {GameSocket} socket The socket to check the speed of.
+ * Derives the number of messages a `GameWebSocket<UserData>` will send per 1000ms from the socket and the time passed now.
+ * @param {GameWebSocket<UserData>} socket The socket to check the speed of.
  * @param {number} time The time period of the speed.
- * @returns How many messages the GameSocket would have sent as if 1000ms has passed,
+ * @returns How many messages the GameWebSocket<UserData> would have sent as if 1000ms has passed,
  * or -1 if socket doesn't have the `accumulatedMessages` property.
  */
-function getWebSocketMessageSpeed(socket: universal.GameSocket, time: number) {
-  if (typeof socket.accumulatedMessages === "number") {
-    return (1000 / Math.max(15, time)) * socket.accumulatedMessages;
+function getWebSocketMessageSpeed(
+  socket: universal.GameWebSocket<UserData>,
+  time: number
+) {
+  if (typeof socket.getUserData().accumulatedMessages === "number") {
+    return (
+      (1000 / Math.max(15, time)) * socket.getUserData().accumulatedMessages
+    );
   }
   return -1;
 }
@@ -356,7 +364,7 @@ function getWebSocketMessageSpeed(socket: universal.GameSocket, time: number) {
  *
  */
 function checkWebSocketMessageSpeeds(
-  sockets: Array<universal.GameSocket>,
+  sockets: Array<universal.GameWebSocket<UserData>>,
   time: number
 ) {
   timePeriodPassedForMessageSpeed += time;
@@ -366,11 +374,13 @@ function checkWebSocketMessageSpeeds(
   }
   const socketsToForceDelete = [];
   for (const socket of sockets) {
-    if (typeof socket.accumulatedMessages === "number") {
+    if (typeof socket.getUserData().accumulatedMessages === "number") {
       const amount = getWebSocketMessageSpeed(socket, time);
       if (amount > MESSAGES_PER_SECOND_LIMIT) {
         log.warn(
-          `Disconnecting socket ${socket.connectionID} for sending too many messages at once. (${amount} per second > ${MESSAGES_PER_SECOND_LIMIT} per second)`
+          `Disconnecting socket ${
+            socket.getUserData().connectionID
+          } for sending too many messages at once. (${amount} per second > ${MESSAGES_PER_SECOND_LIMIT} per second)`
         );
         socket?.send(
           JSON.stringify({
@@ -382,7 +392,7 @@ function checkWebSocketMessageSpeeds(
         );
         socketsToForceDelete.push(socket);
       } else {
-        socket.accumulatedMessages = 0;
+        socket.getUserData().accumulatedMessages = 0;
       }
     }
   }
@@ -421,8 +431,8 @@ function formatNumber(n: number) {
 function generatePlayerListPayload(connectionIDs: string[]) {
   return connectionIDs.map((connectionID) => {
     const socket = universal.getSocketFromConnectionID(connectionID);
-    const color = socket?.playerRank?.color || "#ffffff";
-    const userID = socket?.ownerUserID;
+    const color = socket?.getUserData().playerRank?.color || "#ffffff";
+    const userID = socket?.getUserData().ownerUserID;
     const isRegistered = userID != null;
     return {
       name: universal.getNameFromConnectionID(connectionID),
@@ -440,12 +450,18 @@ function generatePlayerListPayload(connectionIDs: string[]) {
  * @param socket The socket.
  * @returns The parsed data.
  */
-function getUserReplayDataFromSocket(socket: universal.GameSocket) {
+function getUserReplayDataFromSocket(
+  socket: universal.GameWebSocket<UserData>
+) {
   return {
-    userID: socket.loggedIn ? socket.ownerUserID : null,
-    name: socket.loggedIn ? socket.ownerUsername : socket.ownerGuestName,
-    isAuthenticated: socket.loggedIn,
-    connectionID: socket.connectionID
+    userID: socket.getUserData().loggedIn
+      ? socket.getUserData().ownerUserID
+      : null,
+    name: socket.getUserData().loggedIn
+      ? socket.getUserData().ownerUsername
+      : socket.getUserData().ownerGuestName,
+    isAuthenticated: socket.getUserData().loggedIn,
+    connectionID: socket.getUserData().connectionID
   };
 }
 
@@ -491,8 +507,9 @@ function getHumanFriendlyMultiplayerRoomList() {
     };
     // TODO: Quite a hacky way to do this, find a "better" way.
     const hostName =
-      universal.getNameFromConnectionID(room.host.connectionID as string) ||
-      "(unknown)";
+      universal.getNameFromConnectionID(
+        room.host.getUserData().connectionID as string
+      ) || "(unknown)";
     formattedRoom.name = `Multiplayer room with ID ${room.id} hosted by ${hostName} with ${formattedRoom.playerCount} players.`;
     result.push(formattedRoom);
   }

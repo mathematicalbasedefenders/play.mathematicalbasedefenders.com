@@ -29,6 +29,7 @@ import * as universal from "../universal";
 import * as utilities from "../core/utilities";
 import { Enemy } from "./Enemy";
 import * as enemy from "./Enemy";
+import { UserData } from "../universal";
 
 const PLAYER_LIST_UPDATE_INTERVAL = 1000;
 
@@ -40,7 +41,11 @@ class MultiplayerRoom extends Room {
   globalEnemyToAdd!: Enemy | null;
   timeSinceLastPlayerListUpdate: number;
 
-  constructor(host: universal.GameSocket, mode: GameMode, noHost?: boolean) {
+  constructor(
+    host: universal.GameWebSocket<UserData>,
+    mode: GameMode,
+    noHost?: boolean
+  ) {
     super(host, mode, noHost);
     this.nextGameStartTime = null;
     this.globalEnemySpawnThreshold =
@@ -194,8 +199,9 @@ class MultiplayerRoom extends Room {
       const hostNameSelector =
         "#main-content__custom-multiplayer-intermission-screen-container__host-name";
       const hostName =
-        universal.getNameFromConnectionID(this.host?.connectionID ?? "???") ||
-        "(unknown)";
+        universal.getNameFromConnectionID(
+          this.host?.getUserData().connectionID ?? "???"
+        ) || "(unknown)";
       changeClientSideText(socket, hostNameSelector, hostName);
     }
 
@@ -208,7 +214,7 @@ class MultiplayerRoom extends Room {
         const selector =
           "#main-content__custom-multiplayer-intermission-screen-container__game-status-message";
 
-        if (connectionID === this.host?.connectionID) {
+        if (connectionID === this.host?.getUserData().connectionID) {
           const value = `You are the host of this room! Type "/start" in chat to start the game. You can also type "/?" in chat to view commands that allow you to customize this room's settings.`;
           changeClientSideText(socket, selector, value);
         } else {
@@ -365,18 +371,18 @@ class MultiplayerRoom extends Room {
         userID: "",
         connectionID: gameData.ownerConnectionID
       };
-      if (socket?.ownerUserID) {
+      if (socket?.getUserData().ownerUserID) {
         // is registered
         data.isRegistered = true;
-        data.userID = socket.ownerUserID;
-        data.nameColor = socket.playerRank?.color ?? "#ffffff";
+        data.userID = socket.getUserData().ownerUserID ?? "";
+        data.nameColor = socket.getUserData().playerRank?.color ?? "#ffffff";
       }
       this.ranking.push(data);
     }
-    // if (socket?.loggedIn && gameData instanceof GameData) {
+    // if (socket?.getUserData().loggedIn && gameData instanceof GameData) {
     //   const earnedEXP = Math.round(gameData.elapsedTime / 2000);
     //   User.giveExperiencePointsToUserID(
-    //     socket.ownerUserID as string,
+    //     socket.getUserData().ownerUserID as string,
     //     earnedEXP
     //   );
     // }
@@ -443,11 +449,12 @@ class MultiplayerRoom extends Room {
           userID: "",
           connectionID: winnerGameData.ownerConnectionID
         };
-        if (winnerSocket?.ownerUserID) {
+        if (winnerSocket?.getUserData().ownerUserID) {
           // is registered
           data.isRegistered = true;
-          data.userID = winnerSocket.ownerUserID;
-          data.nameColor = winnerSocket.playerRank?.color ?? "#ffffff";
+          data.userID = winnerSocket.getUserData().ownerUserID ?? "";
+          data.nameColor =
+            winnerSocket.getUserData().playerRank?.color ?? "#ffffff";
         }
         this.ranking.push(data);
       }

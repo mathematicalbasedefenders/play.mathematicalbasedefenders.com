@@ -7,7 +7,7 @@ import {
 } from "../core/utilities";
 import { User } from "../models/User";
 import { Action, ActionRecord } from "../replay/recording/ActionRecord";
-import { getSocketFromConnectionID } from "../universal";
+import { getSocketFromConnectionID, UserData } from "../universal";
 import { changeClientSideText } from "./actions/send-html";
 import {
   ClockInterface,
@@ -32,7 +32,11 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
   globalEnemyToAdd!: Enemy | null;
   timeSinceLastPlayerListUpdate: number;
 
-  constructor(host: universal.GameSocket, mode: GameMode, noHost?: boolean) {
+  constructor(
+    host: universal.GameWebSocket<UserData>,
+    mode: GameMode,
+    noHost?: boolean
+  ) {
     super(host, mode, noHost);
     this.nextGameStartTime = null;
     this.globalEnemySpawnThreshold =
@@ -222,21 +226,21 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
         userID: "",
         connectionID: gameData.ownerConnectionID
       };
-      if (socket?.ownerUserID) {
+      if (socket?.getUserData().ownerUserID) {
         // is registered
         data.isRegistered = true;
-        data.userID = socket.ownerUserID;
-        data.nameColor = socket.playerRank?.color ?? "#ffffff";
+        data.userID = socket.getUserData().ownerUserID ?? "";
+        data.nameColor = socket.getUserData().playerRank?.color ?? "#ffffff";
       }
       this.ranking.push(data);
     }
-    if (socket?.loggedIn && gameData instanceof GameData) {
+    if (socket?.getUserData().loggedIn && gameData instanceof GameData) {
       if (!universal.STATUS.databaseAvailable) {
         log.warn("Database is not available. Not running database operation.");
       } else {
         const earnedEXP = Math.round(gameData.elapsedTime / 2000);
         User.giveExperiencePointsToUserID(
-          socket.ownerUserID as string,
+          socket.getUserData().ownerUserID as string,
           earnedEXP
         );
       }
@@ -292,8 +296,8 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
         this.gameActionRecord.addGameOverAction();
 
         // add exp to winner socket
-        if (winnerSocket?.ownerUserID) {
-          if (typeof winnerSocket.ownerUserID === "string") {
+        if (winnerSocket?.getUserData().ownerUserID) {
+          if (typeof winnerSocket.getUserData().ownerUserID === "string") {
             if (!universal.STATUS.databaseAvailable) {
               log.warn(
                 "Database is not available. Not running database operation."
@@ -301,14 +305,14 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
             } else {
               // multiplayer games won
               User.addMultiplayerGamesWonToUserID(
-                winnerSocket.ownerUserID as string,
+                winnerSocket.getUserData().ownerUserID as string,
                 1
               );
               // experience (50% bonus for winning)
               const earnedEXP =
                 Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
               User.giveExperiencePointsToUserID(
-                winnerSocket.ownerUserID as string,
+                winnerSocket.getUserData().ownerUserID as string,
                 earnedEXP
               );
             }
@@ -329,18 +333,19 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
           userID: "",
           connectionID: winnerGameData.ownerConnectionID
         };
-        if (winnerSocket?.ownerUserID) {
+        if (winnerSocket?.getUserData().ownerUserID) {
           // is registered
           data.isRegistered = true;
-          data.userID = winnerSocket.ownerUserID;
-          data.nameColor = winnerSocket.playerRank?.color ?? "#ffffff";
+          data.userID = winnerSocket.getUserData().ownerUserID ?? "";
+          data.nameColor =
+            winnerSocket.getUserData().playerRank?.color ?? "#ffffff";
         }
         this.ranking.push(data);
         // submit replay here.
 
         if (
           this.memberConnectionIDs.filter(
-            (e) => getSocketFromConnectionID(e)?.loggedIn
+            (e) => getSocketFromConnectionID(e)?.getUserData().loggedIn
           ).length >= 1
         ) {
           const replay = await this.gameActionRecord.save(
@@ -410,7 +415,7 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
         continue;
       }
       // send to canvas screen
-      const userID = socket.ownerUserID;
+      const userID = socket.getUserData().ownerUserID;
       socket.send(
         JSON.stringify({
           message: "changeScreen",

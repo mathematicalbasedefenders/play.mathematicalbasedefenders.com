@@ -100,7 +100,10 @@ function validateData(username: unknown, password: unknown, socketID: unknown) {
     };
   }
   // socket is already logged in
-  if (universal.getSocketFromConnectionID(socketID as string)?.loggedIn) {
+  if (
+    universal.getSocketFromConnectionID(socketID as string)?.getUserData()
+      .loggedIn
+  ) {
     return {
       good: false,
       reason: "User is already logged in.",
@@ -165,7 +168,7 @@ function checkIfSocketCanBeAuthenticated(connectionID: unknown) {
   }
 
   // socket already exited opening screen.
-  if (socket.exitedOpeningScreen) {
+  if (socket.getUserData().exitedOpeningScreen) {
     log.warn(
       `A user tried to log in, but the socket tied to that session already exited opening screen.`
     );
@@ -177,7 +180,7 @@ function checkIfSocketCanBeAuthenticated(connectionID: unknown) {
   }
 
   // socket doesn't have a connection id
-  if (!socket.connectionID) {
+  if (!socket.getUserData().connectionID) {
     log.warn(
       `A user tried to log in, but the socket tied to that session doesn't have an identifier.`
     );
@@ -189,7 +192,7 @@ function checkIfSocketCanBeAuthenticated(connectionID: unknown) {
   }
 
   // socket's id is in an incorrect format.
-  if (socket.connectionID.length !== VALID_SOCKET_ID_LENGTH) {
+  if (socket.getUserData().connectionID.length !== VALID_SOCKET_ID_LENGTH) {
     log.warn(`A user tried to log in, but the socket's identifier is invalid.`);
     return {
       good: false,
@@ -199,7 +202,9 @@ function checkIfSocketCanBeAuthenticated(connectionID: unknown) {
   }
 
   // socket is current playing
-  const playing = universal.checkIfSocketIsPlaying(socket.connectionID);
+  const playing = universal.checkIfSocketIsPlaying(
+    socket.getUserData().connectionID
+  );
   if (playing) {
     log.info(
       `A user tried to log in, but the socket tied to that session is currently in game.`
@@ -270,7 +275,9 @@ function closeAlreadyLoggedInSockets(userID: string, username: string) {
     duplicateSocket.send(disconnectionMessage);
     universal.deleteSocket(duplicateSocket);
     log.warn(
-      `Disconnected socket ${duplicateSocket.connectionID} because a new socket logged in with the same credentials. (${username})`
+      `Disconnected socket ${
+        duplicateSocket.getUserData().connectionID
+      } because a new socket logged in with the same credentials. (${username})`
     );
     duplicateSocket.close();
   }
