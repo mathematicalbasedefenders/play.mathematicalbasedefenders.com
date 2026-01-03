@@ -252,12 +252,7 @@ function releaseEnemyStock(gameDataToProcess: GameData, room: Room) {
 // This just attempts to leave.
 function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
   // TODO: Implement for spectators when spectators are implemented.
-  let room = universal.rooms.find(
-    (element) =>
-      element.memberConnectionIDs.indexOf(
-        socket.getUserData().connectionID as string
-      ) > -1
-  );
+  const room = findRoomWithConnectionID(socket.getUserData().connectionID);
   if (!room) {
     log.warn(`Socket tried to leave a room, but it wasn't found.`);
     return;
