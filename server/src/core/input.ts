@@ -273,10 +273,7 @@ function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
       log.warn("Socket doesn't have a connection ID when leaving room.");
       return;
     }
-    if (
-      (room as MultiplayerRoom).host?.getUserData().connectionID ===
-      socket.getUserData().connectionID
-    ) {
+    if (room.host?.getUserData().connectionID === connectionID) {
       const pool = room.memberConnectionIDs.filter(
         (e) => e !== socket.getUserData().connectionID
       );
