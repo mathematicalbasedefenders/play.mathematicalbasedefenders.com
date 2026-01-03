@@ -269,41 +269,23 @@ function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
       socket.unsubscribe(defaultMultiplayerRoomID);
     }
   } else if (room.mode === GameMode.CustomMultiplayer) {
-    if (!socket.getUserData().connectionID) {
+    if (!(room instanceof MultiplayerRoom)) {
+      log.warn("CustomMultiplayer room code called on non-multiplayer room.");
+      return;
+    }
+    if (!connectionID) {
       log.warn("Socket doesn't have a connection ID when leaving room.");
       return;
     }
     if (room.host?.getUserData().connectionID === connectionID) {
-      const pool = room.memberConnectionIDs.filter(
-        (e) => e !== socket.getUserData().connectionID
-      );
+      // Note that `.abort` already removes the
+      // connectionID from `room.memberConnectionIDs`
+      // So, there is no need to delete member here.
+      const pool = _.clone(room.memberConnectionIDs);
       // It's here since we have to find a new host, and if there's only
       // one socket before leaving, the room is empty and can be destroyed.
-      if (pool.length >= 1) {
-        const newHostID = _.sample(pool);
-        (room as MultiplayerRoom).setNewHost(newHostID as string);
 
-        // also send new chat message indicating the new host.
-        const pastHost = universal.getNameFromConnectionID(
-          socket.getUserData().connectionID
-        );
-        const newHost = universal.getNameFromConnectionID(newHostID as string);
-        const message = `This room's host is now ${newHost}, since the original host, ${pastHost} has left the room.`;
-        room.addChatMessage(message, { isSystemMessage: true });
-
-        // notify the new host as well
-        const newHostSocket = universal.getSocketFromConnectionID(
-          newHostID as string
-        );
-        if (newHostSocket) {
-          (room as Room).sendCommandResultToSocket(
-            "You have been randomly selected to be the new host of this room since the previous host left.",
-            { sender: newHostSocket }
-          );
-        }
-
-        log.info(`Room ${room.id}'s host is now ${newHost} from ${pastHost}.`);
-      } else {
+      if (pool.length === 0) {
         // TODO: Find a more stable way to do this. Right now it is sufficient since 1-1=0, and
         // there's no point in keeping a 0-player room in memory.
 
@@ -311,6 +293,29 @@ function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
         //   isSystemMessage: true
         // });
         log.info(`About to delete room ${room.id}...`);
+      } else {
+        if (pool.length >= 1) {
+          // sample randoms from pool
+          const newHostID = _.sample(pool) as string;
+          room.setNewHost(newHostID);
+
+          // also send new chat message indicating the new host.
+          const pastHost = universal.getNameFromConnectionID(connectionID);
+          const newHost = universal.getNameFromConnectionID(newHostID);
+          const message = `This room's host is now ${newHost}, since the original host, ${pastHost} has left the room.`;
+          room.addChatMessage(message, { isSystemMessage: true });
+
+          // notify the new host as well
+          const newHostSocket = universal.getSocketFromConnectionID(newHostID);
+          const MESSAGE =
+            "You have been randomly selected to be the new host of this room since the previous host left.";
+
+          if (!newHostSocket) {
+            room.sendCommandResultToSocket(MESSAGE, { sender: newHostSocket });
+          }
+
+          log.info(`Room ${room.id}'s host now ${newHost} from ${pastHost}.`);
+        }
       }
     }
     socket.unsubscribe(room.id);
