@@ -122,7 +122,7 @@ socket.addEventListener("message", (event: any) => {
       changeScreen("mainMenu");
       sendSocketMessage({ message: "exitOpeningScreen" });
       checkQuickLink(true);
-      variables.getUserData().exitedOpeningScreen = true;
+      variables.exitedOpeningScreen = true;
       break;
     }
     case "modifyPlayerListContent": {

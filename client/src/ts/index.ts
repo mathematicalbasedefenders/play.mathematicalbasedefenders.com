@@ -800,17 +800,17 @@ function initializeEventListeners() {
     $("#chat-tray-input").val("");
   });
   $(`#main-content__user-menu-small-display`).on("click", () => {
-    if (variables.isGuest || variables.getUserData().loggedInUserID == null) {
+    if (variables.isGuest || variables.loggedInUserID == null) {
       return;
     }
-    showUserLookupPopUp(variables.getUserData().loggedInUserID);
+    showUserLookupPopUp(variables.loggedInUserID);
   });
   $("#opening-screen__play-as-guest").on("click", () => {
     $("#opening-screen-container").hide(0);
     changeScreen("mainMenu");
     sendSocketMessage({ message: "exitOpeningScreen" });
     checkQuickLink(true);
-    variables.getUserData().exitedOpeningScreen = true;
+    variables.exitedOpeningScreen = true;
   });
   $(
     "#main-content__multiplayer-intermission-screen-container__player-list__toggle-list"
@@ -1119,7 +1119,7 @@ function updateUserInformationText(data: any) {
   // also set in sign in flag to true
   variables.isGuest = false;
   // also set user id flag
-  variables.getUserData().loggedInUserID = data.userData._id;
+  variables.loggedInUserID = data.userData._id;
 }
 
 function updateGuestInformationText(data: any) {

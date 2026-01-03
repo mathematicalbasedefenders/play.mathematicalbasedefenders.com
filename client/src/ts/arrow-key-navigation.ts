@@ -505,7 +505,7 @@ function navigateFocus(event: KeyboardEvent) {
   // DESTRUCTIVE OVERWRITES
   if (
     PopupNotification.activeNotifications > 0 &&
-    variables.getUserData().exitedOpeningScreen
+    variables.exitedOpeningScreen
   ) {
     // overwrite: if there is a popup notification active, give it priority.
     // but only if the opening screen isn't gone.
