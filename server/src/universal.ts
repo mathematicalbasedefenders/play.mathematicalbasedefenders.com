@@ -522,5 +522,5 @@ export {
   startGameForSocket,
   USE_TESTING_VALUES,
   UserData,
-  WebSocket
+  WebSocket as GameWebSocket
 };
