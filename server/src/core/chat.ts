@@ -72,11 +72,6 @@ function sendChatMessageToRoom(
 
   const playerName = universal.getNameFromConnectionID(connectionID);
 
-  if (!connectionID) {
-    log.warn(`Socket has no ID.`);
-    return;
-  }
-
   if (!validateRoom(connectionID)) {
     log.warn(`Bad chat room validation for ${connectionID} (${playerName})`);
     return;
