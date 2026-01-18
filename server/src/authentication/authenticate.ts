@@ -167,8 +167,10 @@ function checkIfSocketCanBeAuthenticated(connectionID: unknown) {
     };
   }
 
+  const socketUserData = socket.getUserData();
+
   // socket already exited opening screen.
-  if (socket.getUserData().exitedOpeningScreen) {
+  if (socketUserData.exitedOpeningScreen) {
     log.warn(
       `A user tried to log in, but the socket tied to that session already exited opening screen.`
     );
@@ -180,7 +182,7 @@ function checkIfSocketCanBeAuthenticated(connectionID: unknown) {
   }
 
   // socket doesn't have a connection id
-  if (!socket.getUserData().connectionID) {
+  if (!socketUserData.connectionID) {
     log.warn(
       `A user tried to log in, but the socket tied to that session doesn't have an identifier.`
     );
@@ -192,7 +194,7 @@ function checkIfSocketCanBeAuthenticated(connectionID: unknown) {
   }
 
   // socket's id is in an incorrect format.
-  if (socket.getUserData().connectionID.length !== VALID_SOCKET_ID_LENGTH) {
+  if (socketUserData.connectionID.length !== VALID_SOCKET_ID_LENGTH) {
     log.warn(`A user tried to log in, but the socket's identifier is invalid.`);
     return {
       good: false,
@@ -202,9 +204,7 @@ function checkIfSocketCanBeAuthenticated(connectionID: unknown) {
   }
 
   // socket is current playing
-  const playing = universal.checkIfSocketIsPlaying(
-    socket.getUserData().connectionID
-  );
+  const playing = universal.checkIfSocketIsPlaying(socketUserData.connectionID);
   if (playing) {
     log.info(
       `A user tried to log in, but the socket tied to that session is currently in game.`
