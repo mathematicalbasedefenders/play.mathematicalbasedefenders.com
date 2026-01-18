@@ -223,8 +223,9 @@ function synchronizeMetadataWithSocket(
  * @param {WebSocket<UserData>} socket The socket to sync data with.
  */
 function synchronizeGameDataWithSocket(socket: WebSocket<UserData>) {
+  const socketUserData = socket.getUserData();
   const socketGameData = getGameDataFromConnectionID(
-    socket.getUserData().connectionID as string
+    socketUserData.connectionID as string
   );
   const clonedSocketGameData = _.cloneDeep(socketGameData);
   if (clonedSocketGameData) {
@@ -234,7 +235,7 @@ function synchronizeGameDataWithSocket(socket: WebSocket<UserData>) {
     // add some game data (extra information)
     // such as for multiplayer
     if (clonedSocketGameData.mode.indexOf("Multiplayer") > -1) {
-      let room = findRoomWithConnectionID(socket.getUserData().connectionID);
+      let room = findRoomWithConnectionID(socketUserData.connectionID);
       if (room) {
         clonedSocketGameData.opponentGameData = getOpponentsInformation(
           socket,
@@ -375,18 +376,19 @@ function initializeSocket(socket: WebSocket<UserData>) {
  * @param {WebSocket<UserData>} socket The socket to initialize send data to.
  */
 function sendInitialSocketData(socket: WebSocket<UserData>) {
+  const socketUserData = socket.getUserData();
   socket.send(
     JSON.stringify({
       message: "changeValueOfInput",
       selector: "#authentication-modal__socket-id",
-      value: socket.getUserData().connectionID
+      value: socketUserData.connectionID
     })
   );
   socket.send(
     JSON.stringify({
       message: "updateGuestInformationText",
       data: {
-        guestName: socket.getUserData().ownerGuestName
+        guestName: socketUserData.ownerGuestName
       }
     })
   );
