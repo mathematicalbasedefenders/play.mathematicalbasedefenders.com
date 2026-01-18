@@ -453,15 +453,14 @@ function generatePlayerListPayload(connectionIDs: string[]) {
 function getUserReplayDataFromSocket(
   socket: universal.GameWebSocket<UserData>
 ) {
+  const socketUserData = socket.getUserData();
   return {
-    userID: socket.getUserData().loggedIn
-      ? socket.getUserData().ownerUserID
-      : null,
-    name: socket.getUserData().loggedIn
-      ? socket.getUserData().ownerUsername
-      : socket.getUserData().ownerGuestName,
-    isAuthenticated: socket.getUserData().loggedIn,
-    connectionID: socket.getUserData().connectionID
+    userID: socketUserData.loggedIn ? socketUserData.ownerUserID : null,
+    name: socketUserData.loggedIn
+      ? socketUserData.ownerUsername
+      : socketUserData.ownerGuestName,
+    isAuthenticated: socketUserData.loggedIn,
+    connectionID: socketUserData.connectionID
   };
 }
 
