@@ -356,11 +356,12 @@ function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
  * @param {WebSocket<UserData>} socket The socket to initialize default values with.
  */
 function initializeSocket(socket: WebSocket<UserData>) {
-  socket.getUserData().exitedOpeningScreen = false;
-  socket.getUserData().connectionID = generateConnectionID(16);
-  socket.getUserData().ownerGuestName = `Guest ${generateGuestID(8)}`;
-  socket.getUserData().accumulatedMessages = 0;
-  socket.getUserData().rateLimiting = {
+  const socketUserData = socket.getUserData();
+  socketUserData.exitedOpeningScreen = false;
+  socketUserData.connectionID = generateConnectionID(16);
+  socketUserData.ownerGuestName = `Guest ${generateGuestID(8)}`;
+  socketUserData.accumulatedMessages = 0;
+  socketUserData.rateLimiting = {
     last: 1,
     count: 0
   };
