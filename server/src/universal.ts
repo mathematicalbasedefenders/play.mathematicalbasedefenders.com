@@ -201,8 +201,9 @@ function synchronizeMetadataWithSocket(
     })
   );
   // socket metadata
-  if (socket.getUserData().connectionID) {
-    const id = socket.getUserData().connectionID;
+  const socketUserData = socket.getUserData();
+  if (socketUserData.connectionID) {
+    const id = socketUserData.connectionID;
     const socketIsPlaying = checkIfSocketIsPlaying(id);
     const socketIsInMPRoom = checkIfSocketIsInMultiplayerRoom(id);
     socket.send(
