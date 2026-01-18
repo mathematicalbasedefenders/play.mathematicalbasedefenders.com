@@ -42,10 +42,11 @@ function sendChatMessage(
       break;
     }
     default: {
-      const connectionID = socket.getUserData().connectionID;
-      const playerName = socket.getUserData().loggedIn
-        ? socket.getUserData().ownerUsername
-        : socket.getUserData().ownerGuestName;
+      const socketUserData = socket.getUserData();
+      const connectionID = socketUserData.connectionID;
+      const playerName = socketUserData.loggedIn
+        ? socketUserData.ownerUsername
+        : socketUserData.ownerGuestName;
       log.warn(
         `Unknown chat message scope: ${scope} from Socket ID ${connectionID} (${playerName})`
       );
@@ -63,7 +64,8 @@ function sendChatMessageToRoom(
   message: string,
   socket: universal.GameWebSocket<UserData>
 ) {
-  const connectionID = socket.getUserData().connectionID;
+  const socketUserData = socket.getUserData();
+  const connectionID = socketUserData.connectionID;
 
   if (!connectionID) {
     log.warn(`Socket has no ID.`);
@@ -101,7 +103,8 @@ function sendChatMessageGlobally(
   message: string,
   socket: universal.GameWebSocket<UserData>
 ) {
-  const connectionID = socket.getUserData().connectionID;
+  const socketUserData = socket.getUserData();
+  const connectionID = socketUserData.connectionID;
 
   if (!connectionID) {
     log.warn(`Socket has no ID.`);
@@ -211,7 +214,8 @@ function sendGlobalChatMessage(
   message: string,
   socket: universal.GameWebSocket<UserData>
 ) {
-  const connectionID = socket.getUserData().connectionID as string;
+  const socketUserData = socket.getUserData();
+  const connectionID = socketUserData.connectionID as string;
   const playerName = universal.getNameFromConnectionID(connectionID);
   const messageObject = createGlobalMessageObject(
     message,
