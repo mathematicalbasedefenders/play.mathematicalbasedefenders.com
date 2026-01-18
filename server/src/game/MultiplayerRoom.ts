@@ -357,7 +357,9 @@ class MultiplayerRoom extends Room {
       log.warn(
         `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
       );
+      return;
     }
+    const socketUserData = socket.getUserData();
     const place = this.gameData.length;
     if (gameData instanceof GameData) {
       const data = {
@@ -374,18 +376,11 @@ class MultiplayerRoom extends Room {
       if (socket?.getUserData().ownerUserID) {
         // is registered
         data.isRegistered = true;
-        data.userID = socket.getUserData().ownerUserID ?? "";
-        data.nameColor = socket.getUserData().playerRank?.color ?? "#ffffff";
+        data.userID = socketUserData.ownerUserID ?? "";
+        data.nameColor = socketUserData.playerRank?.color ?? "#ffffff";
       }
       this.ranking.push(data);
     }
-    // if (socket?.getUserData().loggedIn && gameData instanceof GameData) {
-    //   const earnedEXP = Math.round(gameData.elapsedTime / 2000);
-    //   User.giveExperiencePointsToUserID(
-    //     socket.getUserData().ownerUserID as string,
-    //     earnedEXP
-    //   );
-    // }
     // eliminate the socket
     let gameDataIndex = this.gameData.findIndex(
       (element) => element.ownerConnectionID === connectionID
