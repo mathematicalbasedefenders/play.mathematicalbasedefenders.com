@@ -44,7 +44,7 @@ async function authenticate(
 
   const userData = await User.safeFindByUsername(username);
   utilities.updateSocketUserInformation(socket);
-  socket.getUserData().playerRank = utilities.getRank(userData);
+  socketUserData.playerRank = utilities.getRank(userData);
 
   /** Send toast message that logged in. */
   const MESSAGE = `Successfully logged in as ${sanitizedUsername}`;
@@ -68,6 +68,7 @@ function sendUserStatistics(
   socket: universal.GameWebSocket<UserData>,
   userData: UserInterface
 ) {
+  const socketUserData = socket.getUserData();
   const username = userData.username;
   const statistics = userData.statistics;
   socket.send(
@@ -77,7 +78,7 @@ function sendUserStatistics(
         username: username,
         good: true,
         userData: userData,
-        rank: socket.getUserData().playerRank,
+        rank: socketUserData.playerRank,
         experiencePoints: statistics.totalExperiencePoints,
         records: {
           easy: statistics.personalBestScoreOnEasySingleplayerMode,
