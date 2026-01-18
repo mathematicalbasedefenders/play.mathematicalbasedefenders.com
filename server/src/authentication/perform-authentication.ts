@@ -37,9 +37,11 @@ async function authenticate(
   const sanitizedUsername = DOMPurifySanitizer.sanitize(username);
 
   /** Successfully logged in. */
-  socket.getUserData().loggedIn = true;
-  socket.getUserData().ownerUsername = username;
-  socket.getUserData().ownerUserID = result.id as string;
+  const socketUserData = socket.getUserData();
+  socketUserData.loggedIn = true;
+  socketUserData.ownerUsername = sanitizedUsername;
+  socketUserData.ownerUserID = result.id as string;
+
   const userData = await User.safeFindByUsername(username);
   utilities.updateSocketUserInformation(socket);
   socket.getUserData().playerRank = utilities.getRank(userData);
