@@ -288,14 +288,15 @@ function generateGuestID(length: number) {
 async function updateSocketUserInformation(
   socket: universal.GameWebSocket<UserData>
 ) {
+  const socketUserData = socket.getUserData();
   const userData = await User.safeFindByUsername(
-    socket.getUserData().ownerUsername as string
+    socketUserData.ownerUsername as string
   );
   socket.send(
     JSON.stringify({
       message: "updateUserInformationText",
       data: {
-        username: socket.getUserData().ownerUsername,
+        username: socketUserData.ownerUsername,
         good: true,
         userData: userData,
         rank: getRank(userData),
@@ -316,7 +317,11 @@ async function bulkUpdateSocketUserInformation(
   ...sockets: Array<universal.GameWebSocket<UserData> | undefined>
 ) {
   for (const socket of sockets) {
-    if (socket && socket.getUserData().loggedIn) {
+    if (!socket) {
+      continue;
+    }
+    const socketUserData = socket.getUserData();
+    if (socket && socketUserData.loggedIn) {
       updateSocketUserInformation(socket);
     }
   }
@@ -352,10 +357,9 @@ function getWebSocketMessageSpeed(
   socket: universal.GameWebSocket<UserData>,
   time: number
 ) {
-  if (typeof socket.getUserData().accumulatedMessages === "number") {
-    return (
-      (1000 / Math.max(15, time)) * socket.getUserData().accumulatedMessages
-    );
+  const socketUserData = socket.getUserData();
+  if (typeof socketUserData.accumulatedMessages === "number") {
+    return (1000 / Math.max(15, time)) * socketUserData.accumulatedMessages;
   }
   return -1;
 }
@@ -374,12 +378,13 @@ function checkWebSocketMessageSpeeds(
   }
   const socketsToForceDelete = [];
   for (const socket of sockets) {
-    if (typeof socket.getUserData().accumulatedMessages === "number") {
+    const socketUserData = socket.getUserData();
+    if (typeof socketUserData.accumulatedMessages === "number") {
       const amount = getWebSocketMessageSpeed(socket, time);
       if (amount > MESSAGES_PER_SECOND_LIMIT) {
         log.warn(
           `Disconnecting socket ${
-            socket.getUserData().connectionID
+            socketUserData.connectionID
           } for sending too many messages at once. (${amount} per second > ${MESSAGES_PER_SECOND_LIMIT} per second)`
         );
         socket?.send(
@@ -392,7 +397,7 @@ function checkWebSocketMessageSpeeds(
         );
         socketsToForceDelete.push(socket);
       } else {
-        socket.getUserData().accumulatedMessages = 0;
+        socketUserData.accumulatedMessages = 0;
       }
     }
   }
