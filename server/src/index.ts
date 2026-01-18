@@ -82,15 +82,16 @@ const WebSocketRateLimit = (limit: number, interval: number) => {
   // const last = Symbol() as unknown as string;
   // const count = Symbol() as unknown as string;
   setInterval(() => ++now, interval);
-  return (webSocket: universal.GameWebSocket<UserData>) => {
-    if (!webSocket.getUserData().rateLimiting) {
+  return (socket: universal.GameWebSocket<UserData>) => {
+    const socketUserData = socket.getUserData();
+    if (!socketUserData.rateLimiting) {
       return;
     }
-    if (webSocket.getUserData().rateLimiting.last != now) {
-      webSocket.getUserData().rateLimiting.last = now;
-      webSocket.getUserData().rateLimiting.count = 1;
+    if (socketUserData.rateLimiting.last != now) {
+      socketUserData.rateLimiting.last = now;
+      socketUserData.rateLimiting.count = 1;
     } else {
-      return ++webSocket.getUserData().rateLimiting.count > limit;
+      return ++socketUserData.rateLimiting.count > limit;
     }
   };
 };
