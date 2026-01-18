@@ -365,7 +365,7 @@ function sendAnswerForGameDataInput(gameData: GameData) {
 function getKilledEnemyIDs(gameData: GameData) {
   const enemyIDsToKill: Array<string> = [];
 
-  if (!/^\-{0,1}[0-9]{1,8}$/.test(gameData.currentInput)) {
+  if (!/^-{0,1}[0-9]{1,8}$/.test(gameData.currentInput)) {
     // invalid input, e.g. --53, -3-5, and the like.
     return [];
   }
