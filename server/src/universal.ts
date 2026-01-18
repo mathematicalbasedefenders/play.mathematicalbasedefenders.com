@@ -123,14 +123,15 @@ function getSocketsFromUserID(id: string) {
 }
 
 function getNameFromConnectionID(id: string): string | undefined {
-  let socket = getSocketFromConnectionID(id);
+  const socket = getSocketFromConnectionID(id);
   if (typeof socket === "undefined") {
     return "???";
   }
-  if (socket.getUserData().loggedIn) {
-    return socket.getUserData().ownerUsername;
+  const socketUserData = socket.getUserData();
+  if (socketUserData.loggedIn) {
+    return socketUserData.ownerUsername;
   } else {
-    return socket.getUserData().ownerGuestName;
+    return socketUserData.ownerGuestName;
   }
 }
 
