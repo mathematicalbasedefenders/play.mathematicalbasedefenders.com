@@ -523,5 +523,5 @@ export {
   startGameForSocket,
   USE_TESTING_VALUES,
   UserData,
-  WebSocket as GameWebSocket
+  WebSocket as GameWebSocket // this is exported as `GameWebSocket` since `WebSocket` might clash with other definitions.
 };
