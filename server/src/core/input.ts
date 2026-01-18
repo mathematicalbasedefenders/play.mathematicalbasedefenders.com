@@ -274,9 +274,10 @@ function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
       return;
     }
     if (room.host?.getUserData().connectionID === connectionID) {
-      // Note that `.abort` already removes the
+      // Note that we already called `.abort` before this,
+      // which already removes the
       // connectionID from `room.memberConnectionIDs`
-      // So, there is no need to delete member here.
+      // So, there is no need to delete member (again) here.
       const pool = _.clone(room.memberConnectionIDs);
       // It's here since we have to find a new host, and if there's only
       // one socket before leaving, the room is empty and can be destroyed.
