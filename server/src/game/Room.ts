@@ -998,20 +998,17 @@ function getOpponentsInformation(
   room: Room,
   minifyData: boolean
 ): any {
-  const currentRoom = findRoomWithConnectionID(
-    socket.getUserData().connectionID
-  );
+  const socketUserData = socket.getUserData();
+  const currentRoom = findRoomWithConnectionID(socketUserData.connectionID);
   const aliveConnectionIDs: Array<string> = [];
   if (typeof currentRoom === "undefined" || currentRoom == null) {
     log.warn(
-      `Room for owner ${
-        socket.getUserData().connectionID
-      } of game data not found.`
+      `Room for owner ${socketUserData.connectionID} of game data not found.`
     );
     return [];
   }
   const opponentGameData = currentRoom.gameData.filter(
-    (element) => element.ownerConnectionID !== socket.getUserData().connectionID
+    (element) => element.ownerConnectionID !== socketUserData.connectionID
   );
   if (!minifyData) {
     return opponentGameData;
@@ -1036,7 +1033,7 @@ function getOpponentsInformation(
   const eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
     (element) =>
       !aliveConnectionIDs.includes(element) &&
-      element !== socket.getUserData().connectionID
+      element !== socketUserData.connectionID
   );
   // console.log(eliminatedConnectionIDs);
   for (let eliminated of eliminatedConnectionIDs) {
