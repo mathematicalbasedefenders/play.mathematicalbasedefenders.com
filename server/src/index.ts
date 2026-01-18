@@ -135,7 +135,10 @@ uWS
       universal.sendInitialSocketData(socket);
     },
 
-    message: (socket, message: WebSocketMessage) => {
+    message: (
+      socket: universal.GameWebSocket<UserData>,
+      message: WebSocketMessage
+    ) => {
       if (websocketRateLimit(socket)) {
         const MESSAGE =
           "You're going too fast! You have rate-limited and been disconnected.";
