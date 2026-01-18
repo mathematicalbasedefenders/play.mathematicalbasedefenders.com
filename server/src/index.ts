@@ -435,12 +435,13 @@ function joinMultiplayerRoom(
     room = universal.rooms.find(roomWithID);
   }
   if (!room) {
+    const socketUserData = socket.getUserData();
     const MESSAGE = "The room you're trying to join doesn't exist!";
     const BORDER_COLOR = "#ff0000";
     universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
     log.warn(
       `Socket ${
-        socket.getUserData().connectionID
+        socketUserData.connectionID
       } tried to join a non-existent multiplayer room.`
     );
     return;
@@ -495,9 +496,10 @@ function initialize() {
  * @param {universal.GameWebSocket<UserData>} socket The socket to block
  */
 function blockSocket(socket: universal.GameWebSocket<UserData>) {
+  const socketUserData = socket.getUserData();
   log.warn(
     `Blocking socket ${
-      socket.getUserData().connectionID
+      socketUserData.connectionID
     } from improper opening screen exit.`
   );
   const MESSAGE = `Socket blocked. Please refresh and properly exit the opening screen.`;
