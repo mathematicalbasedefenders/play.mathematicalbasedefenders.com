@@ -212,7 +212,10 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
       log.warn(
         `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
       );
+      return;
     }
+
+    const socketUserData = socket.getUserData();
     const place = this.gameData.length;
     if (gameData instanceof GameData) {
       const data = {
@@ -229,8 +232,8 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
       if (socket?.getUserData().ownerUserID) {
         // is registered
         data.isRegistered = true;
-        data.userID = socket.getUserData().ownerUserID ?? "";
-        data.nameColor = socket.getUserData().playerRank?.color ?? "#ffffff";
+        data.userID = socketUserData.ownerUserID ?? "";
+        data.nameColor = socketUserData.playerRank?.color ?? "#ffffff";
       }
       this.ranking.push(data);
     }
@@ -240,7 +243,7 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
       } else {
         const earnedEXP = Math.round(gameData.elapsedTime / 2000);
         User.giveExperiencePointsToUserID(
-          socket.getUserData().ownerUserID as string,
+          socketUserData.ownerUserID as string,
           earnedEXP
         );
       }
@@ -279,6 +282,7 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
         const winnerSocket = universal.getSocketFromConnectionID(
           winnerGameData.ownerConnectionID
         );
+        const winnerSocketUserData = winnerSocket?.getUserData();
 
         // add winner action
         if (winnerSocket) {
@@ -296,8 +300,8 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
         this.gameActionRecord.addGameOverAction();
 
         // add exp to winner socket
-        if (winnerSocket?.getUserData().ownerUserID) {
-          if (typeof winnerSocket.getUserData().ownerUserID === "string") {
+        if (winnerSocketUserData) {
+          if (typeof winnerSocketUserData.ownerUserID === "string") {
             if (!universal.STATUS.databaseAvailable) {
               log.warn(
                 "Database is not available. Not running database operation."
@@ -305,14 +309,14 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
             } else {
               // multiplayer games won
               User.addMultiplayerGamesWonToUserID(
-                winnerSocket.getUserData().ownerUserID as string,
+                winnerSocketUserData.ownerUserID as string,
                 1
               );
               // experience (50% bonus for winning)
               const earnedEXP =
                 Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
               User.giveExperiencePointsToUserID(
-                winnerSocket.getUserData().ownerUserID as string,
+                winnerSocketUserData.ownerUserID as string,
                 earnedEXP
               );
             }
@@ -333,12 +337,11 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
           userID: "",
           connectionID: winnerGameData.ownerConnectionID
         };
-        if (winnerSocket?.getUserData().ownerUserID) {
+        if (winnerSocketUserData) {
           // is registered
           data.isRegistered = true;
-          data.userID = winnerSocket.getUserData().ownerUserID ?? "";
-          data.nameColor =
-            winnerSocket.getUserData().playerRank?.color ?? "#ffffff";
+          data.userID = winnerSocketUserData.ownerUserID ?? "";
+          data.nameColor = winnerSocketUserData.playerRank?.color ?? "#ffffff";
         }
         this.ranking.push(data);
         // submit replay here.
@@ -415,7 +418,8 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
         continue;
       }
       // send to canvas screen
-      const userID = socket.getUserData().ownerUserID;
+      const socketUserData = socket.getUserData();
+      const userID = socketUserData.ownerUserID;
       socket.send(
         JSON.stringify({
           message: "changeScreen",
