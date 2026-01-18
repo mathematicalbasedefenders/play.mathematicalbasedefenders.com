@@ -140,15 +140,14 @@ uWS
       socket: universal.GameWebSocket<UserData>,
       message: WebSocketMessage
     ) => {
+      const socketUserData = socket.getUserData();
       if (websocketRateLimit(socket)) {
         const MESSAGE =
           "You're going too fast! You have rate-limited and been disconnected.";
         const BORDER_COLOR = "#ff0000";
         universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
         log.warn(
-          `Rate-limited and killing socket ${
-            socket.getUserData().connectionID
-          }.`
+          `Rate-limited and killing socket ${socketUserData.connectionID}.`
         );
         universal.forceDeleteAndCloseSocket(socket);
         return;
@@ -162,14 +161,14 @@ uWS
         return;
       }
       // increment accumulated messages of socket this time interval.
-      if (typeof socket.getUserData().accumulatedMessages === "number") {
-        socket.getUserData().accumulatedMessages++;
+      if (typeof socketUserData.accumulatedMessages === "number") {
+        socketUserData.accumulatedMessages++;
       }
       // ...
       const parsedMessage = incompleteParsedMessage.message;
       switch (parsedMessage.message) {
         case "startGame": {
-          if (!socket.getUserData().exitedOpeningScreen) {
+          if (!socketUserData.exitedOpeningScreen) {
             blockSocket(socket);
             return;
           }
@@ -177,16 +176,12 @@ uWS
           break;
         }
         case "joinMultiplayerRoom": {
-          if (!socket.getUserData().exitedOpeningScreen) {
+          if (!socketUserData.exitedOpeningScreen) {
             blockSocket(socket);
             return;
           }
           // reject message if already in room
-          if (
-            utilities.findRoomWithConnectionID(
-              socket.getUserData().connectionID
-            )
-          ) {
+          if (utilities.findRoomWithConnectionID(socketUserData.connectionID)) {
             const MESSAGE = "You're already in a room!";
             const BORDER_COLOR = "#ff0000";
             universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
@@ -208,7 +203,7 @@ uWS
             // validate
             const target = parsedMessage.room;
             if (!/^[A-Z0-9]{8}$/.test(target)) {
-              const socketID = socket.getUserData().connectionID;
+              const socketID = socketUserData.connectionID;
               log.warn(`Socket ${socketID} used an invalid room code.`);
               const MESSAGE = "Invalid room code format!";
               const BORDER_COLOR = "#ff0000";
@@ -217,7 +212,7 @@ uWS
             }
             const room = universal.rooms.find((e) => e.id === target);
             if (!room) {
-              const socketID = socket.getUserData().connectionID;
+              const socketID = socketUserData.connectionID;
               log.warn(`Socket ${socketID} tried to join a non-existent room.`);
               const MESSAGE = "That room doesn't exist!";
               const BORDER_COLOR = "#ff0000";
@@ -232,30 +227,24 @@ uWS
             joinMultiplayerRoom(socket, parsedMessage.room);
             socket.send(message);
             log.info(
-              `Socket ${
-                socket.getUserData().connectionID
-              } joined room ${target}`
+              `Socket ${socketUserData.connectionID} joined room ${target}`
             );
           }
           break;
         }
         case "createMultiplayerRoom": {
-          if (!socket.getUserData().exitedOpeningScreen) {
+          if (!socketUserData.exitedOpeningScreen) {
             blockSocket(socket);
             return;
           }
           // reject message if already in room
-          if (
-            utilities.findRoomWithConnectionID(
-              socket.getUserData().connectionID
-            )
-          ) {
+          if (utilities.findRoomWithConnectionID(socketUserData.connectionID)) {
             const MESSAGE = "You're already in a room!";
             const BORDER_COLOR = "#ff0000";
             universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
             log.warn(
               `Socket ${
-                socket.getUserData().connectionID
+                socketUserData.connectionID
               } is already in a room while creating another.`
             );
             return;
@@ -272,7 +261,7 @@ uWS
           break;
         }
         case "leaveMultiplayerRoom": {
-          if (!socket.getUserData().exitedOpeningScreen) {
+          if (!socketUserData.exitedOpeningScreen) {
             blockSocket(socket);
             return;
           }
@@ -282,7 +271,7 @@ uWS
         }
         // game input
         case "keypress": {
-          if (!socket.getUserData().exitedOpeningScreen) {
+          if (!socketUserData.exitedOpeningScreen) {
             blockSocket(socket);
             return;
           }
@@ -291,7 +280,7 @@ uWS
           break;
         }
         case "emulateKeypress": {
-          if (!socket.getUserData().exitedOpeningScreen) {
+          if (!socketUserData.exitedOpeningScreen) {
             blockSocket(socket);
             return;
           }
@@ -307,7 +296,7 @@ uWS
           break;
         }
         case "sendChatMessage": {
-          if (!socket.getUserData().exitedOpeningScreen) {
+          if (!socketUserData.exitedOpeningScreen) {
             blockSocket(socket);
             return;
           }
@@ -329,15 +318,15 @@ uWS
         }
         case "exitOpeningScreen": {
           log.info(
-            `Socket ${socket.getUserData().connectionID} exited opening screen.`
+            `Socket ${socketUserData.connectionID} exited opening screen.`
           );
-          socket.getUserData().exitedOpeningScreen = true;
+          socketUserData.exitedOpeningScreen = true;
           break;
         }
         default: {
           log.warn(
             `Unknown action from socket with connectionID ${
-              socket.getUserData().connectionID
+              socketUserData.connectionID
             }: ${parsedMessage.message}`
           );
           break;
@@ -346,8 +335,9 @@ uWS
     },
 
     close: (socket: universal.GameWebSocket<UserData>) => {
+      const socketUserData = socket.getUserData();
       log.info(
-        `Socket with ID ${socket.getUserData().connectionID} has disconnected!`
+        `Socket with ID ${socketUserData.connectionID} has disconnected!`
       );
       universal.deleteSocket(socket);
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
