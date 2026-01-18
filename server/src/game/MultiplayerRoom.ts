@@ -446,10 +446,10 @@ class MultiplayerRoom extends Room {
         };
         if (winnerSocket?.getUserData().ownerUserID) {
           // is registered
+          const winnerSocketUserData = winnerSocket.getUserData();
           data.isRegistered = true;
-          data.userID = winnerSocket.getUserData().ownerUserID ?? "";
-          data.nameColor =
-            winnerSocket.getUserData().playerRank?.color ?? "#ffffff";
+          data.userID = winnerSocketUserData.ownerUserID ?? "";
+          data.nameColor = winnerSocketUserData.playerRank?.color ?? "#ffffff";
         }
         this.ranking.push(data);
       }
