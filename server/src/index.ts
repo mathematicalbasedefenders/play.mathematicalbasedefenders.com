@@ -127,7 +127,7 @@ uWS
      * This handles the open connection for a `GameWebSocket<UserData>`.
      * @param {universal.GameWebSocket<UserData>} socket The socket that was connected to.
      */
-    open: (socket) => {
+    open: (socket: universal.GameWebSocket<UserData>) => {
       log.info("Socket connected!");
       universal.initializeSocket(socket);
       universal.sockets.push(socket);
