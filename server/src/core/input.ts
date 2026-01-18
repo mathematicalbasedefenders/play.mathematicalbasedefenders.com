@@ -72,7 +72,7 @@ const MAXIMUM_INPUT_LENGTH = 8;
  */
 function emulateKeypress(
   socket: universal.GameWebSocket<UserData>,
-  code: string
+  code: string | undefined
 ) {
   const connectionID = socket.getUserData().connectionID;
   const playerName = universal.getNameFromConnectionID(connectionID || "");
