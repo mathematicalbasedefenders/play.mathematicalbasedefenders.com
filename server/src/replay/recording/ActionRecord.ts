@@ -1,7 +1,7 @@
 import { getUserReplayDataFromSocket } from "../../core/utilities";
 import { Enemy } from "../../game/Enemy";
 import { GameData } from "../../game/GameData";
-import { GameSocket } from "../../universal";
+import { GameWebSocket, UserData } from "../../universal";
 import { GameActionRecord as DatabaseGameActionRecord } from "../../models/GameActionRecord";
 import mongoose from "mongoose";
 import { log } from "../../core/log";
@@ -37,7 +37,7 @@ class GameActionRecord {
   actionRecords: Array<ActionRecord>;
   recordingVersion: number;
   gameVersion: string;
-  owner: GameSocket | null | undefined;
+  owner: GameWebSocket<UserData> | null | undefined;
 
   constructor() {
     this.recordingVersion = 1;
@@ -197,8 +197,10 @@ class GameActionRecord {
     databaseGameActionRecord.actionRecords = this.actionRecords;
     databaseGameActionRecord.recordingVersion = this.recordingVersion;
     databaseGameActionRecord.gameVersion = this.gameVersion;
-    databaseGameActionRecord.owner = this.owner?.ownerUserID
-      ? new mongoose.Types.ObjectId(this.owner.ownerUserID as string)
+    databaseGameActionRecord.owner = this.owner?.getUserData().ownerUserID
+      ? new mongoose.Types.ObjectId(
+          this.owner.getUserData().ownerUserID as string
+        )
       : null;
     databaseGameActionRecord.mode = mode;
     databaseGameActionRecord.timestamp = timestamp;
@@ -214,7 +216,7 @@ class GameActionRecord {
           break;
         }
         databaseGameActionRecord.name = `Game on timestamp ${timestamp.toISOString()} played by ${
-          this.owner?.ownerUsername
+          this.owner?.getUserData().ownerUsername
         }`;
         databaseGameActionRecord.statistics.singleplayer = {
           score: data.score,

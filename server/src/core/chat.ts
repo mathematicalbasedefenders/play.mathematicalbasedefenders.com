@@ -2,6 +2,7 @@ import { log } from "./log";
 import * as universal from "../universal";
 import { findRoomWithConnectionID } from "./utilities";
 import { Room } from "../game/Room";
+import { UserData } from "../universal";
 //
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -21,55 +22,31 @@ const CLEAR_BAD_MESSAGE_OBJECT = {
 //
 const MAXIMUM_CHAT_MESSAGE_LENGTH = 256;
 /**
- * Attempts to send a chat message to a room.
+ * Attempts to send a chat message to a scope.
  * @param {string} scope the scope/visibility of the message
  * @param {string} message the message
- * @param {universal.GameSocket} socket the socket of the message sender.
+ * @param {universal.GameWebSocket<UserData>} socket the socket of the message sender.
  */
 function sendChatMessage(
-  scope: string,
+  scope: "room" | "global",
   message: string,
-  socket: universal.GameSocket
+  socket: universal.GameWebSocket<UserData>
 ) {
-  const connectionID = socket.connectionID;
-  if (!connectionID) {
-    log.warn(`Socket has no ID.`);
-    return;
-  }
-  const playerName = universal.getNameFromConnectionID(connectionID);
   switch (scope) {
     case "room": {
-      if (!validateRoom(connectionID)) {
-        log.warn(
-          `Bad chat room validation for ${connectionID} (${playerName})`
-        );
-        return;
-      }
-      if (!validateMessage(message, connectionID)) {
-        log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
-        return;
-      }
-
-      const room = findRoomWithConnectionID(connectionID, true) as Room;
-      // commands
-      if (message.startsWith("/")) {
-        room.runChatCommand(message, { sender: socket });
-        break;
-      }
-
-      room.addChatMessage(message, { sender: socket });
+      sendChatMessageToRoom(message, socket);
       break;
     }
     case "global": {
-      if (!validateMessage(message, connectionID)) {
-        log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
-        socket.send(JSON.stringify(BAD_MESSAGE_OBJECT));
-        return;
-      }
-      sendGlobalChatMessage(message, socket);
+      sendChatMessageGlobally(message, socket);
       break;
     }
     default: {
+      const socketUserData = socket.getUserData();
+      const connectionID = socketUserData.connectionID;
+      const playerName = socketUserData.loggedIn
+        ? socketUserData.ownerUsername
+        : socketUserData.ownerGuestName;
       log.warn(
         `Unknown chat message scope: ${scope} from Socket ID ${connectionID} (${playerName})`
       );
@@ -79,12 +56,79 @@ function sendChatMessage(
 }
 
 /**
+ * Attempts to send a chat message to a room.
+ * @param {string} message the message
+ * @param {universal.GameWebSocket<UserData>} socket the socket of the message sender.
+ */
+function sendChatMessageToRoom(
+  message: string,
+  socket: universal.GameWebSocket<UserData>
+) {
+  const socketUserData = socket.getUserData();
+  const connectionID = socketUserData.connectionID;
+
+  if (!connectionID) {
+    log.warn(`Socket has no ID.`);
+    return;
+  }
+
+  const playerName = universal.getNameFromConnectionID(connectionID);
+
+  if (!validateRoom(connectionID)) {
+    log.warn(`Bad chat room validation for ${connectionID} (${playerName})`);
+    return;
+  }
+  if (!validateMessage(message, connectionID)) {
+    log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
+    return;
+  }
+
+  const room = findRoomWithConnectionID(connectionID, true) as Room;
+  // commands
+  if (message.startsWith("/")) {
+    room.runChatCommand(message, { sender: socket });
+    return;
+  }
+
+  room.addChatMessage(message, { sender: socket });
+  return;
+}
+
+/**
+ * Attempts to send a chat message globally.
+ * @param {string} message the message
+ * @param {universal.GameWebSocket<UserData>} socket the socket of the message sender.
+ */
+function sendChatMessageGlobally(
+  message: string,
+  socket: universal.GameWebSocket<UserData>
+) {
+  const socketUserData = socket.getUserData();
+  const connectionID = socketUserData.connectionID;
+
+  if (!connectionID) {
+    log.warn(`Socket has no ID.`);
+    return;
+  }
+
+  const playerName = universal.getNameFromConnectionID(connectionID);
+
+  if (!validateMessage(message, connectionID)) {
+    log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
+    socket.send(JSON.stringify(BAD_MESSAGE_OBJECT));
+    return;
+  }
+  sendGlobalChatMessage(message, socket);
+}
+
+/**
  * Validates whether a room that socket `connectionID` is in actually exists for chat messages.
  * @param {string} connectionID The `connectionID`.
  * @returns `true` if room exists, `false` if it doesn't.
  */
 function validateRoom(connectionID: string) {
   const playerName = universal.getNameFromConnectionID(connectionID);
+
   const roomID = findRoomWithConnectionID(connectionID, true)?.id;
   if (typeof roomID === "undefined") {
     log.warn(
@@ -92,10 +136,9 @@ function validateRoom(connectionID: string) {
     );
     return false;
   }
-  const roomIndex = universal.rooms.findIndex(
-    (element) => element.id === roomID
-  );
-  if (roomIndex === -1) {
+
+  const roomExists = universal.rooms.some((e) => e.id === roomID);
+  if (!roomExists) {
     log.warn(
       `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
     );
@@ -143,7 +186,7 @@ function createGlobalMessageObject(
 ) {
   const senderSocket = universal.getSocketFromConnectionID(connectionID);
   const playerName = universal.getNameFromConnectionID(connectionID);
-  const userID = senderSocket?.ownerUserID ?? null;
+  const userID = senderSocket?.getUserData().ownerUserID ?? null;
   const toReturn = {
     message: "addChatMessage",
     data: {
@@ -167,13 +210,17 @@ function createGlobalMessageObject(
  * @param message The message to send.
  * @param socket The socket of the message sender.
  */
-function sendGlobalChatMessage(message: string, socket: universal.GameSocket) {
-  const connectionID = socket.connectionID as string;
+function sendGlobalChatMessage(
+  message: string,
+  socket: universal.GameWebSocket<UserData>
+) {
+  const socketUserData = socket.getUserData();
+  const connectionID = socketUserData.connectionID as string;
   const playerName = universal.getNameFromConnectionID(connectionID);
   const messageObject = createGlobalMessageObject(
     message,
     connectionID,
-    socket?.playerRank?.color
+    socket?.getUserData().playerRank?.color
   );
   socket.publish("game", JSON.stringify(messageObject));
   socket.send(JSON.stringify(messageObject));

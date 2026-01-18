@@ -5,6 +5,7 @@ import { authenticateForSocket } from "./authenticate";
 import * as utilities from "../core/utilities";
 import * as universal from "../universal";
 import { DOMPurifySanitizer } from "../sanitizer";
+import { UserData } from "../universal";
 
 const FAILED_BORDER_COLOR = "#ff0000";
 const SUCCESS_BORDER_COLOR = "#00dd00";
@@ -14,10 +15,6 @@ async function authenticate(
   password: string,
   socketID: string
 ) {
-  const htmlSanitizedUsername = DOMPurifySanitizer.sanitize(username);
-  const sanitizedUsername = mongoDBSanitize.sanitize(htmlSanitizedUsername);
-  log.info(`Authentication request requested for account ${sanitizedUsername}`);
-
   /** Authenticate. */
   const result = await authenticateForSocket(username, password, socketID);
   const socket = universal.getSocketFromConnectionID(socketID);
@@ -37,33 +34,41 @@ async function authenticate(
     return false;
   }
 
+  const sanitizedUsername = DOMPurifySanitizer.sanitize(username);
+
   /** Successfully logged in. */
-  socket.loggedIn = true;
-  socket.ownerUsername = sanitizedUsername as string;
-  socket.ownerUserID = result.id as string;
-  const userData = await User.safeFindByUsername(socket.ownerUsername);
+  const socketUserData = socket.getUserData();
+  socketUserData.loggedIn = true;
+  socketUserData.ownerUsername = sanitizedUsername;
+  socketUserData.ownerUserID = result.id as string;
+
+  const userData = await User.safeFindByUsername(username);
   utilities.updateSocketUserInformation(socket);
-  socket.playerRank = utilities.getRank(userData);
+  socketUserData.playerRank = utilities.getRank(userData);
+
+  /** Send toast message that logged in. */
   const MESSAGE = `Successfully logged in as ${sanitizedUsername}`;
   universal.sendToastMessageToSocket(socket, MESSAGE, SUCCESS_BORDER_COLOR);
 
   /** Exit opening screen */
-  socket.send(JSON.stringify({ message: "exitOpeningScreen" }));
+  const exitOpeningScreen = JSON.stringify({ message: "exitOpeningScreen" });
+  socket.send(exitOpeningScreen);
 
   /** Send data. */
   sendUserStatistics(socket, userData);
 
   // Also add missing keys
-  if (socket.ownerUserID) {
-    User.addMissingKeys(socket.ownerUserID);
+  if (typeof result.id === "string") {
+    User.addMissingKeys(result.id);
   }
   return true;
 }
 
 function sendUserStatistics(
-  socket: universal.GameSocket,
+  socket: universal.GameWebSocket<UserData>,
   userData: UserInterface
 ) {
+  const socketUserData = socket.getUserData();
   const username = userData.username;
   const statistics = userData.statistics;
   socket.send(
@@ -73,7 +78,7 @@ function sendUserStatistics(
         username: username,
         good: true,
         userData: userData,
-        rank: socket.playerRank,
+        rank: socketUserData.playerRank,
         experiencePoints: statistics.totalExperiencePoints,
         records: {
           easy: statistics.personalBestScoreOnEasySingleplayerMode,
