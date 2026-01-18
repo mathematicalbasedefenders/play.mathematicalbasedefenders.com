@@ -365,13 +365,13 @@ function sendAnswerForGameDataInput(gameData: GameData) {
 function getKilledEnemyIDs(gameData: GameData) {
   const enemyIDsToKill: Array<string> = [];
 
-  if (!/^-{0,1}[0-9]{1,8}$/.test(gameData.currentInput)) {
-    // invalid input, e.g. --53, -3-5, and the like.
-    return [];
-  }
-
   for (const enemy of gameData.enemies) {
     // TODO: Data validation
+    if (!/^-{0,1}[0-9]{1,8}$/.test(gameData.currentInput)) {
+      // invalid input, e.g. --53, -3-5, and the like, skip processing.
+      continue;
+    }
+
     if (enemy.check(parseInt(gameData.currentInput))) {
       // gameData.enemiesToErase.push(enemy.id);
       enemyIDsToKill.push(enemy.id);
