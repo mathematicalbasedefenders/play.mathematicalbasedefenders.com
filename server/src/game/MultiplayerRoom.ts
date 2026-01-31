@@ -564,6 +564,31 @@ class MultiplayerRoom extends Room {
 
     log.info(`Room ${this.id}'s host now ${newHost} from ${pastHost}.`);
   }
+
+  handleHostLeave() {
+    // Note that we already called `.abort` before this,
+    // which already removes the
+    // connectionID from `room.memberConnectionIDs`
+    // So, there is no need to delete member (again) here.
+    // It's here since we have to find a new host, and if there's only
+    // one socket before leaving, the room is empty and can be destroyed.
+
+    if (this.memberConnectionIDs.length === 0) {
+      log.info(`About to delete room ${this.id}...`);
+    } else {
+      const newHostID = _.sample(this.memberConnectionIDs) as string;
+      this.setNewHost(newHostID);
+      this.notifyOfNewHost(newHostID);
+
+      // notify the new host as well
+      const newHostSocket = universal.getSocketFromConnectionID(newHostID);
+      if (newHostSocket) {
+        const MESSAGE =
+          "You have been randomly selected to be the new host of this room since the previous host left.";
+        this.sendCommandResultToSocket(MESSAGE, { sender: newHostSocket });
+      }
+    }
+  }
 }
 
 export { MultiplayerRoom };
