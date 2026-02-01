@@ -964,8 +964,7 @@ function processKeypressForRoom(
   const roomToProcess = utilities.findRoomWithConnectionID(connectionID, false);
   let inputInformation: InputActionInterface = {
     action: InputAction.Unknown,
-    argument: "",
-    keyPressed: ""
+    argument: ""
   };
   if (!roomToProcess) {
     return;
