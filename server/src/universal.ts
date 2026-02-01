@@ -31,7 +31,7 @@ interface UserData {
   /** Whether a socket is logged in. */
   loggedIn: boolean;
   /** Player rank of a socket */
-  playerRank?: PlayerRank;
+  playerRank: PlayerRank;
   /** These are used for rate limiting. */
   accumulatedMessages: number;
   /** These are used for rate limiting. */
