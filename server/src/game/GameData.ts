@@ -283,7 +283,9 @@ class GameData {
   }
 
   processEnemyKill(iterations: number, room: Room) {
-    log.warn(`processEnemyKill called on base GameData class. Done nothing.`);
+    log.error(
+      `processEnemyKill called on base GameData class. (This method should be overridden in a subclass.)`
+    );
   }
 }
 class SingleplayerGameData extends GameData {
