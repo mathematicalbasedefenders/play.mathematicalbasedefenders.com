@@ -19,33 +19,23 @@ import {
 } from "./game/SingleplayerRoom";
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
-interface UserData {}
-
-type PlayerRank = {
-  color: string;
-  title: string;
-};
-
-/**
- * This represents a socket for a player.
- */
-type GameSocket = WebSocket<UserData> & {
+interface UserData {
   /** Owner's username. If exists, overrides `ownerGuestName` */
   ownerUsername?: string;
   /** Owner's USER ID. */
   ownerUserID?: string;
   /** Owner's guest name. Can be overwritten with username by logging in. */
-  ownerGuestName?: string;
+  ownerGuestName: string;
   /** Socket's connectionID, randomly generated between sessions. */
-  connectionID?: string;
+  connectionID: string;
   /** Whether a socket is logged in. */
-  loggedIn?: boolean;
+  loggedIn: boolean;
   /** Player rank of a socket */
-  playerRank?: PlayerRank;
+  playerRank: PlayerRank;
   /** These are used for rate limiting. */
-  accumulatedMessages?: number;
+  accumulatedMessages: number;
   /** These are used for rate limiting. */
-  rateLimiting?: {
+  rateLimiting: {
     last: number;
     count: number;
   };
@@ -55,9 +45,14 @@ type GameSocket = WebSocket<UserData> & {
    * New in 0.4.13.
    */
   exitedOpeningScreen?: boolean;
+}
+
+type PlayerRank = {
+  color: string;
+  title: string;
 };
 
-const sockets: Array<GameSocket> = [];
+const sockets: Array<WebSocket<UserData>> = [];
 const rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
 
 const STATUS = {
@@ -68,16 +63,17 @@ const STATUS = {
 
 /**
  * Removes the socket from memory.
- * @param {GameSocket} socketToClose The socket to remove.
+ * @param {WebSocket<UserData>} socketToClose The socket to remove.
  */
-function deleteSocket(socketToClose: GameSocket) {
+function deleteSocket(socketToClose: WebSocket<UserData>) {
   // update room that socket is in
-  if (typeof socketToClose.connectionID === "string") {
-    const connectionID = socketToClose.connectionID;
+  if (typeof socketToClose.getUserData().connectionID === "string") {
+    const connectionID = socketToClose.getUserData().connectionID;
     const room = rooms.find(
       (room) =>
-        room.memberConnectionIDs.indexOf(socketToClose.connectionID as string) >
-        -1
+        room.memberConnectionIDs.indexOf(
+          socketToClose.getUserData().connectionID as string
+        ) > -1
     );
     if (room) {
       room.deleteMember(socketToClose);
@@ -95,8 +91,12 @@ function deleteSocket(socketToClose: GameSocket) {
   }
 }
 
-function forceDeleteAndCloseSocket(socketToClose: GameSocket) {
-  log.warn(`Forcing deleting+closing socket ID ${socketToClose.connectionID}`);
+function forceDeleteAndCloseSocket(socketToClose: WebSocket<UserData>) {
+  log.warn(
+    `Forcing deleting+closing socket ID ${
+      socketToClose.getUserData().connectionID
+    }`
+  );
   const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
   if (socketToDeleteIndex > -1) {
     sockets.splice(socketToDeleteIndex, 1);
@@ -107,30 +107,31 @@ function forceDeleteAndCloseSocket(socketToClose: GameSocket) {
 /**
  * Attempts to find the socket with the ID `id`.
  * @param {string} id The ID of the socket to find.
- * @returns The `GameSocket` if such ID exists, `undefined` otherwise.
+ * @returns The `WebSocket<UserData>` if such ID exists, `undefined` otherwise.
  */
 function getSocketFromConnectionID(id: string) {
-  return sockets.find((socket) => socket.connectionID === id);
+  return sockets.find((socket) => socket.getUserData().connectionID === id);
 }
 
 /**
  * Attempts to find the socket with the ID `id`.
  * @param {string} id The ID of the socket to find.
- * @returns The `GameSocket` if such ID exists, `undefined` otherwise.
+ * @returns The `WebSocket<UserData>` if such ID exists, `undefined` otherwise.
  */
 function getSocketsFromUserID(id: string) {
-  return sockets.filter((socket) => socket.ownerUserID === id);
+  return sockets.filter((socket) => socket.getUserData().ownerUserID === id);
 }
 
 function getNameFromConnectionID(id: string): string | undefined {
-  let socket = getSocketFromConnectionID(id);
+  const socket = getSocketFromConnectionID(id);
   if (typeof socket === "undefined") {
     return "???";
   }
-  if (socket.loggedIn) {
-    return socket.ownerUsername;
+  const socketUserData = socket.getUserData();
+  if (socketUserData.loggedIn) {
+    return socketUserData.ownerUsername;
   } else {
-    return socket.ownerGuestName;
+    return socketUserData.ownerGuestName;
   }
 }
 
@@ -179,17 +180,17 @@ function checkIfSocketIsInMultiplayerRoom(id: string) {
 
 /**
  * Synchronizes the game data of the server from the server-side to the client-side.
- * @param {GameSocket} socket The socket to sync data with.
+ * @param {WebSocket<UserData>} socket The socket to sync data with.
  */
 function synchronizeMetadataWithSocket(
-  socket: GameSocket,
+  socket: WebSocket<UserData>,
   deltaTime: number,
   systemStatus: { [key: string]: any }
 ) {
   // server metadata
   STATUS.lastDeltaTimeToUpdate = deltaTime;
   const metadataToSend = getServerMetadata(deltaTime, systemStatus);
-  const socketID = socket?.connectionID;
+  const socketID = socket?.getUserData().connectionID;
   if (socketID) {
     metadataToSend.playerName = getNameFromConnectionID(socketID) ?? "???";
   }
@@ -200,8 +201,9 @@ function synchronizeMetadataWithSocket(
     })
   );
   // socket metadata
-  if (socket.connectionID) {
-    const id = socket.connectionID;
+  const socketUserData = socket.getUserData();
+  if (socketUserData.connectionID) {
+    const id = socketUserData.connectionID;
     const socketIsPlaying = checkIfSocketIsPlaying(id);
     const socketIsInMPRoom = checkIfSocketIsInMultiplayerRoom(id);
     socket.send(
@@ -218,11 +220,12 @@ function synchronizeMetadataWithSocket(
 
 /**
  * Synchronizes the game data of the socket from the server-side to the client-side.
- * @param {GameSocket} socket The socket to sync data with.
+ * @param {WebSocket<UserData>} socket The socket to sync data with.
  */
-function synchronizeGameDataWithSocket(socket: GameSocket) {
+function synchronizeGameDataWithSocket(socket: WebSocket<UserData>) {
+  const socketUserData = socket.getUserData();
   const socketGameData = getGameDataFromConnectionID(
-    socket.connectionID as string
+    socketUserData.connectionID as string
   );
   const clonedSocketGameData = _.cloneDeep(socketGameData);
   if (clonedSocketGameData) {
@@ -232,7 +235,7 @@ function synchronizeGameDataWithSocket(socket: GameSocket) {
     // add some game data (extra information)
     // such as for multiplayer
     if (clonedSocketGameData.mode.indexOf("Multiplayer") > -1) {
-      let room = findRoomWithConnectionID(socket.connectionID);
+      let room = findRoomWithConnectionID(socketUserData.connectionID);
       if (room) {
         clonedSocketGameData.opponentGameData = getOpponentsInformation(
           socket,
@@ -277,7 +280,9 @@ function getServerMetadata(
 ) {
   // number of rooms
   const online = sockets.length;
-  const onlineRegistered = sockets.filter((e) => e.loggedIn).length;
+  const onlineRegistered = sockets.filter(
+    (e) => e.getUserData().loggedIn
+  ).length;
   const onlineGuests = online - onlineRegistered;
   const roomsTotal = rooms.length;
   // TODO: Change this when custom singleplayer comes
@@ -351,14 +356,15 @@ function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
 
 /**
  * Initializes a socket. This includes adding it subscribing it to `game`.
- * @param {GameSocket} socket The socket to initialize default values with.
+ * @param {WebSocket<UserData>} socket The socket to initialize default values with.
  */
-function initializeSocket(socket: GameSocket) {
-  socket.exitedOpeningScreen = false;
-  socket.connectionID = generateConnectionID(16);
-  socket.ownerGuestName = `Guest ${generateGuestID(8)}`;
-  socket.accumulatedMessages = 0;
-  socket.rateLimiting = {
+function initializeSocket(socket: WebSocket<UserData>) {
+  const socketUserData = socket.getUserData();
+  socketUserData.exitedOpeningScreen = false;
+  socketUserData.connectionID = generateConnectionID(16);
+  socketUserData.ownerGuestName = `Guest ${generateGuestID(8)}`;
+  socketUserData.accumulatedMessages = 0;
+  socketUserData.rateLimiting = {
     last: 1,
     count: 0
   };
@@ -367,21 +373,22 @@ function initializeSocket(socket: GameSocket) {
 
 /**
  * This sends data to the socket's connection to update initial values.
- * @param {GameSocket} socket The socket to initialize send data to.
+ * @param {WebSocket<UserData>} socket The socket to initialize send data to.
  */
-function sendInitialSocketData(socket: GameSocket) {
+function sendInitialSocketData(socket: WebSocket<UserData>) {
+  const socketUserData = socket.getUserData();
   socket.send(
     JSON.stringify({
       message: "changeValueOfInput",
       selector: "#authentication-modal__socket-id",
-      value: socket.connectionID
+      value: socketUserData.connectionID
     })
   );
   socket.send(
     JSON.stringify({
       message: "updateGuestInformationText",
       data: {
-        guestName: socket.ownerGuestName
+        guestName: socketUserData.ownerGuestName
       }
     })
   );
@@ -389,7 +396,7 @@ function sendInitialSocketData(socket: GameSocket) {
 
 // TODO: This can only set borderColor, which is all we need, I guess...
 function sendToastMessageToSocket(
-  socket: GameSocket,
+  socket: WebSocket<UserData>,
   message: string,
   borderColor: string
 ) {
@@ -403,7 +410,7 @@ function sendToastMessageToSocket(
 }
 
 function startGameForSocket(
-  socket: GameSocket,
+  socket: WebSocket<UserData>,
   parsedMessage: { [key: string]: string }
 ) {
   switch (parsedMessage.mode) {
@@ -500,7 +507,6 @@ const USE_TESTING_VALUES =
   CONFIGURATION.useTestingStatesIfDevelopmentEnvironment;
 
 export {
-  GameSocket,
   sockets,
   deleteSocket,
   rooms,
@@ -519,5 +525,7 @@ export {
   sendInitialSocketData,
   sendToastMessageToSocket,
   startGameForSocket,
-  USE_TESTING_VALUES
+  USE_TESTING_VALUES,
+  UserData,
+  WebSocket as GameWebSocket // this is exported as `GameWebSocket` since `WebSocket` might clash with other definitions.
 };

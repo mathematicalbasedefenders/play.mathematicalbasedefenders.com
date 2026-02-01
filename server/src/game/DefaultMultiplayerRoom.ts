@@ -7,7 +7,7 @@ import {
 } from "../core/utilities";
 import { User } from "../models/User";
 import { Action, ActionRecord } from "../replay/recording/ActionRecord";
-import { getSocketFromConnectionID } from "../universal";
+import { getSocketFromConnectionID, UserData } from "../universal";
 import { changeClientSideText } from "./actions/send-html";
 import {
   ClockInterface,
@@ -32,7 +32,11 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
   globalEnemyToAdd!: Enemy | null;
   timeSinceLastPlayerListUpdate: number;
 
-  constructor(host: universal.GameSocket, mode: GameMode, noHost?: boolean) {
+  constructor(
+    host: universal.GameWebSocket<UserData>,
+    mode: GameMode,
+    noHost?: boolean
+  ) {
     super(host, mode, noHost);
     this.nextGameStartTime = null;
     this.globalEnemySpawnThreshold =
@@ -200,132 +204,6 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
       }
       return;
     }
-
-    // playing
-    // for (const connectionID of this.memberConnectionIDs) {
-    //   const socket = universal.getSocketFromConnectionID(connectionID);
-    //   if (!socket) {
-    //     return;
-    //   }
-    //   const playersRemaining = this.gameData.length;
-    //   const selector =
-    //     "#main-content__multiplayer-intermission-screen-container__game-status-message";
-    //   const value = `Current game in progress. (Remaining: ${playersRemaining}/${this.playersAtStart})`;
-    //   changeClientSideText(socket, selector, value);
-    // }
-
-    // // global - applies to all players
-    // // global clocks
-    // this.globalClock.enemySpawn.currentTime += deltaTime;
-    // this.globalClock.forcedEnemySpawn.currentTime += deltaTime;
-    // checkGlobalMultiplayerRoomClocks(this);
-
-    // // specific to each player
-    // for (const data of this.gameData) {
-    //   const opponentGameData = this.gameData.filter(
-    //     (element) => element.ownerConnectionID !== data.ownerConnectionID
-    //   );
-
-    //   if (data.aborted) {
-    //     this.abort(data);
-    //   }
-
-    //   for (const enemy of data.enemies) {
-    //     enemy.move(
-    //       GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED *
-    //         GAME_DATA_CONSTANTS.DEFAULT_MULTIPLAYER_ENEMY_STARTING_SPEED_COEFFICIENT *
-    //         data.enemySpeedCoefficient *
-    //         (deltaTime / 1000)
-    //     );
-    //     if (enemy.sPosition <= 0) {
-    //       this.gameActionRecord.addEnemyReachedBaseAction(enemy, data);
-    //       enemy.remove(data, 10);
-    //       this.gameActionRecord.addSetGameDataAction(
-    //         data,
-    //         "player",
-    //         "baseHealth",
-    //         data.baseHealth
-    //       );
-    //     }
-    //   }
-    //   if (data.baseHealth <= 0) {
-    //     // player is eliminated.
-    //     const socket = universal.getSocketFromConnectionID(
-    //       data.ownerConnectionID
-    //     );
-    //     if (socket && !data.aborted) {
-    //       socket.send(
-    //         JSON.stringify({
-    //           message: "changeScreen",
-    //           newScreen: "multiplayerIntermission"
-    //         })
-    //       );
-    //     }
-
-    //     this.eliminateSocketID(data.ownerConnectionID, data);
-    //     const eliminationActionRecord: ActionRecord = {
-    //       scope: "room",
-    //       action: Action.Elimination,
-    //       timestamp: Date.now(),
-    //       data: {
-    //         eliminated: getUserReplayDataFromSocket(data.owner)
-    //       }
-    //     };
-    //     this.gameActionRecord.addAction(eliminationActionRecord);
-    //   }
-
-    //   // clocks
-    //   checkPlayerMultiplayerRoomClocks(data);
-
-    //   // forced enemy (when zero)
-    //   if (data.enemies.length === 0) {
-    //     const enemy = createNewEnemy(`F${data.enemiesSpawned}`);
-    //     this.gameActionRecord.addEnemySpawnAction(enemy, data);
-    //     data.enemies.push(_.clone(enemy));
-    //     data.enemiesSpawned++;
-    //   }
-
-    //   // generated enemy
-    //   if (this.globalEnemyToAdd) {
-    //     data.enemiesSpawned++;
-    //     data.enemies.push(_.clone(this.globalEnemyToAdd as Enemy));
-    //     this.gameActionRecord.addEnemySpawnAction(this.globalEnemyToAdd, data);
-    //   }
-
-    //   // received enemy
-    //   if (data.receivedEnemiesToSpawn > 0) {
-    //     data.receivedEnemiesToSpawn--;
-    //     data.enemiesSpawned++;
-    //     const attributes = {
-    //       speed:
-    //         GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED * data.enemySpeedCoefficient
-    //     };
-    //     const receivedEnemy = enemy.createNewReceivedEnemy(
-    //       `R${data.enemiesSpawned}`,
-    //       attributes
-    //     );
-    //     data.enemies.push(_.clone(receivedEnemy));
-    //     this.gameActionRecord.addEnemySpawnAction(receivedEnemy, data, true);
-    //   }
-
-    //   if (data.enemiesSentStock > 0) {
-    //     data.enemiesSentStock--;
-    //     let targetedOpponentGameData = _.sample(opponentGameData);
-    //     if (targetedOpponentGameData) {
-    //       targetedOpponentGameData.receivedEnemiesStock += 1;
-    //       targetedOpponentGameData.totalEnemiesReceived += 1;
-    //       const room = findRoomWithConnectionID(
-    //         targetedOpponentGameData.ownerConnectionID
-    //       );
-    //       if (room) {
-    //         room.gameActionRecord.addStockAddAction(
-    //           targetedOpponentGameData,
-    //           1
-    //         );
-    //       }
-    //     }
-    //   }
-    // }
   }
 
   eliminateSocketID(connectionID: string, gameData: GameData | object) {
@@ -334,7 +212,10 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
       log.warn(
         `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
       );
+      return;
     }
+
+    const socketUserData = socket.getUserData();
     const place = this.gameData.length;
     if (gameData instanceof GameData) {
       const data = {
@@ -348,21 +229,21 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
         userID: "",
         connectionID: gameData.ownerConnectionID
       };
-      if (socket?.ownerUserID) {
+      if (socket?.getUserData().ownerUserID) {
         // is registered
         data.isRegistered = true;
-        data.userID = socket.ownerUserID;
-        data.nameColor = socket.playerRank?.color ?? "#ffffff";
+        data.userID = socketUserData.ownerUserID ?? "";
+        data.nameColor = socketUserData.playerRank?.color ?? "#ffffff";
       }
       this.ranking.push(data);
     }
-    if (socket?.loggedIn && gameData instanceof GameData) {
+    if (socket?.getUserData().loggedIn && gameData instanceof GameData) {
       if (!universal.STATUS.databaseAvailable) {
         log.warn("Database is not available. Not running database operation.");
       } else {
         const earnedEXP = Math.round(gameData.elapsedTime / 2000);
         User.giveExperiencePointsToUserID(
-          socket.ownerUserID as string,
+          socketUserData.ownerUserID as string,
           earnedEXP
         );
       }
@@ -401,6 +282,7 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
         const winnerSocket = universal.getSocketFromConnectionID(
           winnerGameData.ownerConnectionID
         );
+        const winnerSocketUserData = winnerSocket?.getUserData();
 
         // add winner action
         if (winnerSocket) {
@@ -418,8 +300,8 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
         this.gameActionRecord.addGameOverAction();
 
         // add exp to winner socket
-        if (winnerSocket?.ownerUserID) {
-          if (typeof winnerSocket.ownerUserID === "string") {
+        if (winnerSocketUserData) {
+          if (typeof winnerSocketUserData.ownerUserID === "string") {
             if (!universal.STATUS.databaseAvailable) {
               log.warn(
                 "Database is not available. Not running database operation."
@@ -427,14 +309,14 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
             } else {
               // multiplayer games won
               User.addMultiplayerGamesWonToUserID(
-                winnerSocket.ownerUserID as string,
+                winnerSocketUserData.ownerUserID as string,
                 1
               );
               // experience (50% bonus for winning)
               const earnedEXP =
                 Math.round(winnerGameData.elapsedTime / 2000) * 1.5;
               User.giveExperiencePointsToUserID(
-                winnerSocket.ownerUserID as string,
+                winnerSocketUserData.ownerUserID as string,
                 earnedEXP
               );
             }
@@ -455,18 +337,18 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
           userID: "",
           connectionID: winnerGameData.ownerConnectionID
         };
-        if (winnerSocket?.ownerUserID) {
+        if (winnerSocketUserData) {
           // is registered
           data.isRegistered = true;
-          data.userID = winnerSocket.ownerUserID;
-          data.nameColor = winnerSocket.playerRank?.color ?? "#ffffff";
+          data.userID = winnerSocketUserData.ownerUserID ?? "";
+          data.nameColor = winnerSocketUserData.playerRank?.color ?? "#ffffff";
         }
         this.ranking.push(data);
         // submit replay here.
 
         if (
           this.memberConnectionIDs.filter(
-            (e) => getSocketFromConnectionID(e)?.loggedIn
+            (e) => getSocketFromConnectionID(e)?.getUserData().loggedIn
           ).length >= 1
         ) {
           const replay = await this.gameActionRecord.save(
@@ -536,7 +418,8 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
         continue;
       }
       // send to canvas screen
-      const userID = socket.ownerUserID;
+      const socketUserData = socket.getUserData();
+      const userID = socketUserData.ownerUserID;
       socket.send(
         JSON.stringify({
           message: "changeScreen",

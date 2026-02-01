@@ -56,23 +56,42 @@ const ELEMENTS_TO_NOT_SEND_WEBSOCKET_MESSAGE = [
 // events
 function initializeKeypressEventListener() {
   window.addEventListener("keydown", (event) => {
-    // other client-side events start
-    const sendWebSocketMessage = checkIfShouldSendWebSocketMessage(event);
-    // see if a websocket message should be sent
-    // main client-side events start
-    handleClientSideEvents(event);
-    if (!sendWebSocketMessage) {
-      return;
-    }
-    // main client-side events end
-    sendSocketMessage({
-      message: "keypress",
-      keypress: event.code
-    });
+    handleClientSideKeypress(event);
   });
 }
 
-function handleClientSideEvents(event: KeyboardEvent) {
+function handleClientSideKeypress(event: KeyboardEvent) {
+  // other client-side events start
+  const sendWebSocketMessage = checkIfShouldSendWebSocketMessage(event);
+  // see if a websocket message should be sent
+  // main client-side events start
+  handleClientSideKeypressEvent(event);
+  if (!sendWebSocketMessage) {
+    return;
+  }
+  // main client-side events end
+  sendSocketMessage({
+    message: "keypress",
+    keypress: event.code
+  });
+}
+
+function handleEmulatedClientSideKeypress(event: KeyboardEvent) {
+  const sendWebSocketMessage = checkIfShouldSendWebSocketMessage(event);
+  // see if a websocket message should be sent
+  // main client-side events start
+  handleClientSideKeypressEvent(event);
+  if (!sendWebSocketMessage) {
+    return;
+  }
+  // main client-side events end
+  sendSocketMessage({
+    message: "emulateKeypress",
+    emulatedKeypress: event.code
+  });
+}
+
+function handleClientSideKeypressEvent(event: KeyboardEvent) {
   // also take care of client-side.
   const numberRowKeyIndex = NUMBER_ROW_KEYS.indexOf(event.code);
   const numberPadKeyIndex = NUMBER_PAD_KEYS.indexOf(event.code);
@@ -170,4 +189,4 @@ function checkIfShouldSendWebSocketMessage(event: KeyboardEvent) {
   }
   return sendWebSocketMessage;
 }
-export { initializeKeypressEventListener };
+export { initializeKeypressEventListener, handleEmulatedClientSideKeypress };

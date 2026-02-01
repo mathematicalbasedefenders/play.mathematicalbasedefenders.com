@@ -48,7 +48,9 @@ function moveEnemies(data: GameData, deltaTime: number) {
     enemy.move(distance);
     if (enemy.sPosition <= 0) {
       enemy.attackBase(data, BASE_ENEMY_ATTACK);
-      const room = findRoomWithConnectionID(data.owner.connectionID);
+      const room = findRoomWithConnectionID(
+        data.owner.getUserData().connectionID
+      );
       room?.gameActionRecord.addEnemyReachedBaseAction(enemy, data);
     }
   }

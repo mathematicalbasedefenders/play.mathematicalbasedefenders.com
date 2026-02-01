@@ -1,7 +1,10 @@
 import FontFaceObserver from "fontfaceobserver";
 import * as PIXI from "pixi.js";
 import { socket, sendSocketMessage } from "./socket";
-import { initializeKeypressEventListener } from "./input";
+import {
+  handleEmulatedClientSideKeypress,
+  initializeKeypressEventListener
+} from "./input";
 import * as AS from "adaptive-scale/lib-esm";
 import {
   changeCustomSingleplayerSecondaryScreen,
@@ -727,29 +730,21 @@ function initializeEventListeners() {
   //
   for (let i = 0; i <= 9; i++) {
     $(`#on-screen-keyboard__button-${i}`).on("click", () => {
-      sendSocketMessage({
-        message: "emulateKeypress",
-        emulatedKeypress: `Digit${i}`
-      });
+      const event = new KeyboardEvent("keydown", { code: `Digit${i}` });
+      handleEmulatedClientSideKeypress(event);
     });
   }
   $("#on-screen-keyboard__button-minus").on("click", () => {
-    sendSocketMessage({
-      message: "emulateKeypress",
-      emulatedKeypress: `Minus`
-    });
+    const event = new KeyboardEvent("keydown", { code: `Minus` });
+    handleEmulatedClientSideKeypress(event);
   });
   $(`#on-screen-keyboard__button-send`).on("click", () => {
-    sendSocketMessage({
-      message: "emulateKeypress",
-      emulatedKeypress: `Space`
-    });
+    const event = new KeyboardEvent("keydown", { code: `Space` });
+    handleEmulatedClientSideKeypress(event);
   });
   $(`#on-screen-keyboard__button-delete`).on("click", () => {
-    sendSocketMessage({
-      message: "emulateKeypress",
-      emulatedKeypress: `Backspace`
-    });
+    const event = new KeyboardEvent("keydown", { code: `Backspace` });
+    handleEmulatedClientSideKeypress(event);
   });
   $(`#chat-message`).on("keypress", function (e) {
     if (e.which == 13) {
