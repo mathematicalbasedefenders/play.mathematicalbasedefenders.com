@@ -25,7 +25,7 @@ interface UserData {
   /** Owner's USER ID. */
   ownerUserID?: string;
   /** Owner's guest name. Can be overwritten with username by logging in. */
-  ownerGuestName?: string;
+  ownerGuestName: string;
   /** Socket's connectionID, randomly generated between sessions. */
   connectionID: string;
   /** Whether a socket is logged in. */
