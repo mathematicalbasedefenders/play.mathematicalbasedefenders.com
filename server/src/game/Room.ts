@@ -14,6 +14,8 @@ import {
 import { GameActionRecord } from "../replay/recording/ActionRecord";
 import { Enemy } from "./Enemy";
 import { MultiplayerRoom } from "./MultiplayerRoom";
+import { UserData } from "../universal";
+import { ToastNotificationData } from "../core/toast-notifications";
 
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -34,7 +36,7 @@ const COMMAND_DATA = [
 interface InputActionInterface {
   action: InputAction;
   argument: string;
-  keyPressed?: string | undefined;
+  keyPressed?: string;
 }
 
 interface MinifiedGameDataInterface {
@@ -50,7 +52,7 @@ interface MinifiedGameDataInterface {
 
 class Room {
   id: string;
-  host: universal.GameSocket | null;
+  host: universal.GameWebSocket<UserData> | null;
   memberConnectionIDs: Array<string> = [];
   spectatorConnectionIDs: Array<string> = [];
   updateNumber: number = 0;
@@ -79,13 +81,13 @@ class Room {
    * Instead it should be called from a `super()` call from either
    * a new `SingleplayerRoom` or a new `MultiplayerRoom`.
    * Note: A Room will only "start to function" when it is in `universal.rooms`.
-   * @param {universal.GameSocket} host The socket that asked for the room.
+   * @param {universal.GameWebSocket<UserData>} host The socket that asked for the room.
    * @param {GameMode} gameMode The game mode of the room
    * @param {boolean} noHost Should only be `true` on Default Multiplayer.
    * @returns
    */
   constructor(
-    host: universal.GameSocket,
+    host: universal.GameWebSocket<UserData>,
     gameMode: GameMode,
     noHost?: boolean
   ) {
@@ -139,7 +141,7 @@ class Room {
   addChatMessage(message: string, options: { [key: string]: any }) {
     if (
       !options.isSystemMessage &&
-      (!options.sender || !options.sender.connectionID)
+      (!options.sender || !options.sender.getUserData().connectionID)
     ) {
       log.warn(
         `No sender/connectionID for message: ${message} in room, ignoring.`
@@ -162,10 +164,12 @@ class Room {
     } else if (options.sender) {
       messageToSend.sanitizedMessage = DOMPurify.sanitize(message);
       messageToSend.senderName =
-        universal.getNameFromConnectionID(options.sender.connectionID || "") ||
-        "";
-      messageToSend.nameColor = options.sender.playerRank?.color ?? "#ffffff";
-      messageToSend.userID = options.sender.ownerUserID ?? "";
+        universal.getNameFromConnectionID(
+          options.sender.getUserData().connectionID || ""
+        ) || "";
+      messageToSend.nameColor =
+        options.sender.getUserData().playerRank?.color ?? "#ffffff";
+      messageToSend.userID = options.sender.getUserData().ownerUserID ?? "";
     }
 
     this.chatMessages.push({
@@ -215,7 +219,10 @@ class Room {
       return;
     }
 
-    if (options?.sender.connectionID === this.host?.connectionID) {
+    if (
+      options?.sender.getUserData().connectionID ===
+      this.host?.getUserData().connectionID
+    ) {
       isHost = true;
     }
 
@@ -226,8 +233,9 @@ class Room {
     const [command, ...context] = text;
 
     const senderName =
-      universal.getNameFromConnectionID(options.sender.connectionID || "") ||
-      "";
+      universal.getNameFromConnectionID(
+        options.sender.getUserData().connectionID || ""
+      ) || "";
 
     switch (command) {
       case "start": {
@@ -487,10 +495,10 @@ class Room {
 
   /**
    * Adds the socket to this `Room` instance as a member.
-   * @param {universal.GameSocket} caller The socket to add to the room (also the socket who called this function)
+   * @param {universal.GameWebSocket<UserData>} caller The socket to add to the room (also the socket who called this function)
    */
-  addMember(caller: universal.GameSocket) {
-    const connectionID = caller.connectionID as string;
+  addMember(caller: universal.GameWebSocket<UserData>) {
+    const connectionID = caller.getUserData().connectionID as string;
     if (
       !this.memberConnectionIDs.includes(connectionID) &&
       !this.spectatorConnectionIDs.includes(connectionID)
@@ -510,10 +518,10 @@ class Room {
   /**
    * Adds the socket to this `Room` instance as a spectator.
    * This hasn't been fully implemented yet.
-   * @param {universal.GameSocket} caller The socket to add to the room (also the socket who called this function)
+   * @param {universal.GameWebSocket<UserData>} caller The socket to add to the room (also the socket who called this function)
    */
-  addSpectator(caller: universal.GameSocket) {
-    const connectionID = caller.connectionID as string;
+  addSpectator(caller: universal.GameWebSocket<UserData>) {
+    const connectionID = caller.getUserData().connectionID as string;
     if (
       !this.spectatorConnectionIDs.includes(connectionID) &&
       !this.memberConnectionIDs.includes(connectionID)
@@ -532,10 +540,10 @@ class Room {
   /**
    * Deletes the socket from this `Room` instance.
    * This requires that the socket is a member (and not a spectator),
-   * @param {universal.GameSocket} caller The socket to delete from the room (also the socket who called this function)
+   * @param {universal.GameWebSocket<UserData>} caller The socket to delete from the room (also the socket who called this function)
    */
-  deleteMember(caller: universal.GameSocket) {
-    const connectionID = caller.connectionID as string;
+  deleteMember(caller: universal.GameWebSocket<UserData>) {
+    const connectionID = caller.getUserData().connectionID as string;
     if (this.memberConnectionIDs.includes(connectionID)) {
       this.memberConnectionIDs.splice(
         this.memberConnectionIDs.indexOf(connectionID),
@@ -547,9 +555,12 @@ class Room {
     }
   }
 
-  kickMember(caller: universal.GameSocket, target: universal.GameSocket) {
-    const callerConnectionID = caller.connectionID as string;
-    const targetConnectionID = target.connectionID as string;
+  kickMember(
+    caller: universal.GameWebSocket<UserData>,
+    target: universal.GameWebSocket<UserData>
+  ) {
+    const callerConnectionID = caller.getUserData().connectionID as string;
+    const targetConnectionID = target.getUserData().connectionID as string;
     if (
       !this.memberConnectionIDs.includes(callerConnectionID) ||
       !this.memberConnectionIDs.includes(targetConnectionID)
@@ -572,7 +583,13 @@ class Room {
 
       const message = `You have been kicked from this Custom Multiplayer room!`;
       const BORDER_COLOR = `#ff0000`;
-      universal.sendToastMessageToSocket(targetSocket, message, BORDER_COLOR);
+
+      const data: ToastNotificationData = {
+        text: message,
+        borderColor: BORDER_COLOR
+      };
+
+      targetSocket.getUserData().sendToastNotification(data);
       targetSocket.send(
         JSON.stringify({
           message: "changeScreen",
@@ -589,10 +606,10 @@ class Room {
   /**
    * Deletes the socket from this `Room` instance.
    * This requires that the socket is a spectator (and not a member),
-   * @param {universal.GameSocket} caller The socket to delete from the room (also the socket who called this function)
+   * @param {universal.GameWebSocket<UserData>} caller The socket to delete from the room (also the socket who called this function)
    */
-  deleteSpectator(caller: universal.GameSocket) {
-    const connectionID = caller.connectionID as string;
+  deleteSpectator(caller: universal.GameWebSocket<UserData>) {
+    const connectionID = caller.getUserData().connectionID as string;
     if (this.spectatorConnectionIDs.includes(connectionID)) {
       this.spectatorConnectionIDs.splice(
         this.spectatorConnectionIDs.indexOf(connectionID),
@@ -902,6 +919,30 @@ class Room {
       })
     );
   }
+
+  /**
+   * Updates clock data so that replays can be accurate.
+   * @param {GameData} gameDataToProcess
+   * @param {room} room
+   */
+  updateReplayClockData(gameDataToProcess: GameData, room: Room) {
+    // update replay data
+    const keys = [
+      "clocks.enemySpawn.actionTime",
+      "enemySpeedCoefficient",
+      "baseHealthRegeneration",
+      "level"
+    ];
+
+    for (const key of keys) {
+      room.gameActionRecord.addSetGameDataAction(
+        gameDataToProcess,
+        "player",
+        key,
+        _.get(gameDataToProcess, key)
+      );
+    }
+  }
 }
 
 function generateRoomID(length: number): string {
@@ -953,24 +994,27 @@ function processKeypressForRoom(
 
 /**
  *
- * @param {universal.GameSocket} socket The socket that called the function. Will be used so function doesn't return self's data.
+ * @param {universal.GameWebSocket<UserData>} socket The socket that called the function. Will be used so function doesn't return self's data.
  * @param {Room} room The room the socket is in. TODO: Make it so that the room is inferred from the socket automatically.
  * @param {boolean} minifyData Whether to "minify" the data. This should be `true` if the data is expected to be sent to the client.
  * @returns
  */
 function getOpponentsInformation(
-  socket: universal.GameSocket,
+  socket: universal.GameWebSocket<UserData>,
   room: Room,
   minifyData: boolean
 ): any {
-  const currentRoom = findRoomWithConnectionID(socket.connectionID);
+  const socketUserData = socket.getUserData();
+  const currentRoom = findRoomWithConnectionID(socketUserData.connectionID);
   const aliveConnectionIDs: Array<string> = [];
   if (typeof currentRoom === "undefined" || currentRoom == null) {
-    log.warn(`Room for owner ${socket.connectionID} of game data not found.`);
+    log.warn(
+      `Room for owner ${socketUserData.connectionID} of game data not found.`
+    );
     return [];
   }
   const opponentGameData = currentRoom.gameData.filter(
-    (element) => element.ownerConnectionID !== socket.connectionID
+    (element) => element.ownerConnectionID !== socketUserData.connectionID
   );
   if (!minifyData) {
     return opponentGameData;
@@ -994,7 +1038,8 @@ function getOpponentsInformation(
   // 0 base health players
   const eliminatedConnectionIDs = room.connectionIDsThisRound.filter(
     (element) =>
-      !aliveConnectionIDs.includes(element) && element !== socket.connectionID
+      !aliveConnectionIDs.includes(element) &&
+      element !== socketUserData.connectionID
   );
   // console.log(eliminatedConnectionIDs);
   for (let eliminated of eliminatedConnectionIDs) {

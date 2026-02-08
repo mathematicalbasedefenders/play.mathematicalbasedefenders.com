@@ -29,6 +29,7 @@ import * as universal from "../universal";
 import * as utilities from "../core/utilities";
 import { Enemy } from "./Enemy";
 import * as enemy from "./Enemy";
+import { UserData } from "../universal";
 
 const PLAYER_LIST_UPDATE_INTERVAL = 1000;
 
@@ -40,7 +41,11 @@ class MultiplayerRoom extends Room {
   globalEnemyToAdd!: Enemy | null;
   timeSinceLastPlayerListUpdate: number;
 
-  constructor(host: universal.GameSocket, mode: GameMode, noHost?: boolean) {
+  constructor(
+    host: universal.GameWebSocket<UserData>,
+    mode: GameMode,
+    noHost?: boolean
+  ) {
     super(host, mode, noHost);
     this.nextGameStartTime = null;
     this.globalEnemySpawnThreshold =
@@ -194,8 +199,9 @@ class MultiplayerRoom extends Room {
       const hostNameSelector =
         "#main-content__custom-multiplayer-intermission-screen-container__host-name";
       const hostName =
-        universal.getNameFromConnectionID(this.host?.connectionID ?? "???") ||
-        "(unknown)";
+        universal.getNameFromConnectionID(
+          this.host?.getUserData().connectionID ?? "???"
+        ) || "(unknown)";
       changeClientSideText(socket, hostNameSelector, hostName);
     }
 
@@ -208,7 +214,7 @@ class MultiplayerRoom extends Room {
         const selector =
           "#main-content__custom-multiplayer-intermission-screen-container__game-status-message";
 
-        if (connectionID === this.host?.connectionID) {
+        if (connectionID === this.host?.getUserData().connectionID) {
           const value = `You are the host of this room! Type "/start" in chat to start the game. You can also type "/?" in chat to view commands that allow you to customize this room's settings.`;
           changeClientSideText(socket, selector, value);
         } else {
@@ -351,7 +357,9 @@ class MultiplayerRoom extends Room {
       log.warn(
         `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
       );
+      return;
     }
+    const socketUserData = socket.getUserData();
     const place = this.gameData.length;
     if (gameData instanceof GameData) {
       const data = {
@@ -365,21 +373,14 @@ class MultiplayerRoom extends Room {
         userID: "",
         connectionID: gameData.ownerConnectionID
       };
-      if (socket?.ownerUserID) {
+      if (socket?.getUserData().ownerUserID) {
         // is registered
         data.isRegistered = true;
-        data.userID = socket.ownerUserID;
-        data.nameColor = socket.playerRank?.color ?? "#ffffff";
+        data.userID = socketUserData.ownerUserID ?? "";
+        data.nameColor = socketUserData.playerRank?.color ?? "#ffffff";
       }
       this.ranking.push(data);
     }
-    // if (socket?.loggedIn && gameData instanceof GameData) {
-    //   const earnedEXP = Math.round(gameData.elapsedTime / 2000);
-    //   User.giveExperiencePointsToUserID(
-    //     socket.ownerUserID as string,
-    //     earnedEXP
-    //   );
-    // }
     // eliminate the socket
     let gameDataIndex = this.gameData.findIndex(
       (element) => element.ownerConnectionID === connectionID
@@ -443,11 +444,12 @@ class MultiplayerRoom extends Room {
           userID: "",
           connectionID: winnerGameData.ownerConnectionID
         };
-        if (winnerSocket?.ownerUserID) {
+        if (winnerSocket?.getUserData().ownerUserID) {
           // is registered
+          const winnerSocketUserData = winnerSocket.getUserData();
           data.isRegistered = true;
-          data.userID = winnerSocket.ownerUserID;
-          data.nameColor = winnerSocket.playerRank?.color ?? "#ffffff";
+          data.userID = winnerSocketUserData.ownerUserID ?? "";
+          data.nameColor = winnerSocketUserData.playerRank?.color ?? "#ffffff";
         }
         this.ranking.push(data);
       }
@@ -540,6 +542,52 @@ class MultiplayerRoom extends Room {
       return;
     }
     this.host = newHost;
+  }
+
+  notifyOfNewHost(newHostConnectionID: string) {
+    const pastHostConnectionID = this.host?.getUserData().connectionID;
+    const newHost = universal.getNameFromConnectionID(newHostConnectionID);
+
+    if (!pastHostConnectionID) {
+      // here just in case
+      log.warn(`Can't find past host connection ID when declaring new host.`);
+      log.info(`Room ${this.id}'s host now ${newHost}.`);
+
+      const message = `This room's host is now ${newHost}, since the original host left the room.`;
+      this.addChatMessage(message, { isSystemMessage: true });
+      return;
+    }
+
+    const pastHost = universal.getNameFromConnectionID(pastHostConnectionID);
+    const message = `This room's host is now ${newHost}, since the original host, ${pastHost} has left the room.`;
+    this.addChatMessage(message, { isSystemMessage: true });
+
+    log.info(`Room ${this.id}'s host now ${newHost} from ${pastHost}.`);
+  }
+
+  handleHostLeave() {
+    // Note that we already called `.abort` before this,
+    // which already removes the
+    // connectionID from `room.memberConnectionIDs`
+    // So, there is no need to delete member (again) here.
+    // It's here since we have to find a new host, and if there's only
+    // one socket before leaving, the room is empty and can be destroyed.
+
+    if (this.memberConnectionIDs.length === 0) {
+      log.info(`About to delete room ${this.id}...`);
+    } else {
+      const newHostID = _.sample(this.memberConnectionIDs) as string;
+      this.setNewHost(newHostID);
+      this.notifyOfNewHost(newHostID);
+
+      // notify the new host as well
+      const newHostSocket = universal.getSocketFromConnectionID(newHostID);
+      if (newHostSocket) {
+        const MESSAGE =
+          "You have been randomly selected to be the new host of this room since the previous host left.";
+        this.sendCommandResultToSocket(MESSAGE, { sender: newHostSocket });
+      }
+    }
   }
 }
 

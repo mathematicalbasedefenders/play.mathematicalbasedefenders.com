@@ -4,6 +4,10 @@
 import * as universal from "../universal";
 import * as enemy from "./Enemy";
 import { log } from "../core/log";
+import { InputActionInterface } from "../core/input";
+import _ from "lodash";
+import { Room } from "./Room";
+import { UserData } from "../universal";
 
 interface ClockInterface {
   [key: string]: {
@@ -123,7 +127,7 @@ class GameData {
   /**  The name to display under the playfield of `GameData`.*/
   ownerName!: string;
   /**  The owner of the `GameData`.*/
-  owner: universal.GameSocket;
+  owner: universal.GameWebSocket<UserData>;
   // ... (0.4.0)
   /**  The current level this `GameData` is at.*/
   level: number;
@@ -148,14 +152,14 @@ class GameData {
    */
   timestampOfSynchronization!: number;
 
-  constructor(owner: universal.GameSocket, mode: GameMode) {
+  constructor(owner: universal.GameWebSocket<UserData>, mode: GameMode) {
     this.mode = mode;
     this.score = 0;
     this.enemiesKilled = 0;
     this.enemiesSpawned = 0;
     this.baseHealth = GAME_DATA_CONSTANTS.INITIAL_BASE_HEALTH;
     this.owner = owner;
-    this.ownerConnectionID = owner.connectionID as string;
+    this.ownerConnectionID = owner.getUserData().connectionID as string;
     this.ownerName =
       universal.getNameFromConnectionID(this.ownerConnectionID) || "???";
     this.enemies = [];
@@ -235,11 +239,59 @@ class GameData {
     }
     this.timestampOfSynchronization = Date.now();
   }
+
+  addDigitToGameDataInput(input: InputActionInterface) {
+    const MAXIMUM_INPUT_LENGTH = 8;
+    if (this.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
+      return;
+    }
+    this.currentInput += input.argument.toString();
+  }
+
+  removeDigitFromGameDataInput() {
+    if (this.currentInput.length <= 0) {
+      return;
+    }
+    const length = this.currentInput.length;
+    const result = this.currentInput.substring(0, length - 1);
+    this.currentInput = result;
+  }
+
+  addSubtractionSignToGameDataInput() {
+    const MAXIMUM_INPUT_LENGTH = 8;
+    if (this.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
+      return;
+    }
+    this.currentInput += "-";
+  }
+
+  clearInput() {
+    const ownerSocket = universal.getSocketFromConnectionID(
+      this.ownerConnectionID
+    );
+    if (ownerSocket) {
+      ownerSocket.send(
+        JSON.stringify({
+          message: "clearInput",
+          data: {
+            toClear: this.currentInput.toString()
+          }
+        })
+      );
+    }
+    this.currentInput = "";
+  }
+
+  processEnemyKill(iterations: number, room: Room) {
+    log.error(
+      `processEnemyKill called on base GameData class. (This method should be overridden in a subclass.)`
+    );
+  }
 }
 class SingleplayerGameData extends GameData {
   // nothing here yet...
 
-  constructor(owner: universal.GameSocket, gameMode: GameMode) {
+  constructor(owner: universal.GameWebSocket<UserData>, gameMode: GameMode) {
     if (
       !(
         gameMode === GameMode.EasySingleplayer ||
@@ -310,11 +362,44 @@ class SingleplayerGameData extends GameData {
     }
     this.enemiesToNextLevel = GAME_DATA_CONSTANTS.ENEMIES_PER_LEVEL;
   }
+
+  processEnemyKill(iterations: number, room: Room) {
+    for (let iteration = 0; iteration < iterations; iteration++) {
+      this.enemiesKilled++;
+      this.enemiesToNextLevel--;
+
+      if (room) {
+        room.gameActionRecord.addSetGameDataAction(
+          this,
+          "player",
+          "enemiesToNextLevel",
+          _.get(this, "enemiesToNextLevel")
+        );
+      }
+
+      if (this.enemiesToNextLevel <= 0) {
+        this.increaseLevel(1);
+        if (room) {
+          // this function already updates level
+          // and sets the corresponding clocks to
+          // the correct (new) intervals
+          room.updateReplayClockData(this, room);
+        }
+      }
+
+      room.gameActionRecord.addSetGameDataAction(
+        this,
+        "player",
+        "score",
+        this.score
+      );
+    }
+  }
 }
 
 class CustomSingleplayerGameData extends GameData {
   constructor(
-    owner: universal.GameSocket,
+    owner: universal.GameWebSocket<UserData>,
     gameMode: GameMode,
     settings: CustomGameSettings
   ) {
@@ -337,7 +422,7 @@ class CustomSingleplayerGameData extends GameData {
 }
 
 class MultiplayerGameData extends GameData {
-  constructor(owner: universal.GameSocket, gameMode: GameMode) {
+  constructor(owner: universal.GameWebSocket<UserData>, gameMode: GameMode) {
     if (
       !(
         gameMode === GameMode.DefaultMultiplayer ||
@@ -363,6 +448,18 @@ class MultiplayerGameData extends GameData {
     this.clocks.forcedEnemySpawn.actionTime =
       customSettings.forcedEnemySpawnTime;
     this.clocks.comboReset.actionTime = customSettings.comboTime;
+  }
+
+  processEnemyKill(iterations: number, room: Room) {
+    for (let iteration = 0; iteration < iterations; iteration++) {
+      this.enemiesKilled++;
+      room.gameActionRecord.addSetGameDataAction(
+        this,
+        "player",
+        "attackScore",
+        this.attackScore
+      );
+    }
   }
 }
 

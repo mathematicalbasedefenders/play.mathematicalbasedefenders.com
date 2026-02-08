@@ -6,19 +6,14 @@ import {
   processKeypressForRoom,
   Room
 } from "../game/Room";
-import {
-  GameData,
-  GameMode,
-  MultiplayerGameData,
-  SingleplayerGameData
-} from "../game/GameData";
+import { GameData, GameMode, MultiplayerGameData } from "../game/GameData";
 import {
   findRoomWithConnectionID,
   getUserReplayDataFromSocket
 } from "./utilities";
 import { Action, ActionRecord } from "../replay/recording/ActionRecord";
-import _ from "lodash";
 import { MultiplayerRoom } from "../game/MultiplayerRoom";
+import { UserData } from "../universal";
 // kind of a hacky way to do this...
 const NUMBER_ROW_KEYS = [
   "Digit0",
@@ -57,36 +52,36 @@ enum InputAction {
 }
 interface InputActionInterface {
   action: InputAction;
-  keyPressed?: string | undefined;
+  keyPressed?: string;
   argument: string;
 }
 const SEND_KEYS = ["Space", "Enter", "NumpadEnter"];
-const MAXIMUM_INPUT_LENGTH = 8;
+
 /**
  * Emulates a keypress for a player as if the player pressed the key themselves.
  * Note that it will also log that the press is emulated.
- * @param {universal.GameSocket} socket
+ * @param {universal.GameWebSocket<UserData>} socket
  * @param {string} code
  */
 function emulateKeypress(
-  socket: universal.GameSocket,
+  socket: universal.GameWebSocket<UserData>,
   code: string | undefined
 ) {
-  const connectionID = socket.connectionID;
+  const connectionID = socket.getUserData().connectionID;
   const playerName = universal.getNameFromConnectionID(connectionID || "");
   if (!connectionID) {
     log.warn(`Socket has no ID.`);
     return;
   }
-  log.info(
-    `Keypress ${code} emulated on Socket ID ${connectionID} (${playerName})`
-  );
   if (typeof connectionID !== "string") {
     log.warn(
       "An emulated keypress event that isn't associated with any socket connectionID has been fired."
     );
     return;
   }
+  log.info(
+    `Keypress ${code} emulated on Socket ID ${connectionID} (${playerName})`
+  );
   if (typeof code !== "string") {
     log.warn("An emulated keypress event that isn't a string has been fired.");
     return;
@@ -96,11 +91,11 @@ function emulateKeypress(
 }
 
 function processKeypress(
-  socket: universal.GameSocket,
+  socket: universal.GameWebSocket<UserData>,
   code: string | undefined,
   emulated?: boolean
 ) {
-  const connectionID = socket.connectionID;
+  const connectionID = socket.getUserData().connectionID;
   if (!connectionID) {
     log.warn(`Socket has no ID.`);
     return;
@@ -135,7 +130,7 @@ function processKeypress(
   // non-room interactions
   if (code === "Escape") {
     let socket = universal.sockets.find(
-      (socket) => socket.connectionID === connectionID
+      (socket) => socket.getUserData().connectionID === connectionID
     );
     if (socket) {
       leaveMultiplayerRoom(socket);
@@ -162,126 +157,19 @@ function processInputInformation(
   gameDataToProcess.actionsPerformed++;
   switch (inputInformation.action) {
     case InputAction.AddDigit: {
-      if (gameDataToProcess.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
-        return;
-      }
-      gameDataToProcess.currentInput += inputInformation.argument.toString();
+      gameDataToProcess.addDigitToGameDataInput(inputInformation);
       break;
     }
     case InputAction.RemoveDigit: {
-      gameDataToProcess.currentInput = gameDataToProcess.currentInput.substring(
-        0,
-        gameDataToProcess.currentInput.length - 1
-      );
+      gameDataToProcess.removeDigitFromGameDataInput();
       break;
     }
     case InputAction.AddSubtractionSign: {
-      if (gameDataToProcess.currentInput.length >= MAXIMUM_INPUT_LENGTH) {
-        return;
-      }
-      gameDataToProcess.currentInput += "-";
+      gameDataToProcess.addSubtractionSignToGameDataInput();
       break;
     }
     case InputAction.SendAnswer: {
-      let enemyKilled = false;
-      const room = findRoomWithConnectionID(
-        gameDataToProcess.ownerConnectionID
-      );
-
-      if (room) {
-        const ownerSocket = universal.getSocketFromConnectionID(
-          gameDataToProcess.ownerConnectionID
-        );
-        const submissionRecord: ActionRecord = {
-          action: Action.Submit,
-          scope: "player",
-          user: ownerSocket
-            ? getUserReplayDataFromSocket(ownerSocket)
-            : {
-                userID: null,
-                name: "(unknown)",
-                isAuthenticated: false,
-                connectionID: ""
-              },
-          data: {
-            submitted: gameDataToProcess.currentInput
-          },
-          timestamp: Date.now()
-        };
-        room.gameActionRecord.addAction(submissionRecord);
-      }
-
-      for (let enemy of gameDataToProcess.enemies) {
-        // TODO: Data validation
-        if (enemy.check(parseInt(gameDataToProcess.currentInput))) {
-          gameDataToProcess.enemiesToErase.push(enemy.id);
-          enemyKilled = true;
-          gameDataToProcess.enemiesKilled += 1;
-          if (gameDataToProcess instanceof SingleplayerGameData) {
-            gameDataToProcess.enemiesToNextLevel -= 1;
-
-            if (room) {
-              room.gameActionRecord.addSetGameDataAction(
-                gameDataToProcess,
-                "player",
-                "enemiesToNextLevel",
-                _.get(gameDataToProcess, "enemiesToNextLevel")
-              );
-            }
-
-            if (gameDataToProcess.enemiesToNextLevel <= 0) {
-              gameDataToProcess.increaseLevel(1);
-              if (room) {
-                updateReplayClockData(gameDataToProcess, room);
-              }
-            }
-          }
-          enemy.kill(gameDataToProcess, true, true);
-          if (room) {
-            if (
-              gameDataToProcess.mode === GameMode.EasySingleplayer ||
-              gameDataToProcess.mode === GameMode.StandardSingleplayer
-            ) {
-              room.gameActionRecord.addSetGameDataAction(
-                gameDataToProcess,
-                "player",
-                "score",
-                gameDataToProcess.score
-              );
-            } else if (gameDataToProcess.mode === GameMode.DefaultMultiplayer) {
-              room.gameActionRecord.addSetGameDataAction(
-                gameDataToProcess,
-                "player",
-                "attackScore",
-                gameDataToProcess.attackScore
-              );
-            }
-            room.gameActionRecord.addEnemyKillAction(enemy, gameDataToProcess);
-          }
-        }
-      }
-      if (enemyKilled) {
-        const ownerSocket = universal.getSocketFromConnectionID(
-          gameDataToProcess.ownerConnectionID
-        );
-        if (ownerSocket) {
-          ownerSocket.send(
-            JSON.stringify({
-              message: "clearInput",
-              data: {
-                toClear: gameDataToProcess.currentInput.toString()
-              }
-            })
-          );
-        }
-        gameDataToProcess.currentInput = "";
-      }
-      // reset input
-      if (!enemyKilled) {
-        if (gameDataToProcess instanceof MultiplayerGameData) {
-          releaseEnemyStock(gameDataToProcess, room as Room);
-        }
-      }
+      sendAnswerForGameDataInput(gameDataToProcess);
       break;
     }
     case InputAction.AbortGame: {
@@ -354,46 +242,17 @@ function releaseEnemyStock(gameDataToProcess: GameData, room: Room) {
   room?.gameActionRecord.addStockReleaseAction(gameDataToProcess);
 }
 
-/**
- * Updates clock data so that replays can be accurate.
- * @param {GameData} gameDataToProcess
- * @param {room} room
- */
-function updateReplayClockData(gameDataToProcess: GameData, room: Room) {
-  // update replay data
-  const keys = [
-    "clocks.enemySpawn.actionTime",
-    "enemySpeedCoefficient",
-    "baseHealthRegeneration",
-    "level"
-  ];
-
-  for (const key of keys) {
-    room.gameActionRecord.addSetGameDataAction(
-      gameDataToProcess,
-      "player",
-      key,
-      _.get(gameDataToProcess, key)
-    );
-  }
-}
-
 // This just attempts to leave.
-function leaveMultiplayerRoom(socket: universal.GameSocket) {
+function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
   // TODO: Implement for spectators when spectators are implemented.
-  let room = universal.rooms.find(
-    (element) =>
-      element.memberConnectionIDs.indexOf(socket.connectionID as string) > -1
-  );
+  const connectionID = socket.getUserData().connectionID;
+  const room = findRoomWithConnectionID(connectionID) as MultiplayerRoom;
   if (!room) {
     log.warn(`Socket tried to leave a room, but it wasn't found.`);
     return;
   }
   if (room.playing) {
-    let gameData = utilities.findGameDataWithConnectionID(
-      socket.connectionID as string,
-      room
-    );
+    const gameData = utilities.findGameDataWithConnectionID(connectionID, room);
     if (gameData) {
       room.abort(gameData);
     }
@@ -403,51 +262,101 @@ function leaveMultiplayerRoom(socket: universal.GameSocket) {
       socket.unsubscribe(defaultMultiplayerRoomID);
     }
   } else if (room.mode === GameMode.CustomMultiplayer) {
-    if (!socket.connectionID) {
+    if (!connectionID) {
       log.warn("Socket doesn't have a connection ID when leaving room.");
       return;
     }
-    if ((room as MultiplayerRoom).host?.connectionID === socket.connectionID) {
-      const pool = room.memberConnectionIDs.filter(
-        (e) => e !== socket.connectionID
-      );
-      // It's here since we have to find a new host, and if there's only
-      // one socket before leaving, the room is empty and can be destroyed.
-      if (pool.length >= 1) {
-        const newHostID = _.sample(pool);
-        (room as MultiplayerRoom).setNewHost(newHostID as string);
-
-        // also send new chat message indicating the new host.
-        const pastHost = universal.getNameFromConnectionID(socket.connectionID);
-        const newHost = universal.getNameFromConnectionID(newHostID as string);
-        const message = `This room's host is now ${newHost}, since the original host, ${pastHost} has left the room.`;
-        room.addChatMessage(message, { isSystemMessage: true });
-
-        // notify the new host as well
-        const newHostSocket = universal.getSocketFromConnectionID(
-          newHostID as string
-        );
-        if (newHostSocket) {
-          (room as Room).sendCommandResultToSocket(
-            "You have been randomly selected to be the new host of this room since the previous host left.",
-            { sender: newHostSocket }
-          );
-        }
-
-        log.info(`Room ${room.id}'s host is now ${newHost} from ${pastHost}.`);
-      } else {
-        // TODO: Find a more stable way to do this. Right now it is sufficient since 1-1=0, and
-        // there's no point in keeping a 0-player room in memory.
-
-        // room.addChatMessage("No one in the room, deleting room...", {
-        //   isSystemMessage: true
-        // });
-        log.info(`About to delete room ${room.id}...`);
-      }
+    if (room.host?.getUserData().connectionID === connectionID) {
+      room.handleHostLeave();
     }
     socket.unsubscribe(room.id);
   }
   room.deleteMember(socket);
+}
+
+function sendAnswerForGameDataInput(gameData: GameData) {
+  const room = findRoomWithConnectionID(gameData.ownerConnectionID);
+  const socketID = gameData.ownerConnectionID;
+
+  if (!room) {
+    // should never reach here, but here just in case.
+    log.warn(`Can't find room when sending answer for socket ID ${socketID}.`);
+    return;
+  }
+
+  const ownerSocket = universal.getSocketFromConnectionID(socketID);
+
+  const emptyPlayerData = {
+    userID: null,
+    name: "(unknown)",
+    isAuthenticated: false,
+    connectionID: ""
+  };
+
+  const playerData = ownerSocket
+    ? getUserReplayDataFromSocket(ownerSocket)
+    : emptyPlayerData;
+
+  const submissionRecord: ActionRecord = {
+    action: Action.Submit,
+    scope: "player",
+    user: playerData,
+    data: {
+      submitted: gameData.currentInput
+    },
+    timestamp: Date.now()
+  };
+  room.gameActionRecord.addAction(submissionRecord);
+
+  const enemyIDsToKill = getKilledEnemyIDs(gameData);
+  killEnemyIDsInGameData(enemyIDsToKill, gameData, room);
+
+  if (enemyIDsToKill.length > 0) {
+    gameData.clearInput();
+  } else {
+    // no enemies killed on submission in
+    // multiplayer: release enemy stock
+    if (gameData instanceof MultiplayerGameData) {
+      releaseEnemyStock(gameData, room);
+    }
+  }
+}
+
+function getKilledEnemyIDs(gameData: GameData) {
+  const enemyIDsToKill: Array<string> = [];
+
+  for (const enemy of gameData.enemies) {
+    // TODO: Data validation
+    if (!/^-{0,1}[0-9]{1,8}$/.test(gameData.currentInput)) {
+      // invalid input, e.g. --53, -3-5, and the like, skip processing.
+      continue;
+    }
+
+    if (enemy.check(parseInt(gameData.currentInput))) {
+      // gameData.enemiesToErase.push(enemy.id);
+      enemyIDsToKill.push(enemy.id);
+    }
+  }
+  return enemyIDsToKill;
+}
+
+function killEnemyIDsInGameData(
+  enemyIDsToKill: Array<string>,
+  gameData: GameData,
+  room: Room
+) {
+  for (const enemyID of enemyIDsToKill) {
+    const enemy = gameData.enemies.find((e) => e.id === enemyID);
+    if (!enemy) {
+      log.warn(`Can't find enemy to kill in room ${room.id}.`);
+      continue;
+    }
+    enemy.kill(gameData, true, true);
+    room.gameActionRecord.addEnemyKillAction(enemy, gameData);
+
+    gameData.enemiesToErase.push(enemyID);
+    gameData.processEnemyKill(1, room);
+  }
 }
 
 export {
@@ -456,5 +365,6 @@ export {
   processInputInformation,
   emulateKeypress,
   InputAction,
-  leaveMultiplayerRoom
+  leaveMultiplayerRoom,
+  InputActionInterface
 };
