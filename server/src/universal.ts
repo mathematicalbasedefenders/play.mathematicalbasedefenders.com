@@ -78,6 +78,33 @@ const STATUS = {
 };
 
 /**
+ * Initializes a socket. This includes adding it subscribing it to `game`.
+ * @param {WebSocket<UserData>} socket The socket to initialize default values with.
+ */
+function initializeSocket(socket: WebSocket<UserData>) {
+  const socketUserData = socket.getUserData();
+  socketUserData.exitedOpeningScreen = false;
+  socketUserData.connectionID = generateConnectionID(16);
+  socketUserData.ownerGuestName = `Guest ${generateGuestID(8)}`;
+  socketUserData.accumulatedMessages = 0;
+  socketUserData.rateLimiting = {
+    last: 1,
+    count: 0
+  };
+
+  // interface methods
+  socketUserData.teardown = function () {
+    return deleteSocket(socket);
+  };
+
+  socketUserData.forceTeardown = function () {
+    return forceDeleteAndCloseSocket(socket);
+  };
+
+  socket.subscribe("game");
+}
+
+/**
  * Removes the socket from memory.
  * @param {WebSocket<UserData>} socketToClose The socket to remove.
  */
@@ -373,33 +400,6 @@ function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
       }
     }
   }
-}
-
-/**
- * Initializes a socket. This includes adding it subscribing it to `game`.
- * @param {WebSocket<UserData>} socket The socket to initialize default values with.
- */
-function initializeSocket(socket: WebSocket<UserData>) {
-  const socketUserData = socket.getUserData();
-  socketUserData.exitedOpeningScreen = false;
-  socketUserData.connectionID = generateConnectionID(16);
-  socketUserData.ownerGuestName = `Guest ${generateGuestID(8)}`;
-  socketUserData.accumulatedMessages = 0;
-  socketUserData.rateLimiting = {
-    last: 1,
-    count: 0
-  };
-
-  // interface methods
-  socketUserData.teardown = function () {
-    return deleteSocket(socket);
-  };
-
-  socketUserData.forceTeardown = function () {
-    return forceDeleteAndCloseSocket(socket);
-  };
-
-  socket.subscribe("game");
 }
 
 /**
