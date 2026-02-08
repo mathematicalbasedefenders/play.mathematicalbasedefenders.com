@@ -130,7 +130,7 @@ uWS
           borderColor: BORDER_COLOR,
           text: MESSAGE
         };
-        universal.sendToastMessageToSocket(socket, data);
+        socket.getUserData().sendToastNotification(data);
         log.warn(
           `Rate-limited and killing socket ${socketUserData.connectionID}.`
         );
@@ -173,7 +173,7 @@ uWS
               borderColor: BORDER_COLOR,
               text: MESSAGE
             };
-            universal.sendToastMessageToSocket(socket, data);
+            socket.getUserData().sendToastNotification(data);
             return;
           }
           // actually join room
@@ -200,7 +200,7 @@ uWS
                 borderColor: BORDER_COLOR,
                 text: MESSAGE
               };
-              universal.sendToastMessageToSocket(socket, data);
+              socket.getUserData().sendToastNotification(data);
               break;
             }
             const room = universal.rooms.find((e) => e.id === target);
@@ -213,7 +213,7 @@ uWS
                 borderColor: BORDER_COLOR,
                 text: MESSAGE
               };
-              universal.sendToastMessageToSocket(socket, data);
+              socket.getUserData().sendToastNotification(data);
               break;
             }
             const object = {
@@ -242,7 +242,7 @@ uWS
               borderColor: BORDER_COLOR,
               text: MESSAGE
             };
-            universal.sendToastMessageToSocket(socket, data);
+            socket.getUserData().sendToastNotification(data);
             log.warn(
               `Socket ${
                 socketUserData.connectionID
@@ -442,7 +442,7 @@ function joinMultiplayerRoom(
       borderColor: BORDER_COLOR,
       text: MESSAGE
     };
-    universal.sendToastMessageToSocket(socket, data);
+    socket.getUserData().sendToastNotification(data);
     log.warn(
       `Socket ${
         socketUserData.connectionID
@@ -488,7 +488,7 @@ function checkBufferSize(
     borderColor: BORDER_COLOR,
     text: MESSAGE
   };
-  universal.sendToastMessageToSocket(socket, data);
+  socket.getUserData().sendToastNotification(data);
   socket.getUserData().forceTeardown();
   return false;
 }
@@ -516,7 +516,7 @@ function blockSocket(socket: universal.GameWebSocket<UserData>) {
     borderColor: BORDER_COLOR,
     text: MESSAGE
   };
-  universal.sendToastMessageToSocket(socket, data);
+  socket.getUserData().sendToastNotification(data);
 }
 
 fs.readdirSync(path.join(__dirname, "./routes")).forEach((file: string) => {

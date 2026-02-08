@@ -35,7 +35,7 @@ async function authenticate(
       borderColor: FAILED_BORDER_COLOR,
       text: MESSAGE
     };
-    universal.sendToastMessageToSocket(socket, data);
+    socket.getUserData().sendToastNotification(data);
     return false;
   }
 
@@ -57,7 +57,7 @@ async function authenticate(
     borderColor: SUCCESS_BORDER_COLOR,
     text: MESSAGE
   };
-  universal.sendToastMessageToSocket(socket, data);
+  socket.getUserData().sendToastNotification(data);
 
   /** Exit opening screen */
   const exitOpeningScreen = JSON.stringify({ message: "exitOpeningScreen" });

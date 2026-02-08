@@ -589,7 +589,7 @@ class Room {
         borderColor: BORDER_COLOR
       };
 
-      universal.sendToastMessageToSocket(targetSocket, data);
+      targetSocket.getUserData().sendToastNotification(data);
       targetSocket.send(
         JSON.stringify({
           message: "changeScreen",
