@@ -2,11 +2,6 @@ import { User } from "../models/User";
 import { log } from "../core/log";
 import * as universal from "../universal";
 const bcrypt = require("bcrypt");
-const mongoDBSanitize = require("express-mongo-sanitize");
-const createDOMPurify = require("dompurify");
-const { JSDOM } = require("jsdom");
-const window = new JSDOM("").window;
-const DOMPurify = createDOMPurify(window);
 
 const DISCONNECTION_BORDER_COLOR = "#bb0000";
 const MINIMUM_USERNAME_LENGTH = 3;

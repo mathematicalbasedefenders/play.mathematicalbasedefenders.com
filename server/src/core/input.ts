@@ -6,18 +6,12 @@ import {
   processKeypressForRoom,
   Room
 } from "../game/Room";
-import {
-  GameData,
-  GameMode,
-  MultiplayerGameData,
-  SingleplayerGameData
-} from "../game/GameData";
+import { GameData, GameMode, MultiplayerGameData } from "../game/GameData";
 import {
   findRoomWithConnectionID,
   getUserReplayDataFromSocket
 } from "./utilities";
 import { Action, ActionRecord } from "../replay/recording/ActionRecord";
-import _ from "lodash";
 import { MultiplayerRoom } from "../game/MultiplayerRoom";
 import { UserData } from "../universal";
 // kind of a hacky way to do this...
@@ -62,7 +56,6 @@ interface InputActionInterface {
   argument: string;
 }
 const SEND_KEYS = ["Space", "Enter", "NumpadEnter"];
-const MAXIMUM_INPUT_LENGTH = 8;
 
 /**
  * Emulates a keypress for a player as if the player pressed the key themselves.
@@ -168,7 +161,7 @@ function processInputInformation(
       break;
     }
     case InputAction.RemoveDigit: {
-      gameDataToProcess.removeDigitFromGameDataInput(inputInformation);
+      gameDataToProcess.removeDigitFromGameDataInput();
       break;
     }
     case InputAction.AddSubtractionSign: {

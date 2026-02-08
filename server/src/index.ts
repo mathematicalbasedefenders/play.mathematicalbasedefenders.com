@@ -336,7 +336,6 @@ uWS
     },
 
     close: (socket: universal.GameWebSocket<UserData>) => {
-      const socketUserData = socket.getUserData();
       socket.getUserData().teardown();
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
     }

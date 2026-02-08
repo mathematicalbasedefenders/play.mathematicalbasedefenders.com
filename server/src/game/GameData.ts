@@ -248,7 +248,7 @@ class GameData {
     this.currentInput += input.argument.toString();
   }
 
-  removeDigitFromGameDataInput(input: InputActionInterface) {
+  removeDigitFromGameDataInput() {
     if (this.currentInput.length <= 0) {
       return;
     }

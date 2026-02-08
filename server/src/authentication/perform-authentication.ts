@@ -1,4 +1,3 @@
-const mongoDBSanitize = require("express-mongo-sanitize");
 import { log } from "../core/log";
 import { User, UserInterface } from "../models/User";
 import { authenticateForSocket } from "./authenticate";
