@@ -204,7 +204,7 @@ function checkIfSocketCanBeAuthenticated(connectionID: unknown) {
   }
 
   // socket is current playing
-  const playing = universal.checkIfSocketIsPlaying(socketUserData.connectionID);
+  const playing = socket.getUserData().getPlayingStatus();
   if (playing) {
     log.info(
       `A user tried to log in, but the socket tied to that session is currently in game.`
