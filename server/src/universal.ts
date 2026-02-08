@@ -17,6 +17,7 @@ import {
   SingleplayerRoom,
   createSingleplayerRoom
 } from "./game/SingleplayerRoom";
+import { ToastNotificationData } from "./core/toast-notifications";
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
 interface UserData {
@@ -76,6 +77,8 @@ interface UserData {
     deltaTime: number,
     systemStatus: object
   ): void;
+
+  sendToastNotification(data: ToastNotificationData): void;
 }
 
 type PlayerRank = {
@@ -454,14 +457,13 @@ function sendInitialSocketData(socket: WebSocket<UserData>) {
 // TODO: This can only set borderColor, which is all we need, I guess...
 function sendToastMessageToSocket(
   socket: WebSocket<UserData>,
-  message: string,
-  borderColor: string
+  data: ToastNotificationData
 ) {
   socket?.send(
     JSON.stringify({
       message: "createToastNotification",
-      text: message,
-      options: { borderColor: borderColor }
+      text: data.text,
+      options: { borderColor: data.borderColor }
     })
   );
 }
