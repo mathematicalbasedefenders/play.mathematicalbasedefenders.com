@@ -15,6 +15,7 @@ import { GameActionRecord } from "../replay/recording/ActionRecord";
 import { Enemy } from "./Enemy";
 import { MultiplayerRoom } from "./MultiplayerRoom";
 import { UserData } from "../universal";
+import { ToastNotificationData } from "../core/toast-notifications";
 
 const createDOMPurify = require("dompurify");
 const { JSDOM } = require("jsdom");
@@ -582,7 +583,13 @@ class Room {
 
       const message = `You have been kicked from this Custom Multiplayer room!`;
       const BORDER_COLOR = `#ff0000`;
-      universal.sendToastMessageToSocket(targetSocket, message, BORDER_COLOR);
+
+      const data: ToastNotificationData = {
+        text: message,
+        borderColor: BORDER_COLOR
+      };
+
+      universal.sendToastMessageToSocket(targetSocket, data);
       targetSocket.send(
         JSON.stringify({
           message: "changeScreen",

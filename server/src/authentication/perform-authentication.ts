@@ -6,6 +6,7 @@ import * as utilities from "../core/utilities";
 import * as universal from "../universal";
 import { DOMPurifySanitizer } from "../sanitizer";
 import { UserData } from "../universal";
+import { ToastNotificationData } from "../core/toast-notifications";
 
 const FAILED_BORDER_COLOR = "#ff0000";
 const SUCCESS_BORDER_COLOR = "#00dd00";
@@ -30,7 +31,11 @@ async function authenticate(
   if (!result.good) {
     log.warn(`Login attempt for ${username} failed: ${result.reason}`);
     const MESSAGE = `Failed to login as ${username} (${result.reason})`;
-    universal.sendToastMessageToSocket(socket, MESSAGE, FAILED_BORDER_COLOR);
+    const data: ToastNotificationData = {
+      borderColor: FAILED_BORDER_COLOR,
+      text: MESSAGE
+    };
+    universal.sendToastMessageToSocket(socket, data);
     return false;
   }
 
@@ -48,7 +53,11 @@ async function authenticate(
 
   /** Send toast message that logged in. */
   const MESSAGE = `Successfully logged in as ${sanitizedUsername}`;
-  universal.sendToastMessageToSocket(socket, MESSAGE, SUCCESS_BORDER_COLOR);
+  const data: ToastNotificationData = {
+    borderColor: SUCCESS_BORDER_COLOR,
+    text: MESSAGE
+  };
+  universal.sendToastMessageToSocket(socket, data);
 
   /** Exit opening screen */
   const exitOpeningScreen = JSON.stringify({ message: "exitOpeningScreen" });

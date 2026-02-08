@@ -25,6 +25,7 @@ import { MultiplayerRoom } from "./game/MultiplayerRoom";
 import { DefaultMultiplayerRoom } from "./game/DefaultMultiplayerRoom";
 import { UserData } from "./universal";
 import { WebSocketRateLimit } from "./core/rate-limiting";
+import { ToastNotificationData } from "./core/toast-notifications";
 
 const app = express();
 app.set("trust proxy", 2);
@@ -125,7 +126,11 @@ uWS
         const MESSAGE =
           "You're going too fast! You have rate-limited and been disconnected.";
         const BORDER_COLOR = "#ff0000";
-        universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+        const data: ToastNotificationData = {
+          borderColor: BORDER_COLOR,
+          text: MESSAGE
+        };
+        universal.sendToastMessageToSocket(socket, data);
         log.warn(
           `Rate-limited and killing socket ${socketUserData.connectionID}.`
         );
@@ -164,7 +169,11 @@ uWS
           if (utilities.findRoomWithConnectionID(socketUserData.connectionID)) {
             const MESSAGE = "You're already in a room!";
             const BORDER_COLOR = "#ff0000";
-            universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+            const data: ToastNotificationData = {
+              borderColor: BORDER_COLOR,
+              text: MESSAGE
+            };
+            universal.sendToastMessageToSocket(socket, data);
             return;
           }
           // actually join room
@@ -187,7 +196,11 @@ uWS
               log.warn(`Socket ${socketID} used an invalid room code.`);
               const MESSAGE = "Invalid room code format!";
               const BORDER_COLOR = "#ff0000";
-              universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+              const data: ToastNotificationData = {
+                borderColor: BORDER_COLOR,
+                text: MESSAGE
+              };
+              universal.sendToastMessageToSocket(socket, data);
               break;
             }
             const room = universal.rooms.find((e) => e.id === target);
@@ -196,7 +209,11 @@ uWS
               log.warn(`Socket ${socketID} tried to join a non-existent room.`);
               const MESSAGE = "That room doesn't exist!";
               const BORDER_COLOR = "#ff0000";
-              universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+              const data: ToastNotificationData = {
+                borderColor: BORDER_COLOR,
+                text: MESSAGE
+              };
+              universal.sendToastMessageToSocket(socket, data);
               break;
             }
             const object = {
@@ -221,7 +238,11 @@ uWS
           if (utilities.findRoomWithConnectionID(socketUserData.connectionID)) {
             const MESSAGE = "You're already in a room!";
             const BORDER_COLOR = "#ff0000";
-            universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+            const data: ToastNotificationData = {
+              borderColor: BORDER_COLOR,
+              text: MESSAGE
+            };
+            universal.sendToastMessageToSocket(socket, data);
             log.warn(
               `Socket ${
                 socketUserData.connectionID
@@ -417,7 +438,11 @@ function joinMultiplayerRoom(
     const socketUserData = socket.getUserData();
     const MESSAGE = "The room you're trying to join doesn't exist!";
     const BORDER_COLOR = "#ff0000";
-    universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+    const data: ToastNotificationData = {
+      borderColor: BORDER_COLOR,
+      text: MESSAGE
+    };
+    universal.sendToastMessageToSocket(socket, data);
     log.warn(
       `Socket ${
         socketUserData.connectionID
@@ -459,7 +484,11 @@ function checkBufferSize(
   const MESSAGE =
     "You're sending a very large message! You have been immediately disconnected.";
   const BORDER_COLOR = "#ff0000";
-  universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+  const data: ToastNotificationData = {
+    borderColor: BORDER_COLOR,
+    text: MESSAGE
+  };
+  universal.sendToastMessageToSocket(socket, data);
   socket.getUserData().forceTeardown();
   return false;
 }
@@ -483,7 +512,11 @@ function blockSocket(socket: universal.GameWebSocket<UserData>) {
   );
   const MESSAGE = `Socket blocked. Please refresh and properly exit the opening screen.`;
   const BORDER_COLOR = "#ff0000";
-  universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
+  const data: ToastNotificationData = {
+    borderColor: BORDER_COLOR,
+    text: MESSAGE
+  };
+  universal.sendToastMessageToSocket(socket, data);
 }
 
 fs.readdirSync(path.join(__dirname, "./routes")).forEach((file: string) => {
