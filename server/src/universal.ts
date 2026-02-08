@@ -52,6 +52,15 @@ interface UserData {
    * @returns `true` If socket is successfully deleted without errors, `false` otherwise.
    */
   teardown(): boolean;
+
+  /**
+   * "Forcefully" tears down the socket, disconnecting
+   * itself from the game and deleting itself from memory.
+   * This method is meant to be a more "unsafe" way of
+   * disconnecting a socket.
+   * @returns `true` If socket is successfully deleted without errors, `false` otherwise.
+   */
+  forceTeardown(): boolean;
 }
 
 type PlayerRank = {
@@ -113,6 +122,7 @@ function forceDeleteAndCloseSocket(socketToClose: WebSocket<UserData>) {
     sockets.splice(socketToDeleteIndex, 1);
   }
   socketToClose?.close();
+  return true;
 }
 
 /**
@@ -385,6 +395,10 @@ function initializeSocket(socket: WebSocket<UserData>) {
     return deleteSocket(socket);
   };
 
+  socketUserData.forceTeardown = function () {
+    return forceDeleteAndCloseSocket(socket);
+  };
+
   socket.subscribe("game");
 }
 
@@ -525,7 +539,6 @@ const USE_TESTING_VALUES =
 
 export {
   sockets,
-  deleteSocket,
   rooms,
   getSocketFromConnectionID,
   getGameDataFromConnectionID,
@@ -535,7 +548,6 @@ export {
   synchronizeGameDataWithSocket,
   synchronizeMetadataWithSocket,
   sendGlobalToastNotification,
-  forceDeleteAndCloseSocket,
   sendGlobalWebSocketMessage,
   checkIfSocketIsPlaying,
   initializeSocket,
