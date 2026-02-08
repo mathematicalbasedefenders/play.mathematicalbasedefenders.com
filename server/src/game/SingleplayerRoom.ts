@@ -5,11 +5,7 @@ import {
 } from "../core/utilities";
 import { Action } from "../replay/recording/ActionRecord";
 import { submitSingleplayerGame } from "../services/score";
-import {
-  getSocketFromConnectionID,
-  synchronizeGameDataWithSocket,
-  UserData
-} from "../universal";
+import { getSocketFromConnectionID, UserData } from "../universal";
 import { createGameOverScreenText } from "./actions/create-text";
 import { updateSingleplayerRoomData } from "./actions/update";
 import {
@@ -131,7 +127,7 @@ class SingleplayerRoom extends Room {
     data.commands.updateText = createGameOverScreenText(data, gameMode);
     data.commands.changeScreenTo = [{ value: "gameOver", age: 0 }];
     if (socket) {
-      synchronizeGameDataWithSocket(socket);
+      socket.getUserData().synchronizeToClientSide();
     }
 
     // check anticheat and submit score
