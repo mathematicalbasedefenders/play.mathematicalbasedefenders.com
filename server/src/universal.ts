@@ -78,6 +78,10 @@ interface UserData {
     systemStatus: object
   ): void;
 
+  /**
+   * Sends a toast notification to the socket's client side.
+   * @param {ToastNotificationData} data The data of the toast notification.
+   */
   sendToastNotification(data: ToastNotificationData): void;
 }
 
