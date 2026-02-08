@@ -61,6 +61,21 @@ interface UserData {
    * @returns `true` If socket is successfully deleted without errors, `false` otherwise.
    */
   forceTeardown(): boolean;
+
+  /**
+   * Synchronizes the socket's server-side GAME data
+   * TO client-side data.
+   */
+  synchronizeToClientSide(): void;
+
+  /**
+   * Synchronizes the server's METADATA to
+   * client-side data.
+   */
+  synchronizeMetadataToClientSide(
+    deltaTime: number,
+    systemStatus: object
+  ): void;
 }
 
 type PlayerRank = {
@@ -99,6 +114,17 @@ function initializeSocket(socket: WebSocket<UserData>) {
 
   socketUserData.forceTeardown = function () {
     return forceDeleteAndCloseSocket(socket);
+  };
+
+  socketUserData.synchronizeToClientSide = function () {
+    return synchronizeGameDataWithSocket(socket);
+  };
+
+  socketUserData.synchronizeMetadataToClientSide = function (
+    deltaTime,
+    systemStatus
+  ) {
+    return synchronizeMetadataWithSocket(socket, deltaTime, systemStatus);
   };
 
   socket.subscribe("game");
@@ -545,8 +571,6 @@ export {
   getNameFromConnectionID,
   getSocketsFromUserID,
   STATUS,
-  synchronizeGameDataWithSocket,
-  synchronizeMetadataWithSocket,
   sendGlobalToastNotification,
   sendGlobalWebSocketMessage,
   checkIfSocketIsPlaying,
