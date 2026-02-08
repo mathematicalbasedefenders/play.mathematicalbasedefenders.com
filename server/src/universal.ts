@@ -130,6 +130,10 @@ function initializeSocket(socket: WebSocket<UserData>) {
     return synchronizeMetadataWithSocket(socket, deltaTime, systemStatus);
   };
 
+  socketUserData.sendToastNotification = function (data) {
+    sendToastMessageToSocket(socket, data);
+  };
+
   socket.subscribe("game");
 }
 
@@ -578,7 +582,6 @@ export {
   checkIfSocketIsPlaying,
   initializeSocket,
   sendInitialSocketData,
-  sendToastMessageToSocket,
   startGameForSocket,
   USE_TESTING_VALUES,
   UserData,
