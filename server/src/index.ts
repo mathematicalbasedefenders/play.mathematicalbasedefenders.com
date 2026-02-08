@@ -316,10 +316,7 @@ uWS
 
     close: (socket: universal.GameWebSocket<UserData>) => {
       const socketUserData = socket.getUserData();
-      log.info(
-        `Socket with ID ${socketUserData.connectionID} has disconnected!`
-      );
-      universal.deleteSocket(socket);
+      socket.getUserData().teardown();
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
     }
   })

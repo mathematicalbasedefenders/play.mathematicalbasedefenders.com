@@ -273,7 +273,7 @@ function closeAlreadyLoggedInSockets(userID: string, username: string) {
       options: { borderColor: DISCONNECTION_BORDER_COLOR }
     });
     duplicateSocket.send(disconnectionMessage);
-    universal.deleteSocket(duplicateSocket);
+    duplicateSocket.getUserData().teardown();
     log.warn(
       `Disconnected socket ${
         duplicateSocket.getUserData().connectionID

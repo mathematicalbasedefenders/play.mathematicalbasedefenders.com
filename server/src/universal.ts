@@ -45,6 +45,13 @@ interface UserData {
    * New in 0.4.13.
    */
   exitedOpeningScreen?: boolean;
+
+  /**
+   * Tears down the socket, disconnecting itself from
+   * the game and deleting itself from memory.
+   * @returns `true` If socket is successfully deleted without errors, `false` otherwise.
+   */
+  teardown(): boolean;
 }
 
 type PlayerRank = {
@@ -67,28 +74,32 @@ const STATUS = {
  */
 function deleteSocket(socketToClose: WebSocket<UserData>) {
   // update room that socket is in
-  if (typeof socketToClose.getUserData().connectionID === "string") {
-    const connectionID = socketToClose.getUserData().connectionID;
-    const room = rooms.find(
-      (room) =>
-        room.memberConnectionIDs.indexOf(
-          socketToClose.getUserData().connectionID as string
-        ) > -1
-    );
-    if (room) {
-      room.deleteMember(socketToClose);
-      // If room that socket is in is a multiplayer room, eliminate it too.
-      if (room instanceof MultiplayerRoom) {
-        const gameData = getGameDataFromConnectionID(connectionID);
-        room.eliminateSocketID(connectionID, gameData ?? {});
-      }
-    }
+  const socketConnectionID = socketToClose.getUserData().connectionID;
+  if (typeof socketConnectionID !== "string") {
+    return false;
   }
   // delete the socket
+  const connectionID = socketToClose.getUserData().connectionID;
+  const room = rooms.find(
+    (room) =>
+      room.memberConnectionIDs.indexOf(
+        socketToClose.getUserData().connectionID as string
+      ) > -1
+  );
+  if (room) {
+    room.deleteMember(socketToClose);
+    // If room that socket is in is a multiplayer room, eliminate it too.
+    if (room instanceof MultiplayerRoom) {
+      const gameData = getGameDataFromConnectionID(connectionID);
+      room.eliminateSocketID(connectionID, gameData ?? {});
+    }
+  }
   const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
   if (socketToDeleteIndex > -1) {
     sockets.splice(socketToDeleteIndex, 1);
   }
+  log.info(`Socket with ID ${socketConnectionID} has disconnected!`);
+  return true;
 }
 
 function forceDeleteAndCloseSocket(socketToClose: WebSocket<UserData>) {
@@ -368,6 +379,12 @@ function initializeSocket(socket: WebSocket<UserData>) {
     last: 1,
     count: 0
   };
+
+  // interface methods
+  socketUserData.teardown = function () {
+    return deleteSocket(socket);
+  };
+
   socket.subscribe("game");
 }
 
