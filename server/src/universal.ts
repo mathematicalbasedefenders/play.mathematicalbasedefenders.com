@@ -83,6 +83,14 @@ interface UserData {
    * @param {ToastNotificationData} data The data of the toast notification.
    */
   sendToastNotification(data: ToastNotificationData): void;
+
+  /**
+   * Checks if the socket is current playing (has GameData attached to it.)
+   * @returns `true` if the socket has a GameData attached to it
+   * (in this case, it means the socket is in an ACTIVE game.),
+   * `false` otherwise.
+   */
+  getPlayingStatus(): boolean;
 }
 
 type PlayerRank = {
@@ -136,6 +144,11 @@ function initializeSocket(socket: WebSocket<UserData>) {
 
   socketUserData.sendToastNotification = function (data) {
     sendToastMessageToSocket(socket, data);
+  };
+
+  socketUserData.getPlayingStatus = function () {
+    const id = socket.getUserData().connectionID;
+    return checkIfSocketIsPlaying(id);
   };
 
   socket.subscribe("game");
