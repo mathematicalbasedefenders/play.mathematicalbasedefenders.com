@@ -596,7 +596,6 @@ export {
   STATUS,
   sendGlobalToastNotification,
   sendGlobalWebSocketMessage,
-  checkIfSocketIsPlaying,
   initializeSocket,
   sendInitialSocketData,
   startGameForSocket,
