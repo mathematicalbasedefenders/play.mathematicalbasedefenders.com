@@ -402,7 +402,7 @@ function checkWebSocketMessageSpeeds(
     }
   }
   for (const socket of socketsToForceDelete) {
-    universal.forceDeleteAndCloseSocket(socket);
+    socket.getUserData().forceTeardown();
   }
   // modulo instead of subtract because it doesn't get check multiple times.
   timePeriodPassedForMessageSpeed %= MESSAGES_PER_SECOND_TIME_PERIOD;

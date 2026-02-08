@@ -129,7 +129,7 @@ uWS
         log.warn(
           `Rate-limited and killing socket ${socketUserData.connectionID}.`
         );
-        universal.forceDeleteAndCloseSocket(socket);
+        socket.getUserData().forceTeardown();
         return;
       }
       const buffer = Buffer.from(message);
@@ -458,7 +458,7 @@ function checkBufferSize(
     "You're sending a very large message! You have been immediately disconnected.";
   const BORDER_COLOR = "#ff0000";
   universal.sendToastMessageToSocket(socket, MESSAGE, BORDER_COLOR);
-  universal.forceDeleteAndCloseSocket(socket);
+  socket.getUserData().forceTeardown();
   return false;
 }
 
