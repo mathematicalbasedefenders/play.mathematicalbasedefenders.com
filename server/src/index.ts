@@ -24,6 +24,7 @@ import { authenticate } from "./authentication/perform-authentication";
 import { MultiplayerRoom } from "./game/MultiplayerRoom";
 import { DefaultMultiplayerRoom } from "./game/DefaultMultiplayerRoom";
 import { UserData } from "./universal";
+import { WebSocketRateLimit } from "./core/rate-limiting";
 
 const app = express();
 app.set("trust proxy", 2);
@@ -74,27 +75,6 @@ const UPDATE_INTERVAL: number = 1000 / DESIRED_SERVER_UPDATES_PER_SECOND;
 const SYNCHRONIZATION_INTERVAL: number =
   1000 / DESIRED_SYNCHRONIZATIONS_PER_SECOND;
 const LIVING_ROOM_CONDITION_GRACE_PERIOD = 3000;
-
-// https://github.com/uNetworking/uWebSockets.js/issues/335#issuecomment-643500581
-// https://github.com/uNetworking/uWebSockets.js/issues/335#issuecomment-834141711
-const WebSocketRateLimit = (limit: number, interval: number) => {
-  let now = 0;
-  // const last = Symbol() as unknown as string;
-  // const count = Symbol() as unknown as string;
-  setInterval(() => ++now, interval);
-  return (socket: universal.GameWebSocket<UserData>) => {
-    const socketUserData = socket.getUserData();
-    if (!socketUserData.rateLimiting) {
-      return;
-    }
-    if (socketUserData.rateLimiting.last != now) {
-      socketUserData.rateLimiting.last = now;
-      socketUserData.rateLimiting.count = 1;
-    } else {
-      return ++socketUserData.rateLimiting.count > limit;
-    }
-  };
-};
 
 const websocketRateLimit = WebSocketRateLimit(2500, 1000);
 
