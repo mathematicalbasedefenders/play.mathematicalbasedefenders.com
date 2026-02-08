@@ -256,7 +256,7 @@ uWS
             return;
           }
           input.processKeypress(socket, parsedMessage.keypress);
-          universal.synchronizeGameDataWithSocket(socket);
+          socket.getUserData().synchronizeToClientSide();
           break;
         }
         case "emulateKeypress": {
@@ -387,8 +387,10 @@ function synchronizeGameDataWithSockets(
   }
   sendDataDeltaTime -= SYNCHRONIZATION_INTERVAL;
   for (let socket of universal.sockets) {
-    universal.synchronizeGameDataWithSocket(socket);
-    universal.synchronizeMetadataWithSocket(socket, deltaTime, systemStatus);
+    socket.getUserData().synchronizeToClientSide();
+    socket
+      .getUserData()
+      .synchronizeMetadataToClientSide(deltaTime, systemStatus);
     // TODO: create a separate function for resetting `accumulatedMessages.`
   }
 }
