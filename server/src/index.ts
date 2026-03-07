@@ -270,8 +270,7 @@ uWS
         case "sendChatMessage": {
           const scope = parsedMessage.scope;
           const message = parsedMessage.chatMessage;
-          // attempt to
-          sendChatMessage(scope, message, socket);
+          socket.getUserData().sendMessageToChat(message, scope);
           break;
         }
         case "getMultiplayerRoomList": {
