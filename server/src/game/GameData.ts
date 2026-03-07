@@ -282,11 +282,7 @@ abstract class GameData {
     this.currentInput = "";
   }
 
-  processEnemyKill(iterations: number, room: Room) {
-    log.error(
-      `processEnemyKill called on base GameData class. (This method should be overridden in a subclass.)`
-    );
-  }
+  abstract processEnemyKill(iterations: number, room: Room): void;
 }
 class SingleplayerGameData extends GameData {
   // nothing here yet...
@@ -418,6 +414,10 @@ class CustomSingleplayerGameData extends GameData {
     this.clocks.enemySpawn.actionTime = settings.enemySpawnTime;
     this.enemySpawnThreshold = settings.enemySpawnThreshold;
     this.clocks.forcedEnemySpawn.actionTime = settings.forcedEnemySpawnTime;
+  }
+
+  processEnemyKill(iterations: number, room: Room) {
+    // TODO: does nothing
   }
 }
 
