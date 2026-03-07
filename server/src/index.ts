@@ -196,13 +196,10 @@ uWS
             if (!room) {
               const socketID = socketUserData.connectionID;
               log.warn(`Socket ${socketID} tried to join a non-existent room.`);
-              const MESSAGE = "That room doesn't exist!";
-              const BORDER_COLOR = "#ff0000";
-              const data: ToastNotificationData = {
-                borderColor: BORDER_COLOR,
-                text: MESSAGE
-              };
-              socket.getUserData().sendToastNotification(data);
+              socket.getUserData().sendToastNotification({
+                borderColor: "#ff0000",
+                text: "That room doesn't exist!"
+              });
               break;
             }
             const object = {
