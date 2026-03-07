@@ -481,7 +481,7 @@ function initializeEventListeners() {
     variables.multiplayerChat.playerListCache.playerCount = 0;
     variables.multiplayerChat.playerListCache.registeredPlayers.clear();
     sendSocketMessage({
-      message: "joinMultiplayerRoom",
+      message: "joinDefaultMultiplayerRoom",
       room: "default"
     });
     changeScreen("multiplayerIntermission");
