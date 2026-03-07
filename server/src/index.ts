@@ -186,13 +186,10 @@ uWS
             if (!/^[A-Z0-9]{8}$/.test(target)) {
               const socketID = socketUserData.connectionID;
               log.warn(`Socket ${socketID} used an invalid room code.`);
-              const MESSAGE = "Invalid room code format!";
-              const BORDER_COLOR = "#ff0000";
-              const data: ToastNotificationData = {
-                borderColor: BORDER_COLOR,
-                text: MESSAGE
-              };
-              socket.getUserData().sendToastNotification(data);
+              socket.getUserData().sendToastNotification({
+                borderColor: "#ff0000",
+                text: "Invalid room code format!"
+              });
               break;
             }
             const room = universal.rooms.find((e) => e.id === target);
