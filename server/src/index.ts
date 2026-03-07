@@ -225,7 +225,7 @@ uWS
           break;
         }
         case "createMultiplayerRoom": {
-          // reject message if already in room
+          // reject message if already in a room
           if (utilities.findRoomWithConnectionID(socketUserData.connectionID)) {
             const MESSAGE = "You're already in a room!";
             const BORDER_COLOR = "#ff0000";
