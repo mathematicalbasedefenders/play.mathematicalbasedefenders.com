@@ -199,8 +199,7 @@ function initializeSocket(socket: WebSocket<UserData>) {
   socketUserData.joinMultiplayerRoom = function (roomID: string) {
     let room;
     if (roomID === "default") {
-      const defaultRoom = (room: Room) => room.id === defaultMultiplayerRoomID;
-      room = rooms.find(defaultRoom);
+      room = getDefaultMultiplayerRoom();
     } else {
       const roomWithID = (room: Room) => room.id === roomID;
       room = rooms.find(roomWithID);
