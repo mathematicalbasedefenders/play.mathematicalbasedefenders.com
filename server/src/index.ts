@@ -258,7 +258,7 @@ uWS
         }
         // game input
         case "keypress": {
-          input.processKeypress(socket, parsedMessage.keypress);
+          socket.getUserData().processKeypress(parsedMessage.keypress);
           socket.getUserData().synchronizeToClientSide();
           break;
         }
