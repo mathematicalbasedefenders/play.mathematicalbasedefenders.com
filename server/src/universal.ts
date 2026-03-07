@@ -19,6 +19,8 @@ import {
 } from "./game/SingleplayerRoom";
 import { ToastNotificationData } from "./core/toast-notifications";
 import { sendChatMessage } from "./core/chat";
+import * as input from "./core/input";
+
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
 interface UserData {
@@ -99,6 +101,8 @@ interface UserData {
    * @param {string} scope The scope for the message.
    */
   sendMessageToChat(message: string, scope: "room" | "global"): void;
+
+  leaveMultiplayerRoom(): void;
 }
 
 type PlayerRank = {
@@ -161,6 +165,10 @@ function initializeSocket(socket: WebSocket<UserData>) {
 
   socketUserData.sendMessageToChat = function (message, scope) {
     sendChatMessage(scope, message, socket);
+  };
+
+  socketUserData.leaveMultiplayerRoom = function () {
+    input.leaveMultiplayerRoom(socket);
   };
 
   socket.subscribe("game");
