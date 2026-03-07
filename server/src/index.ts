@@ -191,17 +191,8 @@ uWS
           // validate
           const ROOM_CODE_REGEX = /^[A-Z0-9]{8}$/;
           const target = parsedMessage.room;
-          if (!ROOM_CODE_REGEX.test(target)) {
-            const socketID = socketUserData.connectionID;
-            log.warn(`Socket ${socketID} used an invalid room code.`);
-            socket.getUserData().sendToastNotification({
-              borderColor: "#ff0000",
-              text: "Invalid room code format!"
-            });
-            break;
-          }
           const room = universal.rooms.find((e) => e.id === target);
-          if (!room) {
+          if (!ROOM_CODE_REGEX.test(target) || !room) {
             const socketID = socketUserData.connectionID;
             log.warn(`Socket ${socketID} tried to join a non-existent room.`);
             socket.getUserData().sendToastNotification({
