@@ -182,8 +182,9 @@ uWS
             break;
           } else {
             // validate
+            const ROOM_CODE_REGEX = /^[A-Z0-9]{8}$/;
             const target = parsedMessage.room;
-            if (!/^[A-Z0-9]{8}$/.test(target)) {
+            if (!ROOM_CODE_REGEX.test(target)) {
               const socketID = socketUserData.connectionID;
               log.warn(`Socket ${socketID} used an invalid room code.`);
               socket.getUserData().sendToastNotification({
