@@ -256,7 +256,6 @@ uWS
           socket.getUserData().leaveMultiplayerRoom();
           break;
         }
-        // game input
         case "keypress": {
           socket.getUserData().processKeypress(parsedMessage.keypress);
           socket.getUserData().synchronizeToClientSide();
