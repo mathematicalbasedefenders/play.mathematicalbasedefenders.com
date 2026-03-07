@@ -642,6 +642,12 @@ function startGameForSocket(
   }
 }
 
+function getDefaultMultiplayerRoom() {
+  const defaultRoom = (room: Room) => room.id === defaultMultiplayerRoomID;
+  const room = rooms.find(defaultRoom);
+  return room;
+}
+
 // get configuration
 const configurationLocation = path.join(
   __dirname,
@@ -673,6 +679,7 @@ export {
   initializeSocket,
   sendInitialSocketData,
   startGameForSocket,
+  getDefaultMultiplayerRoom,
   USE_TESTING_VALUES,
   UserData,
   WebSocket as GameWebSocket // this is exported as `GameWebSocket` since `WebSocket` might clash with other definitions.
