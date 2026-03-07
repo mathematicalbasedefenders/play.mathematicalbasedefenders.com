@@ -23,7 +23,7 @@ import { updateSystemStatus } from "./core/status-indicators";
 import { MultiplayerRoom } from "./game/MultiplayerRoom";
 import { DefaultMultiplayerRoom } from "./game/DefaultMultiplayerRoom";
 import { UserData } from "./universal";
-import { WebSocketRateLimit } from "./core/rate-limiting";
+import { rateLimitSocket, WebSocketRateLimit } from "./core/rate-limiting";
 import { ToastNotificationData } from "./core/toast-notifications";
 
 const app = express();
@@ -121,21 +121,12 @@ uWS
       message: WebSocketMessage
     ) => {
       const socketUserData = socket.getUserData();
+
       if (websocketRateLimit(socket)) {
-        const MESSAGE =
-          "You're going too fast! You have rate-limited and been disconnected.";
-        const BORDER_COLOR = "#ff0000";
-        const data: ToastNotificationData = {
-          borderColor: BORDER_COLOR,
-          text: MESSAGE
-        };
-        socket.getUserData().sendToastNotification(data);
-        log.warn(
-          `Rate-limited and killing socket ${socketUserData.connectionID}.`
-        );
-        socket.getUserData().forceTeardown();
+        rateLimitSocket(socket);
         return;
       }
+
       const buffer = Buffer.from(message);
       const incompleteParsedMessage = JSON.parse(buffer.toString());
       if (!incompleteParsedMessage) {
