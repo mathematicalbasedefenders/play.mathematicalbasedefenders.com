@@ -148,21 +148,18 @@ uWS
         return;
       }
 
+      if (!socketUserData.exitedOpeningScreen) {
+        blockSocket(socket);
+        return;
+      }
+
       // ...
       switch (parsedMessage.message) {
         case "startGame": {
-          if (!socketUserData.exitedOpeningScreen) {
-            blockSocket(socket);
-            return;
-          }
           universal.startGameForSocket(socket, parsedMessage);
           break;
         }
         case "joinMultiplayerRoom": {
-          if (!socketUserData.exitedOpeningScreen) {
-            blockSocket(socket);
-            return;
-          }
           // reject message if already in room
           if (utilities.findRoomWithConnectionID(socketUserData.connectionID)) {
             const MESSAGE = "You're already in a room!";
@@ -228,10 +225,6 @@ uWS
           break;
         }
         case "createMultiplayerRoom": {
-          if (!socketUserData.exitedOpeningScreen) {
-            blockSocket(socket);
-            return;
-          }
           // reject message if already in room
           if (utilities.findRoomWithConnectionID(socketUserData.connectionID)) {
             const MESSAGE = "You're already in a room!";
@@ -260,37 +253,21 @@ uWS
           break;
         }
         case "leaveMultiplayerRoom": {
-          if (!socketUserData.exitedOpeningScreen) {
-            blockSocket(socket);
-            return;
-          }
           // attempt to
           input.leaveMultiplayerRoom(socket);
           break;
         }
         // game input
         case "keypress": {
-          if (!socketUserData.exitedOpeningScreen) {
-            blockSocket(socket);
-            return;
-          }
           input.processKeypress(socket, parsedMessage.keypress);
           socket.getUserData().synchronizeToClientSide();
           break;
         }
         case "emulateKeypress": {
-          if (!socketUserData.exitedOpeningScreen) {
-            blockSocket(socket);
-            return;
-          }
           input.emulateKeypress(socket, parsedMessage.emulatedKeypress);
           break;
         }
         case "sendChatMessage": {
-          if (!socketUserData.exitedOpeningScreen) {
-            blockSocket(socket);
-            return;
-          }
           const scope = parsedMessage.scope;
           const message = parsedMessage.chatMessage;
           // attempt to
