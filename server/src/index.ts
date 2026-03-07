@@ -20,7 +20,6 @@ const cors = require("cors");
 const helmet = require("helmet");
 import { sendChatMessage } from "./core/chat";
 import { updateSystemStatus } from "./core/status-indicators";
-import { authenticate } from "./authentication/perform-authentication";
 import { MultiplayerRoom } from "./game/MultiplayerRoom";
 import { DefaultMultiplayerRoom } from "./game/DefaultMultiplayerRoom";
 import { UserData } from "./universal";
