@@ -105,6 +105,8 @@ interface UserData {
   leaveMultiplayerRoom(): void;
 
   processKeypress(keypress: string): void;
+
+  emulateKeypress(keypress: string): void;
 }
 
 type PlayerRank = {
@@ -175,6 +177,10 @@ function initializeSocket(socket: WebSocket<UserData>) {
 
   socketUserData.processKeypress = function (keypress: string) {
     input.processKeypress(socket, keypress);
+  };
+
+  socketUserData.emulateKeypress = function (keypress: string) {
+    input.emulateKeypress(socket, keypress);
   };
 
   socket.subscribe("game");
