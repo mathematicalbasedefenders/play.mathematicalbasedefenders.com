@@ -275,13 +275,11 @@ uWS
           break;
         }
         case "getMultiplayerRoomList": {
-          const result = utilities.getHumanFriendlyMultiplayerRoomList();
           const object = {
             message: "updateMultiplayerRoomList",
-            data: result
+            data: utilities.getHumanFriendlyMultiplayerRoomList()
           };
-          const message = JSON.stringify(object);
-          socket.send(message);
+          socket.send(JSON.stringify(object));
           break;
         }
         default: {
