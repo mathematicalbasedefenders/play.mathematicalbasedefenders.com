@@ -1056,7 +1056,7 @@ function getOpponentsInformation(
  * Sets the `defaultMultiplayerRoomID` variable for tracking of default multiplayer room.
  * @param {string} newID The string to set the ID to.
  */
-function setDefaultMultiplayerRoomID(newID: string) {
+function setDefaultMultiplayerRoomID(newID: string | null) {
   defaultMultiplayerRoomID = newID;
 }
 
@@ -1065,7 +1065,7 @@ function setDefaultMultiplayerRoomID(newID: string) {
  * @param {room} room ???
  */
 function resetDefaultMultiplayerRoomID(room: string) {
-  defaultMultiplayerRoomID = null;
+  setDefaultMultiplayerRoomID(null);
   log.info(`Reset default multiplayer room ID from ${room} to null.`);
 }
 
