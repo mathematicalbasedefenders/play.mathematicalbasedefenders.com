@@ -1,7 +1,7 @@
 import { log } from "./core/log";
 import mongoose from "mongoose";
 import fs from "fs";
-import path, { parse } from "path";
+import path from "path";
 import uWS from "uWebSockets.js";
 require("@dotenvx/dotenvx").config({ path: "../credentials/.env" });
 import express from "express";
