@@ -103,6 +103,8 @@ interface UserData {
   sendMessageToChat(message: string, scope: "room" | "global"): void;
 
   leaveMultiplayerRoom(): void;
+
+  processKeypress(keypress: string): void;
 }
 
 type PlayerRank = {
@@ -169,6 +171,10 @@ function initializeSocket(socket: WebSocket<UserData>) {
 
   socketUserData.leaveMultiplayerRoom = function () {
     input.leaveMultiplayerRoom(socket);
+  };
+
+  socketUserData.processKeypress = function (keypress: string) {
+    input.processKeypress(socket, keypress);
   };
 
   socket.subscribe("game");
