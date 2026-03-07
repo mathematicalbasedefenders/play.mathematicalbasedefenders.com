@@ -83,7 +83,7 @@ const GAME_DATA_CONSTANTS = {
 /**
  * Base class for `GameData`.
  */
-class GameData {
+abstract class GameData {
   /**  The current score of the GameData.*/
   score!: number;
   /**  The number of total enemies killed of the GameData.*/
