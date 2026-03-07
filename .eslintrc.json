@@ -6,19 +6,10 @@
     "node": true
   },
   "extends": "eslint:recommended",
-  "overrides": [{
-    "files": "public/js/*",
-    "rules": {
-      "no-undef": "off",
-      "no-unused-vars": "off"
-    }
+  "rules": {
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error"
   },
-  {
-    "files": "server/src/models/*.ts",
-    "rules": {
-      "no-unused-vars": "off"
-    }
-  }],
   "parserOptions": {
     "ecmaVersion": "latest"
   },
