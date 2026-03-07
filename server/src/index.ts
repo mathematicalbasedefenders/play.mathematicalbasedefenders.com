@@ -139,8 +139,16 @@ uWS
       if (typeof socketUserData.accumulatedMessages === "number") {
         socketUserData.accumulatedMessages++;
       }
-      // ...
+
       const parsedMessage = incompleteParsedMessage.message;
+
+      if (parsedMessage.message === "exitOpeningScreen") {
+        log.info(`Socket ${socketUserData.connectionID} exited open screen.`);
+        socketUserData.exitedOpeningScreen = true;
+        return;
+      }
+
+      // ...
       switch (parsedMessage.message) {
         case "startGame": {
           if (!socketUserData.exitedOpeningScreen) {
@@ -297,13 +305,6 @@ uWS
           };
           const message = JSON.stringify(object);
           socket.send(message);
-          break;
-        }
-        case "exitOpeningScreen": {
-          log.info(
-            `Socket ${socketUserData.connectionID} exited opening screen.`
-          );
-          socketUserData.exitedOpeningScreen = true;
           break;
         }
         default: {
