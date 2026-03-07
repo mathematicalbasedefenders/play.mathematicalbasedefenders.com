@@ -1,5 +1,9 @@
 import { WebSocket } from "uWebSockets.js";
-import { getOpponentsInformation } from "./game/Room";
+import {
+  defaultMultiplayerRoomID,
+  getOpponentsInformation,
+  Room
+} from "./game/Room";
 import { GameData, GameMode } from "./game/GameData";
 import _ from "lodash";
 import {
@@ -107,6 +111,15 @@ interface UserData {
   processKeypress(keypress: string): void;
 
   emulateKeypress(keypress: string): void;
+
+  /**
+   * Makes `socket` join a multiplayer room with the id `roomID`.
+   * @param {universal.GameWebSocket<UserData>} socket
+   * @param {string} roomID
+   * @returns `true` if room joining is successful,
+   * `false` otherwise.
+   */
+  joinMultiplayerRoom(roomID: string): void;
 }
 
 type PlayerRank = {
@@ -181,6 +194,35 @@ function initializeSocket(socket: WebSocket<UserData>) {
 
   socketUserData.emulateKeypress = function (keypress: string) {
     input.emulateKeypress(socket, keypress);
+  };
+
+  socketUserData.joinMultiplayerRoom = function (roomID: string) {
+    let room;
+    if (roomID === "default") {
+      const defaultRoom = (room: Room) => room.id === defaultMultiplayerRoomID;
+      room = rooms.find(defaultRoom);
+    } else {
+      const roomWithID = (room: Room) => room.id === roomID;
+      room = rooms.find(roomWithID);
+    }
+
+    if (!room) {
+      const socketUserData = socket.getUserData();
+      socket.getUserData().sendToastNotification({
+        borderColor: "#ff0000",
+        text: "The room you're trying to join doesn't exist!"
+      });
+      log.warn(
+        `Socket ${
+          socketUserData.connectionID
+        } tried to join a non-existent multiplayer room.`
+      );
+      return false;
+    }
+
+    socket.subscribe(roomID);
+    room.addMember(socket);
+    return true;
   };
 
   socket.subscribe("game");
