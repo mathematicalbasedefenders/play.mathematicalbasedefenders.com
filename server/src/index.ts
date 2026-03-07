@@ -263,7 +263,8 @@ uWS
           break;
         }
         case "emulateKeypress": {
-          input.emulateKeypress(socket, parsedMessage.emulatedKeypress);
+          socket.getUserData().emulateKeypress(parsedMessage.keypress);
+          socket.getUserData().synchronizeToClientSide();
           break;
         }
         case "sendChatMessage": {
