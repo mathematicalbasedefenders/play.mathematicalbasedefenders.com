@@ -253,8 +253,7 @@ uWS
           break;
         }
         case "leaveMultiplayerRoom": {
-          // attempt to
-          input.leaveMultiplayerRoom(socket);
+          socket.getUserData().leaveMultiplayerRoom();
           break;
         }
         // game input
