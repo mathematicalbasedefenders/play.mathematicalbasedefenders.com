@@ -380,13 +380,10 @@ function joinMultiplayerRoom(
   }
   if (!room) {
     const socketUserData = socket.getUserData();
-    const MESSAGE = "The room you're trying to join doesn't exist!";
-    const BORDER_COLOR = "#ff0000";
-    const data: ToastNotificationData = {
-      borderColor: BORDER_COLOR,
-      text: MESSAGE
-    };
-    socket.getUserData().sendToastNotification(data);
+    socket.getUserData().sendToastNotification({
+      borderColor: "#ff0000",
+      text: "The room you're trying to join doesn't exist!"
+    });
     log.warn(
       `Socket ${
         socketUserData.connectionID
@@ -428,11 +425,10 @@ function checkBufferSize(
   const MESSAGE =
     "You're sending a very large message! You have been immediately disconnected.";
   const BORDER_COLOR = "#ff0000";
-  const data: ToastNotificationData = {
+  socket.getUserData().sendToastNotification({
     borderColor: BORDER_COLOR,
     text: MESSAGE
-  };
-  socket.getUserData().sendToastNotification(data);
+  });
   socket.getUserData().forceTeardown();
   return false;
 }
@@ -455,12 +451,10 @@ function blockSocket(socket: universal.GameWebSocket<UserData>) {
     } from improper opening screen exit.`
   );
   const MESSAGE = `Socket blocked. Please refresh and properly exit the opening screen.`;
-  const BORDER_COLOR = "#ff0000";
-  const data: ToastNotificationData = {
-    borderColor: BORDER_COLOR,
+  socket.getUserData().sendToastNotification({
+    borderColor: "#ff0000",
     text: MESSAGE
-  };
-  socket.getUserData().sendToastNotification(data);
+  });
 }
 
 fs.readdirSync(path.join(__dirname, "./routes")).forEach((file: string) => {
