@@ -169,7 +169,7 @@ uWS
             return;
           }
           // actually join room
-          if (!defaultMultiplayerRoomID) {
+          if (!universal.getDefaultMultiplayerRoom()) {
             const room = new DefaultMultiplayerRoom(
               socket,
               GameMode.DefaultMultiplayer,
@@ -177,7 +177,7 @@ uWS
             );
             setDefaultMultiplayerRoomID(room.id);
           }
-          joinMultiplayerRoom(socket, defaultMultiplayerRoomID as string);
+          socket.getUserData().joinMultiplayerRoom("default");
           break;
         }
         case "joinMultiplayerRoom": {
@@ -206,7 +206,7 @@ uWS
             newScreen: "customMultiplayerIntermission"
           };
           const message = JSON.stringify(object);
-          joinMultiplayerRoom(socket, parsedMessage.room);
+          socket.getUserData().joinMultiplayerRoom(parsedMessage.room);
           socket.send(message);
           log.info(
             `Socket ${socketUserData.connectionID} joined room ${target}`
@@ -228,7 +228,7 @@ uWS
           }
           // actually create room
           const room = new MultiplayerRoom(socket, GameMode.CustomMultiplayer);
-          joinMultiplayerRoom(socket, room.id);
+          socket.getUserData().joinMultiplayerRoom(room.id);
           const object = {
             message: "changeScreen",
             newScreen: "customMultiplayerIntermission"
@@ -354,41 +354,6 @@ function synchronizeGameDataWithSockets(
       .synchronizeMetadataToClientSide(deltaTime, systemStatus);
     // TODO: create a separate function for resetting `accumulatedMessages.`
   }
-}
-
-/**
- * Makes `socket` join a multiplayer room with the id `roomID`.
- * @param {universal.GameWebSocket<UserData>} socket
- * @param {string} roomID
- */
-function joinMultiplayerRoom(
-  socket: universal.GameWebSocket<UserData>,
-  roomID: string
-) {
-  let room;
-  if (roomID === "default") {
-    // log.warn(`Unknown roomID, should be default: ${roomID}`);
-    const defaultRoom = (room: Room) => room.id === defaultMultiplayerRoomID;
-    room = universal.rooms.find(defaultRoom);
-  } else {
-    const roomWithID = (room: Room) => room.id === roomID;
-    room = universal.rooms.find(roomWithID);
-  }
-  if (!room) {
-    const socketUserData = socket.getUserData();
-    socket.getUserData().sendToastNotification({
-      borderColor: "#ff0000",
-      text: "The room you're trying to join doesn't exist!"
-    });
-    log.warn(
-      `Socket ${
-        socketUserData.connectionID
-      } tried to join a non-existent multiplayer room.`
-    );
-    return;
-  }
-  socket.subscribe(roomID);
-  room.addMember(socket);
 }
 
 setInterval(() => {
