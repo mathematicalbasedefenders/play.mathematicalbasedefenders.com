@@ -159,7 +159,7 @@ uWS
           universal.startGameForSocket(socket, parsedMessage);
           break;
         }
-        case "joinMultiplayerRoom": {
+        case "joinDefaultMultiplayerRoom": {
           // reject message if already in room
           if (utilities.findRoomWithConnectionID(socketUserData.connectionID)) {
             socket.getUserData().sendToastNotification({
@@ -169,52 +169,57 @@ uWS
             return;
           }
           // actually join room
-          if (parsedMessage.room === "default") {
-            if (!defaultMultiplayerRoomID) {
-              const room = new DefaultMultiplayerRoom(
-                socket,
-                GameMode.DefaultMultiplayer,
-                true
-              );
-              setDefaultMultiplayerRoomID(room.id);
-            }
-            joinMultiplayerRoom(socket, defaultMultiplayerRoomID as string);
-            break;
-          } else {
-            // validate
-            const ROOM_CODE_REGEX = /^[A-Z0-9]{8}$/;
-            const target = parsedMessage.room;
-            if (!ROOM_CODE_REGEX.test(target)) {
-              const socketID = socketUserData.connectionID;
-              log.warn(`Socket ${socketID} used an invalid room code.`);
-              socket.getUserData().sendToastNotification({
-                borderColor: "#ff0000",
-                text: "Invalid room code format!"
-              });
-              break;
-            }
-            const room = universal.rooms.find((e) => e.id === target);
-            if (!room) {
-              const socketID = socketUserData.connectionID;
-              log.warn(`Socket ${socketID} tried to join a non-existent room.`);
-              socket.getUserData().sendToastNotification({
-                borderColor: "#ff0000",
-                text: "That room doesn't exist!"
-              });
-              break;
-            }
-            const object = {
-              message: "changeScreen",
-              newScreen: "customMultiplayerIntermission"
-            };
-            const message = JSON.stringify(object);
-            joinMultiplayerRoom(socket, parsedMessage.room);
-            socket.send(message);
-            log.info(
-              `Socket ${socketUserData.connectionID} joined room ${target}`
+          if (!defaultMultiplayerRoomID) {
+            const room = new DefaultMultiplayerRoom(
+              socket,
+              GameMode.DefaultMultiplayer,
+              true
             );
+            setDefaultMultiplayerRoomID(room.id);
           }
+          joinMultiplayerRoom(socket, defaultMultiplayerRoomID as string);
           break;
+        }
+        case "joinMultiplayerRoom": {
+          if (utilities.findRoomWithConnectionID(socketUserData.connectionID)) {
+            socket.getUserData().sendToastNotification({
+              borderColor: "#ff0000",
+              text: "You're already in a room!"
+            });
+            return;
+          }
+          // validate
+          const ROOM_CODE_REGEX = /^[A-Z0-9]{8}$/;
+          const target = parsedMessage.room;
+          if (!ROOM_CODE_REGEX.test(target)) {
+            const socketID = socketUserData.connectionID;
+            log.warn(`Socket ${socketID} used an invalid room code.`);
+            socket.getUserData().sendToastNotification({
+              borderColor: "#ff0000",
+              text: "Invalid room code format!"
+            });
+            break;
+          }
+          const room = universal.rooms.find((e) => e.id === target);
+          if (!room) {
+            const socketID = socketUserData.connectionID;
+            log.warn(`Socket ${socketID} tried to join a non-existent room.`);
+            socket.getUserData().sendToastNotification({
+              borderColor: "#ff0000",
+              text: "That room doesn't exist!"
+            });
+            break;
+          }
+          const object = {
+            message: "changeScreen",
+            newScreen: "customMultiplayerIntermission"
+          };
+          const message = JSON.stringify(object);
+          joinMultiplayerRoom(socket, parsedMessage.room);
+          socket.send(message);
+          log.info(
+            `Socket ${socketUserData.connectionID} joined room ${target}`
+          );
         }
         case "createMultiplayerRoom": {
           // reject message if already in a room
