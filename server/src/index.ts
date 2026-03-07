@@ -288,14 +288,6 @@ uWS
           input.emulateKeypress(socket, parsedMessage.emulatedKeypress);
           break;
         }
-        case "authenticate": {
-          const username = parsedMessage.username;
-          const password = parsedMessage.password;
-          const socketID = parsedMessage.socketID;
-          // attempt to
-          authenticate(username, password, socketID);
-          break;
-        }
         case "sendChatMessage": {
           if (!socketUserData.exitedOpeningScreen) {
             blockSocket(socket);
