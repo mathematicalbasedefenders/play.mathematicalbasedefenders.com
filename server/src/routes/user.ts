@@ -9,7 +9,6 @@ const limiter = rateLimit({
   legacyHeaders: false
 });
 
-import _ from "lodash";
 import { log } from "../core/log";
 import { User, UserInterface } from "../models/User";
 

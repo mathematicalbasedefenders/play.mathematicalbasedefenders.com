@@ -126,7 +126,7 @@ function processKeypress(
     });
   }
 
-  processKeypressForRoom(connectionID, code, emulated);
+  processKeypressForRoom(connectionID, code);
   // non-room interactions
   if (code === "Escape") {
     let socket = universal.sockets.find(

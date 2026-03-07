@@ -27,7 +27,7 @@ async function submitSingleplayerGame(
   owner: GameWebSocket<UserData>,
   gameActionRecord: GameActionRecord
 ) {
-  let wordedGameMode: string = "";
+  let wordedGameMode;
   let personalBestBeaten = false;
   // TODO: Make this JSON for more options in the future.
   let rankMessage = "";

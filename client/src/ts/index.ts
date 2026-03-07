@@ -5,7 +5,6 @@ import {
   handleEmulatedClientSideKeypress,
   initializeKeypressEventListener
 } from "./input";
-import * as AS from "adaptive-scale/lib-esm";
 import {
   changeCustomSingleplayerSecondaryScreen,
   changeScreen,
@@ -87,7 +86,7 @@ async function initializePIXIApp() {
 
 try {
   initializePIXIApp();
-} catch (error) {
+} catch {
   console.error(
     "Unable to start pixi.js app, please refresh! If this persists, please contact the administrator."
   );
@@ -181,7 +180,7 @@ async function initializeTextures() {
     textures.opponentPlayfieldBorder = await loadTexture(
       "assets/images/opponent-playfield.png"
     );
-  } catch (error) {
+  } catch {
     console.error(`Unable to load external image into texture.`);
     new ToastNotification(`Unable to load external image into texture.`, {
       borderColor: "#ff0000"

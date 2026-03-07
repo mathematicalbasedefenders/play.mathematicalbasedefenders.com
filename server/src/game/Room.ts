@@ -33,12 +33,6 @@ const COMMAND_DATA = [
   "transferhost"
 ];
 
-interface InputActionInterface {
-  action: InputAction;
-  argument: string;
-  keyPressed?: string;
-}
-
 interface MinifiedGameDataInterface {
   owner: string;
   ownerName?: string;
@@ -354,7 +348,7 @@ abstract class Room {
         break;
       }
       case "getvisibility": {
-        let message = "";
+        let message;
         if (this.hidden) {
           message =
             "This room is hidden. It is not shown in the room list, but other players may still join through the room code.";
@@ -963,16 +957,8 @@ function generateRoomID(length: number): string {
   return current;
 }
 
-function processKeypressForRoom(
-  connectionID: string,
-  code: string,
-  emulated?: boolean
-) {
+function processKeypressForRoom(connectionID: string, code: string) {
   const roomToProcess = utilities.findRoomWithConnectionID(connectionID, false);
-  let inputInformation: InputActionInterface = {
-    action: InputAction.Unknown,
-    argument: ""
-  };
   if (!roomToProcess) {
     return;
   }
@@ -985,8 +971,7 @@ function processKeypressForRoom(
   }
   // TODO: Refactor this.
   // find the type of room input
-  inputInformation = input.getInputInformation(code);
-  inputInformation.keyPressed = code;
+  const inputInformation = input.getInputInformation(code);
   if (inputInformation.action !== InputAction.Unknown) {
     input.processInputInformation(inputInformation, gameDataToProcess);
   }

@@ -248,7 +248,7 @@ class GameActionRecord {
       }
     }
 
-    let replayID = "";
+    let replayID;
 
     try {
       const result = await databaseGameActionRecord.save();

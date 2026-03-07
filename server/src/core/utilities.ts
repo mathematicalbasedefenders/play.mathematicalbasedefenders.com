@@ -165,6 +165,7 @@ function getRank(data: UserInterface | string | undefined) {
 }
 
 // adapted from https://stackoverflow.com/a/56294043/11855065
+// eslint-disable-next-line
 function mutatedArrayFilter(array: Array<unknown>, callback: Function) {
   for (let i = array.length - 1; i >= 0; i -= 1) {
     if (!callback(array[i])) array.splice(i, 1);

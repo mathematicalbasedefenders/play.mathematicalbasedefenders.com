@@ -1,5 +1,4 @@
 import mongoose, { ObjectId, SchemaTypes } from "mongoose";
-import _ from "lodash";
 import { ActionRecord } from "../replay/recording/ActionRecord";
 
 interface GameActionRecordInterface {
@@ -26,8 +25,7 @@ interface GameActionRecordInterface {
   };
 }
 
-interface GameActionRecordModel
-  extends mongoose.Model<GameActionRecordInterface> {}
+interface GameActionRecordModel extends mongoose.Model<GameActionRecordInterface> {}
 
 const GameActionRecordSchema = new mongoose.Schema<
   GameActionRecordInterface,

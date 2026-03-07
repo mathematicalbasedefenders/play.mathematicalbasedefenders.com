@@ -1,5 +1,5 @@
 import { BezierCurve } from "./bezier";
-import { app, playerContainer } from ".";
+import { playerContainer } from ".";
 import { TextStyle, Text } from "pixi.js";
 
 /**

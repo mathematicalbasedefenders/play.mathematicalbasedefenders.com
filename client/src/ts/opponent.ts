@@ -5,7 +5,6 @@ import {
   getScaledEnemyWidth,
   getSetEnemyColor
 } from "./enemies";
-import _ from "lodash";
 import { createTextStyle } from "./utilities";
 import { Container } from "pixi.js";
 

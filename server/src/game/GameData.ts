@@ -411,9 +411,7 @@ class CustomSingleplayerGameData extends GameData {
     this.clocks.forcedEnemySpawn.actionTime = settings.forcedEnemySpawnTime;
   }
 
-  processEnemyKill(iterations: number, room: Room) {
-    // TODO: does nothing
-  }
+  processEnemyKill() {}
 }
 
 class MultiplayerGameData extends GameData {
