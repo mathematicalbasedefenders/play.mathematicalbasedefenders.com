@@ -208,6 +208,7 @@ uWS
           log.info(
             `Socket ${socketUserData.connectionID} joined room ${target}`
           );
+          break;
         }
         case "createMultiplayerRoom": {
           // reject message if already in a room
