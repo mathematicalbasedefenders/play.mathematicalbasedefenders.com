@@ -18,6 +18,7 @@ import {
   createSingleplayerRoom
 } from "./game/SingleplayerRoom";
 import { ToastNotificationData } from "./core/toast-notifications";
+import { sendChatMessage } from "./core/chat";
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
 interface UserData {
@@ -91,6 +92,13 @@ interface UserData {
    * `false` otherwise.
    */
   getPlayingStatus(): boolean;
+
+  /**
+   * Sends a message to a chat room.
+   * @param {string} message The message to send.
+   * @param {string} scope The scope for the message.
+   */
+  sendMessageToChat(message: string, scope: "room" | "global"): void;
 }
 
 type PlayerRank = {
@@ -149,6 +157,10 @@ function initializeSocket(socket: WebSocket<UserData>) {
   socketUserData.getPlayingStatus = function () {
     const id = socket.getUserData().connectionID;
     return checkIfSocketIsPlaying(id);
+  };
+
+  socketUserData.sendMessageToChat = function (message, scope) {
+    sendChatMessage(scope, message, socket);
   };
 
   socket.subscribe("game");
