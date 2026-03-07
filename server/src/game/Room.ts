@@ -50,7 +50,7 @@ interface MinifiedGameDataInterface {
   enemiesToErase?: Array<string>;
 }
 
-class Room {
+abstract class Room {
   id: string;
   host: universal.GameWebSocket<UserData> | null;
   memberConnectionIDs: Array<string> = [];
