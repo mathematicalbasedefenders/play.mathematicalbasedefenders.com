@@ -11,6 +11,8 @@ export default defineConfig([
     "**/*/tests/*",
     "**/*/cypress/**/*",
     "client/src/public/lib/*",
+    "client/webpack.config.development.js",
+    "client/webpack.config.production.js",
     "**/*/anticheat.ts",
     "**/*/disabled-anticheat.ts"
   ]),
