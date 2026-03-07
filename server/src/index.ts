@@ -162,13 +162,10 @@ uWS
         case "joinMultiplayerRoom": {
           // reject message if already in room
           if (utilities.findRoomWithConnectionID(socketUserData.connectionID)) {
-            const MESSAGE = "You're already in a room!";
-            const BORDER_COLOR = "#ff0000";
-            const data: ToastNotificationData = {
-              borderColor: BORDER_COLOR,
-              text: MESSAGE
-            };
-            socket.getUserData().sendToastNotification(data);
+            socket.getUserData().sendToastNotification({
+              borderColor: "#ff0000",
+              text: "You're already in a room!"
+            });
             return;
           }
           // actually join room
