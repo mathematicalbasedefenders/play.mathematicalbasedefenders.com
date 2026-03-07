@@ -1,7 +1,7 @@
 import { log } from "./core/log";
 import mongoose from "mongoose";
 import fs from "fs";
-import path from "path";
+import path, { parse } from "path";
 import uWS from "uWebSockets.js";
 require("@dotenvx/dotenvx").config({ path: "../credentials/.env" });
 import express from "express";
@@ -256,7 +256,7 @@ uWS
           break;
         }
         case "emulateKeypress": {
-          socket.getUserData().emulateKeypress(parsedMessage.keypress);
+          socket.getUserData().emulateKeypress(parsedMessage.emulatedKeypress);
           socket.getUserData().synchronizeToClientSide();
           break;
         }
