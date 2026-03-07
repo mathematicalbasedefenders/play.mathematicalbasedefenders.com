@@ -289,15 +289,10 @@ class SingleplayerGameData extends GameData {
 
   constructor(owner: universal.GameWebSocket<UserData>, gameMode: GameMode) {
     if (
-      !(
-        gameMode === GameMode.EasySingleplayer ||
-        gameMode === GameMode.StandardSingleplayer
-      )
+      gameMode !== GameMode.EasySingleplayer &&
+      gameMode !== GameMode.StandardSingleplayer
     ) {
-      log.error(
-        "Non-singleplayer game mode passed as argument in a singleplayer room."
-      );
-      return;
+      throw new Error("Non-Singleplayer mode given to Singleplayer class.");
     }
     super(owner, gameMode);
   }
@@ -399,8 +394,8 @@ class CustomSingleplayerGameData extends GameData {
     gameMode: GameMode,
     settings: CustomGameSettings
   ) {
-    if (!(gameMode === GameMode.CustomSingleplayer)) {
-      log.error(
+    if (gameMode !== GameMode.CustomSingleplayer) {
+      throw new Error(
         "Non-custom singleplayer game mode passed in a custom s.p. room."
       );
       return;
@@ -429,10 +424,7 @@ class MultiplayerGameData extends GameData {
         gameMode === GameMode.CustomMultiplayer
       )
     ) {
-      log.error(
-        "Non-multiplayer game mode passed as argument in a multiplayer room."
-      );
-      return;
+      throw new Error("Non-multiplayer game mode passed to game data class.");
     }
     super(owner, gameMode);
     this.receivedEnemiesStock = 0;
