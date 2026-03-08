@@ -111,8 +111,16 @@ interface UserData {
    */
   leaveMultiplayerRoom(): void;
 
+  /**
+   * Processes a keypress for a socket.
+   * @param {string} keypress The keycode to process
+   */
   processKeypress(keypress: string): void;
 
+  /**
+   * Processes an emulated keypress for a socket.
+   * @param {string} keypress The keycode to process
+   */
   emulateKeypress(keypress: string): void;
 
   /**
