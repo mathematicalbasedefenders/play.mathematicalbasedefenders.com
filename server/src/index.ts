@@ -218,9 +218,7 @@ uWS
               text: "You're already in a room!"
             });
             log.warn(
-              `Socket ${
-                socketUserData.connectionID
-              } is already in a room while creating another.`
+              `Socket ${socketUserData.connectionID} is already in a room.`
             );
             return;
           }
