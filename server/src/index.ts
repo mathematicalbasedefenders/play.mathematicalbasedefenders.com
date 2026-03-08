@@ -227,11 +227,10 @@ uWS
           // actually create room
           const room = new MultiplayerRoom(socket, GameMode.CustomMultiplayer);
           socket.getUserData().joinMultiplayerRoom(room.id);
-          const object = {
+          const message = JSON.stringify({
             message: "changeScreen",
             newScreen: "customMultiplayerIntermission"
-          };
-          const message = JSON.stringify(object);
+          });
           socket.send(message);
           break;
         }
