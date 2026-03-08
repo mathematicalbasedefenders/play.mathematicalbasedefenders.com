@@ -106,6 +106,9 @@ interface UserData {
    */
   sendMessageToChat(message: string, scope: "room" | "global"): void;
 
+  /**
+   * Makes the socket leave its multiplayer room.
+   */
   leaveMultiplayerRoom(): void;
 
   processKeypress(keypress: string): void;
