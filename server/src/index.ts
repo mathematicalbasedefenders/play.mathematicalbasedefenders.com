@@ -298,26 +298,35 @@ function update(deltaTime: number) {
   const systemStatus = updateSystemStatus(deltaTime);
   synchronizeGameDataWithSockets(deltaTime, systemStatus || {});
 
-  /**
-   * Rooms are deleted here!
-   */
-  // delete rooms with zero players
-  // additionally, delete rooms which are empty JSON objects.
-  let livingRoomCondition = (element: Room) =>
-    !(
+  cleanUnusedRooms();
+}
+
+/**
+ * Remove rooms that aren't used anymore.
+ * Rooms are removed if it has been more than
+ * `LIVING_ROOM_CONDITION_GRACE_PERIOD` milliseconds
+ * since the room is created AND either the room
+ * has zero members OR the room is an empty JSON object.
+ */
+function cleanUnusedRooms() {
+  const livingRoomCondition = (element: Room) => {
+    const memberCount =
       element?.memberConnectionIDs.length +
-        element?.spectatorConnectionIDs.length <=
-        0 ||
-      typeof element === "undefined" ||
-      Object.keys(element).length === 0
-    ) ||
-    (element &&
-      element.ageInMilliseconds <= LIVING_ROOM_CONDITION_GRACE_PERIOD);
-  let oldRooms = _.clone(universal.rooms).map((element) => element.id);
+      element?.spectatorConnectionIDs.length;
+    const validObject =
+      typeof element !== "undefined" && Object.keys(element).length !== 0;
+    const gracePeriod =
+      element.ageInMilliseconds <= LIVING_ROOM_CONDITION_GRACE_PERIOD;
+    return gracePeriod || (memberCount > 0 && validObject);
+  };
+
+  const oldRooms = _.clone(universal.rooms).map((element) => element.id);
   utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
 
-  let newRooms = _.clone(universal.rooms).map((element) => element.id);
-  let deletedRooms = oldRooms.filter((element) => !newRooms.includes(element));
+  const newRooms = _.clone(universal.rooms).map((element) => element.id);
+  const deletedRooms = oldRooms.filter(
+    (element) => !newRooms.includes(element)
+  );
   for (let room of deletedRooms) {
     log.info(`Deleted room with ID ${room} from living condition.`);
     if (room === defaultMultiplayerRoomID) {
