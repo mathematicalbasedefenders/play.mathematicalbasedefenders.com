@@ -411,6 +411,10 @@ class CustomSingleplayerGameData extends GameData {
     this.clocks.forcedEnemySpawn.actionTime = settings.forcedEnemySpawnTime;
   }
 
+  /**
+   * Empty because there is no score/level progression
+   * on kill on Custom Singleplayer.
+   */
   processEnemyKill() {}
 }
 
