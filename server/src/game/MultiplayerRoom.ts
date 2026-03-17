@@ -474,7 +474,7 @@ class MultiplayerRoom extends Room {
     log.info(
       `Socket ID ${data.ownerConnectionID} (${universal.getNameFromConnectionID(
         data.ownerConnectionID
-      )}) has quit the Multiplayer Room`
+      )}) has quit Multiplayer Room ${this.id}`
     );
     if (socket) {
       socket?.unsubscribe(this.id);
