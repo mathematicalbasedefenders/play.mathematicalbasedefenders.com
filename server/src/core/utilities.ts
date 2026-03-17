@@ -322,7 +322,7 @@ async function bulkUpdateSocketUserInformation(
       continue;
     }
     const socketUserData = socket.getUserData();
-    if (socket && socketUserData.loggedIn) {
+    if (socketUserData.loggedIn) {
       updateSocketUserInformation(socket);
     }
   }
