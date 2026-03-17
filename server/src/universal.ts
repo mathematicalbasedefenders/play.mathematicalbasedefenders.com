@@ -217,8 +217,7 @@ function initializeSocket(socket: WebSocket<UserData>) {
     }
 
     if (!room) {
-      const socketUserData = socket.getUserData();
-      socket.getUserData().sendToastNotification({
+      socketUserData.sendToastNotification({
         borderColor: "#ff0000",
         text: "The room you're trying to join doesn't exist!"
       });
