@@ -259,8 +259,10 @@ function deleteSocket(socketToClose: WebSocket<UserData>) {
     room.deleteMember(socketToClose);
     // If room that socket is in is a multiplayer room, eliminate it too.
     if (room instanceof MultiplayerRoom) {
-      const gameData = getGameDataFromConnectionID(connectionID);
-      room.eliminateSocketID(connectionID, gameData ?? {});
+      if (room.playing) {
+        const gameData = getGameDataFromConnectionID(connectionID);
+        room.eliminateSocketID(connectionID, gameData ?? {});
+      }
     }
   }
   const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
