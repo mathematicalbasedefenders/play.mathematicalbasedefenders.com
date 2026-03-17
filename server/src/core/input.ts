@@ -253,8 +253,11 @@ function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
     return;
   }
 
-  if (!(room instanceof MultiplayerRoom)) {
-    log.warn(`Socket tried to leave a m.p. room, but it was wrong type.`);
+  if (
+    room.mode !== GameMode.DefaultMultiplayer &&
+    room.mode !== GameMode.CustomMultiplayer
+  ) {
+    log.warn(`Socket tried to leave a m.p. room, but it was of wrong mode.`);
     return;
   }
 
@@ -274,7 +277,7 @@ function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
       return;
     }
     if (room.host?.getUserData().connectionID === connectionID) {
-      room.handleHostLeave();
+      (room as MultiplayerRoom).handleHostLeave();
     }
     socket.unsubscribe(room.id);
   }
