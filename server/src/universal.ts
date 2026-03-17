@@ -130,7 +130,7 @@ interface UserData {
    * @returns `true` if room joining is successful,
    * `false` otherwise.
    */
-  joinMultiplayerRoom(roomID: string): void;
+  joinMultiplayerRoom(roomID: string): boolean;
 }
 
 type PlayerRank = {
