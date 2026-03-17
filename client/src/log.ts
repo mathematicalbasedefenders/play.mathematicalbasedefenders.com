@@ -1,4 +1,4 @@
-let log = {
+const log = {
   error: (message: string, disablePrefix?: boolean) => {
     console.error(
       `${
