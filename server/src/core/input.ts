@@ -246,11 +246,18 @@ function releaseEnemyStock(gameDataToProcess: GameData, room: Room) {
 function leaveMultiplayerRoom(socket: universal.GameWebSocket<UserData>) {
   // TODO: Implement for spectators when spectators are implemented.
   const connectionID = socket.getUserData().connectionID;
-  const room = findRoomWithConnectionID(connectionID) as MultiplayerRoom;
+  const room = findRoomWithConnectionID(connectionID);
+
   if (!room) {
     log.warn(`Socket tried to leave a room, but it wasn't found.`);
     return;
   }
+
+  if (!(room instanceof MultiplayerRoom)) {
+    log.warn(`Socket tried to leave a m.p. room, but it was wrong type.`);
+    return;
+  }
+
   if (room.playing) {
     const gameData = utilities.findGameDataWithConnectionID(connectionID, room);
     if (gameData) {
