@@ -26,8 +26,7 @@ const WebSocketRateLimit = (limit: number, interval: number) => {
 function rateLimitSocket(socket: GameWebSocket<UserData>) {
   const socketID = socket.getUserData().connectionID;
 
-  const MESSAGE = `You're going too fast! 
-  You have rate-limited and been disconnected.`;
+  const MESSAGE = `You're going too fast! You have rate-limited and been disconnected.`;
   const BORDER_COLOR = "#ff0000";
 
   const data = {
