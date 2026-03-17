@@ -247,21 +247,16 @@ function deleteSocket(socketToClose: WebSocket<UserData>) {
   if (typeof socketConnectionID !== "string") {
     return false;
   }
-  // delete the socket
-  const connectionID = socketToClose.getUserData().connectionID;
   const room = rooms.find(
-    (room) =>
-      room.memberConnectionIDs.indexOf(
-        socketToClose.getUserData().connectionID as string
-      ) > -1
+    (room) => room.memberConnectionIDs.indexOf(socketConnectionID) > -1
   );
   if (room) {
     room.deleteMember(socketToClose);
     // If room that socket is in is a multiplayer room, eliminate it too.
     if (room instanceof MultiplayerRoom) {
       if (room.playing) {
-        const gameData = getGameDataFromConnectionID(connectionID);
-        room.eliminateSocketID(connectionID, gameData ?? {});
+        const gameData = getGameDataFromConnectionID(socketConnectionID);
+        room.eliminateSocketID(socketConnectionID, gameData ?? {});
       }
     }
   }
