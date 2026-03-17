@@ -271,17 +271,20 @@ function deleteSocket(socketToClose: WebSocket<UserData>) {
   return true;
 }
 
+/**
+ * Removes the socket from memory, and closes the
+ * client-side connection to/from the socket.
+ * @param {WebSocket<UserData>} socketToClose
+ * @returns `true`.
+ */
 function forceDeleteAndCloseSocket(socketToClose: WebSocket<UserData>) {
   log.warn(
-    `Forcing deleting+closing socket ID ${
+    `Forcing deleting and closing socket ID ${
       socketToClose.getUserData().connectionID
     }`
   );
-  const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
-  if (socketToDeleteIndex > -1) {
-    sockets.splice(socketToDeleteIndex, 1);
-  }
-  socketToClose?.close();
+  socketToClose.getUserData().teardown();
+  socketToClose.close();
   return true;
 }
 
