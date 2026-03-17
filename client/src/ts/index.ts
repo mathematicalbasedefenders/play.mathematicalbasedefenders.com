@@ -180,8 +180,8 @@ async function initializeTextures() {
     textures.opponentPlayfieldBorder = await loadTexture(
       "assets/images/opponent-playfield.png"
     );
-  } catch {
-    console.error(`Unable to load external image into texture.`);
+  } catch (error) {
+    console.error(`Unable to load external image into texture.`, error);
     new ToastNotification(`Unable to load external image into texture.`, {
       borderColor: "#ff0000"
     });
@@ -192,8 +192,8 @@ async function loadTexture(path: string) {
   try {
     const texture = await PIXI.Assets.load(path);
     return texture;
-  } catch {
-    console.error(`Unable to load texture: ${path}.`);
+  } catch (error) {
+    console.error(`Unable to load texture: ${path}.`, error);
     new ToastNotification(`Unable to load texture: ${path}.`, {
       borderColor: "#ff0000"
     });
