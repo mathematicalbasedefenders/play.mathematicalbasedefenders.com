@@ -191,6 +191,11 @@ class GameActionRecord {
   }
 
   async save(mode: string, data: GameData | Array<any>) {
+    if (!this.owner?.getUserData().loggedIn) {
+      log.warn(`Refused to save game recording for guest user.`);
+      return { ok: false, id: "" };
+    }
+
     const timestamp = new Date();
 
     const databaseGameActionRecord = new DatabaseGameActionRecord();
