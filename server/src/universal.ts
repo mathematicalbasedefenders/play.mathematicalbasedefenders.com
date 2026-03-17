@@ -258,6 +258,10 @@ function deleteSocket(socketToClose: WebSocket<UserData>) {
         const gameData = getGameDataFromConnectionID(socketConnectionID);
         room.eliminateSocketID(socketConnectionID, gameData ?? {});
       }
+      // We call the method directly for now... -mistertfy64 2026-03-18
+      if (room.host?.getUserData().connectionID === socketConnectionID) {
+        room.handleHostLeave();
+      }
     }
   }
   const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
