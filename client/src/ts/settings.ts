@@ -97,7 +97,7 @@ function getSettings(storageString: string) {
     if (entry.storageStringKey === "enemyColor") {
       const palette = variables.settings["selectedColorPalette"];
       $("#selected-enemy-color-palette").val(palette);
-      if (/#[0-9a-f]{6}/.test(value)) {
+      if (/^#[0-9a-fA-F]{6}$/.test(value)) {
         $(`input[name="${entry.htmlName}"][value="setColor"]`).prop(
           "checked",
           true
