@@ -577,8 +577,8 @@ class MultiplayerRoom extends Room {
       log.info(`About to delete room ${this.id}...`);
     } else {
       const newHostID = _.sample(this.memberConnectionIDs) as string;
-      this.setNewHost(newHostID);
       this.notifyOfNewHost(newHostID);
+      this.setNewHost(newHostID);
 
       // notify the new host as well
       const newHostSocket = universal.getSocketFromConnectionID(newHostID);
