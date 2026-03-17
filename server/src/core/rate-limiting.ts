@@ -11,11 +11,12 @@ const WebSocketRateLimit = (limit: number, interval: number) => {
   return (socket: GameWebSocket<UserData>) => {
     const socketUserData = socket.getUserData();
     if (!socketUserData.rateLimiting) {
-      return;
+      return false;
     }
     if (socketUserData.rateLimiting.last != now) {
       socketUserData.rateLimiting.last = now;
       socketUserData.rateLimiting.count = 1;
+      return false;
     } else {
       return ++socketUserData.rateLimiting.count > limit;
     }
