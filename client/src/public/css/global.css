@@ -107,6 +107,7 @@ code {
   transition-duration: var(--transition-duration-short);
   border-top: none;
   width: 100%;
+  user-select: none;
 }
 
 .option-button--left-bordered {
