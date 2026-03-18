@@ -74,7 +74,9 @@
   margin: 0 0 0 4px;
   text-align: left;
   font-family: inherit;
+  user-select: none;
 }
+
 .singleplayer-menu-screen-button__description {
   font-size: min(24px, 1.5vw);
   color: #ffffff;
@@ -83,6 +85,7 @@
   text-overflow: clip;
   text-align: left;
   font-family: inherit;
+  user-select: none;
 }
 
 #singleplayer-menu-screen-button--easy {
