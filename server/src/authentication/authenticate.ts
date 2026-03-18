@@ -87,7 +87,7 @@ function validateData(username: unknown, password: unknown, socketID: unknown) {
       id: null
     };
   }
-  if (typeof socketID !== "string" || password === "") {
+  if (typeof socketID !== "string" || socketID === "") {
     return {
       good: false,
       reason: "Invalid Socket ID.",
