@@ -41,17 +41,19 @@
   margin: 0 0 0 4px;
   text-align: left;
   font-family: inherit;
+  user-select: none;
 }
+
 .multiplayer-menu-screen-button__description {
   font-size: min(24px, 1.5vw);
   color: #ffffff;
   margin: 0 0 0 4px;
   text-wrap: wrap;
-
   white-space: nowrap;
   text-overflow: clip;
   text-align: left;
   font-family: inherit;
+  user-select: none;
 }
 
 #multiplayer-menu-screen-button--default {
