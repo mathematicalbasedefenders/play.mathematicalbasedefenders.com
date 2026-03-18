@@ -10,6 +10,7 @@
 #main-content__custom-singleplayer-intermission-screen-container__sidebar {
   grid-column: column2-start / column2-end;
   grid-row: row2-start / row2-end;
+  user-select: none;
 }
 
 #main-content__custom-singleplayer-intermission-screen-container__sidebar.option-button--left-bordered {
