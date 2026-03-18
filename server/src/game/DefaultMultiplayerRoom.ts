@@ -337,11 +337,11 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
           userID: "",
           connectionID: winnerGameData.ownerConnectionID
         };
-        if (winnerSocketUserData) {
+        if (typeof winnerSocketUserData?.ownerUserID === "string") {
           // is registered
           data.isRegistered = true;
-          data.userID = winnerSocketUserData.ownerUserID ?? "";
-          data.nameColor = winnerSocketUserData.playerRank?.color ?? "#ffffff";
+          data.userID = winnerSocketUserData.ownerUserID;
+          data.nameColor = winnerSocketUserData.playerRank.color;
         }
         this.ranking.push(data);
         // submit replay here.
