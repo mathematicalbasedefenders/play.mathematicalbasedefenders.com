@@ -20,6 +20,7 @@
   font-size: 225%;
   font-family: inherit;
   word-wrap: break-word;
+  user-select: none;
 }
 
 #quick-menu__content-container {
