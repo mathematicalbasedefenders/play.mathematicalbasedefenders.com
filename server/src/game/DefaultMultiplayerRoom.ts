@@ -212,10 +212,8 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
       log.warn(
         `Socket ID ${connectionID} not found while eliminating it from multiplayer room, but deleting anyway.`
       );
-      return;
     }
-
-    const socketUserData = socket.getUserData();
+    const socketUserData = socket?.getUserData();
     const place = this.gameData.length;
     if (gameData instanceof GameData) {
       const data = {
@@ -225,25 +223,29 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
         sent: gameData.totalEnemiesSent,
         received: gameData.totalEnemiesReceived,
         isRegistered: false,
-        nameColor: "",
+        nameColor: "#ffffff",
         userID: "",
         connectionID: gameData.ownerConnectionID
       };
-      if (socket?.getUserData().ownerUserID) {
+      if (typeof socketUserData?.ownerUserID === "string") {
         // is registered
         data.isRegistered = true;
-        data.userID = socketUserData.ownerUserID ?? "";
-        data.nameColor = socketUserData.playerRank?.color ?? "#ffffff";
+        data.userID = socketUserData.ownerUserID;
+        data.nameColor = socketUserData.playerRank.color;
       }
       this.ranking.push(data);
     }
-    if (socket?.getUserData().loggedIn && gameData instanceof GameData) {
+    if (
+      typeof socketUserData?.ownerUserID === "string" &&
+      socket?.getUserData().loggedIn &&
+      gameData instanceof GameData
+    ) {
       if (!universal.STATUS.databaseAvailable) {
         log.warn("Database is not available. Not running database operation.");
       } else {
         const earnedEXP = Math.round(gameData.elapsedTime / 2000);
         User.giveExperiencePointsToUserID(
-          socketUserData.ownerUserID as string,
+          socketUserData.ownerUserID,
           earnedEXP
         );
       }
