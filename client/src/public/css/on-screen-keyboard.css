@@ -46,6 +46,7 @@
   border: 1px solid var(--color-text-light);
   font-family: inherit;
   font-size: 3vh;
+  user-select: none;
 }
 
 .on-screen-keyboard-button:hover {
