@@ -84,16 +84,17 @@ async function initializePIXIApp() {
   }
 }
 
-try {
-  initializePIXIApp();
-} catch {
+initializePIXIApp().catch((error) => {
   console.error(
-    "Unable to start pixi.js app, please refresh! If this persists, please contact the administrator."
+    "Unable to start pixi.js app, please refresh! If this persists, please contact the administrator.",
+    error
   );
-  new ToastNotification("Unable to start pixi.js app, please refresh!", {
-    borderColor: "#ff0000"
-  });
-}
+  const toast = new ToastNotification(
+    "Unable to start pixi.js app, please refresh!",
+    { borderColor: "#ff0000" }
+  );
+  toast.render();
+});
 
 const variables: { [key: string]: any } = {
   onScreenKeyboardActivated: false,
