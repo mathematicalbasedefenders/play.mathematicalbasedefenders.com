@@ -12,6 +12,7 @@
   height: 48px;
   font-size: 225%;
   border: 1px #ffffff solid;
+  user-select: none;
 }
 
 .quick-menu__content-button {
