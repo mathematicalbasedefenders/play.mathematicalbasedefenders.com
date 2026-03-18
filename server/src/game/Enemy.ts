@@ -1,10 +1,6 @@
 import _ from "lodash";
 import { log } from "../core/log";
-import {
-  GameData,
-  SingleplayerGameData,
-  MultiplayerGameData
-} from "./GameData";
+import { GameData, MultiplayerGameData } from "./GameData";
 import { USE_TESTING_VALUES } from "../universal";
 import { TESTING_VALUES } from "../testing-configuration/values";
 import { findRoomWithConnectionID } from "../core/utilities";
@@ -246,7 +242,7 @@ function createProblem(result: number) {
 
 function getFactorsOf(number: number): Array<number> {
   let factors: Array<number> = [];
-  let end: number = 1;
+  let end;
   // TODO: it is currently speed mode for positive numbers, and slow mode for negative numbers, fix it.
   if (number < 0) {
     end = -1;

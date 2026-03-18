@@ -566,7 +566,7 @@ function navigateFocus(event: KeyboardEvent) {
     if (!element) {
       return;
     }
-    focusOnDefault(screen, element, keyPressed);
+    focusOnDefault(screen, element);
     return;
   }
   // normal case
@@ -594,7 +594,7 @@ function checkIfFocusedOnEndOfMessageBox(
   element: string,
   keyPressed: string
 ) {
-  let targetID = "";
+  let targetID;
   if (screen === "multiplayerIntermission") {
     targetID = "chat-message";
   } else if (screen === "customMultiplayerIntermission") {
@@ -659,7 +659,7 @@ function focusPopup() {
   variables.navigation.focusing = popupToFocusID;
 }
 
-function focusOnDefault(screen: string, element: string, keyPressed: string) {
+function focusOnDefault(screen: string, element: string) {
   // focus on the `defaultFocus` element if nothing is arrow-key focused
   const destinationElement = $(`${element}`);
   // remove old element's focus status
