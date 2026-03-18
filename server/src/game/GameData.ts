@@ -366,24 +366,17 @@ class SingleplayerGameData extends GameData {
           "enemiesToNextLevel",
           _.get(this, "enemiesToNextLevel")
         );
-      }
-
-      if (this.enemiesToNextLevel <= 0) {
-        this.increaseLevel(1);
-        if (room) {
-          // this function already updates level
-          // and sets the corresponding clocks to
-          // the correct (new) intervals
+        if (this.enemiesToNextLevel <= 0) {
+          this.increaseLevel(1);
           room.updateReplayClockData(this, room);
         }
+        room.gameActionRecord.addSetGameDataAction(
+          this,
+          "player",
+          "score",
+          this.score
+        );
       }
-
-      room.gameActionRecord.addSetGameDataAction(
-        this,
-        "player",
-        "score",
-        this.score
-      );
     }
   }
 }
