@@ -391,7 +391,6 @@ class CustomSingleplayerGameData extends GameData {
       throw new Error(
         "Non-custom singleplayer game mode passed in a custom s.p. room."
       );
-      return;
     }
     super(owner, gameMode);
     // This assumes that data has already been validated.
