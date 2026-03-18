@@ -129,12 +129,12 @@ function processKeypress(
   processKeypressForRoom(connectionID, code);
   // non-room interactions
   if (code === "Escape") {
-    let socket = universal.sockets.find(
+    const targetSocket = universal.sockets.find(
       (socket) => socket.getUserData().connectionID === connectionID
     );
-    if (socket) {
-      leaveMultiplayerRoom(socket);
-      socket.send(
+    if (targetSocket) {
+      leaveMultiplayerRoom(targetSocket);
+      targetSocket.send(
         JSON.stringify({
           message: "changeScreen",
           newScreen: "mainMenu"
