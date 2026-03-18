@@ -243,7 +243,8 @@ class DefaultMultiplayerRoom extends MultiplayerRoom {
       if (!universal.STATUS.databaseAvailable) {
         log.warn("Database is not available. Not running database operation.");
       } else {
-        const earnedEXP = Math.round(gameData.elapsedTime / 2000);
+        const EXP_PER_SECOND = 2000;
+        const earnedEXP = Math.round(gameData.elapsedTime / EXP_PER_SECOND);
         User.giveExperiencePointsToUserID(
           socketUserData.ownerUserID,
           earnedEXP
