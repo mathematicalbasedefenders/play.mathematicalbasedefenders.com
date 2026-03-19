@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { log } from "../core/log";
-import { GameData, MultiplayerGameData } from "./GameData";
+import { GameData, GameMode, MultiplayerGameData } from "./GameData";
 import { USE_TESTING_VALUES } from "../universal";
 import { TESTING_VALUES } from "../testing-configuration/values";
 import { findRoomWithConnectionID } from "../core/utilities";
@@ -11,6 +11,8 @@ const POSSIBLE_FACTORS = [2, 3, 4, 5, 6, 8, 9, 10, 11];
 const DEFAULT_SPEED = 1 / 60;
 
 interface EnemyAttributes {
+  low?: number;
+  high?: number;
   attack?: number;
   health?: number;
   color?: number;
@@ -160,22 +162,28 @@ function removeEnemyWithIDInGameData(id: string, gameData: GameData) {
 }
 
 function createNewEnemy(id: string, attributes?: EnemyAttributes) {
-  // TODO: Change this algorithm (line below)
-  let generatedValue: number = Math.round(Math.random() * 200 - 100);
+  const DEFAULT_LOW = -100;
+  const DEFAULT_HIGH = 100;
+  const low = attributes?.low ?? DEFAULT_LOW;
+  const high = attributes?.high ?? DEFAULT_HIGH;
+  const generatedValue = Math.random() * (high - low + 1) + low;
+
+  let targetValue = Math.floor(generatedValue);
+
   /**
    * If testing mode is used, then ignore generated value and use set value
    * So the app can behave deterministically.
    */
   if (USE_TESTING_VALUES) {
     if (TESTING_VALUES && typeof TESTING_VALUES.forcedEnemyValue === "number") {
-      generatedValue = TESTING_VALUES.forcedEnemyValue;
+      targetValue = TESTING_VALUES.forcedEnemyValue;
     } else {
       console.warn("Testing value faulty, using original value instead.");
     }
   }
   let enemy: Enemy = new Enemy(
-    generatedValue,
-    createProblem(generatedValue),
+    targetValue,
+    createProblem(targetValue),
     Math.random(),
     1,
     attributes?.speed || 0.1,
@@ -260,4 +268,56 @@ function getFactorsOf(number: number): Array<number> {
   return factors;
 }
 
-export { createNewEnemy, createNewReceivedEnemy, Enemy, EnemyAttributes };
+function getEnemyAttributesBasedOnGameData(data: GameData) {
+  switch (data.mode) {
+    case GameMode.DefaultMultiplayer:
+    case GameMode.CustomMultiplayer: {
+      return getMultiplayerEnemyAttributesBasedOnGameData(data);
+    }
+    case GameMode.EasySingleplayer:
+    case GameMode.StandardSingleplayer:
+    case GameMode.InsaneSingleplayer:
+    case GameMode.CustomSingleplayer: {
+      return getSingleplayerEnemyAttributesBasedOnGameData(data);
+    }
+    default: {
+      return getSingleplayerEnemyAttributesBasedOnGameData(data);
+    }
+  }
+}
+
+function getSingleplayerEnemyAttributesBasedOnGameData(data: GameData) {
+  const EXPANSION_PER_LEVEL = 10;
+  const RANGE_START = 100;
+  // enemy generated value will never go above or below +/-999
+  const EXTREME = 999;
+  const rangeExpand = (data.level - 1) * EXPANSION_PER_LEVEL;
+  const attributes: EnemyAttributes = {
+    low: Math.max(-(RANGE_START + rangeExpand), -EXTREME),
+    high: Math.min(RANGE_START + rangeExpand, EXTREME)
+  };
+  return attributes;
+}
+
+function getMultiplayerEnemyAttributesBasedOnGameData(data: GameData) {
+  const MILLISECONDS_PER_RANGE_EXPAND = 1250;
+  const RANGE_START = 100;
+  // enemy generated value will never go above or below +/-999
+  const EXTREME = 999;
+  const rangeExpand = Math.floor(
+    data.elapsedTime / MILLISECONDS_PER_RANGE_EXPAND
+  );
+  const attributes: EnemyAttributes = {
+    low: Math.max(-(RANGE_START + rangeExpand), -EXTREME),
+    high: Math.min(RANGE_START + rangeExpand, EXTREME)
+  };
+  return attributes;
+}
+
+export {
+  createNewEnemy,
+  createNewReceivedEnemy,
+  Enemy,
+  EnemyAttributes,
+  getEnemyAttributesBasedOnGameData
+};
