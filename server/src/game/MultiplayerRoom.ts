@@ -12,7 +12,7 @@ import {
   checkPlayerMultiplayerRoomClocks
 } from "./actions/clocks";
 import { changeClientSideText } from "./actions/send-html";
-import { createNewEnemy } from "./Enemy";
+import { createNewEnemy, getEnemyAttributesBasedOnGameData } from "./Enemy";
 import {
   ClockInterface,
   GameMode,
@@ -300,9 +300,12 @@ class MultiplayerRoom extends Room {
       // clocks
       checkPlayerMultiplayerRoomClocks(data);
 
+      // attributes
+      const attributes = getEnemyAttributesBasedOnGameData(data);
+
       // forced enemy (when zero)
       if (data.enemies.length === 0) {
-        const enemy = createNewEnemy(`F${data.enemiesSpawned}`);
+        const enemy = createNewEnemy(`F${data.enemiesSpawned}`, attributes);
         this.gameActionRecord.addEnemySpawnAction(enemy, data);
         data.enemies.push(_.clone(enemy));
         data.enemiesSpawned++;
