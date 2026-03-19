@@ -301,11 +301,12 @@ class MultiplayerRoom extends Room {
       checkPlayerMultiplayerRoomClocks(data);
 
       // attributes
-      const attributes = getEnemyAttributesBasedOnGameData(data);
+      const enemyAttributes = getEnemyAttributesBasedOnGameData(data);
 
       // forced enemy (when zero)
       if (data.enemies.length === 0) {
-        const enemy = createNewEnemy(`F${data.enemiesSpawned}`, attributes);
+        const enemyNumber = data.enemiesSpawned;
+        const enemy = createNewEnemy(`F${enemyNumber}`, enemyAttributes);
         this.gameActionRecord.addEnemySpawnAction(enemy, data);
         data.enemies.push(_.clone(enemy));
         data.enemiesSpawned++;
