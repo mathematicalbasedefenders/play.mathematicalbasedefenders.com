@@ -1,11 +1,7 @@
 // package files
 import _ from "lodash";
 // other files
-import {
-  Enemy,
-  createNewEnemy,
-  getEnemyAttributesBasedOnGameData
-} from "../Enemy";
+import { createNewEnemy, getEnemyAttributesBasedOnGameData } from "../Enemy";
 import { GameData } from "../GameData";
 import { Room } from "../Room";
 import { findRoomWithConnectionID } from "../../core/utilities";
@@ -68,7 +64,8 @@ function checkGlobalMultiplayerRoomClocks(room: MultiplayerRoom) {
  * @param {Room} room The room of the data.
  */
 function checkEnemyTimeClocks(data: GameData, room: Room) {
-  const enemyToAdd: Enemy = createNewEnemy(`G${room.updateNumber}`);
+  const enemyAttributes = getEnemyAttributesBasedOnGameData(data);
+  const enemyToAdd = createNewEnemy(`G${room.updateNumber}`, enemyAttributes);
   const forcedEnemySpawnClock = data.clocks.forcedEnemySpawn;
   const enemySpawnClock = data.clocks.enemySpawn;
   let forcedSpawned = false;
