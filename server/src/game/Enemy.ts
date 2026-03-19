@@ -269,6 +269,12 @@ function getFactorsOf(number: number): Array<number> {
 }
 
 function getEnemyAttributesBasedOnGameData(data: GameData) {
+  if (!data) {
+    // if no `GameData` is supplied, give an
+    // attribute-less object
+    return {};
+  }
+
   switch (data.mode) {
     case GameMode.DefaultMultiplayer:
     case GameMode.CustomMultiplayer: {
