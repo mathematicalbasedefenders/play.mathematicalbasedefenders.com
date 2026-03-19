@@ -33,7 +33,8 @@ function checkGlobalMultiplayerRoomClocks(room: MultiplayerRoom) {
   // since `elapsedTime` is generally synchronized across every `GameData`
   // instance anyway.
   // TODO: Make this more robust.
-  const enemyAttributes = getEnemyAttributesBasedOnGameData(room.gameData[0]);
+  const referenceGameData = room.gameData?.[0] || null;
+  const enemyAttributes = getEnemyAttributesBasedOnGameData(referenceGameData);
 
   const enemyToAdd = createNewEnemy(`G${room.updateNumber}`, enemyAttributes);
   const forcedEnemySpawnClock = room.globalClock.forcedEnemySpawn;
