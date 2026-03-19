@@ -23,9 +23,8 @@ class BezierCurve {
    * @returns An object with keys x and y, for the points in the curve.
    */
   calculatePoint(timeElapsed: number) {
-    const curve = this;
-    const terms = curve.points.length;
-    const time = timeElapsed / curve.duration;
+    const terms = this.points.length;
+    const time = timeElapsed / this.duration;
     let x = 0,
       y = 0;
     for (let i = 0; i < terms; i++) {
@@ -33,12 +32,12 @@ class BezierCurve {
         nCr(terms - 1, i) *
         (1 - time) ** (terms - i - 1) *
         time ** i *
-        curve.points[i][0];
+        this.points[i][0];
       y +=
         nCr(terms - 1, i) *
         (1 - time) ** (terms - i - 1) *
         time ** i *
-        curve.points[i][1];
+        this.points[i][1];
     }
     return {
       x: x,

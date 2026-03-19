@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { calculateLevel, formatNumber, millisecondsToTime } from "./utilities";
+import { calculateLevel, millisecondsToTime } from "./utilities";
 
 function showUserLookupPopUp(userID: string) {
   $("#main-content__user-card-container").css("display", "flex");

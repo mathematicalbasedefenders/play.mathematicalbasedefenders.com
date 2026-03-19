@@ -1,5 +1,9 @@
 import { WebSocket } from "uWebSockets.js";
-import { getOpponentsInformation } from "./game/Room";
+import {
+  defaultMultiplayerRoomID,
+  getOpponentsInformation,
+  Room
+} from "./game/Room";
 import { GameData, GameMode } from "./game/GameData";
 import _ from "lodash";
 import {
@@ -17,35 +21,29 @@ import {
   SingleplayerRoom,
   createSingleplayerRoom
 } from "./game/SingleplayerRoom";
+import { ToastNotificationData } from "./core/toast-notifications";
+import { sendChatMessage } from "./core/chat";
+import * as input from "./core/input";
+
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
-interface UserData {}
-
-type PlayerRank = {
-  color: string;
-  title: string;
-};
-
-/**
- * This represents a socket for a player.
- */
-type GameSocket = WebSocket<UserData> & {
+interface UserData {
   /** Owner's username. If exists, overrides `ownerGuestName` */
   ownerUsername?: string;
   /** Owner's USER ID. */
   ownerUserID?: string;
   /** Owner's guest name. Can be overwritten with username by logging in. */
-  ownerGuestName?: string;
+  ownerGuestName: string;
   /** Socket's connectionID, randomly generated between sessions. */
-  connectionID?: string;
+  connectionID: string;
   /** Whether a socket is logged in. */
-  loggedIn?: boolean;
+  loggedIn: boolean;
   /** Player rank of a socket */
-  playerRank?: PlayerRank;
+  playerRank: PlayerRank;
   /** These are used for rate limiting. */
-  accumulatedMessages?: number;
+  accumulatedMessages: number;
   /** These are used for rate limiting. */
-  rateLimiting?: {
+  rateLimiting: {
     last: number;
     count: number;
   };
@@ -55,82 +53,270 @@ type GameSocket = WebSocket<UserData> & {
    * New in 0.4.13.
    */
   exitedOpeningScreen?: boolean;
+
+  /**
+   * Tears down the socket, disconnecting itself from
+   * the game and deleting itself from memory.
+   * @returns `true` If socket is successfully deleted without errors, `false` otherwise.
+   */
+  teardown(): boolean;
+
+  /**
+   * "Forcefully" tears down the socket, disconnecting
+   * itself from the game and deleting itself from memory.
+   * This method is meant to be a more "unsafe" way of
+   * disconnecting a socket.
+   * @returns `true` If socket is successfully deleted without errors, `false` otherwise.
+   */
+  forceTeardown(): boolean;
+
+  /**
+   * Synchronizes the socket's server-side GAME data
+   * TO client-side data.
+   */
+  synchronizeToClientSide(): void;
+
+  /**
+   * Synchronizes the server's METADATA to
+   * client-side data.
+   */
+  synchronizeMetadataToClientSide(
+    deltaTime: number,
+    systemStatus: object
+  ): void;
+
+  /**
+   * Sends a toast notification to the socket's client side.
+   * @param {ToastNotificationData} data The data of the toast notification.
+   */
+  sendToastNotification(data: ToastNotificationData): void;
+
+  /**
+   * Checks if the socket is current playing (has GameData attached to it.)
+   * @returns `true` if the socket has a GameData attached to it
+   * (in this case, it means the socket is in an ACTIVE game.),
+   * `false` otherwise.
+   */
+  getPlayingStatus(): boolean;
+
+  /**
+   * Sends a message to a chat room.
+   * @param {string} message The message to send.
+   * @param {string} scope The scope for the message.
+   */
+  sendMessageToChat(message: string, scope: "room" | "global"): void;
+
+  /**
+   * Makes the socket leave its multiplayer room.
+   */
+  leaveMultiplayerRoom(): void;
+
+  /**
+   * Processes a keypress for a socket.
+   * @param {string} keypress The keycode to process
+   */
+  processKeypress(keypress: string): void;
+
+  /**
+   * Processes an emulated keypress for a socket.
+   * @param {string} keypress The keycode to process
+   */
+  emulateKeypress(keypress: string): void;
+
+  /**
+   * Makes `socket` join a multiplayer room with the id `roomID`.
+   * @param {universal.GameWebSocket<UserData>} socket
+   * @param {string} roomID
+   * @returns `true` if room joining is successful,
+   * `false` otherwise.
+   */
+  joinMultiplayerRoom(roomID: string): boolean;
+}
+
+type PlayerRank = {
+  color: string;
+  title: string;
 };
 
-const sockets: Array<GameSocket> = [];
+const sockets: Array<WebSocket<UserData>> = [];
 const rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
 
 const STATUS = {
   databaseAvailable: false,
   lastDeltaTimeToUpdate: 0,
-  gameVersion: process.env.npm_package_version ?? "0.5.0-rc.8.1"
+  gameVersion: process.env.npm_package_version ?? "0.5.0-rc.9"
 };
 
 /**
- * Removes the socket from memory.
- * @param {GameSocket} socketToClose The socket to remove.
+ * Initializes a socket. This includes adding it subscribing it to `game`.
+ * @param {WebSocket<UserData>} socket The socket to initialize default values with.
  */
-function deleteSocket(socketToClose: GameSocket) {
+function initializeSocket(socket: WebSocket<UserData>) {
+  const socketUserData = socket.getUserData();
+  socketUserData.exitedOpeningScreen = false;
+  socketUserData.connectionID = generateConnectionID(16);
+  socketUserData.ownerGuestName = `Guest ${generateGuestID(8)}`;
+  socketUserData.accumulatedMessages = 0;
+  socketUserData.rateLimiting = {
+    last: 1,
+    count: 0
+  };
+
+  // interface methods
+  socketUserData.teardown = function () {
+    return deleteSocket(socket);
+  };
+
+  socketUserData.forceTeardown = function () {
+    return forceDeleteAndCloseSocket(socket);
+  };
+
+  socketUserData.synchronizeToClientSide = function () {
+    return synchronizeGameDataWithSocket(socket);
+  };
+
+  socketUserData.synchronizeMetadataToClientSide = function (
+    deltaTime,
+    systemStatus
+  ) {
+    return synchronizeMetadataWithSocket(socket, deltaTime, systemStatus);
+  };
+
+  socketUserData.sendToastNotification = function (data) {
+    sendToastMessageToSocket(socket, data);
+  };
+
+  socketUserData.getPlayingStatus = function () {
+    const id = socket.getUserData().connectionID;
+    return checkIfSocketIsPlaying(id);
+  };
+
+  socketUserData.sendMessageToChat = function (message, scope) {
+    sendChatMessage(scope, message, socket);
+  };
+
+  socketUserData.leaveMultiplayerRoom = function () {
+    input.leaveMultiplayerRoom(socket);
+  };
+
+  socketUserData.processKeypress = function (keypress: string) {
+    input.processKeypress(socket, keypress);
+  };
+
+  socketUserData.emulateKeypress = function (keypress: string) {
+    input.emulateKeypress(socket, keypress);
+  };
+
+  socketUserData.joinMultiplayerRoom = function (roomID: string) {
+    let room;
+    if (roomID === "default") {
+      room = getDefaultMultiplayerRoom();
+    } else {
+      const roomWithID = (room: Room) => room.id === roomID;
+      room = rooms.find(roomWithID);
+    }
+
+    if (!room) {
+      socketUserData.sendToastNotification({
+        borderColor: "#ff0000",
+        text: "The room you're trying to join doesn't exist!"
+      });
+      log.warn(
+        `Socket ${
+          socketUserData.connectionID
+        } tried to join a non-existent multiplayer room.`
+      );
+      return false;
+    }
+
+    socket.subscribe(roomID);
+    room.addMember(socket);
+    return true;
+  };
+
+  socket.subscribe("game");
+}
+
+/**
+ * Removes the socket from memory.
+ * @param {WebSocket<UserData>} socketToClose The socket to remove.
+ */
+function deleteSocket(socketToClose: WebSocket<UserData>) {
   // update room that socket is in
-  if (typeof socketToClose.connectionID === "string") {
-    const connectionID = socketToClose.connectionID;
-    const room = rooms.find(
-      (room) =>
-        room.memberConnectionIDs.indexOf(socketToClose.connectionID as string) >
-        -1
-    );
-    if (room) {
-      room.deleteMember(socketToClose);
-      // If room that socket is in is a multiplayer room, eliminate it too.
-      if (room instanceof MultiplayerRoom) {
-        const gameData = getGameDataFromConnectionID(connectionID);
-        room.eliminateSocketID(connectionID, gameData ?? {});
+  const socketConnectionID = socketToClose.getUserData().connectionID;
+  if (typeof socketConnectionID !== "string") {
+    return false;
+  }
+  const room = rooms.find(
+    (room) => room.memberConnectionIDs.indexOf(socketConnectionID) > -1
+  );
+  if (room) {
+    room.deleteMember(socketToClose);
+    // If room that socket is in is a multiplayer room, eliminate it too.
+    if (room instanceof MultiplayerRoom) {
+      if (room.playing) {
+        const gameData = getGameDataFromConnectionID(socketConnectionID);
+        room.eliminateSocketID(socketConnectionID, gameData ?? {});
+      }
+      // We call the method directly for now... -mistertfy64 2026-03-18
+      if (room.host?.getUserData().connectionID === socketConnectionID) {
+        room.handleHostLeave();
       }
     }
   }
-  // delete the socket
   const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
   if (socketToDeleteIndex > -1) {
     sockets.splice(socketToDeleteIndex, 1);
   }
+  log.info(`Socket with ID ${socketConnectionID} has disconnected!`);
+  return true;
 }
 
-function forceDeleteAndCloseSocket(socketToClose: GameSocket) {
-  log.warn(`Forcing deleting+closing socket ID ${socketToClose.connectionID}`);
-  const socketToDeleteIndex: number = sockets.indexOf(socketToClose);
-  if (socketToDeleteIndex > -1) {
-    sockets.splice(socketToDeleteIndex, 1);
-  }
-  socketToClose?.close();
+/**
+ * Removes the socket from memory, and closes the
+ * client-side connection to/from the socket.
+ * @param {WebSocket<UserData>} socketToClose
+ * @returns `true`.
+ */
+function forceDeleteAndCloseSocket(socketToClose: WebSocket<UserData>) {
+  log.warn(
+    `Forcing deleting and closing socket ID ${
+      socketToClose.getUserData().connectionID
+    }`
+  );
+  socketToClose.getUserData().teardown();
+  socketToClose.close();
+  return true;
 }
 
 /**
  * Attempts to find the socket with the ID `id`.
  * @param {string} id The ID of the socket to find.
- * @returns The `GameSocket` if such ID exists, `undefined` otherwise.
+ * @returns The `WebSocket<UserData>` if such ID exists, `undefined` otherwise.
  */
 function getSocketFromConnectionID(id: string) {
-  return sockets.find((socket) => socket.connectionID === id);
+  return sockets.find((socket) => socket.getUserData().connectionID === id);
 }
 
 /**
  * Attempts to find the socket with the ID `id`.
  * @param {string} id The ID of the socket to find.
- * @returns The `GameSocket` if such ID exists, `undefined` otherwise.
+ * @returns The `WebSocket<UserData>` if such ID exists, `undefined` otherwise.
  */
 function getSocketsFromUserID(id: string) {
-  return sockets.filter((socket) => socket.ownerUserID === id);
+  return sockets.filter((socket) => socket.getUserData().ownerUserID === id);
 }
 
 function getNameFromConnectionID(id: string): string | undefined {
-  let socket = getSocketFromConnectionID(id);
+  const socket = getSocketFromConnectionID(id);
   if (typeof socket === "undefined") {
     return "???";
   }
-  if (socket.loggedIn) {
-    return socket.ownerUsername;
+  const socketUserData = socket.getUserData();
+  if (socketUserData.loggedIn) {
+    return socketUserData.ownerUsername;
   } else {
-    return socket.ownerGuestName;
+    return socketUserData.ownerGuestName;
   }
 }
 
@@ -179,17 +365,17 @@ function checkIfSocketIsInMultiplayerRoom(id: string) {
 
 /**
  * Synchronizes the game data of the server from the server-side to the client-side.
- * @param {GameSocket} socket The socket to sync data with.
+ * @param {WebSocket<UserData>} socket The socket to sync data with.
  */
 function synchronizeMetadataWithSocket(
-  socket: GameSocket,
+  socket: WebSocket<UserData>,
   deltaTime: number,
   systemStatus: { [key: string]: any }
 ) {
   // server metadata
   STATUS.lastDeltaTimeToUpdate = deltaTime;
   const metadataToSend = getServerMetadata(deltaTime, systemStatus);
-  const socketID = socket?.connectionID;
+  const socketID = socket?.getUserData().connectionID;
   if (socketID) {
     metadataToSend.playerName = getNameFromConnectionID(socketID) ?? "???";
   }
@@ -200,8 +386,9 @@ function synchronizeMetadataWithSocket(
     })
   );
   // socket metadata
-  if (socket.connectionID) {
-    const id = socket.connectionID;
+  const socketUserData = socket.getUserData();
+  if (socketUserData.connectionID) {
+    const id = socketUserData.connectionID;
     const socketIsPlaying = checkIfSocketIsPlaying(id);
     const socketIsInMPRoom = checkIfSocketIsInMultiplayerRoom(id);
     socket.send(
@@ -218,11 +405,12 @@ function synchronizeMetadataWithSocket(
 
 /**
  * Synchronizes the game data of the socket from the server-side to the client-side.
- * @param {GameSocket} socket The socket to sync data with.
+ * @param {WebSocket<UserData>} socket The socket to sync data with.
  */
-function synchronizeGameDataWithSocket(socket: GameSocket) {
+function synchronizeGameDataWithSocket(socket: WebSocket<UserData>) {
+  const socketUserData = socket.getUserData();
   const socketGameData = getGameDataFromConnectionID(
-    socket.connectionID as string
+    socketUserData.connectionID as string
   );
   const clonedSocketGameData = _.cloneDeep(socketGameData);
   if (clonedSocketGameData) {
@@ -232,7 +420,7 @@ function synchronizeGameDataWithSocket(socket: GameSocket) {
     // add some game data (extra information)
     // such as for multiplayer
     if (clonedSocketGameData.mode.indexOf("Multiplayer") > -1) {
-      let room = findRoomWithConnectionID(socket.connectionID);
+      let room = findRoomWithConnectionID(socketUserData.connectionID);
       if (room) {
         clonedSocketGameData.opponentGameData = getOpponentsInformation(
           socket,
@@ -277,7 +465,9 @@ function getServerMetadata(
 ) {
   // number of rooms
   const online = sockets.length;
-  const onlineRegistered = sockets.filter((e) => e.loggedIn).length;
+  const onlineRegistered = sockets.filter(
+    (e) => e.getUserData().loggedIn
+  ).length;
   const onlineGuests = online - onlineRegistered;
   const roomsTotal = rooms.length;
   // TODO: Change this when custom singleplayer comes
@@ -350,38 +540,23 @@ function sendGlobalWebSocketMessage(message: { [key: string]: any } | string) {
 }
 
 /**
- * Initializes a socket. This includes adding it subscribing it to `game`.
- * @param {GameSocket} socket The socket to initialize default values with.
- */
-function initializeSocket(socket: GameSocket) {
-  socket.exitedOpeningScreen = false;
-  socket.connectionID = generateConnectionID(16);
-  socket.ownerGuestName = `Guest ${generateGuestID(8)}`;
-  socket.accumulatedMessages = 0;
-  socket.rateLimiting = {
-    last: 1,
-    count: 0
-  };
-  socket.subscribe("game");
-}
-
-/**
  * This sends data to the socket's connection to update initial values.
- * @param {GameSocket} socket The socket to initialize send data to.
+ * @param {WebSocket<UserData>} socket The socket to initialize send data to.
  */
-function sendInitialSocketData(socket: GameSocket) {
+function sendInitialSocketData(socket: WebSocket<UserData>) {
+  const socketUserData = socket.getUserData();
   socket.send(
     JSON.stringify({
       message: "changeValueOfInput",
       selector: "#authentication-modal__socket-id",
-      value: socket.connectionID
+      value: socketUserData.connectionID
     })
   );
   socket.send(
     JSON.stringify({
       message: "updateGuestInformationText",
       data: {
-        guestName: socket.ownerGuestName
+        guestName: socketUserData.ownerGuestName
       }
     })
   );
@@ -389,21 +564,20 @@ function sendInitialSocketData(socket: GameSocket) {
 
 // TODO: This can only set borderColor, which is all we need, I guess...
 function sendToastMessageToSocket(
-  socket: GameSocket,
-  message: string,
-  borderColor: string
+  socket: WebSocket<UserData>,
+  data: ToastNotificationData
 ) {
   socket?.send(
     JSON.stringify({
       message: "createToastNotification",
-      text: message,
-      options: { borderColor: borderColor }
+      text: data.text,
+      options: { borderColor: data.borderColor }
     })
   );
 }
 
 function startGameForSocket(
-  socket: GameSocket,
+  socket: WebSocket<UserData>,
   parsedMessage: { [key: string]: string }
 ) {
   switch (parsedMessage.mode) {
@@ -481,6 +655,12 @@ function startGameForSocket(
   }
 }
 
+function getDefaultMultiplayerRoom() {
+  const defaultRoom = (room: Room) => room.id === defaultMultiplayerRoomID;
+  const room = rooms.find(defaultRoom);
+  return room;
+}
+
 // get configuration
 const configurationLocation = path.join(
   __dirname,
@@ -500,24 +680,20 @@ const USE_TESTING_VALUES =
   CONFIGURATION.useTestingStatesIfDevelopmentEnvironment;
 
 export {
-  GameSocket,
   sockets,
-  deleteSocket,
   rooms,
   getSocketFromConnectionID,
   getGameDataFromConnectionID,
   getNameFromConnectionID,
   getSocketsFromUserID,
   STATUS,
-  synchronizeGameDataWithSocket,
-  synchronizeMetadataWithSocket,
   sendGlobalToastNotification,
-  forceDeleteAndCloseSocket,
   sendGlobalWebSocketMessage,
-  checkIfSocketIsPlaying,
   initializeSocket,
   sendInitialSocketData,
-  sendToastMessageToSocket,
   startGameForSocket,
-  USE_TESTING_VALUES
+  getDefaultMultiplayerRoom,
+  USE_TESTING_VALUES,
+  UserData,
+  WebSocket as GameWebSocket // this is exported as `GameWebSocket` since `WebSocket` might clash with other definitions.
 };

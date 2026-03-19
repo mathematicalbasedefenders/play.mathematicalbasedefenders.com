@@ -1,0 +1,16 @@
+noscript {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000000;
+  color: #ffffff;
+  z-index: var(--z-index-noscript);
+  position: relative;
+}
+
+noscript img {
+  transform: scale(0.75);
+  user-select: none;
+}

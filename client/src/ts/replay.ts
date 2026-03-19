@@ -134,13 +134,7 @@ async function playReplay(replayData: Replay, viewAs?: string) {
   while (variables.replay.elapsedReplayTime <= inGameTime) {
     let timestamp = startingTimestamp + variables.replay.elapsedReplayTime;
     let timestampWindow = INTERVAL;
-    let additionalReplayContext: ReplayContext = {
-      enemies: {
-        ignored: [],
-        ages: {},
-        spawnTimes: {}
-      }
-    };
+    let additionalReplayContext;
 
     if (variables.replay.jumped) {
       resetClientSideVariables();

@@ -51,6 +51,7 @@ body {
   --z-index-chat-tray: 99;
   --z-index-on-screen-keyboard: 200;
   --z-index-opening-screen: 10000;
+  --z-index-noscript: 10002;
   --z-index-popup-notification: 2000;
   --z-index-quick-menu: 999;
   --z-index-replay-controller: 300;
@@ -106,6 +107,7 @@ code {
   transition-duration: var(--transition-duration-short);
   border-top: none;
   width: 100%;
+  user-select: none;
 }
 
 .option-button--left-bordered {

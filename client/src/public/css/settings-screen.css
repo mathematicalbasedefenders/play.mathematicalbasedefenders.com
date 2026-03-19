@@ -18,7 +18,9 @@
   height: 100%;
   grid-row: row1-end / row2-start;
   grid-column: column2-start / column2-end;
+  user-select: none;
 }
+
 .settings-screen__sidebar-item {
   width: 100%;
   color: var(--color-text-light);
@@ -32,6 +34,7 @@
   border-top: none;
   border-right: none;
   border-bottom: none;
+  user-select: none;
 }
 
 .settings-screen__sidebar-item:hover {

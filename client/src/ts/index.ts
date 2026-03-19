@@ -1,8 +1,10 @@
 import FontFaceObserver from "fontfaceobserver";
 import * as PIXI from "pixi.js";
 import { socket, sendSocketMessage } from "./socket";
-import { initializeKeypressEventListener } from "./input";
-import * as AS from "adaptive-scale/lib-esm";
+import {
+  handleEmulatedClientSideKeypress,
+  initializeKeypressEventListener
+} from "./input";
 import {
   changeCustomSingleplayerSecondaryScreen,
   changeScreen,
@@ -82,16 +84,17 @@ async function initializePIXIApp() {
   }
 }
 
-try {
-  initializePIXIApp();
-} catch (error) {
+initializePIXIApp().catch((error) => {
   console.error(
-    "Unable to start pixi.js app, please refresh! If this persists, please contact the administrator."
+    "Unable to start pixi.js app, please refresh! If this persists, please contact the administrator.",
+    error
   );
-  new ToastNotification("Unable to start pixi.js app, please refresh!", {
-    borderColor: "#ff0000"
-  });
-}
+  const toast = new ToastNotification(
+    "Unable to start pixi.js app, please refresh!",
+    { borderColor: "#ff0000" }
+  );
+  toast.render();
+});
 
 const variables: { [key: string]: any } = {
   onScreenKeyboardActivated: false,
@@ -179,7 +182,7 @@ async function initializeTextures() {
       "assets/images/opponent-playfield.png"
     );
   } catch (error) {
-    console.error(`Unable to load external image into texture.`);
+    console.error(`Unable to load external image into texture.`, error);
     new ToastNotification(`Unable to load external image into texture.`, {
       borderColor: "#ff0000"
     });
@@ -190,8 +193,8 @@ async function loadTexture(path: string) {
   try {
     const texture = await PIXI.Assets.load(path);
     return texture;
-  } catch {
-    console.error(`Unable to load texture: ${path}.`);
+  } catch (error) {
+    console.error(`Unable to load texture: ${path}.`, error);
     new ToastNotification(`Unable to load texture: ${path}.`, {
       borderColor: "#ff0000"
     });
@@ -478,7 +481,7 @@ function initializeEventListeners() {
     variables.multiplayerChat.playerListCache.playerCount = 0;
     variables.multiplayerChat.playerListCache.registeredPlayers.clear();
     sendSocketMessage({
-      message: "joinMultiplayerRoom",
+      message: "joinDefaultMultiplayerRoom",
       room: "default"
     });
     changeScreen("multiplayerIntermission");
@@ -727,29 +730,21 @@ function initializeEventListeners() {
   //
   for (let i = 0; i <= 9; i++) {
     $(`#on-screen-keyboard__button-${i}`).on("click", () => {
-      sendSocketMessage({
-        message: "emulateKeypress",
-        emulatedKeypress: `Digit${i}`
-      });
+      const event = new KeyboardEvent("keydown", { code: `Digit${i}` });
+      handleEmulatedClientSideKeypress(event);
     });
   }
   $("#on-screen-keyboard__button-minus").on("click", () => {
-    sendSocketMessage({
-      message: "emulateKeypress",
-      emulatedKeypress: `Minus`
-    });
+    const event = new KeyboardEvent("keydown", { code: `Minus` });
+    handleEmulatedClientSideKeypress(event);
   });
   $(`#on-screen-keyboard__button-send`).on("click", () => {
-    sendSocketMessage({
-      message: "emulateKeypress",
-      emulatedKeypress: `Space`
-    });
+    const event = new KeyboardEvent("keydown", { code: `Space` });
+    handleEmulatedClientSideKeypress(event);
   });
   $(`#on-screen-keyboard__button-delete`).on("click", () => {
-    sendSocketMessage({
-      message: "emulateKeypress",
-      emulatedKeypress: `Backspace`
-    });
+    const event = new KeyboardEvent("keydown", { code: `Backspace` });
+    handleEmulatedClientSideKeypress(event);
   });
   $(`#chat-message`).on("keypress", function (e) {
     if (e.which == 13) {
@@ -1073,14 +1068,10 @@ function updateUserInformationText(data: any) {
     }% to next)`
   );
   $("#user-account-stat--easy-singleplayer-record").text(
-    Number.isNaN(data.records.easy?.score)
-      ? "N/A"
-      : data.records.easy.score.toLocaleString("en-US")
+    data.records.easy?.score ?? "N/A"
   );
   $("#user-account-stat--standard-singleplayer-record").text(
-    Number.isNaN(data.records.standard?.score)
-      ? "N/A"
-      : data.records.standard.score.toLocaleString("en-US")
+    data.records.standard?.score ?? "N/A"
   );
   $("#user-account-stat--level").attr(
     "title",

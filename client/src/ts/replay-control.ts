@@ -1,6 +1,5 @@
 import { stageItems, variables } from ".";
-import { ActionRecord, Replay } from "./replay";
-import { ToastNotification } from "./toast-notification";
+import { ActionRecord } from "./replay";
 
 interface MultiplayerReplayEnemyContext {
   players?: { [key: string]: { enemies: ReplayEnemyContext } };
