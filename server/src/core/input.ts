@@ -342,6 +342,14 @@ function getKilledEnemyIDs(gameData: GameData) {
       continue;
     }
 
+    if (
+      parseInt(gameData.currentInput).toString() !==
+      gameData.currentInput.toString()
+    ) {
+      // invalid leading zero in input, e.g. 0002, 0135
+      continue;
+    }
+
     if (enemy.check(parseInt(gameData.currentInput))) {
       // gameData.enemiesToErase.push(enemy.id);
       enemyIDsToKill.push(enemy.id);
