@@ -1,7 +1,7 @@
 // package files
 import _ from "lodash";
 // other files
-import { Enemy, createNewEnemy } from "../Enemy";
+import { createNewEnemy, getEnemyAttributesBasedOnGameData } from "../Enemy";
 import { GameData } from "../GameData";
 import { Room } from "../Room";
 import { findRoomWithConnectionID } from "../../core/utilities";
@@ -28,7 +28,15 @@ function checkPlayerMultiplayerRoomClocks(data: GameData) {
  */
 function checkGlobalMultiplayerRoomClocks(room: MultiplayerRoom) {
   room.globalEnemyToAdd = null;
-  const enemyToAdd: Enemy = createNewEnemy(`G${room.updateNumber}`);
+
+  // Hopefully `room.gameData[0]` always contain a `GameData` instance,
+  // since `elapsedTime` is generally synchronized across every `GameData`
+  // instance anyway.
+  // TODO: Make this more robust.
+  const referenceGameData = room.gameData?.[0] || null;
+  const enemyAttributes = getEnemyAttributesBasedOnGameData(referenceGameData);
+
+  const enemyToAdd = createNewEnemy(`G${room.updateNumber}`, enemyAttributes);
   const forcedEnemySpawnClock = room.globalClock.forcedEnemySpawn;
   const enemySpawnClock = room.globalClock.enemySpawn;
   let forcedSpawned = false;
@@ -57,7 +65,8 @@ function checkGlobalMultiplayerRoomClocks(room: MultiplayerRoom) {
  * @param {Room} room The room of the data.
  */
 function checkEnemyTimeClocks(data: GameData, room: Room) {
-  const enemyToAdd: Enemy = createNewEnemy(`G${room.updateNumber}`);
+  const enemyAttributes = getEnemyAttributesBasedOnGameData(data);
+  const enemyToAdd = createNewEnemy(`G${room.updateNumber}`, enemyAttributes);
   const forcedEnemySpawnClock = data.clocks.forcedEnemySpawn;
   const enemySpawnClock = data.clocks.enemySpawn;
   let forcedSpawned = false;

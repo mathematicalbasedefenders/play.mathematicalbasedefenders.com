@@ -3,7 +3,7 @@ import * as _ from "lodash";
 // other files
 import { checkSingleplayerRoomClocks } from "./clocks";
 import { GameData } from "../GameData";
-import { createNewEnemy } from "../Enemy";
+import { createNewEnemy, getEnemyAttributesBasedOnGameData } from "../Enemy";
 import { log } from "../../core/log";
 import { findRoomWithConnectionID } from "../../core/utilities";
 import { SingleplayerRoom } from "../SingleplayerRoom";
@@ -80,7 +80,8 @@ function checkForceSpawnEnemyCondition(data: GameData, room: SingleplayerRoom) {
     return false;
   }
 
-  const enemy = createNewEnemy(`F${room.updateNumber}`);
+  const enemyAttributes = getEnemyAttributesBasedOnGameData(data);
+  const enemy = createNewEnemy(`F${room.updateNumber}`, enemyAttributes);
   room.gameActionRecord.addEnemySpawnAction(enemy, data);
 
   data.enemies.push(_.clone(enemy));

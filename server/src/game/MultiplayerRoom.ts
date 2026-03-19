@@ -12,7 +12,7 @@ import {
   checkPlayerMultiplayerRoomClocks
 } from "./actions/clocks";
 import { changeClientSideText } from "./actions/send-html";
-import { createNewEnemy } from "./Enemy";
+import { createNewEnemy, getEnemyAttributesBasedOnGameData } from "./Enemy";
 import {
   ClockInterface,
   GameMode,
@@ -300,9 +300,13 @@ class MultiplayerRoom extends Room {
       // clocks
       checkPlayerMultiplayerRoomClocks(data);
 
+      // attributes
+      const enemyAttributes = getEnemyAttributesBasedOnGameData(data);
+
       // forced enemy (when zero)
       if (data.enemies.length === 0) {
-        const enemy = createNewEnemy(`F${data.enemiesSpawned}`);
+        const enemyNumber = data.enemiesSpawned;
+        const enemy = createNewEnemy(`F${enemyNumber}`, enemyAttributes);
         this.gameActionRecord.addEnemySpawnAction(enemy, data);
         data.enemies.push(_.clone(enemy));
         data.enemiesSpawned++;
@@ -319,10 +323,11 @@ class MultiplayerRoom extends Room {
       if (data.receivedEnemiesToSpawn > 0) {
         data.receivedEnemiesToSpawn--;
         data.enemiesSpawned++;
-        const attributes = {
-          speed:
-            GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED * data.enemySpeedCoefficient
-        };
+
+        const attributes = getEnemyAttributesBasedOnGameData(data);
+        attributes.speed =
+          GAME_DATA_CONSTANTS.ENEMY_BASE_SPEED * data.enemySpeedCoefficient;
+
         const receivedEnemy = enemy.createNewReceivedEnemy(
           `R${data.enemiesSpawned}`,
           attributes
