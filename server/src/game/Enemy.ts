@@ -287,7 +287,7 @@ function getEnemyAttributesBasedOnGameData(data: GameData) {
 }
 
 function getSingleplayerEnemyAttributesBasedOnGameData(data: GameData) {
-  const EXPANSION_PER_LEVEL = 10;
+  const EXPANSION_PER_LEVEL = data.mode === GameMode.EasySingleplayer ? 0 : 10;
   const RANGE_START = 100;
   // enemy generated value will never go above or below +/-999
   const EXTREME = 999;
