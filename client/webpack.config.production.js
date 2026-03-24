@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-  entry: "./src/public/ts/index.ts",
+  entry: "./src/ts/index.ts",
   externals: {
     "pixi.js": "PIXI",
     "fontfaceobserver": "FontFaceObserver",
@@ -22,7 +22,7 @@ module.exports = {
         test: /\.ts?$/,
         use: "ts-loader",
         exclude: [/node_modules/, /uWebSocket/, /adaptive-scale/, /pixi/],
-        include: ["/src/public/ts/*"]
+        include: ["/src/ts/*"]
       }
     ]
   },
