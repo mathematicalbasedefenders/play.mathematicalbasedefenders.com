@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
 import uWS from "uWebSockets.js";
-require("@dotenvx/dotenvx").config({ path: "../credentials/.env" });
 import express from "express";
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
@@ -22,36 +21,6 @@ import { MultiplayerRoom } from "./game/MultiplayerRoom";
 import { DefaultMultiplayerRoom } from "./game/DefaultMultiplayerRoom";
 import { UserData } from "./universal";
 import { rateLimitSocket, WebSocketRateLimit } from "./core/rate-limiting";
-
-const app = express();
-app.set("trust proxy", 2);
-app.use(cors());
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        "script-src": [
-          "'self'",
-          "code.jquery.com",
-          "cdnjs.cloudflare.com",
-          "cdn.jsdelivr.net",
-          "pixijs.download",
-          "'unsafe-eval'"
-        ],
-        "style-src": ["'unsafe-inline'", "*"],
-        "connect-src": [
-          "http://localhost:3000",
-          "https://play.mathematicalbasedefenders.com:3000",
-          "ws://localhost:5000",
-          "wss://play.mathematicalbasedefenders.com:5000",
-          "'self'"
-        ]
-      }
-    },
-    crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" }
-  })
-);
 
 // get configuration
 const configurationLocation = path.join(
@@ -75,32 +44,17 @@ const LIVING_ROOM_CONDITION_GRACE_PERIOD = 3000;
 
 const websocketRateLimit = WebSocketRateLimit(2500, 1000);
 
-let initialized = false;
-
 let currentTime: number = Date.now();
 let lastUpdateTime: number = Date.now();
 let sendDataDeltaTime: number;
-
-const DATABASE_CONNECTION_URI: string | undefined =
-  process.env.DATABASE_CONNECTION_URI;
-
-if (CONFIGURATION.useDatabase) {
-  mongoose.connect(DATABASE_CONNECTION_URI as string);
-}
-
-mongoose.connection.on("connected", async () => {
-  universal.STATUS.databaseAvailable = true;
-  log.info(`Connected to database! Database is now available.`);
-});
 
 type WebSocketMessage = ArrayBuffer & {
   message?: string;
   messageArguments?: any;
 };
 
-uWS
-  .App()
-  .ws("/", {
+function createWebSocketServer() {
+  const uWSApp = uWS.App().ws("/", {
     /**
      * This handles the open connection for a `GameWebSocket<UserData>`.
      * @param {universal.GameWebSocket<UserData>} socket The socket that was connected to.
@@ -275,15 +229,9 @@ uWS
       socket.getUserData().teardown();
       log.info(`There are now ${universal.sockets.length} sockets connected.`);
     }
-  })
-
-  .listen(WEBSOCKET_PORT, (token) => {
-    if (token) {
-      log.info(`WebSockets Server listening at port ${WEBSOCKET_PORT}`);
-    } else {
-      log.info(`Failed to listen to WebSockets at port ${WEBSOCKET_PORT}`);
-    }
   });
+  return uWSApp;
+}
 
 function update(deltaTime: number) {
   for (let room of universal.rooms) {
@@ -360,17 +308,6 @@ function synchronizeGameDataWithSockets(
   }
 }
 
-setInterval(() => {
-  if (!initialized) {
-    initialize();
-    initialized = true;
-  }
-  currentTime = Date.now();
-  const deltaTime: number = currentTime - lastUpdateTime;
-  update(deltaTime);
-  lastUpdateTime = Date.now();
-}, UPDATE_INTERVAL);
-
 function checkBufferSize(
   buffer: Buffer,
   socket: universal.GameWebSocket<UserData>
@@ -398,10 +335,6 @@ function checkBufferSize(
   return false;
 }
 
-function initialize() {
-  sendDataDeltaTime = 0;
-}
-
 /**
  * Blocks a socket from performing any actions.
  * Used when socket hasn't properly exited opening screen.
@@ -422,23 +355,90 @@ function blockSocket(socket: universal.GameWebSocket<UserData>) {
   });
 }
 
-fs.readdirSync(path.join(__dirname, "./routes")).forEach((file: string) => {
-  app.use(require(`./routes/${file}`).router);
-});
-
-app.listen(PORT, () => {
-  log.info(
-    `Mathematical Base Defenders ${universal.STATUS.gameVersion} (server-side code)`
+function createWebServer() {
+  const app = express();
+  app.set("trust proxy", 2);
+  app.use(cors());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          "script-src": [
+            "'self'",
+            "code.jquery.com",
+            "cdnjs.cloudflare.com",
+            "cdn.jsdelivr.net",
+            "pixijs.download",
+            "'unsafe-eval'"
+          ],
+          "style-src": ["'unsafe-inline'", "*"],
+          "connect-src": [
+            "http://localhost:3000",
+            "https://play.mathematicalbasedefenders.com:3000",
+            "ws://localhost:5000",
+            "wss://play.mathematicalbasedefenders.com:5000",
+            "'self'"
+          ]
+        }
+      },
+      crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: { policy: "cross-origin" }
+    })
   );
-  log.info(`Server listening at port ${PORT}`);
-  log.info(`Server is using configuration ${JSON.stringify(CONFIGURATION)}`);
-  if (process.env.CREDENTIAL_SET_USED === "TESTING") {
-    log.warn("Using testing credentials.");
+  fs.readdirSync(path.join(__dirname, "./routes")).forEach((file: string) => {
+    app.use(require(`./routes/${file}`).router);
+  });
+  return app;
+}
+
+function initialize() {
+  require("@dotenvx/dotenvx").config({ path: "../credentials/.env" });
+
+  sendDataDeltaTime = 0;
+
+  const DATABASE_CONNECTION_URI: string | undefined =
+    process.env.DATABASE_CONNECTION_URI;
+
+  if (CONFIGURATION.useDatabase) {
+    mongoose.connect(DATABASE_CONNECTION_URI as string);
   }
-  if (
-    process.env.NODE_ENV !== "production" &&
-    CONFIGURATION.useTestingStatesIfDevelopmentEnvironment
-  ) {
-    log.warn("Using testing values. Turn this off in production.");
-  }
-});
+
+  mongoose.connection.on("connected", async () => {
+    universal.STATUS.databaseAvailable = true;
+    log.info(`Connected to database! Database is now available.`);
+  });
+
+  createWebServer().listen(PORT, () => {
+    log.info(
+      `Mathematical Base Defenders ${universal.STATUS.gameVersion} (server-side code)`
+    );
+    log.info(`Server listening at port ${PORT}`);
+    log.info(`Server is using configuration ${JSON.stringify(CONFIGURATION)}`);
+    if (process.env.CREDENTIAL_SET_USED === "TESTING") {
+      log.warn("Using testing credentials.");
+    }
+    if (
+      process.env.NODE_ENV !== "production" &&
+      CONFIGURATION.useTestingStatesIfDevelopmentEnvironment
+    ) {
+      log.warn("Using testing values. Turn this off in production.");
+    }
+  });
+
+  createWebSocketServer().listen(WEBSOCKET_PORT, (token) => {
+    if (token) {
+      log.info(`WebSockets Server listening at port ${WEBSOCKET_PORT}`);
+    } else {
+      log.info(`Failed to listen to WebSockets at port ${WEBSOCKET_PORT}`);
+    }
+  });
+
+  setInterval(() => {
+    currentTime = Date.now();
+    const deltaTime: number = currentTime - lastUpdateTime;
+    update(deltaTime);
+    lastUpdateTime = Date.now();
+  }, UPDATE_INTERVAL);
+}
+
+export { createWebSocketServer, createWebServer, initialize };
