@@ -2,8 +2,9 @@ import { authenticate } from "../../../server/src/authentication/perform-authent
 
 describe("perform-authentication.ts", () => {
   describe("authenticate()", () => {
-    it("should not allow logging in when given incorrect credentials", () => {
-      const result = authenticate("123", "456", "789");
+    it("should not allow logging in when given incorrect credentials", async () => {
+      const result = await authenticate("123", "456", "1234567890123456");
+      console.log(result);
       expect(result).toBe(false);
     });
   });

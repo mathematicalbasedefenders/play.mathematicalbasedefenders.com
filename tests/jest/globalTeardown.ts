@@ -1,8 +1,12 @@
-import { MongoMemoryServer } from "mongodb-memory-server";
-
 module.exports = async function () {
-  console.log("Stopping database...");
-  const instance: MongoMemoryServer = (global as any).__MONGOINSTANCE;
-  await instance.stop();
-  console.log("Stopped database!");
+  console.log("Shutting down test web server...");
+  await (globalThis as any).webServer.close();
+  console.log("Shut down test web server!");
+
+  console.log("Shutting down test WebSocket server...");
+  await (globalThis as any).webSocketServer.close();
+  console.log("Shut down test WebSocket server!");
+
+  const instance = (globalThis as any).__MONGOINSTANCE;
+  instance.stop();
 };
