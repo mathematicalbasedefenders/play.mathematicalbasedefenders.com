@@ -4,10 +4,7 @@ import { findRoomWithConnectionID } from "./utilities";
 import { Room } from "../game/Room";
 import { UserData } from "../universal";
 //
-const createDOMPurify = require("dompurify");
-const { JSDOM } = require("jsdom");
-const window = new JSDOM("").window;
-const DOMPurify = createDOMPurify(window);
+import DOMPurify from "isomorphic-dompurify";
 //
 const BAD_MESSAGE_OBJECT = {
   message: "changeText",
