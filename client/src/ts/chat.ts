@@ -1,4 +1,4 @@
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 import { showUserLookupPopUp } from "./lookup-user";
 import { ToastNotification } from "./toast-notification";
 

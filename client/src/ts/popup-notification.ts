@@ -1,4 +1,4 @@
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify from "dompurify";
 
 enum PopupNotificationButtonStyle {
   SINGLE = 1,
