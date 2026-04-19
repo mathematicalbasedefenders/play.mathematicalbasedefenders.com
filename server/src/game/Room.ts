@@ -17,10 +17,8 @@ import { MultiplayerRoom } from "./MultiplayerRoom";
 import { UserData } from "../universal";
 import { ToastNotificationData } from "../core/toast-notifications";
 
-const createDOMPurify = require("dompurify");
-const { JSDOM } = require("jsdom");
-const window = new JSDOM("").window;
-const DOMPurify = createDOMPurify(window);
+import DOMPurify from "isomorphic-dompurify";
+
 let defaultMultiplayerRoomID: string | null = null;
 
 const COMMAND_DATA = [

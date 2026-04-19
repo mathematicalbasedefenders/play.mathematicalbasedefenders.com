@@ -3,9 +3,9 @@ import { User, UserInterface } from "../models/User";
 import { authenticateForSocket } from "./authenticate";
 import * as utilities from "../core/utilities";
 import * as universal from "../universal";
-import { DOMPurifySanitizer } from "../sanitizer";
 import { UserData } from "../universal";
 import { ToastNotificationData } from "../core/toast-notifications";
+import DOMPurify from "dompurify";
 
 const FAILED_BORDER_COLOR = "#ff0000";
 const SUCCESS_BORDER_COLOR = "#00dd00";
@@ -38,7 +38,7 @@ async function authenticate(
     return false;
   }
 
-  const sanitizedUsername = DOMPurifySanitizer.sanitize(username);
+  const sanitizedUsername = DOMPurify.sanitize(username);
 
   /** Successfully logged in. */
   const socketUserData = socket.getUserData();
