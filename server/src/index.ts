@@ -42,8 +42,6 @@ const SYNCHRONIZATION_INTERVAL: number =
   1000 / DESIRED_SYNCHRONIZATIONS_PER_SECOND;
 const LIVING_ROOM_CONDITION_GRACE_PERIOD = 3000;
 
-const websocketRateLimit = WebSocketRateLimit(2500, 1000);
-
 let currentTime: number = Date.now();
 let lastUpdateTime: number = Date.now();
 let sendDataDeltaTime: number;
@@ -54,6 +52,7 @@ type WebSocketMessage = ArrayBuffer & {
 };
 
 function createWebSocketServer() {
+  const websocketRateLimit = WebSocketRateLimit(2500, 1000);
   const uWSApp = uWS.App().ws("/", {
     /**
      * This handles the open connection for a `GameWebSocket<UserData>`.
