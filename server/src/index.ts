@@ -393,6 +393,8 @@ function createWebServer() {
 function initialize() {
   require("@dotenvx/dotenvx").config({ path: "../credentials/.env" });
 
+  initializeGlobalVariables();
+
   sendDataDeltaTime = 0;
 
   const DATABASE_CONNECTION_URI: string | undefined =
@@ -440,4 +442,14 @@ function initialize() {
   }, UPDATE_INTERVAL);
 }
 
-export { createWebSocketServer, createWebServer, initialize };
+function initializeGlobalVariables() {
+  globalThis.sockets = [];
+  globalThis.rooms = [];
+}
+
+export {
+  createWebSocketServer,
+  createWebServer,
+  initialize,
+  initializeGlobalVariables
+};
