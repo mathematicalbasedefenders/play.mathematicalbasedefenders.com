@@ -1,5 +1,3 @@
-require("wtfnode").init();
-
 import mongoose from "mongoose";
 import { createWebServer, createWebSocketServer } from "../../server/src/index";
 import { MongoMemoryServer } from "mongodb-memory-server";
