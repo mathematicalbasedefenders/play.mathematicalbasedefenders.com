@@ -48,6 +48,4 @@ module.exports = async function () {
   const connection = await mongoose.connect(process.env["MONGO_URI"] as string);
   await connection.connection.db.dropDatabase();
   await mongoose.disconnect();
-
-  console.log(globalThis);
 };
