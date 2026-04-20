@@ -143,6 +143,9 @@ type PlayerRank = {
   title: string;
 };
 
+globalThis.sockets = [];
+globalThis.rooms = [];
+
 const STATUS = {
   databaseAvailable: false,
   lastDeltaTimeToUpdate: 0,

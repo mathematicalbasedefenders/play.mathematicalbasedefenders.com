@@ -2,13 +2,9 @@ import mongoose from "mongoose";
 import { createWebServer, createWebSocketServer } from "../../server/src/index";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
-const TESTING_WEB_SERVER_PORT = 4001;
-const TESTING_WEBSOCKET_SERVER_PORT = 5001;
-const TESTING_DATABASE_NAME = "mbd-testing";
-
 module.exports = async function () {
-  (globalThis as any).sockets = [];
-  (globalThis as any).rooms = [];
+  const TESTING_WEB_SERVER_PORT = 4001;
+  const TESTING_WEBSOCKET_SERVER_PORT = 5001;
 
   console.log("Creating test web server...");
 
@@ -43,11 +39,8 @@ module.exports = async function () {
   });
   const uri = instance.getUri();
   (globalThis as any).__MONGOINSTANCE = instance;
-  process.env.MONGO_URI =
-    uri.slice(0, uri.lastIndexOf("/")) + "/" + TESTING_DATABASE_NAME;
+  process.env.MONGO_URI = uri.slice(0, uri.lastIndexOf("/"));
   const connection = await mongoose.connect(process.env["MONGO_URI"] as string);
   await connection.connection.db.dropDatabase();
   await mongoose.disconnect();
-
-  console.log(globalThis);
 };
