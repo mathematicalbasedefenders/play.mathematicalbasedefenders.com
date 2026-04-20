@@ -61,8 +61,8 @@ function createWebSocketServer() {
     open: (socket: universal.GameWebSocket<UserData>) => {
       log.info("Socket connected!");
       universal.initializeSocket(socket);
-      universal.sockets.push(socket);
-      log.info(`There are now ${universal.sockets.length} sockets connected.`);
+      globalThis.sockets.push(socket);
+      log.info(`There are now ${globalThis.sockets.length} sockets connected.`);
       universal.sendInitialSocketData(socket);
     },
 
@@ -141,7 +141,7 @@ function createWebSocketServer() {
           // validate
           const ROOM_CODE_REGEX = /^[A-Z0-9]{8}$/;
           const target = parsedMessage.room;
-          const room = universal.rooms.find((e) => e.id === target);
+          const room = globalThis.rooms.find((e) => e.id === target);
           if (!ROOM_CODE_REGEX.test(target) || !room) {
             const socketID = socketUserData.connectionID;
             log.warn(`Socket ${socketID} tried to join a non-existent room.`);
@@ -226,21 +226,21 @@ function createWebSocketServer() {
 
     close: (socket: universal.GameWebSocket<UserData>) => {
       socket.getUserData().teardown();
-      log.info(`There are now ${universal.sockets.length} sockets connected.`);
+      log.info(`There are now ${globalThis.sockets.length} sockets connected.`);
     }
   });
   return uWSApp;
 }
 
 function update(deltaTime: number) {
-  for (let room of universal.rooms) {
+  for (let room of globalThis.rooms) {
     if (room) {
       room.update();
     }
   }
 
   // CHECK FOR BAD SOCKETS
-  utilities.checkWebSocketMessageSpeeds(universal.sockets, deltaTime);
+  utilities.checkWebSocketMessageSpeeds(globalThis.sockets, deltaTime);
   // DATA IS SENT HERE. <---
   const systemStatus = updateSystemStatus(deltaTime);
   synchronizeGameDataWithSockets(deltaTime, systemStatus || {});
@@ -267,10 +267,10 @@ function cleanUnusedRooms() {
     return gracePeriod || (memberCount > 0 && validObject);
   };
 
-  const oldRooms = _.clone(universal.rooms).map((element) => element.id);
-  utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
+  const oldRooms = _.clone(globalThis.rooms).map((element) => element.id);
+  utilities.mutatedArrayFilter(globalThis.rooms, livingRoomCondition);
 
-  const newRooms = _.clone(universal.rooms).map((element) => element.id);
+  const newRooms = _.clone(globalThis.rooms).map((element) => element.id);
   const deletedRooms = oldRooms.filter(
     (element) => !newRooms.includes(element)
   );
@@ -298,7 +298,7 @@ function synchronizeGameDataWithSockets(
     return;
   }
   sendDataDeltaTime -= SYNCHRONIZATION_INTERVAL;
-  for (let socket of universal.sockets) {
+  for (let socket of globalThis.sockets) {
     socket.getUserData().synchronizeToClientSide();
     socket
       .getUserData()

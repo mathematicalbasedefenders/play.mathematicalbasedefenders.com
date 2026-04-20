@@ -134,7 +134,7 @@ function validateRoom(connectionID: string) {
     return false;
   }
 
-  const roomExists = universal.rooms.some((e) => e.id === roomID);
+  const roomExists = globalThis.rooms.some((e) => e.id === roomID);
   if (!roomExists) {
     log.warn(
       `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`

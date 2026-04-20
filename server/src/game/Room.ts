@@ -72,7 +72,7 @@ abstract class Room {
    * Creates a `Room` instance. This shouldn't be called directly.
    * Instead it should be called from a `super()` call from either
    * a new `SingleplayerRoom` or a new `MultiplayerRoom`.
-   * Note: A Room will only "start to function" when it is in `universal.rooms`.
+   * Note: A Room will only "start to function" when it is in `globalThis.rooms`.
    * @param {universal.GameWebSocket<UserData>} host The socket that asked for the room.
    * @param {GameMode} gameMode The game mode of the room
    * @param {boolean} noHost Should only be `true` on Default Multiplayer.
@@ -938,7 +938,7 @@ function generateRoomID(length: number): string {
   while (
     current === "" ||
     utilities.checkIfPropertyWithValueExists(
-      universal.rooms,
+      globalThis.rooms,
       "connectionID",
       current
     )
