@@ -35,8 +35,8 @@ describe("perform-authentication.ts", () => {
       expect(connectionID).toHaveLength(16);
 
       const result = await authenticate(
-        TESTING_CONSTANTS.USERNAME,
-        TESTING_CONSTANTS.PASSWORD,
+        TESTING_CONSTANTS.TESTING_USER_USERNAME,
+        TESTING_CONSTANTS.TESTING_USER_PASSWORD,
         connectionID
       );
       expect(result).toBe(true);
@@ -62,7 +62,7 @@ describe("perform-authentication.ts", () => {
       expect(connectionID).toHaveLength(16);
 
       const result = await authenticate(
-        TESTING_CONSTANTS.USERNAME,
+        TESTING_CONSTANTS.TESTING_USER_USERNAME,
         "12345688",
         connectionID
       );
