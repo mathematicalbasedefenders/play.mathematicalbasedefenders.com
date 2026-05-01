@@ -97,5 +97,32 @@ describe("perform-authentication.ts", () => {
 
       await wait(17);
     });
+
+    it("should not allow logging in when given invalid password", async () => {
+      const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+      const socket = new WebSocket(url);
+
+      const messages: Array<any> = [];
+
+      await new Promise((resolve) => socket.addEventListener("open", resolve));
+      socket.addEventListener("message", (event: any) => {
+        messages.push(event.data);
+      });
+
+      await wait(17);
+
+      const connectionID = getConnectionIDOfSocket(messages);
+
+      expect(connectionID).toHaveLength(16);
+
+      const result = await authenticate(
+        TESTING_CONSTANTS.TESTING_USER_USERNAME,
+        "123",
+        connectionID
+      );
+      expect(result).toBe(false);
+
+      await wait(17);
+    });
   });
 });
