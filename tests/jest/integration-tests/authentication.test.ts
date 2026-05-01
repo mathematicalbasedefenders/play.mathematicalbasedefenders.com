@@ -89,7 +89,7 @@ describe("perform-authentication.ts", () => {
       expect(connectionID).toHaveLength(16);
 
       const result = await authenticate(
-        `$(#@*(#???))`,
+        `$$`,
         TESTING_CONSTANTS.TESTING_USER_PASSWORD,
         connectionID
       );
