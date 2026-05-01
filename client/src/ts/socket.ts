@@ -8,7 +8,7 @@ import { changeScreen, renderGameData } from "./game";
 import { ToastNotification } from "./toast-notification";
 import { updateSystemStatusTrayText } from "./system-status-indicator";
 import { createChatMessage } from "./chat";
-import DOMPurify from "dompurify";
+import DOMPurify from "isomorphic-dompurify";
 import { showUserLookupPopUp } from "./lookup-user";
 import {
   checkPlayerListCacheEquality,

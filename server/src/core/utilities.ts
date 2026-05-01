@@ -111,14 +111,16 @@ function findRoomWithConnectionID(
   if (typeof connectionID === "undefined") {
     return null;
   }
-  for (let room in universal.rooms) {
+  for (let room in globalThis.rooms) {
     if (considerSpectators) {
-      if (universal.rooms[room].spectatorConnectionIDs.includes(connectionID)) {
-        return universal.rooms[room];
+      if (
+        globalThis.rooms[room].spectatorConnectionIDs.includes(connectionID)
+      ) {
+        return globalThis.rooms[room];
       }
     }
-    if (universal.rooms[room].memberConnectionIDs.includes(connectionID)) {
-      return universal.rooms[room];
+    if (globalThis.rooms[room].memberConnectionIDs.includes(connectionID)) {
+      return globalThis.rooms[room];
     }
   }
   return null;
@@ -258,7 +260,7 @@ function generateConnectionID(length: number) {
   let current = "";
   while (
     current === "" ||
-    checkIfPropertyWithValueExists(universal.sockets, "connectionID", current)
+    checkIfPropertyWithValueExists(globalThis.sockets, "connectionID", current)
   ) {
     for (let i = 0; i < length; i++) {
       current += pool[Math.floor(Math.random() * pool.length)];
@@ -272,7 +274,7 @@ function generateGuestID(length: number) {
   let current = "";
   while (
     current === "" ||
-    checkIfPropertyWithValueExists(universal.sockets, "ownerGuestID", current)
+    checkIfPropertyWithValueExists(globalThis.sockets, "ownerGuestID", current)
   ) {
     for (let i = 0; i < length; i++) {
       current += pool[Math.floor(Math.random() * pool.length)];
@@ -491,7 +493,7 @@ function convertGameSettingsToReplayActions(data: GameData) {
  * for use with the public room list.
  */
 function getHumanFriendlyMultiplayerRoomList() {
-  const rooms = universal.rooms.filter(
+  const rooms = globalThis.rooms.filter(
     (e) => e.mode === GameMode.CustomMultiplayer && e.hidden === false
   );
   const result: Array<{
