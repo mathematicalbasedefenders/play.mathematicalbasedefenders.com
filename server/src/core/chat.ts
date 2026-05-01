@@ -56,6 +56,7 @@ function sendChatMessage(
  * Attempts to send a chat message to a room.
  * @param {string} message the message
  * @param {universal.GameWebSocket<UserData>} socket the socket of the message sender.
+ * @returns `true` If the message is sent, `false` otherwise.
  */
 function sendChatMessageToRoom(
   message: string,
@@ -66,29 +67,29 @@ function sendChatMessageToRoom(
 
   if (!connectionID) {
     log.warn(`Socket has no ID.`);
-    return;
+    return false;
   }
 
   const playerName = universal.getNameFromConnectionID(connectionID);
 
   if (!validateRoom(connectionID)) {
     log.warn(`Bad chat room validation for ${connectionID} (${playerName})`);
-    return;
+    return false;
   }
   if (!validateMessage(message, connectionID)) {
     log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
-    return;
+    return false;
   }
 
   const room = findRoomWithConnectionID(connectionID, true) as Room;
   // commands
   if (message.startsWith("/")) {
     room.runChatCommand(message, { sender: socket });
-    return;
+    return true;
   }
 
   room.addChatMessage(message, { sender: socket });
-  return;
+  return true;
 }
 
 /**
