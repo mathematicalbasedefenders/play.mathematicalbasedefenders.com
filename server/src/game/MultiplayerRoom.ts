@@ -75,7 +75,7 @@ class MultiplayerRoom extends Room {
     } else if (mode === GameMode.DefaultMultiplayer) {
       setDefaultMultiplayerRoomID(this.id);
     }
-    universal.rooms.push(this);
+    globalThis.rooms.push(this);
   }
 
   startPlay() {
