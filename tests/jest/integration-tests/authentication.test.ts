@@ -28,7 +28,7 @@ describe("perform-authentication.ts", () => {
         messages.push(event.data);
       });
 
-      await wait(17);
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
 
       const connectionID = getConnectionIDOfSocket(messages);
 
@@ -41,7 +41,7 @@ describe("perform-authentication.ts", () => {
       );
       expect(result).toBe(true);
 
-      await wait(17);
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
     });
 
     it("should not allow logging in when given incorrect password", async () => {
@@ -55,7 +55,7 @@ describe("perform-authentication.ts", () => {
         messages.push(event.data);
       });
 
-      await wait(17);
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
 
       const connectionID = getConnectionIDOfSocket(messages);
 
@@ -68,7 +68,7 @@ describe("perform-authentication.ts", () => {
       );
       expect(result).toBe(false);
 
-      await wait(17);
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
     });
 
     it("should not allow logging in when given invalid username", async () => {
@@ -82,7 +82,7 @@ describe("perform-authentication.ts", () => {
         messages.push(event.data);
       });
 
-      await wait(17);
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
 
       const connectionID = getConnectionIDOfSocket(messages);
 
@@ -95,7 +95,7 @@ describe("perform-authentication.ts", () => {
       );
       expect(result).toBe(false);
 
-      await wait(17);
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
     });
 
     it("should not allow logging in when given invalid password", async () => {
@@ -109,7 +109,7 @@ describe("perform-authentication.ts", () => {
         messages.push(event.data);
       });
 
-      await wait(17);
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
 
       const connectionID = getConnectionIDOfSocket(messages);
 
@@ -122,7 +122,7 @@ describe("perform-authentication.ts", () => {
       );
       expect(result).toBe(false);
 
-      await wait(17);
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
     });
   });
 });
