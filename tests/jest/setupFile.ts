@@ -4,8 +4,8 @@ import * as universal from "../../server/src/universal";
 const bcrypt = require("bcrypt");
 
 const TESTING_CONSTANTS = {
-  USERNAME: "test_user1",
-  PASSWORD: "test_user1",
+  TESTING_USER_USERNAME: "test_user1",
+  TESTING_USER_PASSWORD: "test_user1",
   TESTING_WEB_SERVER_PORT: 4001,
   TESTING_WEBSOCKET_SERVER_PORT: 5001
 };
