@@ -24,8 +24,11 @@ beforeAll(async () => {
 
   // add test user
   const user = new User();
-  user.username = TESTING_CONSTANTS.USERNAME;
-  user.hashedPassword = await bcrypt.hash(TESTING_CONSTANTS.PASSWORD, 4);
+  user.username = TESTING_CONSTANTS.TESTING_USER_USERNAME;
+  user.hashedPassword = await bcrypt.hash(
+    TESTING_CONSTANTS.TESTING_USER_PASSWORD,
+    4
+  );
   await user.save();
 });
 
