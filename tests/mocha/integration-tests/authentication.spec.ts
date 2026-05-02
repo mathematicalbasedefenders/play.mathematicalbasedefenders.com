@@ -72,6 +72,6 @@ describe("perform-authentication.ts", async function () {
 
   afterEach(async function () {
     await databaseConnection.connection.db.dropDatabase();
-    databaseConnection.connection.close();
+    await databaseConnection.connection.close();
   });
 });
