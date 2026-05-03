@@ -196,6 +196,56 @@ describe("perform-authentication.ts", async function () {
       );
       assert.equal(result, false);
     });
+
+    it("should disconnect an already logged in socket when another socket uses the same credentials", async () => {
+      const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+      const socket1 = new WebSocket(url);
+
+      await new Promise((resolve) => socket1.addEventListener("open", resolve));
+
+      const data1: any = await waitForWebSocketMessage(
+        socket1,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "changeValueOfInput" &&
+            data.selector === "#authentication-modal__socket-id"
+          );
+        }
+      );
+
+      const connectionID1 = data1.value;
+
+      const result1 = await authenticate(
+        TESTING_CONSTANTS.TESTING_USER_USERNAME,
+        TESTING_CONSTANTS.TESTING_USER_PASSWORD,
+        connectionID1
+      );
+
+      assert.equal(result1, true);
+
+      const socket2 = new WebSocket(url);
+      await new Promise((resolve) => socket2.addEventListener("open", resolve));
+      const data2: any = await waitForWebSocketMessage(
+        socket2,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "changeValueOfInput" &&
+            data.selector === "#authentication-modal__socket-id"
+          );
+        }
+      );
+      const connectionID2 = data2.value;
+      const result2 = await authenticate(
+        TESTING_CONSTANTS.TESTING_USER_USERNAME,
+        TESTING_CONSTANTS.TESTING_USER_PASSWORD,
+        connectionID2
+      );
+      assert.equal(result2, true);
+
+      await new Promise((resolve) =>
+        socket1.addEventListener("close", resolve)
+      );
+    });
   });
 
   afterEach(async function () {
