@@ -24,11 +24,18 @@ function getConnectionIDOfSocket(messages: Array<any>) {
 describe("perform-authentication.ts", async function () {
   let databaseConnection: mongoose.Mongoose;
 
-  beforeEach(async function () {
+  before(async function () {
     databaseConnection = await mongoose.connect(process.env.MONGO_URI ?? "");
     mongoose.connection.on("connected", () => {
       console.log(`Connected to test database!`);
     });
+  });
+
+  beforeEach(async function () {
+    // databaseConnection = await mongoose.connect(process.env.MONGO_URI ?? "");
+    // mongoose.connection.on("connected", () => {
+    //   console.log(`Connected to test database!`);
+    // });
     (globalThis as any).sockets = [];
     (globalThis as any).rooms = [];
     universal.STATUS.databaseAvailable = true;
@@ -203,6 +210,9 @@ describe("perform-authentication.ts", async function () {
 
   afterEach(async function () {
     await databaseConnection.connection.db.dropDatabase();
+  });
+
+  after(async function () {
     await databaseConnection.connection.close();
   });
 });
