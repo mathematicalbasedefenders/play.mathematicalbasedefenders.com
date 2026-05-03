@@ -90,6 +90,7 @@ describe("perform-authentication.ts", async function () {
         connectionID
       );
       assert.equal(result, false);
+      socket.close();
     });
 
     it("should not allow logging in when given invalid username", async () => {
@@ -116,6 +117,7 @@ describe("perform-authentication.ts", async function () {
         connectionID
       );
       assert.equal(result, false);
+      socket.close();
     });
 
     it("should not allow logging in when given invalid password", async () => {
@@ -142,6 +144,7 @@ describe("perform-authentication.ts", async function () {
         connectionID
       );
       assert.equal(result, false);
+      socket.close();
     });
 
     it("should not allow logging in when socket has already exited opening screen", async () => {
@@ -181,6 +184,7 @@ describe("perform-authentication.ts", async function () {
         connectionID
       );
       assert.equal(result, false);
+      socket.close();
     });
 
     it("should not allow logging in when socket id is invalid", async () => {
@@ -195,6 +199,8 @@ describe("perform-authentication.ts", async function () {
         "1234512345123451"
       );
       assert.equal(result, false);
+
+      socket.close();
     });
 
     it("should disconnect an already logged in socket when another socket uses the same credentials", async () => {
@@ -245,6 +251,8 @@ describe("perform-authentication.ts", async function () {
       await new Promise((resolve) =>
         socket1.addEventListener("close", resolve)
       );
+
+      socket2.close();
     });
   });
 
