@@ -27,6 +27,7 @@ describe("SingleplayerRoom", () => {
     );
     await user.save();
   });
+
   it("should create a room once the constructor is called", async () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket = new WebSocket(url);
@@ -56,6 +57,8 @@ describe("SingleplayerRoom", () => {
 
     assert.ok((globalThis as any).rooms);
     assert.equal((globalThis as any).rooms.length, 1);
+
+    socket.close();
   });
 
   afterEach(async function () {
