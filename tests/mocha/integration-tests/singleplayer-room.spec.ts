@@ -1,9 +1,9 @@
 import assert from "node:assert";
 import { TESTING_CONSTANTS } from "../constants";
-import { wait } from "../wait";
 import { User } from "../../../server/src/models/User";
 import mongoose from "mongoose";
 import * as universal from "../../../server/src/universal";
+import { waitForWebSocketMessage } from "../utilities";
 const bcrypt = require("bcrypt");
 
 describe("SingleplayerRoom", () => {
@@ -31,12 +31,7 @@ describe("SingleplayerRoom", () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket = new WebSocket(url);
 
-    const messages: Array<any> = [];
-
     await new Promise((resolve) => socket.addEventListener("open", resolve));
-    socket.addEventListener("message", (event: any) => {
-      messages.push(event.data);
-    });
 
     const exitOpeningScreenMessage = {
       message: { message: "exitOpeningScreen" }
@@ -49,7 +44,15 @@ describe("SingleplayerRoom", () => {
     socket.send(JSON.stringify(exitOpeningScreenMessage));
     socket.send(JSON.stringify(createRoomMessage));
 
-    await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+    await waitForWebSocketMessage(
+      socket,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "acknowledge" &&
+          data.acknowledgedMessage === "startGame"
+        );
+      }
+    );
 
     assert.ok((globalThis as any).rooms);
     assert.equal((globalThis as any).rooms.length, 1);

@@ -5,31 +5,8 @@ import mongoose from "mongoose";
 import assert from "node:assert";
 import * as universal from "../../../server/src/universal";
 import { User } from "../../../server/src/models/User";
+import { waitForWebSocketMessage } from "../utilities";
 const bcrypt = require("bcrypt");
-
-function waitForWebSocketMessage(
-  socket: WebSocket,
-  predicate: (...args: any[]) => boolean,
-  timeout = 1000
-) {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      socket.removeEventListener("message", listener);
-      reject(new Error("WebSocket message timeout reached."));
-    }, timeout);
-
-    function listener(event: MessageEvent) {
-      const message = JSON.parse(event.data);
-      if (predicate(message)) {
-        clearTimeout(timer);
-        resolve(message);
-      }
-    }
-    socket.addEventListener("message", (event) => {
-      listener(event);
-    });
-  });
-}
 
 describe("perform-authentication.ts", async function () {
   let databaseConnection: mongoose.Mongoose;
@@ -189,7 +166,10 @@ describe("perform-authentication.ts", async function () {
       await waitForWebSocketMessage(
         socket,
         (data: { [key: string]: unknown }) => {
-          return data.message === "acknowledgeExitOpeningScreen";
+          return (
+            data.message === "acknowledge" &&
+            data.acknowledgedMessage === "exitOpeningScreen"
+          );
         }
       );
 

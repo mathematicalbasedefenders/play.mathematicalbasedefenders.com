@@ -1,25 +1,12 @@
 import { describe } from "mocha";
 import { authenticateForSocket } from "../../../server/src/authentication/authenticate";
 import { TESTING_CONSTANTS } from "../constants";
-import { wait } from "../wait";
 import mongoose from "mongoose";
 import assert from "node:assert";
 import * as universal from "../../../server/src/universal";
 import { User } from "../../../server/src/models/User";
+import { waitForWebSocketMessage } from "../utilities";
 const bcrypt = require("bcrypt");
-
-function getConnectionIDOfSocket(messages: Array<any>) {
-  const connectionIDMessage = messages.filter((message) => {
-    const json = JSON.parse(message);
-    return (
-      json.message === "changeValueOfInput" &&
-      json.selector === "#authentication-modal__socket-id"
-    );
-  })[0];
-
-  const connectionID = JSON.parse(connectionIDMessage).value;
-  return connectionID;
-}
 
 describe("authentication.ts", () => {
   let databaseConnection: mongoose.Mongoose;
@@ -54,16 +41,19 @@ describe("authentication.ts", () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket = new WebSocket(url);
 
-    const messages: Array<any> = [];
-
     await new Promise((resolve) => socket.addEventListener("open", resolve));
-    socket.addEventListener("message", (event: any) => {
-      messages.push(event.data);
-    });
 
-    await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+    const data: any = await waitForWebSocketMessage(
+      socket,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeValueOfInput" &&
+          data.selector === "#authentication-modal__socket-id"
+        );
+      }
+    );
 
-    const connectionID = getConnectionIDOfSocket(messages);
+    const connectionID = data.value;
 
     const result = await authenticateForSocket(
       TESTING_CONSTANTS.TESTING_USER_USERNAME,
@@ -81,16 +71,19 @@ describe("authentication.ts", () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket = new WebSocket(url);
 
-    const messages: Array<any> = [];
-
     await new Promise((resolve) => socket.addEventListener("open", resolve));
-    socket.addEventListener("message", (event: any) => {
-      messages.push(event.data);
-    });
 
-    await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+    const data: any = await waitForWebSocketMessage(
+      socket,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeValueOfInput" &&
+          data.selector === "#authentication-modal__socket-id"
+        );
+      }
+    );
 
-    const connectionID = getConnectionIDOfSocket(messages);
+    const connectionID = data.value;
 
     const result = await authenticateForSocket(
       TESTING_CONSTANTS.TESTING_USER_USERNAME,
@@ -106,16 +99,19 @@ describe("authentication.ts", () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket = new WebSocket(url);
 
-    const messages: Array<any> = [];
-
     await new Promise((resolve) => socket.addEventListener("open", resolve));
-    socket.addEventListener("message", (event: any) => {
-      messages.push(event.data);
-    });
 
-    await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+    const data: any = await waitForWebSocketMessage(
+      socket,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeValueOfInput" &&
+          data.selector === "#authentication-modal__socket-id"
+        );
+      }
+    );
 
-    const connectionID = getConnectionIDOfSocket(messages);
+    const connectionID = data.value;
 
     const result = await authenticateForSocket(
       TESTING_CONSTANTS.TESTING_USER_USERNAME,
@@ -131,16 +127,19 @@ describe("authentication.ts", () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket = new WebSocket(url);
 
-    const messages: Array<any> = [];
-
     await new Promise((resolve) => socket.addEventListener("open", resolve));
-    socket.addEventListener("message", (event: any) => {
-      messages.push(event.data);
-    });
 
-    await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+    const data: any = await waitForWebSocketMessage(
+      socket,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeValueOfInput" &&
+          data.selector === "#authentication-modal__socket-id"
+        );
+      }
+    );
 
-    const connectionID = getConnectionIDOfSocket(messages);
+    const connectionID = data.value;
 
     const result = await authenticateForSocket(
       "MoreThanTwentyCharactersLOLha1234567",
@@ -156,16 +155,19 @@ describe("authentication.ts", () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket = new WebSocket(url);
 
-    const messages: Array<any> = [];
-
     await new Promise((resolve) => socket.addEventListener("open", resolve));
-    socket.addEventListener("message", (event: any) => {
-      messages.push(event.data);
-    });
 
-    await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+    const data: any = await waitForWebSocketMessage(
+      socket,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeValueOfInput" &&
+          data.selector === "#authentication-modal__socket-id"
+        );
+      }
+    );
 
-    const connectionID = getConnectionIDOfSocket(messages);
+    const connectionID = data.value;
 
     const result = await authenticateForSocket(
       TESTING_CONSTANTS.TESTING_USER_USERNAME,
