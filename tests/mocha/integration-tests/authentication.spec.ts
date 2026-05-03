@@ -176,6 +176,29 @@ describe("perform-authentication.ts", async function () {
 
       await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
     });
+
+    it("should not allow logging in when socket id is invalid", async () => {
+      const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+      const socket = new WebSocket(url);
+
+      const messages: Array<any> = [];
+
+      await new Promise((resolve) => socket.addEventListener("open", resolve));
+      socket.addEventListener("message", (event: any) => {
+        messages.push(event.data);
+      });
+
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+
+      const result = await authenticate(
+        TESTING_CONSTANTS.TESTING_USER_USERNAME,
+        TESTING_CONSTANTS.TESTING_USER_PASSWORD,
+        "1234512345123451"
+      );
+      assert.equal(result, false);
+
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+    });
   });
 
   afterEach(async function () {
