@@ -28,7 +28,7 @@ describe("SingleplayerRoom", () => {
     await user.save();
   });
 
-  it("should create a room once the constructor is called", async () => {
+  it("should create a easy singleplayer room once the constructor is called", async () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket = new WebSocket(url);
 
@@ -40,6 +40,43 @@ describe("SingleplayerRoom", () => {
 
     const createRoomMessage = {
       message: { message: "startGame", mode: "singleplayer", modifier: "easy" }
+    };
+
+    socket.send(JSON.stringify(exitOpeningScreenMessage));
+    socket.send(JSON.stringify(createRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "acknowledge" &&
+          data.acknowledgedMessage === "startGame"
+        );
+      }
+    );
+
+    assert.ok((globalThis as any).rooms);
+    assert.equal((globalThis as any).rooms.length, 1);
+
+    socket.close();
+  });
+
+  it("should create a standard singleplayer room once the constructor is called", async () => {
+    const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+    const socket = new WebSocket(url);
+
+    await new Promise((resolve) => socket.addEventListener("open", resolve));
+
+    const exitOpeningScreenMessage = {
+      message: { message: "exitOpeningScreen" }
+    };
+
+    const createRoomMessage = {
+      message: {
+        message: "startGame",
+        mode: "singleplayer",
+        modifier: "standard"
+      }
     };
 
     socket.send(JSON.stringify(exitOpeningScreenMessage));
