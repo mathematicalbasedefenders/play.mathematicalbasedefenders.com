@@ -95,6 +95,13 @@ function createWebSocketServer() {
       if (parsedMessage.message === "exitOpeningScreen") {
         log.info(`Socket ${socketUserData.connectionID} exited open screen.`);
         socketUserData.exitedOpeningScreen = true;
+
+        const object = {
+          message: "acknowledgeExitOpeningScreen"
+        };
+        const message = JSON.stringify(object);
+        socket.send(message);
+
         return;
       }
 
