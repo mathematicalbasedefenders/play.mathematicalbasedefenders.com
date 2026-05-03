@@ -97,7 +97,8 @@ function createWebSocketServer() {
         socketUserData.exitedOpeningScreen = true;
 
         const object = {
-          message: "acknowledgeExitOpeningScreen"
+          message: "acknowledge",
+          acknowledgedMessage: "exitOpeningScreen"
         };
         const message = JSON.stringify(object);
         socket.send(message);
@@ -114,6 +115,12 @@ function createWebSocketServer() {
       switch (parsedMessage.message) {
         case "startGame": {
           universal.startGameForSocket(socket, parsedMessage);
+          const object = {
+            message: "acknowledge",
+            acknowledgedMessage: "startGame"
+          };
+          const message = JSON.stringify(object);
+          socket.send(message);
           break;
         }
         case "joinDefaultMultiplayerRoom": {
