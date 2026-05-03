@@ -68,6 +68,114 @@ describe("perform-authentication.ts", async function () {
 
       socket.close();
     });
+
+    it("should not allow logging in when given incorrect password", async () => {
+      const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+      const socket = new WebSocket(url);
+
+      const messages: Array<any> = [];
+
+      await new Promise((resolve) => socket.addEventListener("open", resolve));
+      socket.addEventListener("message", (event: any) => {
+        messages.push(event.data);
+      });
+
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+
+      const connectionID = getConnectionIDOfSocket(messages);
+
+      const result = await authenticate(
+        TESTING_CONSTANTS.TESTING_USER_USERNAME,
+        "12345688",
+        connectionID
+      );
+      assert.equal(result, false);
+
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+    });
+
+    it("should not allow logging in when given invalid username", async () => {
+      const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+      const socket = new WebSocket(url);
+
+      const messages: Array<any> = [];
+
+      await new Promise((resolve) => socket.addEventListener("open", resolve));
+      socket.addEventListener("message", (event: any) => {
+        messages.push(event.data);
+      });
+
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+
+      const connectionID = getConnectionIDOfSocket(messages);
+
+      const result = await authenticate(
+        `$$`,
+        TESTING_CONSTANTS.TESTING_USER_PASSWORD,
+        connectionID
+      );
+      assert.equal(result, false);
+
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+    });
+
+    it("should not allow logging in when given invalid password", async () => {
+      const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+      const socket = new WebSocket(url);
+
+      const messages: Array<any> = [];
+
+      await new Promise((resolve) => socket.addEventListener("open", resolve));
+      socket.addEventListener("message", (event: any) => {
+        messages.push(event.data);
+      });
+
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+
+      const connectionID = getConnectionIDOfSocket(messages);
+
+      const result = await authenticate(
+        TESTING_CONSTANTS.TESTING_USER_USERNAME,
+        "123",
+        connectionID
+      );
+      assert.equal(result, false);
+
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+    });
+
+    it("should not allow logging in when socket has already exited opening screen", async () => {
+      const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+      const socket = new WebSocket(url);
+
+      const messages: Array<any> = [];
+
+      await new Promise((resolve) => socket.addEventListener("open", resolve));
+      socket.addEventListener("message", (event: any) => {
+        messages.push(event.data);
+      });
+
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+
+      const connectionID = getConnectionIDOfSocket(messages);
+
+      const message = JSON.stringify({
+        message: { message: "exitOpeningScreen" }
+      });
+
+      socket.send(message);
+
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+
+      const result = await authenticate(
+        TESTING_CONSTANTS.TESTING_USER_USERNAME,
+        TESTING_CONSTANTS.TESTING_USER_PASSWORD,
+        connectionID
+      );
+      assert.equal(result, false);
+
+      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+    });
   });
 
   afterEach(async function () {
