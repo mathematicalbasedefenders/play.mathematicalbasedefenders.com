@@ -1,24 +1,34 @@
 import { describe } from "mocha";
 import { authenticate } from "../../../server/src/authentication/perform-authentication";
 import { TESTING_CONSTANTS } from "../constants";
-import { wait } from "../wait";
 import mongoose from "mongoose";
 import assert from "node:assert";
 import * as universal from "../../../server/src/universal";
 import { User } from "../../../server/src/models/User";
 const bcrypt = require("bcrypt");
 
-function getConnectionIDOfSocket(messages: Array<any>) {
-  const connectionIDMessage = messages.filter((message) => {
-    const json = JSON.parse(message);
-    return (
-      json.message === "changeValueOfInput" &&
-      json.selector === "#authentication-modal__socket-id"
-    );
-  })[0];
+function waitForWebSocketMessage(
+  socket: WebSocket,
+  predicate: (...args: any[]) => boolean,
+  timeout = 1000
+) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      socket.removeEventListener("message", listener);
+      reject(new Error("WebSocket message timeout reached."));
+    }, timeout);
 
-  const connectionID = JSON.parse(connectionIDMessage).value;
-  return connectionID;
+    function listener(event: MessageEvent) {
+      const message = JSON.parse(event.data);
+      if (predicate(message)) {
+        clearTimeout(timer);
+        resolve(message);
+      }
+    }
+    socket.addEventListener("message", (event) => {
+      listener(event);
+    });
+  });
 }
 
 describe("perform-authentication.ts", async function () {
@@ -55,16 +65,19 @@ describe("perform-authentication.ts", async function () {
       const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
       const socket = new WebSocket(url);
 
-      const messages: Array<any> = [];
-
       await new Promise((resolve) => socket.addEventListener("open", resolve));
-      socket.addEventListener("message", (event: any) => {
-        messages.push(event.data);
-      });
 
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+      const data: any = await waitForWebSocketMessage(
+        socket,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "changeValueOfInput" &&
+            data.selector === "#authentication-modal__socket-id"
+          );
+        }
+      );
 
-      const connectionID = getConnectionIDOfSocket(messages);
+      const connectionID = data.value;
 
       const result = await authenticate(
         TESTING_CONSTANTS.TESTING_USER_USERNAME,
@@ -80,16 +93,19 @@ describe("perform-authentication.ts", async function () {
       const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
       const socket = new WebSocket(url);
 
-      const messages: Array<any> = [];
-
       await new Promise((resolve) => socket.addEventListener("open", resolve));
-      socket.addEventListener("message", (event: any) => {
-        messages.push(event.data);
-      });
 
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+      const data: any = await waitForWebSocketMessage(
+        socket,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "changeValueOfInput" &&
+            data.selector === "#authentication-modal__socket-id"
+          );
+        }
+      );
 
-      const connectionID = getConnectionIDOfSocket(messages);
+      const connectionID = data.value;
 
       const result = await authenticate(
         TESTING_CONSTANTS.TESTING_USER_USERNAME,
@@ -97,24 +113,25 @@ describe("perform-authentication.ts", async function () {
         connectionID
       );
       assert.equal(result, false);
-
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
     });
 
     it("should not allow logging in when given invalid username", async () => {
       const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
       const socket = new WebSocket(url);
 
-      const messages: Array<any> = [];
-
       await new Promise((resolve) => socket.addEventListener("open", resolve));
-      socket.addEventListener("message", (event: any) => {
-        messages.push(event.data);
-      });
 
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+      const data: any = await waitForWebSocketMessage(
+        socket,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "changeValueOfInput" &&
+            data.selector === "#authentication-modal__socket-id"
+          );
+        }
+      );
 
-      const connectionID = getConnectionIDOfSocket(messages);
+      const connectionID = data.value;
 
       const result = await authenticate(
         `$$`,
@@ -122,24 +139,25 @@ describe("perform-authentication.ts", async function () {
         connectionID
       );
       assert.equal(result, false);
-
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
     });
 
     it("should not allow logging in when given invalid password", async () => {
       const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
       const socket = new WebSocket(url);
 
-      const messages: Array<any> = [];
-
       await new Promise((resolve) => socket.addEventListener("open", resolve));
-      socket.addEventListener("message", (event: any) => {
-        messages.push(event.data);
-      });
 
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+      const data: any = await waitForWebSocketMessage(
+        socket,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "changeValueOfInput" &&
+            data.selector === "#authentication-modal__socket-id"
+          );
+        }
+      );
 
-      const connectionID = getConnectionIDOfSocket(messages);
+      const connectionID = data.value;
 
       const result = await authenticate(
         TESTING_CONSTANTS.TESTING_USER_USERNAME,
@@ -147,32 +165,35 @@ describe("perform-authentication.ts", async function () {
         connectionID
       );
       assert.equal(result, false);
-
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
     });
 
     it("should not allow logging in when socket has already exited opening screen", async () => {
       const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
       const socket = new WebSocket(url);
 
-      const messages: Array<any> = [];
-
       await new Promise((resolve) => socket.addEventListener("open", resolve));
-      socket.addEventListener("message", (event: any) => {
-        messages.push(event.data);
-      });
 
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
-
-      const connectionID = getConnectionIDOfSocket(messages);
-
+      const data: any = await waitForWebSocketMessage(
+        socket,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "changeValueOfInput" &&
+            data.selector === "#authentication-modal__socket-id"
+          );
+        }
+      );
       const message = JSON.stringify({
         message: { message: "exitOpeningScreen" }
       });
-
       socket.send(message);
+      await waitForWebSocketMessage(
+        socket,
+        (data: { [key: string]: unknown }) => {
+          return data.message === "acknowledgeExitOpeningScreen";
+        }
+      );
 
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
+      const connectionID = data.value;
 
       const result = await authenticate(
         TESTING_CONSTANTS.TESTING_USER_USERNAME,
@@ -180,22 +201,13 @@ describe("perform-authentication.ts", async function () {
         connectionID
       );
       assert.equal(result, false);
-
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
     });
 
     it("should not allow logging in when socket id is invalid", async () => {
       const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
       const socket = new WebSocket(url);
 
-      const messages: Array<any> = [];
-
       await new Promise((resolve) => socket.addEventListener("open", resolve));
-      socket.addEventListener("message", (event: any) => {
-        messages.push(event.data);
-      });
-
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
 
       const result = await authenticate(
         TESTING_CONSTANTS.TESTING_USER_USERNAME,
@@ -203,8 +215,6 @@ describe("perform-authentication.ts", async function () {
         "1234512345123451"
       );
       assert.equal(result, false);
-
-      await wait(TESTING_CONSTANTS.WEBSOCKET_UPDATE_DELAY_TIME);
     });
   });
 
