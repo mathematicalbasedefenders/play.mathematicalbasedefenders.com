@@ -10,8 +10,7 @@ import {
   defaultMultiplayerRoomID,
   GameMode,
   Room,
-  resetDefaultMultiplayerRoomID,
-  setDefaultMultiplayerRoomID
+  resetDefaultMultiplayerRoomID
 } from "./game/Room";
 import _ from "lodash";
 const cors = require("cors");
@@ -134,14 +133,19 @@ function createWebSocketServer() {
           }
           // actually join room
           if (!universal.getDefaultMultiplayerRoom()) {
-            const room = new DefaultMultiplayerRoom(
+            new DefaultMultiplayerRoom(
               socket,
               GameMode.DefaultMultiplayer,
               true
             );
-            setDefaultMultiplayerRoomID(room.id);
           }
           socket.getUserData().joinMultiplayerRoom("default");
+          const object = {
+            message: "acknowledge",
+            acknowledgedMessage: "joinDefaultMultiplayerRoom"
+          };
+          const message = JSON.stringify(object);
+          socket.send(message);
           break;
         }
         case "joinMultiplayerRoom": {
@@ -201,6 +205,12 @@ function createWebSocketServer() {
         }
         case "leaveMultiplayerRoom": {
           socket.getUserData().leaveMultiplayerRoom();
+          const object = {
+            message: "acknowledge",
+            acknowledgedMessage: "leaveMultiplayerRoom"
+          };
+          const message = JSON.stringify(object);
+          socket.send(message);
           break;
         }
         case "keypress": {
@@ -465,5 +475,6 @@ export {
   createWebSocketServer,
   createWebServer,
   initialize,
-  initializeGlobalVariables
+  initializeGlobalVariables,
+  cleanUnusedRooms
 };
