@@ -348,6 +348,56 @@ describe("MultiplayerRoom", () => {
     socket2.close();
   });
 
+  it("should refuse to start a multiplayer game if there are less than 2 players", async () => {
+    const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+    const socket1 = new WebSocket(url);
+
+    await new Promise((resolve) => socket1.addEventListener("open", resolve));
+
+    const exitOpeningScreenMessage = {
+      message: { message: "exitOpeningScreen" }
+    };
+
+    const createRoomMessage = {
+      message: {
+        message: "createMultiplayerRoom"
+      }
+    };
+
+    socket1.send(JSON.stringify(exitOpeningScreenMessage));
+    socket1.send(JSON.stringify(createRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket1,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeScreen" &&
+          data.newScreen === "customMultiplayerIntermission"
+        );
+      }
+    );
+
+    assert.ok((globalThis as any).rooms);
+    assert.equal((globalThis as any).rooms.length, 1);
+
+    const startGameMessage = {
+      message: {
+        message: "sendChatMessage",
+        scope: "room",
+        chatMessage: "/start"
+      }
+    };
+    socket1.send(JSON.stringify(startGameMessage));
+    await waitForWebSocketMessage(socket1, (data: { [key: string]: any }) => {
+      return (
+        data.message === "addRoomChatMessage" &&
+        data.data.message.indexOf("Unable to run /start") > -1
+      );
+    });
+
+    socket1.close();
+  });
+
   afterEach(async function () {
     await databaseConnection.connection.db.dropDatabase();
     await databaseConnection.connection.close();
