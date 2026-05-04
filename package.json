@@ -70,6 +70,7 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.6.0",
     "@types/node-fetch": "^2.6.10",
+    "@types/sinon": "^21.0.1",
     "babel-jest": "^30.3.0",
     "concurrently": "^8.2.0",
     "copy-webpack-plugin": "^14.0.0",
