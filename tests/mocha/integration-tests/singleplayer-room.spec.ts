@@ -4,6 +4,7 @@ import { User } from "../../../server/src/models/User";
 import mongoose from "mongoose";
 import * as universal from "../../../server/src/universal";
 import { waitForWebSocketMessage } from "../utilities";
+import sinon from "sinon";
 const bcrypt = require("bcrypt");
 
 describe("SingleplayerRoom", () => {
@@ -101,6 +102,53 @@ describe("SingleplayerRoom", () => {
 
     assert.ok((globalThis as any).rooms);
     assert.equal((globalThis as any).rooms.length, 1);
+
+    socket.close();
+  });
+
+  it("should be able to update a playing singleplayer room's status", async () => {
+    const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+    const socket = new WebSocket(url);
+
+    await new Promise((resolve) => socket.addEventListener("open", resolve));
+
+    const exitOpeningScreenMessage = {
+      message: { message: "exitOpeningScreen" }
+    };
+
+    const createRoomMessage = {
+      message: {
+        message: "startGame",
+        mode: "singleplayer",
+        modifier: "standard"
+      }
+    };
+
+    socket.send(JSON.stringify(exitOpeningScreenMessage));
+    socket.send(JSON.stringify(createRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "acknowledge" &&
+          data.acknowledgedMessage === "startGame"
+        );
+      }
+    );
+
+    assert.ok((globalThis as any).rooms);
+    assert.equal((globalThis as any).rooms.length, 1);
+
+    const clock = sinon.useFakeTimers(new Date().getTime());
+    for (let iterations = 0; iterations < 240; iterations++) {
+      if ((globalThis as any).rooms.length === 0) {
+        break;
+      }
+      (globalThis as any).rooms[0].update();
+      clock.tick(1000);
+    }
+    clock.restore();
 
     socket.close();
   });
