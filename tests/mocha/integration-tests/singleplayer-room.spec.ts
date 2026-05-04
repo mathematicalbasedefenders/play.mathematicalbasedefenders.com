@@ -15,6 +15,7 @@ describe("SingleplayerRoom", () => {
     mongoose.connection.on("connected", () => {
       console.log(`Connected to test database!`);
     });
+    universal.STATUS.databaseAvailable = true;
   });
 
   beforeEach(async function () {
@@ -24,7 +25,6 @@ describe("SingleplayerRoom", () => {
     // });
     (globalThis as any).sockets = [];
     (globalThis as any).rooms = [];
-    universal.STATUS.databaseAvailable = true;
 
     // add test user
     const user = new User();
