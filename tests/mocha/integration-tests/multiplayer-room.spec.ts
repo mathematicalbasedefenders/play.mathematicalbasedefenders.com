@@ -63,6 +63,42 @@ describe("MultiplayerRoom", () => {
     socket1.close();
   });
 
+  it("should create a update a non-playing custom multiplayer room's status", async () => {
+    const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+    const socket1 = new WebSocket(url);
+
+    await new Promise((resolve) => socket1.addEventListener("open", resolve));
+
+    const exitOpeningScreenMessage = {
+      message: { message: "exitOpeningScreen" }
+    };
+
+    const createRoomMessage = {
+      message: {
+        message: "createMultiplayerRoom"
+      }
+    };
+
+    socket1.send(JSON.stringify(exitOpeningScreenMessage));
+    socket1.send(JSON.stringify(createRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket1,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeScreen" &&
+          data.newScreen === "customMultiplayerIntermission"
+        );
+      }
+    );
+
+    assert.ok((globalThis as any).rooms);
+    assert.equal((globalThis as any).rooms.length, 1);
+    (globalThis as any).rooms[0].update();
+
+    socket1.close();
+  });
+
   it("should allow joining custom multiplayer room once the message is sent, and the room exists", async () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket1 = new WebSocket(url);
