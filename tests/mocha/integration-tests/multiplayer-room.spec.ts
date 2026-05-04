@@ -513,7 +513,7 @@ describe("MultiplayerRoom", () => {
 
     assert.equal((globalThis as any).rooms[0].playing, true);
 
-    const clock = sinon.useFakeTimers();
+    const clock = sinon.useFakeTimers(new Date().getTime());
     for (let iterations = 0; iterations < 240; iterations++) {
       (globalThis as any).rooms[0].update();
       clock.tick(1000);
