@@ -1035,6 +1035,7 @@ function getOpponentsInformation(
  * @param {string} newID The string to set the ID to.
  */
 function setDefaultMultiplayerRoomID(newID: string | null) {
+  log.info(`Set default multiplayer room ID to ${newID}.`);
   defaultMultiplayerRoomID = newID;
 }
 
