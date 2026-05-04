@@ -4,7 +4,7 @@ import { User } from "../../../server/src/models/User";
 import mongoose from "mongoose";
 import * as universal from "../../../server/src/universal";
 import { waitForWebSocketMessage } from "../utilities";
-const sinon = require("sinon");
+import sinon from "sinon";
 const bcrypt = require("bcrypt");
 
 describe("MultiplayerRoom", () => {
