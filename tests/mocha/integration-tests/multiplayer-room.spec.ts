@@ -63,7 +63,7 @@ describe("MultiplayerRoom", () => {
     socket1.close();
   });
 
-  it("should be a update a non-playing custom multiplayer room's status", async () => {
+  it("should be able to update a non-playing custom multiplayer room's status", async () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket1 = new WebSocket(url);
 
