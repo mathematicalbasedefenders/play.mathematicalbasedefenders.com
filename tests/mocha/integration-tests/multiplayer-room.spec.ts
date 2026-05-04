@@ -252,6 +252,8 @@ describe("MultiplayerRoom", () => {
         chatMessage: "/start"
       }
     };
+
+    // socket1 because the creator is the host.
     socket1.send(JSON.stringify(startGameMessage));
 
     await waitForWebSocketMessage(
