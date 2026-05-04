@@ -10,14 +10,21 @@ const bcrypt = require("bcrypt");
 describe("MultiplayerRoom", () => {
   let databaseConnection: mongoose.Mongoose;
 
-  beforeEach(async function () {
+  before(async function () {
     databaseConnection = await mongoose.connect(process.env.MONGO_URI ?? "");
     mongoose.connection.on("connected", () => {
       console.log(`Connected to test database!`);
     });
+    universal.STATUS.databaseAvailable = true;
+  });
+
+  beforeEach(async function () {
+    // databaseConnection = await mongoose.connect(process.env.MONGO_URI ?? "");
+    // mongoose.connection.on("connected", () => {
+    //   console.log(`Connected to test database!`);
+    // });
     (globalThis as any).sockets = [];
     (globalThis as any).rooms = [];
-    universal.STATUS.databaseAvailable = true;
 
     // add test user
     const user = new User();
@@ -526,6 +533,9 @@ describe("MultiplayerRoom", () => {
 
   afterEach(async function () {
     await databaseConnection.connection.db.dropDatabase();
+  });
+
+  after(async function () {
     await databaseConnection.connection.close();
   });
 });
