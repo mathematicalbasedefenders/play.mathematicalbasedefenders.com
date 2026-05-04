@@ -153,13 +153,34 @@ describe("DefaultMultiplayerRoom", () => {
     // 3 seconds before a room is eligible to
     // be able to deleted.
     (globalThis as any).rooms[0].ageInMilliseconds += 10000;
-    cleanUnusedRooms();
 
     assert.ok((globalThis as any).rooms);
     assert.equal((globalThis as any).rooms.length, 1);
 
     socket1.send(JSON.stringify(leaveMultiplayerRoomMessage));
+    await waitForWebSocketMessage(
+      socket1,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "acknowledge" &&
+          data.acknowledgedMessage === "leaveMultiplayerRoom"
+        );
+      }
+    );
     socket2.send(JSON.stringify(leaveMultiplayerRoomMessage));
+    await waitForWebSocketMessage(
+      socket2,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "acknowledge" &&
+          data.acknowledgedMessage === "leaveMultiplayerRoom"
+        );
+      }
+    );
+
+    cleanUnusedRooms();
+
+    assert.equal((globalThis as any).rooms.length, 0);
 
     socket1.close();
     socket2.close();
