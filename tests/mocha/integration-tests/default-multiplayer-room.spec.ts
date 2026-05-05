@@ -41,252 +41,258 @@ describe("DefaultMultiplayerRoom", () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket1 = new WebSocket(url);
 
-    await new Promise((resolve) => socket1.addEventListener("open", resolve));
+    try {
+      await new Promise((resolve) => socket1.addEventListener("open", resolve));
 
-    const exitOpeningScreenMessage = {
-      message: { message: "exitOpeningScreen" }
-    };
+      const exitOpeningScreenMessage = {
+        message: { message: "exitOpeningScreen" }
+      };
 
-    const joinMultiplayerRoomMessage = {
-      message: {
-        message: "joinDefaultMultiplayerRoom"
-      }
-    };
+      const joinMultiplayerRoomMessage = {
+        message: {
+          message: "joinDefaultMultiplayerRoom"
+        }
+      };
 
-    const leaveMultiplayerRoomMessage = {
-      message: {
-        message: "leaveMultiplayerRoom"
-      }
-    };
+      const leaveMultiplayerRoomMessage = {
+        message: {
+          message: "leaveMultiplayerRoom"
+        }
+      };
 
-    socket1.send(JSON.stringify(exitOpeningScreenMessage));
-    socket1.send(JSON.stringify(joinMultiplayerRoomMessage));
+      socket1.send(JSON.stringify(exitOpeningScreenMessage));
+      socket1.send(JSON.stringify(joinMultiplayerRoomMessage));
 
-    await waitForWebSocketMessage(
-      socket1,
-      (data: { [key: string]: unknown }) => {
-        return (
-          data.message === "acknowledge" &&
-          data.acknowledgedMessage === "joinDefaultMultiplayerRoom"
-        );
-      }
-    );
+      await waitForWebSocketMessage(
+        socket1,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "acknowledge" &&
+            data.acknowledgedMessage === "joinDefaultMultiplayerRoom"
+          );
+        }
+      );
 
-    assert.ok((globalThis as any).rooms);
-    assert.equal((globalThis as any).rooms.length, 1);
+      assert.ok((globalThis as any).rooms);
+      assert.equal((globalThis as any).rooms.length, 1);
 
-    socket1.send(JSON.stringify(leaveMultiplayerRoomMessage));
-    await waitForWebSocketMessage(
-      socket1,
-      (data: { [key: string]: unknown }) => {
-        return (
-          data.message === "acknowledge" &&
-          data.acknowledgedMessage === "leaveMultiplayerRoom"
-        );
-      }
-    );
+      socket1.send(JSON.stringify(leaveMultiplayerRoomMessage));
+      await waitForWebSocketMessage(
+        socket1,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "acknowledge" &&
+            data.acknowledgedMessage === "leaveMultiplayerRoom"
+          );
+        }
+      );
 
-    // I had to fake the timers, because
-    // the game allows a grace period of around
-    // 3 seconds before a room is eligible to
-    // be able to deleted.
-    (globalThis as any).rooms[0].ageInMilliseconds += 10000;
-    cleanUnusedRooms();
+      // I had to fake the timers, because
+      // the game allows a grace period of around
+      // 3 seconds before a room is eligible to
+      // be able to deleted.
+      (globalThis as any).rooms[0].ageInMilliseconds += 10000;
+      cleanUnusedRooms();
 
-    assert.equal((globalThis as any).rooms.length, 0);
-
-    socket1.close();
+      assert.equal((globalThis as any).rooms.length, 0);
+    } finally {
+      socket1.close();
+    }
   });
 
   it("should join the default multiplayer room if a default multiplayer room has already existed", async () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket1 = new WebSocket(url);
-
-    await new Promise((resolve) => socket1.addEventListener("open", resolve));
-
-    const exitOpeningScreenMessage = {
-      message: { message: "exitOpeningScreen" }
-    };
-
-    const joinMultiplayerRoomMessage = {
-      message: {
-        message: "joinDefaultMultiplayerRoom",
-        room: "default"
-      }
-    };
-
-    const leaveMultiplayerRoomMessage = {
-      message: {
-        message: "leaveMultiplayerRoom"
-      }
-    };
-
-    socket1.send(JSON.stringify(exitOpeningScreenMessage));
-    socket1.send(JSON.stringify(joinMultiplayerRoomMessage));
-
-    await waitForWebSocketMessage(
-      socket1,
-      (data: { [key: string]: unknown }) => {
-        return (
-          data.message === "acknowledge" &&
-          data.acknowledgedMessage === "joinDefaultMultiplayerRoom"
-        );
-      }
-    );
-
     const socket2 = new WebSocket(url);
-    await new Promise((resolve) => socket2.addEventListener("open", resolve));
-    socket2.send(JSON.stringify(exitOpeningScreenMessage));
-    socket2.send(JSON.stringify(joinMultiplayerRoomMessage));
+    try {
+      await Promise.all([
+        new Promise((resolve) => socket1.addEventListener("open", resolve)),
+        new Promise((resolve) => socket2.addEventListener("open", resolve))
+      ]);
+      const exitOpeningScreenMessage = {
+        message: { message: "exitOpeningScreen" }
+      };
 
-    await waitForWebSocketMessage(
-      socket2,
-      (data: { [key: string]: unknown }) => {
-        return (
-          data.message === "acknowledge" &&
-          data.acknowledgedMessage === "joinDefaultMultiplayerRoom"
-        );
-      }
-    );
+      const joinMultiplayerRoomMessage = {
+        message: {
+          message: "joinDefaultMultiplayerRoom",
+          room: "default"
+        }
+      };
 
-    // I had to fake the timers, because
-    // the game allows a grace period of around
-    // 3 seconds before a room is eligible to
-    // be able to deleted.
-    (globalThis as any).rooms[0].ageInMilliseconds += 10000;
+      const leaveMultiplayerRoomMessage = {
+        message: {
+          message: "leaveMultiplayerRoom"
+        }
+      };
 
-    assert.ok((globalThis as any).rooms);
-    assert.equal((globalThis as any).rooms.length, 1);
+      socket1.send(JSON.stringify(exitOpeningScreenMessage));
+      socket1.send(JSON.stringify(joinMultiplayerRoomMessage));
 
-    socket1.send(JSON.stringify(leaveMultiplayerRoomMessage));
-    await waitForWebSocketMessage(
-      socket1,
-      (data: { [key: string]: unknown }) => {
-        return (
-          data.message === "acknowledge" &&
-          data.acknowledgedMessage === "leaveMultiplayerRoom"
-        );
-      }
-    );
-    socket2.send(JSON.stringify(leaveMultiplayerRoomMessage));
-    await waitForWebSocketMessage(
-      socket2,
-      (data: { [key: string]: unknown }) => {
-        return (
-          data.message === "acknowledge" &&
-          data.acknowledgedMessage === "leaveMultiplayerRoom"
-        );
-      }
-    );
+      await waitForWebSocketMessage(
+        socket1,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "acknowledge" &&
+            data.acknowledgedMessage === "joinDefaultMultiplayerRoom"
+          );
+        }
+      );
 
-    cleanUnusedRooms();
+      socket2.send(JSON.stringify(exitOpeningScreenMessage));
+      socket2.send(JSON.stringify(joinMultiplayerRoomMessage));
 
-    assert.equal((globalThis as any).rooms.length, 0);
+      await waitForWebSocketMessage(
+        socket2,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "acknowledge" &&
+            data.acknowledgedMessage === "joinDefaultMultiplayerRoom"
+          );
+        }
+      );
 
-    socket1.close();
-    socket2.close();
+      // I had to fake the timers, because
+      // the game allows a grace period of around
+      // 3 seconds before a room is eligible to
+      // be able to deleted.
+      (globalThis as any).rooms[0].ageInMilliseconds += 10000;
+
+      assert.ok((globalThis as any).rooms);
+      assert.equal((globalThis as any).rooms.length, 1);
+
+      socket1.send(JSON.stringify(leaveMultiplayerRoomMessage));
+      await waitForWebSocketMessage(
+        socket1,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "acknowledge" &&
+            data.acknowledgedMessage === "leaveMultiplayerRoom"
+          );
+        }
+      );
+      socket2.send(JSON.stringify(leaveMultiplayerRoomMessage));
+      await waitForWebSocketMessage(
+        socket2,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "acknowledge" &&
+            data.acknowledgedMessage === "leaveMultiplayerRoom"
+          );
+        }
+      );
+
+      cleanUnusedRooms();
+
+      assert.equal((globalThis as any).rooms.length, 0);
+    } finally {
+      socket1.close();
+      socket2.close();
+    }
   });
 
   it("should be able to update the status of a default multiplayer room", async () => {
     const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
     const socket1 = new WebSocket(url);
-
-    await new Promise((resolve) => socket1.addEventListener("open", resolve));
-
-    const exitOpeningScreenMessage = {
-      message: { message: "exitOpeningScreen" }
-    };
-
-    const joinMultiplayerRoomMessage = {
-      message: {
-        message: "joinDefaultMultiplayerRoom",
-        room: "default"
-      }
-    };
-
-    const leaveMultiplayerRoomMessage = {
-      message: {
-        message: "leaveMultiplayerRoom"
-      }
-    };
-
-    socket1.send(JSON.stringify(exitOpeningScreenMessage));
-    socket1.send(JSON.stringify(joinMultiplayerRoomMessage));
-
-    await waitForWebSocketMessage(
-      socket1,
-      (data: { [key: string]: unknown }) => {
-        return (
-          data.message === "acknowledge" &&
-          data.acknowledgedMessage === "joinDefaultMultiplayerRoom"
-        );
-      }
-    );
-
     const socket2 = new WebSocket(url);
-    await new Promise((resolve) => socket2.addEventListener("open", resolve));
-    socket2.send(JSON.stringify(exitOpeningScreenMessage));
-    socket2.send(JSON.stringify(joinMultiplayerRoomMessage));
-
-    await waitForWebSocketMessage(
-      socket2,
-      (data: { [key: string]: unknown }) => {
-        return (
-          data.message === "acknowledge" &&
-          data.acknowledgedMessage === "joinDefaultMultiplayerRoom"
-        );
-      }
-    );
-
-    // I had to fake the timers, because
-    // the game allows a grace period of around
-    // 3 seconds before a room is eligible to
-    // be able to deleted.
-    (globalThis as any).rooms[0].ageInMilliseconds += 10000;
-
-    assert.ok((globalThis as any).rooms);
-    assert.equal((globalThis as any).rooms.length, 1);
-
-    const clock = sinon.useFakeTimers(new Date().getTime());
     try {
-      for (let iterations = 0; iterations < 240; iterations++) {
-        if ((globalThis as any).rooms.length === 0) {
-          break;
+      await Promise.all([
+        new Promise((resolve) => socket1.addEventListener("open", resolve)),
+        new Promise((resolve) => socket2.addEventListener("open", resolve))
+      ]);
+      const exitOpeningScreenMessage = {
+        message: { message: "exitOpeningScreen" }
+      };
+
+      const joinMultiplayerRoomMessage = {
+        message: {
+          message: "joinDefaultMultiplayerRoom",
+          room: "default"
         }
-        (globalThis as any).rooms[0].update();
-        clock.tick(1000);
+      };
+
+      const leaveMultiplayerRoomMessage = {
+        message: {
+          message: "leaveMultiplayerRoom"
+        }
+      };
+
+      socket1.send(JSON.stringify(exitOpeningScreenMessage));
+      socket1.send(JSON.stringify(joinMultiplayerRoomMessage));
+
+      await waitForWebSocketMessage(
+        socket1,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "acknowledge" &&
+            data.acknowledgedMessage === "joinDefaultMultiplayerRoom"
+          );
+        }
+      );
+
+      socket2.send(JSON.stringify(exitOpeningScreenMessage));
+      socket2.send(JSON.stringify(joinMultiplayerRoomMessage));
+
+      await waitForWebSocketMessage(
+        socket2,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "acknowledge" &&
+            data.acknowledgedMessage === "joinDefaultMultiplayerRoom"
+          );
+        }
+      );
+
+      // I had to fake the timers, because
+      // the game allows a grace period of around
+      // 3 seconds before a room is eligible to
+      // be able to deleted.
+      (globalThis as any).rooms[0].ageInMilliseconds += 10000;
+
+      assert.ok((globalThis as any).rooms);
+      assert.equal((globalThis as any).rooms.length, 1);
+
+      const clock = sinon.useFakeTimers(new Date().getTime());
+      try {
+        for (let iterations = 0; iterations < 240; iterations++) {
+          if ((globalThis as any).rooms.length === 0) {
+            break;
+          }
+          (globalThis as any).rooms[0].update();
+          clock.tick(1000);
+        }
+      } finally {
+        clock.restore();
       }
+
+      socket1.send(JSON.stringify(leaveMultiplayerRoomMessage));
+      await waitForWebSocketMessage(
+        socket1,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "acknowledge" &&
+            data.acknowledgedMessage === "leaveMultiplayerRoom"
+          );
+        }
+      );
+      socket2.send(JSON.stringify(leaveMultiplayerRoomMessage));
+      await waitForWebSocketMessage(
+        socket2,
+        (data: { [key: string]: unknown }) => {
+          return (
+            data.message === "acknowledge" &&
+            data.acknowledgedMessage === "leaveMultiplayerRoom"
+          );
+        }
+      );
+
+      cleanUnusedRooms();
+
+      assert.equal((globalThis as any).rooms.length, 0);
     } finally {
-      clock.restore();
+      socket1.close();
+      socket2.close();
     }
-
-    socket1.send(JSON.stringify(leaveMultiplayerRoomMessage));
-    await waitForWebSocketMessage(
-      socket1,
-      (data: { [key: string]: unknown }) => {
-        return (
-          data.message === "acknowledge" &&
-          data.acknowledgedMessage === "leaveMultiplayerRoom"
-        );
-      }
-    );
-    socket2.send(JSON.stringify(leaveMultiplayerRoomMessage));
-    await waitForWebSocketMessage(
-      socket2,
-      (data: { [key: string]: unknown }) => {
-        return (
-          data.message === "acknowledge" &&
-          data.acknowledgedMessage === "leaveMultiplayerRoom"
-        );
-      }
-    );
-
-    cleanUnusedRooms();
-
-    assert.equal((globalThis as any).rooms.length, 0);
-
-    socket1.close();
-    socket2.close();
   });
 
   afterEach(async function () {
