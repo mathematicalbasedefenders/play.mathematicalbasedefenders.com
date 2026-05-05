@@ -942,7 +942,7 @@ function generateRoomID(length: number): string {
   while (
     current === "" ||
     utilities.checkIfPropertyWithValueExists(
-      globalThis.rooms,
+      globalThis.rooms ?? [],
       "connectionID",
       current
     )
