@@ -4,7 +4,7 @@ import { findRoomWithConnectionID } from "./utilities";
 import { Room } from "../game/Room";
 import { UserData } from "../universal";
 //
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify, { clearWindow } from "isomorphic-dompurify";
 //
 const BAD_MESSAGE_OBJECT = {
   message: "changeText",
@@ -157,6 +157,7 @@ function validateMessage(message: string, connectionID: string) {
   const notJustBlank = message.replace(/\s/g, "").length > 0;
   const notTooLong = message.length <= MAXIMUM_CHAT_MESSAGE_LENGTH;
   const notDangerous = DOMPurify.sanitize(message) === message;
+  clearWindow();
   if (!(notEmpty && notJustBlank && notTooLong && notDangerous)) {
     log.warn(
       `Chat message of Socket ID ${connectionID} (${playerName}) failed validation.`

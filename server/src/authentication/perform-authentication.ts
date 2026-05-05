@@ -5,7 +5,7 @@ import * as utilities from "../core/utilities";
 import * as universal from "../universal";
 import { UserData } from "../universal";
 import { ToastNotificationData } from "../core/toast-notifications";
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify, { clearWindow } from "isomorphic-dompurify";
 
 const FAILED_BORDER_COLOR = "#ff0000";
 const SUCCESS_BORDER_COLOR = "#00dd00";
@@ -39,6 +39,7 @@ async function authenticate(
   }
 
   const sanitizedUsername = DOMPurify.sanitize(username);
+  clearWindow();
 
   /** Successfully logged in. */
   const socketUserData = socket.getUserData();

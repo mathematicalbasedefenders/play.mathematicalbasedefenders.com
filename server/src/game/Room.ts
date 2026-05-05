@@ -17,7 +17,7 @@ import { MultiplayerRoom } from "./MultiplayerRoom";
 import { UserData } from "../universal";
 import { ToastNotificationData } from "../core/toast-notifications";
 
-import DOMPurify from "isomorphic-dompurify";
+import DOMPurify, { clearWindow } from "isomorphic-dompurify";
 
 let defaultMultiplayerRoomID: string | null = null;
 
@@ -196,6 +196,8 @@ abstract class Room {
     log.info(
       `${messageToSend.senderName} sent message ${message} to Room ID ${this.id}`
     );
+
+    clearWindow();
   }
 
   /**

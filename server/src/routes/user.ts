@@ -11,6 +11,7 @@ const limiter = rateLimit({
 
 import { log } from "../core/log";
 import { User, UserInterface } from "../models/User";
+import { clearWindow } from "isomorphic-dompurify";
 
 const usernameRegex = /^[A-Za-z0-9_-]{3,20}$/;
 const userIDRegex = /^[0-9a-f]{24}$/;
@@ -41,6 +42,7 @@ router.get("/api/users/:user", limiter, async (request, response) => {
   // get user data
   const user = request.params.user as unknown as Record<string, unknown>;
   const sanitized = mongoDBSanitize.sanitize(user) as unknown as string;
+  clearWindow();
 
   if (!validateUserQuery(sanitized)) {
     log.warn(`Invalid User Request: Invalid user username/ID. (${sanitized})`);
