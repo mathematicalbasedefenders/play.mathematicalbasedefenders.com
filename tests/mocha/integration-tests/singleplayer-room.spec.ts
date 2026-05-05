@@ -141,14 +141,17 @@ describe("SingleplayerRoom", () => {
     assert.equal((globalThis as any).rooms.length, 1);
 
     const clock = sinon.useFakeTimers(new Date().getTime());
-    for (let iterations = 0; iterations < 240; iterations++) {
-      if ((globalThis as any).rooms.length === 0) {
-        break;
+    try {
+      for (let iterations = 0; iterations < 240; iterations++) {
+        if ((globalThis as any).rooms.length === 0) {
+          break;
+        }
+        (globalThis as any).rooms[0].update();
+        clock.tick(1000);
       }
-      (globalThis as any).rooms[0].update();
-      clock.tick(1000);
+    } finally {
+      clock.restore();
     }
-    clock.restore();
 
     socket.close();
   });
