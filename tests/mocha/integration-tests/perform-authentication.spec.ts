@@ -266,8 +266,10 @@ describe("perform-authentication.ts", async function () {
           TESTING_CONSTANTS.TESTING_USER_PASSWORD,
           connectionID1
         );
-
         assert.equal(result1, true);
+        const socket1Close = new Promise((resolve) =>
+          socket1.addEventListener("close", resolve, { once: true })
+        );
 
         const connectionID2 = data2.value;
         const result2 = await authenticate(
@@ -276,10 +278,7 @@ describe("perform-authentication.ts", async function () {
           connectionID2
         );
         assert.equal(result2, true);
-
-        await new Promise((resolve) =>
-          socket1.addEventListener("close", resolve)
-        );
+        await socket1Close;
       } finally {
         socket2.close();
       }
