@@ -59,7 +59,6 @@
     "@babel/preset-env": "^7.29.2",
     "@cypress/request": "^3.0.10",
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.59.1",
     "@types/dompurify": "^3.0.5",
     "@types/express": "^4.17.17",
     "@types/fontfaceobserver": "^2.1.0",
