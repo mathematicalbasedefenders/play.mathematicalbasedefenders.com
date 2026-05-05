@@ -628,6 +628,8 @@ abstract class Room {
         this.deleteMember(socket);
       }
     }
+    const index = globalThis.rooms.findIndex((room) => room.id === this.id);
+    globalThis.rooms.splice(index, 1);
     log.info(`Destroyed room ${this.id}`);
   }
 
