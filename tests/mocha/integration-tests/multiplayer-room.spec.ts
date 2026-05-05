@@ -1079,7 +1079,7 @@ describe("MultiplayerRoom", () => {
     });
 
     assert.notEqual(
-      (globalThis as any).rooms[0].memberConnectionIDs.comboTime,
+      (globalThis as any).rooms[0].customSettings.comboTime,
       1234
     );
 
