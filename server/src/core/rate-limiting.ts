@@ -6,14 +6,14 @@ import { log } from "./log";
 const WebSocketRateLimit = (limit: number, interval: number) => {
   return (socket: GameWebSocket<UserData>) => {
     const socketUserData = socket.getUserData();
+    if (!socketUserData.rateLimiting) {
+      return false;
+    }
     if (Date.now() > socketUserData.rateLimiting.last + interval) {
       socketUserData.rateLimiting.count = 0;
     }
     if (socketUserData.rateLimiting.count === 0) {
       socketUserData.rateLimiting.last = Date.now();
-    }
-    if (!socketUserData.rateLimiting) {
-      return false;
     }
     return ++socketUserData.rateLimiting.count > limit;
   };
