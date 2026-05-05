@@ -6,6 +6,10 @@ import { waitForWebSocketMessage } from "../utilities";
 import * as universal from "../../../server/src/universal";
 import { cleanUnusedRooms } from "../../../server/src/index";
 import sinon from "sinon";
+import {
+  defaultMultiplayerRoomID,
+  resetDefaultMultiplayerRoomID
+} from "../../../server/src/game/Room";
 const bcrypt = require("bcrypt");
 
 describe("DefaultMultiplayerRoom", () => {
@@ -26,7 +30,9 @@ describe("DefaultMultiplayerRoom", () => {
     // });
     (globalThis as any).sockets = [];
     (globalThis as any).rooms = [];
-
+    if (defaultMultiplayerRoomID) {
+      resetDefaultMultiplayerRoomID(defaultMultiplayerRoomID);
+    }
     // add test user
     const user = new User();
     user.username = TESTING_CONSTANTS.TESTING_USER_USERNAME;
