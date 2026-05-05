@@ -1002,6 +1002,359 @@ describe("MultiplayerRoom", () => {
     socket2.close();
   });
 
+  it("should deny running the /set command in a multiplayer room, if someone else other than the host runs it", async () => {
+    const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+    const socket1 = new WebSocket(url);
+
+    await new Promise((resolve) => socket1.addEventListener("open", resolve));
+
+    const exitOpeningScreenMessage = {
+      message: { message: "exitOpeningScreen" }
+    };
+
+    const createRoomMessage = {
+      message: {
+        message: "createMultiplayerRoom"
+      }
+    };
+
+    socket1.send(JSON.stringify(exitOpeningScreenMessage));
+    socket1.send(JSON.stringify(createRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket1,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeScreen" &&
+          data.newScreen === "customMultiplayerIntermission"
+        );
+      }
+    );
+
+    assert.ok((globalThis as any).rooms);
+    assert.equal((globalThis as any).rooms.length, 1);
+
+    const roomID = (globalThis as any).rooms[0].id;
+
+    const socket2 = new WebSocket(url);
+    await new Promise((resolve) => socket2.addEventListener("open", resolve));
+    const joinRoomMessage = {
+      message: {
+        message: "joinMultiplayerRoom",
+        room: roomID
+      }
+    };
+
+    socket2.send(JSON.stringify(exitOpeningScreenMessage));
+    socket2.send(JSON.stringify(joinRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket2,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeScreen" &&
+          data.newScreen === "customMultiplayerIntermission"
+        );
+      }
+    );
+
+    assert.equal((globalThis as any).rooms[0].memberConnectionIDs.length, 2);
+
+    const setCommandMessage = {
+      message: {
+        message: "sendChatMessage",
+        scope: "room",
+        chatMessage: "/set comboTime 1234"
+      }
+    };
+
+    // socket2 because the it is not the host.
+    socket2.send(JSON.stringify(setCommandMessage));
+
+    await waitForWebSocketMessage(socket2, (data: { [key: string]: any }) => {
+      return (
+        data.message === "addRoomChatMessage" &&
+        data.data.message.indexOf("Unable") > -1
+      );
+    });
+
+    assert.notEqual(
+      (globalThis as any).rooms[0].memberConnectionIDs.comboTime,
+      1234
+    );
+
+    socket1.close();
+    socket2.close();
+  });
+
+  it("should deny running the /setvisibility command in a multiplayer room, if someone else other than the host runs it", async () => {
+    const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+    const socket1 = new WebSocket(url);
+
+    await new Promise((resolve) => socket1.addEventListener("open", resolve));
+
+    const exitOpeningScreenMessage = {
+      message: { message: "exitOpeningScreen" }
+    };
+
+    const createRoomMessage = {
+      message: {
+        message: "createMultiplayerRoom"
+      }
+    };
+
+    socket1.send(JSON.stringify(exitOpeningScreenMessage));
+    socket1.send(JSON.stringify(createRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket1,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeScreen" &&
+          data.newScreen === "customMultiplayerIntermission"
+        );
+      }
+    );
+
+    assert.ok((globalThis as any).rooms);
+    assert.equal((globalThis as any).rooms.length, 1);
+
+    const roomID = (globalThis as any).rooms[0].id;
+
+    const socket2 = new WebSocket(url);
+    await new Promise((resolve) => socket2.addEventListener("open", resolve));
+    const joinRoomMessage = {
+      message: {
+        message: "joinMultiplayerRoom",
+        room: roomID
+      }
+    };
+
+    socket2.send(JSON.stringify(exitOpeningScreenMessage));
+    socket2.send(JSON.stringify(joinRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket2,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeScreen" &&
+          data.newScreen === "customMultiplayerIntermission"
+        );
+      }
+    );
+
+    assert.equal((globalThis as any).rooms[0].memberConnectionIDs.length, 2);
+
+    const privatizeRoomMessage = {
+      message: {
+        message: "sendChatMessage",
+        scope: "room",
+        chatMessage: "/setvisibility false"
+      }
+    };
+
+    // socket2 because the it is not the host.
+    socket2.send(JSON.stringify(privatizeRoomMessage));
+
+    await waitForWebSocketMessage(socket2, (data: { [key: string]: any }) => {
+      return (
+        data.message === "addRoomChatMessage" &&
+        data.data.message.indexOf("Unable") > -1
+      );
+    });
+
+    assert.equal((globalThis as any).rooms[0].hidden, false);
+
+    socket1.close();
+    socket2.close();
+  });
+
+  it("should deny running the /kick command in a multiplayer room, if someone else other than the host runs it", async () => {
+    const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+    const socket1 = new WebSocket(url);
+
+    await new Promise((resolve) => socket1.addEventListener("open", resolve));
+
+    const exitOpeningScreenMessage = {
+      message: { message: "exitOpeningScreen" }
+    };
+
+    const createRoomMessage = {
+      message: {
+        message: "createMultiplayerRoom"
+      }
+    };
+
+    socket1.send(JSON.stringify(exitOpeningScreenMessage));
+    socket1.send(JSON.stringify(createRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket1,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeScreen" &&
+          data.newScreen === "customMultiplayerIntermission"
+        );
+      }
+    );
+
+    assert.ok((globalThis as any).rooms);
+    assert.equal((globalThis as any).rooms.length, 1);
+
+    const roomID = (globalThis as any).rooms[0].id;
+    const hostConnectionID = (globalThis as any).rooms[0].host.connectionID;
+
+    const socket2 = new WebSocket(url);
+    await new Promise((resolve) => socket2.addEventListener("open", resolve));
+    const joinRoomMessage = {
+      message: {
+        message: "joinMultiplayerRoom",
+        room: roomID
+      }
+    };
+
+    socket2.send(JSON.stringify(exitOpeningScreenMessage));
+    socket2.send(JSON.stringify(joinRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket2,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeScreen" &&
+          data.newScreen === "customMultiplayerIntermission"
+        );
+      }
+    );
+
+    assert.equal((globalThis as any).rooms[0].memberConnectionIDs.length, 2);
+
+    const members = (globalThis as any).rooms[0].memberConnectionIDs;
+    const targets = members.filter((e: string) => e !== hostConnectionID);
+    const targetConnectionID = targets[0];
+    const targetName = universal.getNameFromConnectionID(targetConnectionID);
+
+    const kickCommandMessage = {
+      message: {
+        message: "sendChatMessage",
+        scope: "room",
+        chatMessage: `/kick ${targetName}`
+      }
+    };
+
+    // socket2 because the it is not the host.
+    socket2.send(JSON.stringify(kickCommandMessage));
+
+    await waitForWebSocketMessage(socket2, (data: { [key: string]: any }) => {
+      return (
+        data.message === "addRoomChatMessage" &&
+        data.data.message.indexOf("Unable") > -1
+      );
+    });
+
+    assert.equal((globalThis as any).rooms[0].memberConnectionIDs.length, 2);
+
+    socket1.close();
+    socket2.close();
+  });
+
+  it("should deny running the /transferhost command in a multiplayer room, if someone else other than the host runs it", async () => {
+    const url = `ws://localhost:${TESTING_CONSTANTS.TESTING_WEBSOCKET_SERVER_PORT}`;
+    const socket1 = new WebSocket(url);
+
+    await new Promise((resolve) => socket1.addEventListener("open", resolve));
+
+    const exitOpeningScreenMessage = {
+      message: { message: "exitOpeningScreen" }
+    };
+
+    const createRoomMessage = {
+      message: {
+        message: "createMultiplayerRoom"
+      }
+    };
+
+    socket1.send(JSON.stringify(exitOpeningScreenMessage));
+    socket1.send(JSON.stringify(createRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket1,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeScreen" &&
+          data.newScreen === "customMultiplayerIntermission"
+        );
+      }
+    );
+
+    assert.ok((globalThis as any).rooms);
+    assert.equal((globalThis as any).rooms.length, 1);
+
+    const roomID = (globalThis as any).rooms[0].id;
+    const hostConnectionID = (globalThis as any).rooms[0].host.connectionID;
+    const socket2 = new WebSocket(url);
+    await new Promise((resolve) => socket2.addEventListener("open", resolve));
+    const joinRoomMessage = {
+      message: {
+        message: "joinMultiplayerRoom",
+        room: roomID
+      }
+    };
+
+    socket2.send(JSON.stringify(exitOpeningScreenMessage));
+    socket2.send(JSON.stringify(joinRoomMessage));
+
+    await waitForWebSocketMessage(
+      socket2,
+      (data: { [key: string]: unknown }) => {
+        return (
+          data.message === "changeScreen" &&
+          data.newScreen === "customMultiplayerIntermission"
+        );
+      }
+    );
+
+    const firstHostConnectionID = (globalThis as any).rooms[0]
+      .memberConnectionIDs[0];
+
+    assert.equal((globalThis as any).rooms[0].memberConnectionIDs.length, 2);
+    assert.equal(
+      (globalThis as any).rooms[0].host.connectionID,
+      firstHostConnectionID
+    );
+
+    const members = (globalThis as any).rooms[0].memberConnectionIDs;
+    const targets = members.filter((e: string) => e != hostConnectionID);
+    const targetConnectionID = targets[0];
+    const targetName = universal.getNameFromConnectionID(targetConnectionID);
+
+    const transferHostCommandMessage = {
+      message: {
+        message: "sendChatMessage",
+        scope: "room",
+        chatMessage: `/transferhost ${targetName}`
+      }
+    };
+
+    // socket1 because the creator is the host.
+    socket2.send(JSON.stringify(transferHostCommandMessage));
+
+    await waitForWebSocketMessage(socket2, (data: { [key: string]: any }) => {
+      return (
+        data.message === "addRoomChatMessage" &&
+        data.data.message.indexOf("Unable") > -1
+      );
+    });
+
+    assert.equal((globalThis as any).rooms[0].memberConnectionIDs.length, 2);
+    assert.equal(
+      (globalThis as any).rooms[0].host.connectionID,
+      firstHostConnectionID
+    );
+
+    socket1.close();
+    socket2.close();
+  });
+
   afterEach(async function () {
     await databaseConnection.connection.db.dropDatabase();
   });
