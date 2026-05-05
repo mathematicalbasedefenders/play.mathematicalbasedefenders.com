@@ -4,21 +4,24 @@ function waitForWebSocketMessage(
   timeout = 1000
 ) {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
+    const cleanup = () => {
+      clearTimeout(timer);
       socket.removeEventListener("message", listener);
+    };
+
+    const timer = setTimeout(() => {
+      cleanup();
       reject(new Error("WebSocket message timeout reached."));
     }, timeout);
 
     function listener(event: MessageEvent) {
       const message = JSON.parse(event.data);
       if (predicate(message)) {
-        clearTimeout(timer);
+        cleanup();
         resolve(message);
       }
     }
-    socket.addEventListener("message", (event) => {
-      listener(event);
-    });
+    socket.addEventListener("message", listener);
   });
 }
 
