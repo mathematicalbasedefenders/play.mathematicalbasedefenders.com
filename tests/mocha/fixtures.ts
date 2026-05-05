@@ -36,10 +36,10 @@ export const mochaGlobalSetup = async () => {
 };
 
 export const mochaGlobalTeardown = async () => {
-  webServer.close();
-  console.log(`Stopped test server.`);
-  webSocketServer.close();
-  console.log(`Stopped test WebSocket server.`);
-  database.stop();
-  console.log(`Stopped in-memory database instance.`);
+  await Promise.all([
+    webServer.close(),
+    webSocketServer.close(),
+    database.stop()
+  ]);
+  console.log(`Stopped testing servers and instances.`);
 };
