@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import fs from "fs";
 import path from "path";
 import uWS from "uWebSockets.js";
-require("@dotenvx/dotenvx").config({ path: "../credentials/.env" });
 import express from "express";
 import * as universal from "./universal";
 import * as utilities from "./core/utilities";
@@ -11,8 +10,7 @@ import {
   defaultMultiplayerRoomID,
   GameMode,
   Room,
-  resetDefaultMultiplayerRoomID,
-  setDefaultMultiplayerRoomID
+  resetDefaultMultiplayerRoomID
 } from "./game/Room";
 import _ from "lodash";
 const cors = require("cors");
@@ -22,36 +20,6 @@ import { MultiplayerRoom } from "./game/MultiplayerRoom";
 import { DefaultMultiplayerRoom } from "./game/DefaultMultiplayerRoom";
 import { UserData } from "./universal";
 import { rateLimitSocket, WebSocketRateLimit } from "./core/rate-limiting";
-
-const app = express();
-app.set("trust proxy", 2);
-app.use(cors());
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        "script-src": [
-          "'self'",
-          "code.jquery.com",
-          "cdnjs.cloudflare.com",
-          "cdn.jsdelivr.net",
-          "pixijs.download",
-          "'unsafe-eval'"
-        ],
-        "style-src": ["'unsafe-inline'", "*"],
-        "connect-src": [
-          "http://localhost:3000",
-          "https://play.mathematicalbasedefenders.com:3000",
-          "ws://localhost:5000",
-          "wss://play.mathematicalbasedefenders.com:5000",
-          "'self'"
-        ]
-      }
-    },
-    crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "cross-origin" }
-  })
-);
 
 // get configuration
 const configurationLocation = path.join(
@@ -73,34 +41,18 @@ const SYNCHRONIZATION_INTERVAL: number =
   1000 / DESIRED_SYNCHRONIZATIONS_PER_SECOND;
 const LIVING_ROOM_CONDITION_GRACE_PERIOD = 3000;
 
-const websocketRateLimit = WebSocketRateLimit(2500, 1000);
-
-let initialized = false;
-
 let currentTime: number = Date.now();
 let lastUpdateTime: number = Date.now();
 let sendDataDeltaTime: number;
-
-const DATABASE_CONNECTION_URI: string | undefined =
-  process.env.DATABASE_CONNECTION_URI;
-
-if (CONFIGURATION.useDatabase) {
-  mongoose.connect(DATABASE_CONNECTION_URI as string);
-}
-
-mongoose.connection.on("connected", async () => {
-  universal.STATUS.databaseAvailable = true;
-  log.info(`Connected to database! Database is now available.`);
-});
 
 type WebSocketMessage = ArrayBuffer & {
   message?: string;
   messageArguments?: any;
 };
 
-uWS
-  .App()
-  .ws("/", {
+function createWebSocketServer() {
+  const websocketRateLimit = WebSocketRateLimit(2500, 1000);
+  const uWSApp = uWS.App().ws("/", {
     /**
      * This handles the open connection for a `GameWebSocket<UserData>`.
      * @param {universal.GameWebSocket<UserData>} socket The socket that was connected to.
@@ -108,8 +60,8 @@ uWS
     open: (socket: universal.GameWebSocket<UserData>) => {
       log.info("Socket connected!");
       universal.initializeSocket(socket);
-      universal.sockets.push(socket);
-      log.info(`There are now ${universal.sockets.length} sockets connected.`);
+      globalThis.sockets.push(socket);
+      log.info(`There are now ${globalThis.sockets.length} sockets connected.`);
       universal.sendInitialSocketData(socket);
     },
 
@@ -142,6 +94,14 @@ uWS
       if (parsedMessage.message === "exitOpeningScreen") {
         log.info(`Socket ${socketUserData.connectionID} exited open screen.`);
         socketUserData.exitedOpeningScreen = true;
+
+        const object = {
+          message: "acknowledge",
+          acknowledgedMessage: "exitOpeningScreen"
+        };
+        const message = JSON.stringify(object);
+        socket.send(message);
+
         return;
       }
 
@@ -154,6 +114,12 @@ uWS
       switch (parsedMessage.message) {
         case "startGame": {
           universal.startGameForSocket(socket, parsedMessage);
+          const object = {
+            message: "acknowledge",
+            acknowledgedMessage: "startGame"
+          };
+          const message = JSON.stringify(object);
+          socket.send(message);
           break;
         }
         case "joinDefaultMultiplayerRoom": {
@@ -167,14 +133,19 @@ uWS
           }
           // actually join room
           if (!universal.getDefaultMultiplayerRoom()) {
-            const room = new DefaultMultiplayerRoom(
+            new DefaultMultiplayerRoom(
               socket,
               GameMode.DefaultMultiplayer,
               true
             );
-            setDefaultMultiplayerRoomID(room.id);
           }
           socket.getUserData().joinMultiplayerRoom("default");
+          const object = {
+            message: "acknowledge",
+            acknowledgedMessage: "joinDefaultMultiplayerRoom"
+          };
+          const message = JSON.stringify(object);
+          socket.send(message);
           break;
         }
         case "joinMultiplayerRoom": {
@@ -188,7 +159,7 @@ uWS
           // validate
           const ROOM_CODE_REGEX = /^[A-Z0-9]{8}$/;
           const target = parsedMessage.room;
-          const room = universal.rooms.find((e) => e.id === target);
+          const room = globalThis.rooms.find((e) => e.id === target);
           if (!ROOM_CODE_REGEX.test(target) || !room) {
             const socketID = socketUserData.connectionID;
             log.warn(`Socket ${socketID} tried to join a non-existent room.`);
@@ -234,6 +205,12 @@ uWS
         }
         case "leaveMultiplayerRoom": {
           socket.getUserData().leaveMultiplayerRoom();
+          const object = {
+            message: "acknowledge",
+            acknowledgedMessage: "leaveMultiplayerRoom"
+          };
+          const message = JSON.stringify(object);
+          socket.send(message);
           break;
         }
         case "keypress": {
@@ -273,27 +250,21 @@ uWS
 
     close: (socket: universal.GameWebSocket<UserData>) => {
       socket.getUserData().teardown();
-      log.info(`There are now ${universal.sockets.length} sockets connected.`);
-    }
-  })
-
-  .listen(WEBSOCKET_PORT, (token) => {
-    if (token) {
-      log.info(`WebSockets Server listening at port ${WEBSOCKET_PORT}`);
-    } else {
-      log.info(`Failed to listen to WebSockets at port ${WEBSOCKET_PORT}`);
+      log.info(`There are now ${globalThis.sockets.length} sockets connected.`);
     }
   });
+  return uWSApp;
+}
 
 function update(deltaTime: number) {
-  for (let room of universal.rooms) {
+  for (let room of globalThis.rooms) {
     if (room) {
       room.update();
     }
   }
 
   // CHECK FOR BAD SOCKETS
-  utilities.checkWebSocketMessageSpeeds(universal.sockets, deltaTime);
+  utilities.checkWebSocketMessageSpeeds(globalThis.sockets, deltaTime);
   // DATA IS SENT HERE. <---
   const systemStatus = updateSystemStatus(deltaTime);
   synchronizeGameDataWithSockets(deltaTime, systemStatus || {});
@@ -320,10 +291,10 @@ function cleanUnusedRooms() {
     return gracePeriod || (memberCount > 0 && validObject);
   };
 
-  const oldRooms = _.clone(universal.rooms).map((element) => element.id);
-  utilities.mutatedArrayFilter(universal.rooms, livingRoomCondition);
+  const oldRooms = _.clone(globalThis.rooms).map((element) => element.id);
+  utilities.mutatedArrayFilter(globalThis.rooms, livingRoomCondition);
 
-  const newRooms = _.clone(universal.rooms).map((element) => element.id);
+  const newRooms = _.clone(globalThis.rooms).map((element) => element.id);
   const deletedRooms = oldRooms.filter(
     (element) => !newRooms.includes(element)
   );
@@ -351,7 +322,7 @@ function synchronizeGameDataWithSockets(
     return;
   }
   sendDataDeltaTime -= SYNCHRONIZATION_INTERVAL;
-  for (let socket of universal.sockets) {
+  for (let socket of globalThis.sockets) {
     socket.getUserData().synchronizeToClientSide();
     socket
       .getUserData()
@@ -359,17 +330,6 @@ function synchronizeGameDataWithSockets(
     // TODO: create a separate function for resetting `accumulatedMessages.`
   }
 }
-
-setInterval(() => {
-  if (!initialized) {
-    initialize();
-    initialized = true;
-  }
-  currentTime = Date.now();
-  const deltaTime: number = currentTime - lastUpdateTime;
-  update(deltaTime);
-  lastUpdateTime = Date.now();
-}, UPDATE_INTERVAL);
 
 function checkBufferSize(
   buffer: Buffer,
@@ -398,10 +358,6 @@ function checkBufferSize(
   return false;
 }
 
-function initialize() {
-  sendDataDeltaTime = 0;
-}
-
 /**
  * Blocks a socket from performing any actions.
  * Used when socket hasn't properly exited opening screen.
@@ -422,23 +378,103 @@ function blockSocket(socket: universal.GameWebSocket<UserData>) {
   });
 }
 
-fs.readdirSync(path.join(__dirname, "./routes")).forEach((file: string) => {
-  app.use(require(`./routes/${file}`).router);
-});
-
-app.listen(PORT, () => {
-  log.info(
-    `Mathematical Base Defenders ${universal.STATUS.gameVersion} (server-side code)`
+function createWebServer() {
+  const app = express();
+  app.set("trust proxy", 2);
+  app.use(cors());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          "script-src": [
+            "'self'",
+            "code.jquery.com",
+            "cdnjs.cloudflare.com",
+            "cdn.jsdelivr.net",
+            "pixijs.download",
+            "'unsafe-eval'"
+          ],
+          "style-src": ["'unsafe-inline'", "*"],
+          "connect-src": [
+            "http://localhost:3000",
+            "https://play.mathematicalbasedefenders.com:3000",
+            "ws://localhost:5000",
+            "wss://play.mathematicalbasedefenders.com:5000",
+            "'self'"
+          ]
+        }
+      },
+      crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: { policy: "cross-origin" }
+    })
   );
-  log.info(`Server listening at port ${PORT}`);
-  log.info(`Server is using configuration ${JSON.stringify(CONFIGURATION)}`);
-  if (process.env.CREDENTIAL_SET_USED === "TESTING") {
-    log.warn("Using testing credentials.");
+  fs.readdirSync(path.join(__dirname, "./routes")).forEach((file: string) => {
+    app.use(require(`./routes/${file}`).router);
+  });
+  return app;
+}
+
+function initialize() {
+  require("@dotenvx/dotenvx").config({ path: "../credentials/.env" });
+
+  initializeGlobalVariables();
+
+  sendDataDeltaTime = 0;
+
+  const DATABASE_CONNECTION_URI: string | undefined =
+    process.env.DATABASE_CONNECTION_URI;
+
+  if (CONFIGURATION.useDatabase) {
+    mongoose.connect(DATABASE_CONNECTION_URI as string);
   }
-  if (
-    process.env.NODE_ENV !== "production" &&
-    CONFIGURATION.useTestingStatesIfDevelopmentEnvironment
-  ) {
-    log.warn("Using testing values. Turn this off in production.");
-  }
-});
+
+  mongoose.connection.on("connected", async () => {
+    universal.STATUS.databaseAvailable = true;
+    log.info(`Connected to database! Database is now available.`);
+  });
+
+  createWebServer().listen(PORT, () => {
+    log.info(
+      `Mathematical Base Defenders ${universal.STATUS.gameVersion} (server-side code)`
+    );
+    log.info(`Server listening at port ${PORT}`);
+    log.info(`Server is using configuration ${JSON.stringify(CONFIGURATION)}`);
+    if (process.env.CREDENTIAL_SET_USED === "TESTING") {
+      log.warn("Using testing credentials.");
+    }
+    if (
+      process.env.NODE_ENV !== "production" &&
+      CONFIGURATION.useTestingStatesIfDevelopmentEnvironment
+    ) {
+      log.warn("Using testing values. Turn this off in production.");
+    }
+  });
+
+  createWebSocketServer().listen(WEBSOCKET_PORT, (token) => {
+    if (token) {
+      log.info(`WebSockets Server listening at port ${WEBSOCKET_PORT}`);
+    } else {
+      log.info(`Failed to listen to WebSockets at port ${WEBSOCKET_PORT}`);
+    }
+  });
+
+  setInterval(() => {
+    currentTime = Date.now();
+    const deltaTime: number = currentTime - lastUpdateTime;
+    update(deltaTime);
+    lastUpdateTime = Date.now();
+  }, UPDATE_INTERVAL);
+}
+
+function initializeGlobalVariables() {
+  globalThis.sockets = [];
+  globalThis.rooms = [];
+}
+
+export {
+  createWebSocketServer,
+  createWebServer,
+  initialize,
+  initializeGlobalVariables,
+  cleanUnusedRooms
+};

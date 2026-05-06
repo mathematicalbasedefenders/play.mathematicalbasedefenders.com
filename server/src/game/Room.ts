@@ -17,10 +17,8 @@ import { MultiplayerRoom } from "./MultiplayerRoom";
 import { UserData } from "../universal";
 import { ToastNotificationData } from "../core/toast-notifications";
 
-const createDOMPurify = require("dompurify");
-const { JSDOM } = require("jsdom");
-const window = new JSDOM("").window;
-const DOMPurify = createDOMPurify(window);
+import DOMPurify, { clearWindow } from "isomorphic-dompurify";
+
 let defaultMultiplayerRoomID: string | null = null;
 
 const COMMAND_DATA = [
@@ -74,7 +72,7 @@ abstract class Room {
    * Creates a `Room` instance. This shouldn't be called directly.
    * Instead it should be called from a `super()` call from either
    * a new `SingleplayerRoom` or a new `MultiplayerRoom`.
-   * Note: A Room will only "start to function" when it is in `universal.rooms`.
+   * Note: A Room will only "start to function" when it is in `globalThis.rooms`.
    * @param {universal.GameWebSocket<UserData>} host The socket that asked for the room.
    * @param {GameMode} gameMode The game mode of the room
    * @param {boolean} noHost Should only be `true` on Default Multiplayer.
@@ -198,6 +196,8 @@ abstract class Room {
     log.info(
       `${messageToSend.senderName} sent message ${message} to Room ID ${this.id}`
     );
+
+    clearWindow();
   }
 
   /**
@@ -628,6 +628,8 @@ abstract class Room {
         this.deleteMember(socket);
       }
     }
+    const index = globalThis.rooms.findIndex((room) => room.id === this.id);
+    globalThis.rooms.splice(index, 1);
     log.info(`Destroyed room ${this.id}`);
   }
 
@@ -940,7 +942,7 @@ function generateRoomID(length: number): string {
   while (
     current === "" ||
     utilities.checkIfPropertyWithValueExists(
-      universal.rooms,
+      globalThis.rooms ?? [],
       "connectionID",
       current
     )
@@ -1037,6 +1039,7 @@ function getOpponentsInformation(
  * @param {string} newID The string to set the ID to.
  */
 function setDefaultMultiplayerRoomID(newID: string | null) {
+  log.info(`Set default multiplayer room ID to ${newID}.`);
   defaultMultiplayerRoomID = newID;
 }
 

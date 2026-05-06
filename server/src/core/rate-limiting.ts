@@ -4,22 +4,18 @@ import { log } from "./log";
 // https://github.com/uNetworking/uWebSockets.js/issues/335#issuecomment-643500581
 // https://github.com/uNetworking/uWebSockets.js/issues/335#issuecomment-834141711
 const WebSocketRateLimit = (limit: number, interval: number) => {
-  let now = 0;
-  // const last = Symbol() as unknown as string;
-  // const count = Symbol() as unknown as string;
-  setInterval(() => ++now, interval);
   return (socket: GameWebSocket<UserData>) => {
     const socketUserData = socket.getUserData();
     if (!socketUserData.rateLimiting) {
       return false;
     }
-    if (socketUserData.rateLimiting.last != now) {
-      socketUserData.rateLimiting.last = now;
-      socketUserData.rateLimiting.count = 1;
-      return false;
-    } else {
-      return ++socketUserData.rateLimiting.count > limit;
+    if (Date.now() > socketUserData.rateLimiting.last + interval) {
+      socketUserData.rateLimiting.count = 0;
     }
+    if (socketUserData.rateLimiting.count === 0) {
+      socketUserData.rateLimiting.last = Date.now();
+    }
+    return ++socketUserData.rateLimiting.count > limit;
   };
 };
 
