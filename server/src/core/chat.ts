@@ -2,6 +2,8 @@ import { log } from "./log";
 import * as universal from "../universal";
 import { findRoomWithConnectionID } from "./utilities";
 import { Room } from "../game/Room";
+import { MultiplayerRoom } from "../game/MultiplayerRoom";
+
 import { UserData } from "../universal";
 //
 import DOMPurify, { clearWindow } from "isomorphic-dompurify";
@@ -81,10 +83,17 @@ function sendChatMessageToRoom(
     return false;
   }
 
+  if (!validateRoomChatMessageEligibility(connectionID)) {
+    log.warn(
+      `Bad chat room type validation for ${connectionID} (${playerName})`
+    );
+    return false;
+  }
+
   const room = findRoomWithConnectionID(connectionID, true) as Room;
   // commands
   if (message.startsWith("/")) {
-    room.runChatCommand(message, { sender: socket });
+    (room as MultiplayerRoom).runChatCommand(message, { sender: socket });
     return true;
   }
 
@@ -142,6 +151,31 @@ function validateRoom(connectionID: string) {
     );
     return false;
   }
+  return true;
+}
+
+function validateRoomChatMessageEligibility(connectionID: string) {
+  const playerName = universal.getNameFromConnectionID(connectionID);
+  const roomID = findRoomWithConnectionID(connectionID, true)?.id;
+  if (typeof roomID === "undefined") {
+    log.warn(
+      `Room Undefined found for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+    );
+    return false;
+  }
+
+  const room = globalThis.rooms.find((e) => e.id === roomID);
+  if (!room) {
+    log.warn(
+      `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+    );
+    return false;
+  }
+
+  if (!(room instanceof MultiplayerRoom)) {
+    return false;
+  }
+
   return true;
 }
 
