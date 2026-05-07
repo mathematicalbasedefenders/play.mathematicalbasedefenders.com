@@ -13,7 +13,6 @@ import {
 } from "./GameData";
 import { GameActionRecord } from "../replay/recording/ActionRecord";
 import { Enemy } from "./Enemy";
-import { MultiplayerRoom } from "./MultiplayerRoom";
 import { UserData } from "../universal";
 import { ToastNotificationData } from "../core/toast-notifications";
 
