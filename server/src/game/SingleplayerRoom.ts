@@ -236,7 +236,7 @@ function createSingleplayerRoom(
   settings?: { [key: string]: string }
 ): SingleplayerRoom {
   const room = new SingleplayerRoom(caller, gameMode, settings);
-  universal.rooms.push(room);
+  globalThis.rooms.push(room);
   return room;
 }
 

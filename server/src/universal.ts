@@ -25,6 +25,11 @@ import { ToastNotificationData } from "./core/toast-notifications";
 import { sendChatMessage } from "./core/chat";
 import * as input from "./core/input";
 
+declare global {
+  var sockets: Array<WebSocket<UserData>>;
+  var rooms: Array<SingleplayerRoom | MultiplayerRoom>;
+}
+
 // 0.4.10
 // TODO: Rewrite to adhere to new uWS.js version.
 interface UserData {
@@ -138,13 +143,10 @@ type PlayerRank = {
   title: string;
 };
 
-const sockets: Array<WebSocket<UserData>> = [];
-const rooms: Array<SingleplayerRoom | MultiplayerRoom> = [];
-
 const STATUS = {
   databaseAvailable: false,
   lastDeltaTimeToUpdate: 0,
-  gameVersion: process.env.npm_package_version ?? "0.5.0-rc.9.1"
+  gameVersion: process.env.npm_package_version ?? "0.5.0-rc.9.2"
 };
 
 /**

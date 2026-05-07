@@ -2,12 +2,11 @@ import { log } from "./log";
 import * as universal from "../universal";
 import { findRoomWithConnectionID } from "./utilities";
 import { Room } from "../game/Room";
+import { MultiplayerRoom } from "../game/MultiplayerRoom";
+
 import { UserData } from "../universal";
 //
-const createDOMPurify = require("dompurify");
-const { JSDOM } = require("jsdom");
-const window = new JSDOM("").window;
-const DOMPurify = createDOMPurify(window);
+import DOMPurify, { clearWindow } from "isomorphic-dompurify";
 //
 const BAD_MESSAGE_OBJECT = {
   message: "changeText",
@@ -59,6 +58,7 @@ function sendChatMessage(
  * Attempts to send a chat message to a room.
  * @param {string} message the message
  * @param {universal.GameWebSocket<UserData>} socket the socket of the message sender.
+ * @returns `true` If the message is sent, `false` otherwise.
  */
 function sendChatMessageToRoom(
   message: string,
@@ -69,29 +69,36 @@ function sendChatMessageToRoom(
 
   if (!connectionID) {
     log.warn(`Socket has no ID.`);
-    return;
+    return false;
   }
 
   const playerName = universal.getNameFromConnectionID(connectionID);
 
   if (!validateRoom(connectionID)) {
     log.warn(`Bad chat room validation for ${connectionID} (${playerName})`);
-    return;
+    return false;
   }
   if (!validateMessage(message, connectionID)) {
     log.warn(`Bad chat validation for ${connectionID} (${playerName})`);
-    return;
+    return false;
+  }
+
+  if (!validateRoomChatMessageEligibility(connectionID)) {
+    log.warn(
+      `Bad chat room type validation for ${connectionID} (${playerName})`
+    );
+    return false;
   }
 
   const room = findRoomWithConnectionID(connectionID, true) as Room;
   // commands
   if (message.startsWith("/")) {
-    room.runChatCommand(message, { sender: socket });
-    return;
+    (room as MultiplayerRoom).runChatCommand(message, { sender: socket });
+    return true;
   }
 
   room.addChatMessage(message, { sender: socket });
-  return;
+  return true;
 }
 
 /**
@@ -137,13 +144,38 @@ function validateRoom(connectionID: string) {
     return false;
   }
 
-  const roomExists = universal.rooms.some((e) => e.id === roomID);
+  const roomExists = globalThis.rooms.some((e) => e.id === roomID);
   if (!roomExists) {
     log.warn(
       `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
     );
     return false;
   }
+  return true;
+}
+
+function validateRoomChatMessageEligibility(connectionID: string) {
+  const playerName = universal.getNameFromConnectionID(connectionID);
+  const roomID = findRoomWithConnectionID(connectionID, true)?.id;
+  if (typeof roomID === "undefined") {
+    log.warn(
+      `Room Undefined found for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+    );
+    return false;
+  }
+
+  const room = globalThis.rooms.find((e) => e.id === roomID);
+  if (!room) {
+    log.warn(
+      `Room doesn't exist for Socket ID ${connectionID} (${playerName}) when validating chat message.`
+    );
+    return false;
+  }
+
+  if (!(room instanceof MultiplayerRoom)) {
+    return false;
+  }
+
   return true;
 }
 
@@ -159,6 +191,7 @@ function validateMessage(message: string, connectionID: string) {
   const notJustBlank = message.replace(/\s/g, "").length > 0;
   const notTooLong = message.length <= MAXIMUM_CHAT_MESSAGE_LENGTH;
   const notDangerous = DOMPurify.sanitize(message) === message;
+  clearWindow();
   if (!(notEmpty && notJustBlank && notTooLong && notDangerous)) {
     log.warn(
       `Chat message of Socket ID ${connectionID} (${playerName}) failed validation.`

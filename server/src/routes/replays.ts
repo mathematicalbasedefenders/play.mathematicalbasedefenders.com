@@ -6,6 +6,7 @@ import {
   GameActionRecord
 } from "../models/GameActionRecord";
 import ExpressMongoSanitize from "express-mongo-sanitize";
+import { clearWindow } from "isomorphic-dompurify";
 const router = express.Router();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -23,6 +24,7 @@ router.get("/api/replays/:replayID", limiter, async (request, response) => {
   }
 
   const sanitizedReplayID = ExpressMongoSanitize.sanitize(replayID as any);
+  clearWindow();
 
   try {
     const data = await GameActionRecord.findOne({ _id: sanitizedReplayID });

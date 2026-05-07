@@ -20,11 +20,7 @@ import {
   GameData,
   GAME_DATA_CONSTANTS
 } from "./GameData";
-import {
-  defaultMultiplayerRoomID,
-  Room,
-  setDefaultMultiplayerRoomID
-} from "./Room";
+import { Room } from "./Room";
 import * as universal from "../universal";
 import * as utilities from "../core/utilities";
 import { Enemy } from "./Enemy";
@@ -32,6 +28,16 @@ import * as enemy from "./Enemy";
 import { UserData } from "../universal";
 
 const PLAYER_LIST_UPDATE_INTERVAL = 1000;
+
+const COMMAND_DATA = [
+  "start",
+  "set",
+  "get",
+  "setvisibility",
+  "getvisibility",
+  "kick",
+  "transferhost"
+];
 
 class MultiplayerRoom extends Room {
   nextGameStartTime!: Date | null;
@@ -64,18 +70,7 @@ class MultiplayerRoom extends Room {
     };
     // this isn't in `globalClock` because it's not part of gameplay.
     this.timeSinceLastPlayerListUpdate = 0;
-
-    // special for default multiplayer
-    // check if default multiplayer room already exists
-    if (mode === GameMode.DefaultMultiplayer && defaultMultiplayerRoomID) {
-      log.warn(`There may only be one Default Multiplayer room at at time.`);
-      log.warn(`There is one, which is ID ${defaultMultiplayerRoomID}.`);
-      this.destroy();
-      return;
-    } else if (mode === GameMode.DefaultMultiplayer) {
-      setDefaultMultiplayerRoomID(this.id);
-    }
-    universal.rooms.push(this);
+    globalThis.rooms.push(this);
   }
 
   startPlay() {
@@ -354,6 +349,288 @@ class MultiplayerRoom extends Room {
         }
       }
     }
+  }
+
+  /**
+   * Runs a chat command
+   * @param {string} message The original message to use as the command.
+   * @param {{[key: string]:any}} options Any additional information to send.
+   */
+  runChatCommand(message: string, options?: { [key: string]: any }) {
+    let isHost = false;
+
+    if (!options?.sender) {
+      log.warn(`Socket doesn't exist when running chat commands.`);
+      return;
+    }
+
+    if (
+      options?.sender.getUserData().connectionID ===
+      this.host?.getUserData().connectionID
+    ) {
+      isHost = true;
+    }
+
+    // substring constant because we already know
+    // index 0 in `message` is the `/`, which signifies
+    // a chat command.
+    const text = message.substring(1).split(" ");
+    const [command, ...context] = text;
+
+    const senderName =
+      universal.getNameFromConnectionID(
+        options.sender.getUserData().connectionID || ""
+      ) || "";
+
+    switch (command) {
+      case "start": {
+        const result = this.validateStartCommandForRoom(isHost);
+
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /start due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+
+        // give feedback
+        // TODO: Add a delay for everyone to see when it's time to start.
+        const commandSuccessMessage = `Successfully ran command /${command}. Game will now start.`;
+        this.sendCommandResultToSocket(commandSuccessMessage, options);
+
+        // start multiplayer game
+        try {
+          (this as unknown as MultiplayerRoom).playersAtStart =
+            this.memberConnectionIDs.length;
+          (this as unknown as MultiplayerRoom).startPlay();
+          (this as unknown as MultiplayerRoom).summonEveryoneToGameplay();
+        } catch {
+          // TODO: Refactor this
+          log.error("Can't run /start command due to an internal error.");
+          options.sender.send(
+            JSON.stringify({
+              message: "createToastNotification",
+              text: `Can't run /start command due to an internal error. Please contact the server administrator!`,
+              options: { borderColor: "#ff0000" }
+            })
+          );
+        }
+
+        break;
+      }
+      case "set": {
+        const result = this.validateSetCommandForRoom(isHost, context);
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /set due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+        this.setRoomConstant(context[0], context[1]);
+        const selfMessage = `Successfully set room's constant property ${result.target} to ${context[1]}.`;
+        this.sendCommandResultToSocket(selfMessage, options);
+        const roomMessage = `The room's host has set this room's constant property ${result.target} to ${context[1]}.`;
+        this.addChatMessage(roomMessage, { isSystemMessage: true });
+        break;
+      }
+      case "get": {
+        if (context.length == 0) {
+          // no context wanted, show all.
+          let message = "The constant properties' values for this room are: ";
+          let values: Array<string> = [];
+          for (const constant of Object.keys(this.customSettings)) {
+            values.push(`${constant}: ${this.customSettings[constant]}`);
+          }
+          message += values.join(", ");
+          message += ".";
+          this.sendCommandResultToSocket(message, options);
+          break;
+        }
+
+        // context found, show the context
+        let target = "";
+        let found = false;
+        const constants = Object.keys(this.customSettings);
+        for (const constant of constants) {
+          const lowercased = constant.toLowerCase();
+          if (lowercased === context[0].toLowerCase()) {
+            target = constant;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          const message = `Unknown room custom property: ${context[0]}`;
+          this.sendCommandResultToSocket(message, options);
+          break;
+        }
+        const value = this.customSettings[target];
+        const message = `The constant property ${target}'s value for this room is ${value}.`;
+        this.sendCommandResultToSocket(message, options);
+        break;
+      }
+      case "setvisibility": {
+        const result = this.validateSetVisibilityCommandForRoom(
+          isHost,
+          context
+        );
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /setvisibility due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+
+        // valid
+        if (context[0] === "true") {
+          const selfMessage = `Successfully set room's visibility to true.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The room's host has set this visibility to true.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+          this.setRoomVisibility(true);
+        } else if (context[0] === "false") {
+          const selfMessage = `Successfully set room's visibility to false.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The room's host has set this room's visibility to false.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+          this.setRoomVisibility(false);
+        }
+
+        break;
+      }
+      case "getvisibility": {
+        const message = this.hidden
+          ? "This room is hidden. It is not shown in the room list, but other players may still join through the room code."
+          : "This room is public. It is shown in the room list, and other players can also join through the room code.";
+        this.sendCommandResultToSocket(message, options);
+        break;
+      }
+      case "kick": {
+        const result = this.validateKickCommandForRoom(
+          isHost,
+          context,
+          senderName
+        );
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /kick due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+
+        const nameToKick = context.join(" ");
+        const connectionIDToKick = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === nameToKick
+        );
+        const connectionIDOfSender = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === senderName
+        );
+
+        // defaults to `???`, since there are no sockets
+        // which this connectionID already in the first place.
+        const socketToKick = universal.getSocketFromConnectionID(
+          connectionIDToKick ?? "???"
+        );
+
+        const senderSocket = universal.getSocketFromConnectionID(
+          connectionIDOfSender ?? "???"
+        );
+
+        if (senderSocket && socketToKick) {
+          this.kickMember(senderSocket, socketToKick);
+          const selfMessage = `Successfully kicked ${nameToKick} from the room.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The room's host has kicked ${nameToKick} from the room.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+        } else {
+          log.warn(`Unable to to kick ${nameToKick} from room ${this.id}.`);
+          const selfMessage = `Unable to kick ${nameToKick} from the room. Please contact the server administrator if this happens again!`;
+          this.sendCommandResultToSocket(selfMessage, options);
+        }
+
+        log.info(
+          `Host of room ${this.id} has kicked ${nameToKick} from the room.`
+        );
+        break;
+      }
+      case "transferhost": {
+        const result = this.validateTransferHostCommandForRoom(
+          isHost,
+          context,
+          senderName
+        );
+        if (!result.valid) {
+          let commandErrorMessage = `Unable to run /transferhost due to the following reason(s): `;
+          commandErrorMessage += result.errors.join(" ");
+          this.sendCommandResultToSocket(commandErrorMessage, options);
+          break;
+        }
+
+        const nameToTransferHostTo = context.join(" ");
+        const connectionIDToTransferHostTo = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === nameToTransferHostTo
+        );
+        const connectionIDOfSender = this.memberConnectionIDs.find(
+          (e) => universal.getNameFromConnectionID(e) === senderName
+        );
+
+        // defaults to `???`, since there are no sockets
+        // which this connectionID already in the first place.
+        const newHostSocket = universal.getSocketFromConnectionID(
+          connectionIDToTransferHostTo ?? "???"
+        );
+
+        const senderSocket = universal.getSocketFromConnectionID(
+          connectionIDOfSender ?? "???"
+        );
+
+        if (senderSocket && newHostSocket) {
+          (this as unknown as MultiplayerRoom).setNewHost(
+            connectionIDToTransferHostTo as string
+          );
+          const selfMessage = `Successfully transferred hosting powers to ${nameToTransferHostTo}.`;
+          this.sendCommandResultToSocket(selfMessage, options);
+          const roomMessage = `The host of this room has transferred hosting powers to ${nameToTransferHostTo}.`;
+          this.addChatMessage(roomMessage, { isSystemMessage: true });
+          const newHostMessage = `The host of this room has transferred hosting powers to you. You are now the host of this room.`;
+          this.sendCommandResultToSocket(newHostMessage, {
+            sender: newHostSocket
+          });
+        } else {
+          log.warn(
+            `Unable to to transfer host to ${nameToTransferHostTo} for room ${this.id}.`
+          );
+          const selfMessage = `Unable to to transfer host to ${nameToTransferHostTo} for room ${this.id}. Please contact the server administrator if this happens again!`;
+          this.sendCommandResultToSocket(selfMessage, options);
+        }
+
+        log.info(
+          `Host of room ${this.id} has transferred hosting powers to ${nameToTransferHostTo} for room ${this.id}.`
+        );
+        break;
+      }
+      case "?":
+      case "help": {
+        let message = `The available commands are: `;
+        message += COMMAND_DATA.map((e) => "/" + e).join(", ");
+        message += ".";
+        if (!isHost) {
+          message += " ";
+          message +=
+            "Note that you may not use some of these commands as they are reserved for the host.";
+        }
+        this.sendCommandResultToSocket(message, options);
+        break;
+      }
+      default: {
+        const message = `Unknown command /${command}.`;
+        this.sendCommandResultToSocket(message, options);
+        break;
+      }
+    }
+
+    // log the command
+    log.info(`${senderName} sent message ${message} to Room ID ${this.id}`);
   }
 
   eliminateSocketID(connectionID: string, gameData: GameData | object) {

@@ -129,7 +129,7 @@ function processKeypress(
   processKeypressForRoom(connectionID, code);
   // non-room interactions
   if (code === "Escape") {
-    const targetSocket = universal.sockets.find(
+    const targetSocket = globalThis.sockets.find(
       (socket) => socket.getUserData().connectionID === connectionID
     );
     if (targetSocket) {
