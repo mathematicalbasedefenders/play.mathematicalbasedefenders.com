@@ -42,13 +42,39 @@ async function openTestSocket() {
 
   await new Promise<void>((resolve, reject) => {
     socket.addEventListener("open", () => resolve(), { once: true });
-    socket.addEventListener("error", () => reject(new Error("Socket failed to open.")), {
-      once: true
-    });
+    socket.addEventListener(
+      "error",
+      () => reject(new Error("Socket failed to open.")),
+      { once: true }
+    );
   });
 
   const message = (await connectionIDMessage) as { value: string };
   return { socket, connectionID: message.value };
+}
+
+function waitForWebSocketClose(socket: WebSocket, timeout = 1000) {
+  return new Promise<CloseEvent>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error("WebSocket close timeout reached.")),
+      timeout
+    );
+    socket.addEventListener(
+      "close",
+      (event) => {
+        clearTimeout(timer);
+        resolve(event);
+      },
+      { once: true }
+    );
+  });
+}
+
+function sendProtocolMessage(
+  socket: WebSocket,
+  message: { [key: string]: any }
+) {
+  socket.send(JSON.stringify({ message }));
 }
 
 async function requestJSON(path: string, init?: RequestInit) {
@@ -140,6 +166,16 @@ async function createTestUser(overrides: { [key: string]: any } = {}) {
 
 function createFakeSocket(overrides: { [key: string]: any } = {}) {
   const sentMessages: Array<any> = [];
+  const publishedMessages: Array<{ channel: string; message: any }> = [];
+  const subscriptions: Array<string> = [];
+  const unsubscriptions: Array<string> = [];
+  const toastNotifications: Array<any> = [];
+  const calls = {
+    close: 0,
+    end: 0,
+    forceTeardown: 0,
+    teardown: 0
+  };
   const userData = {
     connectionID: "TESTCONNECTION01",
     ownerGuestName: "Guest 00000001",
@@ -150,9 +186,17 @@ function createFakeSocket(overrides: { [key: string]: any } = {}) {
     playerRank: { title: "", color: "#ffffff" },
     accumulatedMessages: 0,
     rateLimiting: { last: 0, count: 0 },
-    forceTeardown() {},
-    teardown() {},
-    sendToastNotification() {},
+    forceTeardown() {
+      calls.forceTeardown++;
+      return true;
+    },
+    teardown() {
+      calls.teardown++;
+      return true;
+    },
+    sendToastNotification(data: any) {
+      toastNotifications.push(data);
+    },
     ...overrides
   };
   const socket = {
@@ -164,12 +208,32 @@ function createFakeSocket(overrides: { [key: string]: any } = {}) {
         sentMessages.push(message);
       }
     },
-    subscribe() {},
-    unsubscribe() {},
-    publish() {},
-    end() {}
+    subscribe: (channel: string) => subscriptions.push(channel),
+    unsubscribe: (channel: string) => unsubscriptions.push(channel),
+    publish: (channel: string, message: string) => {
+      try {
+        publishedMessages.push({ channel, message: JSON.parse(message) });
+      } catch {
+        publishedMessages.push({ channel, message });
+      }
+    },
+    close: () => {
+      calls.close++;
+    },
+    end: () => {
+      calls.end++;
+    }
   } as any;
-  return { socket, sentMessages, userData };
+  return {
+    socket,
+    sentMessages,
+    publishedMessages,
+    subscriptions,
+    unsubscriptions,
+    toastNotifications,
+    calls,
+    userData
+  };
 }
 
 function objectID() {
@@ -178,7 +242,9 @@ function objectID() {
 
 export {
   waitForWebSocketMessage,
+  waitForWebSocketClose,
   openTestSocket,
+  sendProtocolMessage,
   requestJSON,
   createTestUser,
   createFakeSocket,
