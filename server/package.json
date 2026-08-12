@@ -6,8 +6,8 @@
   "main": "server.js",
   "scripts": {
     "compile": "tsc",
-    "copyStaticFiles": "copyfiles --up 1 \"src/**/*\" -e \"**/*.ts\" dist",
-    "start": "npm run compile && npm run copyStaticFiles && node ./dist/index.js",
-    "start-dev": "npm run compile && npm run copyStaticFiles && node ./dist/index.js"
+    "copy-static-files": "copyfiles --up 1 \"src/**/*\" -e \"**/*.ts\" dist",
+    "start": "npm run compile && npm run copy-static-files && node ./dist/index.js",
+    "start-dev": "npm run compile && npm run copy-static-files && node ./dist/index.js"
   }
 }
