@@ -8,8 +8,8 @@
     "build": "webpack --config ./webpack.config.production.js",
     "build-dev": "webpack --config ./webpack.config.development.js",
     "compile": "tsc",
-    "copyStaticFiles": "copyfiles --up 1 \"src/**/*\" -e \"**/*.ts\" dist",
-    "start": "npm run compile && npm run build && npm run copyStaticFiles && node ./dist/index.js",
-    "start-dev": "npm run compile && npm run build-dev && npm run copyStaticFiles && node ./dist/index.js"
+    "copy-static-files": "copyfiles --up 1 \"src/**/*\" -e \"**/*.ts\" dist",
+    "start": "npm run compile && npm run build && npm run copy-static-files && node ./dist/index.js",
+    "start-dev": "npm run compile && npm run build-dev && npm run copy-static-files && node ./dist/index.js"
   }
 }
