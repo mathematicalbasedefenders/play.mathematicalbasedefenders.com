@@ -146,7 +146,7 @@ type PlayerRank = {
 const STATUS = {
   databaseAvailable: false,
   lastDeltaTimeToUpdate: 0,
-  gameVersion: process.env.npm_package_version ?? "0.5.0-rc.9.2"
+  gameVersion: process.env.npm_package_version ?? "0.5.0-rc.9.3"
 };
 
 /**
